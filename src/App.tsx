@@ -11,6 +11,7 @@ import SmallBusinessServices from "./pages/SmallBusinessServices";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
+import CaseStudies from "./pages/CaseStudies";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/services/small-business" element={<SmallBusinessServices />} />
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/case-studies" element={<CaseStudies />} />
             {/* Future pages will be added here */}
             <Route path="*" element={<NotFound />} />
           </Routes>

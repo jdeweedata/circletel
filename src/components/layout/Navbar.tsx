@@ -31,6 +31,7 @@ const DropdownMenu = ({
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  
   const servicesDropdown = [{
     name: "Small Business Recipes",
     href: "/services/small-business"
@@ -51,6 +52,7 @@ const Navbar = () => {
     name: "Certifications",
     href: "/about/certifications"
   }];
+  
   return <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
@@ -79,7 +81,7 @@ const Navbar = () => {
             </nav>}
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - already includes Case Studies */}
         {isMobile && isMenuOpen && <nav className="mt-4 bg-white animate-fade-in">
             <div className="flex flex-col gap-4 py-4">
               <Link to="/" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
