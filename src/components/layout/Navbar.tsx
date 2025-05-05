@@ -1,116 +1,88 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Menu,
-  X,
-  ChevronDown,
-} from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Dropdown menu component
-const DropdownMenu = ({ title, items }: { title: string, items: { name: string, href: string }[] }) => {
+const DropdownMenu = ({
+  title,
+  items
+}: {
+  title: string;
+  items: {
+    name: string;
+    href: string;
+  }[];
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative group">
-      <button 
-        className="flex items-center gap-1 font-bold text-circleTel-darkNeutral hover:text-circleTel-orange"
-        onClick={() => setIsOpen(!isOpen)}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-      >
+  return <div className="relative group">
+      <button className="flex items-center gap-1 font-bold text-circleTel-darkNeutral hover:text-circleTel-orange" onClick={() => setIsOpen(!isOpen)} onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
         {title}
         <ChevronDown size={16} />
       </button>
-      {isOpen && (
-        <div 
-          className="absolute top-full left-0 mt-2 w-48 bg-circleTel-lightNeutral rounded-lg shadow-lg py-2 z-50"
-          onMouseEnter={() => setIsOpen(true)}
-          onMouseLeave={() => setIsOpen(false)}
-        >
-          {items.map((item, index) => (
-            <Link 
-              key={index} 
-              to={item.href} 
-              className="block px-4 py-2 text-circleTel-darkNeutral hover:bg-white hover:text-circleTel-orange"
-              onClick={() => setIsOpen(false)}
-            >
+      {isOpen && <div className="absolute top-full left-0 mt-2 w-48 bg-circleTel-lightNeutral rounded-lg shadow-lg py-2 z-50" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
+          {items.map((item, index) => <Link key={index} to={item.href} className="block px-4 py-2 text-circleTel-darkNeutral hover:bg-white hover:text-circleTel-orange" onClick={() => setIsOpen(false)}>
               {item.name}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+            </Link>)}
+        </div>}
+    </div>;
 };
-
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-  
-  const servicesDropdown = [
-    { name: "Small Business Recipes", href: "/services/small-business" },
-    { name: "Mid-Size Business Recipes", href: "/services/mid-size" },
-    { name: "Growth-Ready Recipes", href: "/services/growth-ready" }
-  ];
-
-  const aboutDropdown = [
-    { name: "Our Story", href: "/about/story" },
-    { name: "Our Team", href: "/about/team" },
-    { name: "Certifications", href: "/about/certifications" }
-  ];
-
-  return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
+  const servicesDropdown = [{
+    name: "Small Business Recipes",
+    href: "/services/small-business"
+  }, {
+    name: "Mid-Size Business Recipes",
+    href: "/services/mid-size"
+  }, {
+    name: "Growth-Ready Recipes",
+    href: "/services/growth-ready"
+  }];
+  const aboutDropdown = [{
+    name: "Our Story",
+    href: "/about/story"
+  }, {
+    name: "Our Team",
+    href: "/about/team"
+  }, {
+    name: "Certifications",
+    href: "/about/certifications"
+  }];
+  return <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
-              alt="CircleTel Logo" 
-              className="h-10" 
-            />
+            <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel Logo" className="h-10" />
           </Link>
 
           {/* Mobile Menu Button */}
-          {isMobile && (
-            <button 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-circleTel-darkNeutral focus:outline-none"
-            >
+          {isMobile && <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-circleTel-darkNeutral focus:outline-none">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          )}
+            </button>}
 
           {/* Desktop Navigation */}
-          {!isMobile && (
-            <nav className="flex items-center gap-8">
+          {!isMobile && <nav className="flex items-center gap-8">
               <Link to="/" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange">Home</Link>
               <DropdownMenu title="Services" items={servicesDropdown} />
               <Link to="/pricing" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange">Pricing</Link>
               <DropdownMenu title="About" items={aboutDropdown} />
               <Link to="/case-studies" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange">Case Studies</Link>
-              <Link to="/blog" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange">Blog</Link>
-              <Link to="/contact" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange">Contact</Link>
+              
+              
               <Button asChild className="primary-button">
                 <Link to="/resources/it-health">Get a Free IT Assessment</Link>
               </Button>
-            </nav>
-          )}
+            </nav>}
         </div>
 
         {/* Mobile Navigation */}
-        {isMobile && isMenuOpen && (
-          <nav className="mt-4 bg-white animate-fade-in">
+        {isMobile && isMenuOpen && <nav className="mt-4 bg-white animate-fade-in">
             <div className="flex flex-col gap-4 py-4">
-              <Link 
-                to="/" 
-                className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
                 Home
               </Link>
               
@@ -120,24 +92,13 @@ const Navbar = () => {
                   <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-2 ml-4 flex flex-col gap-2">
-                  {servicesDropdown.map((item, index) => (
-                    <Link 
-                      key={index} 
-                      to={item.href} 
-                      className="text-circleTel-darkNeutral hover:text-circleTel-orange py-1"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
+                  {servicesDropdown.map((item, index) => <Link key={index} to={item.href} className="text-circleTel-darkNeutral hover:text-circleTel-orange py-1" onClick={() => setIsMenuOpen(false)}>
                       {item.name}
-                    </Link>
-                  ))}
+                    </Link>)}
                 </div>
               </details>
               
-              <Link 
-                to="/pricing" 
-                className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/pricing" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
                 Pricing
               </Link>
               
@@ -147,40 +108,21 @@ const Navbar = () => {
                   <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-2 ml-4 flex flex-col gap-2">
-                  {aboutDropdown.map((item, index) => (
-                    <Link 
-                      key={index} 
-                      to={item.href} 
-                      className="text-circleTel-darkNeutral hover:text-circleTel-orange py-1"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
+                  {aboutDropdown.map((item, index) => <Link key={index} to={item.href} className="text-circleTel-darkNeutral hover:text-circleTel-orange py-1" onClick={() => setIsMenuOpen(false)}>
                       {item.name}
-                    </Link>
-                  ))}
+                    </Link>)}
                 </div>
               </details>
               
-              <Link 
-                to="/case-studies" 
-                className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/case-studies" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
                 Case Studies
               </Link>
               
-              <Link 
-                to="/blog" 
-                className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/blog" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
                 Blog
               </Link>
               
-              <Link 
-                to="/contact" 
-                className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link to="/contact" className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" onClick={() => setIsMenuOpen(false)}>
                 Contact
               </Link>
               
@@ -190,11 +132,8 @@ const Navbar = () => {
                 </Link>
               </Button>
             </div>
-          </nav>
-        )}
+          </nav>}
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Navbar;
