@@ -5,6 +5,7 @@ import { WifiHigh, Circle, CircleCheck } from 'lucide-react';
 import RecipeCard from '../ui/RecipeCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 const ConnectivityRecipes = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -83,9 +84,9 @@ const ConnectivityRecipes = () => {
           Our Connectivity Recipes
         </h2>
         
-        <div className="flex justify-center mb-8">
-          <Tabs defaultValue="all" className="w-full max-w-md">
-            <TabsList className="grid grid-cols-4 rounded-full bg-circleTel-lightNeutral">
+        <div className="flex justify-center mb-10">
+          <Tabs defaultValue="all" className="w-full max-w-3xl">
+            <TabsList className="grid grid-cols-4 rounded-full bg-circleTel-lightNeutral w-full md:w-3/4 lg:w-1/2 mx-auto">
               <TabsTrigger 
                 value="all" 
                 className="rounded-full data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
@@ -116,8 +117,10 @@ const ConnectivityRecipes = () => {
               </TabsTrigger>
             </TabsList>
             
+            <Separator className="my-8 bg-circleTel-lightNeutral" />
+            
             <TabsContent value="all" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRecipes.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}
@@ -127,13 +130,14 @@ const ConnectivityRecipes = () => {
                     specs={recipe.specs}
                     proTips={recipe.proTips}
                     link={recipe.link}
+                    className="h-full shadow-md border border-circleTel-lightNeutral hover:shadow-lg hover:border-circleTel-orange transition-all duration-300"
                   />
                 ))}
               </div>
             </TabsContent>
             
             <TabsContent value="wifi" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRecipes.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}
@@ -143,13 +147,14 @@ const ConnectivityRecipes = () => {
                     specs={recipe.specs}
                     proTips={recipe.proTips}
                     link={recipe.link}
+                    className="h-full shadow-md border border-circleTel-lightNeutral hover:shadow-lg hover:border-circleTel-orange transition-all duration-300"
                   />
                 ))}
               </div>
             </TabsContent>
             
             <TabsContent value="wireless" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRecipes.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}
@@ -159,13 +164,14 @@ const ConnectivityRecipes = () => {
                     specs={recipe.specs}
                     proTips={recipe.proTips}
                     link={recipe.link}
+                    className="h-full shadow-md border border-circleTel-lightNeutral hover:shadow-lg hover:border-circleTel-orange transition-all duration-300"
                   />
                 ))}
               </div>
             </TabsContent>
             
             <TabsContent value="fibre" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRecipes.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}
@@ -175,6 +181,7 @@ const ConnectivityRecipes = () => {
                     specs={recipe.specs}
                     proTips={recipe.proTips}
                     link={recipe.link}
+                    className="h-full shadow-md border border-circleTel-lightNeutral hover:shadow-lg hover:border-circleTel-orange transition-all duration-300"
                   />
                 ))}
               </div>
@@ -182,8 +189,8 @@ const ConnectivityRecipes = () => {
           </Tabs>
         </div>
         
-        <div className="text-center mt-10">
-          <Button asChild className="primary-button">
+        <div className="text-center mt-12">
+          <Button asChild className="primary-button px-6 py-6 text-base">
             <Link to="/resources/it-health">Get Your Connectivity Assessment</Link>
           </Button>
         </div>

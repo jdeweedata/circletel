@@ -16,10 +16,10 @@ const Connectivity = () => {
       <main className="flex-grow">
         <ConnectivityHero />
         <ConnectivityRecipes />
-        <ConnectivityComparison />
         <ConnectivityBenefits />
-        <ConnectivityTool />
+        <ConnectivityComparison />
         <ConnectivityTestimonials />
+        <ConnectivityTool />
       </main>
       <Footer />
     </div>
