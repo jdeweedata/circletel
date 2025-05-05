@@ -9,6 +9,7 @@ import Services from "./pages/Services";
 import SmallBusinessServices from "./pages/SmallBusinessServices";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/services" element={<Services />} />
           <Route path="/services/small-business" element={<SmallBusinessServices />} />
           <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
           {/* Future pages will be added here */}
           <Route path="*" element={<NotFound />} />
         </Routes>
