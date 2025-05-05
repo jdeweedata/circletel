@@ -11,8 +11,11 @@ const Footer = () => {
           {/* Logo and Intro */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
-              <div className="h-10 w-10 bg-circleTel-orange rounded-full flex items-center justify-center text-white font-bold">CT</div>
-              <span className="ml-2 text-xl font-bold text-white">CircleTel</span>
+              <img 
+                src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
+                alt="CircleTel Logo" 
+                className="h-12 bg-white rounded-md p-1" 
+              />
             </Link>
             <p className="mt-4 text-circleTel-lightNeutral">
               Simplified IT solutions for businesses of all sizes. We provide expert IT services with a recipe for success.

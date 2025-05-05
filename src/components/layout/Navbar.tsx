@@ -68,8 +68,11 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <div className="h-10 w-10 bg-circleTel-orange rounded-full flex items-center justify-center text-white font-bold">CT</div>
-            <span className="ml-2 text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
+            <img 
+              src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
+              alt="CircleTel Logo" 
+              className="h-10" 
+            />
           </Link>
 
           {/* Mobile Menu Button */}
