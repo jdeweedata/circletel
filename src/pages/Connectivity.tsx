@@ -7,6 +7,7 @@ import ConnectivityRecipes from '../components/connectivity/ConnectivityRecipes'
 import ConnectivityBenefits from '../components/connectivity/ConnectivityBenefits';
 import ConnectivityTool from '../components/connectivity/ConnectivityTool';
 import ConnectivityTestimonials from '../components/connectivity/ConnectivityTestimonials';
+import ConnectivityComparison from '../components/connectivity/ConnectivityComparison';
 
 const Connectivity = () => {
   return (
@@ -15,6 +16,7 @@ const Connectivity = () => {
       <main className="flex-grow">
         <ConnectivityHero />
         <ConnectivityRecipes />
+        <ConnectivityComparison />
         <ConnectivityBenefits />
         <ConnectivityTool />
         <ConnectivityTestimonials />

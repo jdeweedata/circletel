@@ -13,6 +13,12 @@ import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import CaseStudies from "./pages/CaseStudies";
 import Connectivity from "./pages/Connectivity";
+import WifiAsService from "./pages/WifiAsService";
+import FixedWireless from "./pages/FixedWireless";
+import Fibre from "./pages/Fibre";
+import Contact from "./pages/Contact";
+import Resources from "./pages/Resources";
+import Blog from "./pages/Blog";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +37,12 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/case-studies" element={<CaseStudies />} />
             <Route path="/connectivity" element={<Connectivity />} />
+            <Route path="/connectivity/wifi-as-a-service" element={<WifiAsService />} />
+            <Route path="/connectivity/fixed-wireless" element={<FixedWireless />} />
+            <Route path="/connectivity/fibre" element={<Fibre />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/blog" element={<Blog />} />
             {/* Future pages will be added here */}
             <Route path="*" element={<NotFound />} />
           </Routes>
