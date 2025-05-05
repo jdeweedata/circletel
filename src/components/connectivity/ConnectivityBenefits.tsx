@@ -71,7 +71,7 @@ const ConnectivityBenefits = () => {
                 </div>
                 <div className="rounded-lg bg-circleTel-lightNeutral p-4">
                   <p className="font-space-mono text-sm text-circleTel-secondaryNeutral">Response Time</p>
-                  <p className="text-2xl font-bold text-circleTel-darkNeutral"><15 min</p>
+                  <p className="text-2xl font-bold text-circleTel-darkNeutral">&lt;15 min</p>
                 </div>
                 <div className="rounded-lg bg-circleTel-lightNeutral p-4">
                   <p className="font-space-mono text-sm text-circleTel-secondaryNeutral">Support</p>
