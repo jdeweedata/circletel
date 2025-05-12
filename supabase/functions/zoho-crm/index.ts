@@ -50,14 +50,33 @@ async function getZohoAccessToken() {
   }
 }
 
+// Function to format phone number for Zoho CRM
+function formatPhoneForZoho(phone: string) {
+  // Remove any non-digit characters
+  let formattedPhone = phone.replace(/\D/g, '');
+  
+  // Check if we have a valid phone number
+  if (!formattedPhone) {
+    return null; // Return null for empty phone numbers
+  }
+  
+  // Ensure the phone number doesn't exceed a reasonable length (adjust as needed)
+  if (formattedPhone.length > 15) {
+    formattedPhone = formattedPhone.substring(0, 15);
+  }
+  
+  return formattedPhone;
+}
+
 // Helper function to create a lead in Zoho CRM
 async function createLeadInZoho(accessToken: string, leadData: any) {
   try {
     console.log("Creating lead with data:", JSON.stringify(leadData));
     console.log("Using access token:", accessToken.substring(0, 10) + "...");
     
-    // Ensure phone is a string to prevent API errors with empty values
-    const phone = leadData.phone || "";
+    // Format phone number or set to null if invalid
+    const formattedPhone = leadData.phone ? formatPhoneForZoho(leadData.phone) : null;
+    console.log("Formatted phone:", formattedPhone);
     
     const response = await fetch(
       "https://www.zohoapis.com/crm/v2/Leads",
@@ -73,7 +92,7 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
               Last_Name: leadData.name || "Unknown",
               Email: leadData.email,
               Company: leadData.company,
-              Phone: phone,
+              Phone: formattedPhone, // Send formatted phone or null
               Lead_Source: "Website IT Assessment",
               Description: `
                 IT Assessment Request:
