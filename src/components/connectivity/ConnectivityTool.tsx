@@ -6,7 +6,9 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 type FormData = {
   guestWifi: boolean;
@@ -17,12 +19,16 @@ type FormData = {
   highBandwidth: boolean;
   name: string;
   email: string;
+  company: string;
+  phone: string;
 };
 
 const ConnectivityTool = () => {
+  const { toast } = useToast();
   const [showRecommendation, setShowRecommendation] = useState(false);
   const [recommendation, setRecommendation] = useState('');
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<FormData>({
     defaultValues: {
@@ -34,6 +40,8 @@ const ConnectivityTool = () => {
       highBandwidth: false,
       name: '',
       email: '',
+      company: '',
+      phone: '',
     },
   });
 
@@ -50,14 +58,45 @@ const ConnectivityTool = () => {
     }
   };
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     const rec = getRecommendation(data);
     setRecommendation(rec);
     setSubmittedData(data);
     setShowRecommendation(true);
+    setIsSubmitting(true);
     
-    // In a real application, you would send this data to your backend or CRM
-    console.log('Form submitted:', data);
+    try {
+      // Prepare data for Zoho CRM with connectivity-specific details
+      const leadData = {
+        name: data.name,
+        email: data.email,
+        company: data.company,
+        phone: data.phone || '',
+        challenges: `Connectivity Requirements:
+        - Guest WiFi: ${data.guestWifi ? 'Yes' : 'No'}
+        - Fibre Coverage: ${data.fibreCoverage ? 'Yes' : 'No'}
+        - Multiple Locations: ${data.multipleLocations ? 'Yes' : 'No'}
+        - Mission Critical: ${data.missionCritical ? 'Yes' : 'No'}
+        - Quick Deployment: ${data.quickDeployment ? 'Yes' : 'No'}
+        - High Bandwidth: ${data.highBandwidth ? 'Yes' : 'No'}`,
+        assessmentType: 'connectivity',
+        employees: '',
+      };
+
+      const { data: responseData, error } = await supabase.functions.invoke('zoho-crm', {
+        body: leadData
+      });
+      
+      if (error) throw error;
+      
+      console.log('Zoho CRM response:', responseData);
+      
+    } catch (error) {
+      console.error('Error submitting to CRM:', error);
+      // We don't show an error to the user since the recommendation is already displayed
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -200,6 +239,7 @@ const ConnectivityTool = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
                           placeholder="Your name"
                           {...form.register('name')}
+                          required
                         />
                       </div>
                       
@@ -211,14 +251,45 @@ const ConnectivityTool = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
                           placeholder="your@email.com"
                           {...form.register('email')}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="company" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">Company</label>
+                        <input
+                          id="company"
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                          placeholder="Your company"
+                          {...form.register('company')}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="phone" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">Phone (optional)</label>
+                        <input
+                          id="phone"
+                          type="tel"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                          placeholder="Your phone number"
+                          {...form.register('phone')}
                         />
                       </div>
                     </div>
                   </div>
                   
                   <div className="text-center">
-                    <Button type="submit" className="primary-button">
-                      Get Your Custom Recipe
+                    <Button type="submit" className="primary-button" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        "Get Your Custom Recipe"
+                      )}
                     </Button>
                   </div>
                 </form>
