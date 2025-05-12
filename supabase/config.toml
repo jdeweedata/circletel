@@ -3,3 +3,7 @@ project_id = "agyjovdugmtopasyvlng"
 
 [functions.zoho-crm]
 verify_jwt = false
+
+[functions.zoho-callback]
+verify_jwt = false
+
