@@ -14,6 +14,7 @@ async function getZohoAccessToken() {
     const clientSecret = Deno.env.get("ZOHO_CLIENT_SECRET");
     
     if (!clientId || !clientSecret) {
+      console.error("Missing Zoho credentials");
       throw new Error("Missing Zoho credentials");
     }
     
@@ -55,6 +56,9 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
     console.log("Creating lead with data:", JSON.stringify(leadData));
     console.log("Using access token:", accessToken.substring(0, 10) + "...");
     
+    // Ensure phone is a string to prevent API errors with empty values
+    const phone = leadData.phone || "";
+    
     const response = await fetch(
       "https://www.zohoapis.com/crm/v2/Leads",
       {
@@ -69,7 +73,7 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
               Last_Name: leadData.name || "Unknown",
               Email: leadData.email,
               Company: leadData.company,
-              Phone: leadData.phone || "",
+              Phone: phone,
               Lead_Source: "Website IT Assessment",
               Description: `
                 IT Assessment Request:
@@ -84,8 +88,16 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
       }
     );
     
-    const data = await response.json();
-    console.log("Zoho API response:", JSON.stringify(data));
+    const responseText = await response.text();
+    console.log("Raw Zoho API response:", responseText);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse Zoho response as JSON:", e);
+      throw new Error(`Invalid JSON response from Zoho API: ${responseText}`);
+    }
     
     if (!response.ok) {
       console.error("Error creating Zoho lead:", data);
@@ -114,16 +126,64 @@ serve(async (req) => {
     }
     
     // Parse the request body
-    const requestData = await req.json();
-    console.log("Received data:", requestData);
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log("Received data:", JSON.stringify(requestData));
+    } catch (e) {
+      console.error("Error parsing request JSON:", e);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Invalid JSON in request body" 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    // Basic validation
+    if (!requestData.email || !requestData.name || !requestData.company) {
+      console.error("Missing required fields:", JSON.stringify(requestData));
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Missing required fields: name, email, or company" 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     // Get Zoho access token
-    const accessToken = await getZohoAccessToken();
-    console.log("Successfully obtained Zoho access token");
+    let accessToken;
+    try {
+      accessToken = await getZohoAccessToken();
+      console.log("Successfully obtained Zoho access token");
+    } catch (error) {
+      console.error("Failed to get access token:", error);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Failed to authenticate with Zoho CRM" 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     // Create lead in Zoho CRM
-    const result = await createLeadInZoho(accessToken, requestData);
-    console.log("Successfully created lead in Zoho CRM");
+    let result;
+    try {
+      result = await createLeadInZoho(accessToken, requestData);
+      console.log("Successfully created lead in Zoho CRM:", JSON.stringify(result));
+    } catch (error) {
+      console.error("Failed to create lead:", error);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Failed to create lead in Zoho CRM" 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     return new Response(JSON.stringify({ 
       success: true, 

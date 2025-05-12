@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -59,15 +58,23 @@ const ITAssessment = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('Submitting IT Assessment form data:', formData);
+      
       const { data, error } = await supabase.functions.invoke('zoho-crm', {
         body: formData
       });
       
+      console.log('Zoho CRM response for IT Assessment:', data);
+      
       if (error) {
+        console.error('Error response:', error);
         throw error;
       }
       
-      console.log('Zoho CRM Response:', data);
+      if (!data.success) {
+        console.error('Unsuccessful response:', data);
+        throw new Error(data.error || 'Unknown error occurred');
+      }
       
       // Show success message
       toast({

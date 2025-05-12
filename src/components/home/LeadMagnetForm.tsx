@@ -9,6 +9,7 @@ type FormData = {
   name: string;
   email: string;
   company: string;
+  phone: string;
   employees: string;
   challenges: string;
   assessmentType: string;
@@ -20,6 +21,7 @@ const LeadMagnetForm = ({ onSuccess }: { onSuccess: () => void }) => {
     name: '',
     email: '',
     company: '',
+    phone: '',
     employees: '',
     challenges: '',
     assessmentType: 'comprehensive'
@@ -36,13 +38,23 @@ const LeadMagnetForm = ({ onSuccess }: { onSuccess: () => void }) => {
     setLoading(true);
     
     try {
+      console.log('Submitting form data:', formData);
+      
       const { data, error } = await supabase.functions.invoke('zoho-crm', {
         body: formData
       });
       
-      if (error) throw error;
-      
       console.log('Zoho CRM response:', data);
+      
+      if (error) {
+        console.error('Error response:', error);
+        throw error;
+      }
+      
+      if (!data.success) {
+        console.error('Unsuccessful response:', data);
+        throw new Error(data.error || 'Unknown error occurred');
+      }
       
       toast({
         title: "Success!",
@@ -53,6 +65,7 @@ const LeadMagnetForm = ({ onSuccess }: { onSuccess: () => void }) => {
         name: '',
         email: '',
         company: '',
+        phone: '',
         employees: '',
         challenges: '',
         assessmentType: 'comprehensive'
@@ -120,6 +133,20 @@ const LeadMagnetForm = ({ onSuccess }: { onSuccess: () => void }) => {
             className="w-full px-4 py-2 bg-circleTel-lightNeutral border border-transparent rounded-full focus:border-circleTel-orange focus:outline-none"
           />
         </div>
+
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+            Phone Number (Optional)
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-circleTel-lightNeutral border border-transparent rounded-full focus:border-circleTel-orange focus:outline-none"
+          />
+        </div>
         
         <div>
           <label htmlFor="employees" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
@@ -130,7 +157,6 @@ const LeadMagnetForm = ({ onSuccess }: { onSuccess: () => void }) => {
             name="employees"
             value={formData.employees}
             onChange={handleChange}
-            required
             className="w-full px-4 py-2 bg-circleTel-lightNeutral border border-transparent rounded-full focus:border-circleTel-orange focus:outline-none"
           >
             <option value="">Select an option</option>
