@@ -17,6 +17,7 @@ async function getZohoAccessToken() {
       throw new Error("Missing Zoho credentials");
     }
     
+    // Using refresh token grant type instead of client_credentials
     const response = await fetch(
       "https://accounts.zoho.com/oauth/v2/token",
       {
@@ -25,15 +26,16 @@ async function getZohoAccessToken() {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          grant_type: "client_credentials",
+          grant_type: "refresh_token",
           client_id: clientId,
           client_secret: clientSecret,
-          scope: "ZohoCRM.modules.ALL",
+          refresh_token: Deno.env.get("ZOHO_REFRESH_TOKEN") || "",
         }),
       }
     );
     
     const data = await response.json();
+    console.log("Token response:", JSON.stringify(data));
     
     if (!response.ok) {
       console.error("Error getting Zoho access token:", data);
@@ -50,6 +52,9 @@ async function getZohoAccessToken() {
 // Helper function to create a lead in Zoho CRM
 async function createLeadInZoho(accessToken: string, leadData: any) {
   try {
+    console.log("Creating lead with data:", JSON.stringify(leadData));
+    console.log("Using access token:", accessToken.substring(0, 10) + "...");
+    
     const response = await fetch(
       "https://www.zohoapis.com/crm/v2/Leads",
       {
@@ -64,6 +69,7 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
               Last_Name: leadData.name || "Unknown",
               Email: leadData.email,
               Company: leadData.company,
+              Phone: leadData.phone || "",
               Lead_Source: "Website IT Assessment",
               Description: `
                 IT Assessment Request:
@@ -79,6 +85,7 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
     );
     
     const data = await response.json();
+    console.log("Zoho API response:", JSON.stringify(data));
     
     if (!response.ok) {
       console.error("Error creating Zoho lead:", data);
