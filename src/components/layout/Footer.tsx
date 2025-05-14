@@ -8,13 +8,15 @@ const Footer = () => {
     <footer className="bg-circleTel-darkNeutral text-white py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Intro */}
+          {/* Logo and Intro - Updated with responsive sizing */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
                 alt="CircleTel Logo" 
-                className="h-12 bg-white rounded-md p-1" 
+                className="h-10 sm:h-12 bg-white rounded-md p-1 w-auto" 
+                width="500"
+                height="500"
               />
             </Link>
             <p className="mt-4 text-circleTel-lightNeutral">

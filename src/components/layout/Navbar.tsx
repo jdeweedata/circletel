@@ -92,9 +92,15 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          {/* Logo */}
+          {/* Logo - Updated with responsive sizing */}
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel Logo" className="h-10" />
+            <img 
+              src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
+              alt="CircleTel Logo" 
+              className="h-8 sm:h-10 md:h-12 w-auto"
+              width="500"
+              height="500"
+            />
           </Link>
 
           {/* Mobile Menu Button */}
