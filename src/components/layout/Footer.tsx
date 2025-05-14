@@ -14,7 +14,7 @@ const Footer = () => {
               <img 
                 src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
                 alt="CircleTel Logo" 
-                className="h-10 sm:h-12 bg-white rounded-md p-1 w-auto" 
+                className="h-[80px] sm:h-[100px] bg-white rounded-md p-1 w-auto" 
                 width="500"
                 height="500"
               />
