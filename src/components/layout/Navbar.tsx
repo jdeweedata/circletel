@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import Logo from '@/components/navigation/Logo';
 import DesktopNavigation from '@/components/navigation/DesktopNavigation';
 import MobileNavigation from '@/components/navigation/MobileNavigation';
-import { servicesDropdownItems, aboutDropdownItems } from '@/components/navigation/NavigationData';
+import { servicesDropdownItems, aboutDropdownItems, connectivityDropdownItems } from '@/components/navigation/NavigationData';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,6 +28,7 @@ const Navbar = () => {
           {!isMobile && (
             <DesktopNavigation 
               servicesDropdown={servicesDropdownItems} 
+              connectivityDropdown={connectivityDropdownItems}
               aboutDropdown={aboutDropdownItems} 
             />
           )}
@@ -38,6 +39,7 @@ const Navbar = () => {
           isMenuOpen={isMobile && isMenuOpen} 
           setIsMenuOpen={setIsMenuOpen}
           servicesDropdown={servicesDropdownItems}
+          connectivityDropdown={connectivityDropdownItems}
           aboutDropdown={aboutDropdownItems}
         />
       </div>

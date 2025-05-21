@@ -13,13 +13,15 @@ interface MobileNavigationProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
   servicesDropdown: NavigationItem[];
+  connectivityDropdown: NavigationItem[];
   aboutDropdown: NavigationItem[];
 }
 
 const MobileNavigation = ({ 
   isMenuOpen, 
   setIsMenuOpen, 
-  servicesDropdown, 
+  servicesDropdown,
+  connectivityDropdown,
   aboutDropdown 
 }: MobileNavigationProps) => {
   if (!isMenuOpen) return null;
@@ -35,13 +37,48 @@ const MobileNavigation = ({
           Home
         </Link>
         
+        <Link 
+          to="/services" 
+          className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" 
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Managed IT
+        </Link>
+        
         <details className="group">
           <summary className="flex cursor-pointer items-center justify-between font-bold text-circleTel-darkNeutral">
-            Services
+            IT Solutions
             <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
           </summary>
           <div className="mt-2 ml-4 flex flex-col gap-2">
             {servicesDropdown.map((item, index) => (
+              <Link 
+                key={index} 
+                to={item.href} 
+                className="text-circleTel-darkNeutral hover:text-circleTel-orange py-1" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </details>
+        
+        <Link 
+          to="/connectivity/wifi-as-a-service" 
+          className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" 
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Wi-Fi as a Service
+        </Link>
+        
+        <details className="group">
+          <summary className="flex cursor-pointer items-center justify-between font-bold text-circleTel-darkNeutral">
+            Connectivity
+            <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="mt-2 ml-4 flex flex-col gap-2">
+            {connectivityDropdown.map((item, index) => (
               <Link 
                 key={index} 
                 to={item.href} 
@@ -89,25 +126,9 @@ const MobileNavigation = ({
           Case Studies
         </Link>
         
-        <Link 
-          to="/connectivity" 
-          className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" 
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Connectivity
-        </Link>
-        
-        <Link 
-          to="/contact" 
-          className="font-bold text-circleTel-darkNeutral hover:text-circleTel-orange py-2" 
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Contact
-        </Link>
-        
         <Button asChild className="primary-button w-full">
-          <Link to="/resources/it-health" onClick={() => setIsMenuOpen(false)}>
-            Get a Free IT Assessment
+          <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
+            Contact Us
           </Link>
         </Button>
       </div>

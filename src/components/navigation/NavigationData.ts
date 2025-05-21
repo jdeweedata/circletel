@@ -11,10 +11,21 @@ export const servicesDropdownItems = [
   {
     name: "Growth-Ready Recipes",
     href: "/services/growth-ready"
+  }
+];
+
+export const connectivityDropdownItems = [
+  {
+    name: "Wi-Fi as a Service",
+    href: "/connectivity/wifi-as-a-service"
   },
   {
-    name: "Connectivity Solutions",
-    href: "/connectivity"
+    name: "Fixed Wireless",
+    href: "/connectivity/fixed-wireless"
+  },
+  {
+    name: "Fibre",
+    href: "/connectivity/fibre"
   }
 ];
 
@@ -32,3 +43,4 @@ export const aboutDropdownItems = [
     href: "/about/certifications"
   }
 ];
+
