@@ -7,6 +7,20 @@ const Footer = () => {
   return (
     <footer className="bg-circleTel-darkNeutral text-white py-12">
       <div className="container mx-auto px-4">
+        {/* Coming Soon Banner */}
+        <div className="bg-circleTel-orange bg-opacity-20 rounded-lg p-4 mb-8 text-center">
+          <h3 className="font-bold text-lg mb-2">Fibre and Wireless solutions coming soon!</h3>
+          <p className="mb-3 text-circleTel-lightNeutral">
+            Start with our Managed IT and Wi-Fi services today, and be the first to know when our new connectivity solutions launch.
+          </p>
+          <Link 
+            to="/contact" 
+            className="inline-block bg-circleTel-orange text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition"
+          >
+            Register Your Interest
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Intro - Updated with responsive sizing */}
           <div className="col-span-1 md:col-span-1">
@@ -20,7 +34,7 @@ const Footer = () => {
               />
             </Link>
             <p className="mt-4 text-circleTel-lightNeutral">
-              Simplified IT solutions for businesses of all sizes. We provide expert IT services with a recipe for success.
+              Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>
             <div className="mt-4 flex space-x-2">
               <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">

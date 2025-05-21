@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Clock, CreditCard, ShieldCheck } from 'lucide-react';
 
 interface ValueCardProps {
   title: string;
@@ -113,6 +114,37 @@ const ValueProposition = () => {
               index={index}
             />
           ))}
+        </div>
+        
+        {/* Key Differentiators Section */}
+        <div className="bg-white rounded-lg p-8 mb-16 shadow-lg">
+          <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-8 text-center">Our Key Differentiators</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex items-start">
+              <div className="mr-4 p-3 bg-circleTel-orange bg-opacity-10 rounded-full">
+                <CreditCard className="text-circleTel-orange" size={24} />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Value-driven Pricing</h4>
+                <p className="text-circleTel-secondaryNeutral">
+                  Transparent, predictable pricing that scales with your business. No surprise fees or hidden costs—just honest value for your investment.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start">
+              <div className="mr-4 p-3 bg-circleTel-orange bg-opacity-10 rounded-full">
+                <Clock className="text-circleTel-orange" size={24} />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Fast, Flexible Support</h4>
+                <p className="text-circleTel-secondaryNeutral">
+                  Quick response times with support that adapts to your business hours. We're there when you need us, with solutions tailored to your situation.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="bg-white rounded-lg p-6 md:p-10 shadow-lg">

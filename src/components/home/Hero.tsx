@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Server, Cloud, Laptop } from 'lucide-react';
+import { Server, Cloud, Laptop, ShieldCheck } from 'lucide-react';
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -11,14 +11,21 @@ const Hero = () => {
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
       <div className="container mx-auto px-4">
+        {/* Pain Point Statistics Banner */}
+        <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-8 text-center">
+          <p className="text-circleTel-darkNeutral font-semibold">
+            <span className="text-circleTel-orange font-bold">72% of SMEs</span> struggle with IT management — let us take that burden off your shoulders.
+          </p>
+        </div>
+        
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
           {/* Text Content */}
           <div className="w-full md:w-1/2 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
-              Empowering Your Business with Reliable and Affordable IT Solutions
+              We're Here to Make IT Simple and Affordable for Your Business
             </h1>
             <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
-              We Manage Your Tech, You Grow Your Business
+              You Grow Your Business, We'll Handle Your Tech
             </p>
             
             {/* Service Highlights */}
@@ -35,10 +42,14 @@ const Hero = () => {
                 <Cloud size={20} className="text-circleTel-orange mr-2" />
                 <span className="text-circleTel-secondaryNeutral font-medium">Cloud/Hosting</span>
               </div>
+              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+                <ShieldCheck size={20} className="text-circleTel-orange mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">Fast Support</span>
+              </div>
             </div>
             
             <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
-              Simplify IT, Save Costs, and Focus on What You Do Best
+              No tech jargon, no hidden costs — just reliable IT solutions that work for your business needs. Let's simplify your tech journey together.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

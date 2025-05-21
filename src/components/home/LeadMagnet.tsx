@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import LeadMagnetForm from './LeadMagnetForm';
 import LeadMagnetSuccess from './LeadMagnetSuccess';
 import SampleItReport from './SampleItReport';
+import RegisterInterestForm from '../common/RegisterInterestForm';
 
 const LeadMagnet = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [activeTab, setActiveTab] = useState('assessment');
 
   const handleSuccess = () => {
     setSubmitted(true);
@@ -32,10 +34,31 @@ const LeadMagnet = () => {
             </div>
             
             <div>
-              {!submitted ? (
-                <LeadMagnetForm onSuccess={handleSuccess} />
+              {/* Tab Navigation */}
+              <div className="flex mb-6">
+                <button 
+                  className={`flex-1 py-2 px-4 text-center font-medium ${activeTab === 'assessment' ? 'border-b-2 border-circleTel-orange text-circleTel-darkNeutral' : 'text-circleTel-secondaryNeutral'}`}
+                  onClick={() => setActiveTab('assessment')}
+                >
+                  IT Assessment
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-4 text-center font-medium ${activeTab === 'interest' ? 'border-b-2 border-circleTel-orange text-circleTel-darkNeutral' : 'text-circleTel-secondaryNeutral'}`}
+                  onClick={() => setActiveTab('interest')}
+                >
+                  Future Services
+                </button>
+              </div>
+              
+              {/* Tab Content */}
+              {activeTab === 'assessment' ? (
+                !submitted ? (
+                  <LeadMagnetForm onSuccess={handleSuccess} />
+                ) : (
+                  <LeadMagnetSuccess onReset={handleReset} />
+                )
               ) : (
-                <LeadMagnetSuccess onReset={handleReset} />
+                <RegisterInterestForm />
               )}
             </div>
           </div>

@@ -11,6 +11,10 @@ export const servicesDropdownItems = [
   {
     name: "Growth-Ready Recipes",
     href: "/services/growth-ready"
+  },
+  {
+    name: "Value-Driven Pricing",
+    href: "/pricing"
   }
 ];
 
@@ -26,6 +30,10 @@ export const connectivityDropdownItems = [
   {
     name: "Fibre",
     href: "/connectivity/fibre"
+  },
+  {
+    name: "Coming Soon Services",
+    href: "/contact?interest=connectivity"
   }
 ];
 
@@ -43,4 +51,3 @@ export const aboutDropdownItems = [
     href: "/about/certifications"
   }
 ];
-
