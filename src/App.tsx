@@ -31,11 +31,11 @@ import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
-// Added Cloud pages and LoadShedding page
+// Added Cloud pages and PowerBackupSolutions page
 import CloudMigration from "./pages/CloudMigration";
 import CloudHosting from "./pages/CloudHosting";
 import CloudBackup from "./pages/CloudBackup";
-import LoadSheddingSolutions from "./pages/LoadSheddingSolutions";
+import PowerBackupSolutions from "./pages/PowerBackupSolutions";
 import SecurityServices from "./pages/SecurityServices";
 
 // Create a QueryClient for React Query
@@ -79,7 +79,7 @@ const App = () => (
             {/* Resources routes - Updated with new pages */}
             <Route path="/resources" element={<Resources />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
-            <Route path="/resources/load-shedding" element={<LoadSheddingSolutions />} />
+            <Route path="/resources/power-backup" element={<PowerBackupSolutions />} />
             <Route path="/resources/connectivity-guide" element={<ConnectivityGuide />} />
             <Route path="/resources/wifi-toolkit" element={<WiFiToolkit />} />
             

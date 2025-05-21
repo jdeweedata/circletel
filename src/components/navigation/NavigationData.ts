@@ -1,5 +1,5 @@
 
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -165,10 +165,10 @@ export const resourcesItems: NavigationItem[] = [
     description: "Evaluate your IT infrastructure"
   },
   {
-    name: "Load Shedding Solutions",
-    href: "/resources/load-shedding",
-    icon: Activity,
-    description: "IT solutions for power outages"
+    name: "Power Backup Solutions",
+    href: "/resources/power-backup",
+    icon: Battery,
+    description: "UPS and power protection for your business"
   },
   {
     name: "Connectivity Guide",
@@ -257,9 +257,9 @@ export const footerLinks = [
     name: "Resources",
     items: [
       { name: "IT Health Assessment", href: "/resources/it-health" },
+      { name: "Power Backup Solutions", href: "/resources/power-backup" },
       { name: "Connectivity Guide", href: "/resources/connectivity-guide" },
       { name: "Wi-Fi Toolkit", href: "/resources/wifi-toolkit" },
-      { name: "Load Shedding Solutions", href: "/resources/load-shedding" },
       { name: "Blog Archive", href: "/blog/archive" }
     ]
   }

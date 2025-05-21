@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { FileText, Laptop, Download } from 'lucide-react';
+import { FileText, Laptop, Download, Battery, Power, Activity } from 'lucide-react';
 
 const ResourceCard = ({ 
   title, 
@@ -59,11 +59,11 @@ const Resources = () => {
               />
               
               <ResourceCard 
-                title="Connectivity Guide"
-                description="Download our complete guide to business connectivity options in South Africa."
-                icon={FileText}
-                link="/resources/connectivity-guide"
-                linkText="Access Guide"
+                title="Power Backup Solutions"
+                description="Protect your business with enterprise-grade UPS and power backup solutions."
+                icon={Battery}
+                link="/resources/power-backup"
+                linkText="Explore Solutions"
               />
               
               <ResourceCard 
@@ -80,41 +80,41 @@ const Resources = () => {
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral text-center mb-8">
-              Free IT Health Check
+              Free Power Infrastructure Assessment
             </h2>
             
             <div className="bg-circleTel-lightNeutral p-8 rounded-lg max-w-3xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div>
                   <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">
-                    Is your business technology optimized?
+                    Is your power infrastructure optimized?
                   </h3>
                   <ul className="space-y-2 mb-6">
                     <li className="flex items-start">
                       <div className="bg-circleTel-orange rounded-full text-white w-6 h-6 flex items-center justify-center mr-2 mt-1">✓</div>
-                      <span className="text-circleTel-secondaryNeutral">Connectivity performance review</span>
+                      <span className="text-circleTel-secondaryNeutral">UPS capacity evaluation</span>
                     </li>
                     <li className="flex items-start">
                       <div className="bg-circleTel-orange rounded-full text-white w-6 h-6 flex items-center justify-center mr-2 mt-1">✓</div>
-                      <span className="text-circleTel-secondaryNeutral">Network security assessment</span>
+                      <span className="text-circleTel-secondaryNeutral">Power quality assessment</span>
                     </li>
                     <li className="flex items-start">
                       <div className="bg-circleTel-orange rounded-full text-white w-6 h-6 flex items-center justify-center mr-2 mt-1">✓</div>
-                      <span className="text-circleTel-secondaryNeutral">Cost optimization recommendations</span>
+                      <span className="text-circleTel-secondaryNeutral">Business continuity recommendations</span>
                     </li>
                     <li className="flex items-start">
                       <div className="bg-circleTel-orange rounded-full text-white w-6 h-6 flex items-center justify-center mr-2 mt-1">✓</div>
-                      <span className="text-circleTel-secondaryNeutral">Scalability planning</span>
+                      <span className="text-circleTel-secondaryNeutral">Critical system protection plan</span>
                     </li>
                   </ul>
                   <Button asChild className="primary-button">
-                    <Link to="/resources/it-health">Get Your Free Assessment</Link>
+                    <Link to="/contact">Get Your Free Assessment</Link>
                   </Button>
                 </div>
                 <div className="bg-white p-6 rounded-lg">
                   <h4 className="font-bold text-circleTel-darkNeutral mb-2">What clients say</h4>
                   <blockquote className="text-circleTel-secondaryNeutral italic mb-4">
-                    "The IT Health Check identified several critical security vulnerabilities we weren't aware of. CircleTel's recommendations saved us from potential disaster."
+                    "The power infrastructure assessment identified several critical vulnerabilities in our setup. CircleTel's UPS recommendations saved us from potentially devastating downtime."
                   </blockquote>
                   <div className="flex items-center">
                     <div className="bg-circleTel-orange text-white rounded-full w-10 h-10 flex items-center justify-center mr-3">JD</div>

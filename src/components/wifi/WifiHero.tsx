@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WifiHigh, MessageSquarePlus, CheckCircle, MapPin } from 'lucide-react';
+import { WifiHigh, MessageSquarePlus, CheckCircle, MapPin, Battery } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -60,7 +60,11 @@ const WifiHero = () => {
               </li>
               <li className="flex items-start">
                 <CheckCircle className="text-circleTel-orange mr-2 mt-1" size={18} />
-                <span className="text-circleTel-secondaryNeutral">Businesses without dedicated IT staff</span>
+                <span className="text-circleTel-secondaryNeutral">Businesses needing power-resilient connectivity</span>
+              </li>
+              <li className="flex items-start">
+                <Battery className="text-circleTel-orange mr-2 mt-1" size={18} />
+                <span className="text-circleTel-secondaryNeutral">Our systems include battery backup for critical APs</span>
               </li>
             </ul>
           </div>

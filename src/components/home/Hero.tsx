@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Server, Cloud, Laptop, ShieldCheck, Wifi } from 'lucide-react';
+import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery, Power } from 'lucide-react';
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -13,7 +14,7 @@ const Hero = () => {
         {/* South African SME-Focused Pain Point Banner */}
         <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-8 text-center">
           <p className="text-circleTel-darkNeutral font-semibold">
-            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT challenges — we have solutions ready for you.
+            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT and power challenges — we have solutions ready for you.
           </p>
         </div>
         
@@ -41,9 +42,9 @@ const Hero = () => {
                 <Cloud size={20} className="text-circleTel-orange mr-2" />
                 <span className="text-circleTel-secondaryNeutral font-medium">Cloud/Hosting</span>
               </Link>
-              <Link to="/resources/load-shedding" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
-                <ShieldCheck size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Load Shedding Solutions</span>
+              <Link to="/resources/power-backup" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
+                <Battery size={20} className="text-circleTel-orange mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">Power Backup Solutions</span>
               </Link>
             </div>
             
@@ -72,7 +73,7 @@ const Hero = () => {
               {/* Recipe Card Illustration - Updated for SME appeal */}
               <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2 bg-white">
                 <div className="absolute top-0 right-0 bg-circleTel-orange text-white text-sm font-space-mono py-1 px-3 rounded-bl-lg">
-                  LOAD SHEDDING READY
+                  POWER RESILIENT
                 </div>
                 
                 <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Essential Business IT Recipe</h3>
@@ -87,7 +88,7 @@ const Hero = () => {
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Backup Power Solutions</span>
+                      <span>Enterprise UPS Systems</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
@@ -103,7 +104,7 @@ const Hero = () => {
                 <div className="bg-circleTel-lightNeutral p-4 rounded-md">
                   <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef's Notes</h4>
                   <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
-                    Perfect for South African businesses dealing with load shedding and connectivity challenges. Keeps your business running even during power outages.
+                    Perfect for South African businesses dealing with power outages and connectivity challenges. Keeps your business running even during electrical disruptions.
                   </p>
                 </div>
               </div>

@@ -4,9 +4,9 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Cloud, Laptop, Server, Wifi } from 'lucide-react';
+import { Cloud, Laptop, Server, Wifi, Shield, Battery, Power } from 'lucide-react';
 
-const LoadSheddingSolutions = () => {
+const PowerBackupSolutions = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -17,14 +17,14 @@ const LoadSheddingSolutions = () => {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-1/2">
                 <div className="inline-block bg-circleTel-orange/10 px-4 py-2 rounded-lg mb-4">
-                  <span className="text-circleTel-orange font-medium">South African Business Solutions</span>
+                  <span className="text-circleTel-orange font-medium">Critical Infrastructure Protection</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">IT Solutions for Load Shedding</h1>
+                <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">Power Backup Solutions</h1>
                 <p className="text-xl text-circleTel-secondaryNeutral mb-6">
-                  Keep your business running during power outages with our specialized IT infrastructure designed for South African realities.
+                  Protect your critical IT infrastructure with enterprise-grade UPS and power backup solutions designed for business continuity.
                 </p>
                 <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
-                  <Link to="/contact">Get a Load Shedding Solution</Link>
+                  <Link to="/contact">Get a Power Backup Solution</Link>
                 </Button>
               </div>
               <div className="md:w-1/2 bg-white p-6 rounded-lg shadow-lg">
@@ -34,19 +34,19 @@ const LoadSheddingSolutions = () => {
                     <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center text-circleTel-orange mr-3">
                       67%
                     </div>
-                    <p className="text-circleTel-secondaryNeutral">of South African businesses report significant revenue loss during load shedding</p>
+                    <p className="text-circleTel-secondaryNeutral">of South African businesses report significant revenue loss during power outages</p>
                   </div>
                   <div className="flex items-center">
                     <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center text-circleTel-orange mr-3">
                       4.6h
                     </div>
-                    <p className="text-circleTel-secondaryNeutral">average daily operational time lost during Stage 4+ load shedding</p>
+                    <p className="text-circleTel-secondaryNeutral">average daily operational time lost during unexpected power interruptions</p>
                   </div>
                   <div className="flex items-center">
                     <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center text-circleTel-orange mr-3">
                       89%
                     </div>
-                    <p className="text-circleTel-secondaryNeutral">of businesses with continuity solutions maintain operations during outages</p>
+                    <p className="text-circleTel-secondaryNeutral">of businesses with proper UPS solutions maintain operations during outages</p>
                   </div>
                 </div>
               </div>
@@ -57,21 +57,21 @@ const LoadSheddingSolutions = () => {
         {/* Solutions Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">Our Load Shedding Solutions</h2>
+            <h2 className="text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">Our Power Backup Solutions</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-circleTel-lightNeutral rounded-lg p-6">
                 <div className="h-14 w-14 rounded-lg bg-circleTel-orange/10 flex items-center justify-center text-circleTel-orange mb-4">
-                  <Server size={28} />
+                  <Battery size={28} />
                 </div>
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">UPS & Power Backup</h3>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">UPS Systems</h3>
                 <p className="text-circleTel-secondaryNeutral mb-4">
                   Enterprise-grade Uninterruptible Power Supply solutions that keep your critical IT infrastructure running during outages.
                 </p>
                 <ul className="space-y-2 mb-4">
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">Server & network protection</span>
+                    <span className="text-circleTel-secondaryNeutral">Online & line-interactive UPS</span>
                   </li>
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
@@ -79,7 +79,7 @@ const LoadSheddingSolutions = () => {
                   </li>
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">Power conditioning</span>
+                    <span className="text-circleTel-secondaryNeutral">Power conditioning & surge protection</span>
                   </li>
                 </ul>
                 <Link to="/contact" className="text-circleTel-orange font-medium hover:underline">Learn more →</Link>
@@ -112,27 +112,27 @@ const LoadSheddingSolutions = () => {
               
               <div className="bg-circleTel-lightNeutral rounded-lg p-6">
                 <div className="h-14 w-14 rounded-lg bg-circleTel-orange/10 flex items-center justify-center text-circleTel-orange mb-4">
-                  <Wifi size={28} />
+                  <Power size={28} />
                 </div>
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Redundant Connectivity</h3>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Power Monitoring</h3>
                 <p className="text-circleTel-secondaryNeutral mb-4">
-                  Multiple internet connection types to ensure your business stays connected during infrastructure failures.
+                  Advanced monitoring solutions to track power quality and UPS performance for optimal uptime.
                 </p>
                 <ul className="space-y-2 mb-4">
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">Fixed wireless + fibre solutions</span>
+                    <span className="text-circleTel-secondaryNeutral">Real-time UPS monitoring</span>
                   </li>
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">LTE backup connections</span>
+                    <span className="text-circleTel-secondaryNeutral">Power quality analysis</span>
                   </li>
                   <li className="flex items-center">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center text-xs mr-2">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">Automatic failover configuration</span>
+                    <span className="text-circleTel-secondaryNeutral">Predictive maintenance alerts</span>
                   </li>
                 </ul>
-                <Link to="/connectivity" className="text-circleTel-orange font-medium hover:underline">Learn more →</Link>
+                <Link to="/contact" className="text-circleTel-orange font-medium hover:underline">Learn more →</Link>
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ const LoadSheddingSolutions = () => {
         {/* Case Study Section */}
         <section className="py-16 bg-circleTel-lightNeutral">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-circleTel-darkNeutral text-center mb-8">South African Businesses That Stay Online</h2>
+            <h2 className="text-3xl font-bold text-circleTel-darkNeutral text-center mb-8">South African Businesses with Power Protection</h2>
             
             <div className="max-w-3xl mx-auto bg-white rounded-lg p-6 md:p-8 shadow-lg">
               <div className="flex flex-col md:flex-row gap-6">
@@ -167,7 +167,7 @@ const LoadSheddingSolutions = () => {
                 <div className="md:w-2/3">
                   <h4 className="text-lg font-bold text-circleTel-darkNeutral mb-3">The Solution</h4>
                   <p className="text-circleTel-secondaryNeutral mb-4">
-                    We implemented a comprehensive load shedding solution including UPS backup for all point-of-sale systems, cloud-based transaction processing with offline mode, and dual-connectivity with automatic failover.
+                    We implemented a comprehensive power backup solution including enterprise-grade UPS systems for all point-of-sale systems, cloud-based transaction processing with offline mode, and power quality monitoring with automatic failover.
                   </p>
                   
                   <h4 className="text-lg font-bold text-circleTel-darkNeutral mb-3">The Results</h4>
@@ -201,16 +201,16 @@ const LoadSheddingSolutions = () => {
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="bg-circleTel-orange/10 rounded-lg p-8 text-center">
-              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Keep Your Business Running When Others Shut Down</h2>
+              <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Keep Your Business Running When Power Fails</h2>
               <p className="text-xl text-circleTel-secondaryNeutral mb-8 max-w-2xl mx-auto">
-                Don't let load shedding impact your bottom line. Our solutions are designed specifically for South African businesses facing power challenges.
+                Don't let power outages impact your bottom line. Our UPS and backup power solutions are designed specifically for South African businesses facing power challenges.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
-                  <Link to="/contact">Get a Custom Solution</Link>
+                  <Link to="/contact">Get a Custom Power Solution</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/resources/it-health">Free Load Shedding Assessment</Link>
+                  <Link to="/resources/it-health">Free Power Infrastructure Assessment</Link>
                 </Button>
               </div>
             </div>
@@ -222,4 +222,4 @@ const LoadSheddingSolutions = () => {
   );
 };
 
-export default LoadSheddingSolutions;
+export default PowerBackupSolutions;
