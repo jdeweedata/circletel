@@ -8,7 +8,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import SmallBusinessServices from "./pages/SmallBusinessServices";
+import MidSizeBusinessServices from "./pages/MidSizeBusinessServices";
+import GrowthReadyServices from "./pages/GrowthReadyServices";
 import About from "./pages/About";
+import AboutTeam from "./pages/AboutTeam";
+import AboutCertifications from "./pages/AboutCertifications";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import CaseStudies from "./pages/CaseStudies";
@@ -18,12 +22,16 @@ import FixedWireless from "./pages/FixedWireless";
 import Fibre from "./pages/Fibre";
 import Contact from "./pages/Contact";
 import Resources from "./pages/Resources";
+import ConnectivityGuide from "./pages/ConnectivityGuide";
+import WiFiToolkit from "./pages/WiFiToolkit";
 import Blog from "./pages/Blog";
+import BlogArchive from "./pages/BlogArchive";
+import BlogLoadSheddingSolutions from "./pages/BlogLoadSheddingSolutions";
 import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
-// Added new Cloud pages and LoadShedding page
+// Added Cloud pages and LoadShedding page
 import CloudMigration from "./pages/CloudMigration";
 import CloudHosting from "./pages/CloudHosting";
 import CloudBackup from "./pages/CloudBackup";
@@ -45,8 +53,15 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/small-business" element={<SmallBusinessServices />} />
+            <Route path="/services/mid-size" element={<MidSizeBusinessServices />} />
+            <Route path="/services/growth-ready" element={<GrowthReadyServices />} />
             <Route path="/services/security" element={<SecurityServices />} />
+            
+            {/* About routes - New */}
             <Route path="/about" element={<About />} />
+            <Route path="/about/team" element={<AboutTeam />} />
+            <Route path="/about/certifications" element={<AboutCertifications />} />
+            
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/case-studies" element={<CaseStudies />} />
             
@@ -56,16 +71,22 @@ const App = () => (
             <Route path="/connectivity/fixed-wireless" element={<FixedWireless />} />
             <Route path="/connectivity/fibre" element={<Fibre />} />
             
-            {/* Cloud routes - New */}
+            {/* Cloud routes */}
             <Route path="/cloud/migration" element={<CloudMigration />} />
             <Route path="/cloud/hosting" element={<CloudHosting />} />
             <Route path="/cloud/backup" element={<CloudBackup />} />
             
-            {/* Resources routes */}
+            {/* Resources routes - Updated with new pages */}
             <Route path="/resources" element={<Resources />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
             <Route path="/resources/load-shedding" element={<LoadSheddingSolutions />} />
+            <Route path="/resources/connectivity-guide" element={<ConnectivityGuide />} />
+            <Route path="/resources/wifi-toolkit" element={<WiFiToolkit />} />
+            
+            {/* Blog routes - Updated with new pages */}
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/archive" element={<BlogArchive />} />
+            <Route path="/blog/stay-operational-during-load-shedding" element={<BlogLoadSheddingSolutions />} />
             
             {/* Additional routes */}
             <Route path="/contact" element={<Contact />} />

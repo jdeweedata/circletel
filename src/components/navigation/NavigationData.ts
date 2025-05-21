@@ -1,5 +1,5 @@
 
-import { Book, Activity, Home, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -31,6 +31,18 @@ export const managedITItems: NavigationItem[] = [
     description: "Tailored IT solutions for small businesses"
   },
   {
+    name: "Mid-Size Business IT",
+    href: "/services/mid-size",
+    icon: TrendingUp,
+    description: "IT solutions for established mid-size companies"
+  },
+  {
+    name: "Growth-Ready IT",
+    href: "/services/growth-ready",
+    icon: Rocket,
+    description: "Scalable IT solutions for rapidly growing businesses"
+  },
+  {
     name: "Security Solutions",
     href: "/services/security",
     icon: ShieldCheck,
@@ -49,13 +61,13 @@ export const itSolutionsItems: NavigationItem[] = [
   {
     name: "Mid-Size Business Recipes",
     href: "/services/mid-size",
-    icon: Laptop,
+    icon: TrendingUp,
     description: "IT solutions for growing mid-size companies"
   }, 
   {
     name: "Growth-Ready Recipes",
     href: "/services/growth-ready",
-    icon: Laptop,
+    icon: Rocket,
     description: "Scalable IT solutions for rapid growth"
   },
   {
@@ -77,18 +89,24 @@ export const connectivityItems: NavigationItem[] = [
   {
     name: "Fixed Wireless",
     href: "/connectivity/fixed-wireless",
-    icon: Wifi,
+    icon: Network,
     description: "Fast and reliable wireless internet connectivity"
   },
   {
     name: "Fibre",
     href: "/connectivity/fibre",
-    icon: Wifi,
+    icon: Globe,
     description: "High-speed fibre internet solutions"
+  },
+  {
+    name: "Connectivity Guide",
+    href: "/resources/connectivity-guide",
+    icon: Book,
+    description: "Comprehensive guide to connectivity options"
   }
 ];
 
-// Cloud Hosting section (new)
+// Cloud Hosting section (updated)
 export const cloudHostingItems: NavigationItem[] = [
   {
     name: "Cloud Migration",
@@ -110,7 +128,7 @@ export const cloudHostingItems: NavigationItem[] = [
   }
 ];
 
-// About section
+// About section (updated with new pages)
 export const aboutItems: NavigationItem[] = [
   {
     name: "Our Story",
@@ -132,7 +150,7 @@ export const aboutItems: NavigationItem[] = [
   }
 ];
 
-// Resources section (updated)
+// Resources section (updated with new pages)
 export const resourcesItems: NavigationItem[] = [
   {
     name: "Resources Hub",
@@ -147,16 +165,34 @@ export const resourcesItems: NavigationItem[] = [
     description: "Evaluate your IT infrastructure"
   },
   {
+    name: "Load Shedding Solutions",
+    href: "/resources/load-shedding",
+    icon: Activity,
+    description: "IT solutions for power outages"
+  },
+  {
+    name: "Connectivity Guide",
+    href: "/resources/connectivity-guide",
+    icon: Globe,
+    description: "Guide to business connectivity options"
+  },
+  {
+    name: "Wi-Fi Toolkit",
+    href: "/resources/wifi-toolkit",
+    icon: Wifi,
+    description: "Planning tools for Wi-Fi deployments"
+  },
+  {
     name: "Blog",
     href: "/blog",
     icon: Book,
     description: "Latest news and insights"
   },
   {
-    name: "Load Shedding Solutions",
-    href: "/resources/load-shedding",
-    icon: Activity,
-    description: "IT solutions for power outages"
+    name: "Blog Archive",
+    href: "/blog/archive",
+    icon: Book,
+    description: "Complete collection of articles"
   }
 ];
 
@@ -188,7 +224,7 @@ export const mainNavigation: NavigationSection[] = [
   }
 ];
 
-// Footer links
+// Footer links (updated with new pages)
 export const footerLinks = [
   {
     name: "Legal",
@@ -201,6 +237,8 @@ export const footerLinks = [
     name: "Company",
     items: [
       { name: "About Us", href: "/about" },
+      { name: "Our Team", href: "/about/team" },
+      { name: "Certifications", href: "/about/certifications" },
       { name: "Case Studies", href: "/case-studies" },
       { name: "Contact", href: "/contact" }
     ]
@@ -208,9 +246,21 @@ export const footerLinks = [
   {
     name: "Services",
     items: [
-      { name: "Managed IT", href: "/services" },
+      { name: "Small Business IT", href: "/services/small-business" },
+      { name: "Mid-Size Business IT", href: "/services/mid-size" },
+      { name: "Growth-Ready IT", href: "/services/growth-ready" },
       { name: "Wi-Fi as a Service", href: "/connectivity/wifi-as-a-service" },
       { name: "Cloud Solutions", href: "/cloud/migration" }
+    ]
+  },
+  {
+    name: "Resources",
+    items: [
+      { name: "IT Health Assessment", href: "/resources/it-health" },
+      { name: "Connectivity Guide", href: "/resources/connectivity-guide" },
+      { name: "Wi-Fi Toolkit", href: "/resources/wifi-toolkit" },
+      { name: "Load Shedding Solutions", href: "/resources/load-shedding" },
+      { name: "Blog Archive", href: "/blog/archive" }
     ]
   }
 ];
