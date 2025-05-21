@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Check, Shield, Award, Star, BookOpen } from 'lucide-react';
 
@@ -18,7 +17,7 @@ const Certifications = ({ expanded = false }: CertificationsProps) => {
     {
       name: 'Microsoft Gold Partner',
       description: 'Microsoft certification recognizing our expertise in Microsoft solutions.',
-      expandedDescription: 'As a Microsoft Gold Partner, we've demonstrated expert-level competence in cloud productivity, data management, and business applications. This partnership gives us early access to Microsoft technologies and direct support channels.',
+      expandedDescription: 'As a Microsoft Gold Partner, we\'ve demonstrated expert-level competence in cloud productivity, data management, and business applications. This partnership gives us early access to Microsoft technologies and direct support channels.',
       icon: <Shield className="text-circleTel-orange" size={24} />,
     },
     {
