@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Server, Cloud, Laptop } from 'lucide-react';
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -13,27 +14,53 @@ const Hero = () => {
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
           {/* Text Content */}
           <div className="w-full md:w-1/2 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-circleTel-darkNeutral">
-              Simplify Your IT with CircleTel's Recipe for Success
+            <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
+              Empowering Your Business with Reliable and Affordable IT Solutions
             </h1>
-            <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-8 max-w-xl">
-              Managed IT services as easy as following a recipe—secure, scalable, stress-free
+            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
+              We Manage Your Tech, You Grow Your Business
             </p>
+            
+            {/* Service Highlights */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+                <Server size={20} className="text-circleTel-orange mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">Managed IT</span>
+              </div>
+              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+                <Laptop size={20} className="text-circleTel-orange mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">WaaS</span>
+              </div>
+              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+                <Cloud size={20} className="text-circleTel-orange mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">Cloud/Hosting</span>
+              </div>
+            </div>
+            
+            <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
+              Simplify IT, Save Costs, and Focus on What You Do Best
+            </p>
+            
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild className="primary-button">
-                <Link to="/services">Explore Our IT Recipes</Link>
+              <Button asChild size="lg" className="primary-button bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold">
+                <Link to="/resources/it-health">Get a Free IT Health Check</Link>
               </Button>
               <Button asChild variant="outline" className="outline-button">
-                <Link to="/resources/it-health">Get a Free IT Assessment</Link>
+                <Link to="/services">Explore Our IT Solutions</Link>
               </Button>
             </div>
           </div>
 
-          {/* Animation/Illustration */}
+          {/* Business Image & Recipe Card Illustration */}
           <div className="w-full md:w-1/2 flex justify-center animate-scale-in">
             <div className="relative">
+              {/* South African Business Setting Image */}
+              <div className="absolute -z-10 w-full h-full rounded-lg overflow-hidden">
+                <div className="w-full h-full bg-circleTel-secondaryNeutral opacity-10"></div>
+              </div>
+              
               {/* Recipe Card Illustration */}
-              <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2">
+              <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2 bg-white">
                 <div className="absolute top-0 right-0 bg-circleTel-orange text-white text-sm font-space-mono py-1 px-3 rounded-bl-lg">
                   SECURE IT RECIPE
                 </div>
