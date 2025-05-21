@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Server, Cloud, Laptop, ShieldCheck } from 'lucide-react';
+import { Server, Cloud, Laptop, ShieldCheck, Wifi } from 'lucide-react';
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -11,10 +11,10 @@ const Hero = () => {
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
       <div className="container mx-auto px-4">
-        {/* Pain Point Statistics Banner */}
+        {/* South African SME-Focused Pain Point Banner */}
         <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-8 text-center">
           <p className="text-circleTel-darkNeutral font-semibold">
-            <span className="text-circleTel-orange font-bold">72% of SMEs</span> struggle with IT management — let us take that burden off your shoulders.
+            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT challenges including load shedding — we have solutions ready for you.
           </p>
         </div>
         
@@ -22,34 +22,34 @@ const Hero = () => {
           {/* Text Content */}
           <div className="w-full md:w-1/2 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
-              We're Here to Make IT Simple and Affordable for Your Business
+              Reliable IT Solutions for South African Businesses
             </h1>
             <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
               You Grow Your Business, We'll Handle Your Tech
             </p>
             
-            {/* Service Highlights */}
+            {/* Service Highlights - Updated to focus on key services */}
             <div className="flex flex-wrap gap-4 mb-8">
-              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+              <Link to="/services" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
                 <Server size={20} className="text-circleTel-orange mr-2" />
                 <span className="text-circleTel-secondaryNeutral font-medium">Managed IT</span>
-              </div>
-              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
-                <Laptop size={20} className="text-circleTel-orange mr-2" />
+              </Link>
+              <Link to="/connectivity/wifi-as-a-service" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
+                <Wifi size={20} className="text-circleTel-orange mr-2" />
                 <span className="text-circleTel-secondaryNeutral font-medium">WaaS</span>
-              </div>
-              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+              </Link>
+              <Link to="/cloud/migration" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
                 <Cloud size={20} className="text-circleTel-orange mr-2" />
                 <span className="text-circleTel-secondaryNeutral font-medium">Cloud/Hosting</span>
-              </div>
-              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm">
+              </Link>
+              <Link to="/resources/load-shedding" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
                 <ShieldCheck size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Fast Support</span>
-              </div>
+                <span className="text-circleTel-secondaryNeutral font-medium">Load Shedding Solutions</span>
+              </Link>
             </div>
             
             <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
-              No tech jargon, no hidden costs — just reliable IT solutions that work for your business needs. Let's simplify your tech journey together.
+              No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses. Designed for your unique challenges, including power outages and connectivity issues.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
@@ -57,7 +57,7 @@ const Hero = () => {
                 <Link to="/resources/it-health">Get a Free IT Health Check</Link>
               </Button>
               <Button asChild variant="outline" className="outline-button">
-                <Link to="/services">Explore Our IT Solutions</Link>
+                <Link to="/services">Explore IT Solutions</Link>
               </Button>
             </div>
           </div>
@@ -70,13 +70,13 @@ const Hero = () => {
                 <div className="w-full h-full bg-circleTel-secondaryNeutral opacity-10"></div>
               </div>
               
-              {/* Recipe Card Illustration */}
+              {/* Recipe Card Illustration - Updated for SME appeal */}
               <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2 bg-white">
                 <div className="absolute top-0 right-0 bg-circleTel-orange text-white text-sm font-space-mono py-1 px-3 rounded-bl-lg">
-                  SECURE IT RECIPE
+                  LOAD SHEDDING READY
                 </div>
                 
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Essential Security Recipe</h3>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Essential Business IT Recipe</h3>
                 <div className="bg-circleTel-lightNeutral h-1 w-20 mb-4"></div>
                 
                 <div className="mb-6">
@@ -84,19 +84,19 @@ const Hero = () => {
                   <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Next-gen Firewall Protection</span>
+                      <span>24/7 Remote Monitoring</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>24/7 Monitoring Services</span>
+                      <span>Backup Power Solutions</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Regular Security Updates</span>
+                      <span>Redundant Internet</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Employee Training Program</span>
+                      <span>Cloud Backup Solutions</span>
                     </li>
                   </ul>
                 </div>
@@ -104,7 +104,7 @@ const Hero = () => {
                 <div className="bg-circleTel-lightNeutral p-4 rounded-md">
                   <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef's Notes</h4>
                   <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
-                    Perfect for small to mid-sized businesses looking to establish a robust security foundation with minimal hassle.
+                    Perfect for South African businesses dealing with load shedding and connectivity challenges. Keeps your business running even during power outages.
                   </p>
                 </div>
               </div>

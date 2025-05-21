@@ -15,8 +15,10 @@ import { cn } from "@/lib/utils";
 import {
   NavigationItem,
   NavigationSection,
+  managedITItems,
   itSolutionsItems,
   connectivityItems,
+  cloudHostingItems,
   aboutItems,
   resourcesItems
 } from './NavigationData';
@@ -82,26 +84,45 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
 
         {/* Managed IT */}
         <NavigationMenuItem>
-          <Link to="/services">
-            <NavigationMenuLink 
-              className={cn(
-                navigationMenuTriggerStyle(),
-                isActive('/services') && !currentPath.includes('/services/') && 'bg-accent text-accent-foreground'
-              )}
-            >
-              Managed IT
-            </NavigationMenuLink>
-          </Link>
+          <NavigationMenuTrigger 
+            className={cn(
+              isActive('/services') && 'bg-accent text-accent-foreground'
+            )}
+          >
+            Managed IT
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {managedITItems.map((item) => (
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+              ))}
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
 
         {/* IT Solutions */}
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
-              isActive('/services/small-business') || 
+              (isActive('/services/small-business') || 
               isActive('/services/mid-size') || 
               isActive('/services/growth-ready') || 
-              isActive('/pricing') && 'bg-accent text-accent-foreground'
+              isActive('/pricing')) && 'bg-accent text-accent-foreground'
             )}
           >
             IT Solutions
@@ -134,7 +155,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
-              isActive('/connectivity') && !currentPath.includes('/connectivity/') && 'bg-accent text-accent-foreground'
+              isActive('/connectivity') && 'bg-accent text-accent-foreground'
             )}
           >
             Connectivity
@@ -158,6 +179,39 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                 </NavigationMenuLink>
               </li>
               {connectivityItems.map((item) => (
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+              ))}
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+
+        {/* Cloud & Hosting - New Section */}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger 
+            className={cn(
+              isActive('/cloud') && 'bg-accent text-accent-foreground'
+            )}
+          >
+            Cloud & Hosting
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {cloudHostingItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link 

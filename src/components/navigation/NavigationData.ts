@@ -1,6 +1,6 @@
 
-import { Book, Activity, Home, Laptop, Wifi, DollarSign, Users, BookOpen, FileText } from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { Book, Activity, Home, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
 export type NavigationItem = {
@@ -15,6 +15,28 @@ export type NavigationSection = {
   items: NavigationItem[];
   icon?: LucideIcon;
 };
+
+// Updated organization of main services
+export const managedITItems: NavigationItem[] = [
+  {
+    name: "Complete IT Management",
+    href: "/services",
+    icon: Server,
+    description: "Full-service IT management and support for your business"
+  },
+  {
+    name: "Small Business IT",
+    href: "/services/small-business",
+    icon: Laptop,
+    description: "Tailored IT solutions for small businesses"
+  },
+  {
+    name: "Security Solutions",
+    href: "/services/security",
+    icon: ShieldCheck,
+    description: "Protect your business with our security solutions"
+  }
+];
 
 // IT Solutions section (was "Services")
 export const itSolutionsItems: NavigationItem[] = [
@@ -66,6 +88,28 @@ export const connectivityItems: NavigationItem[] = [
   }
 ];
 
+// Cloud Hosting section (new)
+export const cloudHostingItems: NavigationItem[] = [
+  {
+    name: "Cloud Migration",
+    href: "/cloud/migration",
+    icon: Cloud,
+    description: "Seamless transition to cloud infrastructure"
+  },
+  {
+    name: "Hosting Solutions",
+    href: "/cloud/hosting",
+    icon: Server,
+    description: "Reliable hosting for your business applications"
+  },
+  {
+    name: "Backup & Recovery",
+    href: "/cloud/backup",
+    icon: Cloud,
+    description: "Secure cloud backup and disaster recovery"
+  }
+];
+
 // About section
 export const aboutItems: NavigationItem[] = [
   {
@@ -88,7 +132,7 @@ export const aboutItems: NavigationItem[] = [
   }
 ];
 
-// Resources section (new)
+// Resources section (updated)
 export const resourcesItems: NavigationItem[] = [
   {
     name: "Resources Hub",
@@ -107,6 +151,12 @@ export const resourcesItems: NavigationItem[] = [
     href: "/blog",
     icon: Book,
     description: "Latest news and insights"
+  },
+  {
+    name: "Load Shedding Solutions",
+    href: "/resources/load-shedding",
+    icon: Activity,
+    description: "IT solutions for power outages"
   }
 ];
 
@@ -114,11 +164,7 @@ export const resourcesItems: NavigationItem[] = [
 export const mainNavigation: NavigationSection[] = [
   {
     name: "Managed IT",
-    items: [{
-      name: "Managed IT Services",
-      href: "/services",
-      description: "Full-service IT management and support"
-    }]
+    items: managedITItems
   },
   {
     name: "IT Solutions",
@@ -127,6 +173,10 @@ export const mainNavigation: NavigationSection[] = [
   {
     name: "Connectivity",
     items: connectivityItems
+  },
+  {
+    name: "Cloud & Hosting",
+    items: cloudHostingItems
   },
   {
     name: "Resources",
@@ -160,7 +210,7 @@ export const footerLinks = [
     items: [
       { name: "Managed IT", href: "/services" },
       { name: "Wi-Fi as a Service", href: "/connectivity/wifi-as-a-service" },
-      { name: "Connectivity", href: "/connectivity" }
+      { name: "Cloud Solutions", href: "/cloud/migration" }
     ]
   }
 ];

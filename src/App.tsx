@@ -23,6 +23,13 @@ import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
+// Added new Cloud pages and LoadShedding page
+import CloudMigration from "./pages/CloudMigration";
+import CloudHosting from "./pages/CloudHosting";
+import CloudBackup from "./pages/CloudBackup";
+import LoadSheddingSolutions from "./pages/LoadSheddingSolutions";
+import SecurityServices from "./pages/SecurityServices";
+
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
@@ -38,6 +45,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/small-business" element={<SmallBusinessServices />} />
+            <Route path="/services/security" element={<SecurityServices />} />
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/case-studies" element={<CaseStudies />} />
@@ -48,9 +56,15 @@ const App = () => (
             <Route path="/connectivity/fixed-wireless" element={<FixedWireless />} />
             <Route path="/connectivity/fibre" element={<Fibre />} />
             
+            {/* Cloud routes - New */}
+            <Route path="/cloud/migration" element={<CloudMigration />} />
+            <Route path="/cloud/hosting" element={<CloudHosting />} />
+            <Route path="/cloud/backup" element={<CloudBackup />} />
+            
             {/* Resources routes */}
             <Route path="/resources" element={<Resources />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
+            <Route path="/resources/load-shedding" element={<LoadSheddingSolutions />} />
             <Route path="/blog" element={<Blog />} />
             
             {/* Additional routes */}
