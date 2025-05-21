@@ -97,8 +97,8 @@ const Footer = () => {
               <li><Link to="/resources" className="hover:text-circleTel-orange transition-colors">Resources</Link></li>
               <li><Link to="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
               <li><a href="#" className="hover:text-circleTel-orange transition-colors">Support Portal</a></li>
-              <li><a href="#" className="hover:text-circleTel-orange transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-circleTel-orange transition-colors">Terms of Service</a></li>
+              <li><Link to="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-circleTel-orange transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>

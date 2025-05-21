@@ -20,6 +20,8 @@ import Contact from "./pages/Contact";
 import Resources from "./pages/Resources";
 import Blog from "./pages/Blog";
 import ITAssessment from "./pages/ITAssessment";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +47,8 @@ const App = () => (
             <Route path="/resources" element={<Resources />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
-            {/* Future pages will be added here */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
