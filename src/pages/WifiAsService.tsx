@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { WifiHigh, CheckCircle, ShieldCheck, Users, LineChart, Laptop } from 'lucide-react';
+import { WifiHigh, CheckCircle, ShieldCheck, Users, LineChart, Laptop, MessageSquarePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Link } from 'react-router-dom';
@@ -18,18 +18,21 @@ const WifiAsService = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="text-left">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-circleTel-darkNeutral mb-4">
-                  Wi-Fi as a Service (WaaS)
+                  Fast, secure Wi-Fi without the setup stress
                 </h1>
                 <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-6">
-                  Enterprise-grade Wi-Fi without the complexity. Hardware, installation, management, and monitoring in one monthly fee.
+                  Enterprise-grade Wi-Fi that boosts productivity with reliable connectivity. Hardware, installation, management, and monitoring in one monthly fee.
                 </p>
                 <div className="bg-circleTel-lightNeutral rounded-lg p-4 mb-6">
                   <p className="font-space-mono text-sm text-circleTel-secondaryNeutral mb-1">Starting from</p>
-                  <p className="text-3xl font-bold text-circleTel-darkNeutral">ZAR 2,000/month</p>
+                  <p className="text-3xl font-bold text-circleTel-darkNeutral">R1,200/month</p>
                   <p className="font-space-mono text-xs text-circleTel-secondaryNeutral">(10 devices)</p>
                 </div>
-                <Button asChild className="primary-button">
-                  <Link to="/contact">Schedule A Consultation</Link>
+                <Button asChild className="primary-button flex items-center gap-2">
+                  <Link to="/contact">
+                    <MessageSquarePlus size={18} />
+                    Get a Custom Wi-Fi Plan
+                  </Link>
                 </Button>
               </div>
               
@@ -60,6 +63,20 @@ const WifiAsService = () => {
                   </li>
                 </ul>
               </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* What is WaaS Section */}
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral mb-4">
+                What is Wi-Fi as a Service?
+              </h2>
+              <p className="text-lg text-circleTel-secondaryNeutral">
+                WaaS = We handle your Wi-Fi so you don't have to. It's a simple monthly subscription that includes everything you need for perfect connectivity.
+              </p>
             </div>
           </div>
         </section>
@@ -138,8 +155,59 @@ const WifiAsService = () => {
           </div>
         </section>
         
-        {/* How It Works */}
+        {/* Benefits Section */}
         <section className="py-16 bg-circleTel-lightNeutral">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">
+              Business Benefits of Wi-Fi as a Service
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Predictable Monthly Costs
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  No upfront equipment purchases or surprise maintenance costs. One simple monthly fee covers everything.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Always Up-to-Date Technology
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Hardware refreshes are included in your subscription, ensuring you always have modern, high-performance equipment.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Reduced IT Burden
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Your team can focus on core business activities while we manage all aspects of your Wi-Fi infrastructure.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Enhanced Productivity
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Reliable connectivity means your team spends less time troubleshooting and more time being productive.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* How It Works */}
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">
               How Wi-Fi as a Service Works
@@ -184,8 +252,11 @@ const WifiAsService = () => {
             </div>
             
             <div className="text-center mt-12">
-              <Button asChild className="primary-button">
-                <Link to="/contact">Get Started with WaaS</Link>
+              <Button asChild className="primary-button flex items-center gap-2">
+                <Link to="/contact">
+                  <WifiHigh size={18} />
+                  Get Started with WaaS
+                </Link>
               </Button>
             </div>
           </div>
