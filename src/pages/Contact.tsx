@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
@@ -204,11 +203,11 @@ const Contact = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="font-bold text-circleTel-darkNeutral">Monday - Friday:</span>
-                      <span className="text-circleTel-secondaryNeutral">8:00 AM - 6:00 PM</span>
+                      <span className="text-circleTel-secondaryNeutral">08:00 AM - 17:00 PM</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-bold text-circleTel-darkNeutral">Saturday:</span>
-                      <span className="text-circleTel-secondaryNeutral">9:00 AM - 2:00 PM</span>
+                      <span className="text-circleTel-secondaryNeutral">Closed</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-bold text-circleTel-darkNeutral">Sunday:</span>
