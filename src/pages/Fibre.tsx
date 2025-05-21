@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { CircleCheck, CheckCircle, ShieldCheck, Zap, LineChart, Laptop } from 'lucide-react';
+import { CircleCheck, CheckCircle, ShieldCheck, Zap, LineChart, Laptop, MessageSquarePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Link } from 'react-router-dom';
@@ -18,18 +18,21 @@ const Fibre = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="text-left">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-circleTel-darkNeutral mb-4">
-                  Fibre to the Premises (FTTP)
+                  Blazing-fast fibre for mission-critical business
                 </h1>
                 <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-6">
-                  Blazing-fast, ultra-reliable fibre connectivity for businesses that demand the best performance and lowest latency.
+                  Ultra-reliable fibre connectivity with guaranteed uptime for businesses that can't afford to slow down.
                 </p>
                 <div className="bg-circleTel-lightNeutral rounded-lg p-4 mb-6">
                   <p className="font-space-mono text-sm text-circleTel-secondaryNeutral mb-1">Starting from</p>
-                  <p className="text-3xl font-bold text-circleTel-darkNeutral">ZAR 3,000/month</p>
+                  <p className="text-3xl font-bold text-circleTel-darkNeutral">R3,000/month</p>
                   <p className="font-space-mono text-xs text-circleTel-secondaryNeutral">(50Mbps)</p>
                 </div>
-                <Button asChild className="primary-button">
-                  <Link to="/contact">Schedule A Consultation</Link>
+                <Button asChild className="primary-button flex items-center gap-2">
+                  <Link to="/contact">
+                    <MessageSquarePlus size={18} />
+                    Explore Fibre Options
+                  </Link>
                 </Button>
               </div>
               
@@ -64,6 +67,20 @@ const Fibre = () => {
           </div>
         </section>
         
+        {/* What is Fibre Section */}
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral mb-4">
+                What is Business Fibre?
+              </h2>
+              <p className="text-lg text-circleTel-secondaryNeutral">
+                Fibre = The fastest, most reliable internet connection. It uses light signals through glass fibre cables for unmatched speed and stability that your business can depend on.
+              </p>
+            </div>
+          </div>
+        </section>
+        
         {/* Features Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
@@ -76,16 +93,16 @@ const Fibre = () => {
                 <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4">
                   <Zap size={28} />
                 </div>
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Speed & Stability</h3>
-                <p className="text-circleTel-secondaryNeutral">Symmetrical speeds up to 1Gbps with consistent performance regardless of usage volume.</p>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Unbeatable Speed</h3>
+                <p className="text-circleTel-secondaryNeutral">Symmetrical speeds up to 1Gbps with consistent performance for uploads and downloads.</p>
               </div>
               
               <div className="text-center">
                 <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4">
                   <CircleCheck size={28} />
                 </div>
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Reliability</h3>
-                <p className="text-circleTel-secondaryNeutral">99.99% uptime guarantee with service level agreements for mission-critical operations.</p>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Absolute Reliability</h3>
+                <p className="text-circleTel-secondaryNeutral">99.99% uptime guarantee with service level agreements to keep your business running.</p>
               </div>
               
               <div className="text-center">
@@ -93,7 +110,7 @@ const Fibre = () => {
                   <ShieldCheck size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Future-Proof</h3>
-                <p className="text-circleTel-secondaryNeutral">Scalable infrastructure that can grow with your business needs well into the future.</p>
+                <p className="text-circleTel-secondaryNeutral">Your connectivity investment grows with your business through easily scalable bandwidth options.</p>
               </div>
             </div>
             
@@ -138,8 +155,59 @@ const Fibre = () => {
           </div>
         </section>
         
-        {/* How It Works */}
+        {/* Business Benefits Section */}
         <section className="py-16 bg-circleTel-lightNeutral">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">
+              Business Advantages of Fibre
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Enhanced Productivity
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Eliminate frustrating slowdowns with consistent high-speed connectivity for all users simultaneously.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Cloud Application Performance
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Experience seamless performance with critical cloud applications like Office 365, CRMs, and video conferencing.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Crystal-Clear Communications
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Support flawless VoIP telephony and video conferencing with low-latency, jitter-free connections.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral flex items-center mb-4">
+                  <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                  Lower Total Cost
+                </h3>
+                <p className="text-circleTel-secondaryNeutral ml-8">
+                  Higher initial investment delivers long-term value through reliability, reduced downtime, and better performance.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral text-center mb-12">
               Our Fibre Implementation Process
@@ -184,8 +252,11 @@ const Fibre = () => {
             </div>
             
             <div className="text-center mt-12">
-              <Button asChild className="primary-button">
-                <Link to="/contact">Get Started with Fibre</Link>
+              <Button asChild className="primary-button flex items-center gap-2">
+                <Link to="/contact">
+                  <MessageSquarePlus size={18} />
+                  Get Started with Fibre
+                </Link>
               </Button>
             </div>
           </div>
