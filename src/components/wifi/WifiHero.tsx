@@ -21,7 +21,7 @@ const WifiHero = () => {
               <p className="text-3xl font-bold text-circleTel-darkNeutral">R1,200/month</p>
               <p className="font-space-mono text-xs text-circleTel-secondaryNeutral">(10 devices)</p>
             </div>
-            <Button asChild className="primary-button flex items-center gap-2">
+            <Button asChild className="primary-button flex items-center gap-2 mb-8 md:mb-0">
               <Link to="/contact">
                 <MessageSquarePlus size={18} />
                 Get a Custom Wi-Fi Plan
@@ -29,7 +29,7 @@ const WifiHero = () => {
             </Button>
           </div>
           
-          <div className="relative bg-white rounded-lg p-6 shadow-lg border border-circleTel-orange">
+          <div className="relative bg-white rounded-lg p-6 shadow-lg border border-circleTel-orange mt-8 md:mt-0">
             <div className="flex items-center mb-4">
               <div className="bg-circleTel-orange rounded-full p-3 mr-3 text-white">
                 <WifiHigh size={24} />

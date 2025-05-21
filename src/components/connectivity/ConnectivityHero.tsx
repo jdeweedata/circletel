@@ -16,7 +16,7 @@ const ConnectivityHero = () => {
             <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-8">
               Wi-Fi as a Service, Fixed Wireless, and Fibre solutions tailored for your business
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 md:mb-0">
               <Button 
                 onClick={() => {
                   document.getElementById('recipes-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -32,7 +32,7 @@ const ConnectivityHero = () => {
             </div>
           </div>
           
-          <div className="relative">
+          <div className="relative mt-8 md:mt-0">
             <div className="bg-circleTel-lightNeutral rounded-lg p-6 md:p-8 shadow-lg">
               <div className="flex items-center mb-4">
                 <div className="bg-circleTel-orange rounded-full p-3 mr-3 text-white">
