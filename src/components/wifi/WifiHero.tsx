@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WifiHigh, MessageSquarePlus, CheckCircle } from 'lucide-react';
+import { WifiHigh, MessageSquarePlus, CheckCircle, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -21,12 +21,20 @@ const WifiHero = () => {
               <p className="text-3xl font-bold text-circleTel-darkNeutral">R1,200/month</p>
               <p className="font-space-mono text-xs text-circleTel-secondaryNeutral">(10 devices)</p>
             </div>
-            <Button asChild className="primary-button flex items-center gap-2 mb-8 md:mb-0">
-              <Link to="/contact">
-                <MessageSquarePlus size={18} />
-                Get a Custom Wi-Fi Plan
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-4 mb-8 md:mb-0">
+              <Button asChild className="primary-button flex items-center gap-2">
+                <Link to="/contact">
+                  <MessageSquarePlus size={18} />
+                  Get a Custom Wi-Fi Plan
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="flex items-center gap-2">
+                <Link to="/contact">
+                  <MapPin size={18} />
+                  Request a Site Survey
+                </Link>
+              </Button>
+            </div>
           </div>
           
           <div className="relative bg-white rounded-lg p-6 shadow-lg border border-circleTel-orange mt-8 md:mt-0">

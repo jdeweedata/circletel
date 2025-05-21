@@ -1,12 +1,32 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, X } from 'lucide-react';
+import { Linkedin, X, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
     <footer className="bg-circleTel-darkNeutral text-white py-12">
       <div className="container mx-auto px-4">
+        {/* Contact Bar */}
+        <div className="bg-circleTel-secondaryNeutral bg-opacity-20 rounded-lg p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-4 md:mb-0">
+            <div className="flex items-center">
+              <Phone size={18} className="mr-2 text-circleTel-orange" />
+              <span className="text-circleTel-lightNeutral">087 087 6305</span>
+            </div>
+            <div className="flex items-center">
+              <Mail size={18} className="mr-2 text-circleTel-orange" />
+              <span className="text-circleTel-lightNeutral">contactus@circletel.co.za</span>
+            </div>
+          </div>
+          <Link 
+            to="/contact" 
+            className="inline-block bg-circleTel-orange text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition"
+          >
+            Contact Us
+          </Link>
+        </div>
+
         {/* Coming Soon Banner */}
         <div className="bg-circleTel-orange bg-opacity-20 rounded-lg p-4 mb-8 text-center">
           <h3 className="font-bold text-lg mb-2">Fibre and Wireless solutions coming soon!</h3>
@@ -83,8 +103,18 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-circleTel-lightNeutral">
-          <p>&copy; {new Date().getFullYear()} CircleTel. All rights reserved.</p>
+        <div className="border-t border-gray-700 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-circleTel-lightNeutral mb-4 md:mb-0">
+              &copy; {new Date().getFullYear()} CircleTel. All rights reserved.
+            </p>
+            <div className="flex items-center">
+              <MapPin size={16} className="mr-2 text-circleTel-orange" />
+              <p className="text-sm text-circleTel-lightNeutral">
+                West House, 7 Autumn Road, Rivonia, Johannesburg, 2128
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

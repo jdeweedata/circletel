@@ -1,17 +1,49 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle, Calendar, MapPin, Mail, Phone, Cloud } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 const Contact = () => {
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    serviceInterest: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleServiceChange = (value: string) => {
+    setFormData(prev => ({ ...prev, serviceInterest: value }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real implementation, this would submit the form data
-    console.log('Form submitted');
+    console.log('Form submitted', formData);
+    
+    // Show success message
+    toast({
+      title: "Message Sent!",
+      description: "We'll reply to your inquiry within 24 hours.",
+    });
+    
+    // Reset form and show confirmation
+    setFormSubmitted(true);
+    setFormData({ name: '', email: '', serviceInterest: '' });
+    
+    // Reset form state after 5 seconds
+    setTimeout(() => {
+      setFormSubmitted(false);
+    }, 5000);
   };
 
   return (
@@ -32,80 +64,92 @@ const Contact = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-xl font-bold text-circleTel-darkNeutral mb-6">
-                  Send Us a Message
+                  Get in Touch
                 </h2>
                 
-                <form onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 gap-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
-                        Your Name
-                      </label>
-                      <Input 
-                        id="name"
-                        type="text" 
-                        placeholder="John Doe" 
-                        className="w-full rounded-md"
-                        required
-                      />
+                {formSubmitted ? (
+                  <div className="bg-green-50 border border-green-200 rounded-md p-6 text-center">
+                    <CheckCircle className="mx-auto text-green-500 mb-3" size={40} />
+                    <h3 className="text-lg font-bold text-green-800 mb-2">Thank You!</h3>
+                    <p className="text-green-700">
+                      We've received your message and will get back to you within 24 hours.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+                          Your Name
+                        </label>
+                        <Input 
+                          id="name"
+                          type="text" 
+                          placeholder="John Doe" 
+                          className="w-full rounded-md"
+                          required
+                          value={formData.name}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+                          Email Address
+                        </label>
+                        <Input 
+                          id="email"
+                          type="email" 
+                          placeholder="john@example.com" 
+                          className="w-full rounded-md"
+                          required
+                          value={formData.email}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="serviceInterest" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
+                          Service Interest
+                        </label>
+                        <Select onValueChange={handleServiceChange} value={formData.serviceInterest}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a service" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="managed-it">Managed IT Services</SelectItem>
+                            <SelectItem value="wifi">Wi-Fi as a Service</SelectItem>
+                            <SelectItem value="connectivity">Connectivity Solutions</SelectItem>
+                            <SelectItem value="cloud">Cloud Services</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <Button type="submit" className="primary-button w-full">
+                        Send Message
+                      </Button>
                     </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
-                        Email Address
-                      </label>
-                      <Input 
-                        id="email"
-                        type="email" 
-                        placeholder="john@example.com" 
-                        className="w-full rounded-md"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
-                        Phone Number
-                      </label>
-                      <Input 
-                        id="phone"
-                        type="tel" 
-                        placeholder="087 123 4567" 
-                        className="w-full rounded-md"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
-                        Subject
-                      </label>
-                      <Input 
-                        id="subject"
-                        type="text" 
-                        placeholder="I'm interested in Wi-Fi as a Service" 
-                        className="w-full rounded-md"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-circleTel-darkNeutral mb-1">
-                        Your Message
-                      </label>
-                      <Textarea 
-                        id="message"
-                        placeholder="Tell us about your business and connectivity needs..." 
-                        className="w-full rounded-md"
-                        rows={5}
-                        required
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="primary-button w-full">
-                      Send Message
+                  </form>
+                )}
+
+                <div className="mt-8 flex flex-col space-y-4">
+                  <h3 className="font-bold text-circleTel-darkNeutral">Quick Actions</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <Button variant="outline" className="flex items-center justify-center gap-2">
+                      <Calendar size={18} />
+                      <span>Schedule Consultation</span>
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center gap-2">
+                      <MapPin size={18} />
+                      <span>Request Site Survey</span>
+                    </Button>
+                    <Button variant="outline" className="flex items-center justify-center gap-2">
+                      <Cloud size={18} />
+                      <span>Get Cloud Quote</span>
                     </Button>
                   </div>
-                </form>
+                </div>
               </div>
               
               <div>
@@ -121,7 +165,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-darkNeutral">Phone</h3>
-                        <p className="text-circleTel-secondaryNeutral">087 123 4567</p>
+                        <p className="text-circleTel-secondaryNeutral">087 087 6305</p>
                       </div>
                     </div>
                     
@@ -131,7 +175,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-darkNeutral">Email</h3>
-                        <p className="text-circleTel-secondaryNeutral">info@circletel.co.za</p>
+                        <p className="text-circleTel-secondaryNeutral">contactus@circletel.co.za</p>
                       </div>
                     </div>
                     
@@ -142,9 +186,9 @@ const Contact = () => {
                       <div>
                         <h3 className="font-bold text-circleTel-darkNeutral">Address</h3>
                         <p className="text-circleTel-secondaryNeutral">
-                          123 Business Park<br />
-                          Innovation Drive<br />
-                          Sandton, 2196<br />
+                          West House, 7 Autumn Road<br />
+                          Rivonia, Johannesburg<br />
+                          2128<br />
                           South Africa
                         </p>
                       </div>

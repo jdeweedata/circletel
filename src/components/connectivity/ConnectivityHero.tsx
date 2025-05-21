@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { WifiHigh } from 'lucide-react';
+import { WifiHigh, Calendar, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const ConnectivityHero = () => {
@@ -16,7 +16,7 @@ const ConnectivityHero = () => {
             <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-8">
               Wi-Fi as a Service, Fixed Wireless, and Fibre solutions tailored for your business
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 md:mb-0">
+            <div className="flex flex-wrap gap-4 mb-8 md:mb-0">
               <Button 
                 onClick={() => {
                   document.getElementById('recipes-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -26,8 +26,14 @@ const ConnectivityHero = () => {
               >
                 Explore Connectivity Recipes
               </Button>
-              <Button asChild className="primary-button">
+              <Button asChild className="primary-button flex items-center gap-2">
                 <Link to="/resources/it-health">Get a Free Connectivity Assessment</Link>
+              </Button>
+              <Button asChild variant="outline" className="flex items-center gap-2">
+                <Link to="/contact">
+                  <Calendar size={18} />
+                  Schedule a Consultation
+                </Link>
               </Button>
             </div>
           </div>
