@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import LeadMagnetForm from './LeadMagnetForm';
 import LeadMagnetSuccess from './LeadMagnetSuccess';
 import SampleItReport from './SampleItReport';
 import RegisterInterestForm from '../common/RegisterInterestForm';
+import { Button } from '@/components/ui/button';
 
 const LeadMagnet = () => {
   const [submitted, setSubmitted] = useState(false);

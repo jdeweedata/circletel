@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ const Hero = () => {
         {/* South African SME-Focused Pain Point Banner */}
         <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-8 text-center">
           <p className="text-circleTel-darkNeutral font-semibold">
-            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT challenges including load shedding — we have solutions ready for you.
+            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT challenges — we have solutions ready for you.
           </p>
         </div>
         

@@ -4,7 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Cloud, Server } from 'lucide-react';
+import { Cloud, Server, Laptop } from 'lucide-react';
 
 const CloudMigration = () => {
   return (
