@@ -1,18 +1,19 @@
 
 import { Book, Activity, Home, Laptop, Wifi, DollarSign, Users, BookOpen, FileText } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
 export type NavigationItem = {
   name: string;
   href: string;
-  icon?: React.ComponentType<{ className?: string; size?: number }>;
+  icon?: LucideIcon;
   description?: string;
 };
 
 export type NavigationSection = {
   name: string;
   items: NavigationItem[];
-  icon?: React.ComponentType<{ className?: string; size?: number }>;
+  icon?: LucideIcon;
 };
 
 // IT Solutions section (was "Services")

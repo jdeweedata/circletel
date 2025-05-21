@@ -109,16 +109,22 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {itSolutionsItems.map((item) => (
-                <ListItem
-                  key={item.name}
-                  title={item.name}
-                  href={item.href}
-                  as={Link}
-                  to={item.href}
-                  className={isActive(item.href) ? 'bg-accent' : ''}
-                >
-                  {item.description}
-                </ListItem>
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
               ))}
             </ul>
           </NavigationMenuContent>
@@ -135,26 +141,39 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              <ListItem
-                title="Wi-Fi as a Service"
-                href="/connectivity"
-                as={Link}
-                to="/connectivity"
-                className={isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent' : ''}
-              >
-                Enterprise-grade Wi-Fi connectivity solutions
-              </ListItem>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/connectivity"
+                    className={cn(
+                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                      isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent' : ''
+                    )}
+                  >
+                    <div className="text-sm font-medium leading-none">Wi-Fi as a Service</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Enterprise-grade Wi-Fi connectivity solutions
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
               {connectivityItems.map((item) => (
-                <ListItem
-                  key={item.name}
-                  title={item.name}
-                  href={item.href}
-                  as={Link}
-                  to={item.href}
-                  className={isActive(item.href) ? 'bg-accent' : ''}
-                >
-                  {item.description}
-                </ListItem>
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
               ))}
             </ul>
           </NavigationMenuContent>
@@ -174,16 +193,22 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {resourcesItems.map((item) => (
-                <ListItem
-                  key={item.name}
-                  title={item.name}
-                  href={item.href}
-                  as={Link}
-                  to={item.href}
-                  className={isActive(item.href) ? 'bg-accent' : ''}
-                >
-                  {item.description}
-                </ListItem>
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
               ))}
             </ul>
           </NavigationMenuContent>
@@ -201,16 +226,22 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {aboutItems.map((item) => (
-                <ListItem
-                  key={item.name}
-                  title={item.name}
-                  href={item.href}
-                  as={Link}
-                  to={item.href}
-                  className={isActive(item.href) ? 'bg-accent' : ''}
-                >
-                  {item.description}
-                </ListItem>
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
               ))}
             </ul>
           </NavigationMenuContent>
