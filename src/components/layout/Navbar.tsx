@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Logo from '@/components/navigation/Logo';
-import DesktopNavigation from '@/components/navigation/DesktopNavigation';
-import MobileNavigation from '@/components/navigation/MobileNavigation';
-import { servicesDropdownItems, aboutDropdownItems, connectivityDropdownItems } from '@/components/navigation/NavigationData';
+import DesktopNavigationMenu from '@/components/navigation/NavigationMenu';
+import MobileMenu from '@/components/navigation/MobileMenu';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,31 +18,34 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           <Logo />
 
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:gap-2">
+            <DesktopNavigationMenu />
+            <Button asChild className="ml-4">
+              <Link to="/contact">Contact Us</Link>
+            </Button>
+          </div>
+
           {/* Mobile Menu Button */}
           {isMobile && (
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-circleTel-darkNeutral focus:outline-none">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label="Toggle menu"
+              className="text-circleTel-darkNeutral focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-2 rounded-md"
+            >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-          )}
-
-          {/* Desktop Navigation */}
-          {!isMobile && (
-            <DesktopNavigation 
-              servicesDropdown={servicesDropdownItems} 
-              connectivityDropdown={connectivityDropdownItems}
-              aboutDropdown={aboutDropdownItems} 
-            />
           )}
         </div>
 
         {/* Mobile Navigation */}
-        <MobileNavigation 
-          isMenuOpen={isMobile && isMenuOpen} 
-          setIsMenuOpen={setIsMenuOpen}
-          servicesDropdown={servicesDropdownItems}
-          connectivityDropdown={connectivityDropdownItems}
-          aboutDropdown={aboutDropdownItems}
-        />
+        {isMobile && (
+          <MobileMenu 
+            isMenuOpen={isMenuOpen} 
+            setIsMenuOpen={setIsMenuOpen}
+          />
+        )}
       </div>
     </header>
   );

@@ -23,6 +23,7 @@ import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
+// Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,22 +34,31 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
+            {/* Main routes */}
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/small-business" element={<SmallBusinessServices />} />
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/case-studies" element={<CaseStudies />} />
+            
+            {/* Connectivity routes */}
             <Route path="/connectivity" element={<Connectivity />} />
             <Route path="/connectivity/wifi-as-a-service" element={<WifiAsService />} />
             <Route path="/connectivity/fixed-wireless" element={<FixedWireless />} />
             <Route path="/connectivity/fibre" element={<Fibre />} />
-            <Route path="/contact" element={<Contact />} />
+            
+            {/* Resources routes */}
             <Route path="/resources" element={<Resources />} />
-            <Route path="/blog" element={<Blog />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
+            <Route path="/blog" element={<Blog />} />
+            
+            {/* Additional routes */}
+            <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            
+            {/* 404 page */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
