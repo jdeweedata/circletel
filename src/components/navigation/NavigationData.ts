@@ -1,4 +1,3 @@
-
 import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -16,7 +15,7 @@ export type NavigationSection = {
   icon?: LucideIcon;
 };
 
-// Updated organization of main services
+// Updated managedITItems - now includes items from itSolutionsItems
 export const managedITItems: NavigationItem[] = [
   {
     name: "Complete IT Management",
@@ -47,10 +46,22 @@ export const managedITItems: NavigationItem[] = [
     href: "/services/security",
     icon: ShieldCheck,
     description: "Protect your business with our security solutions"
+  },
+  {
+    name: "Service Bundles",
+    href: "/bundles",
+    icon: Package,
+    description: "Combined IT and connectivity packages at discounted rates"
+  },
+  {
+    name: "Value-Driven Pricing",
+    href: "/pricing",
+    icon: DollarSign,
+    description: "Transparent pricing plans for all services"
   }
 ];
 
-// IT Solutions section (was "Services")
+// IT Solutions section is kept for reference but no longer used in navigation
 export const itSolutionsItems: NavigationItem[] = [
   {
     name: "Small Business Recipes",
@@ -213,10 +224,6 @@ export const mainNavigation: NavigationSection[] = [
   {
     name: "Managed IT",
     items: managedITItems
-  },
-  {
-    name: "IT Solutions",
-    items: itSolutionsItems
   },
   {
     name: "Connectivity",

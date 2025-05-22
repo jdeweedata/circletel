@@ -35,7 +35,7 @@ const ServicesSnapshot = () => {
               "Perfect for businesses without IT staff",
               "Supports Remote & Hybrid Work environments"
             ]}
-            link="/pricing"
+            link="/services"
           />
           
           <RecipeCard 

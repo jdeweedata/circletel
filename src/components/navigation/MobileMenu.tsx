@@ -9,7 +9,7 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { 
-  itSolutionsItems, 
+  managedITItems, 
   connectivityItems, 
   aboutItems,
   resourcesItems
@@ -34,8 +34,9 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
   const getDefaultValue = (): string[] => {
     const openSections = [];
     
-    if (currentPath.includes('/services/')) {
-      openSections.push('it-solutions');
+    if (currentPath.includes('/services/') || currentPath === '/services' || 
+        currentPath === '/pricing' || currentPath === '/bundles') {
+      openSections.push('managed-it');
     }
     
     if (currentPath.includes('/connectivity/')) {
@@ -77,13 +78,13 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         
         {/* Accordion menus */}
         <Accordion type="multiple" defaultValue={getDefaultValue()} className="w-full">
-          <AccordionItem value="it-solutions" className="border-0">
+          <AccordionItem value="managed-it" className="border-0">
             <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md">
               IT Solutions
             </AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
-                {itSolutionsItems.map((item) => (
+                {managedITItems.map((item) => (
                   <Link 
                     key={item.name}
                     to={item.href}
