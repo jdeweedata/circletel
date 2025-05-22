@@ -15,6 +15,7 @@ import AboutTeam from "./pages/AboutTeam";
 import AboutCertifications from "./pages/AboutCertifications";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
+import Bundles from "./pages/Bundles";
 import CaseStudies from "./pages/CaseStudies";
 import Connectivity from "./pages/Connectivity";
 import WifiAsService from "./pages/WifiAsService";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/about/certifications" element={<AboutCertifications />} />
             
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/bundles" element={<Bundles />} />
             <Route path="/case-studies" element={<CaseStudies />} />
             
             {/* Connectivity routes */}

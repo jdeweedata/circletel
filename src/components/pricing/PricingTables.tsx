@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,13 +12,60 @@ type PlanFeature = {
 type PricingPlan = {
   name: string;
   price: number;
-  devices: number;
+  priceUnit?: string;
+  devices?: number;
   description: string;
   features: PlanFeature[];
   popular?: boolean;
 };
 
 const PricingTables = () => {
+  const managedITServicePlans: PricingPlan[] = [
+    {
+      name: "Basic",
+      price: 189,
+      priceUnit: "user/month",
+      description: "Essential IT support for small businesses",
+      features: [
+        { included: true, name: "24/7 IT Monitoring" },
+        { included: true, name: "Helpdesk Support (Business Hours)" },
+        { included: true, name: "Basic Cybersecurity" },
+        { included: false, name: "Proactive Maintenance" },
+        { included: false, name: "Advanced Security" },
+        { included: false, name: "Dedicated Account Manager" },
+      ]
+    },
+    {
+      name: "Standard",
+      price: 329,
+      priceUnit: "user/month",
+      description: "Enhanced support for growing businesses",
+      features: [
+        { included: true, name: "24/7 IT Monitoring" },
+        { included: true, name: "Helpdesk Support (Business Hours)" },
+        { included: true, name: "Basic Cybersecurity" },
+        { included: true, name: "Proactive Maintenance" },
+        { included: true, name: "Enhanced Cybersecurity" },
+        { included: false, name: "Dedicated Account Manager" },
+      ],
+      popular: true
+    },
+    {
+      name: "Premium",
+      price: 479,
+      priceUnit: "user/month",
+      description: "Advanced IT management for established businesses",
+      features: [
+        { included: true, name: "24/7 IT Monitoring" },
+        { included: true, name: "Helpdesk Support (Business Hours)" },
+        { included: true, name: "Basic Cybersecurity" },
+        { included: true, name: "Proactive Maintenance" },
+        { included: true, name: "Advanced Security" },
+        { included: true, name: "Dedicated Account Manager" },
+      ]
+    },
+  ];
+
   const smallBusinessPlans: PricingPlan[] = [
     {
       name: "Basic",
@@ -149,6 +195,98 @@ const PricingTables = () => {
     },
   ];
 
+  const waasPlans: PricingPlan[] = [
+    {
+      name: "Business WaaS",
+      price: 1599,
+      priceUnit: "month",
+      description: "Managed in-building Wi-Fi for businesses",
+      features: [
+        { included: true, name: "In-Building Wi-Fi for up to 30 users" },
+        { included: true, name: "Wi-Fi 6 Coverage" },
+        { included: true, name: "Free Installation" },
+        { included: true, name: "24/7 Support" },
+        { included: true, name: "Cloud-Managed Hardware" },
+        { included: false, name: "Analytics & Branded Portal" },
+      ],
+      popular: true
+    },
+    {
+      name: "Home WaaS",
+      price: 699,
+      priceUnit: "month",
+      description: "Reliable Wi-Fi for large/medium homes",
+      features: [
+        { included: true, name: "In-Building Wi-Fi Coverage" },
+        { included: true, name: "20Mbps FWA Connection" },
+        { included: true, name: "Parental Controls" },
+        { included: true, name: "Guest Access" },
+        { included: true, name: "IoT Device Support" },
+        { included: false, name: "Premium Analytics" },
+      ]
+    },
+    {
+      name: "Premium Add-Ons",
+      price: 199,
+      priceUnit: "month",
+      description: "Enhanced features for business environments",
+      features: [
+        { included: true, name: "Advanced Analytics" },
+        { included: true, name: "Branded Portal" },
+        { included: true, name: "Enhanced Security" },
+        { included: true, name: "User Behavior Insights" },
+        { included: true, name: "Traffic Management" },
+        { included: true, name: "Custom Integration Options" },
+      ]
+    },
+  ];
+
+  const bundlePlans: PricingPlan[] = [
+    {
+      name: "SOHO/SMME Starter",
+      price: 1999,
+      priceUnit: "month",
+      description: "Complete IT solution for small businesses",
+      features: [
+        { included: true, name: "Basic Managed IT (up to 5 users)" },
+        { included: true, name: "Business WaaS (up to 30 users)" },
+        { included: true, name: "100GB Acronis Cloud Backup" },
+        { included: true, name: "15% discount on total package price" },
+        { included: false, name: "Virtual Desktop" },
+        { included: false, name: "Advanced Security" },
+      ],
+      popular: true
+    },
+    {
+      name: "Homeschooling & Remote Work",
+      price: 999,
+      priceUnit: "month",
+      description: "Complete connectivity solution for homes",
+      features: [
+        { included: true, name: "Home WaaS" },
+        { included: true, name: "50GB Acronis Cloud Backup" },
+        { included: true, name: "1 Virtual Desktop" },
+        { included: true, name: "Ideal for rural homes" },
+        { included: false, name: "Business-grade support" },
+        { included: false, name: "Advanced Analytics" },
+      ]
+    },
+    {
+      name: "Custom Bundle",
+      price: 0,
+      priceUnit: "month",
+      description: "Build your own custom IT and connectivity package",
+      features: [
+        { included: true, name: "Choose your IT service level" },
+        { included: true, name: "Select WaaS option" },
+        { included: true, name: "Add cloud services as needed" },
+        { included: true, name: "Up to 20% discount on total package" },
+        { included: true, name: "Flexible scaling options" },
+        { included: true, name: "Dedicated account manager" },
+      ]
+    },
+  ];
+
   const PricingCard = ({ plan }: { plan: PricingPlan }) => (
     <Card className={`flex flex-col h-full border-2 ${plan.popular ? "border-circleTel-orange" : "border-gray-200"} shadow-md rounded-xl`}>
       {plan.popular && (
@@ -162,12 +300,17 @@ const PricingTables = () => {
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="mb-6">
-          <p className="text-3xl font-bold">R{plan.price.toLocaleString()}</p>
-          <p className="text-sm text-circleTel-secondaryNeutral">per month</p>
+          <p className="text-3xl font-bold">
+            R{plan.price.toLocaleString()}
+            {plan.priceUnit && <span className="text-sm text-circleTel-secondaryNeutral font-normal">/{plan.priceUnit}</span>}
+          </p>
+          {!plan.priceUnit && <p className="text-sm text-circleTel-secondaryNeutral">per month</p>}
         </div>
-        <div className="text-sm mb-2 text-circleTel-secondaryNeutral font-medium">
-          {plan.devices} devices included
-        </div>
+        {plan.devices && (
+          <div className="text-sm mb-2 text-circleTel-secondaryNeutral font-medium">
+            {plan.devices} devices included
+          </div>
+        )}
         <ul className="space-y-3 mt-6">
           {plan.features.map((feature, index) => (
             <li key={index} className="flex items-center">
@@ -202,14 +345,39 @@ const PricingTables = () => {
           Choose the Right Recipe for Your Business
         </h2>
 
-        <Tabs defaultValue="small" className="w-full">
+        <Tabs defaultValue="managed-it" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid w-full max-w-md grid-cols-3">
-              <TabsTrigger value="small">Small Business</TabsTrigger>
-              <TabsTrigger value="midsize">Mid-Size</TabsTrigger>
-              <TabsTrigger value="growth">Growth-Ready</TabsTrigger>
+            <TabsList className="grid w-full max-w-4xl grid-cols-4">
+              <TabsTrigger value="managed-it">Managed IT</TabsTrigger>
+              <TabsTrigger value="waas">WaaS</TabsTrigger>
+              <TabsTrigger value="bundles">Bundles</TabsTrigger>
+              <TabsTrigger value="small">Legacy Plans</TabsTrigger>
             </TabsList>
           </div>
+          
+          <TabsContent value="managed-it" className="mt-0">
+            <div className="grid md:grid-cols-3 gap-8">
+              {managedITServicePlans.map((plan, index) => (
+                <PricingCard key={index} plan={plan} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="waas" className="mt-0">
+            <div className="grid md:grid-cols-3 gap-8">
+              {waasPlans.map((plan, index) => (
+                <PricingCard key={index} plan={plan} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="bundles" className="mt-0">
+            <div className="grid md:grid-cols-3 gap-8">
+              {bundlePlans.map((plan, index) => (
+                <PricingCard key={index} plan={plan} />
+              ))}
+            </div>
+          </TabsContent>
           
           <TabsContent value="small" className="mt-0">
             <div className="grid md:grid-cols-3 gap-8">
@@ -218,23 +386,14 @@ const PricingTables = () => {
               ))}
             </div>
           </TabsContent>
-          
-          <TabsContent value="midsize" className="mt-0">
-            <div className="grid md:grid-cols-3 gap-8">
-              {midSizePlans.map((plan, index) => (
-                <PricingCard key={index} plan={plan} />
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="growth" className="mt-0">
-            <div className="grid md:grid-cols-3 gap-8">
-              {growthReadyPlans.map((plan, index) => (
-                <PricingCard key={index} plan={plan} />
-              ))}
-            </div>
-          </TabsContent>
         </Tabs>
+        
+        <div className="mt-12 text-center">
+          <div className="inline-block bg-yellow-50 border border-yellow-200 rounded-lg p-4 mx-auto">
+            <p className="text-yellow-800 font-medium">🎁 Special Offer: First Month Free with any new service subscription!</p>
+            <p className="text-yellow-700 text-sm mt-1">Contact us today to get started.</p>
+          </div>
+        </div>
       </div>
     </section>
   );

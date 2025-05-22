@@ -1,5 +1,5 @@
 
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -71,6 +71,12 @@ export const itSolutionsItems: NavigationItem[] = [
     description: "Scalable IT solutions for rapid growth"
   },
   {
+    name: "Service Bundles",
+    href: "/bundles",
+    icon: Package,
+    description: "Combined IT and connectivity packages at discounted rates"
+  },
+  {
     name: "Value-Driven Pricing",
     href: "/pricing",
     icon: DollarSign,
@@ -125,6 +131,12 @@ export const cloudHostingItems: NavigationItem[] = [
     href: "/cloud/backup",
     icon: Cloud,
     description: "Secure cloud backup and disaster recovery"
+  },
+  {
+    name: "Virtual Desktops",
+    href: "/cloud/hosting",
+    icon: Laptop,
+    description: "Remote desktop solutions for flexible work"
   }
 ];
 
@@ -250,7 +262,8 @@ export const footerLinks = [
       { name: "Mid-Size Business IT", href: "/services/mid-size" },
       { name: "Growth-Ready IT", href: "/services/growth-ready" },
       { name: "Wi-Fi as a Service", href: "/connectivity/wifi-as-a-service" },
-      { name: "Cloud Solutions", href: "/cloud/migration" }
+      { name: "Cloud Solutions", href: "/cloud/migration" },
+      { name: "Service Bundles", href: "/bundles" }
     ]
   },
   {
