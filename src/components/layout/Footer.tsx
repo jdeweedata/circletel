@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, X, Mail, Phone, MapPin } from 'lucide-react';
+import { Linkedin, X, Mail, Phone, MapPin, Facebook } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -57,10 +56,13 @@ const Footer = () => {
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>
             <div className="mt-4 flex space-x-2">
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+                <Facebook size={18} />
+              </a>
+              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
                 <Linkedin size={18} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
                 <X size={18} />
               </a>
             </div>
