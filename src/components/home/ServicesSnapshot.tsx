@@ -77,10 +77,10 @@ const ServicesSnapshot = () => {
           <h3 className="text-xl font-bold text-center mb-6">Also Available</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Link 
-              to="/cloud/migration"
+              to="/cloud/virtual-desktops"
               className="bg-white p-4 rounded-lg shadow-sm flex items-center hover:shadow-md transition-shadow"
             >
-              <Cloud className="text-circleTel-orange mr-3" size={20} />
+              <Laptop className="text-circleTel-orange mr-3" size={20} />
               <div>
                 <h4 className="font-bold">Virtual Desktops</h4>
                 <p className="text-sm text-circleTel-secondaryNeutral">From R109/user/month</p>

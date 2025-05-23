@@ -123,7 +123,7 @@ export const connectivityItems: NavigationItem[] = [
   }
 ];
 
-// Cloud Hosting section (updated)
+// Cloud Hosting section (updated with correct Virtual Desktops link)
 export const cloudHostingItems: NavigationItem[] = [
   {
     name: "Cloud Migration",
@@ -145,7 +145,7 @@ export const cloudHostingItems: NavigationItem[] = [
   },
   {
     name: "Virtual Desktops",
-    href: "/cloud/hosting",
+    href: "/cloud/virtual-desktops",
     icon: Laptop,
     description: "Remote desktop solutions for flexible work"
   }

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -39,6 +38,9 @@ import CloudBackup from "./pages/CloudBackup";
 import PowerBackupSolutions from "./pages/PowerBackupSolutions";
 import SecurityServices from "./pages/SecurityServices";
 
+// Added Virtual Desktops page
+import VirtualDesktops from "./pages/VirtualDesktops";
+
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
@@ -77,6 +79,7 @@ const App = () => (
             <Route path="/cloud/migration" element={<CloudMigration />} />
             <Route path="/cloud/hosting" element={<CloudHosting />} />
             <Route path="/cloud/backup" element={<CloudBackup />} />
+            <Route path="/cloud/virtual-desktops" element={<VirtualDesktops />} />
             
             {/* Resources routes - Updated with new pages */}
             <Route path="/resources" element={<Resources />} />
