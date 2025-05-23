@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle } from 'lucide-react';
@@ -10,11 +9,7 @@ import RecipeCard from '@/components/ui/RecipeCard';
 // Icons for recipe cards
 const BasicIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-      <path d="M2 17l10 5 10-5" />
-      <path d="M2 12l10 5 10-5" />
-    </svg>
+    <img src="/lovable-uploads/3a179522-7d5e-489d-a454-3fd48ee4562c.png" alt="Server Icon" className="h-6 w-6" />
   </div>
 );
 
@@ -97,7 +92,7 @@ const Services = () => {
                   <div className="flex flex-wrap gap-4 justify-center">
                     <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange w-32 h-40 flex items-center justify-center">
                       <div className="text-center">
-                        <BasicIcon />
+                        <img src="/lovable-uploads/3a179522-7d5e-489d-a454-3fd48ee4562c.png" alt="Server Icon" className="h-8 w-8 mx-auto mb-2" />
                         <div className="mt-2 font-space-mono text-xs">Basic IT</div>
                       </div>
                     </div>

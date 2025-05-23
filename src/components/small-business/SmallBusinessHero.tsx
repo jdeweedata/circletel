@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { BasicIcon, CloudIcon, SecurityIcon } from './SmallBusinessIcons';
+import { CloudIcon, SecurityIcon } from './SmallBusinessIcons';
 
 const SmallBusinessHero = () => {
   return (
@@ -26,7 +26,7 @@ const SmallBusinessHero = () => {
           <div className="md:w-1/2 bg-circleTel-lightNeutral p-6 rounded-lg">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
-                <BasicIcon />
+                <img src="/lovable-uploads/3a179522-7d5e-489d-a454-3fd48ee4562c.png" alt="Server Icon" className="h-10 w-10" />
               </div>
               <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
                 <CloudIcon />
