@@ -110,10 +110,7 @@ const Hero = () => {
                 
                 <div className="bg-circleTel-lightNeutral p-4 rounded-md">
                   <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef's Notes</h4>
-                  <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
-                    Perfect for South African businesses dealing with power outages and connectivity challenges. 
-                    Keeps your business running during electrical disruptions. R1,999/month.
-                  </p>
+                  <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">Perfect for South African businesses dealing with power outages and connectivity challenges. Keeps your business running during electrical disruptions. From R1,999/month.</p>
                 </div>
                 
                 <div className="mt-4 text-center">
