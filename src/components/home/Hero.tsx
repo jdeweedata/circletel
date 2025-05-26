@@ -69,11 +69,11 @@ const Hero = () => {
               </div>
               <div className="flex items-center">
                 <Server size={16} className="text-blue-500 mr-1" />
-                <span>MTN FWA Partner</span>
+                <span>Reliable Network Partners</span>
               </div>
               <div className="flex items-center">
                 <Battery size={16} className="text-circleTel-orange mr-1" />
-                <span>Load Shedding Ready</span>
+                <span>Power Outage Ready</span>
               </div>
             </div>
           </div>
