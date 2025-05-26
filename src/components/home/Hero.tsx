@@ -95,7 +95,7 @@ const Hero = () => {
                   <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>100Mbps Broadband Wireless</span>
+                      <span>100Mbps High-Speed Wireless Internet</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
