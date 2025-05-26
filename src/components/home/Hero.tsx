@@ -39,7 +39,7 @@ const Hero = () => {
               </Link>
               <Link to="/resources/power-backup" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20">
                 <Battery size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Load Shedding Solutions</span>
+                <span className="text-circleTel-secondaryNeutral font-medium">Power Backup Solutions for critical infrastructure</span>
               </Link>
             </div>
             
