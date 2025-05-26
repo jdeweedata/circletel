@@ -1,3 +1,4 @@
+
 import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -151,29 +152,10 @@ export const cloudHostingItems: NavigationItem[] = [
   }
 ];
 
-// About section (updated with new pages)
-export const aboutItems: NavigationItem[] = [
-  {
-    name: "Our Story",
-    href: "/about",
-    icon: BookOpen,
-    description: "Learn about CircleTel's journey"
-  }, 
-  {
-    name: "Our Team",
-    href: "/about/team",
-    icon: Users,
-    description: "Meet the experts behind CircleTel"
-  }, 
-  {
-    name: "Certifications",
-    href: "/about/certifications",
-    icon: FileText,
-    description: "Industry certifications and partnerships"
-  }
-];
+// About section - removed since pages are deleted
+export const aboutItems: NavigationItem[] = [];
 
-// Resources section (updated with new pages)
+// Resources section (removed blog references)
 export const resourcesItems: NavigationItem[] = [
   {
     name: "Resources Hub",
@@ -204,18 +186,6 @@ export const resourcesItems: NavigationItem[] = [
     href: "/resources/wifi-toolkit",
     icon: Wifi,
     description: "Planning tools for Wi-Fi deployments"
-  },
-  {
-    name: "Blog",
-    href: "/blog",
-    icon: Book,
-    description: "Latest news and insights"
-  },
-  {
-    name: "Blog Archive",
-    href: "/blog/archive",
-    icon: Book,
-    description: "Complete collection of articles"
   }
 ];
 
@@ -236,14 +206,10 @@ export const mainNavigation: NavigationSection[] = [
   {
     name: "Resources",
     items: resourcesItems
-  },
-  {
-    name: "About",
-    items: aboutItems
   }
 ];
 
-// Footer links (updated with new pages)
+// Footer links (updated to remove deleted pages)
 export const footerLinks = [
   {
     name: "Legal",
@@ -255,10 +221,6 @@ export const footerLinks = [
   {
     name: "Company",
     items: [
-      { name: "About Us", href: "/about" },
-      { name: "Our Team", href: "/about/team" },
-      { name: "Certifications", href: "/about/certifications" },
-      { name: "Case Studies", href: "/case-studies" },
       { name: "Contact", href: "/contact" }
     ]
   },
@@ -279,8 +241,7 @@ export const footerLinks = [
       { name: "IT Health Assessment", href: "/resources/it-health" },
       { name: "Power Backup Solutions", href: "/resources/power-backup" },
       { name: "Connectivity Guide", href: "/resources/connectivity-guide" },
-      { name: "Wi-Fi Toolkit", href: "/resources/wifi-toolkit" },
-      { name: "Blog Archive", href: "/blog/archive" }
+      { name: "Wi-Fi Toolkit", href: "/resources/wifi-toolkit" }
     ]
   }
 ];

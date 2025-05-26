@@ -10,13 +10,9 @@ import Services from "./pages/Services";
 import SmallBusinessServices from "./pages/SmallBusinessServices";
 import MidSizeBusinessServices from "./pages/MidSizeBusinessServices";
 import GrowthReadyServices from "./pages/GrowthReadyServices";
-import About from "./pages/About";
-import AboutTeam from "./pages/AboutTeam";
-import AboutCertifications from "./pages/AboutCertifications";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Bundles from "./pages/Bundles";
-import CaseStudies from "./pages/CaseStudies";
 import Connectivity from "./pages/Connectivity";
 import WifiAsService from "./pages/WifiAsService";
 import FixedWireless from "./pages/FixedWireless";
@@ -25,9 +21,6 @@ import Contact from "./pages/Contact";
 import Resources from "./pages/Resources";
 import ConnectivityGuide from "./pages/ConnectivityGuide";
 import WiFiToolkit from "./pages/WiFiToolkit";
-import Blog from "./pages/Blog";
-import BlogArchive from "./pages/BlogArchive";
-import BlogLoadSheddingSolutions from "./pages/BlogLoadSheddingSolutions";
 import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -66,14 +59,8 @@ const App = () => (
             <Route path="/services/growth-ready" element={<GrowthReadyServices />} />
             <Route path="/services/security" element={<SecurityServices />} />
             
-            {/* About routes */}
-            <Route path="/about" element={<About />} />
-            <Route path="/about/team" element={<AboutTeam />} />
-            <Route path="/about/certifications" element={<AboutCertifications />} />
-            
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/bundles" element={<Bundles />} />
-            <Route path="/case-studies" element={<CaseStudies />} />
             
             {/* Bundle pages */}
             <Route path="/bundles/business-connect" element={<BusinessConnect />} />
@@ -98,11 +85,6 @@ const App = () => (
             <Route path="/resources/power-backup" element={<PowerBackupSolutions />} />
             <Route path="/resources/connectivity-guide" element={<ConnectivityGuide />} />
             <Route path="/resources/wifi-toolkit" element={<WiFiToolkit />} />
-            
-            {/* Blog routes */}
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/archive" element={<BlogArchive />} />
-            <Route path="/blog/stay-operational-during-load-shedding" element={<BlogLoadSheddingSolutions />} />
             
             {/* Additional routes */}
             <Route path="/contact" element={<Contact />} />

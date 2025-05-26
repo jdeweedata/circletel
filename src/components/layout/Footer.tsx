@@ -24,7 +24,7 @@ const Footer = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Intro */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
@@ -59,43 +59,27 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Connectivity & Bundles */}
+          {/* Connectivity & Cloud */}
           <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Connectivity & Bundles</h3>
+            <h3 className="font-bold text-lg mb-4">Connectivity & Cloud</h3>
             <ul className="space-y-2">
               <li><Link to="/connectivity/wifi-as-a-service" className="hover:text-circleTel-orange transition-colors">Wi-Fi as a Service</Link></li>
               <li><Link to="/connectivity/fixed-wireless" className="hover:text-circleTel-orange transition-colors">Fixed Wireless</Link></li>
               <li><Link to="/connectivity/fibre" className="hover:text-circleTel-orange transition-colors">Fibre</Link></li>
               <li><Link to="/bundles" className="hover:text-circleTel-orange transition-colors">Service Bundles</Link></li>
-              <li><Link to="/bundles/business-connect" className="hover:text-circleTel-orange transition-colors">Business Connect</Link></li>
-              <li><Link to="/bundles/business-pro" className="hover:text-circleTel-orange transition-colors">Business Pro</Link></li>
-              <li><Link to="/bundles/home-soho-resilience" className="hover:text-circleTel-orange transition-colors">Home & SOHO</Link></li>
-            </ul>
-          </div>
-
-          {/* Cloud & Resources */}
-          <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Cloud & Resources</h3>
-            <ul className="space-y-2">
               <li><Link to="/cloud/migration" className="hover:text-circleTel-orange transition-colors">Cloud Migration</Link></li>
               <li><Link to="/cloud/hosting" className="hover:text-circleTel-orange transition-colors">Hosting Solutions</Link></li>
               <li><Link to="/cloud/backup" className="hover:text-circleTel-orange transition-colors">Backup & Recovery</Link></li>
-              <li><Link to="/cloud/virtual-desktops" className="hover:text-circleTel-orange transition-colors">Virtual Desktops</Link></li>
-              <li><Link to="/resources" className="hover:text-circleTel-orange transition-colors">Resources Hub</Link></li>
-              <li><Link to="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
-              <li><Link to="/resources/power-backup" className="hover:text-circleTel-orange transition-colors">Power Backup</Link></li>
             </ul>
           </div>
 
-          {/* Company & Support */}
+          {/* Resources & Support */}
           <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Company & Support</h3>
+            <h3 className="font-bold text-lg mb-4">Resources & Support</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-circleTel-orange transition-colors">Our Story</Link></li>
-              <li><Link to="/about/team" className="hover:text-circleTel-orange transition-colors">Our Team</Link></li>
-              <li><Link to="/about/certifications" className="hover:text-circleTel-orange transition-colors">Certifications</Link></li>
-              <li><Link to="/case-studies" className="hover:text-circleTel-orange transition-colors">Case Studies</Link></li>
-              <li><Link to="/blog" className="hover:text-circleTel-orange transition-colors">Blog</Link></li>
+              <li><Link to="/resources" className="hover:text-circleTel-orange transition-colors">Resources Hub</Link></li>
+              <li><Link to="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
+              <li><Link to="/resources/power-backup" className="hover:text-circleTel-orange transition-colors">Power Backup</Link></li>
               <li><Link to="/resources/connectivity-guide" className="hover:text-circleTel-orange transition-colors">Connectivity Guide</Link></li>
               <li><Link to="/resources/wifi-toolkit" className="hover:text-circleTel-orange transition-colors">Wi-Fi Toolkit</Link></li>
               <li><Link to="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
