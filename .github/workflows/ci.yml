@@ -1,0 +1,45 @@
+# This workflow will install dependencies, lint, run tests, and build your Vite + React + TypeScript project
+# It is optimized for simplicity, performance, accessibility, and security (per project rules)
+
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests (if present)
+        run: |
+          if npm run | grep -q test; then npm test; else echo "No test script"; fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload production-ready build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/
+
+      # Add accessibility, security, or performance checks here as needed
