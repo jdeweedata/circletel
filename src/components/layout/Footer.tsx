@@ -1,8 +1,11 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, X, Mail, Phone, MapPin, Facebook } from 'lucide-react';
+
 const Footer = () => {
-  return <footer className="bg-circleTel-darkNeutral text-white py-12">
+  return (
+    <footer className="bg-circleTel-darkNeutral text-white py-12">
       <div className="container mx-auto px-4">
         {/* Contact Bar */}
         <div className="bg-circleTel-secondaryNeutral bg-opacity-20 rounded-lg p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
@@ -21,11 +24,8 @@ const Footer = () => {
           </Link>
         </div>
 
-        {/* Coming Soon Banner */}
-        
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Intro - Updated with responsive sizing */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          {/* Logo and Intro */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
               <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel Logo" className="h-[80px] sm:h-[100px] bg-white rounded-md p-1 w-auto" width="500" height="500" />
@@ -46,37 +46,58 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Managed IT Services */}
           <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Services</h3>
+            <h3 className="font-bold text-lg mb-4">Managed IT</h3>
             <ul className="space-y-2">
+              <li><Link to="/services" className="hover:text-circleTel-orange transition-colors">Complete IT Management</Link></li>
               <li><Link to="/services/small-business" className="hover:text-circleTel-orange transition-colors">Small Business IT</Link></li>
               <li><Link to="/services/mid-size" className="hover:text-circleTel-orange transition-colors">Mid-Size Business IT</Link></li>
               <li><Link to="/services/growth-ready" className="hover:text-circleTel-orange transition-colors">Growth-Ready IT</Link></li>
+              <li><Link to="/services/security" className="hover:text-circleTel-orange transition-colors">Security Solutions</Link></li>
               <li><Link to="/pricing" className="hover:text-circleTel-orange transition-colors">Pricing</Link></li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Connectivity & Bundles */}
           <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Company</h3>
+            <h3 className="font-bold text-lg mb-4">Connectivity & Bundles</h3>
             <ul className="space-y-2">
-              <li><Link to="/about/story" className="hover:text-circleTel-orange transition-colors">Our Story</Link></li>
+              <li><Link to="/connectivity/wifi-as-a-service" className="hover:text-circleTel-orange transition-colors">Wi-Fi as a Service</Link></li>
+              <li><Link to="/connectivity/fixed-wireless" className="hover:text-circleTel-orange transition-colors">Fixed Wireless</Link></li>
+              <li><Link to="/connectivity/fibre" className="hover:text-circleTel-orange transition-colors">Fibre</Link></li>
+              <li><Link to="/bundles" className="hover:text-circleTel-orange transition-colors">Service Bundles</Link></li>
+              <li><Link to="/bundles/business-connect" className="hover:text-circleTel-orange transition-colors">Business Connect</Link></li>
+              <li><Link to="/bundles/business-pro" className="hover:text-circleTel-orange transition-colors">Business Pro</Link></li>
+              <li><Link to="/bundles/home-soho-resilience" className="hover:text-circleTel-orange transition-colors">Home & SOHO</Link></li>
+            </ul>
+          </div>
+
+          {/* Cloud & Resources */}
+          <div className="col-span-1">
+            <h3 className="font-bold text-lg mb-4">Cloud & Resources</h3>
+            <ul className="space-y-2">
+              <li><Link to="/cloud/migration" className="hover:text-circleTel-orange transition-colors">Cloud Migration</Link></li>
+              <li><Link to="/cloud/hosting" className="hover:text-circleTel-orange transition-colors">Hosting Solutions</Link></li>
+              <li><Link to="/cloud/backup" className="hover:text-circleTel-orange transition-colors">Backup & Recovery</Link></li>
+              <li><Link to="/cloud/virtual-desktops" className="hover:text-circleTel-orange transition-colors">Virtual Desktops</Link></li>
+              <li><Link to="/resources" className="hover:text-circleTel-orange transition-colors">Resources Hub</Link></li>
+              <li><Link to="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
+              <li><Link to="/resources/power-backup" className="hover:text-circleTel-orange transition-colors">Power Backup</Link></li>
+            </ul>
+          </div>
+
+          {/* Company & Support */}
+          <div className="col-span-1">
+            <h3 className="font-bold text-lg mb-4">Company & Support</h3>
+            <ul className="space-y-2">
+              <li><Link to="/about" className="hover:text-circleTel-orange transition-colors">Our Story</Link></li>
               <li><Link to="/about/team" className="hover:text-circleTel-orange transition-colors">Our Team</Link></li>
               <li><Link to="/about/certifications" className="hover:text-circleTel-orange transition-colors">Certifications</Link></li>
               <li><Link to="/case-studies" className="hover:text-circleTel-orange transition-colors">Case Studies</Link></li>
               <li><Link to="/blog" className="hover:text-circleTel-orange transition-colors">Blog</Link></li>
-            </ul>
-          </div>
-
-          {/* Contact & Support */}
-          <div className="col-span-1">
-            <h3 className="font-bold text-lg mb-4">Support</h3>
-            <ul className="space-y-2">
-              <li><Link to="/contact" className="hover:text-circleTel-orange transition-colors">Contact Us</Link></li>
-              <li><Link to="/resources" className="hover:text-circleTel-orange transition-colors">Resources</Link></li>
-              <li><Link to="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
-              <li><a href="#" className="hover:text-circleTel-orange transition-colors">Support Portal</a></li>
+              <li><Link to="/resources/connectivity-guide" className="hover:text-circleTel-orange transition-colors">Connectivity Guide</Link></li>
+              <li><Link to="/resources/wifi-toolkit" className="hover:text-circleTel-orange transition-colors">Wi-Fi Toolkit</Link></li>
               <li><Link to="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms-of-service" className="hover:text-circleTel-orange transition-colors">Terms of Service</Link></li>
             </ul>
@@ -97,6 +118,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;
