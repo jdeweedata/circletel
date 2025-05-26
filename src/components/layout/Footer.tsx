@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, X, Mail, Phone, MapPin, Facebook } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-circleTel-darkNeutral text-white py-12">
+  return <footer className="bg-circleTel-darkNeutral text-white py-12">
       <div className="container mx-auto px-4">
         {/* Contact Bar */}
         <div className="bg-circleTel-secondaryNeutral bg-opacity-20 rounded-lg p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
@@ -18,39 +16,19 @@ const Footer = () => {
               <span className="text-circleTel-lightNeutral">contactus@circletel.co.za</span>
             </div>
           </div>
-          <Link 
-            to="/contact" 
-            className="inline-block bg-circleTel-orange text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition"
-          >
+          <Link to="/contact" className="inline-block bg-circleTel-orange text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition">
             Contact Us
           </Link>
         </div>
 
         {/* Coming Soon Banner */}
-        <div className="bg-circleTel-orange bg-opacity-20 rounded-lg p-4 mb-8 text-center">
-          <h3 className="font-bold text-lg mb-2">Fibre and Wireless solutions coming soon!</h3>
-          <p className="mb-3 text-circleTel-lightNeutral">
-            Start with our Managed IT and Wi-Fi services today, and be the first to know when our new connectivity solutions launch.
-          </p>
-          <Link 
-            to="/contact" 
-            className="inline-block bg-circleTel-orange text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition"
-          >
-            Register Your Interest
-          </Link>
-        </div>
+        
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Intro - Updated with responsive sizing */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center">
-              <img 
-                src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" 
-                alt="CircleTel Logo" 
-                className="h-[80px] sm:h-[100px] bg-white rounded-md p-1 w-auto" 
-                width="500"
-                height="500"
-              />
+              <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel Logo" className="h-[80px] sm:h-[100px] bg-white rounded-md p-1 w-auto" width="500" height="500" />
             </Link>
             <p className="mt-4 text-circleTel-lightNeutral">
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
@@ -119,8 +97,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
