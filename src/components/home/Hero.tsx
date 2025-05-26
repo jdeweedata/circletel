@@ -1,15 +1,11 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery } from 'lucide-react';
-
 const Hero = () => {
   const isMobile = useIsMobile();
-
-  return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
+  return <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
       <div className="container mx-auto px-4">
         {/* South African SME-Focused Pain Point Banner */}
         <div className="bg-gradient-to-r from-circleTel-orange/10 to-orange-100 rounded-lg p-4 mb-8 text-center border border-circleTel-orange/20">
@@ -99,7 +95,7 @@ const Hero = () => {
                   <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>100Mbps MTN Fixed Wireless</span>
+                      <span>100Mbps Broadband Wireless</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
@@ -143,8 +139,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
