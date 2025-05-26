@@ -99,7 +99,7 @@ const Hero = () => {
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Managed UPS for Load Shedding</span>
+                      <span>Managed UPS for Power Outages</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
@@ -107,7 +107,7 @@ const Hero = () => {
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>2GB Acronis Cloud Backup</span>
+                      <span>2GB Secure Cloud Backup</span>
                     </li>
                   </ul>
                 </div>
