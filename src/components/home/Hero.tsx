@@ -23,9 +23,7 @@ const Hero = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
               Empowering SMEs, SOHOs, and Homes with Reliable Tech
             </h1>
-            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
-              MTN-Powered FWA, Proactive IT, and Data Resilience
-            </p>
+            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">High-Speed Wireless Internet, Proactive IT, and Data Resilience</p>
             
             {/* Service Highlights - Updated to focus on bundles */}
             <div className="flex flex-wrap gap-4 mb-8">
