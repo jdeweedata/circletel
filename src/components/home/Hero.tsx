@@ -12,9 +12,7 @@ const Hero = () => {
           <p className="text-circleTel-darkNeutral font-semibold">
             <span className="text-circleTel-orange font-bold">Affordable, Uninterrupted Business & Home Tech for South Africa:</span>
           </p>
-          <p className="text-circleTel-secondaryNeutral mt-1">
-            FWA, IT, and Resilience Solutions for Urban & Rural Communities
-          </p>
+          <p className="text-circleTel-secondaryNeutral mt-1">High-Speed Wireless and Fibre, IT, and Resilience Solutions for Urban & Rural Communities</p>
         </div>
         
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
@@ -23,7 +21,7 @@ const Hero = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
               Empowering SMEs, SOHOs, and Homes with Reliable Tech
             </h1>
-            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">High-Speed Wireless Internet, Proactive IT, and Data Resilience</p>
+            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">High-Speed Wireless and Fibre Internet, Proactive IT, and Data Resilience</p>
             
             {/* Service Highlights - Updated to focus on bundles */}
             <div className="flex flex-wrap gap-4 mb-8">
