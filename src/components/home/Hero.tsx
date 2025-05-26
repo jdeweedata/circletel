@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery, Power } from 'lucide-react';
+import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery } from 'lucide-react';
 
 const Hero = () => {
   const isMobile = useIsMobile();
@@ -12,9 +12,12 @@ const Hero = () => {
     <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
       <div className="container mx-auto px-4">
         {/* South African SME-Focused Pain Point Banner */}
-        <div className="bg-circleTel-orange bg-opacity-10 rounded-lg p-4 mb-8 text-center">
+        <div className="bg-gradient-to-r from-circleTel-orange/10 to-orange-100 rounded-lg p-4 mb-8 text-center border border-circleTel-orange/20">
           <p className="text-circleTel-darkNeutral font-semibold">
-            <span className="text-circleTel-orange font-bold">72% of South African SMEs</span> struggle with IT and power challenges — we have solutions ready for you.
+            <span className="text-circleTel-orange font-bold">Affordable, Uninterrupted Business & Home Tech for South Africa:</span>
+          </p>
+          <p className="text-circleTel-secondaryNeutral mt-1">
+            FWA, IT, and Resilience Solutions for Urban & Rural Communities
           </p>
         </div>
         
@@ -22,61 +25,73 @@ const Hero = () => {
           {/* Text Content */}
           <div className="w-full md:w-1/2 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
-              Reliable IT Solutions for South African Businesses
+              Empowering SMEs, SOHOs, and Homes with Reliable Tech
             </h1>
             <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
-              You Grow Your Business, We'll Handle Your Tech
+              MTN-Powered FWA, Proactive IT, and Data Resilience
             </p>
             
-            {/* Service Highlights - Updated to focus on key services */}
+            {/* Service Highlights - Updated to focus on bundles */}
             <div className="flex flex-wrap gap-4 mb-8">
-              <Link to="/services" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
+              <Link to="/bundles/business-connect" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20">
                 <Server size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Managed IT</span>
+                <span className="text-circleTel-secondaryNeutral font-medium">Business Connect</span>
               </Link>
-              <Link to="/connectivity/wifi-as-a-service" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
+              <Link to="/bundles/business-pro" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20">
                 <Wifi size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">WaaS</span>
+                <span className="text-circleTel-secondaryNeutral font-medium">Business Pro</span>
               </Link>
-              <Link to="/cloud/migration" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
-                <Cloud size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Cloud/Hosting</span>
+              <Link to="/bundles/home-soho-resilience" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-blue-500/20">
+                <Cloud size={20} className="text-blue-500 mr-2" />
+                <span className="text-circleTel-secondaryNeutral font-medium">Home & SOHO</span>
               </Link>
-              <Link to="/resources/power-backup" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral">
+              <Link to="/resources/power-backup" className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20">
                 <Battery size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Power Backup Solutions</span>
+                <span className="text-circleTel-secondaryNeutral font-medium">Load Shedding Solutions</span>
               </Link>
             </div>
             
             <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
-              No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses. Designed for your unique challenges, including power outages and connectivity issues.
+              No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses. 
+              <strong> Serving urban and rural communities across Gauteng, KZN, and Western Cape.</strong>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="primary-button bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold">
-                <Link to="/resources/it-health">Get a Free IT Health Check</Link>
+                <Link to="/resources/it-health">Get Your Free Resilience Assessment</Link>
               </Button>
               <Button asChild variant="outline" className="outline-button">
-                <Link to="/services">Explore IT Solutions</Link>
+                <Link to="/bundles">Explore Our Bundles</Link>
               </Button>
+            </div>
+            
+            {/* Added trust indicators */}
+            <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-circleTel-secondaryNeutral">
+              <div className="flex items-center">
+                <ShieldCheck size={16} className="text-green-500 mr-1" />
+                <span>POPIA Compliant</span>
+              </div>
+              <div className="flex items-center">
+                <Server size={16} className="text-blue-500 mr-1" />
+                <span>MTN FWA Partner</span>
+              </div>
+              <div className="flex items-center">
+                <Battery size={16} className="text-circleTel-orange mr-1" />
+                <span>Load Shedding Ready</span>
+              </div>
             </div>
           </div>
 
           {/* Business Image & Recipe Card Illustration */}
           <div className="w-full md:w-1/2 flex justify-center animate-scale-in">
             <div className="relative">
-              {/* South African Business Setting Image */}
-              <div className="absolute -z-10 w-full h-full rounded-lg overflow-hidden">
-                <div className="w-full h-full bg-circleTel-secondaryNeutral opacity-10"></div>
-              </div>
-              
-              {/* Recipe Card Illustration - Updated for SME appeal */}
+              {/* Recipe Card Illustration - Updated for South African market */}
               <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2 bg-white">
                 <div className="absolute top-0 right-0 bg-circleTel-orange text-white text-sm font-space-mono py-1 px-3 rounded-bl-lg">
-                  POWER RESILIENT
+                  SOUTH AFRICA READY
                 </div>
                 
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Essential Business IT Recipe</h3>
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Business Pro Bundle Recipe</h3>
                 <div className="bg-circleTel-lightNeutral h-1 w-20 mb-4"></div>
                 
                 <div className="mb-6">
@@ -84,19 +99,19 @@ const Hero = () => {
                   <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>24/7 Remote Monitoring</span>
+                      <span>100Mbps MTN Fixed Wireless</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Enterprise UPS Systems</span>
+                      <span>Managed UPS for Load Shedding</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Redundant Internet</span>
+                      <span>Proactive IT Monitoring</span>
                     </li>
                     <li className="flex items-center">
                       <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Cloud Backup Solutions</span>
+                      <span>2GB Acronis Cloud Backup</span>
                     </li>
                   </ul>
                 </div>
@@ -104,8 +119,15 @@ const Hero = () => {
                 <div className="bg-circleTel-lightNeutral p-4 rounded-md">
                   <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef's Notes</h4>
                   <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
-                    Perfect for South African businesses dealing with power outages and connectivity challenges. Keeps your business running even during electrical disruptions.
+                    Perfect for South African businesses dealing with power outages and connectivity challenges. 
+                    Keeps your business running during electrical disruptions. R1,999/month.
                   </p>
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <Button asChild size="sm" className="primary-button">
+                    <Link to="/bundles/business-pro">Learn More</Link>
+                  </Button>
                 </div>
               </div>
               

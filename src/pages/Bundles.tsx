@@ -1,7 +1,7 @@
-
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import PromotionalBanner from '@/components/common/PromotionalBanner';
 import { Check, Package, Wifi, Cloud, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ const Bundles = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <PromotionalBanner showCloseButton={false} />
       
       <main className="flex-grow">
         {/* Hero Section */}
@@ -23,9 +24,6 @@ const Bundles = () => {
               <p className="text-xl text-circleTel-secondaryNeutral mb-8">
                 Complete technology solutions combining IT services, Wi-Fi connectivity, and cloud capabilities at special bundle rates.
               </p>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 inline-block">
-                <p className="text-yellow-800 font-medium">🎁 Limited Time Offer: First Month Free on All Bundles!</p>
-              </div>
             </div>
           </div>
         </section>
@@ -38,24 +36,21 @@ const Bundles = () => {
             </h2>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* SOHO/SMME Starter Bundle */}
-              <Card className="border-2 border-circleTel-orange shadow-lg rounded-xl">
-                <div className="bg-circleTel-orange text-white text-center py-1 text-sm font-medium">
-                  Most Popular
-                </div>
-                <CardHeader>
+              {/* Business Connect Bundle */}
+              <Card className="border-2 border-gray-200 shadow-lg rounded-xl">
+                <CardHeader className="pt-8">
                   <div className="mb-4">
                     <Package size={40} className="text-circleTel-orange" />
                   </div>
-                  <CardTitle className="text-2xl font-bold">SOHO/SMME Starter Bundle</CardTitle>
+                  <CardTitle className="text-2xl font-bold">Business Connect Bundle</CardTitle>
                   <CardDescription className="text-circleTel-secondaryNeutral">
-                    Complete IT solution for small businesses
+                    Entry-level IT solution for small businesses and SOHOs
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="mb-6">
-                    <p className="text-3xl font-bold">R1,999<span className="text-sm text-circleTel-secondaryNeutral font-normal">/month</span></p>
-                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">15% savings compared to individual services</p>
+                    <p className="text-3xl font-bold">R999<span className="text-sm text-circleTel-secondaryNeutral font-normal">/month</span></p>
+                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">5-10% cheaper than equivalent MetroFibre solutions</p>
                   </div>
                   
                   <div className="mt-6">
@@ -63,19 +58,71 @@ const Bundles = () => {
                     <ul className="space-y-3">
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Basic Managed IT (up to 5 users)</span>
+                        <span>50Mbps MTN Fixed Wireless</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Business WaaS (up to 30 users)</span>
+                        <span>Remote IT Helpdesk (8x5)</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>100GB Acronis Cloud Backup</span>
+                        <span>Endpoint Management</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span className="font-medium">15% discount on total package</span>
+                        <span>Domain & DNS Setup</span>
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white rounded-full"
+                    asChild
+                  >
+                    <Link to="/bundles/business-connect">Learn More</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Business Pro Bundle */}
+              <Card className="border-2 border-circleTel-orange shadow-lg rounded-xl">
+                <div className="bg-circleTel-orange text-white text-center py-1 text-sm font-medium">
+                  Most Popular
+                </div>
+                <CardHeader>
+                  <div className="mb-4">
+                    <Wifi size={40} className="text-circleTel-orange" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold">Business Pro Bundle</CardTitle>
+                  <CardDescription className="text-circleTel-secondaryNeutral">
+                    Complete resilience solution for growing SMEs
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <div className="mb-6">
+                    <p className="text-3xl font-bold">R1,999<span className="text-sm text-circleTel-secondaryNeutral font-normal">/month</span></p>
+                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">86% savings vs. in-house IT setup</p>
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h3 className="font-bold text-circleTel-darkNeutral mb-3">What's Included:</h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-center">
+                        <Check className="h-5 w-5 text-green-500 mr-2" />
+                        <span>100Mbps MTN Fixed Wireless</span>
+                      </li>
+                      <li className="flex items-center">
+                        <Check className="h-5 w-5 text-green-500 mr-2" />
+                        <span>Managed UPS for Load Shedding</span>
+                      </li>
+                      <li className="flex items-center">
+                        <Check className="h-5 w-5 text-green-500 mr-2" />
+                        <span>Enhanced IT Support</span>
+                      </li>
+                      <li className="flex items-center">
+                        <Check className="h-5 w-5 text-green-500 mr-2" />
+                        <span>2GB Acronis Cloud Backup</span>
                       </li>
                     </ul>
                   </div>
@@ -85,26 +132,26 @@ const Bundles = () => {
                     className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white rounded-full"
                     asChild
                   >
-                    <Link to="/contact">Get Started</Link>
+                    <Link to="/bundles/business-pro">Learn More</Link>
                   </Button>
                 </CardFooter>
               </Card>
               
-              {/* Homeschooling & Remote Work Bundle */}
-              <Card className="border-2 border-gray-200 shadow-md rounded-xl">
+              {/* Home & SOHO Resilience Bundle */}
+              <Card className="border-2 border-blue-500 shadow-lg rounded-xl">
                 <CardHeader className="pt-8">
                   <div className="mb-4">
-                    <Wifi size={40} className="text-circleTel-orange" />
+                    <Cloud size={40} className="text-blue-500" />
                   </div>
-                  <CardTitle className="text-2xl font-bold">Homeschooling & Remote Work Bundle</CardTitle>
+                  <CardTitle className="text-2xl font-bold">Home & SOHO Resilience</CardTitle>
                   <CardDescription className="text-circleTel-secondaryNeutral">
-                    Complete connectivity solution for homes
+                    Perfect for homeschooling and rural home offices
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="mb-6">
                     <p className="text-3xl font-bold">R999<span className="text-sm text-circleTel-secondaryNeutral font-normal">/month</span></p>
-                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">12% savings compared to individual services</p>
+                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">Affordable vs. MTN retail pricing</p>
                   </div>
                   
                   <div className="mt-6">
@@ -112,78 +159,29 @@ const Bundles = () => {
                     <ul className="space-y-3">
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Home WaaS</span>
+                        <span>50Mbps Wi-Fi 6 with Parental Controls</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>50GB Acronis Cloud Backup</span>
+                        <span>Guest Wi-Fi Network</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>1 Virtual Desktop</span>
+                        <span>1GB Cloud Backup</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Perfect for rural/peri-urban homes</span>
+                        <span>Basic IT Support (1-2 devices)</span>
                       </li>
                     </ul>
                   </div>
                 </CardContent>
                 <CardFooter>
                   <Button 
-                    className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white rounded-full"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full"
                     asChild
                   >
-                    <Link to="/contact">Get Started</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-              
-              {/* Custom Bundle */}
-              <Card className="border-2 border-gray-200 shadow-md rounded-xl">
-                <CardHeader className="pt-8">
-                  <div className="mb-4">
-                    <Cloud size={40} className="text-circleTel-orange" />
-                  </div>
-                  <CardTitle className="text-2xl font-bold">Custom Bundle</CardTitle>
-                  <CardDescription className="text-circleTel-secondaryNeutral">
-                    Build your own custom IT and connectivity package
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <div className="mb-6">
-                    <p className="text-xl font-bold">Custom Pricing</p>
-                    <p className="text-sm text-circleTel-secondaryNeutral mt-1">Up to 20% savings on your custom package</p>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="font-bold text-circleTel-darkNeutral mb-3">You Choose:</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-center">
-                        <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Your IT service level</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>WaaS option that fits your needs</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Cloud services based on your requirements</span>
-                      </li>
-                      <li className="flex items-center">
-                        <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Bundle discount based on services selected</span>
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white rounded-full"
-                    asChild
-                  >
-                    <Link to="/contact">Contact Us</Link>
+                    <Link to="/bundles/home-soho-resilience">Learn More</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -198,66 +196,112 @@ const Bundles = () => {
               Bundle Savings Calculator
             </h2>
             
-            <div className="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
+            <div className="bg-white p-8 rounded-xl shadow-md max-w-4xl mx-auto">
               <h3 className="text-xl font-bold mb-6">See How Much You Save with Our Bundles</h3>
               
-              <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div className="grid md:grid-cols-3 gap-8 mb-8">
                 <div>
-                  <h4 className="font-bold mb-4">SOHO/SMME Starter Bundle</h4>
+                  <h4 className="font-bold mb-4">Business Connect Savings</h4>
                   <ul className="space-y-2">
                     <li className="flex justify-between">
-                      <span>Basic Managed IT (5 users):</span>
-                      <span>R945/mo</span>
+                      <span>50Mbps Business Internet:</span>
+                      <span>R1,200/mo</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Business WaaS:</span>
-                      <span>R1,599/mo</span>
+                      <span>Basic IT Support:</span>
+                      <span>R3,000/mo</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>100GB Cloud Backup:</span>
-                      <span>R350/mo</span>
+                      <span>Domain & DNS:</span>
+                      <span>R200/mo</span>
                     </li>
                     <li className="border-t pt-2 mt-2 font-bold flex justify-between">
                       <span>Individual Price:</span>
-                      <span>R2,894/mo</span>
-                    </li>
-                    <li className="text-green-600 font-bold flex justify-between">
-                      <span>Bundle Price:</span>
-                      <span>R1,999/mo</span>
-                    </li>
-                    <li className="text-green-600 font-bold flex justify-between">
-                      <span>Your Savings:</span>
-                      <span>R895/mo</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-bold mb-4">Home & Remote Work Bundle</h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Home WaaS:</span>
-                      <span>R699/mo</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>50GB Cloud Backup:</span>
-                      <span>R175/mo</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Virtual Desktop:</span>
-                      <span>R109/mo</span>
-                    </li>
-                    <li className="border-t pt-2 mt-2 font-bold flex justify-between">
-                      <span>Individual Price:</span>
-                      <span>R983/mo</span>
+                      <span>R4,400/mo</span>
                     </li>
                     <li className="text-green-600 font-bold flex justify-between">
                       <span>Bundle Price:</span>
                       <span>R999/mo</span>
                     </li>
                     <li className="text-green-600 font-bold flex justify-between">
-                      <span>Your Savings:</span>
-                      <span>R134/mo</span>
+                      <span>You Save:</span>
+                      <span>R3,401/mo</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-bold mb-4">Business Pro Savings</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>100Mbps Business Internet:</span>
+                      <span>R2,500/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Part-time IT Support:</span>
+                      <span>R8,000/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>UPS System:</span>
+                      <span>R1,200/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Microsoft 365:</span>
+                      <span>R1,800/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Backup Solution:</span>
+                      <span>R800/mo</span>
+                    </li>
+                    <li className="border-t pt-2 font-bold flex justify-between">
+                      <span>Individual Price:</span>
+                      <span>R14,300/mo</span>
+                    </li>
+                    <li className="text-green-600 font-bold flex justify-between">
+                      <span>Bundle Price:</span>
+                      <span>R1,999/mo</span>
+                    </li>
+                    <li className="text-green-600 font-bold flex justify-between">
+                      <span>You Save:</span>
+                      <span>R12,301/mo</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-bold mb-4">Home & SOHO Savings</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>50Mbps Home Internet:</span>
+                      <span>R900/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Wi-Fi Router & Setup:</span>
+                      <span>R300/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Parental Controls:</span>
+                      <span>R150/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Cloud Backup:</span>
+                      <span>R175/mo</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Tech Support:</span>
+                      <span>R500/mo</span>
+                    </li>
+                    <li className="border-t pt-2 font-bold flex justify-between">
+                      <span>Individual Price:</span>
+                      <span>R2,025/mo</span>
+                    </li>
+                    <li className="text-green-600 font-bold flex justify-between">
+                      <span>Bundle Price:</span>
+                      <span>R999/mo</span>
+                    </li>
+                    <li className="text-green-600 font-bold flex justify-between">
+                      <span>You Save:</span>
+                      <span>R1,026/mo</span>
                     </li>
                   </ul>
                 </div>

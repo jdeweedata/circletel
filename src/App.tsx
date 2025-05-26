@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -31,15 +32,20 @@ import ITAssessment from "./pages/ITAssessment";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
-// Added Cloud pages and PowerBackupSolutions page
+// Cloud pages and PowerBackupSolutions page
 import CloudMigration from "./pages/CloudMigration";
 import CloudHosting from "./pages/CloudHosting";
 import CloudBackup from "./pages/CloudBackup";
 import PowerBackupSolutions from "./pages/PowerBackupSolutions";
 import SecurityServices from "./pages/SecurityServices";
 
-// Added Virtual Desktops page
+// Virtual Desktops page
 import VirtualDesktops from "./pages/VirtualDesktops";
+
+// New Bundle pages
+import BusinessConnect from "./pages/BusinessConnect";
+import BusinessPro from "./pages/BusinessPro";
+import HomeSohoResilience from "./pages/HomeSohoResilience";
 
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
@@ -60,7 +66,7 @@ const App = () => (
             <Route path="/services/growth-ready" element={<GrowthReadyServices />} />
             <Route path="/services/security" element={<SecurityServices />} />
             
-            {/* About routes - New */}
+            {/* About routes */}
             <Route path="/about" element={<About />} />
             <Route path="/about/team" element={<AboutTeam />} />
             <Route path="/about/certifications" element={<AboutCertifications />} />
@@ -68,6 +74,11 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/bundles" element={<Bundles />} />
             <Route path="/case-studies" element={<CaseStudies />} />
+            
+            {/* Bundle pages */}
+            <Route path="/bundles/business-connect" element={<BusinessConnect />} />
+            <Route path="/bundles/business-pro" element={<BusinessPro />} />
+            <Route path="/bundles/home-soho-resilience" element={<HomeSohoResilience />} />
             
             {/* Connectivity routes */}
             <Route path="/connectivity" element={<Connectivity />} />
@@ -81,14 +92,14 @@ const App = () => (
             <Route path="/cloud/backup" element={<CloudBackup />} />
             <Route path="/cloud/virtual-desktops" element={<VirtualDesktops />} />
             
-            {/* Resources routes - Updated with new pages */}
+            {/* Resources routes */}
             <Route path="/resources" element={<Resources />} />
             <Route path="/resources/it-health" element={<ITAssessment />} />
             <Route path="/resources/power-backup" element={<PowerBackupSolutions />} />
             <Route path="/resources/connectivity-guide" element={<ConnectivityGuide />} />
             <Route path="/resources/wifi-toolkit" element={<WiFiToolkit />} />
             
-            {/* Blog routes - Updated with new pages */}
+            {/* Blog routes */}
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/archive" element={<BlogArchive />} />
             <Route path="/blog/stay-operational-during-load-shedding" element={<BlogLoadSheddingSolutions />} />

@@ -2,6 +2,7 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import PromotionalBanner from '@/components/common/PromotionalBanner';
 import Hero from '@/components/home/Hero';
 import ServicesSnapshot from '@/components/home/ServicesSnapshot';
 import ValueProposition from '@/components/home/ValueProposition';
@@ -13,6 +14,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <PromotionalBanner />
       <main>
         <Hero />
         <ServicesSnapshot />

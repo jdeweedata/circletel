@@ -18,7 +18,6 @@ async function getZohoAccessToken() {
       throw new Error("Missing Zoho credentials");
     }
     
-    // Using refresh token grant type instead of client_credentials
     const response = await fetch(
       "https://accounts.zoho.com/oauth/v2/token",
       {
@@ -52,31 +51,52 @@ async function getZohoAccessToken() {
 
 // Function to format phone number for Zoho CRM
 function formatPhoneForZoho(phone: string) {
-  // Remove any non-digit characters
   let formattedPhone = phone.replace(/\D/g, '');
-  
-  // Check if we have a valid phone number
-  if (!formattedPhone) {
-    return null; // Return null for empty phone numbers
-  }
-  
-  // Ensure the phone number doesn't exceed a reasonable length (adjust as needed)
+  if (!formattedPhone) return null;
   if (formattedPhone.length > 15) {
     formattedPhone = formattedPhone.substring(0, 15);
   }
-  
   return formattedPhone;
 }
 
-// Helper function to create a lead in Zoho CRM
+// Helper function to create a lead in Zoho CRM with enhanced form type handling
 async function createLeadInZoho(accessToken: string, leadData: any) {
   try {
     console.log("Creating lead with data:", JSON.stringify(leadData));
-    console.log("Using access token:", accessToken.substring(0, 10) + "...");
     
-    // Format phone number or set to null if invalid
     const formattedPhone = leadData.phone ? formatPhoneForZoho(leadData.phone) : null;
-    console.log("Formatted phone:", formattedPhone);
+    
+    // Determine lead source based on form type
+    let leadSource = "Website IT Assessment";
+    let description = `IT Assessment Request:`;
+    
+    if (leadData.formType === 'quote') {
+      leadSource = "Website Quote Request";
+      description = `Quote Request:
+        Bundle: ${leadData.bundle || "Not specified"}
+        Province: ${leadData.province || "Not specified"}
+        City: ${leadData.city || "Not specified"}`;
+    } else if (leadData.formType === 'referral') {
+      leadSource = "Referral Program";
+      description = `Referral Submission:
+        Referred Business: ${leadData.referredBusiness || "Not specified"}
+        Contact Person: ${leadData.referredContact || "Not specified"}`;
+    } else if (leadData.formType === 'founders-club') {
+      leadSource = "Founder's Club Gauteng";
+      description = `Founder's Club Application:
+        Business Type: ${leadData.businessType || "Not specified"}`;
+    } else if (leadData.formType === 'rural-adopter') {
+      leadSource = "Rural Early Adopter";
+      description = `Rural Early Adopter Program:
+        Location: ${leadData.province || "Not specified"} - ${leadData.city || "Not specified"}`;
+    }
+    
+    // Add common fields to description
+    description += `
+      Employees: ${leadData.employees || "Not specified"}
+      IT Challenges: ${leadData.challenges || "Not specified"}
+      Service Interest: ${leadData.serviceInterest || "Not specified"}
+      Assessment Type: ${leadData.assessmentType || "Standard"}`;
     
     const response = await fetch(
       "https://www.zohoapis.com/crm/v2/Leads",
@@ -92,15 +112,15 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
               Last_Name: leadData.name || "Unknown",
               Email: leadData.email,
               Company: leadData.company,
-              Phone: formattedPhone, // Send formatted phone or null
-              Lead_Source: "Website IT Assessment",
-              Description: `
-                IT Assessment Request:
-                Employees: ${leadData.employees || "Not specified"}
-                IT Challenges: ${leadData.challenges || "Not specified"}
-                Assessment Type: ${leadData.assessmentType || "Standard"}
-              `,
-              $title: "IT Assessment Request",
+              Phone: formattedPhone,
+              Lead_Source: leadSource,
+              Description: description,
+              // Custom fields for better segmentation
+              Province: leadData.province,
+              City: leadData.city,
+              Service_Interest: leadData.serviceInterest,
+              Bundle_Interest: leadData.bundle,
+              Form_Type: leadData.formType || 'assessment',
             },
           ],
         }),
@@ -131,7 +151,6 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
 }
 
 serve(async (req) => {
-  // Handle OPTIONS request for CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders, status: 204 });
   }
@@ -144,7 +163,6 @@ serve(async (req) => {
       });
     }
     
-    // Parse the request body
     let requestData;
     try {
       requestData = await req.json();
@@ -160,19 +178,29 @@ serve(async (req) => {
       });
     }
     
-    // Basic validation
-    if (!requestData.email || !requestData.name || !requestData.company) {
+    // Enhanced validation based on form type
+    if (!requestData.email || !requestData.name) {
       console.error("Missing required fields:", JSON.stringify(requestData));
       return new Response(JSON.stringify({ 
         success: false, 
-        error: "Missing required fields: name, email, or company" 
+        error: "Missing required fields: name and email are mandatory" 
       }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     
-    // Get Zoho access token
+    // Company is required for most forms except referral
+    if (requestData.formType !== 'referral' && !requestData.company) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: "Company name is required" 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
     let accessToken;
     try {
       accessToken = await getZohoAccessToken();
@@ -188,7 +216,6 @@ serve(async (req) => {
       });
     }
     
-    // Create lead in Zoho CRM
     let result;
     try {
       result = await createLeadInZoho(accessToken, requestData);
