@@ -3,17 +3,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery } from 'lucide-react';
+
 const Hero = () => {
   const isMobile = useIsMobile();
   return <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
       <div className="container mx-auto px-4">
-        {/* South African SME-Focused Pain Point Banner */}
-        <div className="bg-gradient-to-r from-circleTel-orange/10 to-orange-100 rounded-lg p-4 mb-8 text-center border border-circleTel-orange/20">
-          <p className="text-circleTel-darkNeutral font-semibold">
-            <span className="text-circleTel-orange font-bold">Affordable, Uninterrupted Business & Home Tech for South Africa:</span>
-          </p>
-          <p className="text-circleTel-secondaryNeutral mt-1">High-Speed Wireless and Fibre, IT, and Resilience Solutions for Urban & Rural Communities</p>
-        </div>
         
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
           {/* Text Content */}

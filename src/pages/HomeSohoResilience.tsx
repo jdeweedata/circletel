@@ -12,7 +12,6 @@ const HomeSohoResilience = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <PromotionalBanner showCloseButton={false} />
       
       <main className="flex-grow">
         {/* Hero Section */}

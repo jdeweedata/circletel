@@ -57,7 +57,7 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         {/* Single links */}
         <Link 
           to="/" 
-          className={`py-2.5 px-3 font-medium rounded-md ${isActive('/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+          className={`py-2.5 px-3 font-medium rounded-md text-base md:text-lg lg:text-xl ${isActive('/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
           onClick={() => setIsMenuOpen(false)}
         >
           Home
@@ -65,7 +65,7 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         
         <Link 
           to="/services" 
-          className={`py-2.5 px-3 font-medium rounded-md ${isActive('/services') && !currentPath.includes('/services/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+          className={`py-2.5 px-3 font-medium rounded-md text-base md:text-lg lg:text-xl ${isActive('/services') && !currentPath.includes('/services/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
           onClick={() => setIsMenuOpen(false)}
         >
           Managed IT
@@ -74,7 +74,7 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
         {/* Accordion menus */}
         <Accordion type="multiple" defaultValue={getDefaultValue()} className="w-full">
           <AccordionItem value="managed-it" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md">
+            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
               IT Solutions
             </AccordionTrigger>
             <AccordionContent>
@@ -94,7 +94,7 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
           
           <AccordionItem value="connectivity" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md">
+            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
               Connectivity
             </AccordionTrigger>
             <AccordionContent>
@@ -121,7 +121,7 @@ const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
           
           <AccordionItem value="resources" className="border-0">
-            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md">
+            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
               Resources
             </AccordionTrigger>
             <AccordionContent>

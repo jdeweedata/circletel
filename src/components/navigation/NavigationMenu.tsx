@@ -32,7 +32,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
             className
           )}
           {...props}
@@ -72,6 +72,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
             <NavigationMenuLink 
               className={cn(
                 navigationMenuTriggerStyle(),
+                'text-base md:text-lg lg:text-xl',
                 isActive('/') && 'bg-accent text-accent-foreground'
               )}
             >
@@ -84,6 +85,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
+              'text-base md:text-lg lg:text-xl',
               (isActive('/services') || isActive('/pricing') || isActive('/bundles')) && 'bg-accent text-accent-foreground'
             )}
           >
@@ -97,7 +99,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                     <Link 
                       to={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
                         isActive(item.href) ? 'bg-accent' : ''
                       )}
                     >
@@ -117,7 +119,8 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
-              isActive('/connectivity') && 'bg-accent text-accent-foreground'
+              isActive('/connectivity') && 'bg-accent text-accent-foreground',
+              'text-base md:text-lg lg:text-xl'
             )}
           >
             Connectivity
@@ -129,7 +132,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                   <Link
                     to="/connectivity"
                     className={cn(
-                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
                       isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent' : ''
                     )}
                   >
@@ -146,7 +149,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                     <Link 
                       to={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
                         isActive(item.href) ? 'bg-accent' : ''
                       )}
                     >
@@ -166,7 +169,8 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
-              isActive('/cloud') && 'bg-accent text-accent-foreground'
+              isActive('/cloud') && 'bg-accent text-accent-foreground',
+              'text-base md:text-lg lg:text-xl'
             )}
           >
             Cloud & Hosting
@@ -179,7 +183,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                     <Link 
                       to={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
                         isActive(item.href) ? 'bg-accent' : ''
                       )}
                     >
@@ -199,7 +203,8 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
         <NavigationMenuItem>
           <NavigationMenuTrigger 
             className={cn(
-              isActive('/resources') && 'bg-accent text-accent-foreground'
+              isActive('/resources') && 'bg-accent text-accent-foreground',
+              'text-base md:text-lg lg:text-xl'
             )}
           >
             Resources
@@ -212,7 +217,7 @@ const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => {
                     <Link 
                       to={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
                         isActive(item.href) ? 'bg-accent' : ''
                       )}
                     >

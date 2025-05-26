@@ -13,10 +13,10 @@ const Navbar = () => {
   const isMobile = useIsMobile();
   
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
+    <header className="sticky top-0 z-50 bg-white shadow-sm w-full text-lg md:text-xl lg:text-2xl">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <Logo />
+          <div className="flex items-center"><Logo /></div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:gap-2">
