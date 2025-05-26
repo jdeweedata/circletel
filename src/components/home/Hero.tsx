@@ -49,7 +49,7 @@ const Hero = () => {
             
             <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
               No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses. 
-              <strong> Serving urban and rural communities across Gauteng, KZN, and Western Cape.</strong>
+              <strong> Serving urban and rural communities across South Africa.</strong>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
