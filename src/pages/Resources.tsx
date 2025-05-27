@@ -15,14 +15,14 @@ const ResourceCard = ({
 }: { 
   title: string; 
   description: string; 
-  icon: React.ComponentType<any>; 
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
   link: string; 
   linkText: string;
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-circleTel-orange hover:shadow-lg transition-all duration-300">
       <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mb-4">
-        <Icon size={24} />
+        <Icon width={24} height={24} />
       </div>
       <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">{title}</h3>
       <p className="text-circleTel-secondaryNeutral mb-4">{description}</p>

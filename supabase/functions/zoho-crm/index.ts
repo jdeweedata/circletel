@@ -1,5 +1,5 @@
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+// Node.js/Supabase Edge Functions compatible version. No Deno imports needed.
 
 // CORS headers for the function
 const corsHeaders = {
@@ -10,8 +10,8 @@ const corsHeaders = {
 // Helper function to get Zoho access token
 async function getZohoAccessToken() {
   try {
-    const clientId = Deno.env.get("ZOHO_CLIENT_ID");
-    const clientSecret = Deno.env.get("ZOHO_CLIENT_SECRET");
+    const clientId = process.env.ZOHO_CLIENT_ID;
+    const clientSecret = process.env.ZOHO_CLIENT_SECRET;
     
     if (!clientId || !clientSecret) {
       console.error("Missing Zoho credentials");
@@ -29,7 +29,7 @@ async function getZohoAccessToken() {
           grant_type: "refresh_token",
           client_id: clientId,
           client_secret: clientSecret,
-          refresh_token: Deno.env.get("ZOHO_REFRESH_TOKEN") || "",
+          refresh_token: process.env.ZOHO_REFRESH_TOKEN || "",
         }),
       }
     );
@@ -60,7 +60,20 @@ function formatPhoneForZoho(phone: string) {
 }
 
 // Helper function to create a lead in Zoho CRM with enhanced form type handling
-async function createLeadInZoho(accessToken: string, leadData: any) {
+interface LeadData {
+    name: string;
+    email: string;
+    phone?: string;
+    formType?: string;
+    company?: string;
+    employees?: string;
+    challenges?: string;
+    serviceInterest?: string;
+    assessmentType?: string;
+    [key: string]: any; // Only if dynamic keys are needed
+}
+
+async function createLeadInZoho(accessToken: string, leadData: LeadData) {
   try {
     console.log("Creating lead with data:", JSON.stringify(leadData));
     
@@ -150,7 +163,7 @@ async function createLeadInZoho(accessToken: string, leadData: any) {
   }
 }
 
-serve(async (req) => {
+export default async function handler(req: Request) {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders, status: 204 });
   }
@@ -249,4 +262,4 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-});
+}
