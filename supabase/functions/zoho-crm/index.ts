@@ -70,7 +70,12 @@ interface LeadData {
     challenges?: string;
     serviceInterest?: string;
     assessmentType?: string;
-    [key: string]: any; // Only if dynamic keys are needed
+    bundle?: string;
+    province?: string;
+    city?: string;
+    referredBusiness?: string;
+    referredContact?: string;
+    businessType?: string;
 }
 
 async function createLeadInZoho(accessToken: string, leadData: LeadData) {
