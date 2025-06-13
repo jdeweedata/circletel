@@ -1,27 +1,27 @@
-
 import React from 'react';
-import Navbar from '@/components/layout/Navbar';
+import Hero from '@/components/wifi/Hero';
+import TrustStrip from '@/components/wifi/TrustStrip';
+import WhyMesh from '@/components/wifi/WhyMesh';
+import Packages from '@/components/wifi/Packages';
+import HowItWorks from '@/components/wifi/HowItWorks';
+import SocialProof from '@/components/wifi/SocialProof';
+import Faq from '@/components/wifi/Faq';
+import LeadForm from '@/components/wifi/LeadForm';
 import Footer from '@/components/layout/Footer';
-import PromotionalBanner from '@/components/common/PromotionalBanner';
-import Hero from '@/components/home/Hero';
-import ServicesSnapshot from '@/components/home/ServicesSnapshot';
-import ValueProposition from '@/components/home/ValueProposition';
-import LeadMagnet from '@/components/home/LeadMagnet';
-import SuccessStories from '@/components/home/SuccessStories';
-import BlogPreview from '@/components/home/BlogPreview';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main>
-        <Hero />
-        <ServicesSnapshot />
-        <ValueProposition />
-        <LeadMagnet />
-      </main>
+    <>
+      <Hero />
+      <TrustStrip />
+      <WhyMesh />
+      <Packages />
+      <HowItWorks />
+      <SocialProof />
+      <Faq />
+      <LeadForm />
       <Footer />
-    </div>
+    </>
   );
 };
 

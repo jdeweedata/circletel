@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/resources/wifi-toolkit",
+      "destination": "https://wifi.circletel.co.za/resources/wifi-toolkit",
+      "permanent": true
+    }
+  ]
+}
