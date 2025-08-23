@@ -113,7 +113,7 @@ const Bundles = () => {
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
-                        <span>Managed UPS for Load Shedding</span>
+                        <span>Managed UPS for Power Protection</span>
                       </li>
                       <li className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />

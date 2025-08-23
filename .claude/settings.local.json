@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "Bash(vercel:*)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Read(/c:\\Users\\JeffreyDeWee\\Downloads/**)",
+      "mcp__vercel__list_teams",
+      "mcp__vercel__list_projects",
+      "Bash(npm install:*)",
+      "mcp__vercel__get_project",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "mcp__vercel__web_fetch_vercel_url",
+      "WebFetch(domain:circletel-stagging-ewqg4309n-jdewee-livecoms-projects.vercel.app)"
     ],
     "deny": [],
     "ask": []

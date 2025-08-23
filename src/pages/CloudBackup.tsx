@@ -18,7 +18,7 @@ const CloudBackup = () => {
               <div className="md:w-1/2">
                 <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">Secure Cloud Backup & Recovery</h1>
                 <p className="text-xl text-circleTel-secondaryNeutral mb-6">
-                  Protect your business data with reliable cloud backup solutions that ensure business continuity even during load shedding.
+                  Protect your business data with reliable cloud backup solutions that ensure business continuity even during power outages.
                 </p>
                 <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
                   <Link to="/contact">Get Backup Assessment</Link>

@@ -50,7 +50,7 @@ const VirtualDesktopsBenefits = () => {
             </div>
             <h3 className="font-bold text-xl mb-2">Business Continuity</h3>
             <p className="text-circleTel-secondaryNeutral">
-              Maintain operations during disruptions like load shedding or office closures with anytime, anywhere access.
+              Maintain operations during disruptions like power outages or office closures with anytime, anywhere access.
             </p>
           </div>
         </div>
@@ -62,9 +62,9 @@ const VirtualDesktopsBenefits = () => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-lg">
-              <h4 className="font-bold text-center mb-2">Load Shedding Resilience</h4>
+              <h4 className="font-bold text-center mb-2">Power Resilience</h4>
               <p className="text-sm text-center">
-                Continue working during power outages by accessing your desktop from any location with power and internet.
+                Continue working during power outages by accessing your desktop from any location with stable power and internet.
               </p>
             </div>
             <div className="bg-white p-4 rounded-lg">

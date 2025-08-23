@@ -264,9 +264,9 @@ const WiFiToolkit = () => {
                 <TabsContent value="best-practices" className="mt-6 bg-white p-6 rounded-lg shadow">
                   <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">South African Wi-Fi Best Practices</h3>
                   <div className="prose max-w-none">
-                    <h4 className="font-bold mt-4 mb-2">1. Account for Load Shedding</h4>
+                    <h4 className="font-bold mt-4 mb-2">1. Power Backup Planning</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral mb-3">
-                      Ensure all critical network gear is connected to UPS systems sized appropriately for your typical load shedding schedule. Consider PoE-powered access points to extend runtime during outages.
+                      Ensure all critical network gear is connected to UPS systems sized appropriately for extended power outages. Consider PoE-powered access points to extend runtime during outages.
                     </p>
                     
                     <h4 className="font-bold mt-4 mb-2">2. Channel Planning</h4>

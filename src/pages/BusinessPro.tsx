@@ -79,7 +79,7 @@ const BusinessPro = () => {
                   <Battery className="text-white" size={32} />
                 </div>
                 <h3 className="font-bold text-circleTel-darkNeutral mb-2">Managed UPS System</h3>
-                <p className="text-circleTel-secondaryNeutral text-sm">Load shedding protection for FWA equipment and critical devices</p>
+                <p className="text-circleTel-secondaryNeutral text-sm">Power outage protection for FWA equipment and critical devices</p>
               </div>
               
               <div className="text-center p-6 bg-circleTel-lightNeutral rounded-xl">
@@ -138,7 +138,7 @@ const BusinessPro = () => {
                     </li>
                     <li className="flex items-start">
                       <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>Load shedding monitoring and alerts</span>
+                      <span>Power monitoring and alerts</span>
                     </li>
                   </ul>
                 </div>
@@ -179,7 +179,7 @@ const BusinessPro = () => {
               
               <div className="grid md:grid-cols-2 gap-8 mb-12">
                 <div className="bg-white p-8 rounded-xl shadow-lg">
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Load Shedding Resilience</h3>
+                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Power Resilience</h3>
                   <p className="text-circleTel-secondaryNeutral mb-4">
                     Keep your business running during power outages with our managed UPS system specifically designed for FWA equipment.
                   </p>
