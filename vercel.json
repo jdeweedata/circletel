@@ -18,9 +18,4 @@
     }
   },
   "regions": ["cpt1"],
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
 }
