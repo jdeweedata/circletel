@@ -11,11 +11,6 @@
       "VITE_ENV": "production"
     }
   },
-  "preview": {
-    "env": {
-      "VITE_ENV": "staging"
-    }
-  },
   "git": {
     "deploymentEnabled": {
       "main": true,
