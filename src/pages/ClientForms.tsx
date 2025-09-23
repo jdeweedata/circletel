@@ -51,7 +51,7 @@ export function ClientForms() {
                     <span>Contract details & contact info</span>
                   </div>
                 </div>
-                <Link to="/forms/unjani/contract-audit">
+                <Link to="/admin/forms/unjani/contract-audit">
                   <Button className="w-full">
                     <Plus className="w-4 h-4 mr-2" />
                     Start New Audit
@@ -147,7 +147,7 @@ export function ClientForms() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <Link
-                              to={`/forms/${draft.clientName}/${draft.formType.replace('_', '-')}`}
+                              to={`/admin/forms/${draft.clientName}/${draft.formType.replace('_', '-')}`}
                             >
                               <Button size="sm" variant="outline">
                                 Continue

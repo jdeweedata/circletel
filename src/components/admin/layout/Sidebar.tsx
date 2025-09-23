@@ -53,6 +53,12 @@ const navigation = [
     name: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart3
+  },
+  {
+    name: 'Client Forms',
+    href: '/admin/forms',
+    icon: FileText,
+    description: 'Manage client assessment forms'
   }
 ]
 
