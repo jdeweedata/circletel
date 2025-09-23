@@ -1,5 +1,5 @@
 
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -162,6 +162,12 @@ export const resourcesItems: NavigationItem[] = [
     href: "/resources",
     icon: Book,
     description: "Helpful guides and resources"
+  },
+  {
+    name: "Client Forms",
+    href: "/forms",
+    icon: ClipboardList,
+    description: "Surveys and audit forms for clients"
   },
   {
     name: "IT Health Assessment",

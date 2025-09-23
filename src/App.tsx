@@ -53,6 +53,10 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { ProductManagement } from "./pages/admin/ProductManagement";
 import { ApprovalWorkflow } from "./pages/admin/ApprovalWorkflow";
 
+// Client Forms
+import { ClientForms } from "./pages/ClientForms";
+import { UnjaniContractAuditForm } from "./components/forms/clients/unjani/ContractAuditForm";
+
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
@@ -116,6 +120,10 @@ const App = () => (
             <Route path="/internal-docs/examples" element={<ComponentLibrary />} />
             <Route path="/internal-docs/accessibility" element={<AccessibilityGuide />} />
             <Route path="/internal-docs/performance" element={<ComponentLibrary />} />
+
+            {/* Client Forms routes */}
+            <Route path="/forms" element={<ClientForms />} />
+            <Route path="/forms/unjani/contract-audit" element={<UnjaniContractAuditForm />} />
 
             {/* Admin routes - Protected */}
             <Route path="/admin/login" element={<AdminLogin />} />
