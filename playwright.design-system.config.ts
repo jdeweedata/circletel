@@ -7,7 +7,8 @@
 
 import { defineConfig, devices } from '@playwright/test';
 
-export default defineConfig({
+// Base configuration
+const config = {
   testDir: './tests/design-system',
 
   // Test files
@@ -166,13 +167,13 @@ export default defineConfig({
 
   // Output directories
   outputDir: 'test-results/design-system-artifacts',
-});
+};
 
 // Environment-specific overrides
 if (process.env.CI) {
   // CI-specific configuration
-  module.exports.use = {
-    ...module.exports.use,
+  config.use = {
+    ...config.use,
     // More lenient timeouts in CI
     actionTimeout: 15000,
     navigationTimeout: 45000,
@@ -181,11 +182,13 @@ if (process.env.CI) {
 
 if (process.env.DESIGN_SYSTEM_DEBUG) {
   // Debug mode configuration
-  module.exports.use = {
-    ...module.exports.use,
+  config.use = {
+    ...config.use,
     // Keep artifacts for debugging
     video: 'on',
     screenshot: 'on',
     trace: 'on',
   };
 }
+
+export default defineConfig(config);
