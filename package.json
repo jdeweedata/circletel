@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
+    "test": "playwright test --config=playwright.design-system.config.ts",
     "preview": "vite preview",
     "ds:validate": "node scripts/design-system-validation.js validate",
     "ds:component": "node scripts/design-system-validation.js component",

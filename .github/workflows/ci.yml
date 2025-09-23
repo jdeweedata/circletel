@@ -28,9 +28,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run tests (if present)
-        run: |
-          if npm run | grep -q test; then npm test; else echo "No test script"; fi
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Tests
+        run: npm test
 
       - name: Build
         run: npm run build
