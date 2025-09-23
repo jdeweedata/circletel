@@ -54,7 +54,10 @@
       "mcp__supabase__get_edge_function",
       "Read(//c/Users/JeffreyDeWee/OneDrive - NEW GENERATION MANAGEMENT CONSULTING (PTY) LTD/Circle Tel SA (NGBS)/Customers/Unjani/**)",
       "Bash(git rm:*)",
-      "Bash(npx update-browserslist-db:*)"
+      "Bash(npx update-browserslist-db:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npx husky add:*)"
     ],
     "deny": [],
     "ask": []

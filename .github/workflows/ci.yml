@@ -1,5 +1,5 @@
-# This workflow will install dependencies, lint, run tests, and build your Vite + React + TypeScript project
-# It is optimized for simplicity, performance, accessibility, and security (per project rules)
+# Optimized CI workflow - most validation now happens locally via pre-commit hooks
+# This runs lightweight checks since pre-commit validation ensures code quality
 
 name: CI
 
@@ -9,9 +9,12 @@ on:
   pull_request:
     branches: [ main, master ]
 
+# Optimize for speed - run jobs in parallel where possible
 jobs:
-  build:
+  # Fast validation job - runs first as a gate
+  validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,23 +28,69 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint check
         run: npm run lint
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+  # Build job - runs in parallel with validate
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Run Tests
-        run: npm test
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
 
-      - name: Build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
         run: npm run build
 
-      - name: Upload production-ready build artifacts
+      - name: Upload build artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: production-build
           path: dist/
+          retention-days: 7
 
-      # Add accessibility, security, or performance checks here as needed
+  # Test job - only runs if validate passes (to save CI time)
+  test:
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 15
+    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, '[run-tests]')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 3
