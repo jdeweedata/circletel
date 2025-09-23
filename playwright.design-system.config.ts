@@ -146,10 +146,10 @@ const config = {
 
   // Web server configuration
   webServer: {
-    command: 'npm run preview',
+    command: 'npm run dev',
     url: 'http://localhost:8080',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000, // Increased timeout for dev server startup
   },
 
   // Screenshot and video settings
@@ -177,6 +177,12 @@ if (process.env.CI) {
     // More lenient timeouts in CI
     actionTimeout: 15000,
     navigationTimeout: 45000,
+  };
+
+  // Increase webServer timeout in CI
+  config.webServer = {
+    ...config.webServer,
+    timeout: 300 * 1000, // 5 minutes for CI
   };
 }
 
