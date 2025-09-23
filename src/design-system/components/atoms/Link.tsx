@@ -106,7 +106,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     return (
       <RouterLink
-        ref={ref as any}
+        ref={ref as React.Ref<HTMLAnchorElement>}
         to={href}
         className={linkClasses}
         {...props}

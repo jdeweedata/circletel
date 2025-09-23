@@ -81,7 +81,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePlaceSelect = (place: PlaceResult) => {
     setInputValue(place.formatted_address);

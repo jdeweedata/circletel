@@ -16,7 +16,7 @@ interface RealtimeSyncState<T> {
   lastUpdated: Date | null
 }
 
-export function useRealtimeSync<T = any>(
+export function useRealtimeSync<T = Record<string, unknown>>(
   options: RealtimeSyncOptions,
   initialData: T[] = []
 ) {
@@ -44,7 +44,7 @@ export function useRealtimeSync<T = any>(
 
         case 'UPDATE':
           if (payload.new) {
-            const index = newData.findIndex((item: any) => item.id === payload.new.id)
+            const index = newData.findIndex((item: T & { id: string }) => item.id === payload.new.id)
             if (index >= 0) {
               newData[index] = payload.new as T
             }
@@ -53,7 +53,7 @@ export function useRealtimeSync<T = any>(
 
         case 'DELETE':
           if (payload.old) {
-            newData = newData.filter((item: any) => item.id !== payload.old.id)
+            newData = newData.filter((item: T & { id: string }) => item.id !== payload.old.id)
           }
           break
       }
@@ -67,7 +67,7 @@ export function useRealtimeSync<T = any>(
     })
   }, [])
 
-  const handleError = useCallback((error: any) => {
+  const handleError = useCallback((error: Error) => {
     console.error('Realtime sync error:', error)
     setState(prev => ({
       ...prev,
@@ -88,7 +88,7 @@ export function useRealtimeSync<T = any>(
     const newChannel = supabase.channel(channelName)
 
     // Configure the subscription based on options
-    let subscription = newChannel.on(
+    const subscription = newChannel.on(
       'postgres_changes',
       {
         event: options.event || '*',
@@ -196,10 +196,10 @@ export function useAdminStatsRealtime() {
   useEffect(() => {
     // Calculate stats from real-time data
     const totalProducts = products.data.length
-    const pendingApprovals = approvals.data.filter((a: any) =>
+    const pendingApprovals = approvals.data.filter((a: Record<string, unknown>) =>
       a.status === 'pending' || a.status === 'under_review'
     ).length
-    const approvedProducts = products.data.filter((p: any) =>
+    const approvedProducts = products.data.filter((p: Record<string, unknown>) =>
       p.is_active === true
     ).length
 

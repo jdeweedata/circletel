@@ -96,7 +96,7 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(
   }, ref) => {
     return (
       <Component
-        ref={ref as any}
+        ref={ref as React.Ref<HTMLElement>}
         className={cn(textVariants({ variant, color, weight, align, truncate }), className)}
         {...props}
       >

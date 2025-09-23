@@ -326,9 +326,9 @@ const DesignTokens = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(`space-${key}` || `p-${key}`)}
+                            onClick={() => copyToClipboard(`space-${key}`)}
                           >
-                            {copiedToken === (`space-${key}` || `p-${key}`) ? (
+                            {copiedToken === `space-${key}` ? (
                               <Check className="w-4 h-4" />
                             ) : (
                               <Copy className="w-4 h-4" />

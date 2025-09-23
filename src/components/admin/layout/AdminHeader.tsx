@@ -10,9 +10,14 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 
+interface User {
+  full_name?: string
+  role?: string
+}
+
 interface AdminHeaderProps {
   onMenuClick: () => void
-  user: any
+  user: User
 }
 
 export function AdminHeader({ onMenuClick, user }: AdminHeaderProps) {

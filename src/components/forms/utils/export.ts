@@ -7,7 +7,7 @@ export interface ExportOptions {
 }
 
 export class FormExporter {
-  static exportToCSV(data: Record<string, any>, filename?: string): void {
+  static exportToCSV(data: Record<string, unknown>, filename?: string): void {
     const headers = Object.keys(data);
     const values = Object.values(data);
 
@@ -17,13 +17,13 @@ export class FormExporter {
     this.downloadFile(csvContent, 'text/csv', filename || 'form_data.csv');
   }
 
-  static exportToJSON(data: Record<string, any>, filename?: string): void {
+  static exportToJSON(data: Record<string, unknown>, filename?: string): void {
     const jsonContent = JSON.stringify(data, null, 2);
     this.downloadFile(jsonContent, 'application/json', filename || 'form_data.json');
   }
 
   static exportFormData(
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     clientName: string,
     formType: string,
     options: ExportOptions = { format: 'csv' }
@@ -66,7 +66,7 @@ export class FormExporter {
   }
 
   // Convert form data to a format suitable for Supabase Edge Functions
-  static prepareForSubmission(data: Record<string, any>): Record<string, any> {
+  static prepareForSubmission(data: Record<string, unknown>): Record<string, unknown> {
     return {
       ...data,
       submittedAt: new Date().toISOString(),

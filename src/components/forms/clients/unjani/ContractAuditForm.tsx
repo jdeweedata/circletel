@@ -66,7 +66,7 @@ export function UnjaniContractAuditForm() {
   const watchedValues = watch();
 
   // Memoize form persistence functions
-  const memoizedSaveDraft = useCallback((data: Record<string, any>, progressValue: number) => {
+  const memoizedSaveDraft = useCallback((data: Record<string, unknown>, progressValue: number) => {
     saveDraft(data, progressValue);
   }, [saveDraft]);
 
@@ -80,7 +80,7 @@ export function UnjaniContractAuditForm() {
         }
       });
     }
-  }, []); // Remove dependencies to run only once
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Memoize progress calculation
   const currentProgress = useMemo(() => {
@@ -282,7 +282,7 @@ export function UnjaniContractAuditForm() {
               name="contractType"
               options={CONTRACT_TYPE_OPTIONS}
               value={watchedValues.contractType}
-              onChange={(value) => setValue('contractType', value as any)}
+              onChange={(value) => setValue('contractType', value as string)}
               required
               error={errors.contractType?.message}
             />
@@ -454,7 +454,7 @@ export function UnjaniContractAuditForm() {
 
         {/* Section 6: Email Notifications */}
         <NotificationPreferences
-          form={{ watch } as any}
+          form={{ watch }}
           notifyTeam={notifyTeam}
           setNotifyTeam={setNotifyTeam}
           notifyClient={notifyClient}

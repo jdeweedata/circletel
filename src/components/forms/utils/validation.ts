@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Common validation schemas
 export const phoneSchema = z.string()
   .min(10, 'Phone number must be at least 10 digits')
-  .regex(/^[\d\s\-\+\(\)]+$/, 'Invalid phone number format');
+  .regex(/^[\d\s\-+()]+$/, 'Invalid phone number format');
 
 export const emailSchema = z.string()
   .email('Invalid email address');
@@ -21,7 +21,7 @@ export const dateSchema = z.string()
   .refine((date) => !isNaN(Date.parse(date)), 'Invalid date format');
 
 // Calculate form completion percentage
-export function calculateProgress(data: Record<string, any>, requiredFields: string[]): number {
+export function calculateProgress(data: Record<string, unknown>, requiredFields: string[]): number {
   const completedFields = requiredFields.filter(field => {
     const value = data[field];
     return value !== undefined && value !== null && value !== '';
@@ -31,7 +31,7 @@ export function calculateProgress(data: Record<string, any>, requiredFields: str
 }
 
 // Validate individual field
-export function validateField(value: any, schema: z.ZodSchema): string | null {
+export function validateField(value: unknown, schema: z.ZodSchema): string | null {
   try {
     schema.parse(value);
     return null;

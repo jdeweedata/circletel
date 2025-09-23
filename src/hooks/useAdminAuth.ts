@@ -6,7 +6,7 @@ interface AdminUser {
   email: string
   full_name: string
   role: 'super_admin' | 'product_manager' | 'editor' | 'viewer'
-  permissions: Record<string, any>
+  permissions: Record<string, unknown>
   is_active: boolean
   last_login?: string
 }

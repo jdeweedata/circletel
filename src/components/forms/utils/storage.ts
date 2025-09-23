@@ -4,7 +4,7 @@ export interface FormDraft {
   id: string;
   clientName: string;
   formType: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   lastSaved: string;
   progress: number;
 }
@@ -12,7 +12,7 @@ export interface FormDraft {
 const STORAGE_PREFIX = 'circletel_form_draft_';
 
 export class FormStorage {
-  static saveDraft(clientName: string, formType: string, data: Record<string, any>, progress: number): void {
+  static saveDraft(clientName: string, formType: string, data: Record<string, unknown>, progress: number): void {
     const draft: FormDraft = {
       id: `${clientName}_${formType}_${Date.now()}`,
       clientName,
@@ -67,7 +67,7 @@ export class FormStorage {
 
 // Custom hook for form persistence
 export function useFormPersistence(clientName: string, formType: string) {
-  const saveDraft = (data: Record<string, any>, progress: number) => {
+  const saveDraft = (data: Record<string, unknown>, progress: number) => {
     FormStorage.saveDraft(clientName, formType, data, progress);
   };
 

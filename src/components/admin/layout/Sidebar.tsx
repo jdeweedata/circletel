@@ -15,10 +15,15 @@ import {
   Archive
 } from 'lucide-react'
 
+interface User {
+  full_name?: string
+  role?: string
+}
+
 interface SidebarProps {
   isOpen: boolean
   onToggle: () => void
-  user: any
+  user: User
 }
 
 const navigation = [

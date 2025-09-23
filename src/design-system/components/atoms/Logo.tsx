@@ -118,7 +118,7 @@ export const Logo = React.forwardRef<HTMLElement, LogoProps>(
     if (href && !onClick) {
       return (
         <Link
-          ref={ref as any}
+          ref={ref as React.Ref<HTMLAnchorElement>}
           href={href}
           variant="ghost"
           className="p-0 h-auto hover:bg-transparent focus:ring-offset-0"
@@ -131,7 +131,7 @@ export const Logo = React.forwardRef<HTMLElement, LogoProps>(
 
     return (
       <button
-        ref={ref as any}
+        ref={ref as React.Ref<HTMLButtonElement>}
         onClick={onClick}
         className="inline-block p-0 border-none bg-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-sm"
         {...props}

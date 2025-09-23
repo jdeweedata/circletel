@@ -64,7 +64,7 @@ const supabase = createClient<Database>(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 )
 
-async function logAudit(userId: string, action: string, entityType: string, entityId: string, changes: any) {
+async function logAudit(userId: string, action: string, entityType: string, entityId: string, changes: Record<string, unknown>) {
   await supabase.from('admin_audit_logs').insert({
     user_id: userId,
     action,
@@ -118,7 +118,7 @@ async function createProduct(req: Request) {
 
   // Insert features
   if (features && features.length > 0) {
-    const featureData = features.map((feature: any) => ({
+    const featureData = features.map((feature: Record<string, unknown>) => ({
       ...feature,
       product_id: newProduct.id
     }))
@@ -127,7 +127,7 @@ async function createProduct(req: Request) {
 
   // Insert hardware
   if (hardware && hardware.length > 0) {
-    const hardwareData = hardware.map((hw: any) => ({
+    const hardwareData = hardware.map((hw: Record<string, unknown>) => ({
       ...hw,
       product_id: newProduct.id
     }))

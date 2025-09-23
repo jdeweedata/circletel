@@ -103,7 +103,7 @@ class CoverageApiService {
       const data = await response.json();
 
       // Filter buildings for DFA connected with broadband
-      const connectedBuildings = data.features?.filter((feature: any) => {
+      const connectedBuildings = data.features?.filter((feature: Record<string, unknown>) => {
         const attrs = feature.attributes;
         // Since DFA_Connected field is undefined, check for buildings with Broadband
         // This indicates they are DFA connected buildings in the area
@@ -114,12 +114,12 @@ class CoverageApiService {
       const hasBuildings = connectedBuildings.length > 0;
 
       // Check for third party requirements
-      const requiresThirdParty = connectedBuildings.some((feature: any) =>
+      const requiresThirdParty = connectedBuildings.some((feature: Record<string, unknown>) =>
         feature.attributes.Third_Party_Dependant_For_Connection_Access === 'Yes'
       );
 
       // Check for promotions
-      const hasPromotion = connectedBuildings.some((feature: any) =>
+      const hasPromotion = connectedBuildings.some((feature: Record<string, unknown>) =>
         feature.attributes.Promotion && feature.attributes.Promotion !== 'null'
       );
 
