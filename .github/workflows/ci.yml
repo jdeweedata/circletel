@@ -1,5 +1,9 @@
 # Optimized CI workflow - most validation now happens locally via pre-commit hooks
 # This runs lightweight checks since pre-commit validation ensures code quality
+#
+# Jobs:
+# - validate & build: Always run in parallel (fast, 2-3 minutes total)
+# - test: Only runs on PRs or when commit message contains [run-tests]
 
 name: CI
 
@@ -62,12 +66,12 @@ jobs:
           path: dist/
           retention-days: 7
 
-  # Test job - only runs if validate passes (to save CI time)
+  # Test job - only runs on PRs or when explicitly requested with [run-tests] in commit message
   test:
     runs-on: ubuntu-latest
     needs: validate
     timeout-minutes: 15
-    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, '[run-tests]')
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-tests]'))
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
