@@ -66,12 +66,13 @@ jobs:
           path: dist/
           retention-days: 7
 
-  # Test job - only runs on PRs or when explicitly requested with [run-tests] in commit message
+  # Test job - only runs when explicitly needed to save CI time
   test:
     runs-on: ubuntu-latest
     needs: validate
     timeout-minutes: 15
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-tests]'))
+    # Only run on pull requests or when commit message explicitly contains [run-tests]
+    if: ${{ github.event_name == 'pull_request' || contains(github.event.head_commit.message, '[run-tests]') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
