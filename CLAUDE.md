@@ -11,6 +11,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run lint` - Run ESLint to check code quality
 - `npm run preview` - Preview production build locally
 
+### Validation & CI Optimization
+- `npm run validate` - Smart validation (changed files only, ~5s)
+- `npm run validate:full` - Full validation without tests (~22s)
+- `npm run validate:all` - Complete validation with tests (~7min)
+- `npm run type-check` - TypeScript type checking only
+- `npm run lint:fix` - Auto-fix linting issues
+
 ### Design System Testing
 - `npm run ds:validate [scenario]` - Run design system validation tests
 - `npm run ds:component <url> <name>` - Validate new component
@@ -138,6 +145,17 @@ import { colors, typography, spacing } from '@/design-system/tokens';
 - **Multi-browser Testing** - Chrome, Firefox, Safari across desktop, mobile, tablet
 - **Visual Baselines** - Automated screenshot comparison with threshold tolerance
 
+### CI/CD Pipeline Optimization
+- **Pre-commit Hooks** - Husky runs `npm run validate` before each commit (prevents broken pushes)
+- **Smart CI Strategy** - Parallel jobs with conditional test execution
+  - **validate & build**: Always run in parallel (~2-3 minutes)
+  - **test**: Only runs on PRs or when commit message contains `[run-tests]`
+- **Local-first Validation** - Most validation happens locally to save CI time
+- **Performance Targets**:
+  - Local validation: ~5 seconds (changed files only)
+  - Regular CI runs: ~2-3 minutes (validate + build)
+  - Full CI with tests: ~7-8 minutes (only when needed)
+
 ## Key Integration Points
 
 ### Supabase Edge Functions
@@ -172,4 +190,30 @@ When creating new forms:
 - **Lovable Platform** - Managed through lovable.dev with automatic git integration
 - **Environment Variables** - Configured in `.env` for API keys and Supabase connection
 - **TypeScript Strict Mode** - Full type safety with React Hook Form integration
-- **Git Hooks** - Optional pre-commit validation for design system compliance
+- **Git Hooks** - Pre-commit validation automatically runs (use `npm run prepare` to reinstall if needed)
+
+## Development Workflow Best Practices
+
+### Daily Development
+1. **Before coding**: Run `npm run validate` to check current state
+2. **During development**: Auto-save runs local validation via pre-commit hooks
+3. **Before pushing**: Major changes should run `npm run validate:full`
+4. **For releases**: Always run `npm run validate:all` to include full test suite
+
+### CI Optimization Guidelines
+- **Regular commits**: Let CI run fast validation only (~2-3 min)
+- **When tests needed**: Add `[run-tests]` to commit message
+- **Pull requests**: Tests run automatically
+- **Emergency fixes**: Use `git commit --no-verify` to skip pre-commit (not recommended)
+
+### Performance Monitoring
+- **Local validation**: Should complete in under 10 seconds
+- **CI validate/build**: Should complete in under 5 minutes
+- **Full test suite**: Should complete in under 10 minutes
+- If times exceed these targets, investigate and optimize
+
+### Code Quality Standards
+- **Zero TypeScript errors**: Required for all commits
+- **ESLint compliance**: Auto-fixable issues should be resolved automatically
+- **Build success**: All commits must build successfully
+- **Test coverage**: New features should include appropriate tests
