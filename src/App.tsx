@@ -40,6 +40,19 @@ import BusinessConnect from "./pages/BusinessConnect";
 import BusinessPro from "./pages/BusinessPro";
 import HomeSohoResilience from "./pages/HomeSohoResilience";
 
+// Internal Documentation pages
+import InternalDocs from "./pages/InternalDocs";
+import DesignTokens from "./pages/docs/DesignTokens";
+import ComponentLibrary from "./pages/docs/ComponentLibrary";
+import AccessibilityGuide from "./pages/docs/AccessibilityGuide";
+
+// Admin pages
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { AdminLogin } from "./pages/admin/AdminLogin";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { ProductManagement } from "./pages/admin/ProductManagement";
+import { ApprovalWorkflow } from "./pages/admin/ApprovalWorkflow";
+
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
 
@@ -90,7 +103,28 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
-            
+
+            {/* Internal Documentation routes - Team access only */}
+            <Route path="/internal-docs" element={<InternalDocs />} />
+            <Route path="/internal-docs/tokens" element={<DesignTokens />} />
+            <Route path="/internal-docs/atoms" element={<ComponentLibrary />} />
+            <Route path="/internal-docs/molecules" element={<ComponentLibrary />} />
+            <Route path="/internal-docs/organisms" element={<ComponentLibrary />} />
+            <Route path="/internal-docs/typography" element={<DesignTokens />} />
+            <Route path="/internal-docs/spacing" element={<DesignTokens />} />
+            <Route path="/internal-docs/icons" element={<DesignTokens />} />
+            <Route path="/internal-docs/examples" element={<ComponentLibrary />} />
+            <Route path="/internal-docs/accessibility" element={<AccessibilityGuide />} />
+            <Route path="/internal-docs/performance" element={<ComponentLibrary />} />
+
+            {/* Admin routes - Protected */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<ProductManagement />} />
+              <Route path="approvals" element={<ApprovalWorkflow />} />
+            </Route>
+
             {/* 404 page */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -7,3 +7,6 @@ verify_jwt = false
 [functions.zoho-callback]
 verify_jwt = false
 
+[functions.check-fttb-coverage]
+verify_jwt = false
+

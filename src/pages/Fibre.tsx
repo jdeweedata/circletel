@@ -6,12 +6,16 @@ import { CircleCheck, CheckCircle, ShieldCheck, Zap, LineChart, Laptop, MessageS
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Link } from 'react-router-dom';
+import CoverageCheck from '@/components/coverage/CoverageCheck';
 
 const Fibre = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
+        {/* Coverage Check Hero Section */}
+        <CoverageCheck />
+
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-circleTel-lightNeutral to-white py-20">
           <div className="container mx-auto px-4 md:px-6">

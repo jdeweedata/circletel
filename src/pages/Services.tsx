@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Server, Zap, TrendingUp, Shield, HeadphonesIcon, Cloud, Database, Network, HardDrive } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -9,51 +9,37 @@ import RecipeCard from '@/components/ui/RecipeCard';
 // Icons for recipe cards
 const BasicIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <img src="/lovable-uploads/3a179522-7d5e-489d-a454-3fd48ee4562c.png" alt="Server Icon" className="h-6 w-6" />
+    <Server className="h-6 w-6" />
   </div>
 );
 
 const AdvancedIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-      <line x1="9" y1="9" x2="9.01" y2="9" />
-      <line x1="15" y1="9" x2="15.01" y2="9" />
-    </svg>
+    <Zap className="h-6 w-6" />
   </div>
 );
 
 const ScaleIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
+    <TrendingUp className="h-6 w-6" />
   </div>
 );
 
 const CloudIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
-    </svg>
+    <Cloud className="h-6 w-6" />
   </div>
 );
 
 const SecurityIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
+    <Shield className="h-6 w-6" />
   </div>
 );
 
 const SupportIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-    </svg>
+    <HeadphonesIcon className="h-6 w-6" />
   </div>
 );
 
@@ -80,40 +66,110 @@ const Services = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="bg-white py-16">
+        <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl font-bold text-circleTel-darkNeutral mb-4">Explore Our IT Recipes</h1>
-              <p className="text-lg text-circleTel-secondaryNeutral mb-8">
-                Tailored IT solutions for small businesses, mid-sized firms, and growing startups
-              </p>
-              <div className="flex flex-wrap justify-center gap-4 mb-12">
-                <div className="bg-circleTel-lightNeutral p-6 rounded-lg w-full sm:w-auto">
-                  <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange w-32 h-40 flex items-center justify-center">
-                      <div className="text-center">
-                        <img src="/lovable-uploads/3a179522-7d5e-489d-a454-3fd48ee4562c.png" alt="Server Icon" className="h-8 w-8 mx-auto mb-2" />
-                        <div className="mt-2 font-space-mono text-xs">Basic IT</div>
+            <div className="max-w-6xl mx-auto text-center">
+              <div className="mb-8">
+                <h1 className="text-5xl md:text-6xl font-bold text-circleTel-darkNeutral mb-6 leading-tight">
+                  Explore Our <span className="text-circleTel-orange">IT Recipes</span>
+                </h1>
+                <p className="text-xl text-circleTel-secondaryNeutral mb-4 max-w-3xl mx-auto">
+                  Tailored IT solutions for small businesses, mid-sized firms, and growing startups
+                </p>
+                <p className="text-lg text-circleTel-secondaryNeutral/80">
+                  Choose your perfect blend of technology, support, and security
+                </p>
+              </div>
+
+              {/* Enhanced Recipe Cards */}
+              <div className="mb-16">
+                <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-circleTel-orange/20">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Basic IT Card */}
+                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+                      <div className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-xl shadow-md border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl">
+                        <div className="text-center">
+                          <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                            <Server className="h-10 w-10 text-blue-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Basic IT</h3>
+                          <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>
+                          <div className="mt-4 flex justify-center space-x-2">
+                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange w-32 h-40 flex items-center justify-center">
-                      <div className="text-center">
-                        <AdvancedIcon />
-                        <div className="mt-2 font-space-mono text-xs">Advanced IT</div>
+
+                    {/* Advanced IT Card */}
+                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+                      <div className="bg-gradient-to-br from-white to-purple-50 p-8 rounded-xl shadow-md border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl">
+                        <div className="text-center">
+                          <div className="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
+                            <Zap className="h-10 w-10 text-purple-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Advanced IT</h3>
+                          <p className="text-sm text-circleTel-secondaryNeutral">Enhanced solutions & monitoring</p>
+                          <div className="mt-4 flex justify-center space-x-2">
+                            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="recipe-card p-4 bg-white rounded-lg shadow-sm border border-circleTel-orange w-32 h-40 flex items-center justify-center">
-                      <div className="text-center">
-                        <ScaleIcon />
-                        <div className="mt-2 font-space-mono text-xs">Scale IT</div>
+
+                    {/* Scale IT Card */}
+                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+                      <div className="bg-gradient-to-br from-white to-emerald-50 p-8 rounded-xl shadow-md border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-xl">
+                        <div className="text-center">
+                          <div className="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+                            <TrendingUp className="h-10 w-10 text-emerald-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Scale IT</h3>
+                          <p className="text-sm text-circleTel-secondaryNeutral">Enterprise-grade scalability</p>
+                          <div className="mt-4 flex justify-center space-x-2">
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Recipe Features */}
+                  <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="flex flex-col items-center">
+                      <Shield className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <span className="text-sm text-circleTel-secondaryNeutral">Security First</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <HeadphonesIcon className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <span className="text-sm text-circleTel-secondaryNeutral">24/7 Support</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Cloud className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <span className="text-sm text-circleTel-secondaryNeutral">Cloud Ready</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <TrendingUp className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <span className="text-sm text-circleTel-secondaryNeutral">Scalable</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <Button asChild className="primary-button">
-                <Link to="/pricing">Get a Custom Quote</Link>
-              </Button>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-4 text-lg">
+                  <Link to="/pricing">Get a Custom Quote</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white px-8 py-4 text-lg">
+                  <Link to="/contact">Schedule Consultation</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -423,7 +479,7 @@ const Services = () => {
                   >
                     <div className="flex items-center">
                       <div className={`mr-4 rounded-full p-2 ${selectedRecipe.dataBackup ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <BasicIcon />
+                        <HardDrive className="h-6 w-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-darkNeutral">Data Backup</h3>
@@ -444,7 +500,7 @@ const Services = () => {
                   >
                     <div className="flex items-center">
                       <div className={`mr-4 rounded-full p-2 ${selectedRecipe.networkManagement ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <AdvancedIcon />
+                        <Network className="h-6 w-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-darkNeutral">Network Management</h3>
