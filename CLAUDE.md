@@ -4,11 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
+### Core Development
 - `npm run dev` - Start development server on port 8080
 - `npm run build` - Build for production
 - `npm run build:dev` - Build in development mode
 - `npm run lint` - Run ESLint to check code quality
 - `npm run preview` - Preview production build locally
+
+### Design System Testing
+- `npm run ds:validate [scenario]` - Run design system validation tests
+- `npm run ds:component <url> <name>` - Validate new component
+- `npm run ds:page <url> <name>` - Validate new page
+- `npm run ds:report` - Generate validation report
+- `npm run ds:install` - Install Playwright dependencies
+- `npm run ds:update-baselines` - Update visual regression baselines
+- `npm run test:design-system` - Run design system tests with Playwright
+- `npm run test:design-system:ui` - Run design system tests with UI mode
+
+### Design System Validation Scenarios
+- `full` - Complete validation (default)
+- `components` - Component-only validation
+- `accessibility` - Accessibility testing
+- `tokens` - Design token consistency
+- `visual` - Visual regression testing
+- `mobile` - Mobile-specific validation
+- `browsers` - Cross-browser testing
 
 ## Architecture Overview
 
@@ -50,14 +70,24 @@ The site follows a structured routing pattern:
 - Custom animations: `fade-in`, `scale-in`, `accordion-down/up`
 
 ### Backend Integration
-- Supabase project configured with Edge Functions
-- Functions include Zoho CRM integration (`zoho-crm`, `zoho-callback`)
-- Functions have JWT verification disabled in `supabase/config.toml`
+- **Supabase Project**: `agyjovdugmtopasyvlng.supabase.co`
+- **Edge Functions**: Multiple functions for different business logic
+  - `zoho-crm`, `zoho-callback` - CRM integration
+  - `check-fttb-coverage` - Fibre coverage checking
+  - `unjani-form-submission` - Contract audit form processing
+  - `admin-auth`, `admin-approval-workflow`, `admin-product-management` - Admin system
+- **Database**: PostgreSQL with migrations in `supabase/migrations/`
+- **Configuration**: JWT verification disabled for public functions in `supabase/config.toml`
+- **Shared Code**: Common utilities in `supabase/functions/_shared/`
 
 ### Form Handling
-- React Hook Form for form state management
-- Zod for schema validation
-- Forms integrate with Supabase Edge Functions for lead processing
+- **React Hook Form** for form state management with TypeScript integration
+- **Zod schemas** for validation with custom validation utilities
+- **Form Persistence** - Auto-save drafts to localStorage with restoration
+- **Supabase Integration** - Forms submit to Edge Functions with fallback to localStorage
+- **Client Forms** - Specialized forms in `src/components/forms/clients/` (e.g., Unjani contract audits)
+- **Validation Utilities** - Centralized in `src/components/forms/utils/validation.ts`
+- **Form Components** - Reusable form fields in `src/components/common/FormFields.tsx`
 
 ### Design System
 - **Comprehensive Design System**: Built using atomic design principles (atoms, molecules, organisms)
@@ -88,9 +118,58 @@ import { colors, typography, spacing } from '@/design-system/tokens';
 - `src/design-system/components/organisms/` - Complex sections (Header, Footer, HeroSection, etc.)
 - `src/design-system/index.ts` - Main export file for all design system components
 
+### Admin System Architecture
+- **Admin Pages** - Protected admin interface in `src/pages/admin/`
+- **Admin Components** - Layout and functionality in `src/components/admin/`
+- **Authentication** - Custom admin auth hook in `src/hooks/useAdminAuth.ts`
+- **Real-time Sync** - Live data updates with `src/hooks/useRealtimeSync.ts`
+- **Product Management** - Full CRUD operations for business products
+- **Approval Workflows** - Multi-step approval processes for business operations
+
+### Coverage System
+- **FTTB Coverage Component** - Interactive coverage checking in `src/components/coverage/`
+- **Google Maps Integration** - Coverage area visualization and address validation
+- **Real-time Checking** - Live coverage validation via Supabase Edge Functions
+
+### Testing & Quality Assurance
+- **Playwright Configuration** - Specialized config in `playwright.design-system.config.ts`
+- **Design System Testing** - Comprehensive visual regression and accessibility testing
+- **Test Scripts** - Automated validation via `scripts/design-system-validation.js`
+- **Multi-browser Testing** - Chrome, Firefox, Safari across desktop, mobile, tablet
+- **Visual Baselines** - Automated screenshot comparison with threshold tolerance
+
+## Key Integration Points
+
+### Supabase Edge Functions
+When working with backend functionality:
+- Edge Functions are deployed via Supabase CLI: `supabase functions deploy <function-name>`
+- Test locally with `supabase functions serve`
+- Function logs available via Supabase dashboard or CLI
+- CORS headers configured in `_shared/cors.ts`
+
+### Form Development Patterns
+When creating new forms:
+1. Create form schema with Zod in dedicated `types.ts` file
+2. Use form persistence hooks for auto-save functionality
+3. Implement progress calculation for multi-step forms
+4. Add validation utilities from `src/components/forms/utils/`
+5. Submit to corresponding Supabase Edge Function
+
+### Admin Feature Development
+- All admin routes require authentication via `useAdminAuth` hook
+- Use real-time sync for live data updates in admin interfaces
+- Follow approval workflow patterns for business process automation
+- Admin components should use design system tokens and patterns
+
+### Client-Specific Implementations
+- Client forms organized by client name (e.g., `unjani/`)
+- Each client has dedicated types, validation, and components
+- Priority calculation algorithms for business logic
+- Integration with backend systems for data processing
+
 ### Development Notes
-- Uses path aliases: `@/` maps to `src/`
-- Vite config includes Lovable component tagger for development
-- ESLint configured for React + TypeScript best practices
-- The project is managed through Lovable platform integration
-- Add to memory. The Fibre to the Business FTTB coverage check component and modal.
+- **Path Aliases**: `@/` maps to `src/`
+- **Lovable Platform** - Managed through lovable.dev with automatic git integration
+- **Environment Variables** - Configured in `.env` for API keys and Supabase connection
+- **TypeScript Strict Mode** - Full type safety with React Hook Form integration
+- **Git Hooks** - Optional pre-commit validation for design system compliance
