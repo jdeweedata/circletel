@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { googleMapsService, type GeocodingResult } from '@/services/googleMaps';
+import type { GeocodingResult } from '@/services/googleMaps';
 
 interface LocationButtonProps {
   onLocationSelect: (data: {
@@ -19,6 +19,7 @@ interface LocationButtonProps {
 // Real reverse geocoding using Google Maps API
 const reverseGeocode = async (lat: number, lng: number): Promise<GeocodingResult | null> => {
   try {
+    const { googleMapsService } = await import('@/services/googleMaps');
     return await googleMapsService.reverseGeocode(lat, lng);
   } catch (error) {
     console.error('Reverse geocoding failed:', error);

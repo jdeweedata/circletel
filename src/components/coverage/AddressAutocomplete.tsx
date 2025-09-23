@@ -3,7 +3,7 @@ import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { LocationButton } from './LocationButton';
-import { googleMapsService, type PlaceResult, type GeocodingResult } from '@/services/googleMaps';
+import type { PlaceResult, GeocodingResult } from '@/services/googleMaps';
 
 interface AddressAutocompleteProps {
   value: string;
@@ -59,6 +59,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       if (!inputRef.current) return;
 
       try {
+        const { googleMapsService } = await import('@/services/googleMaps');
         const autocomplete = await googleMapsService.initializeAutocomplete(
           inputRef.current,
           (place: PlaceResult) => {
@@ -135,6 +136,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     setError(null);
 
     try {
+      const { googleMapsService } = await import('@/services/googleMaps');
       const result = await googleMapsService.geocodeAddress(query);
       if (result) {
         return [{

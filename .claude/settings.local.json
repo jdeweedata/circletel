@@ -53,7 +53,8 @@
       "mcp__firecrawl-mcp__firecrawl_search",
       "mcp__supabase__get_edge_function",
       "Read(//c/Users/JeffreyDeWee/OneDrive - NEW GENERATION MANAGEMENT CONSULTING (PTY) LTD/Circle Tel SA (NGBS)/Customers/Unjani/**)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npx update-browserslist-db:*)"
     ],
     "deny": [],
     "ask": []
