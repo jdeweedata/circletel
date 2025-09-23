@@ -40,7 +40,20 @@
       "Bash(supabase status:*)",
       "Bash(set SUPABASE_ACCESS_TOKEN=sbp_8dbee8f77896cf0aff1487931437ffc806589c61)",
       "mcp__supabase__deploy_edge_function",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Read(//c/Users/JeffreyDeWee/Downloads/**)",
+      "mcp__playwright__browser_select_option",
+      "mcp__supabase__list_edge_functions",
+      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_0c5aeee8d0b800b0a6dacf4d4e23678a92e4282d)",
+      "mcp__playwright__browser_fill_form",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:resend.com)",
+      "mcp__firecrawl-mcp__firecrawl_search",
+      "mcp__supabase__get_edge_function",
+      "Read(//c/Users/JeffreyDeWee/OneDrive - NEW GENERATION MANAGEMENT CONSULTING (PTY) LTD/Circle Tel SA (NGBS)/Customers/Unjani/**)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
