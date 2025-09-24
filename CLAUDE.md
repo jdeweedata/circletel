@@ -100,6 +100,12 @@ The site follows a structured routing pattern:
 - **Configuration**: JWT verification disabled for public functions in `supabase/config.toml`
 - **Shared Code**: Common utilities in `supabase/functions/_shared/`
 
+### MCP Server Integrations
+- **Supabase MCP**: Database operations, Edge Functions, and project management
+- **GitHub MCP**: Git operations, branch management, PR creation, issue tracking, and repository management
+- **shadcn MCP**: UI component management and shadcn/ui integration
+- **Configuration**: All MCP servers configured in `.mcp.json` with environment variables
+
 ### Form Handling
 - **React Hook Form** for form state management with TypeScript integration
 - **Zod schemas** for validation with custom validation utilities
