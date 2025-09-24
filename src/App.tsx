@@ -68,13 +68,7 @@ import { UnjaniContractAuditForm } from "./components/forms/clients/unjani/Contr
 // Protected Route
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
-// Design Playground - LOCAL ONLY (gitignored)
-import { PlaygroundFonts } from "../design-playground/playground-fonts";
-import { PlaygroundColors } from "../design-playground/playground-colors";
-import { PlaygroundInteractions } from "../design-playground/playground-interactions";
-import { PlaygroundAccordion } from "../design-playground/playground-accordion";
-import { PlaygroundStyling } from "../design-playground/playground-styling";
-import { PlaygroundCircleTel } from "../design-playground/playground-circletel";
+// Design Playground components loaded dynamically in development only
 
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
@@ -179,12 +173,13 @@ const App = () => (
             {/* Design Playground - LOCAL DEVELOPMENT ONLY */}
             {process.env.NODE_ENV === 'development' && (
               <>
-                <Route path="/playground/fonts" element={<PlaygroundFonts />} />
-                <Route path="/playground/colors" element={<PlaygroundColors />} />
-                <Route path="/playground/interactions" element={<PlaygroundInteractions />} />
-                <Route path="/playground/accordion" element={<PlaygroundAccordion />} />
-                <Route path="/playground/styling" element={<PlaygroundStyling />} />
-                <Route path="/playground/circletel" element={<PlaygroundCircleTel />} />
+                <Route path="/playground/*" element={
+                  <div style={{ padding: '20px' }}>
+                    <h1>Design Playground</h1>
+                    <p>Design playground is available only in local development.</p>
+                    <p>Available routes: /playground/fonts, /playground/colors, /playground/interactions, /playground/accordion, /playground/styling, /playground/circletel</p>
+                  </div>
+                } />
               </>
             )}
 
