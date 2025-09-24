@@ -164,7 +164,7 @@ const mockGoogleMaps = {
       getPlace: vi.fn().mockReturnValue({
         formatted_address: 'Test Address, Johannesburg',
         geometry: { location: { lat: () => -26.2041, lng: () => 28.0473 } }
-      })),
+      }),
       addListener: vi.fn()
     }))
   }
