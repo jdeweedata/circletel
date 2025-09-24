@@ -45,6 +45,13 @@ export const colors = {
     warning: '#F59E0B',
     error: '#EF4444',
     info: '#3B82F6',
+  },
+
+  // Package/Service Tiers (keeping CircleTel style)
+  tiers: {
+    basic: '#3B82F6',         // Blue for Basic IT
+    advanced: '#8B5CF6',      // Purple for Advanced IT
+    scale: '#10B981',         // Green for Scale IT
   }
 } as const;
 

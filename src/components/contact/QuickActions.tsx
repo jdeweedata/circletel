@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, MapPin, Cloud, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useZohoSupport } from '@/hooks/useZohoIntegration';
+import { ZohoService } from '@/services/zohoIntegration';
 
 interface QuickActionsProps {
   className?: string;
@@ -17,6 +19,7 @@ interface QuickActionsProps {
 const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { submitGeneralSupport, loading } = useZohoSupport();
   const [consultationData, setConsultationData] = useState({
     name: '',
     email: '',
@@ -49,69 +52,180 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Create support ticket in Zoho Desk
+      const result = await ZohoService.createSupportTicket({
+        subject: `Consultation Request - ${consultationData.consultationType || 'General'}`,
+        description: `Consultation Request Details:
 
-    toast.success("Consultation scheduled! We'll contact you within 24 hours to confirm.", {
-      duration: 5000,
-    });
+Name: ${consultationData.name}
+Email: ${consultationData.email}
+Phone: ${consultationData.phone || 'Not provided'}
+Preferred Date: ${consultationData.preferredDate || 'Not specified'}
+Preferred Time: ${consultationData.preferredTime || 'Not specified'}
+Consultation Type: ${consultationData.consultationType || 'General'}
 
-    setIsSubmitting(false);
-    setConsultationData({
-      name: '',
-      email: '',
-      phone: '',
-      preferredDate: '',
-      preferredTime: '',
-      consultationType: '',
-      message: ''
-    });
+Message:
+${consultationData.message || 'No additional message provided'}
+
+Please schedule consultation and confirm with customer within 24 hours.`,
+        email: consultationData.email,
+        phone: consultationData.phone,
+        serviceType: 'consultation',
+        priority: 'High',
+        category: 'Consultation Request',
+        source: 'Website Quick Actions'
+      });
+
+      if (result.success) {
+        toast.success("Consultation scheduled! We'll contact you within 24 hours to confirm.", {
+          duration: 5000,
+        });
+
+        setConsultationData({
+          name: '',
+          email: '',
+          phone: '',
+          preferredDate: '',
+          preferredTime: '',
+          consultationType: '',
+          message: ''
+        });
+      } else {
+        toast.error("Failed to schedule consultation. Please try again or contact us directly.");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSurveySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Create support ticket in Zoho Desk
+      const result = await ZohoService.createSupportTicket({
+        subject: `Site Survey Request - ${surveyData.company || surveyData.name}`,
+        description: `Site Survey Request Details:
 
-    toast.success("Site survey request submitted! Our team will contact you to schedule a visit.", {
-      duration: 5000,
-    });
+Name: ${surveyData.name}
+Email: ${surveyData.email}
+Phone: ${surveyData.phone}
+Company: ${surveyData.company || 'Not provided'}
+Address: ${surveyData.address}
+Building Type: ${surveyData.buildingType || 'Not specified'}
 
-    setIsSubmitting(false);
-    setSurveyData({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      address: '',
-      buildingType: '',
-      requirements: ''
-    });
+Requirements:
+${surveyData.requirements || 'No specific requirements provided'}
+
+Please schedule site survey within 48 hours and confirm with customer.`,
+        email: surveyData.email,
+        phone: surveyData.phone,
+        serviceType: 'site_survey',
+        priority: 'High',
+        category: 'Site Survey',
+        source: 'Website Quick Actions'
+      });
+
+      if (result.success) {
+        toast.success("Site survey request submitted! Our team will contact you to schedule a visit.", {
+          duration: 5000,
+        });
+
+        setSurveyData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          address: '',
+          buildingType: '',
+          requirements: ''
+        });
+      } else {
+        toast.error("Failed to submit site survey request. Please try again or contact us directly.");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Create CRM lead for quote request
+      const leadResult = await ZohoService.createLead({
+        email: quoteData.email,
+        phone: quoteData.phone,
+        company: quoteData.company,
+        leadSource: 'Cloud Quote Request',
+        leadStatus: 'Qualified',
+        description: `Cloud Services Quote Request:
 
-    toast.success("Quote request submitted! You'll receive a detailed proposal within 2 business days.", {
-      duration: 5000,
-    });
+Name: ${quoteData.name}
+Company: ${quoteData.company || 'Individual'}
+Employees: ${quoteData.employees || 'Not specified'}
+Service Interest: ${quoteData.cloudService || 'Not specified'}
 
-    setIsSubmitting(false);
-    setQuoteData({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      employees: '',
-      cloudService: '',
-      requirements: ''
-    });
+Requirements:
+${quoteData.requirements || 'No specific requirements provided'}`,
+        requestedServices: quoteData.cloudService ? [quoteData.cloudService] : [],
+        priority: 'High',
+        tags: ['cloud_services', 'quote_request', 'website_lead']
+      });
+
+      // Also create support ticket for immediate follow-up
+      const ticketResult = await ZohoService.createSupportTicket({
+        subject: `Cloud Quote Request - ${quoteData.company || quoteData.name}`,
+        description: `Cloud Services Quote Request:
+
+Name: ${quoteData.name}
+Email: ${quoteData.email}
+Phone: ${quoteData.phone || 'Not provided'}
+Company: ${quoteData.company || 'Individual'}
+Company Size: ${quoteData.employees || 'Not specified'}
+Service Interest: ${quoteData.cloudService || 'All services'}
+
+Requirements:
+${quoteData.requirements || 'No specific requirements provided'}
+
+ACTION REQUIRED: Prepare detailed cloud services proposal within 2 business days.`,
+        email: quoteData.email,
+        phone: quoteData.phone,
+        serviceType: 'cloud_services',
+        priority: 'High',
+        category: 'Quote Request',
+        source: 'Website Quick Actions'
+      });
+
+      if (leadResult.success || ticketResult.success) {
+        toast.success("Quote request submitted! You'll receive a detailed proposal within 2 business days.", {
+          duration: 5000,
+        });
+
+        setQuoteData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          employees: '',
+          cloudService: '',
+          requirements: ''
+        });
+      } else {
+        toast.error("Failed to submit quote request. Please try again or contact us directly.");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -219,8 +333,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
-                {isSubmitting ? "Scheduling..." : "Schedule Consultation"}
+              <Button type="submit" disabled={isSubmitting || loading} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+                {isSubmitting || loading ? "Scheduling..." : "Schedule Consultation"}
               </Button>
             </form>
           </DialogContent>
@@ -323,8 +437,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
-                {isSubmitting ? "Submitting..." : "Request Site Survey"}
+              <Button type="submit" disabled={isSubmitting || loading} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+                {isSubmitting || loading ? "Submitting..." : "Request Site Survey"}
               </Button>
             </form>
           </DialogContent>
@@ -429,8 +543,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
                   rows={3}
                 />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
-                {isSubmitting ? "Submitting..." : "Get Quote"}
+              <Button type="submit" disabled={isSubmitting || loading} className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90">
+                {isSubmitting || loading ? "Submitting..." : "Get Quote"}
               </Button>
             </form>
           </DialogContent>

@@ -33,3 +33,13 @@ dist-ssr
 
 # Temporary testing files
 test-*.js
+
+# Design Playground - Personal experimentation only
+/design-playground/
+playground-*.html
+playground-*.tsx
+playground-*.css
+design-experiments/
+
+# Documentation folder - Product docs and business requirements
+/docs/

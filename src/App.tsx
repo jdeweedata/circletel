@@ -54,12 +54,21 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { ProductManagement } from "./pages/admin/ProductManagement";
 import { ApprovalWorkflow } from "./pages/admin/ApprovalWorkflow";
 
+// Admin Documentation
+import AdminDocsLayout from "./components/admin/docs/AdminDocsLayout";
+import AdminOverview from "./pages/admin/docs/Overview";
+import AdminAuthentication from "./pages/admin/docs/Authentication";
+import AdminApiReference from "./pages/admin/docs/ApiReference";
+import AdminTroubleshooting from "./pages/admin/docs/Troubleshooting";
+
 // Client Forms
 import { ClientForms } from "./pages/ClientForms";
 import { UnjaniContractAuditForm } from "./components/forms/clients/unjani/ContractAuditForm";
 
 // Protected Route
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+
+// Design Playground components loaded dynamically in development only
 
 // Create a QueryClient for React Query
 const queryClient = new QueryClient();
@@ -138,16 +147,41 @@ const App = () => (
                   <ClientForms />
                 </ProtectedRoute>
               } />
-              <Route path="forms/unjani/contract-audit" element={
-                <ProtectedRoute requiredRole="editor">
-                  <UnjaniContractAuditForm />
-                </ProtectedRoute>
-              } />
             </Route>
 
-            {/* Legacy forms redirect - redirect to admin */}
+            {/* Admin Documentation routes - Protected */}
+            <Route path="/admin/docs" element={<AdminDocsLayout />}>
+              <Route index element={<Navigate to="/admin/docs/overview" replace />} />
+              <Route path="overview" element={<AdminOverview />} />
+              <Route path="authentication" element={<AdminAuthentication />} />
+              <Route path="api-reference" element={<AdminApiReference />} />
+              <Route path="troubleshooting" element={<AdminTroubleshooting />} />
+              <Route path="product-management" element={<AdminOverview />} />
+              <Route path="workflows" element={<AdminOverview />} />
+              <Route path="user-management" element={<AdminOverview />} />
+              <Route path="database" element={<AdminOverview />} />
+              <Route path="realtime" element={<AdminOverview />} />
+              <Route path="error-codes" element={<AdminTroubleshooting />} />
+            </Route>
+
+            {/* Public Client Forms */}
+            <Route path="/forms/unjani/contract-audit" element={<UnjaniContractAuditForm />} />
+
+            {/* Legacy forms redirect - redirect to admin (except unjani which is public) */}
             <Route path="/forms" element={<Navigate to="/admin/login" replace />} />
-            <Route path="/forms/*" element={<Navigate to="/admin/login" replace />} />
+
+            {/* Design Playground - LOCAL DEVELOPMENT ONLY */}
+            {process.env.NODE_ENV === 'development' && (
+              <>
+                <Route path="/playground/*" element={
+                  <div style={{ padding: '20px' }}>
+                    <h1>Design Playground</h1>
+                    <p>Design playground is available only in local development.</p>
+                    <p>Available routes: /playground/fonts, /playground/colors, /playground/interactions, /playground/accordion, /playground/styling, /playground/circletel</p>
+                  </div>
+                } />
+              </>
+            )}
 
             {/* 404 page */}
             <Route path="*" element={<NotFound />} />

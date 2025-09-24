@@ -34,14 +34,17 @@ const Footer = () => {
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>
             <div className="mt-4 flex space-x-2">
-              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300" aria-label="Follow CircleTel on Facebook">
                 <Facebook size={18} />
+                <span className="sr-only">Follow CircleTel on Facebook</span>
               </a>
-              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300" aria-label="Follow CircleTel on LinkedIn">
                 <Linkedin size={18} />
+                <span className="sr-only">Follow CircleTel on LinkedIn</span>
               </a>
-              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
+              <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300" aria-label="Follow CircleTel on X (formerly Twitter)">
                 <X size={18} />
+                <span className="sr-only">Follow CircleTel on X (formerly Twitter)</span>
               </a>
             </div>
           </div>
