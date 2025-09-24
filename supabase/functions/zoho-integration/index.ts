@@ -12,12 +12,12 @@ const ZOHO_MCP_KEY = 'e2f4039d67d5fb236177fbce811a0ff0';
 
 interface MCPRequest {
   tool: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
 }
 
 interface MCPResponse {
   success: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   error?: string;
 }
 
@@ -80,7 +80,7 @@ serve(async (req) => {
     const { action, data } = await req.json();
     console.log(`Processing action: ${action}`, data);
 
-    let result: any;
+    let result: Record<string, unknown>;
 
     switch (action) {
       case 'create_support_ticket':
@@ -148,7 +148,7 @@ serve(async (req) => {
 });
 
 // Support Ticket Creation
-async function createSupportTicket(data: any): Promise<MCPResponse> {
+async function createSupportTicket(data: Record<string, unknown>): Promise<MCPResponse> {
   const {
     subject,
     description,
@@ -218,7 +218,7 @@ async function createSupportTicket(data: any): Promise<MCPResponse> {
 }
 
 // Order Processing Workflow
-async function processOrder(data: any): Promise<MCPResponse> {
+async function processOrder(data: Record<string, unknown>): Promise<MCPResponse> {
   const {
     customer,
     services,
@@ -237,7 +237,7 @@ async function processOrder(data: any): Promise<MCPResponse> {
         phone: customer.phone,
         company: customer.company,
         leadSource: 'Website Order',
-        description: `Order for: ${services.map((s: any) => s.name).join(', ')}`,
+        description: `Order for: ${services.map((s: Record<string, unknown>) => (s.name as string)).join(', ')}`,
         tags: ['CircleTel Customer', 'New Order'],
         customFields: {
           order_value: orderData.totalAmount,
@@ -255,7 +255,7 @@ async function processOrder(data: any): Promise<MCPResponse> {
         customer_email: customer.email,
         invoice_date: new Date().toISOString().split('T')[0],
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        line_items: services.map((service: any) => ({
+        line_items: services.map((service: Record<string, unknown>) => ({
           item_name: service.name,
           description: service.description,
           rate: service.price,
@@ -279,7 +279,7 @@ async function processOrder(data: any): Promise<MCPResponse> {
       tool: 'zoho_desk_create_ticket',
       params: {
         subject: `New Customer Onboarding - ${customer.company || customer.email}`,
-        description: `New customer onboarding required for:\n\nCustomer: ${customer.firstName} ${customer.lastName}\nEmail: ${customer.email}\nServices: ${services.map((s: any) => s.name).join(', ')}\n\nTarget Activation: 3 days from order date`,
+        description: `New customer onboarding required for:\n\nCustomer: ${customer.firstName} ${customer.lastName}\nEmail: ${customer.email}\nServices: ${services.map((s: Record<string, unknown>) => (s.name as string)).join(', ')}\n\nTarget Activation: 3 days from order date`,
         contactEmail: customer.email,
         departmentId: 'onboarding',
         priority: 'High',
@@ -308,7 +308,7 @@ async function processOrder(data: any): Promise<MCPResponse> {
     await sendCustomerConfirmation({
       email: customer.email,
       orderId: orderData.orderId,
-      services: services.map((s: any) => s.name),
+      services: services.map((s: Record<string, unknown>) => (s.name as string)),
       ticketNumber: results[2].data?.id
     });
   }
@@ -326,7 +326,7 @@ async function processOrder(data: any): Promise<MCPResponse> {
 }
 
 // Coverage Check to Lead Conversion
-async function handleCoverageCheck(data: any): Promise<MCPResponse> {
+async function handleCoverageCheck(data: Record<string, unknown>): Promise<MCPResponse> {
   const {
     email,
     phone,
@@ -367,7 +367,7 @@ async function handleCoverageCheck(data: any): Promise<MCPResponse> {
 }
 
 // Create Lead
-async function createLead(data: any): Promise<MCPResponse> {
+async function createLead(data: Record<string, unknown>): Promise<MCPResponse> {
   const leadRequest: MCPRequest = {
     tool: 'zoho_crm_create_lead',
     params: {
@@ -393,7 +393,7 @@ async function createLead(data: any): Promise<MCPResponse> {
 }
 
 // Convert Lead to Customer
-async function convertLead(data: any): Promise<MCPResponse> {
+async function convertLead(data: Record<string, unknown>): Promise<MCPResponse> {
   const convertRequest: MCPRequest = {
     tool: 'zoho_crm_convert_lead',
     params: {
@@ -412,7 +412,7 @@ async function convertLead(data: any): Promise<MCPResponse> {
 }
 
 // Create Invoice
-async function createInvoice(data: any): Promise<MCPResponse> {
+async function createInvoice(data: Record<string, unknown>): Promise<MCPResponse> {
   const invoiceRequest: MCPRequest = {
     tool: 'zoho_books_create_invoice',
     params: {
@@ -432,7 +432,7 @@ async function createInvoice(data: any): Promise<MCPResponse> {
 }
 
 // Update Ticket Status
-async function updateTicketStatus(data: any): Promise<MCPResponse> {
+async function updateTicketStatus(data: Record<string, unknown>): Promise<MCPResponse> {
   const updateRequest: MCPRequest = {
     tool: 'zoho_desk_update_ticket',
     params: {
@@ -449,7 +449,7 @@ async function updateTicketStatus(data: any): Promise<MCPResponse> {
 }
 
 // Send Team Notification
-async function sendTeamNotification(data: any): Promise<void> {
+async function sendTeamNotification(data: Record<string, unknown>): Promise<void> {
   try {
     await zohoClient.execute({
       tool: 'zoho_cliq_send_message',
@@ -464,7 +464,7 @@ async function sendTeamNotification(data: any): Promise<void> {
 }
 
 // Send Customer Confirmation
-async function sendCustomerConfirmation(data: any): Promise<void> {
+async function sendCustomerConfirmation(data: Record<string, unknown>): Promise<void> {
   try {
     await zohoClient.execute({
       tool: 'zoho_mail_send_email',
@@ -495,7 +495,7 @@ The CircleTel Team`,
 }
 
 // Send Notification
-async function sendNotification(data: any): Promise<MCPResponse> {
+async function sendNotification(data: Record<string, unknown>): Promise<MCPResponse> {
   const notificationRequest: MCPRequest = {
     tool: data.type === 'email' ? 'zoho_mail_send_email' : 'zoho_cliq_send_message',
     params: data.params
