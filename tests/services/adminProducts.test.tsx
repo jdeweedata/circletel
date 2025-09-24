@@ -363,7 +363,7 @@ describe('Admin Products Service - Error Handling', () => {
     });
 
     // Error should be transformed to user-friendly format
-    const error = result.current.error as any;
+    const error = result.current.error as unknown;
     expect(error.message).toContain('Unable to load products');
   }, TEST_TIMEOUT);
 
@@ -591,7 +591,7 @@ function useAdminProducts(technologies: TechnologyType[], coverageArea?: string)
 /**
  * Validate ServicePackage data structure
  */
-function validateServicePackage(pkg: any): pkg is ServicePackage {
+function validateServicePackage(pkg: unknown): pkg is ServicePackage {
   return (
     typeof pkg === 'object' &&
     typeof pkg.id === 'string' &&
@@ -613,8 +613,9 @@ function validateServicePackage(pkg: any): pkg is ServicePackage {
  * Custom Vitest matchers for better test readability
  */
 declare global {
+// eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Vi {
-    interface Assertion<T = any> {
+    interface Assertion<T = unknown> {
       toBeWithinTimeLimit(limit: number): void;
     }
   }

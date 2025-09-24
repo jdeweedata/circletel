@@ -1,5 +1,6 @@
 import type { TechnologyType, ServicePackage } from '@/types/adminProducts';
 import { fetchAdminProducts } from '@/services/adminProducts';
+import { mtnWmsService, MTNCoverageResult } from '@/services/mtnWmsService';
 
 export interface CoverageResult {
   provider: string;
@@ -216,7 +217,6 @@ class CircleTelWirelessProvider implements CoverageProvider {
         // Extract package names for backward compatibility
         packageNames = adminProducts.map(pkg => pkg.name);
 
-        console.log(`CircleTel: Loaded ${adminProducts.length} admin products for technologies:`, availableTechnologies);
       } catch (adminError) {
         console.warn('Failed to load admin products, falling back to hardcoded packages:', adminError);
 
@@ -274,6 +274,103 @@ class CircleTelWirelessProvider implements CoverageProvider {
   }
 }
 
+// MTN Coverage Provider (NEW - WMS Integration)
+class MTNCoverageProvider implements CoverageProvider {
+  name = 'MTN';
+  technologies: TechnologyType[] = ['LTE']; // MTN provides mobile LTE/4G/5G
+  priority = 6; // Mid-priority
+
+  async checkCoverage(lat: number, lng: number): Promise<CoverageResult> {
+    try {
+
+      // Check 4G coverage first (most common)
+      let mtnResult: MTNCoverageResult;
+      try {
+        mtnResult = await mtnWmsService.checkCoverage(lat, lng, '4G');
+      } catch (error) {
+        console.warn('MTN 4G check failed, trying 5G:', error);
+
+        // Fallback to 5G check
+        try {
+          mtnResult = await mtnWmsService.checkCoverage(lat, lng, '5G');
+        } catch (fiveGError) {
+          console.warn('MTN 5G check also failed, trying LTE:', fiveGError);
+
+          // Final fallback to LTE
+          mtnResult = await mtnWmsService.checkCoverage(lat, lng, 'LTE');
+        }
+      }
+
+      const hasGoodCoverage = mtnResult.signalStrength >= 40;
+      const availablePackages = mtnResult.availablePackages.length > 0
+        ? mtnResult.availablePackages
+        : hasGoodCoverage
+          ? ['MTN Business 4G 25GB', 'MTN Business 4G 50GB']
+          : [];
+
+      return {
+        provider: this.name,
+        technologies: this.technologies,
+        hasConcentration: mtnResult.hasConcentration,
+        confidence: mtnResult.confidence,
+        availablePackages,
+        estimatedInstallTime: 0, // Mobile service - immediate activation
+        notes: mtnResult.notes ||
+               `${mtnResult.technology} signal: ${mtnResult.signalStrength}% (${mtnResult.speedEstimate} Mbps estimated)`
+      };
+    } catch (error) {
+      console.error('MTN coverage check failed:', error);
+
+      // Fallback response - assume basic mobile coverage exists
+      return {
+        provider: this.name,
+        technologies: this.technologies,
+        hasConcentration: true, // Assume mobile coverage in South Africa
+        confidence: 30, // Low confidence due to service failure
+        availablePackages: ['MTN Business 4G 10GB', 'MTN Business 4G 25GB'],
+        estimatedInstallTime: 0,
+        notes: 'MTN coverage service unavailable - basic mobile packages shown'
+      };
+    }
+  }
+
+  /**
+   * Enhanced method to get detailed MTN coverage with WMS data
+   */
+  async getDetailedCoverage(lat: number, lng: number): Promise<{
+    coverage: CoverageResult;
+    wmsData: MTNCoverageResult[];
+  }> {
+    const technologies = ['4G', '5G', 'LTE'] as const;
+    const wmsResults: MTNCoverageResult[] = [];
+
+    // Query all technologies in parallel
+    const promises = technologies.map(async tech => {
+      try {
+        return await mtnWmsService.checkCoverage(lat, lng, tech);
+      } catch (error) {
+        console.warn(`MTN ${tech} query failed:`, error);
+        return null;
+      }
+    });
+
+    const results = await Promise.allSettled(promises);
+    results.forEach(result => {
+      if (result.status === 'fulfilled' && result.value) {
+        wmsResults.push(result.value);
+      }
+    });
+
+    // Get standard coverage result
+    const standardCoverage = await this.checkCoverage(lat, lng);
+
+    return {
+      coverage: standardCoverage,
+      wmsData: wmsResults
+    };
+  }
+}
+
 // Main Multi-Provider Coverage Service
 export class MultiProviderCoverageService {
   private providers: CoverageProvider[];
@@ -283,7 +380,8 @@ export class MultiProviderCoverageService {
       new CircleTelWirelessProvider(),
       new OpenserveCoverageProvider(),
       new DFACoverageProvider(),
-      new VumaCoverageProvider()
+      new VumaCoverageProvider(),
+      new MTNCoverageProvider() // Added MTN WMS integration
     ];
   }
 
@@ -292,7 +390,6 @@ export class MultiProviderCoverageService {
     lng: number,
     address: string
   ): Promise<MultiProviderCoverageResult> {
-    console.log(`Checking coverage for ${address} at ${lat}, ${lng}`);
 
     // Check all providers in parallel
     const results = await Promise.allSettled(
@@ -402,7 +499,6 @@ export class MultiProviderCoverageService {
     coverageArea?: string
   ): Promise<ServicePackage[]> {
     try {
-      console.log('MultiProviderCoverageService: Fetching admin products for integration', { technologies, coverageArea });
       return await fetchAdminProducts(technologies, coverageArea);
     } catch (error) {
       console.error('Failed to fetch admin products for coverage integration:', error);
@@ -428,7 +524,6 @@ export class MultiProviderCoverageService {
 
       // If admin products weren't loaded or failed, try again with explicit call
       if (!result.adminProducts || result.adminProducts.length === 0) {
-        console.log('Attempting to load admin products separately...');
         const adminProducts = await this.getAdminProductsForCoverage(result.technologies, coverageArea);
 
         if (adminProducts.length > 0) {
@@ -436,7 +531,6 @@ export class MultiProviderCoverageService {
           result.packageCount = adminProducts.length;
           result.availablePackages = adminProducts.map(pkg => pkg.name);
 
-          console.log(`Successfully loaded ${adminProducts.length} admin products as fallback`);
         }
       }
 
@@ -454,7 +548,6 @@ export class MultiProviderCoverageService {
     address: string,
     coverageArea?: string
   ): Promise<MultiProviderCoverageResult> {
-    console.log(`Enhanced coverage check for ${address} at ${lat}, ${lng}`);
 
     // Check all providers in parallel
     const results = await Promise.allSettled(

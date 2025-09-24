@@ -7,12 +7,12 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
 
 ## Tasks
 
-- [ ] 1. MTN WMS Coverage Integration
-  - [ ] 1.1 Write tests for MTN WMS API integration
-  - [ ] 1.2 Create MTN WMS service client with authentication
-  - [ ] 1.3 Implement WMS layer rendering for 4G/5G coverage overlays
-  - [ ] 1.4 Add real-time signal strength data mapping
-  - [ ] 1.5 Verify all tests pass for MTN integration
+- [x] 1. MTN WMS Coverage Integration
+  - [x] 1.1 Write tests for MTN WMS API integration
+  - [x] 1.2 Create MTN WMS service client with authentication
+  - [x] 1.3 Implement WMS layer rendering for 4G/5G coverage overlays
+  - [x] 1.4 Add real-time signal strength data mapping
+  - [x] 1.5 Verify all tests pass for MTN integration
 
 - [ ] 2. Enhanced DFA ArcGIS Integration
   - [ ] 2.1 Write tests for enhanced DFA ArcGIS service
