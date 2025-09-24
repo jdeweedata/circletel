@@ -85,7 +85,11 @@
       "Bash(do echo \"=== $dir ===\")",
       "Bash(ls:*)",
       "Bash(done)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(find:*)",
+      "Bash(start test-forms.html)",
+      "Bash(pkill:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

@@ -30,7 +30,7 @@ export const useZohoIntegration = () => {
     });
   }, []);
 
-  const executeZohoAction = useCallback(async <T = any>(
+  const executeZohoAction = useCallback(async <T = Record<string, unknown>>(
     action: () => Promise<ZohoResponse<T>>,
     successMessage?: string,
     errorMessage?: string
@@ -116,7 +116,7 @@ export const useZohoIntegration = () => {
 
   const convertLead = useCallback(async (
     leadId: string,
-    dealData?: any
+    dealData?: Record<string, unknown>
   ): Promise<ZohoResponse | null> => {
     return executeZohoAction(
       () => ZohoService.convertLead(leadId, dealData),

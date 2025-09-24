@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export interface ZohoResponse<T = any> {
+export interface ZohoResponse<T = Record<string, unknown>> {
   success: boolean;
   data?: T;
   error?: string;
@@ -83,7 +83,7 @@ export interface InvoiceData {
   isRecurring?: boolean;
   recurrenceFrequency?: 'monthly' | 'quarterly' | 'yearly';
   notes?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 export interface TicketUpdateData {
@@ -92,7 +92,7 @@ export interface TicketUpdateData {
   comment?: string;
   assigneeId?: string;
   priority?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 export interface NotificationData {
@@ -108,10 +108,10 @@ export interface NotificationData {
 }
 
 class ZohoIntegrationService {
-  private async callEdgeFunction<T = any>(
+  private async callEdgeFunction<T = Record<string, unknown>>(
     functionName: string,
     action: string,
-    data: any
+    data: Record<string, unknown>
   ): Promise<ZohoResponse<T>> {
     try {
       const { data: result, error } = await supabase.functions.invoke(functionName, {
@@ -309,7 +309,7 @@ class ZohoIntegrationService {
     email: string;
     stage: string;
     action: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
   }): Promise<void> {
     // This could be used to track customer journey through analytics
     console.log('Customer Journey Tracked:', journeyData);

@@ -10,10 +10,12 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
-  ({ label, required, error, tooltip, className, ...props }, ref) => {
+  ({ label, required, error, tooltip, className, id, ...props }, ref) => {
+    const fieldId = id || `input-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">
+        <label htmlFor={fieldId} className="block text-sm font-semibold text-gray-900">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
           {tooltip && (
@@ -26,9 +28,10 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           )}
         </label>
         <input
+          id={fieldId}
           ref={ref}
           className={cn(
-            "w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-circleTel-orange focus:ring-2 focus:ring-orange-200 transition-all duration-200",
+            "w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-300 transition-all duration-200",
             error && "border-red-500",
             className
           )}
@@ -52,7 +55,9 @@ interface SelectFieldProps extends React.SelectHTMLAttributes<HTMLSelectElement>
 }
 
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-  ({ label, required, error, tooltip, options, className, ...props }, ref) => {
+  ({ label, required, error, tooltip, options, className, id, ...props }, ref) => {
+    const fieldId = id || `select-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
     // Group options by group property
     const groupedOptions = options.reduce((acc, option) => {
       const group = option.group || 'default';
@@ -63,7 +68,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
 
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">
+        <label htmlFor={fieldId} className="block text-sm font-semibold text-gray-900">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
           {tooltip && (
@@ -76,9 +81,10 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
           )}
         </label>
         <select
+          id={fieldId}
           ref={ref}
           className={cn(
-            "w-full px-4 py-3 pr-10 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-circleTel-orange focus:ring-2 focus:ring-orange-200 transition-all duration-200 bg-white appearance-none",
+            "w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-300 transition-all duration-200 bg-white appearance-none",
             error && "border-red-500",
             className
           )}
@@ -127,10 +133,12 @@ interface TextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaEl
 }
 
 export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>(
-  ({ label, required, error, tooltip, className, ...props }, ref) => {
+  ({ label, required, error, tooltip, className, id, ...props }, ref) => {
+    const fieldId = id || `textarea-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">
+        <label htmlFor={fieldId} className="block text-sm font-semibold text-gray-900">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
           {tooltip && (
@@ -143,9 +151,10 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>
           )}
         </label>
         <textarea
+          id={fieldId}
           ref={ref}
           className={cn(
-            "w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-circleTel-orange focus:ring-2 focus:ring-orange-200 transition-all duration-200 resize-y min-h-[100px]",
+            "w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-300 transition-all duration-200 resize-y min-h-[100px]",
             error && "border-red-500",
             className
           )}
@@ -177,9 +186,11 @@ interface RadioGroupProps {
 }
 
 export function RadioGroup({ label, name, options, value, onChange, required, error, tooltip }: RadioGroupProps) {
+  const groupId = `radio-group-${name}`;
+
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">
+      <div className="block text-sm font-semibold text-gray-900" role="group" aria-labelledby={groupId}>
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
         {tooltip && (
@@ -190,29 +201,34 @@ export function RadioGroup({ label, name, options, value, onChange, required, er
             </span>
           </span>
         )}
-      </label>
-      <div className="flex flex-wrap gap-3">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className={cn(
-              "flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer transition-all duration-200 hover:border-circleTel-orange hover:bg-orange-50",
-              value === option.value && "border-circleTel-orange bg-orange-50"
-            )}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={(e) => onChange(e.target.value)}
-              className="mr-2 text-circleTel-orange"
-            />
-            <span className={cn("text-sm", value === option.value && "text-circleTel-orange font-semibold")}>
-              {option.label}
-            </span>
-          </label>
-        ))}
+      </div>
+      <div className="flex flex-wrap gap-3" role="radiogroup" aria-labelledby={groupId}>
+        {options.map((option, index) => {
+          const radioId = `${name}-${option.value}-${index}`;
+          return (
+            <label
+              key={option.value}
+              htmlFor={radioId}
+              className={cn(
+                "flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer transition-all duration-200 hover:border-orange-600 hover:bg-orange-50",
+                value === option.value && "border-orange-600 bg-orange-50"
+              )}
+            >
+              <input
+                id={radioId}
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={value === option.value}
+                onChange={(e) => onChange(e.target.value)}
+                className="mr-2 text-orange-600"
+              />
+              <span className={cn("text-sm text-gray-900", value === option.value && "text-orange-700 font-semibold")}>
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>

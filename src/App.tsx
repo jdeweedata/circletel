@@ -153,11 +153,6 @@ const App = () => (
                   <ClientForms />
                 </ProtectedRoute>
               } />
-              <Route path="forms/unjani/contract-audit" element={
-                <ProtectedRoute requiredRole="editor">
-                  <UnjaniContractAuditForm />
-                </ProtectedRoute>
-              } />
             </Route>
 
             {/* Admin Documentation routes - Protected */}
@@ -175,9 +170,11 @@ const App = () => (
               <Route path="error-codes" element={<AdminTroubleshooting />} />
             </Route>
 
-            {/* Legacy forms redirect - redirect to admin */}
+            {/* Public Client Forms */}
+            <Route path="/forms/unjani/contract-audit" element={<UnjaniContractAuditForm />} />
+
+            {/* Legacy forms redirect - redirect to admin (except unjani which is public) */}
             <Route path="/forms" element={<Navigate to="/admin/login" replace />} />
-            <Route path="/forms/*" element={<Navigate to="/admin/login" replace />} />
 
             {/* Design Playground - LOCAL DEVELOPMENT ONLY */}
             {process.env.NODE_ENV === 'development' && (

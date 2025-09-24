@@ -24,7 +24,17 @@ interface TechnologyResult {
   strength: string;
   provider: string;
   confidence: number;
-  features?: any[];
+  features?: Record<string, unknown>[];
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price?: number;
+  technology?: string;
+  provider?: string;
+  speed?: string;
 }
 
 interface CoverageResponse {
@@ -47,8 +57,18 @@ interface CoverageResponse {
     notes?: string;
   }[];
   recommendations: {
-    primary: any;
-    alternatives: any[];
+    primary: {
+      provider: string;
+      technology: string;
+      package: string;
+      confidence: number;
+    } | null;
+    alternatives: {
+      provider: string;
+      technology: string;
+      package: string;
+      confidence: number;
+    }[];
   };
 }
 
@@ -216,7 +236,7 @@ async function checkDFACoverage(lat: number, lng: number): Promise<TechnologyRes
 }
 
 // Get available products based on coverage
-async function getAvailableProducts(lat: number, lng: number, technologies: string[]): Promise<any[]> {
+async function getAvailableProducts(lat: number, lng: number, technologies: string[]): Promise<Product[]> {
   try {
     const techParam = technologies.join(',');
     const url = `${PRODUCTS_API}?lat=${lat}&lng=${lng}&technologies=${techParam}`;

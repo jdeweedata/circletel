@@ -73,7 +73,7 @@ export function NotificationPreferences({
                 <Users className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Team Notification</h4>
+                <h3 id="team-notification-label" className="font-semibold text-gray-900">Team Notification</h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Notify the CircleTel Unjani rollout team about this audit submission.
                   Includes technical details, priority assessment, and next steps.
@@ -81,11 +81,13 @@ export function NotificationPreferences({
               </div>
             </div>
             <label className="flex items-center cursor-pointer">
+              <span className="sr-only">Enable team notification</span>
               <input
                 type="checkbox"
                 checked={notifyTeam}
                 onChange={(e) => setNotifyTeam(e.target.checked)}
                 className="sr-only"
+                aria-labelledby="team-notification-label"
               />
               <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 notifyTeam ? 'bg-blue-600' : 'bg-gray-200'
@@ -107,7 +109,7 @@ export function NotificationPreferences({
                 <Mail className="h-5 w-5 text-purple-600" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900">Additional Recipients</h4>
+                <h3 id="additional-recipients-label" className="font-semibold text-gray-900">Additional Recipients</h3>
                 <p className="text-sm text-gray-600 mt-1">
                   Send notifications to additional email addresses (optional).
                   Separate multiple emails with commas.
@@ -116,12 +118,15 @@ export function NotificationPreferences({
             </div>
 
             <div className="ml-14">
+              <label htmlFor="custom-emails" className="sr-only">Additional email recipients</label>
               <textarea
+                id="custom-emails"
                 value={customEmails}
                 onChange={(e) => setCustomEmails(e.target.value)}
                 placeholder="manager@clinic.co.za, supervisor@unjani.co.za"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 rows={2}
+                aria-labelledby="additional-recipients-label"
               />
               <p className="text-xs text-gray-500 mt-1">
                 These recipients will receive the same technical notification as the team
