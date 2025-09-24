@@ -22,19 +22,9 @@ export { Progress } from '@/components/ui/progress';
 export { Slider } from '@/components/ui/slider';
 
 // Custom CircleTel atoms
-export { Icon } from './Icon';
-export { Text } from './Text';
-export { Heading } from './Heading';
-export { Link } from './Link';
-export { Image } from './Image';
-export { Logo } from './Logo';
-export { Spinner } from './Spinner';
+export { default as TrustBadge } from './TrustBadge';
+export { default as PromoBadge } from './PromoBadge';
 
 // Atom type exports
-export type { IconProps } from './Icon';
-export type { TextProps } from './Text';
-export type { HeadingProps } from './Heading';
-export type { LinkProps } from './Link';
-export type { ImageProps } from './Image';
-export type { LogoProps } from './Logo';
-export type { SpinnerProps } from './Spinner';
+export type { TrustBadgeType, TrustBadgeProps } from './TrustBadge';
+export type { PromoBadgeType, PromoBadgeProps } from './PromoBadge';

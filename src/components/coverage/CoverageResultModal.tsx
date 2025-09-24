@@ -1,5 +1,5 @@
-import React from 'react';
-import { CheckCircle, XCircle, MapPin, Zap, Shield, Calendar, ExternalLink, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle, XCircle, MapPin, Zap, Shield, Calendar, ExternalLink, Phone, Mail, User } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,12 +8,17 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { CoverageResult } from '@/services/coverageApi';
+import { MultiProviderCoverageResult } from '@/services/multiProviderCoverage';
+import { useZohoIntegration } from '@/hooks/useZohoIntegration';
 
 interface CoverageResultModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   result: CoverageResult | null;
+  enhancedResult?: MultiProviderCoverageResult | null;
   address: string;
 }
 
@@ -21,13 +26,27 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
   open,
   onOpenChange,
   result,
+  enhancedResult,
   address,
 }) => {
-  if (!result) return null;
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [leadData, setLeadData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: ''
+  });
+
+  const { handleCoverageCheck, loading } = useZohoIntegration();
+
+  if (!result && !enhancedResult) return null;
+
+  // Use enhanced result if available, fallback to legacy result
+  const displayResult = enhancedResult || result;
+  const isEnhanced = !!enhancedResult;
 
   const handleContactSales = () => {
-    window.open('/contact', '_blank');
-    onOpenChange(false);
+    setShowLeadForm(true);
   };
 
   const handleExploreAlternatives = () => {
@@ -35,7 +54,35 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
     onOpenChange(false);
   };
 
-  const isSuccess = result.hasCoverage;
+  const handleSubmitLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const coverageData = {
+      email: leadData.email,
+      phone: leadData.phone,
+      address: address,
+      hasConcentration: isSuccess,
+      availableServices: isEnhanced && isSuccess
+        ? (enhancedResult as MultiProviderCoverageResult).overall.availableTechnologies
+        : (isSuccess ? ['BizFibreConnect', 'FTTB'] : []),
+      requestedServices: isEnhanced
+        ? (enhancedResult as MultiProviderCoverageResult).overall.availableTechnologies
+        : ['BizFibreConnect', 'FTTB']
+    };
+
+    const response = await handleCoverageCheck(coverageData);
+
+    if (response?.success) {
+      // Reset form and close modal
+      setLeadData({ name: '', email: '', phone: '', company: '' });
+      setShowLeadForm(false);
+      onOpenChange(false);
+    }
+  };
+
+  const isSuccess = isEnhanced
+    ? (enhancedResult as MultiProviderCoverageResult).overall.hasAnyConcentration
+    : (result as CoverageResult).hasCoverage;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +96,9 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
             )}
           </div>
           <DialogTitle className="text-xl font-bold">
-            {isSuccess ? '✅ FTTB Coverage Available!' : '❌ No Direct FTTB Coverage'}
+            {isSuccess
+              ? (isEnhanced ? '✅ Coverage Available!' : '✅ FTTB Coverage Available!')
+              : (isEnhanced ? '❌ No Coverage Found' : '❌ No Direct FTTB Coverage')}
           </DialogTitle>
         </DialogHeader>
 
@@ -169,35 +218,122 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
           )}
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          {isSuccess ? (
-            <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
-              <Button
-                onClick={handleContactSales}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                Contact Sales
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
-              <Button
-                onClick={handleExploreAlternatives}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Explore Alternatives
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+        {showLeadForm ? (
+          <div className="space-y-4 mt-4 border-t pt-4">
+            <div className="text-center">
+              <h3 className="font-semibold text-lg">Get In Touch</h3>
+              <p className="text-sm text-muted-foreground">
+                {isSuccess
+                  ? "Let's discuss pricing and get you connected!"
+                  : "We'll help you find the right connectivity solution."}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmitLead} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="lead-name" className="sr-only">Full Name</Label>
+                  <Input
+                    id="lead-name"
+                    placeholder="Full Name *"
+                    value={leadData.name}
+                    onChange={(e) => setLeadData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lead-company" className="sr-only">Company</Label>
+                  <Input
+                    id="lead-company"
+                    placeholder="Company"
+                    value={leadData.company}
+                    onChange={(e) => setLeadData(prev => ({ ...prev, company: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="lead-email" className="sr-only">Email</Label>
+                <Input
+                  id="lead-email"
+                  type="email"
+                  placeholder="Email Address *"
+                  value={leadData.email}
+                  onChange={(e) => setLeadData(prev => ({ ...prev, email: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="lead-phone" className="sr-only">Phone</Label>
+                <Input
+                  id="lead-phone"
+                  placeholder="Phone Number"
+                  value={leadData.phone}
+                  onChange={(e) => setLeadData(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowLeadForm(false)}
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Submitting...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Submit
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <DialogFooter className="gap-2 sm:gap-2">
+            {isSuccess ? (
+              <>
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Close
+                </Button>
+                <Button
+                  onClick={handleContactSales}
+                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Contact Sales
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Close
+                </Button>
+                <Button
+                  onClick={handleContactSales}
+                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Get Alternative Quote
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

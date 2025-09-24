@@ -37,9 +37,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `mobile` - Mobile-specific validation
 - `browsers` - Cross-browser testing
 
+
 ## Architecture Overview
 
-This is a CircleTel business website built with Vite + React + TypeScript + shadcn/ui components.
+This is a CircleTel business website built with Vite + React + TypeScript + shadcn/ui components, enhanced with **Agent OS** product development methodology for structured digital service provider platform management.
+
+### Agent OS Integration 🚀
+**Status**: Fully installed and operational
+**Purpose**: Structured product development workflow for October 2025 MVP launch
+- **Product Portfolio**: 10+ active products across 5 product lines fully integrated
+- **Roadmap Management**: Phase-based development with clear financial targets
+- **Specifications**: Technical specs for MTN/DFA coverage integration
+- **Business Alignment**: MVP targeting 25 customers, R32,000 MRR
 
 ### Tech Stack
 - **Framework**: React 18 with TypeScript
@@ -60,6 +69,8 @@ This is a CircleTel business website built with Vite + React + TypeScript + shad
 - `src/pages/` - Route components matching the URL structure
 - `src/lib/utils.ts` - Utility functions including the `cn()` helper for className merging
 - `supabase/functions/` - Supabase Edge Functions for backend logic
+- `.agent-os/` - **Agent OS methodology** with product management, specifications, and roadmap
+- `docs/` - **Product portfolio documentation** (excluded from Git, local business docs only)
 
 ### Routing Structure
 The site follows a structured routing pattern:
@@ -69,6 +80,8 @@ The site follows a structured routing pattern:
 - `/connectivity` - Connectivity solutions with technology-specific pages
 - `/cloud` - Cloud services (migration, hosting, backup, virtual desktops)
 - `/resources` - Tools and guides
+- `/admin` - Protected admin interface with dashboard, product management, and documentation
+- `/admin/docs` - Interactive documentation system with search, code playground, and markdown rendering
 
 ### Styling Guidelines
 - Uses Tailwind CSS with custom CircleTel brand colors defined in `tailwind.config.ts`
@@ -132,11 +145,33 @@ import { colors, typography, spacing } from '@/design-system/tokens';
 - **Real-time Sync** - Live data updates with `src/hooks/useRealtimeSync.ts`
 - **Product Management** - Full CRUD operations for business products
 - **Approval Workflows** - Multi-step approval processes for business operations
+- **Documentation System** - Interactive admin documentation at `/admin/docs` with search, code playground, and markdown rendering
 
 ### Coverage System
 - **FTTB Coverage Component** - Interactive coverage checking in `src/components/coverage/`
 - **Google Maps Integration** - Coverage area visualization and address validation
 - **Real-time Checking** - Live coverage validation via Supabase Edge Functions
+- **Multi-provider Support** - MTN WMS, DFA ArcGIS, and CircleTel coverage integration
+
+### Product Portfolio Management 📦
+**Complete product catalog successfully integrated with platform**
+
+#### Active Products (docs/products/active/)
+- **SkyFibre Product Line** - Fixed Wireless Access (Township, Residential, SME, Business)
+- **BizFibre Connect** - DFA wholesale fibre services (5 tiers, R1,699-R4,373/month)
+- **HomeFibre Connect** - Consumer fibre solutions (R599-R1,499/month)
+- **MTN 5G-LTE Services** - Business mobile connectivity (R299-R949/month)
+- **Managed Services** - EdgeConnect 360™, SmartBranch LTE, SD-WAN Lite
+
+#### Key Product Documentation
+- `docs/products/CircleTel_Product_Portfolio_Overview.md` - Master alignment document
+- `docs/products/Product_Integration_Summary.md` - Integration status with Agent OS
+- `docs/products/INDEX.md` - Complete product documentation index
+- `docs/products/active/{product}/` - Individual product specifications and pricing
+
+#### MVP Launch Portfolio (October 2025)
+**Primary Product**: SkyFibre Essential (R1,299/month, targeting 25 customers = R32,475 MRR)
+**Supporting Products**: BizFibre Connect Lite/Starter, SmartBranch LTE Backup
 
 ### Testing & Quality Assurance
 - **Playwright Configuration** - Specialized config in `playwright.design-system.config.ts`
@@ -183,6 +218,15 @@ When creating new forms:
 - Follow approval workflow patterns for business process automation
 - Admin components should use design system tokens and patterns
 
+### Admin Documentation System
+When working with admin documentation:
+- **Documentation Pages** - Located in `src/pages/admin/docs/` with markdown content and interactive examples
+- **Layout Component** - `AdminDocsLayout.tsx` provides sidebar navigation, search, and responsive design
+- **Code Playground** - `CodePlayground.tsx` enables interactive code examples with execution simulation
+- **Markdown Rendering** - Uses `react-markdown` with custom components from `src/lib/markdown.ts`
+- **Search Functionality** - Powered by Fuse.js for fuzzy search across documentation content
+- **Route Structure** - All documentation routes nested under `/admin/docs/*` with automatic redirect to overview
+
 ### Client-Specific Implementations
 - Client forms organized by client name (e.g., `unjani/`)
 - Each client has dedicated types, validation, and components
@@ -195,6 +239,34 @@ When creating new forms:
 - **Environment Variables** - Configured in `.env` for API keys and Supabase connection
 - **TypeScript Strict Mode** - Full type safety with React Hook Form integration
 - **Git Hooks** - Pre-commit validation automatically runs (use `npm run prepare` to reinstall if needed)
+
+## Documentation Management 📚
+
+### Local Documentation Structure
+**Location**: `docs/` (excluded from Git repository)
+**Status**: Clean and organized structure implemented
+
+#### Documentation Categories (7 logical folders)
+- `products/` - Product portfolio and specifications (10+ active products)
+- `business-requirements/` - BRS v2.0 and MVP strategy documents
+- `technical/` - Design system, coverage enhancement, email infrastructure
+- `deployment/` - Operations guides and environment configuration
+- `integrations/` - Zoho CRM, Supabase, third-party API integration guides
+- `analysis/` - Performance reports, user journey analysis, coverage optimization
+- `archive/` - Historical documents and legacy versions
+
+#### Git Configuration
+```gitignore
+# Documentation folder - Product docs and business requirements
+/docs/
+```
+**Rationale**: Business documentation contains sensitive product specifications, pricing, and strategy information that should remain local only. Git exclusion prevents accidental exposure while maintaining team access to technical documentation.
+
+#### Master Documentation Index
+- `docs/README.md` - Complete documentation navigator with quick access links
+- **25+ organized documents** across 7 categories for easy maintenance
+- **Cross-references** to Agent OS roadmap and product integration status
+- **Version control** for business requirements with archive policy
 
 ## Development Workflow Best Practices
 
@@ -278,3 +350,88 @@ If CI is running slow again:
 - `scripts/validate-changed.js` - Smart validation script
 - `.husky/pre-commit` - Pre-commit hook configuration
 - `package.json` validation scripts
+
+## Current Development: Interactive Coverage Checker
+
+### Active Feature (003-interactive-coverage-checker)
+**Status**: Technical planning complete
+**Branch**: `003-interactive-coverage-checker`
+**Goal**: Implement interactive map with real-time spatial coverage queries and parallel processing
+
+### New Technology Stack
+- **Mapping**: ArcGIS API for JavaScript with React integration
+- **Spatial**: PostGIS extension for PostgreSQL spatial indexing
+- **Real-time**: Supabase Realtime with WebSocket subscriptions
+- **Performance**: R-tree client-side indexing, chunked parallel queries (6+ concurrent)
+
+### Key APIs
+- **Edge Function**: `/spatial-coverage-query` - Viewport-based coverage lookup with chunking
+- **WebSocket**: `/real-time-status` - Live building status updates every 30 seconds
+- **Response Format**: Spatial coverage data with performance metrics
+
+### Architecture Components
+1. Interactive map triggers automatic queries on pan/zoom
+2. Spatial engine chunks large areas for parallel processing
+3. Real-time WebSocket updates for connected/near-net building status
+4. Multi-tier caching (memory → IndexedDB → network)
+5. Progressive Web App with offline capabilities
+
+### Performance Targets
+- **Metro areas**: <1 second response time
+- **Rural areas**: <2 seconds response time
+- **Map interactions**: <500ms for pan/zoom operations
+- **Parallel processing**: 6+ concurrent spatial queries
+- **Real-time updates**: 30-second refresh cycle
+
+### Key Files Structure
+- `src/components/coverage/InteractiveCoverageMap.tsx` - Main interactive map component
+- `src/hooks/useSpatialCoverage.ts` - Spatial query management
+- `src/services/spatialCoverage.ts` - Chunked query processing
+- `supabase/functions/spatial-coverage-query/` - Spatial query Edge Function
+- Database: Enhanced with PostGIS spatial indexes
+
+## Agent OS Specifications & Roadmap 🎯
+
+### MTN/DFA Coverage Integration Specification
+**Location**: `.agent-os/specs/2025-09-24-mtn-dfa-coverage-integration/`
+**Status**: Technical specification complete, ready for implementation
+
+#### Key Components
+- **MTN WMS Integration** - Live coverage maps for mobile services
+- **DFA ArcGIS Integration** - Fibre infrastructure spatial data
+- **PostGIS Spatial Database** - High-performance geographic queries with R-tree indexing
+- **Multi-provider Coverage Engine** - Unified coverage checking across all providers
+- **Real-time Caching System** - 24-hour cache with confidence scoring (0-100%)
+
+#### Technical Architecture
+```sql
+-- PostGIS spatial database schema
+CREATE TABLE coverage_cache (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  location_hash TEXT NOT NULL UNIQUE,
+  coordinates GEOMETRY(Point, 4326) NOT NULL,
+  provider_data JSONB NOT NULL,
+  confidence_score INTEGER CHECK (confidence_score BETWEEN 0 AND 100),
+  cached_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+#### Specification Files
+- `spec.md` - Main specification with user stories and acceptance criteria
+- `technical-spec.md` - Detailed technical implementation requirements
+- `api-spec.md` - API endpoint specifications and data formats
+- `database-schema.md` - Complete PostGIS schema with indexes
+
+### Agent OS Product Roadmap
+**Location**: `.agent-os/product/roadmap.md` (enhanced)
+- **Phase 0**: 6+ months of completed platform development ✅
+- **MVP Launch**: October 2025 (25 customers, R32,000 MRR)
+- **Q4 2025**: Product portfolio expansion (200-500 customers, R200k-500k MRR)
+- **Q1 2026**: Premium products launch (SkyFibre Township, enterprise solutions)
+- **Q2 2026**: Multi-provider platform and AI optimization
+
+### Agent OS Standards
+**Location**: `.agent-os/standards/`
+- **Tech Stack Guidelines** - TypeScript, React, Supabase, Tailwind CSS
+- **Code Style Standards** - ESLint, Prettier configuration
+- **Best Practices** - Development workflow, testing, and deployment guidelines

@@ -5,6 +5,10 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import RecipeCard from '@/components/ui/RecipeCard';
+import TrustBadge from '@/design-system/components/atoms/TrustBadge';
+import PromoBadge from '@/design-system/components/atoms/PromoBadge';
+import AnimatedWrapper from '@/design-system/components/atoms/AnimatedWrapper';
+import { EnhancedCard, EnhancedCardHeader, EnhancedCardTitle, EnhancedCardContent } from '@/design-system/components/molecules/EnhancedCard';
 
 // Icons for recipe cards
 const BasicIcon = () => (
@@ -69,75 +73,85 @@ const Services = () => {
         <section className="bg-gradient-to-br from-white to-circleTel-lightNeutral py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto text-center">
-              <div className="mb-8">
-                <h1 className="text-5xl md:text-6xl font-bold text-circleTel-darkNeutral mb-6 leading-tight">
-                  Explore Our <span className="text-circleTel-orange">IT Recipes</span>
-                </h1>
-                <p className="text-xl text-circleTel-secondaryNeutral mb-4 max-w-3xl mx-auto">
-                  Tailored IT solutions for small businesses, mid-sized firms, and growing startups
-                </p>
-                <p className="text-lg text-circleTel-secondaryNeutral/80">
-                  Choose your perfect blend of technology, support, and security
-                </p>
-              </div>
+              <AnimatedWrapper animation="fade-in" delay={0.2}>
+                <div className="mb-8">
+                  <h1 className="text-5xl md:text-6xl font-bold text-circleTel-darkNeutral mb-6 leading-tight">
+                    Explore Our <span className="text-circleTel-orange">IT Recipes</span>
+                  </h1>
+                  <p className="text-xl text-circleTel-secondaryNeutral mb-4 max-w-3xl mx-auto">
+                    Tailored IT solutions for small businesses, mid-sized firms, and growing startups
+                  </p>
+                  <p className="text-lg text-circleTel-secondaryNeutral/80">
+                    Choose your perfect blend of technology, support, and security
+                  </p>
+                </div>
+              </AnimatedWrapper>
 
               {/* Enhanced Recipe Cards */}
               <div className="mb-16">
                 <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-circleTel-orange/20">
+                  <AnimatedWrapper animation="bounce-in" delay={0.4}>
+                    <div className="flex flex-wrap gap-4 justify-center mb-6">
+                      <TrustBadge type="first-month-free" size="lg" />
+                      <TrustBadge type="no-hidden-costs" size="md" />
+                      <TrustBadge type="setup-24hrs" size="md" />
+                    </div>
+                  </AnimatedWrapper>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Basic IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-xl shadow-md border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl">
-                        <div className="text-center">
+                    <AnimatedWrapper animation="slide-in-left" delay={0.6}>
+                      <EnhancedCard variant="tier" tier="basic" className="group">
+                        <EnhancedCardHeader tier="basic" className="text-center">
                           <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                             <Server className="h-10 w-10 text-blue-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Basic IT</h3>
+                          <EnhancedCardTitle tier="basic" className="text-xl mb-2">Basic IT</EnhancedCardTitle>
                           <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                             <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
                             <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
+                        </EnhancedCardHeader>
+                      </EnhancedCard>
+                    </AnimatedWrapper>
 
                     {/* Advanced IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-purple-50 p-8 rounded-xl shadow-md border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl">
-                        <div className="text-center">
+                    <AnimatedWrapper animation="scale-in" delay={0.8}>
+                      <EnhancedCard variant="featured" tier="advanced" className="group" ribbon={{ text: "Most Popular", color: "orange" }}>
+                        <EnhancedCardHeader tier="advanced" className="text-center">
                           <div className="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
                             <Zap className="h-10 w-10 text-purple-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Advanced IT</h3>
+                          <EnhancedCardTitle tier="advanced" className="text-xl mb-2">Advanced IT</EnhancedCardTitle>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enhanced solutions & monitoring</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                             <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                             <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
+                        </EnhancedCardHeader>
+                      </EnhancedCard>
+                    </AnimatedWrapper>
 
                     {/* Scale IT Card */}
-                    <div className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
-                      <div className="bg-gradient-to-br from-white to-emerald-50 p-8 rounded-xl shadow-md border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-xl">
-                        <div className="text-center">
+                    <AnimatedWrapper animation="slide-in-right" delay={1.0}>
+                      <EnhancedCard variant="tier" tier="scale" className="group">
+                        <EnhancedCardHeader tier="scale" className="text-center">
                           <div className="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
                             <TrendingUp className="h-10 w-10 text-emerald-600" />
                           </div>
-                          <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Scale IT</h3>
+                          <EnhancedCardTitle tier="scale" className="text-xl mb-2">Scale IT</EnhancedCardTitle>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enterprise-grade scalability</p>
                           <div className="mt-4 flex justify-center space-x-2">
                             <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                             <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                             <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
+                        </EnhancedCardHeader>
+                      </EnhancedCard>
+                    </AnimatedWrapper>
                   </div>
 
                   {/* Recipe Features */}
@@ -163,10 +177,10 @@ const Services = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-4 text-lg">
+                <Button asChild variant="orange" size="lg" className="px-8 py-4 text-lg">
                   <Link to="/pricing">Get a Custom Quote</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white px-8 py-4 text-lg">
+                <Button asChild variant="orange-outline" size="lg" className="px-8 py-4 text-lg">
                   <Link to="/contact">Schedule Consultation</Link>
                 </Button>
               </div>
