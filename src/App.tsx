@@ -145,9 +145,11 @@ const App = () => (
               } />
             </Route>
 
-            {/* Legacy forms redirect - redirect to admin */}
+            {/* Public Client Forms */}
+            <Route path="/forms/unjani/contract-audit" element={<UnjaniContractAuditForm />} />
+
+            {/* Legacy forms redirect - redirect to admin (except unjani which is public) */}
             <Route path="/forms" element={<Navigate to="/admin/login" replace />} />
-            <Route path="/forms/*" element={<Navigate to="/admin/login" replace />} />
 
             {/* 404 page */}
             <Route path="*" element={<NotFound />} />
