@@ -1,0 +1,18 @@
+
+project_id = "agyjovdugmtopasyvlng"
+
+[functions.zoho-crm]
+verify_jwt = false
+
+[functions.zoho-callback]
+verify_jwt = false
+
+[functions.check-fttb-coverage]
+verify_jwt = false
+
+[functions.unjani-form-submission]
+verify_jwt = false
+
+[functions.send-audit-notification]
+verify_jwt = false
+
