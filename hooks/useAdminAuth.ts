@@ -145,8 +145,21 @@ export function useAdminAuth() {
         return
       }
 
-      const session = JSON.parse(storedSession)
-      const user = JSON.parse(storedUser)
+      let session, user
+      try {
+        session = JSON.parse(storedSession)
+        user = JSON.parse(storedUser)
+      } catch (parseError) {
+        // Invalid JSON in localStorage, clear it
+        localStorage.removeItem('admin_session')
+        localStorage.removeItem('admin_user')
+        setState({
+          user: null,
+          isLoading: false,
+          error: null
+        })
+        return
+      }
 
       // Development mode - accept dev sessions without server validation
       const isDev = process.env.NODE_ENV === 'development'
@@ -193,12 +206,17 @@ export function useAdminAuth() {
       if (isDev) {
         const storedUser = localStorage.getItem('admin_user')
         if (storedUser) {
-          setState({
-            user: JSON.parse(storedUser),
-            isLoading: false,
-            error: null
-          })
-          return
+          try {
+            setState({
+              user: JSON.parse(storedUser),
+              isLoading: false,
+              error: null
+            })
+            return
+          } catch (parseError) {
+            // Invalid JSON, clear it
+            localStorage.removeItem('admin_user')
+          }
         }
       }
 
