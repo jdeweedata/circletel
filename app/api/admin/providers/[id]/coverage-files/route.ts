@@ -27,10 +27,10 @@ interface KMLMetadata {
 // Upload coverage file (KML/KMZ)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Verify provider exists
     const { data: provider, error: providerError } = await mtnWMSClient.supabase
@@ -177,10 +177,10 @@ export async function POST(
 // Get coverage files for provider
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const { data, error } = await mtnWMSClient.supabase
       .from('coverage_files')
@@ -210,7 +210,7 @@ export async function GET(
 // Delete coverage file
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);

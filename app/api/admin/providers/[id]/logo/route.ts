@@ -12,10 +12,10 @@ const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'provider-logos
 // Upload provider logo
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Verify provider exists
     const { data: provider, error: providerError } = await mtnWMSClient.supabase
