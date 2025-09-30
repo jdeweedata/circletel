@@ -20,7 +20,7 @@ export interface NetworkProvider {
 }
 
 export interface ApiConfiguration {
-  baseUrl: string;
+  baseUrl?: string;
   authMethod?: 'none' | 'api_key' | 'oauth' | 'bearer';
   apiKey?: string;
   authToken?: string;
