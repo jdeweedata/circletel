@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
+import { Coordinates } from '@/lib/coverage/types';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -33,27 +35,72 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check coverage based on coordinates or address
+    // Check coverage using real-time MTN coverage validation
     let coverageAvailable = false;
     let availableServices: string[] = [];
     let availablePackages: any[] = [];
+    let coverageMetadata: any = null;
 
     if (lead.latitude && lead.longitude) {
-      // Check coverage using coordinates (PostGIS query)
-      const { data: coverageData, error: coverageError } = await supabase
-        .rpc('check_coverage_at_point', {
+      try {
+        // Use real-time MTN coverage aggregation service
+        const coordinates: Coordinates = {
           lat: lead.latitude,
           lng: lead.longitude
+        };
+
+        const coverageResult = await coverageAggregationService.aggregateCoverage(coordinates, {
+          providers: ['mtn'], // Can expand to other providers in the future
+          includeAlternatives: true,
+          prioritizeReliability: true,
+          prioritizeSpeed: false
         });
 
-      if (!coverageError && coverageData && coverageData.length > 0) {
-        coverageAvailable = true;
-        availableServices = [...new Set(coverageData.map((item: any) => item.service_type).filter((type: any): type is string => typeof type === 'string'))] as string[];
+        if (coverageResult.overallCoverage && coverageResult.bestServices.length > 0) {
+          coverageAvailable = true;
+
+          // Extract available service types from the coverage result
+          availableServices = coverageResult.bestServices
+            .filter(service => service.available)
+            .map(service => service.serviceType);
+
+          // Store metadata for debugging
+          coverageMetadata = {
+            provider: 'mtn',
+            confidence: coverageResult.providers.mtn?.confidence || 'unknown',
+            lastUpdated: coverageResult.lastUpdated,
+            servicesFound: availableServices.length
+          };
+
+          console.log('Real-time MTN coverage check:', {
+            coordinates,
+            availableServices,
+            metadata: coverageMetadata
+          });
+        }
+      } catch (error) {
+        console.error('Real-time coverage check failed:', error);
+
+        // Fallback to legacy PostGIS query if real-time check fails
+        const { data: coverageData, error: coverageError } = await supabase
+          .rpc('check_coverage_at_point', {
+            lat: lead.latitude,
+            lng: lead.longitude
+          });
+
+        if (!coverageError && coverageData && coverageData.length > 0) {
+          coverageAvailable = true;
+          availableServices = [...new Set(coverageData.map((item: any) => item.service_type).filter((type: any): type is string => typeof type === 'string'))] as string[];
+
+          console.log('Fallback to PostGIS coverage check:', {
+            availableServices
+          });
+        }
       }
     }
 
     if (!coverageAvailable) {
-      // Fallback: Check coverage by area name/address matching
+      // Final fallback: Check coverage by area name/address matching (legacy)
       const { data: areas, error: areasError } = await supabase
         .from('coverage_areas')
         .select('*')
@@ -73,16 +120,43 @@ export async function GET(request: NextRequest) {
         if (matchingAreas.length > 0) {
           coverageAvailable = true;
           availableServices = [...new Set(matchingAreas.map((area: any) => area.service_type))];
+
+          console.log('Fallback to area name matching:', {
+            availableServices
+          });
         }
       }
     }
 
     if (coverageAvailable && availableServices.length > 0) {
-      // Get available packages for the services
+      // Map technical service types to product categories using service_type_mapping
+      // Note: availableServices may contain either technical types (from MTN API) or product categories (from legacy coverage_areas)
+      const { data: mappings, error: mappingError } = await supabase
+        .from('service_type_mapping')
+        .select('*')
+        .in('technical_type', availableServices)
+        .eq('active', true)
+        .order('priority', { ascending: true });
+
+      if (mappingError) {
+        console.error('Mapping error:', mappingError);
+      }
+
+      // Get unique product categories from mappings, or use services directly if they're already product categories
+      let productCategories: string[];
+      if (mappings && mappings.length > 0) {
+        // Services were technical types, successfully mapped to product categories
+        productCategories = [...new Set(mappings.map((m: any) => m.product_category))];
+      } else {
+        // No mappings found - services are already product categories (from legacy coverage_areas table)
+        productCategories = availableServices;
+      }
+
+      // Get available packages for the mapped product categories
       const { data: packages, error: packagesError } = await supabase
         .from('service_packages')
         .select('*')
-        .in('service_type', availableServices)
+        .in('product_category', productCategories)
         .eq('active', true)
         .order('price', { ascending: true });
 
@@ -91,6 +165,7 @@ export async function GET(request: NextRequest) {
           id: pkg.id,
           name: pkg.name,
           service_type: pkg.service_type,
+          product_category: pkg.product_category,
           speed_down: pkg.speed_down,
           speed_up: pkg.speed_up,
           price: pkg.price,
@@ -100,6 +175,13 @@ export async function GET(request: NextRequest) {
           features: pkg.features || []
         }));
       }
+
+      // Log for debugging
+      console.log('Coverage check:', {
+        availableServices,
+        productCategories,
+        packagesFound: availablePackages.length
+      });
     }
 
     // Update lead with coverage check result
@@ -121,7 +203,8 @@ export async function GET(request: NextRequest) {
       coordinates: lead.latitude && lead.longitude ? {
         lat: lead.latitude,
         lng: lead.longitude
-      } : null
+      } : null,
+      metadata: coverageMetadata // Include coverage metadata for debugging
     });
 
   } catch (error) {
