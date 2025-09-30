@@ -284,7 +284,7 @@ export default function ProvidersManagementPage() {
     }
   };
 
-  const serviceTypeOptions = [
+  const serviceTypeOptions: ServiceType[] = [
     'fibre', 'fixed_lte', 'uncapped_wireless', 'licensed_wireless',
     '5g', 'lte', '3g_900', '3g_2100', '3g', '2g', 'satellite', 'microwave', 'dsl', 'cable'
   ];
