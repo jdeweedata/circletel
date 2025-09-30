@@ -167,10 +167,10 @@ export async function POST(
 // Delete provider logo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get current logo
     const { data: provider, error } = await mtnWMSClient.supabase
