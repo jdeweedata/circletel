@@ -14,7 +14,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run type-check` - Run TypeScript type checking without emitting files
 
 ### Development Workflow
-Always run `npm run type-check` before committing to catch TypeScript errors. The build process includes both linting and type checking.
+
+**Pre-Commit Checklist** (Required before every commit):
+1. Run `npm run type-check` to catch TypeScript errors
+2. Fix any errors reported
+3. Run `npm run type-check` again to verify fixes
+4. Commit and push
+
+This prevents Vercel build failures by catching type errors locally. The build process includes both linting and type checking, so running `npm run type-check` locally ensures your commits will deploy successfully.
 
 ## Architecture Overview
 
