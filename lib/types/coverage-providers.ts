@@ -21,15 +21,15 @@ export interface NetworkProvider {
 
 export interface ApiConfiguration {
   baseUrl: string;
-  authMethod: 'none' | 'api_key' | 'oauth' | 'bearer';
+  authMethod?: 'none' | 'api_key' | 'oauth' | 'bearer';
   apiKey?: string;
   authToken?: string;
-  rateLimitRpm: number;
-  timeoutMs: number;
-  retryAttempts: number;
-  retryDelayMs: number;
+  rateLimitRpm?: number;
+  timeoutMs?: number;
+  retryAttempts?: number;
+  retryDelayMs?: number;
   customHeaders?: Record<string, string>;
-  endpoints: {
+  endpoints?: {
     coverage?: string;
     packages?: string;
     availability?: string;
