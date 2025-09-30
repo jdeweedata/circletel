@@ -16,6 +16,7 @@ export interface NetworkProvider {
   priority: number;
   createdAt: string;
   updatedAt: string;
+  coverageFiles?: CoverageFile[];
 }
 
 export interface ApiConfiguration {
