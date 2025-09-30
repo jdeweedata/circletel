@@ -1,7 +1,8 @@
 // Product types matching Supabase database schema
-export type ProductCategory = 'connectivity' | 'hardware' | 'software' | 'services' | 'bundles';
-export type ServiceType = 'SkyFibre' | 'HomeFibreConnect' | 'BizFibreConnect' | 'VoIP' | 'Hosting' | 'Security';
+export type ProductCategory = 'connectivity' | 'hardware' | 'software' | 'services' | 'bundles' | 'it_services' | 'bundle' | 'add_on';
+export type ServiceType = 'SkyFibre' | 'HomeFibreConnect' | 'BizFibreConnect' | 'VoIP' | 'Hosting' | 'Security' | 'IT_Support' | 'Cloud_Services' | '5G' | 'LTE';
 export type ProductStatus = 'active' | 'inactive' | 'draft' | 'archived';
+export type SortOrder = 'price_asc' | 'price_desc' | 'name_asc' | 'created_desc' | 'updated_desc' | 'speed_asc' | 'speed_desc' | 'popular';
 
 export interface ProductPricing {
   setup: number;
@@ -38,6 +39,26 @@ export interface Product {
   is_featured: boolean;
   is_popular: boolean;
   metadata: ProductMetadata;
+  // Additional computed/optional properties
+  download_speed?: number | null;
+  upload_speed?: number | null;
+  monthly_price?: number | string | null;
+  final_price?: number | null;
+  active_promotion?: Promotion | null;
+  short_description?: string | null;
+  setup_fee?: number | null;
+  is_bundle?: boolean;
+  bundle_savings?: number | null;
+  sort_order?: number | null;
+  currency?: string;
+  type?: string;
+  target_market?: string;
+  speed_down?: number | null;
+  speed_up?: number | null;
+  data_limit?: string | null;
+  price?: number | null;
+  contract_term?: number | null;
+  availability?: string;
 }
 
 // Form data interfaces for create/update
@@ -79,6 +100,7 @@ export interface Promotion {
   status: 'active' | 'inactive' | 'expired';
   created_at: string;
   updated_at: string;
+  imageUrl?: string; // Optional image URL for promotion
 }
 
 export interface ProductComparison {
@@ -96,7 +118,11 @@ export interface ProductFilters {
   is_featured?: boolean;
   is_popular?: boolean;
   search?: string;
-  sort_by?: 'price_asc' | 'price_desc' | 'name_asc' | 'created_desc' | 'updated_desc';
+  sort_by?: SortOrder;
+  min_price?: number | null;
+  max_price?: number | null;
+  min_speed?: number | null;
+  max_speed?: number | null;
 }
 
 export interface ProductsResponse {
@@ -113,7 +139,10 @@ export const PRODUCT_CATEGORIES = [
   'hardware',
   'software',
   'services',
-  'bundles'
+  'bundles',
+  'it_services',
+  'bundle',
+  'add_on'
 ] as const;
 
 export const SERVICE_TYPES = [
@@ -122,7 +151,11 @@ export const SERVICE_TYPES = [
   'HomeFibreConnect',
   'VoIP',
   'Hosting',
-  'Security'
+  'Security',
+  'IT_Support',
+  'Cloud_Services',
+  '5G',
+  'LTE'
 ] as const;
 
 export const PRODUCT_STATUSES = [
