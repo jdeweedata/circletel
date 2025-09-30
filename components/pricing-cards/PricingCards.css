@@ -1,0 +1,355 @@
+/* PricingCards.css */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.pricing-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+}
+
+.pricing-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  flex: 1;
+  padding: 20px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab.active {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #0066cc;
+}
+
+/* Card Content */
+.card-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 600px;
+}
+
+/* Left Section */
+.left-section {
+  padding: 40px;
+  background: #f8f9fa;
+}
+
+.lte-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #a8c8ec 0%, #7aa3d4 100%);
+  color: white;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.section-description {
+  margin-bottom: 30px;
+  color: #003366;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Plan Options */
+.plan-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.plan-card:first-child {
+  background: linear-gradient(135deg, #003366 0%, #004080 100%);
+  color: white;
+}
+
+.plan-card.selected {
+  border-color: #0066cc;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 102, 204, 0.15);
+}
+
+.savings-badge {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #ff1493;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.plan-label {
+  font-size: 13px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.plan-price {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #003366;
+}
+
+.plan-card:first-child .plan-price {
+  color: white;
+}
+
+.original-price {
+  text-decoration: line-through;
+  opacity: 0.5;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.plan-speeds {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #003366;
+}
+
+.plan-card:first-child .plan-speeds {
+  color: white;
+}
+
+.speed-icon {
+  font-size: 16px;
+}
+
+.no-restriction {
+  font-size: 12px;
+}
+
+/* Right Section */
+.right-section {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mtn-logo {
+  width: 120px;
+  height: 60px;
+  margin-bottom: 30px;
+}
+
+.selected-plan-display {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.selected-price-small {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.selected-price-large {
+  font-size: 48px;
+  font-weight: bold;
+  color: #003366;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.price-duration {
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.selected-speeds {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Benefits Section */
+.benefits-section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.benefits-section h3 {
+  color: #ff1493;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.benefit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.info-icon {
+  color: #999;
+  cursor: pointer;
+}
+
+/* Additional Info */
+.additional-info {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.additional-info summary {
+  color: #ff1493;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.additional-info summary::-webkit-details-marker {
+  display: none;
+}
+
+.additional-info summary::before {
+  content: '▼';
+  font-size: 12px;
+  transition: transform 0.3s;
+}
+
+.additional-info[open] summary::before {
+  transform: rotate(180deg);
+}
+
+.info-content {
+  padding: 15px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Order Button */
+.order-button {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #003366 0%, #004080 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+}
+
+.order-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 51, 102, 0.4);
+}
+
+.order-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .card-content {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .right-section {
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+@media (max-width: 640px) {
+  .plan-options {
+    grid-template-columns: 1fr;
+  }
+
+  .tab {
+    font-size: 14px;
+    padding: 15px 10px;
+  }
+
+  .left-section,
+  .right-section {
+    padding: 20px;
+  }
+
+  .selected-price-large {
+    font-size: 36px;
+  }
+}

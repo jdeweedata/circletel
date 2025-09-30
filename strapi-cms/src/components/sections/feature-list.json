@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_sections_feature_lists",
+  "info": {
+    "displayName": "Feature List",
+    "description": "List of features or benefits"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "features": {
+      "type": "component",
+      "repeatable": true,
+      "component": "elements.feature-item"
+    }
+  }
+}

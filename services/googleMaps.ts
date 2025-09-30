@@ -41,6 +41,10 @@ export class GoogleMapsService {
       return window.google;
     }
 
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      throw new Error('Google Maps API key not found. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.');
+    }
+
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
 
@@ -49,7 +53,10 @@ export class GoogleMapsService {
         this.isLoaded = true;
         resolve(window.google);
       };
-      script.onerror = reject;
+      script.onerror = (error) => {
+        console.error('Failed to load Google Maps script:', error);
+        reject(new Error('Failed to load Google Maps. Please check your API key and internet connection.'));
+      };
       document.head.appendChild(script);
     });
   }
@@ -117,29 +124,60 @@ export class GoogleMapsService {
   }
 
   async geocodeAddress(address: string): Promise<GeocodingResult> {
-    // This is a placeholder implementation
-    // In a real application, this would use the Google Geocoding API
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await this.loadGoogleMaps();
 
-    return {
-      formatted_address: address,
-      address,
-      latitude: -26.2041,
-      longitude: 28.0473,
-      geometry: {
-        location: {
-          lat: -26.2041,
-          lng: 28.0473
+    const geocoder = new google.maps.Geocoder();
+
+    return new Promise((resolve, reject) => {
+      geocoder.geocode(
+        {
+          address,
+          componentRestrictions: { country: 'ZA' },
+          region: 'za'
+        },
+        (results, status) => {
+          if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+            const result = results[0];
+
+            // Parse address components
+            const addressComponents: any = {};
+            result.address_components?.forEach((component) => {
+              const types = component.types;
+              if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
+                addressComponents.sublocality = component.long_name;
+              } else if (types.includes('locality')) {
+                addressComponents.locality = component.long_name;
+              } else if (types.includes('administrative_area_level_1')) {
+                addressComponents.province = component.long_name;
+              } else if (types.includes('postal_code')) {
+                addressComponents.postalCode = component.long_name;
+              } else if (types.includes('route')) {
+                addressComponents.route = component.long_name;
+              } else if (types.includes('street_number')) {
+                addressComponents.streetNumber = component.long_name;
+              }
+            });
+
+            resolve({
+              formatted_address: result.formatted_address,
+              address: result.formatted_address,
+              latitude: result.geometry.location.lat(),
+              longitude: result.geometry.location.lng(),
+              geometry: {
+                location: {
+                  lat: result.geometry.location.lat(),
+                  lng: result.geometry.location.lng()
+                }
+              },
+              place_id: result.place_id,
+              addressComponents
+            });
+          } else {
+            reject(new Error(`Geocoding failed: ${status}`));
+          }
         }
-      },
-      place_id: 'placeholder',
-      addressComponents: {
-        sublocality: 'Johannesburg',
-        locality: 'Johannesburg',
-        province: 'Gauteng',
-        postalCode: '2000'
-      }
-    };
+      );
+    });
   }
 
   async initializeAutocomplete(
@@ -148,9 +186,43 @@ export class GoogleMapsService {
   ): Promise<google.maps.places.Autocomplete | null> {
     if (!input) return null;
 
-    // This is a placeholder implementation
-    // In a real application, this would initialize the Google Places Autocomplete
-    return null;
+    await this.loadGoogleMaps();
+
+    // South Africa bounds for better results
+    const southAfricaBounds = new google.maps.LatLngBounds(
+      new google.maps.LatLng(-34.8, 16.5),
+      new google.maps.LatLng(-22.1, 32.9)
+    );
+
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      bounds: southAfricaBounds,
+      componentRestrictions: { country: 'za' },
+      fields: ['address_components', 'geometry', 'formatted_address', 'place_id', 'name'],
+      types: ['address']
+    });
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+
+      if (place.geometry && place.geometry.location) {
+        const placeResult: PlaceResult = {
+          place_id: place.place_id || '',
+          formatted_address: place.formatted_address || '',
+          geometry: {
+            location: {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng()
+            }
+          },
+          name: place.name || '',
+          address_components: place.address_components
+        };
+
+        onPlaceSelect(placeResult);
+      }
+    });
+
+    return autocomplete;
   }
 }
 

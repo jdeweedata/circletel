@@ -1,0 +1,280 @@
+/* CircleTel Wireless Packages - Fixed Layout */
+
+.pricing-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  gap: 40px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Main content area */
+.pricing-header {
+  grid-column: 1 / -1;
+  margin-bottom: 30px;
+}
+
+.pricing-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab {
+  padding: 10px 24px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab.active {
+  background: #ff6b35;
+  color: white;
+}
+
+.tab:hover:not(.active) {
+  background: #f0f0f0;
+}
+
+/* CRITICAL FIX: Packages Grid Layout - This fixes the white space issue */
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  align-content: start; /* Prevents vertical white space */
+  flex: 1;
+  max-width: 900px;
+}
+
+/* Package Card Styling */
+.package-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.package-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: #ff6b35;
+}
+
+.package-card.premium {
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  color: white;
+}
+
+.package-card.premium .package-label,
+.package-card.premium .period {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Package Content */
+.package-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.package-speed {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: inherit;
+}
+
+.package-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Price Section */
+.price-section {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: auto; /* Pushes button to bottom */
+  padding: 20px 0;
+}
+
+.currency {
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.price {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.period {
+  font-size: 14px;
+  color: #666;
+  margin-left: 4px;
+}
+
+/* CTA Button */
+.cta-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.cta-button.add-to-cart {
+  background: #ff6b35;
+  color: white;
+}
+
+.cta-button.add-to-cart:hover {
+  background: #ff5722;
+}
+
+.cta-button.in-cart {
+  background: #4caf50;
+  color: white;
+}
+
+.cta-button.in-cart:hover {
+  background: #45a049;
+}
+
+/* Benefits Section - Right Sidebar */
+.benefits-section {
+  flex-shrink: 0;
+  width: 300px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  height: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.benefits-section h2 {
+  color: #ff6b35;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.benefit-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.benefit-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.benefit-item .icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.benefit-item h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+
+.benefit-item p {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .pricing-container {
+    flex-direction: column;
+  }
+  
+  .benefits-section {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .packages-grid {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .packages-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .tab-navigation {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .pricing-header h1 {
+    font-size: 24px;
+  }
+}
+
+/* Additional Fix for White Space Issues */
+.packages-grid > * {
+  width: 100%; /* Ensure cards fill their grid cells */
+}
+
+/* Prevent layout shifting */
+.packages-grid {
+  min-height: 300px; /* Minimum height to prevent collapse */
+}
+
+/* Ensure no phantom grid items */
+.packages-grid::after,
+.packages-grid::before {
+  display: none;
+}

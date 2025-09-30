@@ -68,6 +68,28 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@radix-ui/react-icons']
   },
+  webpack: (config, { isServer }) => {
+    // Optimize chunk loading for dynamic imports
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            // Create a separate chunk for Google Maps related code
+            googleMaps: {
+              test: /[\\/]services[\\/]googleMaps/,
+              priority: 20,
+              chunks: 'async',
+              reuseExistingChunk: true
+            }
+          }
+        }
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {
@@ -75,6 +97,18 @@ const nextConfig = {
         hostname: 'agyjovdugmtopasyvlng.supabase.co',
         port: '',
         pathname: '/storage/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'www-dev-cms.afrihost.com',
+        port: '',
+        pathname: '/imager/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'design.canva.ai',
+        port: '',
+        pathname: '/**'
       }
     ]
   }

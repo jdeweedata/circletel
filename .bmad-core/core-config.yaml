@@ -1,0 +1,121 @@
+# BMAD METHOD Core Configuration for CircleTel
+# Version: 1.0
+# Date: September 27, 2025
+
+project:
+  name: "CircleTel Digital Service Provider Platform"
+  version: "2.0"
+  type: "web-application"
+  domain: "telecommunications"
+
+  # Project context
+  description: "Digital Service Provider platform for South African ISP and Managed IT Services"
+  objectives:
+    - "MVP launch October 2025 with 25 customers"
+    - "R32,000 MRR target"
+    - "Multi-provider fibre integration"
+    - "Zoho CRM and billing integration"
+    - "Managed IT services onboarding"
+
+# Technical Stack Preferences
+tech_stack:
+  framework: "Next.js 15"
+  language: "TypeScript"
+  styling: "Tailwind CSS with shadcn/ui"
+  database: "Supabase (PostgreSQL)"
+  state_management: "Zustand + React Query"
+  authentication: "Supabase Auth"
+  deployment: "Vercel"
+  pwa: "next-pwa with service worker caching"
+
+  # Additional technologies
+  integrations:
+    - "Zoho CRM/Billing via MCP"
+    - "Google Maps API"
+    - "DFA ArcGIS"
+    - "MTN WMS"
+
+# Development Preferences
+development:
+  architecture: "app-router"
+  component_library: "shadcn/ui with Radix primitives"
+  code_style: "TypeScript strict mode"
+  testing_framework: "TBD" # To be determined based on existing setup
+
+  # File organization
+  structure:
+    components: "/components (ui, layout, forms, providers)"
+    pages: "/app (Next.js 15 app router)"
+    utilities: "/lib (services, utils, types)"
+    hooks: "/hooks (custom React hooks)"
+    assets: "/public"
+
+# Team Configuration
+team:
+  roles:
+    - "Product Manager"
+    - "Full-Stack Developer"
+    - "UI/UX Designer"
+    - "DevOps Engineer"
+
+  workflow: "6-day sprint cycles"
+  planning_style: "Epic → Stories → Tasks"
+
+# BMAD Agents Configuration
+agents:
+  analyst:
+    focus: "Business requirements and user journey analysis"
+    context: "South African telecommunications market"
+    expertise: "ISP services, managed IT, B2B customer journeys"
+
+  architect:
+    focus: "Next.js architecture and Supabase integration"
+    context: "Scalable web application with real-time data"
+    expertise: "React patterns, API design, database modeling"
+
+  scrum_master:
+    focus: "Feature breakdown and story creation"
+    context: "6-day development sprints"
+    expertise: "Agile methodology, technical story writing"
+
+  developer:
+    focus: "Implementation using existing patterns"
+    context: "CircleTel component library and conventions"
+    expertise: "TypeScript, React, Tailwind, Supabase"
+
+  qa:
+    focus: "Quality assurance and testing"
+    context: "Production deployment to Vercel"
+    expertise: "Manual testing, accessibility, performance"
+
+# Quality Gates
+quality_gates:
+  code_review:
+    - "TypeScript compilation"
+    - "ESLint passing"
+    - "Component accessibility"
+    - "Design system compliance"
+
+  deployment:
+    - "Build successful"
+    - "Type checking passed"
+    - "Performance benchmarks met"
+    - "Core user journeys tested"
+
+# Documentation Structure
+documentation:
+  preserve_existing: true
+  enhance_with_bmad: true
+
+  existing_structure:
+    business_requirements: "docs/business-requirements/"
+    products: "docs/products/"
+    technical: "docs/technical/"
+    integrations: "docs/integrations/"
+    user_journeys: "docs/user-journey/"
+
+  bmad_additions:
+    epics: "docs/development/epics/"
+    stories: "docs/development/stories/"
+    qa_assessments: "docs/development/qa/assessments/"
+    qa_gates: "docs/development/qa/gates/"

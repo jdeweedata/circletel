@@ -12,9 +12,18 @@ docs/
 ├── products/                    # Product portfolio and specifications
 ├── business-requirements/       # Business requirements and strategy documents
 ├── technical/                   # Technical documentation and guides
+├── development/                 # 🆕 Enhanced with BMAD METHOD for structured development
+│   ├── epics/                   # Feature epics with business context
+│   ├── stories/                 # Context-rich implementation stories
+│   ├── qa/                      # Quality gates and assessments
+│   ├── architecture/            # System architecture documentation
+│   ├── features/                # Feature specifications
+│   ├── guides/                  # Development workflow and setup guides
+│   └── standards/               # Coding standards and conventions
 ├── deployment/                  # Deployment and operations guides
 ├── integrations/               # Third-party integrations and APIs
 ├── analysis/                   # Analysis reports and insights
+├── user-journey/               # User experience analysis and screenshots
 ├── archive/                    # Historical and legacy documents
 └── README.md                   # This index file
 ```
@@ -77,6 +86,41 @@ docs/
 #### Provider Integration (`technical/dfa/`)
 - **DFA Public Network Coverage** - Integration with Dark Fibre Africa
 - **UI-to-API Interaction Flow** - API integration patterns
+
+---
+
+## 🛠️ DEVELOPMENT DOCUMENTATION (Enhanced with BMAD METHOD)
+
+### **Location**: `development/`
+
+#### BMAD METHOD Integration
+CircleTel now uses BMAD METHOD for structured, AI-assisted development with context-rich stories and quality gates.
+
+#### Epic-Driven Development (`development/epics/`)
+- **Zoho Billing Integration** - Complete billing system integration (ZBI-001)
+- **Order System Epic** - 4-stage customer order workflow (planned)
+- **Admin Dashboard Epic** - Enhanced management capabilities (planned)
+- **Customer Portal Epic** - Self-service functionality (planned)
+
+#### Context-Rich Stories (`development/stories/`)
+- **Implementation Stories** - Detailed technical implementation with full context
+- **Pattern Guidance** - Integration with existing CircleTel components
+- **Acceptance Criteria** - Clear completion and quality requirements
+
+#### Quality Assurance (`development/qa/`)
+- **Quality Gates** - Systematic quality checkpoints for features
+- **Assessment Framework** - Technical, business, and security validation
+- **Review Process** - Code, business, and security review procedures
+
+#### Enhanced Documentation
+- **[BMAD Workflow Guide](development/guides/bmad-workflow-guide.md)** - How to use BMAD for feature development
+- **[Architecture Overview](development/architecture/system-overview.md)** - Current system architecture
+- **[Coding Standards](development/standards/coding-standards.md)** - TypeScript and React patterns
+
+#### Current Development Focus
+- **Phase 1**: Zoho Billing integration (October 2025)
+- **Phase 2**: Order system implementation
+- **Phase 3**: Customer portal enhancement
 
 ---
 

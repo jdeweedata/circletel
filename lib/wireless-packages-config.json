@@ -1,0 +1,175 @@
+{
+  "packages": {
+    "uncapped": [
+      {
+        "id": "uncapped-20",
+        "name": "20Mbps Uncapped",
+        "speed": "20Mbps",
+        "type": "uncapped",
+        "description": "Uncapped anytime",
+        "price": {
+          "amount": 299,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "Unlimited data",
+          "No throttling",
+          "24/7 connectivity"
+        ],
+        "popular": false
+      },
+      {
+        "id": "uncapped-50",
+        "name": "50Mbps Uncapped",
+        "speed": "50Mbps",
+        "type": "uncapped",
+        "description": "Uncapped anytime",
+        "price": {
+          "amount": 399,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "Unlimited data",
+          "No throttling",
+          "24/7 connectivity",
+          "Ideal for streaming"
+        ],
+        "popular": true
+      },
+      {
+        "id": "uncapped-100",
+        "name": "100Mbps Uncapped",
+        "speed": "100Mbps",
+        "type": "uncapped",
+        "description": "Uncapped anytime",
+        "price": {
+          "amount": 599,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "Unlimited data",
+          "No throttling",
+          "24/7 connectivity",
+          "Perfect for gaming",
+          "4K streaming capable"
+        ],
+        "popular": false
+      },
+      {
+        "id": "wireless-plus",
+        "name": "CircleTel Wireless Plus",
+        "speed": "Premium",
+        "type": "uncapped",
+        "description": "Uncapped anytime",
+        "price": {
+          "amount": 949,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "Unlimited premium data",
+          "Priority bandwidth",
+          "Free router included",
+          "Premium support",
+          "No fair usage policy"
+        ],
+        "popular": false,
+        "premium": true
+      }
+    ],
+    "capped": [
+      {
+        "id": "capped-10gb",
+        "name": "10GB Capped",
+        "data": "10GB",
+        "type": "capped",
+        "description": "Capped monthly",
+        "price": {
+          "amount": 99,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "10GB data allowance",
+          "Top-up available",
+          "Email and browsing"
+        ],
+        "popular": false
+      },
+      {
+        "id": "capped-50gb",
+        "name": "50GB Capped",
+        "data": "50GB",
+        "type": "capped",
+        "description": "Capped monthly",
+        "price": {
+          "amount": 199,
+          "currency": "ZAR",
+          "period": "monthly"
+        },
+        "features": [
+          "50GB data allowance",
+          "Top-up available",
+          "Light streaming"
+        ],
+        "popular": false
+      }
+    ]
+  },
+  "features": [
+    {
+      "icon": "star",
+      "title": "Save R1 000 on hardware.",
+      "description": "With selected SIM + Device orders.",
+      "highlight": true
+    },
+    {
+      "icon": "router",
+      "title": "FREE router.",
+      "description": "With CircleTel Wireless Plus.",
+      "highlight": true
+    },
+    {
+      "icon": "truck",
+      "title": "FREE delivery.",
+      "description": "With any SIM and/or device order.",
+      "highlight": false
+    },
+    {
+      "icon": "plug",
+      "title": "No setup required.",
+      "description": "Insert your SIM and you're good to go.",
+      "highlight": false
+    },
+    {
+      "icon": "clock",
+      "title": "Uncapped thresholds and throttling.",
+      "description": "See T&Cs for a detailed breakdown.",
+      "link": "/terms-and-conditions",
+      "highlight": false
+    }
+  ],
+  "promotions": {
+    "active": true,
+    "current": [
+      {
+        "id": "hardware-discount",
+        "name": "Hardware Discount",
+        "description": "Save R1000 on selected routers",
+        "validUntil": "2025-12-31",
+        "conditions": ["New customers only", "With 12-month contract"]
+      }
+    ]
+  },
+  "settings": {
+    "currency": "ZAR",
+    "vat": 15,
+    "defaultTab": "uncapped",
+    "showPromotion": true,
+    "enableComparison": false,
+    "maxItemsInCart": 5
+  }
+}

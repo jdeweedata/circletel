@@ -1,0 +1,118 @@
+/* Fix for CircleTel Wireless Packages White Space Issue */
+
+/* Container for all packages */
+.packages-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Alternative flex solution if you're using flexbox */
+.packages-flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Individual package card */
+.package-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  flex: 1 1 280px; /* For flex container */
+  max-width: 350px; /* Prevents cards from getting too wide */
+}
+
+/* Ensure premium card doesn't break layout */
+.package-card.premium {
+  background: linear-gradient(135deg, #ff6b35, #f77737);
+  color: white;
+}
+
+/* Card content spacing */
+.package-speed {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.package-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.package-price {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.package-price-unit {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Button alignment */
+.package-button {
+  margin-top: auto; /* Pushes button to bottom */
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.package-button.add-to-cart {
+  background: #ff6b35;
+  color: white;
+}
+
+.package-button.in-cart {
+  background: #4caf50;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .packages-container {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  
+  .packages-flex-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .package-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+/* Fix for the specific white space issue */
+.packages-wrapper {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+/* Ensure no empty grid cells */
+.packages-container::after {
+  content: '';
+  display: none;
+}

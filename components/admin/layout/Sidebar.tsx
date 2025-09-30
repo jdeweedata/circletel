@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -12,10 +13,24 @@ import {
   BarChart3,
   FileText,
   ChevronLeft,
+  ChevronDown,
+  ChevronRight,
   Plus,
   List,
   Clock,
-  Archive
+  Archive,
+  Zap,
+  Globe,
+  CreditCard,
+  Receipt,
+  UserCheck,
+  DollarSign,
+  TrendingUp,
+  Radio,
+  Map,
+  Activity,
+  TestTube,
+  Building2
 } from 'lucide-react';
 
 interface User {
@@ -62,15 +77,54 @@ const navigation = [
     href: '/admin/forms',
     icon: FileText,
     description: 'Manage client assessment forms'
+  },
+  {
+    name: 'Zoho Integration',
+    href: '/admin/zoho',
+    icon: Zap,
+    description: 'Manage Zoho CRM, Mail, and Calendar'
+  },
+  {
+    name: 'CMS Management',
+    href: '/admin/cms',
+    icon: Globe,
+    description: 'Manage Strapi content'
+  },
+  {
+    name: 'Coverage',
+    icon: Radio,
+    children: [
+      { name: 'Dashboard', href: '/admin/coverage', icon: LayoutDashboard },
+      { name: 'Analytics', href: '/admin/coverage/analytics', icon: Activity },
+      { name: 'Testing', href: '/admin/coverage/testing', icon: TestTube },
+      { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
+      { name: 'Maps', href: '/admin/coverage/maps', icon: Map }
+    ]
+  },
+  {
+    name: 'Billing & Revenue',
+    icon: CreditCard,
+    children: [
+      { name: 'Dashboard', href: '/admin/billing', icon: LayoutDashboard },
+      { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
+      { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
+      { name: 'Subscriptions', href: '/admin/billing/subscriptions', icon: List },
+      { name: 'Analytics', href: '/admin/billing/analytics', icon: TrendingUp },
+      { name: 'Transactions', href: '/admin/billing/transactions', icon: DollarSign }
+    ]
   }
 ];
 
 const adminNavigation = [
   {
     name: 'Users',
-    href: '/admin/users',
     icon: Users,
-    adminOnly: true
+    adminOnly: true,
+    children: [
+      { name: 'All Users', href: '/admin/users', icon: Users },
+      { name: 'Roles & Permissions', href: '/admin/users/roles', icon: UserCheck },
+      { name: 'Activity Log', href: '/admin/users/activity', icon: Clock }
+    ]
   },
   {
     name: 'Settings',
@@ -84,12 +138,45 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const pathname = usePathname();
   const isAdmin = user?.role === 'super_admin' || user?.role === 'product_manager';
 
+  // State to manage which dropdowns are expanded
+  const [expandedItems, setExpandedItems] = useState<string[]>(() => {
+    // Auto-expand dropdowns that contain the current active page
+    const expanded: string[] = [];
+    navigation.forEach((item) => {
+      if (item.children) {
+        const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
+        if (isCurrentlyActive) {
+          expanded.push(item.name);
+        }
+      }
+    });
+    adminNavigation.forEach((item) => {
+      if (item.children) {
+        const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
+        if (isCurrentlyActive) {
+          expanded.push(item.name);
+        }
+      }
+    });
+    return expanded;
+  });
+
   const isActiveLink = (href: string, end?: boolean) => {
     if (end) {
       return pathname === href;
     }
     return pathname.startsWith(href);
   };
+
+  const toggleDropdown = (itemName: string) => {
+    setExpandedItems(prev =>
+      prev.includes(itemName)
+        ? prev.filter(name => name !== itemName)
+        : [...prev, itemName]
+    );
+  };
+
+  const isExpanded = (itemName: string) => expandedItems.includes(itemName);
 
   return (
     <div
@@ -128,12 +215,32 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
           <div key={item.name}>
             {item.children ? (
               <div className="space-y-1">
-                <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-600">
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {isOpen && item.name}
-                </div>
-                {isOpen && (
-                  <div className="ml-8 space-y-1">
+                {/* Dropdown Header - Clickable */}
+                <button
+                  onClick={() => isOpen && toggleDropdown(item.name)}
+                  className={cn(
+                    'flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                    isOpen && 'cursor-pointer',
+                    !isOpen && 'cursor-default'
+                  )}
+                >
+                  <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                  {isOpen && (
+                    <>
+                      <span className="flex-1 text-left">{item.name}</span>
+                      {isExpanded(item.name) ? (
+                        <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                      )}
+                    </>
+                  )}
+                </button>
+
+                {/* Dropdown Content */}
+                {isOpen && isExpanded(item.name) && (
+                  <div className="ml-8 space-y-1 border-l-2 border-gray-100 pl-4">
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
@@ -141,7 +248,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                         className={cn(
                           'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                           isActiveLink(child.href)
-                            ? 'bg-circleTel-orange text-white'
+                            ? 'bg-circleTel-orange text-white shadow-sm'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         )}
                       >
@@ -185,19 +292,68 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                 {isOpen ? 'Administration' : ''}
               </div>
               {adminNavigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                    isActiveLink(item.href)
-                      ? 'bg-circleTel-orange text-white'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                <div key={item.name}>
+                  {item.children ? (
+                    <div className="space-y-1">
+                      {/* Admin Dropdown Header - Clickable */}
+                      <button
+                        onClick={() => isOpen && toggleDropdown(item.name)}
+                        className={cn(
+                          'flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                          'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                          isOpen && 'cursor-pointer',
+                          !isOpen && 'cursor-default'
+                        )}
+                      >
+                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                        {isOpen && (
+                          <>
+                            <span className="flex-1 text-left">{item.name}</span>
+                            {isExpanded(item.name) ? (
+                              <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                            )}
+                          </>
+                        )}
+                      </button>
+
+                      {/* Admin Dropdown Content */}
+                      {isOpen && isExpanded(item.name) && (
+                        <div className="ml-8 space-y-1 border-l-2 border-gray-100 pl-4">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              className={cn(
+                                'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                                isActiveLink(child.href)
+                                  ? 'bg-circleTel-orange text-white shadow-sm'
+                                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                              )}
+                            >
+                              <child.icon className="mr-3 h-4 w-4" />
+                              {child.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link
+                      href={item.href!}
+                      className={cn(
+                        'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                        isActiveLink(item.href!)
+                          ? 'bg-circleTel-orange text-white'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      )}
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      {isOpen && item.name}
+                    </Link>
                   )}
-                >
-                  <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                  {isOpen && item.name}
-                </Link>
+                </div>
               ))}
             </div>
           </>

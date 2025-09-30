@@ -59,7 +59,10 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       if (!inputRef.current) return;
 
       try {
-        const { googleMapsService } = await import('@/services/googleMaps');
+        // Use the new loader with retry mechanism
+        const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
+        const googleMapsService = await loadGoogleMapsService();
+        
         const autocomplete = await googleMapsService.initializeAutocomplete(
           inputRef.current,
           (place: PlaceResult) => {
@@ -67,9 +70,11 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           }
         );
         autocompleteRef.current = autocomplete;
+        setError(null); // Clear any previous errors
       } catch (error) {
         console.error('Failed to initialize autocomplete:', error);
-        setError('Failed to load address autocomplete');
+        setError('Google Places unavailable - manual search enabled');
+        // Don't prevent the component from working - fallback to manual search
       }
     };
 
@@ -77,7 +82,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
     return () => {
       // Cleanup autocomplete listeners
-      if (autocompleteRef.current) {
+      if (autocompleteRef.current && typeof google !== 'undefined') {
         google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };

@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ProductsService } from '@/lib/services/products';
+import { CreateProductData, PRODUCT_CATEGORIES, SERVICE_TYPES } from '@/lib/types/products';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -21,57 +23,77 @@ import {
   Save,
   Package,
   DollarSign,
-  Users,
+  Settings,
   Globe,
-  Loader2
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
 interface ProductFormData {
   name: string;
+  sku: string;
   category: string;
-  type: string;
-  status: string;
-  price: string;
-  setup_fee: string;
+  service_type: string;
+  status: 'active' | 'inactive' | 'draft' | 'archived';
+  base_price_zar: string;
+  cost_price_zar: string;
   description: string;
   features: string[];
-  speed_down: string;
-  speed_up: string;
-  data_limit: string;
-  target_market: string;
-  contract_term: string;
-  availability: string;
+  is_featured: boolean;
+  is_popular: boolean;
+  // Pricing structure
+  setup_fee: string;
+  monthly_fee: string;
+  upload_speed: string;
+  download_speed: string;
+  // Metadata
+  contract_months: string;
+  installation_days: string;
+  availability_zones: string[];
 }
 
 const initialFormData: ProductFormData = {
   name: '',
+  sku: '',
   category: '',
-  type: '',
+  service_type: '',
   status: 'draft',
-  price: '',
-  setup_fee: '',
+  base_price_zar: '',
+  cost_price_zar: '',
   description: '',
   features: [],
-  speed_down: '',
-  speed_up: '',
-  data_limit: '',
-  target_market: '',
-  contract_term: '',
-  availability: ''
+  is_featured: false,
+  is_popular: false,
+  setup_fee: '',
+  monthly_fee: '',
+  upload_speed: '',
+  download_speed: '',
+  contract_months: '1',
+  installation_days: '3',
+  availability_zones: []
 };
 
 export default function NewProduct() {
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [currentFeature, setCurrentFeature] = useState('');
+  const [currentZone, setCurrentZone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleInputChange = (field: keyof ProductFormData, value: string) => {
+  const handleInputChange = (field: keyof ProductFormData, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const generateSKU = (name: string, category: string) => {
+    const namePrefix = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
+    const categoryPrefix = category.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+    const timestamp = Date.now().toString().slice(-6);
+    return `${categoryPrefix}-${namePrefix}-${timestamp}`;
   };
 
   const addFeature = () => {
@@ -91,31 +113,107 @@ export default function NewProduct() {
     }));
   };
 
+  const addZone = () => {
+    if (currentZone.trim() && !formData.availability_zones.includes(currentZone.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        availability_zones: [...prev.availability_zones, currentZone.trim()]
+      }));
+      setCurrentZone('');
+    }
+  };
+
+  const removeZone = (zone: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availability_zones: prev.availability_zones.filter(z => z !== zone)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
-      // Mock API call - replace with real implementation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Auto-generate SKU if not provided
+      const sku = formData.sku || generateSKU(formData.name, formData.category);
 
-      console.log('Product submitted:', formData);
+      // Prepare data for API
+      const productData: CreateProductData = {
+        name: formData.name,
+        sku,
+        category: formData.category,
+        description: formData.description || undefined,
+        base_price_zar: parseFloat(formData.base_price_zar) || 0,
+        cost_price_zar: parseFloat(formData.cost_price_zar) || 0,
+        service_type: formData.service_type || undefined,
+        features: formData.features,
+        pricing: {
+          setup: parseFloat(formData.setup_fee) || 0,
+          monthly: parseFloat(formData.monthly_fee) || parseFloat(formData.base_price_zar) || 0,
+          upload_speed: parseFloat(formData.upload_speed) || 0,
+          download_speed: parseFloat(formData.download_speed) || 0,
+        },
+        status: formData.status,
+        is_featured: formData.is_featured,
+        is_popular: formData.is_popular,
+        metadata: {
+          contract_months: parseInt(formData.contract_months) || 1,
+          installation_days: parseInt(formData.installation_days) || 3,
+          availability_zones: formData.availability_zones,
+        }
+      };
+
+      const newProduct = await ProductsService.createProduct(productData);
+      console.log('Product created:', newProduct);
 
       // Redirect to products list on success
       router.push('/admin/products');
-    } catch (error) {
-      console.error('Error creating product:', error);
+    } catch (err) {
+      console.error('Error creating product:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create product');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSaveDraft = async () => {
+    if (!formData.name || !formData.category) {
+      setError('Product name and category are required to save as draft');
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
+
     try {
-      // Mock save draft logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Draft saved:', formData);
+      const sku = formData.sku || generateSKU(formData.name, formData.category);
+
+      const draftData: CreateProductData = {
+        name: formData.name,
+        sku,
+        category: formData.category,
+        description: formData.description || undefined,
+        base_price_zar: parseFloat(formData.base_price_zar) || 0,
+        cost_price_zar: parseFloat(formData.cost_price_zar) || 0,
+        service_type: formData.service_type || undefined,
+        features: formData.features,
+        status: 'draft',
+        is_featured: false,
+        is_popular: false,
+        metadata: {
+          contract_months: parseInt(formData.contract_months) || 1,
+          installation_days: parseInt(formData.installation_days) || 3,
+          availability_zones: formData.availability_zones,
+        }
+      };
+
+      await ProductsService.createProduct(draftData);
+      router.push('/admin/products');
+    } catch (err) {
+      console.error('Error saving draft:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save draft');
     } finally {
       setIsLoading(false);
     }

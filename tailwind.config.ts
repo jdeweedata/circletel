@@ -64,13 +64,36 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// CircleTel custom colors
+				// CircleTel custom colors with Verizon-inspired palette
 				'circleTel': {
 					orange: '#F5831F',
 					white: '#FFFFFF',
 					darkNeutral: '#1F2937',
 					secondaryNeutral: '#4B5563',
 					lightNeutral: '#E6E9EF',
+					// Verizon-inspired modern colors
+					red: '#D52B1E',
+					'red-light': '#EF4444',
+					'red-dark': '#B91C1C',
+					gray: {
+						50: '#F9FAFB',
+						100: '#F3F4F6',
+						200: '#E5E7EB',
+						300: '#D1D5DB',
+						400: '#9CA3AF',
+						500: '#6B7280',
+						600: '#4B5563',
+						700: '#374151',
+						800: '#1F2937',
+						900: '#111827',
+					},
+					blue: {
+						50: '#EFF6FF',
+						100: '#DBEAFE',
+						500: '#3B82F6',
+						600: '#2563EB',
+						700: '#1D4ED8',
+					}
 				}
 			},
 			borderRadius: {
@@ -103,8 +126,8 @@ export default {
 				'scale-in': 'scale-in 0.2s ease-out'
 			},
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
-				'space-mono': ['"Space Mono"', 'monospace'],
+				'sans': ['Arial', 'Helvetica', 'sans-serif'],
+				'mono': ['Consolas', '"Courier New"', 'monospace'],
 			}
 		}
 	},

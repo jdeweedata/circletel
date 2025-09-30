@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery } from 'lucide-react';
+import { CoverageChecker } from '@/components/coverage/CoverageChecker';
 
 export function Hero() {
   return (
@@ -75,52 +76,21 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Recipe Card Illustration */}
+          {/* Coverage Checker */}
           <div className="w-full md:w-1/2 flex justify-center animate-scale-in">
-            <div className="relative">
-              <div className="recipe-card w-full max-w-md relative z-10 shadow-xl border-2 bg-white">
-                <div className="absolute top-0 right-0 bg-circleTel-orange text-white text-sm font-space-mono py-1 px-3 rounded-bl-lg">
-                  SOUTH AFRICA READY
-                </div>
-
-                <h3 className="text-xl font-bold text-circleTel-darkNeutral mt-6 mb-2">Business Pro Bundle Recipe</h3>
-                <div className="bg-circleTel-lightNeutral h-1 w-20 mb-4"></div>
-
-                <div className="mb-6">
-                  <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Ingredients</h4>
-                  <ul className="text-circleTel-secondaryNeutral font-space-mono text-sm space-y-3">
-                    <li className="flex items-center">
-                      <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>100Mbps High-Speed Wireless Internet</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Managed UPS for Power Outages</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>Proactive IT Monitoring</span>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="h-3 w-3 bg-circleTel-orange rounded-full mr-2"></div>
-                      <span>2GB Secure Cloud Backup</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-circleTel-lightNeutral p-4 rounded-md">
-                  <h4 className="font-bold text-sm uppercase text-circleTel-darkNeutral mb-2">Chef&apos;s Notes</h4>
-                  <p className="text-circleTel-secondaryNeutral font-space-mono text-sm">
-                    Perfect for South African businesses dealing with power outages and connectivity challenges. Keeps your business running during electrical disruptions. From R1,999/month.
-                  </p>
-                </div>
-
-                <div className="mt-4 text-center">
-                  <Button asChild size="sm" className="primary-button">
-                    <Link href="/bundles/business-pro">Learn More</Link>
-                  </Button>
-                </div>
-              </div>
+            <div className="relative w-full max-w-md">
+              <CoverageChecker
+                className="relative z-10 shadow-xl border-2 bg-white"
+                onCoverageFound={(services) => {
+                  console.log('Services available:', services);
+                  // Navigate to products page
+                  window.location.href = '/bundles';
+                }}
+                onNoCoverage={() => {
+                  console.log('No coverage - capture lead');
+                  // Could show a lead capture modal here
+                }}
+              />
 
               {/* Decorative Elements */}
               <div className="absolute top-5 right-5 -z-10 h-full w-full bg-circleTel-orange opacity-5 rounded-lg transform rotate-3"></div>

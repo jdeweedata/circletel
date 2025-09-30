@@ -1,0 +1,468 @@
+/* Afrihost Wireless Devices Demo CSS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.--theme-wireless {
+    --primary-color: #0066cc;
+    --secondary-color: #ff6b35;
+    --text-color: #333;
+    --border-color: #e0e0e0;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Top Navigation */
+.nav-pre {
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-pre-left {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-pre-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.nav-pre-item a:hover {
+    background-color: #f5f5f5;
+}
+
+.nav-pre-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.nav-pre-right a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.deals-link {
+    background: var(--secondary-color);
+    color: white !important;
+}
+
+.deals-link:hover {
+    background: #e55a2b;
+}
+
+.icon {
+    line-height: 0;
+}
+
+.icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.hide-mobile {
+    display: block;
+}
+
+.mobile-white-bar {
+    display: none;
+}
+
+/* Main Content */
+.devices {
+    padding: 40px 0;
+}
+
+.devices-flex {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.content-gap {
+    gap: 32px;
+}
+
+/* Device Grid */
+.device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 32px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Device Cards */
+.device-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.device-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+}
+
+.card-image {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    height: 200px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    cursor: pointer;
+}
+
+.device-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.router-icon {
+    font-size: 64px;
+    opacity: 0.8;
+    filter: grayscale(20%);
+}
+
+.card-tag {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.card-header dl {
+    margin-bottom: 12px;
+}
+
+.device-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.device-description {
+    font-size: 14px;
+    color: #666;
+    font-weight: 400;
+}
+
+.formatted-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.formatted-price span {
+    font-size: 16px;
+}
+
+/* Card Features */
+.card-features {
+    padding: 20px;
+    background: #fafbfc;
+}
+
+.card-features dl {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.card-features dl:last-child {
+    margin-bottom: 0;
+}
+
+.card-features dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-features dd {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+.w-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.w-button.--type-secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.w-button.--type-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.w-button.--type-primary {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.w-button.--type-primary:hover {
+    background: #0052a3;
+    border-color: #0052a3;
+}
+
+.button-icon-secondary svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 32px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    animation: slideIn 0.3s;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+/* Toast Notification */
+.toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1001;
+    right: 30px;
+    top: 30px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.toast.show {
+    visibility: visible;
+    animation: slideInRight 0.3s, fadeOut 0.3s 2.7s;
+}
+
+.toast.success {
+    background-color: #28a745;
+}
+
+.toast.error {
+    background-color: #dc3545;
+}
+
+.toast.info {
+    background-color: var(--primary-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { right: -300px; opacity: 0; }
+    to { right: 30px; opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .mobile-white-bar {
+        display: block;
+        height: 4px;
+        background: white;
+    }
+
+    .wrapper {
+        padding: 0 16px;
+    }
+
+    .nav-pre-left {
+        gap: 16px;
+    }
+
+    .nav-pre-right {
+        gap: 12px;
+    }
+
+    .nav-pre-right a {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .device-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .devices {
+        padding: 24px 0;
+    }
+
+    .devices-flex {
+        padding: 0 16px;
+    }
+
+    .card-footer {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        padding: 24px;
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .device-title {
+        font-size: 18px;
+    }
+
+    .formatted-price {
+        font-size: 20px;
+    }
+
+    .card-header,
+    .card-features,
+    .card-footer {
+        padding: 16px;
+    }
+
+    .w-button {
+        padding: 14px 16px;
+    }
+}

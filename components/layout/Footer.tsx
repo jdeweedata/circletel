@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Linkedin, X, Mail, Phone, MapPin, Facebook } from 'lucide-react';
+import { Logo } from '@/components/navigation/Logo';
 
 export const Footer = () => {
   return (
@@ -27,15 +27,9 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Intro */}
           <div className="col-span-1 md:col-span-1">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png"
-                alt="CircleTel Logo"
-                className="h-[80px] sm:h-[100px] bg-white rounded-md p-1 w-auto"
-                width={500}
-                height={500}
-              />
-            </Link>
+            <div className="bg-white rounded-md p-1 inline-block">
+              <Logo variant="footer" />
+            </div>
             <p className="mt-4 text-circleTel-lightNeutral">
               Making IT simple and affordable for businesses of all sizes. We provide expert IT services with a recipe for success.
             </p>

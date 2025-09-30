@@ -1,0 +1,343 @@
+# Quality Gate: CJF-001 - Service Availability & Product Discovery
+# BMAD Method Quality Gate Definition
+# Sprint 42 - October 2025
+
+version: "1.0"
+epic_id: "CJF-001"
+epic_name: "Service Availability & Product Discovery"
+priority: "P0-Critical"
+
+# Quality Gate Criteria - All must pass for epic completion
+quality_gates:
+  
+  # Performance Gates
+  performance:
+    description: "System performance requirements"
+    automated: true
+    criteria:
+      - id: "PERF-001"
+        name: "Coverage API Response Time"
+        threshold: "< 2 seconds"
+        measurement: "95th percentile"
+        tool: "Lighthouse CI"
+        critical: true
+        
+      - id: "PERF-002"
+        name: "Product Catalog Load Time"
+        threshold: "< 1 second"
+        measurement: "First Contentful Paint"
+        tool: "Lighthouse CI"
+        critical: true
+        
+      - id: "PERF-003"
+        name: "Time to Interactive"
+        threshold: "< 3 seconds"
+        measurement: "Lighthouse TTI metric"
+        tool: "Lighthouse CI"
+        critical: false
+        
+      - id: "PERF-004"
+        name: "Bundle Size"
+        threshold: "< 200KB JS (gzipped)"
+        measurement: "Next.js Bundle Analyzer"
+        tool: "next-bundle-analyzer"
+        critical: false
+
+  # Functionality Gates
+  functionality:
+    description: "Core functionality requirements"
+    automated: true
+    criteria:
+      - id: "FUNC-001"
+        name: "Address Autocomplete"
+        requirement: "Google Places integration functional"
+        test: "e2e/coverage-checker.spec.ts"
+        critical: true
+        
+      - id: "FUNC-002"
+        name: "Coverage Detection"
+        requirement: "All 3 service types detected correctly"
+        test: "integration/coverage-api.test.ts"
+        critical: true
+        
+      - id: "FUNC-003"
+        name: "Lead Capture"
+        requirement: "Form submission saves to database"
+        test: "integration/lead-capture.test.ts"
+        critical: true
+        
+      - id: "FUNC-004"
+        name: "Product Filtering"
+        requirement: "Filters update results correctly"
+        test: "e2e/product-catalog.spec.ts"
+        critical: false
+        
+      - id: "FUNC-005"
+        name: "Recommendation Engine"
+        requirement: "Returns relevant products based on profile"
+        test: "unit/recommendation-engine.test.ts"
+        critical: false
+
+  # User Experience Gates
+  user_experience:
+    description: "UX and accessibility requirements"
+    automated: false
+    criteria:
+      - id: "UX-001"
+        name: "Mobile Responsive"
+        requirement: "Works on devices 320px - 1920px"
+        validation: "Manual testing on devices"
+        critical: true
+        
+      - id: "UX-002"
+        name: "Accessibility"
+        requirement: "WCAG 2.1 Level AA compliant"
+        tool: "axe DevTools"
+        critical: true
+        
+      - id: "UX-003"
+        name: "Loading States"
+        requirement: "All async operations show loading feedback"
+        validation: "Manual review"
+        critical: false
+        
+      - id: "UX-004"
+        name: "Error Messages"
+        requirement: "Clear, actionable error messages"
+        validation: "Manual review"
+        critical: false
+        
+      - id: "UX-005"
+        name: "Success Feedback"
+        requirement: "Clear confirmation of successful actions"
+        validation: "Manual review"
+        critical: false
+
+  # Security Gates
+  security:
+    description: "Security and compliance requirements"
+    automated: true
+    criteria:
+      - id: "SEC-001"
+        name: "Input Validation"
+        requirement: "All inputs validated on backend"
+        test: "security/input-validation.test.ts"
+        critical: true
+        
+      - id: "SEC-002"
+        name: "API Authentication"
+        requirement: "All API endpoints require auth"
+        test: "security/api-auth.test.ts"
+        critical: true
+        
+      - id: "SEC-003"
+        name: "Rate Limiting"
+        requirement: "API rate limiting implemented"
+        test: "security/rate-limiting.test.ts"
+        critical: false
+        
+      - id: "SEC-004"
+        name: "POPIA Compliance"
+        requirement: "Data handling follows POPIA"
+        validation: "Compliance review"
+        critical: true
+        
+      - id: "SEC-005"
+        name: "XSS Protection"
+        requirement: "No XSS vulnerabilities"
+        tool: "OWASP ZAP"
+        critical: true
+
+  # Code Quality Gates
+  code_quality:
+    description: "Code standards and maintainability"
+    automated: true
+    criteria:
+      - id: "CODE-001"
+        name: "TypeScript Compilation"
+        requirement: "No TypeScript errors"
+        command: "npm run type-check"
+        critical: true
+        
+      - id: "CODE-002"
+        name: "Linting"
+        requirement: "No ESLint errors"
+        command: "npm run lint"
+        critical: true
+        
+      - id: "CODE-003"
+        name: "Test Coverage"
+        requirement: "> 80% code coverage"
+        command: "npm run test:coverage"
+        critical: false
+        
+      - id: "CODE-004"
+        name: "Bundle Size"
+        requirement: "No bundle size regression > 10%"
+        tool: "size-limit"
+        critical: false
+        
+      - id: "CODE-005"
+        name: "Documentation"
+        requirement: "All components documented"
+        validation: "Code review"
+        critical: false
+
+  # Business Gates
+  business:
+    description: "Business and product requirements"
+    automated: false
+    criteria:
+      - id: "BIZ-001"
+        name: "Conversion Tracking"
+        requirement: "Analytics events implemented"
+        validation: "Analytics dashboard"
+        critical: true
+        
+      - id: "BIZ-002"
+        name: "Lead Quality"
+        requirement: "Lead data complete and valid"
+        validation: "CRM review"
+        critical: true
+        
+      - id: "BIZ-003"
+        name: "Product Accuracy"
+        requirement: "Products/pricing match business rules"
+        validation: "Product team review"
+        critical: true
+        
+      - id: "BIZ-004"
+        name: "Bundle Logic"
+        requirement: "Bundle savings calculated correctly"
+        validation: "Finance review"
+        critical: true
+        
+      - id: "BIZ-005"
+        name: "Demo Ready"
+        requirement: "Ready for stakeholder demo"
+        validation: "Product Owner review"
+        critical: true
+
+# Test Execution Plan
+test_execution:
+  unit_tests:
+    command: "npm run test:unit"
+    threshold: "100% pass"
+    
+  integration_tests:
+    command: "npm run test:integration"
+    threshold: "100% pass"
+    
+  e2e_tests:
+    command: "npm run test:e2e"
+    threshold: "100% pass"
+    
+  performance_tests:
+    command: "npm run test:performance"
+    threshold: "All metrics within range"
+    
+  security_tests:
+    command: "npm run test:security"
+    threshold: "No critical vulnerabilities"
+
+# Validation Process
+validation_process:
+  - step: "Developer Self-Check"
+    responsible: "Developer"
+    checklist:
+      - "All automated tests passing"
+      - "Code review completed"
+      - "Documentation updated"
+      
+  - step: "QA Validation"
+    responsible: "QA Agent"
+    checklist:
+      - "Functional testing complete"
+      - "Cross-browser testing done"
+      - "Mobile testing complete"
+      - "Accessibility audit passed"
+      
+  - step: "Security Review"
+    responsible: "Security Team"
+    checklist:
+      - "Security scan completed"
+      - "POPIA compliance verified"
+      - "API security validated"
+      
+  - step: "Business Validation"
+    responsible: "Product Owner"
+    checklist:
+      - "Acceptance criteria met"
+      - "Demo completed"
+      - "Analytics verified"
+      
+  - step: "Final Approval"
+    responsible: "Tech Lead"
+    checklist:
+      - "All gates passed"
+      - "Production ready"
+      - "Rollback plan in place"
+
+# Monitoring After Deployment
+post_deployment:
+  monitors:
+    - name: "API Response Time"
+      metric: "p95 latency"
+      threshold: "< 2s"
+      alert: "PagerDuty"
+      
+    - name: "Error Rate"
+      metric: "4xx/5xx errors"
+      threshold: "< 1%"
+      alert: "Slack #alerts"
+      
+    - name: "Conversion Rate"
+      metric: "Coverage checks completed"
+      threshold: "> 10%"
+      alert: "Daily report"
+      
+    - name: "Lead Capture Rate"
+      metric: "Leads per no-coverage"
+      threshold: "> 50%"
+      alert: "Weekly report"
+
+# Rollback Criteria
+rollback_triggers:
+  - condition: "Error rate > 5%"
+    action: "Immediate rollback"
+    
+  - condition: "API response > 5s"
+    action: "Investigate, rollback if not fixed in 1 hour"
+    
+  - condition: "Lead capture failing"
+    action: "Immediate rollback"
+    
+  - condition: "Payment processing errors"
+    action: "Immediate rollback"
+
+# Sign-off Requirements
+signoff:
+  required_approvals:
+    - role: "Developer"
+      name: "TBD"
+      date: "Pending"
+      
+    - role: "QA Lead"
+      name: "TBD"
+      date: "Pending"
+      
+    - role: "Product Owner"
+      name: "TBD"
+      date: "Pending"
+      
+    - role: "Tech Lead"
+      name: "TBD"
+      date: "Pending"
+
+# Notes
+notes: |
+  - This epic is critical for MVP launch
+  - Must be completed by October 12, 2025
+  - Dependencies on Google Maps API setup
+  - Requires coverage data import before testing
+  - Mobile experience is critical for success

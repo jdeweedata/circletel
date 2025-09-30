@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,17 +7,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { PWAProvider } from "@/components/providers/PWAProvider";
 import { OfflineProvider } from "@/components/providers/OfflineProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { GoogleMapsPreloader } from "@/components/providers/GoogleMapsPreloader";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const spaceMono = Space_Mono({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-  variable: "--font-space-mono",
-});
 
 export const metadata: Metadata = {
   title: "CircleTel - Reliable Tech Solutions",
@@ -88,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceMono.variable}`}>
+    <html lang="en" className="font-sans">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
@@ -106,6 +96,7 @@ export default function RootLayout({
           <PWAProvider>
             <OfflineProvider>
               <TooltipProvider>
+                <GoogleMapsPreloader />
                 <Toaster />
                 <Sonner />
                 {children}

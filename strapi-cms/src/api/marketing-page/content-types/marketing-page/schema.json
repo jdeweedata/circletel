@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "marketing_pages",
+  "info": {
+    "singularName": "marketing-page",
+    "pluralName": "marketing-pages",
+    "displayName": "Marketing Page",
+    "description": "Dynamic marketing landing pages"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "metaTitle": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "metaDescription": {
+      "type": "text",
+      "maxLength": 160
+    },
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "sections.hero"
+    },
+    "sections": {
+      "type": "dynamiczone",
+      "components": [
+        "sections.promo-grid",
+        "sections.feature-list",
+        "sections.text-content",
+        "sections.cta-banner",
+        "sections.image-text"
+      ]
+    },
+    "promotions": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::promotion.promotion"
+    },
+    "published": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
