@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { ProductFilters } from '@/components/products/ProductFilters';
@@ -15,7 +15,7 @@ import type { Product, ProductFilters as IProductFilters } from '@/lib/types/pro
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -270,5 +270,17 @@ export default function ProductsPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
