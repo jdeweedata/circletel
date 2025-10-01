@@ -8,15 +8,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Shield, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { RoleTemplateSelector } from '@/components/rbac/RoleTemplateSelector';
 
 export default function AdminSignup() {
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
-    requested_role: 'viewer' as 'product_manager' | 'editor' | 'viewer',
+    requested_role_template_id: 'viewer',
     reason: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +84,7 @@ export default function AdminSignup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-4xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
             <Shield className="h-6 w-6 text-circleTel-orange" />
@@ -95,87 +95,81 @@ export default function AdminSignup() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your.email@circletel.co.za"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500">
-                Use your work email address
-              </p>
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Basic Information</h3>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Input
+                    id="full_name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your.email@circletel.co.za"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Use your work email address
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name *</Label>
-              <Input
-                id="full_name"
-                type="text"
-                placeholder="John Doe"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-            </div>
+            {/* Role Selection */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Select Your Role</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Choose the role that best matches your responsibilities and required access level
+                </p>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="requested_role">Requested Role *</Label>
-              <Select
-                value={formData.requested_role}
-                onValueChange={(value: 'product_manager' | 'editor' | 'viewer') =>
-                  setFormData({ ...formData, requested_role: value })
+              <RoleTemplateSelector
+                value={formData.requested_role_template_id}
+                onChange={(templateId) =>
+                  setFormData({ ...formData, requested_role_template_id: templateId })
                 }
-                disabled={isLoading}
-              >
-                <SelectTrigger id="requested_role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="viewer">
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">Viewer</span>
-                      <span className="text-xs text-gray-500">Read-only access</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="editor">
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">Editor</span>
-                      <span className="text-xs text-gray-500">Can create and edit content</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="product_manager">
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">Product Manager</span>
-                      <span className="text-xs text-gray-500">Full management access</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                showAllTemplates={false}
+              />
             </div>
 
+            {/* Reason for Access */}
             <div className="space-y-2">
               <Label htmlFor="reason">Reason for Access (Optional)</Label>
               <Textarea
                 id="reason"
-                placeholder="Briefly explain why you need admin access..."
+                placeholder="Briefly explain why you need admin access and what you'll be working on..."
                 value={formData.reason}
                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                 disabled={isLoading}
                 rows={3}
               />
+              <p className="text-xs text-gray-500">
+                Providing context helps administrators review your request faster
+              </p>
             </div>
 
             <Button
