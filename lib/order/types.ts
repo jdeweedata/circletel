@@ -4,6 +4,7 @@ export interface OrderData {
   account: AccountData;
   contact: ContactData;
   installation: InstallationData;
+  payment?: PaymentData;
 }
 
 export interface CoverageData {
@@ -59,6 +60,7 @@ export interface PackageDetails {
   onceOffPrice: number;
   speed: string;
   type: 'fibre' | 'wireless' | 'mobile';
+  features?: string[];
 }
 
 export interface PricingDetails {
@@ -88,8 +90,17 @@ export interface PaymentMethod {
   details?: Record<string, unknown>; // Payment provider specific
 }
 
-// Order stages
-export type OrderStage = 1 | 2 | 3 | 4;
+export interface PaymentData {
+  orderId?: string;
+  paymentReference?: string;
+  paymentStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  transactionId?: string;
+  paymentDate?: Date;
+  amount?: number;
+}
 
-export const STAGE_NAMES = ['Coverage', 'Account', 'Contact', 'Installation'] as const;
-export const TOTAL_STAGES = 4;
+// Order stages
+export type OrderStage = 1 | 2 | 3 | 4 | 5;
+
+export const STAGE_NAMES = ['Coverage', 'Account', 'Contact', 'Installation', 'Payment'] as const;
+export const TOTAL_STAGES = 5;

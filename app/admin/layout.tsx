@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { Loader2 } from 'lucide-react';
@@ -15,11 +15,25 @@ export default function AdminLayout({
   const { user, isLoading, logout, validateSession } = useAdminAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Public routes that don't require authentication
+  const publicRoutes = ['/admin/login', '/admin/signup'];
+  const isPublicRoute = publicRoutes.includes(pathname);
 
   useEffect(() => {
-    validateSession();
-  }, []);
+    // Skip validation for public routes
+    if (!isPublicRoute) {
+      validateSession();
+    }
+  }, [isPublicRoute, validateSession]);
 
+  // For public routes (login/signup), render without authentication check
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
+
+  // For protected routes, show loading while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -28,15 +42,15 @@ export default function AdminLayout({
     );
   }
 
+  // Redirect to login if not authenticated
   if (!user) {
-    // In a real implementation, redirect to login
-    router.push('/login/admin');
+    router.push('/admin/login');
     return null;
   }
 
   const handleLogout = () => {
     logout();
-    router.push('/login/admin');
+    router.push('/admin/login');
   };
 
   return (
