@@ -90,7 +90,7 @@ export default function AdminDemoOrdersPage() {
               🛒 Orders & Billing Demo
             </h3>
             <p className="text-sm text-green-700 mt-1">
-              This page shows the dropdown navigation in action! You accessed this from "Orders & Billing" → "All Orders" in the sidebar.
+              This page shows the dropdown navigation in action! You accessed this from &quot;Orders &amp; Billing&quot; → &quot;All Orders&quot; in the sidebar.
             </p>
           </div>
         </div>

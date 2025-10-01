@@ -226,7 +226,7 @@ export default function AdminDemoDashboard() {
             Welcome back, {user?.full_name?.split(' ')[0]}!
           </h1>
           <p className="text-gray-600 mt-1">
-            Here's what's happening with your product catalogue today.
+            Here&apos;s what&apos;s happening with your product catalogue today.
             {stats.lastUpdated && (
               <span className="text-xs text-gray-500 ml-2">
                 • Last updated {stats.lastUpdated.toLocaleTimeString()}

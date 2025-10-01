@@ -10,7 +10,7 @@ export class ZohoMCPClient {
   /**
    * Execute a Zoho MCP action through the API route
    */
-  async execute<T = any>(request: ZohoMCPRequest): Promise<ZohoMCPResponse<T>> {
+  async execute<T = unknown>(request: ZohoMCPRequest): Promise<ZohoMCPResponse<T>> {
     try {
       const response = await fetch('/api/zoho/mcp', {
         method: 'POST',

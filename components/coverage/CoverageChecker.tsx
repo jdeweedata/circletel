@@ -7,6 +7,7 @@ import { MapPin, Loader2, CheckCircle, XCircle, Wifi, Home, Building, ArrowRight
 import { toast } from 'sonner';
 import { createClient } from '@supabase/supabase-js';
 import { AddressAutocomplete } from './AddressAutocomplete';
+import { PackageCard } from '@/components/packages/PackageCard';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -196,7 +197,7 @@ export function CoverageChecker({
             onLocationSelect={handleLocationSelect}
             placeholder="Enter your address (e.g., 18 Rasmus Erasmus, Centurion)"
             className="w-full"
-            showLocationButton={false}
+            showLocationButton={true}
           />
           <Button
             onClick={handleCheckCoverage}
@@ -253,50 +254,24 @@ export function CoverageChecker({
                 <h3 className="text-lg font-semibold text-gray-900">
                   Choose your package:
                 </h3>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {results.packages.map((pkg) => (
-                    <div
+                <div className="grid gap-4 md:grid-cols-2">
+                  {results.packages.map((pkg, index) => (
+                    <PackageCard
                       key={pkg.id}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedPackage === pkg.id
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-200 hover:border-orange-300'
-                      }`}
-                      onClick={() => handlePackageSelection(pkg.id)}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-semibold text-lg">
-                            R{pkg.promotion_price || pkg.price}
-                            <span className="text-sm text-gray-500 ml-1">pm*</span>
-                          </h4>
-                          <p className="text-sm text-gray-600">{pkg.service_type}</p>
-                        </div>
-                        {pkg.promotion_price && (
-                          <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                            Promo
-                          </span>
-                        )}
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            <span className="text-green-600">↓</span>
-                            <span>{pkg.speed_down} Mbps</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-blue-600">↑</span>
-                            <span>{pkg.speed_up} Mbps</span>
-                          </div>
-                        </div>
-                        <p className="text-gray-600">{pkg.description}</p>
-                        {pkg.promotion_price && (
-                          <p className="text-xs text-orange-600">
-                            R{pkg.price} from month {(pkg.promotion_months || 3) + 1}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                      id={pkg.id}
+                      name={pkg.name}
+                      service_type={pkg.service_type}
+                      speed_down={pkg.speed_down}
+                      speed_up={pkg.speed_up}
+                      price={pkg.price}
+                      promotion_price={pkg.promotion_price}
+                      promotion_months={pkg.promotion_months}
+                      description={pkg.description}
+                      features={pkg.features}
+                      isPopular={index === 1} // Mark second package as popular (most common sweet spot)
+                      isSelected={selectedPackage === pkg.id}
+                      onSelect={handlePackageSelection}
+                    />
                   ))}
                 </div>
                 {selectedPackage && (

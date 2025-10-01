@@ -173,7 +173,7 @@ export function CheckoutSummary() {
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
                 <span className="text-sm font-medium text-green-800">
-                  Promo code "{promoCode}" applied!
+                  Promo code &quot;{promoCode}&quot; applied!
                 </span>
               </div>
               <button

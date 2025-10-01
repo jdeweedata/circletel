@@ -19,7 +19,7 @@ interface TestResult {
   method: string;
   status: 'success' | 'error' | 'pending';
   responseTime: number;
-  data: any;
+  data: unknown;
   error?: string;
 }
 

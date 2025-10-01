@@ -85,7 +85,7 @@ export interface Address {
 
 export interface PaymentMethod {
   type: 'card' | 'eft' | 'debit_order';
-  details?: any; // Payment provider specific
+  details?: Record<string, unknown>; // Payment provider specific
 }
 
 // Order stages

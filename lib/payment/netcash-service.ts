@@ -171,7 +171,7 @@ export class NetcashPaymentService {
   /**
    * Handle webhook notifications from Netcash
    */
-  async handleWebhook(payload: any): Promise<{ success: boolean }> {
+  async handleWebhook(payload: Record<string, unknown>): Promise<{ success: boolean }> {
     try {
       // Validate webhook signature (in production)
       // Process the payment status update
@@ -197,7 +197,7 @@ export class NetcashPaymentService {
 
   // Private helper methods
 
-  private async simulateTokenization(data: any): Promise<TokenizationResponse> {
+  private async simulateTokenization(data: Record<string, unknown>): Promise<TokenizationResponse> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     

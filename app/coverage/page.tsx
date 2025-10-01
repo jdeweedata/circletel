@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,21 +9,27 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Wifi, Shield, Clock, CheckCircle, Signal, Zap, Award } from 'lucide-react';
 import { PricingGrid } from '@/components/coverage/PricingGrid';
 
+interface ServicePackage {
+  id: string;
+  name: string;
+  service_type: string;
+  product_category: string;
+  speed_down: number;
+  speed_up: number;
+  price: number;
+  promotion_price?: number;
+  promotion_months?: number;
+  description: string;
+  features: string[];
+}
+
 interface CoverageResult {
   available: boolean;
+  leadId: string;
+  address: string;
   coordinates: { lat: number; lng: number };
-  confidence: 'high' | 'medium' | 'low';
-  services: Array<{
-    type: string;
-    subtype: string;
-    available: boolean;
-    signal: string;
-    technology?: string;
-    speeds: {
-      download: number;
-      upload: number;
-    };
-  }>;
+  services: string[];
+  packages: ServicePackage[];
 }
 
 export default function CoveragePage() {
@@ -38,26 +45,47 @@ export default function CoveragePage() {
     setCurrentStep('checking');
 
     try {
-      // Simulate geocoding and coverage check
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Mock coordinates for Johannesburg
-      const coordinates = { lat: -26.2041, lng: 28.0473 };
-
-      const response = await fetch('/api/coverage/mtn/check', {
+      // Step 1: Create a coverage lead
+      const createLeadResponse = await fetch('/api/coverage/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coordinates, includeSignalStrength: true })
+        body: JSON.stringify({ address: address.trim() })
       });
 
-      const data = await response.json();
+      if (!createLeadResponse.ok) {
+        throw new Error('Failed to create coverage lead');
+      }
 
-      if (data.success) {
-        setResults(data.data);
+      const leadData = await createLeadResponse.json();
+      const leadId = leadData.id;
+
+      // Step 2: Get available packages for the lead
+      const packagesResponse = await fetch(`/api/coverage/packages?leadId=${leadId}`);
+
+      if (!packagesResponse.ok) {
+        throw new Error('Failed to fetch packages');
+      }
+
+      const packagesData = await packagesResponse.json();
+
+      if (packagesData.available) {
+        setResults({
+          available: true,
+          leadId: packagesData.leadId,
+          address: packagesData.address,
+          coordinates: packagesData.coordinates,
+          services: packagesData.services,
+          packages: packagesData.packages
+        });
         setCurrentStep('results');
+      } else {
+        alert('Sorry, no coverage available at this location yet.');
+        setCurrentStep('input');
       }
     } catch (error) {
       console.error('Coverage check failed:', error);
+      alert('Coverage check failed. Please try again.');
+      setCurrentStep('input');
     } finally {
       setLoading(false);
     }
@@ -76,20 +104,51 @@ export default function CoveragePage() {
           setCurrentStep('checking');
 
           try {
-            const response = await fetch('/api/coverage/mtn/check', {
+            // Step 1: Create a coverage lead with coordinates
+            const createLeadResponse = await fetch('/api/coverage/leads', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ coordinates, includeSignalStrength: true })
+              body: JSON.stringify({
+                address: 'Current Location',
+                latitude: coordinates.lat,
+                longitude: coordinates.lng
+              })
             });
 
-            const data = await response.json();
+            if (!createLeadResponse.ok) {
+              throw new Error('Failed to create coverage lead');
+            }
 
-            if (data.success) {
-              setResults(data.data);
+            const leadData = await createLeadResponse.json();
+            const leadId = leadData.id;
+
+            // Step 2: Get available packages for the lead
+            const packagesResponse = await fetch(`/api/coverage/packages?leadId=${leadId}`);
+
+            if (!packagesResponse.ok) {
+              throw new Error('Failed to fetch packages');
+            }
+
+            const packagesData = await packagesResponse.json();
+
+            if (packagesData.available) {
+              setResults({
+                available: true,
+                leadId: packagesData.leadId,
+                address: packagesData.address,
+                coordinates: packagesData.coordinates,
+                services: packagesData.services,
+                packages: packagesData.packages
+              });
               setCurrentStep('results');
+            } else {
+              alert('Sorry, no coverage available at your location yet.');
+              setCurrentStep('input');
             }
           } catch (error) {
             console.error('Coverage check failed:', error);
+            alert('Coverage check failed. Please try again.');
+            setCurrentStep('input');
           } finally {
             setLoading(false);
           }
@@ -119,9 +178,9 @@ export default function CoveragePage() {
               <span className="text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="/" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Home</a>
-              <a href="/bundles" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Bundles</a>
-              <a href="/contact" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Contact</a>
+              <Link href="/" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Home</Link>
+              <Link href="/bundles" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Bundles</Link>
+              <Link href="/contact" className="text-circleTel-secondaryNeutral hover:text-circleTel-orange transition-colors">Contact</Link>
             </nav>
           </div>
         </div>
@@ -135,7 +194,7 @@ export default function CoveragePage() {
             <span className="text-circleTel-orange"> your address</span>
           </h1>
           <p className="text-xl text-circleTel-secondaryNeutral mb-8 max-w-2xl mx-auto">
-            Get the right connectivity solution for your business — powered by MTN's network.
+            Get the right connectivity solution for your business — powered by MTN&apos;s network.
             Coverage check takes just 10 seconds. No lengthy forms.
           </p>
 
@@ -197,13 +256,14 @@ export default function CoveragePage() {
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <CheckCircle className="w-8 h-8 text-green-500" />
                   <h3 className="text-2xl font-bold text-circleTel-darkNeutral">
-                    Great news! We've got you covered
+                    Great news! We&apos;ve got you covered
                   </h3>
                 </div>
               </div>
 
               <PricingGrid
-                coverageOptions={results.services}
+                coverageOptions={[]}
+                packages={results.packages}
                 onPackageSelect={(packageId) => {
                   // Handle package selection - could navigate to order page
                   console.log('Selected package:', packageId);
@@ -234,7 +294,7 @@ export default function CoveragePage() {
                   <Signal className="w-12 h-12 text-circleTel-orange mx-auto mb-4" />
                   <h3 className="font-bold text-circleTel-darkNeutral mb-2">96% Coverage</h3>
                   <p className="text-circleTel-secondaryNeutral text-sm">
-                    Powered by MTN's extensive network across South Africa
+                    Powered by MTN&apos;s extensive network across South Africa
                   </p>
                 </CardContent>
               </Card>

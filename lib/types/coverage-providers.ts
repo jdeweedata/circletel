@@ -132,7 +132,7 @@ export type ServiceType =
 
 export interface ProviderApiResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   code?: string;
   providerId: string;
@@ -230,8 +230,8 @@ export interface NetworkProviderRow {
   description?: string;
   website?: string;
   support_contact?: string;
-  api_config?: any; // JSON
-  static_config?: any; // JSON
+  api_config?: Record<string, unknown>; // JSON
+  static_config?: Record<string, unknown>; // JSON
   service_types: string[]; // Array of ServiceType
   priority: number;
   created_at: string;
@@ -248,7 +248,7 @@ export interface CoverageFileRow {
   file_size: number;
   coverage_areas: string[];
   service_types: string[];
-  metadata?: any; // JSON
+  metadata?: Record<string, unknown>; // JSON
   status: 'uploaded' | 'processing' | 'active' | 'error';
   error_message?: string;
   created_at: string;
@@ -263,6 +263,6 @@ export interface ProviderLogoRow {
   mime_type: string;
   file_size: number;
   file_path: string;
-  dimensions?: any; // JSON
+  dimensions?: { width: number; height: number }; // JSON
   created_at: string;
 }

@@ -156,7 +156,7 @@ export function useDeleteStrapiEntity(collectionName: StrapiCollectionName) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string | number): Promise<StrapiResponse<any>> => {
+    mutationFn: async (id: string | number): Promise<StrapiResponse<StrapiEntity>> => {
       return strapi.delete(collectionName, id)
     },
     onSuccess: (_, id) => {

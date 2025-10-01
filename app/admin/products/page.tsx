@@ -44,8 +44,12 @@ import {
   ToggleRight,
   Star,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  DollarSign,
+  History
 } from 'lucide-react';
+import { PriceEditModal } from '@/components/admin/products/PriceEditModal';
+import { AuditHistoryModal } from '@/components/admin/products/AuditHistoryModal';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -68,6 +72,10 @@ export default function AdminProducts() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [priceEditModalOpen, setPriceEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [auditHistoryModalOpen, setAuditHistoryModalOpen] = useState(false);
+  const [productForAudit, setProductForAudit] = useState<Product | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -126,13 +134,26 @@ export default function AdminProducts() {
 
   const handleToggleStatus = async (product: Product) => {
     try {
-      // TODO: API route needed - await ProductsService.toggleProductStatus(product.id, !product.is_active);
-      const success = false; // Temporarily disabled
-      if (success) {
+      const newStatus = !product.is_active;
+      const response = await fetch(`/api/admin/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': 'admin@circletel.co.za',
+          'x-user-name': 'Admin User'
+        },
+        body: JSON.stringify({
+          is_active: newStatus,
+          change_reason: `Status ${newStatus ? 'activated' : 'deactivated'} by admin`
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
         await fetchProducts();
         await fetchStats();
       } else {
-        setError('Failed to update product status');
+        setError(data.error || 'Failed to update product status');
       }
     } catch (err) {
       console.error('Error toggling product status:', err);
@@ -155,20 +176,57 @@ export default function AdminProducts() {
     if (!productToDelete) return;
 
     try {
-      // TODO: API route needed - await ProductsService.deleteProduct(productToDelete.id);
-      const success = false; // Temporarily disabled
-      if (success) {
+      const response = await fetch(`/api/admin/products/${productToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-user-email': 'admin@circletel.co.za',
+          'x-user-name': 'Admin User'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
         await fetchProducts();
         await fetchStats();
         setDeleteDialogOpen(false);
         setProductToDelete(null);
       } else {
-        setError('Failed to archive product');
+        setError(data.error || 'Failed to archive product');
       }
     } catch (err) {
       console.error('Error archiving product:', err);
       setError('Failed to archive product');
     }
+  };
+
+  const handlePriceEdit = (product: Product) => {
+    setProductToEdit(product);
+    setPriceEditModalOpen(true);
+  };
+
+  const handlePriceSave = async (productId: string, updates: { monthly_price: number; setup_fee: number; change_reason: string }) => {
+    const response = await fetch(`/api/admin/products/${productId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': 'admin@circletel.co.za',
+        'x-user-name': 'Admin User'
+      },
+      body: JSON.stringify(updates)
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to update price');
+    }
+
+    await fetchProducts();
+    await fetchStats();
+  };
+
+  const handleViewAuditHistory = (product: Product) => {
+    setProductForAudit(product);
+    setAuditHistoryModalOpen(true);
   };
 
   const formatPrice = (priceStr: string) => {
@@ -479,6 +537,14 @@ export default function AdminProducts() {
                             Edit
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePriceEdit(product)}>
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Edit Price
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewAuditHistory(product)}>
+                          <History className="w-4 h-4 mr-2" />
+                          View History
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleStatus(product)}>
                           {product.is_active ? (
                             <>
@@ -555,7 +621,7 @@ export default function AdminProducts() {
           <AlertDialogHeader>
             <AlertDialogTitle>Archive Product</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to archive "{productToDelete?.name}"? This will set the
+              Are you sure you want to archive &quot;{productToDelete?.name}&quot;? This will set the
               product status to archived and make it inactive. This action can be reversed.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -569,6 +635,32 @@ export default function AdminProducts() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Price Edit Modal */}
+      {productToEdit && (
+        <PriceEditModal
+          product={productToEdit}
+          open={priceEditModalOpen}
+          onClose={() => {
+            setPriceEditModalOpen(false);
+            setProductToEdit(null);
+          }}
+          onSave={handlePriceSave}
+        />
+      )}
+
+      {/* Audit History Modal */}
+      {productForAudit && (
+        <AuditHistoryModal
+          productId={productForAudit.id}
+          productName={productForAudit.name}
+          open={auditHistoryModalOpen}
+          onClose={() => {
+            setAuditHistoryModalOpen(false);
+            setProductForAudit(null);
+          }}
+        />
+      )}
     </div>
   );
 }

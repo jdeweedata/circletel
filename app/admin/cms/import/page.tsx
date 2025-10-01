@@ -53,7 +53,7 @@ export default function ImportPage() {
             Afrihost Wireless Devices
           </CardTitle>
           <CardDescription>
-            Import wireless router devices and images from Afrihost's devices page
+            Import wireless router devices and images from Afrihost&apos;s devices page
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

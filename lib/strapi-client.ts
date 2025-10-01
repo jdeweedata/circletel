@@ -2,40 +2,42 @@
 // This allows the app to work without requiring a running Strapi instance
 
 interface StrapiClientInterface {
-  get: <T = any>(collection: string, query?: any) => Promise<T>
-  find: (collection: string, query?: any) => Promise<any>
-  findOne: (collection: string, id: string | number, query?: any) => Promise<any>
-  create: (collection: string, data: any) => Promise<any>
-  update: (collection: string, id: string | number, data: any) => Promise<any>
-  delete: (collection: string, id: string | number) => Promise<any>
+  get: <T = unknown>(collection: string, query?: Record<string, unknown>) => Promise<T>
+  find: (collection: string, query?: Record<string, unknown>) => Promise<unknown>
+  findOne: (collection: string, id: string | number, query?: Record<string, unknown>) => Promise<unknown>
+  create: (collection: string, data: Record<string, unknown>) => Promise<unknown>
+  update: (collection: string, id: string | number, data: Record<string, unknown>) => Promise<unknown>
+  delete: (collection: string, id: string | number) => Promise<unknown>
 }
 
 const mockStrapi: StrapiClientInterface = {
-  get: async <T = any>(collection: string, query?: any): Promise<T> => {
+  get: async <T = unknown>(collection: string, query?: Record<string, unknown>): Promise<T> => {
     console.log(`Mock Strapi: get ${collection}`, query)
     return { data: [], meta: { pagination: { total: 0 } } } as T
   },
-  find: async (collection: string, query?: any) => {
+  find: async (collection: string, query?: Record<string, unknown>) => {
     console.log(`Mock Strapi: find ${collection}`, query)
     return { data: [], meta: { pagination: { total: 0 } } }
   },
-  findOne: async (collection: string, id: string | number, query?: any) => {
+  findOne: async (collection: string, id: string | number, query?: Record<string, unknown>) => {
     console.log(`Mock Strapi: findOne ${collection}/${id}`, query)
     return { data: null }
   },
-  create: async (collection: string, data: any) => {
+  create: async (collection: string, data: Record<string, unknown>) => {
     console.log(`Mock Strapi: create ${collection}`, data)
+    const dataObj = data as { data?: Record<string, unknown> }
     return {
       data: {
         id: Math.floor(Math.random() * 1000),
         documentId: `doc_${Math.random().toString(36).substr(2, 9)}`,
-        ...data.data
+        ...(dataObj.data || {})
       }
     }
   },
-  update: async (collection: string, id: string | number, data: any) => {
+  update: async (collection: string, id: string | number, data: Record<string, unknown>) => {
     console.log(`Mock Strapi: update ${collection}/${id}`, data)
-    return { data: { id, ...data.data } }
+    const dataObj = data as { data?: Record<string, unknown> }
+    return { data: { id, ...(dataObj.data || {}) } }
   },
   delete: async (collection: string, id: string | number) => {
     console.log(`Mock Strapi: delete ${collection}/${id}`)

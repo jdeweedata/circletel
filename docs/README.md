@@ -1,5 +1,5 @@
 # CircleTel Documentation Index
-## Clean Organized Structure - September 24, 2025
+## Organized Structure - September 30, 2025
 
 ---
 
@@ -9,44 +9,173 @@ This documentation is organized into logical categories for easy navigation and 
 
 ```
 docs/
-├── products/                    # Product portfolio and specifications
-├── business-requirements/       # Business requirements and strategy documents
-├── technical/                   # Technical documentation and guides
-├── development/                 # 🆕 Enhanced with BMAD METHOD for structured development
-│   ├── epics/                   # Feature epics with business context
-│   ├── stories/                 # Context-rich implementation stories
-│   ├── qa/                      # Quality gates and assessments
-│   ├── architecture/            # System architecture documentation
-│   ├── features/                # Feature specifications
-│   ├── guides/                  # Development workflow and setup guides
-│   └── standards/               # Coding standards and conventions
-├── deployment/                  # Deployment and operations guides
-├── integrations/               # Third-party integrations and APIs
-├── analysis/                   # Analysis reports and insights
-├── user-journey/               # User experience analysis and screenshots
-├── archive/                    # Historical and legacy documents
-└── README.md                   # This index file
+├── setup/                       # Setup and configuration guides
+│   └── AUTHENTICATION_SETUP.md
+├── deployment/                  # Deployment and operations
+│   ├── DEPLOYMENT.md
+│   └── STAGING_SETUP_CHECKLIST.md
+├── architecture/                # System architecture and design
+│   ├── DESIGN_SYSTEM.md
+│   ├── REFACTORING_PLAN.md
+│   └── sidebar-refactor-migration.md
+├── features/                    # Feature implementations
+│   ├── implementation-plan-ux-optimization.md
+│   └── wireless-packages-integration.md
+├── technical/                   # Technical documentation
+│   ├── email/                   # Email infrastructure
+│   │   ├── BUSINESS_EMAIL_RECOMMENDATIONS.md
+│   │   ├── EMAIL_DELIVERABILITY_GUIDE.md
+│   │   ├── EMAIL_SERVICE_FREE_TIERS_COMPARISON.md
+│   │   ├── EMAIL_SETUP_GUIDE.md
+│   │   └── EMAIL_TESTING_SETUP.md
+│   └── dfa/                     # DFA integration
+├── development/                 # Development workflows
+│   ├── epics/                   # Feature epics
+│   ├── stories/                 # Implementation stories
+│   ├── qa/                      # Quality assurance
+│   ├── architecture/            # System architecture
+│   ├── features/                # Feature specs
+│   ├── guides/                  # Development guides
+│   ├── standards/               # Coding standards
+│   └── analysis/                # Component analysis
+├── products/                    # Product portfolio
+│   ├── active/                  # Active products
+│   └── portfolio/               # Product specifications
+├── business-requirements/       # Business strategy
+├── integrations/                # Third-party integrations
+├── marketing/                   # Marketing documentation
+├── analysis/                    # Analysis reports
+├── user-journey/                # UX analysis
+├── project-notes/               # Project notes and TODOs
+│   ├── AFRIHOST_STYLE_IMPLEMENTATION.md
+│   ├── MARKETING_CMS_COMPLETED.md
+│   ├── NEXT_ACTIONS
+│   ├── PROJECT_KNOWLEDGE_BMAD.md
+│   └── test-coverage-enhancements.md
+├── environment-examples/        # Environment configuration
+│   ├── .env.netcash.example
+│   ├── .env.production.example
+│   ├── .env.staging.example
+│   └── README.md
+├── archive/                     # Historical documents
+├── api-endpoints.docx          # API documentation
+└── README.md                    # This index file
 ```
 
 ---
 
-## 🎯 PRODUCTS PORTFOLIO
+## 🚀 QUICK START GUIDES
 
-### **Location**: `products/`
+### For Developers
+1. **[Authentication Setup](setup/AUTHENTICATION_SETUP.md)** - Configure admin authentication
+2. **[Development Guides](development/guides/)** - Setup and workflow guides
+3. **[Coding Standards](development/standards/coding-standards.md)** - TypeScript and React patterns
+4. **[Architecture Overview](development/architecture/system-overview.md)** - System architecture
 
-#### Active Products Documentation
-- **Product Portfolio Overview**: Complete alignment with Agent OS roadmap
-- **BizFibre Connect™**: DFA wholesale fibre services (5 tiers, R1,699-R4,373/month)
-- **SkyFibre Product Line**: Fixed Wireless Access (Township, Residential, SME, Business)
-- **HomeFibre Connect**: Consumer fibre solutions (R599-R1,499/month)
-- **MTN 5G-LTE Services**: Business mobile connectivity (R299-R949/month)
-- **Managed Services**: EdgeConnect 360™, SmartBranch LTE, SD-WAN Lite
+### For DevOps
+1. **[Deployment Guide](deployment/DEPLOYMENT.md)** - Production deployment
+2. **[Staging Setup](deployment/STAGING_SETUP_CHECKLIST.md)** - Staging environment
+3. **[Environment Examples](environment-examples/)** - Configuration templates
 
-#### Key Documents
-- `products/CircleTel_Product_Portfolio_Overview.md` - Master alignment document
-- `products/Product_Integration_Summary.md` - Integration status with Agent OS
-- `products/INDEX.md` - Original product documentation index
-- `products/active/` - Complete product line documentation
+### For Designers
+1. **[Design System](architecture/DESIGN_SYSTEM.md)** - CircleTel design tokens
+2. **[UX Optimization](features/implementation-plan-ux-optimization.md)** - UX improvements
+3. **[User Journey Analysis](user-journey/)** - User behavior insights
+
+---
+
+## 🏗️ ARCHITECTURE & DESIGN
+
+### **Location**: `architecture/`
+
+#### Core Architecture Documents
+- **[Design System](architecture/DESIGN_SYSTEM.md)** - Component library, colors, typography
+- **[Refactoring Plan](architecture/REFACTORING_PLAN.md)** - Code quality improvements
+- **[Sidebar Migration](architecture/sidebar-refactor-migration.md)** - UI component refactoring
+
+---
+
+## 🔧 SETUP & CONFIGURATION
+
+### **Location**: `setup/`
+
+#### Configuration Guides
+- **[Authentication Setup](setup/AUTHENTICATION_SETUP.md)** - Supabase auth, Edge Functions, RLS policies
+
+### **Location**: `environment-examples/`
+
+#### Environment Templates
+- `.env.netcash.example` - Payment integration
+- `.env.production.example` - Production variables
+- `.env.staging.example` - Staging variables
+
+---
+
+## 🚢 DEPLOYMENT & OPERATIONS
+
+### **Location**: `deployment/`
+
+#### Operations Guides
+- **[Deployment Guide](deployment/DEPLOYMENT.md)** - Production deployment procedures
+- **[Staging Setup](deployment/STAGING_SETUP_CHECKLIST.md)** - Staging environment setup
+- **[Deployment Instructions](deployment/DEPLOYMENT_INSTRUCTIONS.md)** - Step-by-step deployment
+
+---
+
+## ⚡ FEATURES & IMPLEMENTATION
+
+### **Location**: `features/`
+
+#### Feature Documentation
+- **[UX Optimization Plan](features/implementation-plan-ux-optimization.md)** - Comprehensive UX improvements
+- **[Wireless Packages](features/wireless-packages-integration.md)** - Wireless service integration
+
+---
+
+## 🔧 TECHNICAL DOCUMENTATION
+
+### **Location**: `technical/`
+
+#### Email Infrastructure (`technical/email/`)
+- **[Email Setup Guide](technical/email/EMAIL_SETUP_GUIDE.md)** - SMTP configuration
+- **[Deliverability Guide](technical/email/EMAIL_DELIVERABILITY_GUIDE.md)** - Improve delivery rates
+- **[Business Email Recommendations](technical/email/BUSINESS_EMAIL_RECOMMENDATIONS.md)** - Professional solutions
+- **[Testing Setup](technical/email/EMAIL_TESTING_SETUP.md)** - Testing frameworks
+- **[Service Comparison](technical/email/EMAIL_SERVICE_FREE_TIERS_COMPARISON.md)** - Free tier analysis
+
+#### Provider Integration (`technical/dfa/`)
+- **DFA Public Network Coverage** - Dark Fibre Africa integration
+- **UI-to-API Interaction Flow** - API integration patterns
+
+---
+
+## 🛠️ DEVELOPMENT DOCUMENTATION
+
+### **Location**: `development/`
+
+#### Epic-Driven Development (`development/epics/`)
+- **Zoho Billing Integration** - Complete billing system (ZBI-001)
+- **Order System Epic** - 4-stage customer workflow
+- **Customer Journey Features** - Service availability and discovery
+
+#### Implementation Stories (`development/stories/`)
+- Context-rich technical implementations
+- Pattern guidance and integration examples
+- Clear acceptance criteria
+
+#### Quality Assurance (`development/qa/`)
+- Quality gates and checkpoints
+- Assessment framework
+- Review processes
+
+#### Development Guides (`development/guides/`)
+- **[BMAD Workflow Guide](development/guides/bmad-workflow-guide.md)** - Feature development
+- **[Setup Guide](development/guides/setup-guide.md)** - Project setup
+- **[Coverage Implementation](development/guides/google-maps-coverage-implementation.md)** - Google Maps
+
+#### Analysis (`development/analysis/`)
+- Component analysis (Afrihost, Supersonic, Verizon)
+- UI/UX pattern analysis
 
 ---
 
@@ -55,83 +184,22 @@ docs/
 ### **Location**: `business-requirements/`
 
 #### Strategic Documents
-- **CircleTel BRS v2.0** - Current business requirements specification
-- **Digital Solution Requirements v2.0** - MVP launch strategy and 30-day execution plan
-- **Digital Solution Requirements v1.0** - Original requirements document
-
-#### Key Focus Areas
-- **MVP Launch Strategy**: October 2025 targets (25 customers, R32,000 MRR)
-- **Product Positioning**: Digital Service Provider strategy
-- **Market Strategy**: South African SMB and township markets
-- **Financial Planning**: Revenue projections and margin analysis
+- **CircleTel BRS v2.0** - Current business requirements
+- **Digital Solution Requirements v2.0** - MVP launch strategy
+- **Digital Solution Requirements v1.0** - Original requirements
 
 ---
 
-## 🔧 TECHNICAL DOCUMENTATION
+## 🎯 PRODUCTS PORTFOLIO
 
-### **Location**: `technical/`
+### **Location**: `products/`
 
-#### Core Technical Guides
-- **Design System Documentation** - CircleTel design tokens and component library
-- **Coverage Enhancement Plan** - Multi-provider coverage integration strategy
-- **Afrihost UI Implementation** - UI/UX implementation patterns
-
-#### Email Infrastructure (`technical/email/`)
-- **Email Setup Guide** - SMTP configuration and setup
-- **Email Deliverability Guide** - Improving email delivery rates
-- **Business Email Recommendations** - Professional email solutions
-- **Email Testing Setup** - Testing frameworks and procedures
-- **Email Service Comparison** - Free tier analysis and recommendations
-
-#### Provider Integration (`technical/dfa/`)
-- **DFA Public Network Coverage** - Integration with Dark Fibre Africa
-- **UI-to-API Interaction Flow** - API integration patterns
-
----
-
-## 🛠️ DEVELOPMENT DOCUMENTATION (Enhanced with BMAD METHOD)
-
-### **Location**: `development/`
-
-#### BMAD METHOD Integration
-CircleTel now uses BMAD METHOD for structured, AI-assisted development with context-rich stories and quality gates.
-
-#### Epic-Driven Development (`development/epics/`)
-- **Zoho Billing Integration** - Complete billing system integration (ZBI-001)
-- **Order System Epic** - 4-stage customer order workflow (planned)
-- **Admin Dashboard Epic** - Enhanced management capabilities (planned)
-- **Customer Portal Epic** - Self-service functionality (planned)
-
-#### Context-Rich Stories (`development/stories/`)
-- **Implementation Stories** - Detailed technical implementation with full context
-- **Pattern Guidance** - Integration with existing CircleTel components
-- **Acceptance Criteria** - Clear completion and quality requirements
-
-#### Quality Assurance (`development/qa/`)
-- **Quality Gates** - Systematic quality checkpoints for features
-- **Assessment Framework** - Technical, business, and security validation
-- **Review Process** - Code, business, and security review procedures
-
-#### Enhanced Documentation
-- **[BMAD Workflow Guide](development/guides/bmad-workflow-guide.md)** - How to use BMAD for feature development
-- **[Architecture Overview](development/architecture/system-overview.md)** - Current system architecture
-- **[Coding Standards](development/standards/coding-standards.md)** - TypeScript and React patterns
-
-#### Current Development Focus
-- **Phase 1**: Zoho Billing integration (October 2025)
-- **Phase 2**: Order system implementation
-- **Phase 3**: Customer portal enhancement
-
----
-
-## 🚀 DEPLOYMENT DOCUMENTATION
-
-### **Location**: `deployment/`
-
-#### Operations Guides
-- **Deployment Instructions** - Production deployment procedures
-- **Environment Configuration** - Setup and configuration guidelines
-- **Release Management** - Version control and release processes
+#### Active Products
+- **BizFibre Connect™** - DFA wholesale fibre (R1,699-R4,373/month)
+- **SkyFibre Product Line** - Fixed Wireless Access
+- **HomeFibre Connect** - Consumer fibre (R599-R1,499/month)
+- **MTN 5G-LTE Services** - Business mobile (R299-R949/month)
+- **Managed Services** - EdgeConnect 360™, SmartBranch LTE
 
 ---
 
@@ -140,16 +208,11 @@ CircleTel now uses BMAD METHOD for structured, AI-assisted development with cont
 ### **Location**: `integrations/`
 
 #### Third-Party Services
-- **Zoho Deployment Guide** - CRM integration setup and configuration
-- **Zoho MCP Documentation** - Model Context Protocol integration
-- **API Integration Patterns** - Best practices for external service integration
-
-#### Key Integration Points
-- **Zoho CRM**: Lead management and customer relationships
-- **Supabase**: Backend services and real-time data
-- **Google Maps**: Coverage visualization and address validation
-- **DFA ArcGIS**: Spatial coverage analysis
-- **MTN WMS**: Mobile coverage integration
+- **Zoho CRM** - Lead management
+- **Supabase** - Backend services
+- **Google Maps** - Coverage visualization
+- **DFA ArcGIS** - Spatial analysis
+- **MTN WMS** - Mobile coverage
 
 ---
 
@@ -157,82 +220,82 @@ CircleTel now uses BMAD METHOD for structured, AI-assisted development with cont
 
 ### **Location**: `analysis/`
 
-#### Performance Analysis
-- **404 Analysis Report** - Website traffic and error analysis
-- **User Journey Analysis** - Customer behavior and conversion patterns
-- **Coverage Analysis** - Provider coverage comparison and optimization
+#### Reports
+- **404 Analysis** - Traffic and error analysis
+- **Coverage Analysis** - Provider comparisons
+
+### **Location**: `user-journey/`
+
+#### UX Analysis
+- User behavior patterns
+- Conversion analysis
+- Competitor analysis (Supersonic, Web Africa, Vox)
 
 ---
 
-## 🗄️ ARCHIVE
+## 📝 PROJECT NOTES
 
-### **Location**: `archive/`
+### **Location**: `project-notes/`
 
-Reserved for historical versions and legacy documentation. Files are moved here when superseded by newer versions to maintain documentation history while keeping active folders clean.
+#### Internal Documentation
+- **[Afrihost Style Implementation](project-notes/AFRIHOST_STYLE_IMPLEMENTATION.md)**
+- **[Marketing CMS Completed](project-notes/MARKETING_CMS_COMPLETED.md)**
+- **[Next Actions](project-notes/NEXT_ACTIONS)** - TODO items
+- **[Project Knowledge BMAD](project-notes/PROJECT_KNOWLEDGE_BMAD.md)**
+- **[Test Coverage Enhancements](project-notes/test-coverage-enhancements.md)**
 
 ---
 
 ## 📱 PLATFORM INTEGRATION
 
-### Agent OS Alignment
-This documentation structure is fully integrated with the Agent OS platform:
-
-- **Product Documentation** → Agent OS Product Features
-- **Business Requirements** → Agent OS Roadmap Phases
-- **Technical Guides** → Agent OS Implementation Guide
-- **Integration Docs** → Agent OS API Specifications
-
 ### Live Platform Features
-- **Coverage Checking**: Multi-provider integration with Google Maps, DFA ArcGIS, MTN WMS
-- **Product Management**: Full CRUD operations for entire product portfolio
-- **Customer Portal**: Self-service capabilities with real-time data
-- **Admin Dashboard**: Comprehensive business intelligence and reporting
+- **Coverage Checking**: Multi-provider integration
+- **Product Management**: Full CRUD operations
+- **Customer Portal**: Self-service capabilities
+- **Admin Dashboard**: Business intelligence
 
 ---
 
-## 🔄 MAINTENANCE SCHEDULE
+## 🔄 MAINTENANCE
 
 ### Regular Updates
-- **Weekly**: Product pricing and specification updates
-- **Monthly**: Business requirements review and roadmap alignment
-- **Quarterly**: Technical documentation audit and cleanup
+- **Weekly**: Product pricing updates
+- **Monthly**: Requirements review
+- **Quarterly**: Documentation audit
 
 ### Version Control
-- All documents follow semantic versioning where applicable
-- Major changes trigger version increments
+- Semantic versioning
 - Archive policy: Keep 2 previous major versions
 
 ---
 
-## 📞 DOCUMENTATION CONTACTS
+## 📞 CONTACTS
 
-**Platform Development**: development@circletel.co.za
-**Product Management**: products@circletel.co.za
-**Technical Documentation**: docs@circletel.co.za
-**Business Strategy**: strategy@circletel.co.za
-
----
-
-## 🎯 QUICK ACCESS
-
-### Most Used Documents
-1. [Product Portfolio Overview](products/CircleTel_Product_Portfolio_Overview.md)
-2. [Agent OS Roadmap Alignment](products/Product_Integration_Summary.md)
-3. [Business Requirements v2.0](business-requirements/Circle_Tel_Business_Requirements_Specification_v2.0_September_2025.md)
-4. [MVP Launch Strategy](business-requirements/CircleTel_Digital_Solution_Requirements_v2_0.md)
-5. [Design System Guide](technical/DESIGN_SYSTEM.md)
-
-### Platform Development
-1. [Coverage Enhancement Plan](technical/coverage_enhancement_plan.md)
-2. [DFA Integration Guide](technical/dfa/DFA%20Public%20Network%20Coverage.md)
-3. [Zoho Integration Setup](integrations/zoho_deployment_guide.md)
-4. [Deployment Instructions](deployment/DEPLOYMENT_INSTRUCTIONS.md)
+**Development**: development@circletel.co.za
+**Products**: products@circletel.co.za
+**Documentation**: docs@circletel.co.za
+**Strategy**: strategy@circletel.co.za
 
 ---
 
-**Documentation Status**: Clean and Organized ✅
-**Last Cleanup**: September 24, 2025
-**Next Review**: October 1, 2025 (Pre-MVP Launch)
-**Total Documents**: 25+ organized across 7 categories
+## 🎯 MOST USED DOCUMENTS
 
-*CircleTel - Clean Documentation for Digital Service Provider Success*
+### Development
+1. [Authentication Setup](setup/AUTHENTICATION_SETUP.md)
+2. [Design System](architecture/DESIGN_SYSTEM.md)
+3. [Deployment Guide](deployment/DEPLOYMENT.md)
+4. [Refactoring Plan](architecture/REFACTORING_PLAN.md)
+
+### Business
+1. [Product Portfolio](products/)
+2. [Business Requirements v2.0](business-requirements/)
+3. [MVP Launch Strategy](business-requirements/)
+
+---
+
+**Documentation Status**: Organized and Current ✅
+**Last Cleanup**: September 30, 2025
+**Next Review**: October 15, 2025
+**Total Documents**: 50+ organized across 15 categories
+
+*CircleTel - Clean Documentation for Digital Success*

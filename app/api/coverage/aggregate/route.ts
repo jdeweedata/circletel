@@ -17,7 +17,7 @@ interface AggregationRequest {
 
 interface AggregationResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   code?: string;
 }

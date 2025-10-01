@@ -5,7 +5,7 @@ export interface ZohoMCPConfig {
 }
 
 // Common Zoho Response Types
-export interface ZohoResponse<T = any> {
+export interface ZohoResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -133,10 +133,10 @@ export type ZohoAction =
 export interface ZohoMCPRequest {
   action: ZohoAction;
   app: 'crm' | 'mail' | 'calendar' | 'desk' | 'projects';
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
 }
 
-export interface ZohoMCPResponse<T = any> {
+export interface ZohoMCPResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;

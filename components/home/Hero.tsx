@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Server, Cloud, Laptop, ShieldCheck, Wifi, Battery } from 'lucide-react';
+import { ShieldCheck, Server, Battery } from 'lucide-react';
 import { CoverageChecker } from '@/components/coverage/CoverageChecker';
 
 export function Hero() {
@@ -20,42 +19,19 @@ export function Hero() {
               High-Speed Wireless and Fibre Internet, Proactive IT, and Data Resilience
             </p>
 
-            {/* Service Highlights */}
-            <div className="flex flex-wrap gap-4 mb-8">
-              <Link
-                href="/bundles/business-connect"
-                className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20"
-              >
-                <Server size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Business Connect</span>
-              </Link>
-              <Link
-                href="/bundles/business-pro"
-                className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-circleTel-orange/20"
-              >
-                <Wifi size={20} className="text-circleTel-orange mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Business Pro</span>
-              </Link>
-              <Link
-                href="/bundles/home-soho-resilience"
-                className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm hover:bg-circleTel-lightNeutral border border-blue-500/20"
-              >
-                <Cloud size={20} className="text-blue-500 mr-2" />
-                <span className="text-circleTel-secondaryNeutral font-medium">Home & SOHO</span>
-              </Link>
-            </div>
-
             <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
               No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses.
               <strong> Serving urban and rural communities across South Africa.</strong>
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="primary-button bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold">
-                <Link href="/resources/it-health">Get Your Free Resilience Assessment</Link>
-              </Button>
-              <Button asChild variant="outline" className="outline-button">
-                <Link href="/bundles">Explore Our Bundles</Link>
+            {/* Single Primary CTA */}
+            <div className="flex justify-center md:justify-start">
+              <Button
+                asChild
+                size="lg"
+                className="primary-button bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-lg px-8"
+              >
+                <a href="#coverage-check">Check Coverage Now</a>
               </Button>
             </div>
 
@@ -77,14 +53,18 @@ export function Hero() {
           </div>
 
           {/* Coverage Checker */}
-          <div className="w-full md:w-1/2 flex justify-center animate-scale-in">
+          <div id="coverage-check" className="w-full md:w-1/2 flex justify-center animate-scale-in scroll-mt-20">
             <div className="relative w-full max-w-md">
               <CoverageChecker
-                className="relative z-10 shadow-xl border-2 bg-white"
+                className="relative z-10 shadow-xl border-2 bg-white rounded-lg"
                 onCoverageFound={(services) => {
                   console.log('Services available:', services);
-                  // Navigate to products page
-                  window.location.href = '/bundles';
+                  // Navigate to packages page with leadId
+                  if (services.leadId) {
+                    window.location.href = `/packages/${services.leadId}`;
+                  } else {
+                    window.location.href = '/bundles';
+                  }
                 }}
                 onNoCoverage={() => {
                   console.log('No coverage - capture lead');

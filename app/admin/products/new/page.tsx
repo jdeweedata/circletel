@@ -26,7 +26,8 @@ import {
   Settings,
   Globe,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
 

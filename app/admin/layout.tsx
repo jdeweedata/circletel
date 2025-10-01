@@ -5,40 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { Loader2 } from 'lucide-react';
-
-// Mock user type for now - will be replaced with real auth
-interface User {
-  full_name?: string;
-  role?: string;
-}
-
-// Mock auth hook - will be replaced with real implementation
-function useAdminAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Mock authentication check
-    setTimeout(() => {
-      setUser({
-        full_name: 'Admin User',
-        role: 'product_manager'
-      });
-      setIsLoading(false);
-    }, 500);
-  }, []);
-
-  const logout = () => {
-    setUser(null);
-    // Redirect to login
-  };
-
-  const validateSession = () => {
-    // Mock session validation
-  };
-
-  return { user, isLoading, logout, validateSession };
-}
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export default function AdminLayout({
   children,

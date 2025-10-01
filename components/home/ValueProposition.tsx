@@ -47,7 +47,7 @@ const ValueCard = ({ title, stat, description, index }: ValueCardProps) => {
 const Testimonial = ({ quote, name, position, company }: { quote: string; name: string; position: string; company: string }) => {
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
-      <p className="text-circleTel-secondaryNeutral mb-4 italic">"{quote}"</p>
+      <p className="text-circleTel-secondaryNeutral mb-4 italic">&quot;{quote}&quot;</p>
       <div className="flex items-center">
         <div className="h-10 w-10 bg-circleTel-orange rounded-full flex items-center justify-center text-white font-bold">
           {name.charAt(0)}
@@ -141,7 +141,7 @@ export function ValueProposition() {
               <div>
                 <h4 className="text-xl font-bold text-circleTel-darkNeutral mb-2">Fast, Flexible Support</h4>
                 <p className="text-circleTel-secondaryNeutral">
-                  Quick response times with support that adapts to your business hours. We're there when you need us, with solutions tailored to your situation.
+                  Quick response times with support that adapts to your business hours. We&apos;re there when you need us, with solutions tailored to your situation.
                 </p>
               </div>
             </div>

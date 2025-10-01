@@ -9,7 +9,7 @@ interface ZohoAPIConfig {
   region?: 'US' | 'EU' | 'IN' | 'AU' | 'CN';
 }
 
-interface ZohoAPIResponse<T = any> {
+interface ZohoAPIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -78,11 +78,11 @@ export class ZohoAPIClient {
     return this.accessToken;
   }
 
-  private async makeRequest<T = any>(
+  private async makeRequest<T = unknown>(
     service: string,
     endpoint: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-    data?: any
+    data?: Record<string, unknown>
   ): Promise<ZohoAPIResponse<T>> {
     try {
       const token = await this.getValidAccessToken();
@@ -127,30 +127,30 @@ export class ZohoAPIClient {
   }
 
   // CRM Methods
-  async createLead(leadData: any): Promise<ZohoAPIResponse> {
+  async createLead(leadData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     return this.makeRequest('crm', '/Leads', 'POST', { data: [leadData] });
   }
 
-  async getLeads(options?: any): Promise<ZohoAPIResponse> {
+  async getLeads(options?: Record<string, string>): Promise<ZohoAPIResponse> {
     const queryParams = new URLSearchParams(options || {});
     return this.makeRequest('crm', `/Leads?${queryParams.toString()}`);
   }
 
-  async createContact(contactData: any): Promise<ZohoAPIResponse> {
+  async createContact(contactData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     return this.makeRequest('crm', '/Contacts', 'POST', { data: [contactData] });
   }
 
-  async createDeal(dealData: any): Promise<ZohoAPIResponse> {
+  async createDeal(dealData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     return this.makeRequest('crm', '/Deals', 'POST', { data: [dealData] });
   }
 
   // Mail Methods
-  async sendEmail(emailData: any): Promise<ZohoAPIResponse> {
+  async sendEmail(emailData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     return this.makeRequest('mail', '/messages', 'POST', emailData);
   }
 
   // Calendar Methods
-  async createEvent(eventData: any): Promise<ZohoAPIResponse> {
+  async createEvent(eventData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     return this.makeRequest('calendar', '/calendars/primary/events', 'POST', eventData);
   }
 
@@ -195,7 +195,7 @@ export class ZohoMockClient {
     };
   }
 
-  async createLead(leadData: any): Promise<ZohoAPIResponse> {
+  async createLead(leadData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     return {
@@ -209,7 +209,7 @@ export class ZohoMockClient {
     };
   }
 
-  async sendEmail(emailData: any): Promise<ZohoAPIResponse> {
+  async sendEmail(emailData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     await new Promise(resolve => setTimeout(resolve, 1200));
 
     return {
@@ -222,7 +222,7 @@ export class ZohoMockClient {
     };
   }
 
-  async createEvent(eventData: any): Promise<ZohoAPIResponse> {
+  async createEvent(eventData: Record<string, unknown>): Promise<ZohoAPIResponse> {
     await new Promise(resolve => setTimeout(resolve, 900));
 
     return {

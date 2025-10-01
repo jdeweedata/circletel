@@ -9,8 +9,8 @@ interface CreateProviderRequest {
   description?: string;
   website?: string;
   supportContact?: string;
-  apiConfig?: any;
-  staticConfig?: any;
+  apiConfig?: Record<string, unknown>;
+  staticConfig?: Record<string, unknown>;
   serviceTypes: string[];
   priority: number;
   enabled?: boolean;
@@ -198,7 +198,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (body.name) updateData.name = body.name.toLowerCase().replace(/\s+/g, '_');
     if (body.displayName) updateData.display_name = body.displayName;
     if (body.type) updateData.type = body.type;

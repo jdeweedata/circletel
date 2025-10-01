@@ -4,6 +4,7 @@ import { mtnWMSClient } from './mtn/wms-client';
 import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
+import { checkDFACoverage } from './dfa/client';
 
 export interface AggregatedCoverageResponse {
   coordinates: Coordinates;
@@ -146,6 +147,10 @@ export class CoverageAggregationService {
         return this.getMTNCoverage(coordinates, serviceTypes);
 
       // Add other providers here as they become available
+      case 'dfa':
+      case 'openserve':
+        return this.getDFACoverage(coordinates, serviceTypes);
+
       case 'vodacom':
       case 'cell_c':
       case 'telkom':
@@ -235,6 +240,18 @@ export class CoverageAggregationService {
       }],
       lastUpdated: mtnResponse.lastUpdated
     };
+  }
+
+  /**
+   * Get DFA/Openserve fibre coverage
+   */
+  private async getDFACoverage(
+    coordinates: Coordinates,
+    serviceTypes?: ServiceType[]
+  ): Promise<CoverageResponse> {
+    // Use DFA client to check fibre coverage
+    const dfaResponse = await checkDFACoverage(coordinates, serviceTypes);
+    return dfaResponse;
   }
 
   /**

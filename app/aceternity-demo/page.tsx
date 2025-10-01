@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 import { TextReveal, TypewriterEffect } from "@/components/ui/text-reveal";
@@ -55,9 +56,9 @@ export default function AceternityDemo() {
                 <span className="text-xl font-bold text-white">CircleTel</span>
               </div>
               <nav className="hidden md:flex items-center space-x-6">
-                <a href="/" className="text-gray-300 hover:text-circleTel-orange transition-colors">Home</a>
-                <a href="/wireless" className="text-gray-300 hover:text-circleTel-orange transition-colors">Wireless</a>
-                <a href="/contact" className="text-gray-300 hover:text-circleTel-orange transition-colors">Contact</a>
+                <Link href="/" className="text-gray-300 hover:text-circleTel-orange transition-colors">Home</Link>
+                <Link href="/wireless" className="text-gray-300 hover:text-circleTel-orange transition-colors">Wireless</Link>
+                <Link href="/contact" className="text-gray-300 hover:text-circleTel-orange transition-colors">Contact</Link>
               </nav>
             </div>
           </div>

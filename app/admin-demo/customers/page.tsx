@@ -93,7 +93,7 @@ export default function AdminDemoCustomersPage() {
               👥 Customer Management Demo
             </h3>
             <p className="text-sm text-blue-700 mt-1">
-              This page demonstrates the dropdown menu functionality from the sidebar. Notice how you can expand "Customer Management" to access this page!
+              This page demonstrates the dropdown menu functionality from the sidebar. Notice how you can expand &quot;Customer Management&quot; to access this page!
             </p>
           </div>
         </div>

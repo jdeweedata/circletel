@@ -35,14 +35,14 @@ export interface MTNWMSResponse {
 export interface MTNFeatureInfo {
   layer: string;
   feature?: {
-    properties: Record<string, any>;
-    geometry?: any;
+    properties: Record<string, unknown>;
+    geometry?: unknown;
   };
   coverage?: {
     available: boolean;
     signal: SignalStrength;
     technology?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   };
 }
 

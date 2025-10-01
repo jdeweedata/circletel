@@ -15,7 +15,7 @@ export interface ProductMetadata {
   contract_months: number;
   installation_days: number;
   availability_zones: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Main Product interface matching Supabase schema

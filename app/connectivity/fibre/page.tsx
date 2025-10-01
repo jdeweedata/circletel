@@ -19,7 +19,7 @@ export default function Fibre() {
                 Blazing-fast fibre for mission-critical business
               </h1>
               <p className="text-lg md:text-xl text-circleTel-secondaryNeutral mb-6">
-                Ultra-reliable fibre connectivity with guaranteed uptime for businesses that can't afford to slow down.
+                Ultra-reliable fibre connectivity with guaranteed uptime for businesses that can&apos;t afford to slow down.
               </p>
               <div className="bg-circleTel-lightNeutral rounded-lg p-4 mb-6">
                 <p className="font-space-mono text-sm text-circleTel-secondaryNeutral mb-1">Starting from</p>

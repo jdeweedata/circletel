@@ -15,7 +15,7 @@ export function WirelessHero() {
           {/* Trust Badge */}
           <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-circleTel-orange/10 text-circleTel-orange border-circleTel-orange/20">
             <Star className="w-4 h-4 mr-2 fill-current text-circleTel-orange" />
-            South Africa's most trusted business ISP
+            South Africa&apos;s most trusted business ISP
           </Badge>
 
           {/* Main Headline */}

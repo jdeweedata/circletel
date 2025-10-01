@@ -62,7 +62,7 @@ export interface StrapiMedia extends StrapiEntity {
   url: string
   previewUrl?: string
   provider: string
-  provider_metadata?: any
+  provider_metadata?: Record<string, unknown>
 }
 
 // Example content types - customize based on your needs
@@ -104,7 +104,7 @@ export interface Page extends StrapiEntity {
   slug: string
   featuredImage?: StrapiMedia
   seo?: SEOComponent
-  blocks?: any[] // Dynamic zones
+  blocks?: Record<string, unknown>[] // Dynamic zones
 }
 
 export interface Product extends StrapiEntity {
@@ -114,7 +114,7 @@ export interface Product extends StrapiEntity {
   sku: string
   images?: StrapiMedia[]
   category?: Category
-  specifications?: any
+  specifications?: Record<string, unknown>
   inStock: boolean
 }
 
@@ -138,7 +138,7 @@ export interface SocialLinks {
 export interface StrapiQuery {
   populate?: string | string[] | object
   fields?: string[]
-  filters?: Record<string, any>
+  filters?: Record<string, unknown>
   sort?: string[]
   pagination?: {
     page?: number
@@ -171,7 +171,7 @@ export interface Promotion extends StrapiEntity {
   priority: number
   startDate?: string
   endDate?: string
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface HeroSection {
@@ -190,7 +190,7 @@ export interface PromoGridSection {
   title?: string
   columns: number
   showFilter: boolean
-  filterCategories?: any
+  filterCategories?: string[]
 }
 
 export interface FeatureItem {
@@ -264,7 +264,7 @@ export interface Campaign extends StrapiEntity {
   budget?: number
   targetAudience?: string
   trackingCode?: string
-  analytics?: any
+  analytics?: Record<string, unknown>
 }
 
 // Product Package System
@@ -305,7 +305,7 @@ export interface ProductPackage extends StrapiEntity {
   inStock: boolean
   featured: boolean
   priority: number
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface FAQItem {

@@ -37,10 +37,10 @@ export interface Database {
           services_offered: string[];
           average_monthly_patient_volume: number;
           compliance_level: number;
-          healthcare_regulations: Record<string, any>;
-          it_assessment: Record<string, any>;
-          operational_requirements: Record<string, any>;
-          technology_readiness: Record<string, any>;
+          healthcare_regulations: Record<string, unknown>;
+          it_assessment: Record<string, unknown>;
+          operational_requirements: Record<string, unknown>;
+          technology_readiness: Record<string, unknown>;
           areas_for_improvement: string[];
           recommendations: string[];
           risk_score: number;

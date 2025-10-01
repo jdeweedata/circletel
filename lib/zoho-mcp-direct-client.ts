@@ -7,16 +7,16 @@ interface MCPRequest {
   method: string;
   params?: {
     name?: string;
-    arguments?: Record<string, any>;
+    arguments?: Record<string, unknown>;
   };
 }
 
 interface MCPResponse {
-  result?: any;
+  result?: unknown;
   error?: {
     code: number;
     message: string;
-    data?: any;
+    data?: unknown;
   };
 }
 
@@ -150,7 +150,7 @@ export class ZohoMCPDirectClient {
     }
   }
 
-  async callTool(toolName: string, arguments_: Record<string, any>): Promise<ZohoMCPResponse> {
+  async callTool(toolName: string, arguments_: Record<string, unknown>): Promise<ZohoMCPResponse> {
     try {
       const response = await this.sendMCPRequest({
         method: 'tools/call',
@@ -182,7 +182,7 @@ export class ZohoMCPDirectClient {
   }
 
   // Zoho CRM methods using MCP tools
-  async createLead(leadData: any): Promise<ZohoMCPResponse> {
+  async createLead(leadData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('create_lead', {
       email: leadData.email,
       first_name: leadData.firstName,
@@ -194,7 +194,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async createContact(contactData: any): Promise<ZohoMCPResponse> {
+  async createContact(contactData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('create_contact', {
       email: contactData.email,
       first_name: contactData.firstName,
@@ -204,7 +204,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async createDeal(dealData: any): Promise<ZohoMCPResponse> {
+  async createDeal(dealData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('create_deal', {
       deal_name: dealData.dealName,
       account_name: dealData.accountName,
@@ -215,7 +215,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async sendEmail(emailData: any): Promise<ZohoMCPResponse> {
+  async sendEmail(emailData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('send_email', {
       to: Array.isArray(emailData.to) ? emailData.to : [emailData.to],
       cc: emailData.cc || [],
@@ -226,7 +226,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async createEvent(eventData: any): Promise<ZohoMCPResponse> {
+  async createEvent(eventData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('create_event', {
       title: eventData.title,
       start_date_time: eventData.startDateTime,
@@ -238,7 +238,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async createTicket(ticketData: any): Promise<ZohoMCPResponse> {
+  async createTicket(ticketData: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('create_ticket', {
       subject: ticketData.subject,
       description: ticketData.description,
@@ -249,7 +249,7 @@ export class ZohoMCPDirectClient {
     });
   }
 
-  async getRecords(module: string, options?: any): Promise<ZohoMCPResponse> {
+  async getRecords(module: string, options?: Record<string, unknown>): Promise<ZohoMCPResponse> {
     return this.callTool('get_records', {
       module: module,
       page: options?.page || 1,

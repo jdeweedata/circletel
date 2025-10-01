@@ -97,7 +97,7 @@ export async function submitUnjaniForm(formData: UnjaniAuditFormData & {
 // Coverage checking function
 export async function checkFTTBCoverage(address: string): Promise<{
   success: boolean;
-  coverage?: any;
+  coverage?: unknown;
   error?: string;
 }> {
   try {

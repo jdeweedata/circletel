@@ -49,7 +49,7 @@ async function attemptLoad(
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       // Use webpack's require.ensure for more reliable chunking
-      const module = await new Promise<typeof import('@/services/googleMaps')>((resolve, reject) => {
+      const googleMapsModule = await new Promise<typeof import('@/services/googleMaps')>((resolve, reject) => {
         if (typeof window === 'undefined') {
           // Server-side: direct import
           import('@/services/googleMaps').then(resolve).catch(reject);
@@ -63,7 +63,7 @@ async function attemptLoad(
         }
       });
 
-      return module.googleMapsService;
+      return googleMapsModule.googleMapsService;
     } catch (error) {
       console.warn(`Failed to load Google Maps service (attempt ${attempt + 1}/${retries + 1}):`, error);
       

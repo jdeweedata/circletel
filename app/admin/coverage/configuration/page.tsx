@@ -294,7 +294,7 @@ export default function CoverageConfigurationPage() {
                         <div className="flex items-center gap-3">
                           {provider.logo && (
                             <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                              <Image className="h-4 w-4" />
+                              <Image className="h-4 w-4" aria-label="Provider logo" />
                             </div>
                           )}
                           <div>

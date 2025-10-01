@@ -4,7 +4,7 @@ import { MTN_CONFIGS, SERVICE_TYPE_MAPPING } from '@/lib/coverage/mtn/types';
 
 interface ConfigResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
 }
 

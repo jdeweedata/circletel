@@ -480,7 +480,7 @@ export default function ApprovalWorkflow() {
               {reviewAction === 'approve' ? 'Approve' : 'Reject'} Changes
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to {reviewAction} "{selectedApproval?.title}"?
+              Are you sure you want to {reviewAction} &quot;{selectedApproval?.title}&quot;?
             </DialogDescription>
           </DialogHeader>
 

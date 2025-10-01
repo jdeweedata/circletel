@@ -202,7 +202,7 @@ export class ProductsService {
    */
   static async updateProduct(productData: UpdateProductData): Promise<Product> {
     try {
-      const updateData: any = { ...productData };
+      const updateData: Record<string, unknown> = { ...productData };
       delete updateData.id;
 
       // Convert prices to strings if provided
