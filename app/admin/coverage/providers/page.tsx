@@ -17,7 +17,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { NetworkProvider, CoverageFile } from '@/lib/types/coverage-providers';
+import { NetworkProvider, CoverageFile, ServiceType } from '@/lib/types/coverage-providers';
 
 export default function ProvidersManagementPage() {
   const [providers, setProviders] = useState<NetworkProvider[]>([]);
