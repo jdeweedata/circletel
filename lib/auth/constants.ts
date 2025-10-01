@@ -55,10 +55,30 @@ export const AUTH_CONFIG = {
 
 /**
  * Check if application is running in development mode
- * @returns true if NODE_ENV === 'development'
+ * Allows dev mode on localhost AND Vercel preview/staging deployments
+ * @returns true if NODE_ENV === 'development' OR NEXT_PUBLIC_VERCEL_ENV === 'preview'
  */
 export const isDevelopmentMode = (): boolean => {
-  return process.env.NODE_ENV === 'development'
+  // Check if running in local development
+  if (process.env.NODE_ENV === 'development') {
+    return true
+  }
+
+  // Check if running on Vercel preview/staging (browser environment)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname
+    // Allow dev mode on Vercel preview URLs and localhost
+    if (hostname.includes('vercel.app') || hostname === 'localhost') {
+      return true
+    }
+  }
+
+  // Check Vercel environment variable (server-side)
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+    return true
+  }
+
+  return false
 }
 
 /**
