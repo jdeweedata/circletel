@@ -222,10 +222,12 @@ export default function AdminCoveragePage() {
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-            <Button onClick={() => exportMetrics('csv')} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            <PermissionGate permissions={[PERMISSIONS.DASHBOARD.EXPORT_DATA]}>
+              <Button onClick={() => exportMetrics('csv')} variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+            </PermissionGate>
           </div>
         </div>
 
@@ -321,14 +323,18 @@ export default function AdminCoveragePage() {
               <Activity className="h-4 w-4" />
               Recent Activity
             </TabsTrigger>
-            <TabsTrigger value="testing" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              Testing Tools
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Configuration
-            </TabsTrigger>
+            <PermissionGate permissions={[PERMISSIONS.COVERAGE.TEST]}>
+              <TabsTrigger value="testing" className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Testing Tools
+              </TabsTrigger>
+            </PermissionGate>
+            <PermissionGate permissions={[PERMISSIONS.COVERAGE.MANAGE]}>
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Configuration
+              </TabsTrigger>
+            </PermissionGate>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">

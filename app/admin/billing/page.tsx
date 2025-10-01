@@ -8,6 +8,9 @@ import BillingOverview from '@/components/billing/BillingOverview';
 import TransactionsList from '@/components/billing/TransactionsList';
 import CallDetailRecords from '@/components/billing/CallDetailRecords';
 import CustomerDetailsSidebar from '@/components/billing/CustomerDetailsSidebar';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PermissionGate } from '@/components/rbac/PermissionGate';
+import { PERMISSIONS } from '@/lib/rbac/permissions';
 import type { Transaction, CallDetailRecord, CustomerDetails } from '@/lib/types/billing';
 
 export default function BillingDashboard() {
