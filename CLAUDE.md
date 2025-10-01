@@ -62,10 +62,14 @@ This prevents Vercel build failures by catching type errors locally. The build p
 - `/components/providers` - React context providers
 - `/components/coverage` - Coverage checking components and maps
 - `/components/marketing` - Marketing content components (promotions, campaigns)
+- `/components/rbac` - RBAC components (PermissionGate, RoleTemplateSelector)
 - `/lib` - Utility functions and configurations
 - `/lib/coverage` - Multi-provider coverage aggregation system
 - `/lib/types` - TypeScript type definitions
+- `/lib/rbac` - RBAC permissions, role templates, and type definitions
+- `/lib/auth` - Authentication services and utilities
 - `/hooks` - Custom React hooks
+- `/hooks/usePermissions.ts` - Permission checking hook for RBAC
 - `/hooks/use-promotions.ts` - Marketing promotions data fetching
 - `/hooks/use-marketing-pages.ts` - Marketing pages data fetching
 - `/hooks/use-campaigns.ts` - Campaign data fetching
@@ -88,10 +92,57 @@ This prevents Vercel build failures by catching type errors locally. The build p
 ### Authentication & Security
 
 #### Admin Authentication
-- Currently uses mock authentication in `/app/admin/layout.tsx`
-- Mock user with role-based access control (`product_manager`, `super_admin`)
+- Production authentication using Supabase Auth with custom admin_users table
+- Development mode supports local testing without Supabase Edge Functions
+- Login/signup pages at `/app/admin/login` and `/app/admin/signup`
 - Protected routes redirect to `/admin/login` when not authenticated
-- **TODO**: Replace mock auth with real Supabase authentication
+- Session management via `useAdminAuth` hook in `/hooks/useAdminAuth.ts`
+- Environment detection: Vercel preview URLs use dev mode for easier testing
+
+#### Role-Based Access Control (RBAC)
+Complete RBAC system with granular permissions:
+
+**Architecture**:
+- **17 Role Templates**: Predefined roles covering all organizational functions (Executive, Management, Staff, Support levels)
+- **100+ Permissions**: Granular permissions following `{resource}:{action}` pattern (e.g., `products:edit`, `users:manage_roles`)
+- **Database Tables**: `role_templates`, `admin_users` (with role_template_id, custom_permissions)
+- **SQL Functions**: `get_user_permissions()`, `user_has_permission()` for permission resolution
+- **RLS Policies**: Row Level Security for secure access control
+
+**Role Templates** (see `/lib/rbac/role-templates.ts`):
+- **Executive**: Super Admin, CEO, CFO, COO
+- **Management**: Finance Manager, Product Manager, Operations Manager, Sales Manager, Marketing Manager, Support Manager
+- **Staff**: Accountant, Billing Specialist, Product Analyst, Sales Rep, Content Editor, Support Agent
+- **Support**: Viewer (read-only access)
+
+**Permission Categories** (see `/lib/rbac/permissions.ts`):
+- Dashboard, Products, Customers, Orders, Billing, Finance
+- Marketing, Sales, Users, System, Coverage, Support
+- Inventory, Content (100+ total permissions)
+
+**Implementation**:
+- **React Hooks**: `usePermissions()` hook provides `hasPermission()`, `can.view()`, `can.edit()`, etc.
+- **Permission Gates**: `<PermissionGate>` component for conditional rendering based on permissions
+- **UI Integration**: Admin dashboard, products page, and coverage pages use permission gates
+- **Database Migration**: `supabase/migrations/20250201000005_create_rbac_system.sql`
+
+**Usage Example**:
+```typescript
+// Hook usage
+const { hasPermission, can } = usePermissions();
+if (hasPermission(PERMISSIONS.PRODUCTS.EDIT)) { /* show edit button */ }
+if (can.create('products')) { /* show create button */ }
+
+// Component usage
+<PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
+  <Button>Add Product</Button>
+</PermissionGate>
+```
+
+**Documentation**:
+- Complete RBAC guide: `/docs/rbac/RBAC_SYSTEM_GUIDE.md`
+- Setup instructions: `/docs/setup/SUPABASE_AUTH_USER_CREATION.md`
+- Quick start: `/docs/setup/QUICK_START_PRODUCTION_AUTH.md`
 
 ### Data Layer
 
@@ -279,7 +330,8 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 ## Important Notes
 
 ### Development Considerations
-- The admin panel uses mock authentication that needs to be replaced with real Supabase auth
+- Admin authentication fully implemented with Supabase Auth and RBAC system
+- Test credentials (development mode): `admin@circletel.co.za` / `admin123`
 - PWA is disabled in development mode but active in production
 - MCP servers require Claude Code or compatible MCP client to function
 - Zoho integration has both web UI (demo mode) and MCP server (production) implementations
