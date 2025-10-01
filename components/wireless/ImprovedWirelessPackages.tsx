@@ -205,13 +205,13 @@ export function ImprovedWirelessPackages() {
                   <div>
                     <TabsContent value="all" className="mt-0">
                       {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {[...Array(4)].map((_, i) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {[...Array(6)].map((_, i) => (
                             <div key={i} className="bg-gray-200 rounded-xl h-80 animate-pulse"></div>
                           ))}
                         </div>
                       ) : getFilteredPackages("all").length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {getFilteredPackages("all").map((pkg, index) => (
                             <PackageCard key={pkg.id} pkg={pkg} index={index} />
                           ))}
@@ -225,13 +225,13 @@ export function ImprovedWirelessPackages() {
 
                     <TabsContent value="capped" className="mt-0">
                       {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {[...Array(2)].map((_, i) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {[...Array(3)].map((_, i) => (
                             <div key={i} className="bg-gray-200 rounded-xl h-80 animate-pulse"></div>
                           ))}
                         </div>
                       ) : getFilteredPackages("capped").length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {getFilteredPackages("capped").map((pkg, index) => (
                             <PackageCard key={pkg.id} pkg={pkg} index={index} />
                           ))}
@@ -245,13 +245,13 @@ export function ImprovedWirelessPackages() {
 
                     <TabsContent value="uncapped" className="mt-0">
                       {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {[...Array(4)].map((_, i) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {[...Array(6)].map((_, i) => (
                             <div key={i} className="bg-gray-200 rounded-xl h-80 animate-pulse"></div>
                           ))}
                         </div>
                       ) : getFilteredPackages("uncapped").length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {getFilteredPackages("uncapped").map((pkg, index) => (
                             <PackageCard key={pkg.id} pkg={pkg} index={index} />
                           ))}
