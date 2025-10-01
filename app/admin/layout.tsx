@@ -30,13 +30,13 @@ export default function AdminLayout({
 
   if (!user) {
     // In a real implementation, redirect to login
-    router.push('/admin/login');
+    router.push('/login/admin');
     return null;
   }
 
   const handleLogout = () => {
     logout();
-    router.push('/admin/login');
+    router.push('/login/admin');
   };
 
   return (
