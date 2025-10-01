@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PermissionGate } from '@/components/rbac/PermissionGate';
+import { PERMISSIONS } from '@/lib/rbac/permissions';
 import {
   Select,
   SelectContent,
@@ -52,6 +55,7 @@ import { PriceEditModal } from '@/components/admin/products/PriceEditModal';
 import { AuditHistoryModal } from '@/components/admin/products/AuditHistoryModal';
 
 export default function AdminProducts() {
+  const { hasPermission } = usePermissions();
   const [products, setProducts] = useState<Product[]>([]);
   const [productStats, setProductStats] = useState({
     total: 0,
@@ -294,12 +298,14 @@ export default function AdminProducts() {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
-            <Link href="/admin/products/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Link>
-          </Button>
+          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
+            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Link href="/admin/products/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </Link>
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -531,47 +537,57 @@ export default function AdminProducts() {
                             View
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}/edit`}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlePriceEdit(product)}>
-                          <DollarSign className="w-4 h-4 mr-2" />
-                          Edit Price
-                        </DropdownMenuItem>
+                        {hasPermission(PERMISSIONS.PRODUCTS.EDIT) && (
+                          <DropdownMenuItem asChild>
+                            <Link href={`/admin/products/${product.id}/edit`}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        {hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING) && (
+                          <DropdownMenuItem onClick={() => handlePriceEdit(product)}>
+                            <DollarSign className="w-4 h-4 mr-2" />
+                            Edit Price
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => handleViewAuditHistory(product)}>
                           <History className="w-4 h-4 mr-2" />
                           View History
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleStatus(product)}>
-                          {product.is_active ? (
-                            <>
-                              <ToggleLeft className="w-4 h-4 mr-2" />
-                              Deactivate
-                            </>
-                          ) : (
-                            <>
-                              <ToggleRight className="w-4 h-4 mr-2" />
-                              Activate
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicate(product)}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setProductToDelete(product);
-                            setDeleteDialogOpen(true);
-                          }}
-                          className="text-red-600"
-                        >
-                          <Archive className="w-4 h-4 mr-2" />
-                          Archive
-                        </DropdownMenuItem>
+                        {hasPermission(PERMISSIONS.PRODUCTS.EDIT) && (
+                          <DropdownMenuItem onClick={() => handleToggleStatus(product)}>
+                            {product.is_active ? (
+                              <>
+                                <ToggleLeft className="w-4 h-4 mr-2" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <ToggleRight className="w-4 h-4 mr-2" />
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                        )}
+                        {hasPermission(PERMISSIONS.PRODUCTS.CREATE) && (
+                          <DropdownMenuItem onClick={() => handleDuplicate(product)}>
+                            <Copy className="w-4 h-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                        )}
+                        {hasPermission(PERMISSIONS.PRODUCTS.DELETE) && (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setProductToDelete(product);
+                              setDeleteDialogOpen(true);
+                            }}
+                            className="text-red-600"
+                          >
+                            <Archive className="w-4 h-4 mr-2" />
+                            Archive
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

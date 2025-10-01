@@ -1,12 +1,51 @@
 'use client';
 
-import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function ConfirmationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get payment reference from URL query params (returned by Netcash)
+  const paymentReference = searchParams.get('Reference') || searchParams.get('reference');
+  const transactionId = searchParams.get('TransactionId') || searchParams.get('transactionId');
+
+  useEffect(() => {
+    // Simulate fetching order details
+    // In production, you would fetch from your API using the payment reference
+    if (paymentReference) {
+      setTimeout(() => {
+        setOrderDetails({
+          reference: paymentReference,
+          transactionId: transactionId
+        });
+        setLoading(false);
+      }, 1000);
+    } else {
+      setLoading(false);
+    }
+  }, [paymentReference, transactionId]);
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+          <Loader2 className="w-16 h-16 text-circleTel-orange mx-auto mb-4 animate-spin" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Processing Your Order...
+          </h1>
+          <p className="text-gray-600">
+            Please wait while we confirm your payment
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -14,11 +53,19 @@ export default function ConfirmationPage() {
         <div className="mb-6">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Order Confirmed!
+            Payment Successful!
           </h1>
           <p className="text-lg text-gray-600">
-            Thank you for choosing CircleTel. Your order has been successfully submitted.
+            Thank you for choosing CircleTel. Your payment has been confirmed.
           </p>
+          {orderDetails && (
+            <div className="mt-4 text-sm text-gray-500">
+              <p>Payment Reference: <span className="font-mono font-semibold">{orderDetails.reference}</span></p>
+              {orderDetails.transactionId && (
+                <p className="mt-1">Transaction ID: <span className="font-mono">{orderDetails.transactionId}</span></p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-50 rounded-lg p-6 mb-6">

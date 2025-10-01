@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PermissionGate } from '@/components/rbac/PermissionGate';
+import { PERMISSIONS } from '@/lib/rbac/permissions';
 import {
   Activity,
   Map,

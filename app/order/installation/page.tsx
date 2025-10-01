@@ -29,10 +29,11 @@ export default function InstallationPage() {
 
       <OrderWizard
         onStageComplete={(stage) => {
-          console.log('Final stage completed');
+          console.log('Installation stage completed, moving to payment');
+          router.push('/order/payment');
         }}
         onOrderComplete={() => {
-          router.push('/order/confirmation');
+          router.push('/order/payment');
         }}
       >
         <div className="py-8">
@@ -41,11 +42,14 @@ export default function InstallationPage() {
               Installation Scheduling
             </h2>
             <p className="text-gray-600 mb-6">
-              Installation scheduling and payment processing will be implemented here.
+              Installation scheduling will be implemented here.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800">
                 🚧 Installation stage implementation coming in OSI-001-05
+              </p>
+              <p className="text-blue-600 mt-2 text-sm">
+                Click "Next" to proceed to payment
               </p>
             </div>
           </div>

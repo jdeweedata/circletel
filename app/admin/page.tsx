@@ -18,12 +18,10 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
-
-// Mock user type - will be replaced with real auth
-interface User {
-  full_name?: string;
-  role?: string;
-}
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PermissionGate } from '@/components/rbac/PermissionGate';
+import { PERMISSIONS } from '@/lib/rbac/permissions';
 
 // Mock stats data - will be replaced with real data
 const mockStats = {
@@ -33,20 +31,6 @@ const mockStats = {
   revenueImpact: 2450000,
   lastUpdated: new Date()
 };
-
-// Mock hooks for now - will be replaced with real implementations
-function useAdminAuth() {
-  const user: User = {
-    full_name: 'Admin User',
-    role: 'product_manager'
-  };
-
-  return {
-    user,
-    canApprove: () => user?.role === 'super_admin' || user?.role === 'product_manager',
-    canEdit: () => true
-  };
-}
 
 function useAdminStatsRealtime() {
   return {
@@ -58,7 +42,8 @@ function useAdminStatsRealtime() {
 }
 
 export default function AdminDashboard() {
-  const { user, canApprove, canEdit } = useAdminAuth();
+  const { user } = useAdminAuth();
+  const { can } = usePermissions();
   const { stats, isLoading, error, refresh } = useAdminStatsRealtime();
 
   // Mock recent activity data
@@ -136,7 +121,7 @@ export default function AdminDashboard() {
       icon: Plus,
       href: '/admin/products/new',
       color: 'bg-circleTel-orange hover:bg-circleTel-orange/90',
-      disabled: !canEdit()
+      permission: PERMISSIONS.PRODUCTS.CREATE
     },
     {
       title: 'Review Approvals',
@@ -144,7 +129,7 @@ export default function AdminDashboard() {
       icon: CheckCircle,
       href: '/admin/workflow',
       color: 'bg-green-600 hover:bg-green-700',
-      disabled: !canApprove(),
+      permission: PERMISSIONS.PRODUCTS.APPROVE,
       badge: stats.pendingApprovals > 0 ? stats.pendingApprovals : undefined
     },
     {
@@ -152,7 +137,8 @@ export default function AdminDashboard() {
       description: 'Product performance metrics',
       icon: TrendingUp,
       href: '/admin/analytics',
-      color: 'bg-blue-600 hover:bg-blue-700'
+      color: 'bg-blue-600 hover:bg-blue-700',
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
       title: 'Manage Users',
@@ -160,7 +146,7 @@ export default function AdminDashboard() {
       icon: Users,
       href: '/admin/users',
       color: 'bg-purple-600 hover:bg-purple-700',
-      disabled: user?.role !== 'super_admin'
+      permission: PERMISSIONS.USERS.MANAGE_ROLES
     }
   ];
 
@@ -279,8 +265,10 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action, index) => (
-              <div key={index}>
-                {action.disabled ? (
+              <PermissionGate
+                key={index}
+                permissions={[action.permission]}
+                fallback={
                   <Button
                     disabled
                     className="h-auto p-4 flex flex-col items-start space-y-2 w-full"
@@ -301,30 +289,30 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </Button>
-                ) : (
-                  <Link href={action.href} className="w-full">
-                    <Button
-                      className={`h-auto p-4 flex flex-col items-start space-y-2 ${action.color} text-white w-full`}
-                    >
-                      <div className="w-full">
-                        <div className="flex items-center justify-between w-full">
-                          <action.icon className="h-5 w-5" />
-                          {action.badge && (
-                            <Badge variant="destructive" className="text-xs">
-                              {action.badge}
-                            </Badge>
-                          )}
-                          <ArrowUpRight className="h-4 w-4 opacity-70" />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-medium">{action.title}</div>
-                          <div className="text-sm opacity-90">{action.description}</div>
-                        </div>
+                }
+              >
+                <Link href={action.href} className="w-full">
+                  <Button
+                    className={`h-auto p-4 flex flex-col items-start space-y-2 ${action.color} text-white w-full`}
+                  >
+                    <div className="w-full">
+                      <div className="flex items-center justify-between w-full">
+                        <action.icon className="h-5 w-5" />
+                        {action.badge && (
+                          <Badge variant="destructive" className="text-xs">
+                            {action.badge}
+                          </Badge>
+                        )}
+                        <ArrowUpRight className="h-4 w-4 opacity-70" />
                       </div>
-                    </Button>
-                  </Link>
-                )}
-              </div>
+                      <div className="text-left">
+                        <div className="font-medium">{action.title}</div>
+                        <div className="text-sm opacity-90">{action.description}</div>
+                      </div>
+                    </div>
+                  </Button>
+                </Link>
+              </PermissionGate>
             ))}
           </div>
         </CardContent>
