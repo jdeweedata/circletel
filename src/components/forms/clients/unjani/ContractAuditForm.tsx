@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Users, FileText, Calendar, Phone } from 'lucide-react';
+import { Building2, Users, FileText } from 'lucide-react';
 
 import { FormLayout } from '../../common/FormLayout';
 import { ProgressBar } from '../../common/ProgressBar';
@@ -20,25 +20,18 @@ import {
   PROVIDER_OPTIONS,
   CONNECTION_TYPE_OPTIONS,
   CONTRACT_STATUS_OPTIONS,
-  CONTACT_POSITION_OPTIONS,
-  CONTACT_TIME_OPTIONS,
   CONTRACT_TYPE_OPTIONS
 } from './types';
 
 import { calculateProgress } from '../../utils/validation';
 import { useFormPersistence } from '../../utils/storage';
 import { submitUnjaniForm } from '@/services/supabase';
-import { NotificationPreferences } from './NotificationPreferences';
 
 export function UnjaniContractAuditForm() {
   const [progress, setProgress] = useState(0);
   const [priority, setPriority] = useState<{ priority: 'high' | 'medium' | 'low'; reason: string } | null>(null);
   const [contractEndDate, setContractEndDate] = useState<string>('');
 
-  // Email notification preferences
-  const [notifyTeam, setNotifyTeam] = useState(true);
-  const [notifyClient, setNotifyClient] = useState(true);
-  const [customEmails, setCustomEmails] = useState('');
 
   const { saveDraft, loadDraft, deleteDraft } = useFormPersistence('unjani', 'contract_audit');
 
@@ -130,33 +123,15 @@ export function UnjaniContractAuditForm() {
 
   const onSubmit = async (data: UnjaniAuditFormData) => {
     try {
-      // Prepare submission data with notification preferences
-      const submissionData = {
-        ...data,
-        notificationPreferences: {
-          notifyTeam,
-          notifyClient,
-          customEmails: customEmails ? customEmails.split(',').map(email => email.trim()).filter(email => email) : []
-        }
-      };
-
       // Submit to Supabase
-      const result = await submitUnjaniForm(submissionData, {
+      const result = await submitUnjaniForm(data, {
         migrationPriority: priority?.priority,
         priorityReason: priority?.reason,
         submittedAt: new Date().toISOString()
       });
 
       if (result.success) {
-        // Enhanced success message with email notification info
-        const emailInfo = [];
-        if (notifyTeam) emailInfo.push('Team notification sent');
-        if (notifyClient && data.contactEmail) emailInfo.push(`Confirmation sent to ${data.contactEmail}`);
-        if (customEmails) emailInfo.push(`Additional notifications sent to ${customEmails.split(',').length} recipients`);
-
-        const emailStatus = emailInfo.length > 0 ? `\n\nEmail Notifications:\n${emailInfo.join('\n')}` : '\n\nNo email notifications were configured.';
-
-        alert(`${result.message}\n\nPriority: ${priority?.priority?.toUpperCase()}\nContract Status: ${data.contractStatus}\n\nData has been saved to the database for rollout planning.${emailStatus}`);
+        alert(`${result.message}\n\nPriority: ${priority?.priority?.toUpperCase()}\nContract Status: ${data.contractStatus}\n\nData has been saved to the database for rollout planning.`);
 
         // Clear draft
         deleteDraft();
@@ -166,9 +141,6 @@ export function UnjaniContractAuditForm() {
           reset();
           setProgress(0);
           setPriority(null);
-          setNotifyTeam(true);
-          setNotifyClient(true);
-          setCustomEmails('');
         }
       } else {
         // Handle submission error
@@ -335,160 +307,7 @@ export function UnjaniContractAuditForm() {
           </div>
         </FormSection>
 
-        {/* Section 4: Migration Planning */}
-        <FormSection
-          title="4. Migration Readiness & Rollout Priority"
-          icon={<Calendar className="w-6 h-6" />}
-        >
-          {priority && (
-            <Alert className="mb-6">
-              <AlertDescription>
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold">Recommended Rollout Priority:</span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      priority.priority === 'high'
-                        ? 'bg-red-100 text-red-800'
-                        : priority.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {priority.priority.toUpperCase()}
-                  </span>
-                </div>
-                <p className="text-sm mt-2">{priority.reason}</p>
-              </AlertDescription>
-            </Alert>
-          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              label="Preferred Migration Date"
-              type="date"
-              error={errors.preferredMigrationDate?.message}
-              {...register('preferredMigrationDate')}
-            />
-          </div>
-
-          <TextareaField
-            label="Additional Notes & Observations"
-            placeholder="Enter any additional information about contract terms, service issues, or migration considerations..."
-            rows={4}
-            error={errors.additionalNotes?.message}
-            {...register('additionalNotes')}
-          />
-        </FormSection>
-
-        {/* Section 5: Contact Information */}
-        <FormSection
-          title="5. Contact Person on Site"
-          icon={<Phone className="w-6 h-6" />}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              label="Contact Person Name"
-              placeholder="Full name"
-              required
-              error={errors.contactName?.message}
-              {...register('contactName')}
-            />
-
-            <SelectField
-              label="Position/Role"
-              required
-              options={CONTACT_POSITION_OPTIONS}
-              error={errors.contactPosition?.message}
-              {...register('contactPosition')}
-            />
-
-            <InputField
-              label="Mobile Number"
-              type="tel"
-              placeholder="e.g., 073 123 4567"
-              required
-              error={errors.contactPhone?.message}
-              {...register('contactPhone')}
-            />
-
-            <InputField
-              label="Email Address"
-              type="email"
-              placeholder="email@example.com"
-              required
-              error={errors.contactEmail?.message}
-              {...register('contactEmail')}
-            />
-
-            <InputField
-              label="Alternative Contact Name"
-              placeholder="Backup contact person"
-              error={errors.alternativeContact?.message}
-              {...register('alternativeContact')}
-            />
-
-            <InputField
-              label="Alternative Contact Number"
-              type="tel"
-              placeholder="e.g., 082 987 6543"
-              error={errors.alternativePhone?.message}
-              {...register('alternativePhone')}
-            />
-
-            <SelectField
-              label="Best Time to Contact"
-              options={CONTACT_TIME_OPTIONS}
-              error={errors.bestContactTime?.message}
-              {...register('bestContactTime')}
-            />
-          </div>
-
-          <TextareaField
-            label="Site Access Notes"
-            placeholder="Any special access requirements, security procedures, or site-specific instructions for installation team..."
-            rows={3}
-            error={errors.siteAccessNotes?.message}
-            {...register('siteAccessNotes')}
-          />
-        </FormSection>
-
-        {/* Section 6: Email Notifications */}
-        <NotificationPreferences
-          form={{ watch }}
-          notifyTeam={notifyTeam}
-          setNotifyTeam={setNotifyTeam}
-          notifyClient={notifyClient}
-          setNotifyClient={setNotifyClient}
-          customEmails={customEmails}
-          setCustomEmails={setCustomEmails}
-        />
-
-        {/* Summary Card */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h3 className="text-xl font-semibold text-circleTel-orange mb-4">Audit Summary</h3>
-          <div className="grid grid-cols-3 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-circleTel-orange">{progress}%</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide">Complete</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-circleTel-orange">
-                {priority?.priority?.toUpperCase() || '-'}
-              </div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide">Priority</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-circleTel-orange">
-                {watchedValues.contractStatus === 'active'
-                  ? 'Active'
-                  : watchedValues.contractStatus === 'expired' || watchedValues.contractStatus === 'month-to-month-active'
-                  ? 'Ready'
-                  : 'Pending'}
-              </div>
-              <div className="text-sm text-gray-500 uppercase tracking-wide">Status</div>
-            </div>
-          </div>
-        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-center">

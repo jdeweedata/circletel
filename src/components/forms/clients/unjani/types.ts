@@ -21,20 +21,6 @@ export interface UnjaniAuditFormData {
   contractStart: string;
   contractEnd?: string;
 
-  // Migration Planning
-  preferredMigrationDate?: string;
-  additionalNotes?: string;
-
-  // Contact Information
-  contactName: string;
-  contactPosition: string;
-  contactPhone: string;
-  contactEmail: string;
-  alternativeContact?: string;
-  alternativePhone?: string;
-  bestContactTime?: string;
-  siteAccessNotes?: string;
-
   // Computed fields
   migrationPriority?: 'high' | 'medium' | 'low';
   priorityReason?: string;
@@ -52,21 +38,11 @@ export const unjaniAuditFormSchema = z.object({
   contractType: z.enum(['month-to-month', '12-months', '24-months', 'other']),
   contractStatus: requiredStringSchema,
   contractStart: dateSchema,
-  contactName: requiredStringSchema,
-  contactPosition: requiredStringSchema,
-  contactPhone: phoneSchema,
-  contactEmail: emailSchema,
 
   // Optional fields
   clinicCode: z.string().optional(),
   currentSpeed: z.coerce.number().optional(),
   contractEnd: z.string().optional(),
-  preferredMigrationDate: z.string().optional(),
-  additionalNotes: z.string().optional(),
-  alternativeContact: z.string().optional(),
-  alternativePhone: z.string().optional(),
-  bestContactTime: z.string().optional(),
-  siteAccessNotes: z.string().optional(),
 });
 
 // Priority calculation logic
@@ -125,11 +101,7 @@ export const REQUIRED_FIELDS = [
   'monthlyFee',
   'contractType',
   'contractStatus',
-  'contractStart',
-  'contactName',
-  'contactPosition',
-  'contactPhone',
-  'contactEmail'
+  'contractStart'
 ];
 
 // Options for select fields
