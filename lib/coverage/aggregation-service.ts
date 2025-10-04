@@ -163,11 +163,54 @@ export class CoverageAggregationService {
 
   /**
    * Get MTN coverage using real-time WMS or fallback to dual-source approach
+   *
+   * 🚨 TEMPORARILY DISABLED - MTN WMS Integration (October 4, 2025)
+   * Root Cause: Using wrong API (Business/Wholesale WMS instead of Consumer REST API)
+   * Current Status: Returns low-confidence "unavailable" to prevent false positives
+   * Fix Timeline: Phase 2 implementation of Consumer API (1-2 weeks)
+   * Documentation: docs/MTN_INTEGRATION_SUMMARY.md
    */
   private async getMTNCoverage(
     coordinates: Coordinates,
     serviceTypes?: ServiceType[]
   ): Promise<CoverageResponse> {
+    // 🚨 CRITICAL: MTN WMS integration disabled due to 100% false negative rate
+    // The current WMS endpoints (mtnsi.mtn.co.za/mtnsi/ows) return NO coverage
+    // for addresses where MTN's official site shows FULL coverage.
+    //
+    // Investigation findings:
+    // - MTN Consumer API uses REST endpoints (not WMS)
+    // - Correct endpoints: /coverage/configs/{config}/feasibility
+    // - Our WMS integration: 0% accuracy (100% mismatch)
+    //
+    // See: docs/MTN_CONSUMER_API_SPECIFICATION.md for implementation plan
+
+    console.warn(
+      '[MTN Coverage] Integration temporarily disabled - using fallback data. ' +
+      'See docs/MTN_INTEGRATION_SUMMARY.md for details.'
+    );
+
+    // Return low-confidence unavailable response
+    // This prevents false positives while we implement the correct Consumer API
+    return {
+      available: false,
+      coordinates,
+      confidence: 'low',
+      services: [],
+      providers: [{
+        name: 'MTN',
+        available: false,
+        services: []
+      }],
+      lastUpdated: new Date().toISOString(),
+      metadata: {
+        source: 'disabled_integration',
+        reason: 'MTN WMS integration disabled - 100% false negative rate',
+        documentation: 'docs/MTN_INTEGRATION_SUMMARY.md'
+      }
+    };
+
+    /* ORIGINAL CODE - DISABLED OCTOBER 4, 2025
     try {
       // Try real-time WMS first for most accurate, up-to-date coverage
       const realtimeCoverage = await mtnWMSRealtimeClient.checkCoverage(
@@ -240,6 +283,7 @@ export class CoverageAggregationService {
       }],
       lastUpdated: mtnResponse.lastUpdated
     };
+    */
   }
 
   /**
