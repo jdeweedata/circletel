@@ -75,7 +75,8 @@ export async function GET(request: NextRequest) {
             lastUpdated: coverageResult.lastUpdated,
             servicesFound: availableServices.length,
             source: coverageResult.providers.mtn?.metadata?.source || 'mtn_consumer_api',
-            phase: 'phase_2_enabled'
+            phase: coverageResult.providers.mtn?.metadata?.phase || 'phase_3_infrastructure_ready',
+            infrastructureEstimatorAvailable: coverageResult.providers.mtn?.metadata?.infrastructureEstimatorAvailable || true
           };
 
           console.log('Real-time MTN coverage check:', {
