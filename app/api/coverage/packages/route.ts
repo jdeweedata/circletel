@@ -56,17 +56,9 @@ export async function GET(request: NextRequest) {
           prioritizeSpeed: false
         });
 
-        // 🚨 MTN Integration Check
-        // MTN WMS is currently disabled (returns low confidence, unavailable)
-        // Always trigger fallback for MTN until Consumer API is implemented
-        const mtnProvider = coverageResult.providers.mtn;
-        const isMTNDisabled = mtnProvider?.confidence === 'low' && !mtnProvider?.available;
-
-        if (isMTNDisabled) {
-          // MTN integration is disabled - trigger fallback immediately
-          console.warn('[MTN Coverage] Integration disabled, using PostGIS fallback');
-          throw new Error('MTN integration temporarily disabled');
-        }
+        // ✅ Phase 2: MTN Consumer API enabled
+        // The aggregation service now uses the verified Consumer API endpoint
+        // Fallback to PostGIS only if the Consumer API fails or returns no coverage
 
         if (coverageResult.overallCoverage && coverageResult.bestServices.length > 0) {
           coverageAvailable = true;
@@ -82,7 +74,8 @@ export async function GET(request: NextRequest) {
             confidence: coverageResult.providers.mtn?.confidence || 'unknown',
             lastUpdated: coverageResult.lastUpdated,
             servicesFound: availableServices.length,
-            source: 'real-time' // Will change to 'consumer_api' in Phase 2
+            source: coverageResult.providers.mtn?.metadata?.source || 'mtn_consumer_api',
+            phase: 'phase_2_enabled'
           };
 
           console.log('Real-time MTN coverage check:', {

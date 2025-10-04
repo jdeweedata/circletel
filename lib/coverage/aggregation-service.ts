@@ -162,68 +162,35 @@ export class CoverageAggregationService {
   }
 
   /**
-   * Get MTN coverage using real-time WMS or fallback to dual-source approach
+   * Get MTN coverage using Consumer API (GeoServer WMS)
    *
-   * 🚨 TEMPORARILY DISABLED - MTN WMS Integration (October 4, 2025)
-   * Root Cause: Using wrong API (Business/Wholesale WMS instead of Consumer REST API)
-   * Current Status: Returns low-confidence "unavailable" to prevent false positives
-   * Fix Timeline: Phase 2 implementation of Consumer API (1-2 weeks)
+   * ✅ PHASE 2 ENABLED - MTN Consumer API Integration (October 4, 2025)
+   * Using verified Consumer API endpoint: https://mtnsi.mtn.co.za/cache/geoserver/wms
+   * This endpoint was tested and confirmed working with real MTN coverage data
    * Documentation: docs/MTN_INTEGRATION_SUMMARY.md
    */
   private async getMTNCoverage(
     coordinates: Coordinates,
     serviceTypes?: ServiceType[]
   ): Promise<CoverageResponse> {
-    // 🚨 CRITICAL: MTN WMS integration disabled due to 100% false negative rate
-    // The current WMS endpoints (mtnsi.mtn.co.za/mtnsi/ows) return NO coverage
-    // for addresses where MTN's official site shows FULL coverage.
-    //
-    // Investigation findings:
-    // - MTN Consumer API uses REST endpoints (not WMS)
-    // - Correct endpoints: /coverage/configs/{config}/feasibility
-    // - Our WMS integration: 0% accuracy (100% mismatch)
-    //
-    // See: docs/MTN_CONSUMER_API_SPECIFICATION.md for implementation plan
-
-    console.warn(
-      '[MTN Coverage] Integration temporarily disabled - using fallback data. ' +
-      'See docs/MTN_INTEGRATION_SUMMARY.md for details.'
-    );
-
-    // Return low-confidence unavailable response
-    // This prevents false positives while we implement the correct Consumer API
-    return {
-      available: false,
-      coordinates,
-      confidence: 'low',
-      services: [],
-      providers: [{
-        name: 'MTN',
-        available: false,
-        services: []
-      }],
-      lastUpdated: new Date().toISOString(),
-      metadata: {
-        source: 'disabled_integration',
-        reason: 'MTN WMS integration disabled - 100% false negative rate',
-        documentation: 'docs/MTN_INTEGRATION_SUMMARY.md'
-      }
-    };
-
-    /* ORIGINAL CODE - DISABLED OCTOBER 4, 2025
     try {
-      // Try real-time WMS first for most accurate, up-to-date coverage
+      // Use Consumer API (GeoServer WMS) - verified working endpoint
       const realtimeCoverage = await mtnWMSRealtimeClient.checkCoverage(
         coordinates,
         serviceTypes
       );
 
       if (realtimeCoverage.available) {
-        // Successfully got real-time data
+        // Successfully got real-time data from Consumer API
+        console.log('[MTN Coverage] Consumer API returned coverage:', {
+          services: realtimeCoverage.services.length,
+          coordinates
+        });
+
         return {
           available: realtimeCoverage.available,
           coordinates,
-          confidence: 'high', // WMS data is high confidence
+          confidence: 'high', // Consumer API data is high confidence
           services: realtimeCoverage.services.map(service => ({
             type: service.type,
             available: service.available,
@@ -242,48 +209,58 @@ export class CoverageAggregationService {
               technology: this.getTechnologyForServiceType(service.type)
             }))
           }],
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
+          metadata: {
+            source: 'mtn_consumer_api',
+            endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
+            phase: 'phase_2_enabled'
+          }
         };
       }
+
+      // If Consumer API returns no coverage, return unavailable
+      console.log('[MTN Coverage] Consumer API found no coverage at location');
+      return {
+        available: false,
+        coordinates,
+        confidence: 'high', // High confidence that no coverage exists
+        services: [],
+        providers: [{
+          name: 'MTN',
+          available: false,
+          services: []
+        }],
+        lastUpdated: new Date().toISOString(),
+        metadata: {
+          source: 'mtn_consumer_api',
+          endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
+          phase: 'phase_2_enabled',
+          note: 'No coverage found at location'
+        }
+      };
+
     } catch (error) {
-      console.warn('Real-time WMS check failed, falling back to dual-source:', error);
+      console.error('[MTN Coverage] Consumer API check failed:', error);
+
+      // Return low-confidence unavailable on error
+      return {
+        available: false,
+        coordinates,
+        confidence: 'low',
+        services: [],
+        providers: [{
+          name: 'MTN',
+          available: false,
+          services: []
+        }],
+        lastUpdated: new Date().toISOString(),
+        metadata: {
+          source: 'mtn_consumer_api_error',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          phase: 'phase_2_enabled'
+        }
+      };
     }
-
-    // Fallback to original dual-source approach
-    const coverageResults = await mtnWMSClient.checkCoverage(coordinates, serviceTypes);
-
-    const mtnResponse = MTNWMSParser.parseDualSourceCoverage(
-      coverageResults.business,
-      coverageResults.consumer,
-      coordinates
-    );
-
-    // Transform MTNCoverageResponse to CoverageResponse format
-    return {
-      available: mtnResponse.available,
-      coordinates: mtnResponse.coordinates,
-      confidence: mtnResponse.confidence,
-      services: mtnResponse.services.map(service => ({
-        type: service.type,
-        available: service.available,
-        signal: service.signal,
-        provider: 'MTN',
-        technology: service.technology
-      })),
-      providers: [{
-        name: 'MTN',
-        available: mtnResponse.available,
-        services: mtnResponse.services.map(service => ({
-          type: service.type,
-          available: service.available,
-          signal: service.signal,
-          provider: 'MTN',
-          technology: service.technology
-        }))
-      }],
-      lastUpdated: mtnResponse.lastUpdated
-    };
-    */
   }
 
   /**
