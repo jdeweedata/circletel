@@ -326,8 +326,8 @@ function PackagesContent() {
                 Coverage Information
               </p>
               <p className="mt-2 text-sm text-blue-800 leading-relaxed">
-                Coverage estimates are based on network infrastructure data and may not reflect current real-time availability.
-                We recommend contacting the service provider to confirm exact coverage at your location.
+                Coverage estimates are based on network provider infrastructure data and are as accurate as provided by the network providers.
+                Actual availability may vary based on location and network conditions.
               </p>
             </div>
 
