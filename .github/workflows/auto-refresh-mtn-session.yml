@@ -1,0 +1,225 @@
+name: Auto-Refresh MTN Session
+
+# Fully automated session refresh using 2Captcha service
+# Runs daily at 2 AM UTC (4 AM SAST) to ensure session never expires
+
+on:
+  # Run daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+  # Also run when session validation fails
+  workflow_run:
+    workflows: ["Validate MTN Session"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  auto-refresh:
+    name: Automated MTN Session Refresh
+    runs-on: ubuntu-latest
+    # Only run if:
+    # 1. Manually triggered, OR
+    # 2. Scheduled run, OR
+    # 3. Validation workflow failed
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: production-clean-deploy
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run automated session refresh
+        id: refresh
+        env:
+          TWOCAPTCHA_API_KEY: ${{ secrets.TWOCAPTCHA_API_KEY }}
+          MTN_USERNAME: ${{ secrets.MTN_USERNAME }}
+          MTN_PASSWORD: ${{ secrets.MTN_PASSWORD }}
+        run: |
+          echo "Starting automated session refresh..."
+
+          # Run the automated refresh script
+          OUTPUT=$(npx tsx scripts/automated-mtn-refresh.ts 2>&1)
+          echo "$OUTPUT"
+
+          # Extract base64 session from output
+          BASE64_SESSION=$(echo "$OUTPUT" | grep -A 1 "Base64 session" | tail -1)
+
+          # Save to output
+          echo "session_base64=$BASE64_SESSION" >> $GITHUB_OUTPUT
+
+          # Check if successful
+          if echo "$OUTPUT" | grep -q "✅ Session Refresh Complete"; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Update GitHub Secret
+        if: steps.refresh.outputs.success == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Updating MTN_SESSION GitHub secret..."
+          echo "${{ steps.refresh.outputs.session_base64 }}" | gh secret set MTN_SESSION
+
+      - name: Update Vercel environment variable
+        if: steps.refresh.outputs.success == 'true'
+        run: |
+          echo "Installing Vercel CLI..."
+          npm install -g vercel@latest
+
+          echo "Updating Vercel MTN_SESSION..."
+
+          # Remove old session
+          echo "${{ steps.refresh.outputs.session_base64 }}" | vercel env rm MTN_SESSION production --yes --token=${{ secrets.VERCEL_TOKEN }} || true
+
+          # Add new session
+          echo "${{ steps.refresh.outputs.session_base64 }}" | vercel env add MTN_SESSION production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Trigger Vercel deployment
+        if: steps.refresh.outputs.success == 'true'
+        run: |
+          echo "Triggering production deployment..."
+          vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify session works
+        if: steps.refresh.outputs.success == 'true'
+        run: |
+          echo "Waiting 30 seconds for deployment..."
+          sleep 30
+
+          echo "Testing MTN API endpoints..."
+
+          # Test auth endpoint
+          AUTH_RESPONSE=$(curl -s https://circletel-staging.vercel.app/api/mtn-wholesale/auth)
+          echo "Auth response: $AUTH_RESPONSE"
+
+          if echo "$AUTH_RESPONSE" | grep -q '"authenticated":true'; then
+            echo "✅ Auth endpoint working"
+          else
+            echo "❌ Auth endpoint failed"
+            exit 1
+          fi
+
+          # Test products endpoint
+          PRODUCTS_RESPONSE=$(curl -s https://circletel-staging.vercel.app/api/mtn-wholesale/products)
+          echo "Products response: $PRODUCTS_RESPONSE"
+
+          if echo "$PRODUCTS_RESPONSE" | grep -q '"error_code":"200"'; then
+            echo "✅ Products endpoint working"
+          else
+            echo "❌ Products endpoint failed"
+            exit 1
+          fi
+
+      - name: Send success notification
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '✅ MTN Session Automatically Refreshed',
+              body: `## Automated Session Refresh Successful
+
+              The MTN SSO session has been automatically refreshed and deployed.
+
+              ### Details
+
+              - **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              - **Timestamp**: ${new Date().toISOString()}
+              - **Method**: Automated with 2Captcha
+              - **Verification**: All API endpoints tested successfully
+
+              ### API Status
+
+              - ✅ Auth endpoint: Working
+              - ✅ Products endpoint: Working
+              - ✅ Session deployed to Vercel
+              - ✅ GitHub secret updated
+
+              ### Next Refresh
+
+              Scheduled for tomorrow at 2 AM UTC (4 AM SAST)
+
+              ---
+
+              *This issue was created automatically by the auto-refresh workflow*
+              `,
+              labels: ['mtn-session', 'automated', 'success']
+            });
+
+      - name: Send failure notification
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '❌ Automated MTN Session Refresh Failed',
+              body: `## Automated Session Refresh Failed
+
+              The automated MTN SSO session refresh encountered an error.
+
+              ### Action Required
+
+              Please refresh the session manually:
+
+              \`\`\`bash
+              npx tsx scripts/test-mtn-sso-auth.ts --manual
+              npx tsx scripts/export-session-env.ts --output-only > session.txt
+              cat session.txt | vercel env rm MTN_SESSION production --yes
+              cat session.txt | vercel env add MTN_SESSION production
+              vercel --prod --yes
+              \`\`\`
+
+              ### Error Details
+
+              - **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              - **Timestamp**: ${new Date().toISOString()}
+
+              ### Possible Causes
+
+              1. 2Captcha service down or API key invalid
+              2. MTN SSO portal unavailable
+              3. Credentials incorrect
+              4. Network issues
+
+              ### Troubleshooting
+
+              1. Check 2Captcha balance: https://2captcha.com/enterpage
+              2. Verify TWOCAPTCHA_API_KEY secret is set
+              3. Verify MTN_USERNAME and MTN_PASSWORD secrets
+              4. Check workflow logs for detailed error
+
+              ---
+
+              *This issue was created automatically by the auto-refresh workflow*
+              `,
+              labels: ['mtn-session', 'automated', 'failure', 'action-required']
+            });
