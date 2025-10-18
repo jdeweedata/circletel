@@ -23,6 +23,11 @@ jobs:
   auto-refresh:
     name: Automated MTN Session Refresh
     runs-on: ubuntu-latest
+    # Add permissions for creating issues and updating secrets
+    permissions:
+      contents: read
+      issues: write
+      secrets: write
     # Only run if:
     # 1. Manually triggered, OR
     # 2. Scheduled run, OR
@@ -36,7 +41,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: production-clean-deploy
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
