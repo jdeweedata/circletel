@@ -23,11 +23,10 @@ jobs:
   auto-refresh:
     name: Automated MTN Session Refresh
     runs-on: ubuntu-latest
-    # Add permissions for creating issues and updating secrets
+    # Add permissions for creating issues
     permissions:
       contents: read
       issues: write
-      secrets: write
     # Only run if:
     # 1. Manually triggered, OR
     # 2. Scheduled run, OR
@@ -81,14 +80,6 @@ jobs:
             echo "success=false" >> $GITHUB_OUTPUT
             exit 1
           fi
-
-      - name: Update GitHub Secret
-        if: steps.refresh.outputs.success == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Updating MTN_SESSION GitHub secret..."
-          echo "${{ steps.refresh.outputs.session_base64 }}" | gh secret set MTN_SESSION
 
       - name: Update Vercel environment variable
         if: steps.refresh.outputs.success == 'true'
@@ -165,7 +156,6 @@ jobs:
               - ✅ Auth endpoint: Working
               - ✅ Products endpoint: Working
               - ✅ Session deployed to Vercel
-              - ✅ GitHub secret updated
 
               ### Next Refresh
 
