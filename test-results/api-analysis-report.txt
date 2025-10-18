@@ -1,0 +1,2140 @@
+
+📂 Reading results from: C:\Projects\circletel-nextjs\test-results\coverage-api-recording-2025-10-16T08-14-00-150Z.json
+
+
+====================================================================================================
+🌐 SITE: Supersonic
+📍 ADDRESS: Witkoppen Spruit Park, 23 Granite Rd, Witkoppen, Sandton, 2068
+⏰ TIMESTAMP: 2025-10-16T08:12:24.363Z
+====================================================================================================
+
+
+📡 COVERAGE/LEAD API CALLS (36 total):
+
+1. GET https://supersonic.co.za/home
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html; charset=utf-8
+   Response Body:
+     <!DOCTYPE html><html lang="en" data-critters-container><head>
+         <title>Supersonic - Leading ISP in South Africa | High-Speed Internet Solutions</title>
+         <meta charset="utf-8">
+     
+         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0 user-scalable=no">
+     
+     
+         <base href="/">
+     
+         <!-- Favicon -->
+         <link rel="icon" type="image/png" href="assets/icons/favicon.ico">
+         <!-- Fonts -->
+         <link href="assets/fonts/inter/inter.css" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="assets/fonts/inter/inter.css" media="all"></noscript>
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+         <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_iWtGd_ozvdECWithSize.woff2" as="font" type="font/woff2" crossorigin>
+     ... (truncated)
+
+2. GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "headerText": "Find out what speeds are waiting at your address",
+         "bodyText": "Get the right deal, right where you are — in just a few simple steps.\nIt only takes 10 seconds. No forms.",
+         "text_color_hex": "#ffffff",
+         "image": {
+           "id": 1134,
+           "url": "https://supersonic.sudosky.com/uploads/DESKTOP_9fdbf32ef2.jpg"
+         },
+         "mobileImage": {
+           "id": 1133,
+           "url": "https://supersonic.sudosky.com/uploads/MOBILE_ac108317a2.jpg"
+         }
+       },
+     ... (truncated)
+
+3. GET https://supersonic.sudosky.com/api/home-page-body?populate=*
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "testimonials": [
+           {
+             "Body": "I have only had the best service and experience from Supersonic. They have assisted me in a professional and highly skilled manner everytime.",
+             "Stars": 5,
+             "Title": "Here's what our clients say:",
+             "Author": "Andres Cameron"
+           },
+           {
+             "Body": "I have only had the best service and experience from Supersonic. They have assisted me in a professional and highly skilled manner everytime.",
+             "Stars": 3,
+             "Title": "Here's what our clients say:",
+             "Author": "Bradley White"
+     ... (truncated)
+
+4. GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "headerText": "Find out what speeds are waiting at your address",
+         "bodyText": "Get the right deal, right where you are — in just a few simple steps.\nIt only takes 10 seconds. No forms.",
+         "text_color_hex": "#ffffff",
+         "image": {
+           "id": 1134,
+           "url": "https://supersonic.sudosky.com/uploads/DESKTOP_9fdbf32ef2.jpg"
+         },
+         "mobileImage": {
+           "id": 1133,
+           "url": "https://supersonic.sudosky.com/uploads/MOBILE_ac108317a2.jpg"
+         }
+       },
+     ... (truncated)
+
+5. GET https://supersonic.sudosky.com/api/home-page-reasons?populate[icon][fields][1]=url&populate[icon][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": [
+         {
+           "id": 9,
+           "title": "Coverage",
+           "text": "Powered by MTN with 96% coverage and partnered with top fibre providers, we ensure faster speeds, seamless streaming, and efficient downloads.",
+           "header": null,
+           "createdAt": "2024-07-31T13:54:02.263Z",
+           "updatedAt": "2025-04-24T06:49:45.674Z",
+           "publishedAt": "2024-07-31T13:54:04.972Z",
+           "icon": {
+             "id": 1044,
+             "url": "https://supersonic.sudosky.com/uploads/coverage_824e3211aa.svg",
+             "alternativeText": null
+           }
+     ... (truncated)
+
+6. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+7. GET https://supersonic.sudosky.com/api/home-page-banners?populate[banner][fields][1]=url&populate[mobileBanner][fields][2]=alternativeText&populate[mobileBanner][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": [
+         {
+           "id": 8,
+           "createdAt": "2025-03-12T07:56:47.106Z",
+           "updatedAt": "2025-08-06T09:12:07.902Z",
+           "publishedAt": "2025-08-06T09:12:07.899Z",
+           "banner": [
+             {
+               "id": 1144,
+               "url": "https://supersonic.sudosky.com/uploads/Website_banners_1920x400_ad589e3c38_a49b89a492.png"
+             }
+           ],
+           "mobileBanner": [
+             {
+     ... (truncated)
+
+8. GET https://supersonic.co.za/assets/icons/heroicons-solid.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+
+9. GET https://supersonic.co.za/assets/icons/material-twotone.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+
+10. GET https://supersonic.co.za/assets/images/logo/logo.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+
+11. GET https://supersonic.sudosky.com/uploads/no_contracts_1a81c3a068.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+12. GET https://supersonic.sudosky.com/uploads/coverage_824e3211aa.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+13. GET https://supersonic.sudosky.com/uploads/installation_17adeba194.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+14. GET https://supersonic.sudosky.com/uploads/reliability_d9035a0425.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+15. GET https://supersonic.sudosky.com/uploads/simple_plans_79be9cb952.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+16. GET https://supersonic.sudosky.com/uploads/uncapped_2959b8d912.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+17. GET https://supersonic.co.za/ajax-loader.0b80f665935ef7de.gif
+   Status: 200 OK
+   Response Headers:
+     content-type: image/gif
+
+18. GET https://px.ads.linkedin.com/attribution_trigger?pid=3888540&time=1760602332961&url=https%3A%2F%2Fsupersonic.co.za%2Fhome
+   Status: 200 
+   Response Headers:
+     content-type: application/json
+   Response Body:
+     {}
+
+19. GET https://t.co/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=2&event_id=28b2c878-7992-47d1-b525-f9c1f6b40bbb&events=%5B%5B%22pageview%22%2C%7B%7D%5D%5D&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=0c3b89a1-815a-4e40-986d-3e84a0c45061&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&tw_order_quantity=0&tw_sale_amount=0&txn_id=o80eb&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+20. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602332961&li_adsId=16c9adc6-60fa-49b5-986e-ea72153679b5&url=https%3A%2F%2Fsupersonic.co.za%2Fhome
+   Status: 302 
+
+21. GET https://t.co/1/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=3&event=%7B%7D&event_id=72960f31-8f36-4114-80a9-3a6ff8115dd6&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=0c3b89a1-815a-4e40-986d-3e84a0c45061&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&txn_id=ogjos&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+22. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602332961&li_adsId=16c9adc6-60fa-49b5-986e-ea72153679b5&url=https%3A%2F%2Fsupersonic.co.za%2Fhome&cookiesTest=true
+   Status: 302 
+
+23. GET https://pixel.quantserve.com/pixel;r=1742131101;labels=_fp.event.PageView;event=refresh;rf=3;a=p-K0nJSVgMebKH6;url=https%3A%2F%2Fsupersonic.co.za%2Fhome;ns=0;ce=1;qjs=1;qv=eed76d27-20251007131428;ref=;dst=0;et=1760602333575;tzo=-120;ogl=title.Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%2Ctype.website%2Cdescription.Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa%252E%20Discover%20ou%2Cimage.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fassets%2Fimages%2Flogo%2Flogo%252Esvg%2Curl.https%3A%2F%2Fsupersonic%252Eco%252Eza;d=supersonic.co.za;uht=2;fpan=1;fpa=P1-dc9edf8d-2cd6-43b8-a3dd-a1736e523dc3;pbc=;_ses=179a1606-b85b-4a0c-8bbd-a8765e92a7a0;_seg=0;_ss=1;gdpr=0;mdl=
+   Status: 200 
+   Response Headers:
+     content-type: image/gif
+
+24. GET https://bat.bing.com/action/0?ti=343194057&tm=gtm002&Ver=2&mid=2acd8e26-3064-4d0f-925c-dc4c5a1db0c8&bo=1&sid=d35e4610aa6711f095747f70760cb346&vid=d35ec9e0aa6711f09c3eb30ce2ac89d7&vids=1&msclkid=N&uach=pv%3D10.0&pi=918639831&lg=en-US&sw=1920&sh=1080&sc=24&nwd=1&tl=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&kw=Supersonic,%20high-speed%20internet%20South%20Africa,%20reliable%20ISP,%20affordable%20internet%20plans,%20home%20internet,%20business%20internet,%20internet%20deals,%20uncapped%20fibre,%20coverage%20check,%20Supersonic%20login&p=https%3A%2F%2Fsupersonic.co.za%2Fhome&r=&lt=6076&evt=pageLoad&sv=2&cdb=AQAA&rn=297215
+   Status: 204 
+
+25. GET https://supersonic.co.za/slick.653a4cbba6e1a2b3.woff
+   Status: 200 OK
+   Response Headers:
+     content-type: font/woff
+
+26. GET https://www.linkedin.com/px/li_sync?redirect=https%3A%2F%2Fpx.ads.linkedin.com%2Fcollect%3Fv%3D2%26fmt%3Djs%26pid%3D3888540%26time%3D1760602332961%26li_adsId%3D16c9adc6-60fa-49b5-986e-ea72153679b5%26url%3Dhttps%253A%252F%252Fsupersonic.co.za%252Fhome%26cookiesTest%3Dtrue%26liSync%3Dtrue
+   Status: 302 
+
+27. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602332961&li_adsId=16c9adc6-60fa-49b5-986e-ea72153679b5&url=https%3A%2F%2Fsupersonic.co.za%2Fhome&cookiesTest=true&liSync=true
+   Status: 200 
+   Response Headers:
+     content-type: application/javascript
+
+28. GET https://supersonic.co.za/assets/icons/heroicons-outline.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+
+29. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+30. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+31. GET https://supersonic.sudosky.com/api/sign-up-screen-image?populate[image][fields][1]=url&populate[logo][fields][1]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T07:56:42.462Z",
+         "updatedAt": "2025-04-24T07:44:34.271Z",
+         "publishedAt": "2024-04-25T09:12:48.477Z",
+         "image": null,
+         "logo": {
+           "id": 1109,
+           "url": "https://supersonic.sudosky.com/uploads/sign_up_be243e2f9c.png"
+         }
+       },
+       "meta": {}
+     }
+
+32. GET https://server-side-tagging-f73nmgjrda-uc.a.run.app/_/service_worker/5a20/sw_iframe.html?origin=https%3A%2F%2Fsupersonic.co.za&1p=1
+   Status: 200 
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     <!DOCTYPE html>
+     <html>
+     <head>
+       <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+     </head>
+     <body>
+       <script>
+     'use strict';var m={};class n{constructor(a){this.j=a;this.g={};this.h={};this.i=0;this.id=String(Math.floor(Number.MAX_SAFE_INTEGER*Math.random()))}}function p(a){return a.performance&&a.performance.now()||Date.now()}
+     var q=function(a,c){class d{constructor(b,f,g){this.failureType=b;this.data=f;this.g=g;this.h=new n(p(g))}u(b,f){const g=b.clientId;if(b.type===0){b.isDead=!0;var e=this.h,h=p(this.g);e.g[g]==null&&(e.g[g]=0,e.h[g]=h,e.i++);e.g[g]++;b.stats={targetId:e.id,clientCount:e.i,totalLifeMs:Math.round(h-e.j),heartbeatCount:e.g[g],clientLifeMs:Math.round(h-e.h[g])}}b.failure={failureType:this.failureType,data:this.data};f(b)}}return new d(5,a,c)};/*
+     
+      Copyright Google LLC
+      SPDX-License-Identifier: Apache-2.0
+     */
+     let r=globalThis.trustedTypes,t;function u(){let a=null;if(!r)return a;try{const c=d=>d;a=r.createPolicy("goog#html",{createHTML:c,createScript:c,createScriptURL:c})}catch(c){}return a};var v=class{constructor(a){this.g=a}toString(){return this.g+""}};function w(a){const c=a;var d;t===void 0&&(t=u());var b=(d=t)?d.createScriptURL(c):c;return new v(b)}function x(a){if(a instanceof v)return a.g;throw Error("");};function y(a,...c){if(c.length===0)return w(a[0]);let d=a[0];for(let b=0;b<c.length;b++)d+=encodeURIComponent(c[b])+a[b+1];return w(d)}function z(a){var c=y`sw.js`,d=x(c).toString();const b=d.split(/[?#]/),f=/[?]/.test(d)?"?"+b[1]:"";return A(b[0],f,/[#]/.test(d)?"#"+(f?b[2]:b[1]):"",a)}
+     function A(a,c,d,b){function f(e,h){e!=null&&(Array.isArray(e)?e.forEach(l=>f(l,h)):(c+=g+encodeURIComponent(h)+"="+encodeURIComponent(e),g="&"))}let g=c.length?"&":"?";b.constructor===Object&&(b=Object.entries(b));Array.isArray(b)?b.forEach(e=>f(e[1],e[0])):b.forEach(f);return w(a+c+d)};const B=/Chrome\/(\d+)/;var D=function(a){const c=a.origin;if(c){var d=a.o?"swe.js":"sw.js",b=a.g?y`/static/service_worker/${a.g}/${d}?origin=${c}`:y`/gtm/static/${d}?origin=${c}`,f=new Map([["origin",c]]);a.h&&f.set("path",a.h);var g=a.l?z(f):b,e=()=>{const k=B.exec(a.window.navigator.userAgent);return k&&Number(k[1])<119},h=a.window.document.location.href;a.g&&(a.l?h=`${a.h}/_/service_worker`:e()||(h="/static/service_worker"));var l={scope:h};a.g&&(l.updateViaCache="all");a.window.navigator.serviceWorker.register(x(g),
+     ... (truncated)
+
+33. GET https://bat.bing.com/action/0?ti=343194057&tm=gtm002&Ver=2&mid=3b5ce557-791e-4968-be23-88c47f094a6f&bo=1&sid=d35e4610aa6711f095747f70760cb346&vid=d35ec9e0aa6711f09c3eb30ce2ac89d7&vids=0&msclkid=N&page_path=%2Fsign-in&spa=Y&p=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&uach=pv%3D10.0&pi=918639831&lg=en-US&sw=1920&sh=1080&sc=24&nwd=1&tl=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&kw=Supersonic,%20high-speed%20internet%20South%20Africa,%20reliable%20ISP,%20affordable%20internet%20plans,%20home%20internet,%20business%20internet,%20internet%20deals,%20uncapped%20fibre,%20coverage%20check,%20Supersonic%20login&r=https%3A%2F%2Fsupersonic.co.za%2Fhome&evt=pageLoad&sv=2&cdb=AQAQ&rn=551804
+   Status: 204 
+
+34. GET https://t.co/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=2&event_id=9418beaa-d41c-41f9-a0cc-049fa64c7a5c&events=%5B%5B%22pageview%22%2C%7B%7D%5D%5D&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=0c3b89a1-815a-4e40-986d-3e84a0c45061&pt=Supersonic%20-%20Sign%20In%20to%20your%20Account&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&tw_iframe_status=0&tw_order_quantity=0&tw_sale_amount=0&txn_id=o80eb&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+35. GET https://t.co/1/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=3&event=%7B%7D&event_id=fbc0c421-84c3-4adc-80fc-6dd3cfcc1e5f&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=0c3b89a1-815a-4e40-986d-3e84a0c45061&pt=Supersonic%20-%20Sign%20In%20to%20your%20Account&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&tw_iframe_status=0&txn_id=ogjos&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+36. GET https://pixel.quantserve.com/pixel;r=1614451520;labels=_fp.event.PageView;event=refresh;rf=0;a=p-K0nJSVgMebKH6;url=https%3A%2F%2Fsupersonic.co.za%2Fsign-in;ns=0;ce=1;qjs=1;qv=eed76d27-20251007131428;ref=;dst=0;et=1760602339441;tzo=-120;ogl=title.Supersonic%20-%20Sign%20In%20to%20your%20Account%2Ctype.website%2Cdescription.Sign%20in%20to%20your%20Supersonic%20account%252E%2Cimage.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fassets%2Fimages%2Flogo%2Flogo%252Esvg%2Curl.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fsign-in;d=supersonic.co.za;uht=2;fpan=0;fpa=P1-dc9edf8d-2cd6-43b8-a3dd-a1736e523dc3;pbc=;_ses=179a1606-b85b-4a0c-8bbd-a8765e92a7a0;_seg=1;gdpr=0;mdl=
+   Status: 200 
+   Response Headers:
+     content-type: image/gif
+
+
+🔐 AUTHENTICATION ANALYSIS:
+
+Found 13 requests with authentication:
+  - GET https://supersonic.co.za/assets/i18n/en.json
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.co.za/assets/icons/heroicons-solid.svg
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.co.za/assets/icons/material-twotone.svg
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+
+
+🍪 COOKIES (32 total):
+
+  CLID
+    Domain: www.clarity.ms
+    Value: 09262d34f9c44707a07ebb0cfdfc3cd8.20251016.20261016
+    Secure: true, HttpOnly: true, SameSite: None
+
+  _clck
+    Domain: .supersonic.co.za
+    Value: 43ncsa%5E2%5Eg07%5E0%5E2115
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _gcl_au
+    Domain: .supersonic.co.za
+    Value: 1.1.788354446.1760602325
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  MUID
+    Domain: .bing.com
+    Value: 3410CC4ACBFC66D817D3DACDCA356775
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MR
+    Domain: .c.bing.com
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  SRM_B
+    Domain: .c.bing.com
+    Value: 3410CC4ACBFC66D817D3DACDCA356775
+    Secure: true, HttpOnly: false, SameSite: None
+
+  SM
+    Domain: .c.clarity.ms
+    Value: C
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MUID
+    Domain: .clarity.ms
+    Value: 3410CC4ACBFC66D817D3DACDCA356775
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MR
+    Domain: .c.clarity.ms
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  ANONCHK
+    Domain: .c.clarity.ms
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  mc
+    Domain: .quantserve.com
+    Value: 68f0a8de-1458a-02f92-941f6
+    Secure: true, HttpOnly: false, SameSite: None
+
+  _fbp
+    Domain: .supersonic.co.za
+    Value: fb.2.1760602334358.38065079439608914
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _ga
+    Domain: .supersonic.co.za
+    Value: GA1.1.1117793056.1760602335
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  li_sugr
+    Domain: .linkedin.com
+    Value: 2758bd73-5787-4ecc-aac3-04cd6f9092af
+    Secure: true, HttpOnly: false, SameSite: None
+
+  bcookie
+    Domain: .linkedin.com
+    Value: "v=2&fb665b47-d3f8-4ed7-8b8b-aae7f2784797"
+    Secure: true, HttpOnly: false, SameSite: None
+
+  lidc
+    Domain: .linkedin.com
+    Value: "b=TGST02:s=T:r=T:a=T:p=T:g=3637:u=1:x=1:i=1760602334:t=1760688734:v=2:sig=AQF_V...
+    Secure: true, HttpOnly: false, SameSite: None
+
+  muc_ads
+    Domain: .t.co
+    Value: 807a5366-ab89-4f3c-ad0d-b1ad97fdf908
+    Secure: true, HttpOnly: false, SameSite: None
+
+  guest_id_marketing
+    Domain: .twitter.com
+    Value: v1%3A176060233503107472
+    Secure: true, HttpOnly: false, SameSite: None
+
+  guest_id_ads
+    Domain: .twitter.com
+    Value: v1%3A176060233503107472
+    Secure: true, HttpOnly: false, SameSite: None
+
+  guest_id
+    Domain: .twitter.com
+    Value: v1%3A176060233503107472
+    Secure: true, HttpOnly: false, SameSite: None
+
+  personalization_id
+    Domain: .twitter.com
+    Value: "v1_pEVtD0oWNBzQssPrVSQZow=="
+    Secure: true, HttpOnly: false, SameSite: None
+
+  UserMatchHistory
+    Domain: .linkedin.com
+    Value: AQKi-8euJ2CNwAAAAZnsE6fII4nUZchdnEJn2emOurI-bn8ZnGYi-kV2Y4QcRIQ1JJzNuvd8fI0pCw
+    Secure: true, HttpOnly: false, SameSite: None
+
+  AnalyticsSyncHistory
+    Domain: .linkedin.com
+    Value: AQKEcd_N4vjeZgAAAZnsE6fIL6XG79HoXPe6kP_jcRrvjbWxG4wdLVsfTUXbiZVbmq6CGVvusXa4oC93...
+    Secure: true, HttpOnly: false, SameSite: None
+
+  __qca
+    Domain: .supersonic.co.za
+    Value: P1-dc9edf8d-2cd6-43b8-a3dd-a1736e523dc3
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  bscookie
+    Domain: .www.linkedin.com
+    Value: "v=1&20251016081215ffb2b667-5c60-49c0-882e-4e32bc3b22deAQHheLiwvUOFTPOIH0sQRSLk9...
+    Secure: true, HttpOnly: true, SameSite: None
+
+  __cf_bm
+    Domain: .linkedin.com
+    Value: D2rt8LwH3XVu8nvxOnrBRaLjY6htE16HzJ.zJWrqwOs-1760602335-1.0.1.1-5tgf8iwbwrY5W9JIm...
+    Secure: true, HttpOnly: true, SameSite: None
+
+  _uetsid
+    Domain: .supersonic.co.za
+    Value: d35e4610aa6711f095747f70760cb346
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _uetvid
+    Domain: .supersonic.co.za
+    Value: d35ec9e0aa6711f09c3eb30ce2ac89d7
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _ga_98TTQDLHZQ
+    Domain: .supersonic.co.za
+    Value: GS2.1.s1760602338$o1$g1$t1760602339$j59$l0$h966363182
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _ga_L2HSQCSW90
+    Domain: .supersonic.co.za
+    Value: GS2.1.s1760602334$o1$g1$t1760602339$j55$l0$h763063233
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  IDE
+    Domain: .doubleclick.net
+    Value: AHWqTUmL-xx9xc4vT_sfFuvPH6FbX5xSGY6z4cEfuXMoRMIoORs9Y6HltNGTDCUt
+    Secure: true, HttpOnly: true, SameSite: None
+
+  _clsk
+    Domain: .supersonic.co.za
+    Value: 1yzqdzp%5E1760602340204%5E2%5E1%5Eb.clarity.ms%2Fcollect
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+
+💾 LOCAL STORAGE (11 items):
+
+  lastExternalReferrerTime:
+    1760602334315
+
+  _uetvid_exp:
+    Tue, 10 Nov 2026 08:12:18 GMT
+
+  _uetsid_exp:
+    Fri, 17 Oct 2025 08:12:18 GMT
+
+  topicsLastReferenceTime:
+    1760602338428
+
+  _uetvid:
+    d35ec9e0aa6711f09c3eb30ce2ac89d7
+
+  lastExternalReferrer:
+    empty
+
+  _gcl_ls:
+    {"schema":"gcl","version":1,"gcl_ctr":{"value":{"value":0,"timeouts":0,"creationTimeMs":1760602324917},"expires":1768378324917}}
+
+  _uetsid:
+    d35e4610aa6711f095747f70760cb346
+
+  _qcses_p-K0nJSVgMebKH6:
+    {"lastEvent":1760602339517,"sid":"179a1606-b85b-4a0c-8bbd-a8765e92a7a0","engagementState":{"eventsCount":2}}
+
+  li_adsId:
+    16c9adc6-60fa-49b5-986e-ea72153679b5
+
+  __qca:
+    {"value":"P1-dc9edf8d-2cd6-43b8-a3dd-a1736e523dc3","expiry":1794471135695}
+
+
+💾 SESSION STORAGE (3 items):
+
+  currentURL:
+    https://supersonic.co.za/sign-in
+
+  previousURL:
+    https://supersonic.co.za/home
+
+  _cltk:
+    1n4ig7q
+
+
+🗺️  WMS/GIS REQUESTS:
+
+Found 4 WMS/GIS requests:
+  - GET https://www.facebook.com/privacy_sandbox/topics/registration/?id=641934811409941
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=PageView&dl=https%3A%2F%2Fsupersonic.co.za%2Fhome&rl=&if=false&ts=1760602334388&sw=1920&sh=1080&v=2.9.235&r=stable&ec=0&o=4126&fbp=fb.2.1760602334358.38065079439608914&ler=empty&cdl=API_unavailable&pmd[title]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=6019.699999988079&it=1760602333231&coo=false&expv2[0]=pl0&expv2[1]=el2&expv2[2]=bc1&rqm=FGET
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=SubscribedButtonClick&dl=https%3A%2F%2Fsupersonic.co.za%2Fhome&rl=&if=false&ts=1760602338351&cd[buttonFeatures]=%7B%22classList%22%3A%22mdc-button__label%22%2C%22destination%22%3A%22%22%2C%22id%22%3A%22%22%2C%22imageUrl%22%3A%22%22%2C%22innerText%22%3A%22Check%20coverage%22%2C%22numChildButtons%22%3A0%2C%22tag%22%3A%22span%22%2C%22type%22%3Anull%7D&cd[buttonText]=Check%20coverage&cd[formFeatures]=%5B%5D&cd[pageFeatures]=%7B%22title%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%7D&sw=1920&sh=1080&v=2.9.235&r=stable&ec=1&o=4126&fbp=fb.2.1760602334358.38065079439608914&ler=empty&cdl=API_unavailable&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=6019.699999988079&it=1760602333231&coo=false&es=automatic&tm=3&expv2[0]=pl0&expv2[1]=el2&expv2[2]=bc1&rqm=FGET
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=PageView&dl=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&rl=&if=false&ts=1760602338424&sw=1920&sh=1080&v=2.9.235&r=stable&ec=2&o=4126&fbp=fb.2.1760602334358.38065079439608914&ler=empty&cdl=API_unavailable&pmd[title]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=6019.699999988079&it=1760602338417&coo=false&expv2[0]=pl0&expv2[1]=el3&expv2[2]=bc1&rqm=FGET
+
+
+
+
+====================================================================================================
+🌐 SITE: CircleTel Customer Portal
+📍 ADDRESS: Witkoppen Spruit Park, 23 Granite Rd, Witkoppen, Sandton, 2068
+⏰ TIMESTAMP: 2025-10-16T08:13:01.400Z
+====================================================================================================
+
+
+📡 COVERAGE/LEAD API CALLS (11 total):
+
+1. GET https://circletel-customer.agilitygis.com/
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html; charset=utf-8
+   Response Body:
+     
+     
+     
+     <!DOCTYPE html>
+     <html lang="en">
+     <head>
+         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+         <meta title="" />
+         <meta name="description" content="" />
+         <title></title>
+         <link rel="icon"
+               type="image/png"
+               href="https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/">
+     
+     
+     ... (truncated)
+
+2. GET https://circletel-customer.agilitygis.com/Style?host=circletel-customer.agilitygis.com
+   Status: 200 OK
+   Response Headers:
+     content-type: text/css; charset=utf-8
+   Response Body:
+     .dropdown-item.active,
+     .dropdown-item:active {
+       color: #f5831f !important;
+       background-color: transparent;
+       font-weight: bold !important;
+     }
+     .pac-container {
+       z-index: 10000;
+     }
+     body {
+       background-color: whitesmoke;
+     }
+     .btn-primary,
+     .btn-primary.dropdown-toggle {
+       background-color: #f5831f !important;
+     ... (truncated)
+
+3. GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/
+   Status: 200 OK
+   Response Headers:
+     content-type: image/jpeg
+
+4. GET https://circletel-customer.agilitygis.com/app/customerportal/app.html
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     
+     <div class="app-view" ng-controller="AppController as vm" style="height:100%;width:100%;position:fixed;">
+     
+         <div class="vbox">
+             <nav class="navbar navbar-expand-lg navbar-light">
+                 <a class="navbar-brand" ng-click="vm.navbarLogo_onClick()">
+                     <img ng-if="vm.siteSettings['navbar-logo']" ng-src="{{vm.apiDomain}}/api/publicsiteinstance/{{vm.siteInstance.ID}}/image/navbar-logo/" style="max-height:35px;" />
+                     <img ng-if="!vm.siteSettings['navbar-logo']" ng-src="{{vm.apiDomain}}/api/publicsiteinstance/{{vm.siteInstance.ID}}/image/logo-file/" style="max-height:35px;" />
+                 </a>
+                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                     <span class="navbar-toggler-icon"></span>
+                 </button>
+     
+                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                     <ul class="navbar-nav mr-auto">
+     ... (truncated)
+
+5. GET https://circletel-customer.agilitygis.com/app/customerportal/home.html
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     
+     <div ng-controller="GetConnectedController as vm" class="">
+     
+         <div full-height ng-if="vm.renderMap">
+             <ng-map disable-default-u-i="true" id="{{vm.mapId}}"
+                     zoom="{{vm.siteSettings['coverage-map-starting-zoom']}}" center="{{vm.center.latitude}}, {{vm.center.longitude}}"
+                     style="position:absolute;top:0px;bottom:0px;right:0px;left:0px;min-height:100%;"
+                     on-click="vm.Map_onClick()"
+                     styles='[{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]'>
+     
+     
+     
+             </ng-map>
+     
+             <div class="input-group map-address-search with-address">
+     ... (truncated)
+
+6. GET https://circletel-customer.agilitygis.com/api/auth/validate
+   Status: 401 Unauthorized
+
+7. GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/navbar-logo/
+   Status: 200 OK
+   Response Headers:
+     content-type: image/jpeg
+
+8. GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Fwireless%2Furl
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {}
+
+9. GET https://circletel-customer.agilitygis.com/api/coverage/wireless
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {
+       "type": "FeatureCollection",
+       "features": [
+         {
+           "type": "Feature",
+           "geometry": {
+             "type": "Point",
+             "coordinates": [
+               18.99020004272461,
+               -33.7234992980957
+             ]
+           },
+           "properties": {
+             "id": 11495853,
+             "status": "Ready",
+     ... (truncated)
+
+10. GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Ffibre%2Furl
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {}
+
+11. GET https://circletel-customer.agilitygis.com/api/coverage/external
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     [
+       {
+         "ProviderName": "DFA",
+         "WMSServerURL": "https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox={bbox}&bboxSR=4326&imageSR=4326&size=256%2C256&f=image"
+       },
+       {
+         "ProviderName": "MTN",
+         "WMSServerURL": "https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX={bbox}&WIDTH=256&HEIGHT=256"
+       }
+     ]
+
+
+🔐 AUTHENTICATION ANALYSIS:
+
+❌ No explicit authentication headers found in API requests
+
+
+🍪 COOKIES (4 total):
+
+  ARRAffinity
+    Domain: .circletel-customer.agilitygis.com
+    Value: 1e438bb47191176baf51982278efdb1185d385ae28103b2dff77eb248bb75ffe
+    Secure: true, HttpOnly: true, SameSite: Lax
+
+  ARRAffinitySameSite
+    Domain: .circletel-customer.agilitygis.com
+    Value: 1e438bb47191176baf51982278efdb1185d385ae28103b2dff77eb248bb75ffe
+    Secure: true, HttpOnly: true, SameSite: None
+
+  ASP.NET_SessionId
+    Domain: circletel-customer.agilitygis.com
+    Value: vtcimio0jvj0csxc5e4qlnuc
+    Secure: true, HttpOnly: true, SameSite: Lax
+
+  __cf_bm
+    Domain: .dfafrica.co.za
+    Value: sCwuItzifFmSNSo43MRaLDg0JLLDXYKyOlYczjkDSrc-1760602372-1.0.1.1-xyMjykn1CABPy5X6Q...
+    Secure: true, HttpOnly: true, SameSite: None
+
+
+💾 LOCAL STORAGE (2 items):
+
+  agis-public-circletel-customer.agilitygis.com.external_coverage:
+    [{"ProviderName":"DFA","WMSServerURL":"https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparen...
+
+  agis-public-circletel-customer.agilitygis.com.wireless_coverage:
+    {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[18.99020004272461,-33.7234992980957]},"properties"...
+
+
+💾 SESSION STORAGE (0 items):
+
+
+🗺️  WMS/GIS REQUESTS:
+
+Found 106 WMS/GIS requests:
+  - GET https://circletel-customer.agilitygis.com/
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/app.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/fonts/font-awesome/css/font-awesome.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/fonts/simple-line-icons/css/simple-line-icons.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/libs/kendo/styles/kendo.common.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/libs/kendo/styles/kendo.default-v3.css
+
+  - GET https://circletel-customer.agilitygis.com/Style?host=circletel-customer.agilitygis.com
+
+  - GET https://circletel-customer.agilitygis.com/app/app.min.js?v=2025.07.12
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.routes.js?v=2025.07.12
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.controller.js?v=2025.07.12
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/background-image-global/
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/home.controller.js
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.html
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/home.html
+
+  - GET https://circletel-customer.agilitygis.com/api/auth/validate
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/navbar-logo/
+
+  - GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Ffibre%2Furl
+
+  - GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Fwireless%2Furl
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/external
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/wireless
+
+  - GET https://maps.googleapis.com/maps/api/js/AuthenticationService.Authenticate?1shttps%3A%2F%2Fcircletel-customer.agilitygis.com%2F&4sAIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&8b0&callback=_xdc_._5mgf2k&key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&token=97084
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/fibre
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.017578125,-33.02708758002873,18.0615234375,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9736328125,-33.02708758002873,18.017578125,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9736328125,-32.99023555965106,18.017578125,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.017578125,-32.99023555965106,18.0615234375,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.0615234375,-32.99023555965106,18.10546875,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.0615234375,-33.02708758002873,18.10546875,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.0615234375,-33.06392419812064,18.10546875,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.017578125,-33.06392419812064,18.0615234375,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9736328125,-33.06392419812064,18.017578125,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9296875,-33.06392419812064,17.9736328125,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9296875,-33.02708758002873,17.9736328125,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9296875,-32.99023555965106,17.9736328125,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9296875,-32.953368145799324,17.9736328125,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9736328125,-32.953368145799324,18.017578125,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.017578125,-32.953368145799324,18.0615234375,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.0615234375,-32.953368145799324,18.10546875,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.10546875,-32.953368145799324,18.1494140625,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.10546875,-32.99023555965106,18.1494140625,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.10546875,-33.02708758002873,18.1494140625,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.10546875,-33.06392419812064,18.1494140625,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.10546875,-33.10074540514424,18.1494140625,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.0615234375,-33.10074540514424,18.10546875,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.017578125,-33.10074540514424,18.0615234375,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9736328125,-33.10074540514424,18.017578125,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.9296875,-33.10074540514424,17.9736328125,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.8857421875,-33.10074540514424,17.9296875,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.8857421875,-33.06392419812064,17.9296875,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.8857421875,-33.02708758002873,17.9296875,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.8857421875,-32.99023555965106,17.9296875,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.8857421875,-32.953368145799324,17.9296875,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.1494140625,-32.953368145799324,18.193359375,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.1494140625,-32.99023555965106,18.193359375,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.1494140625,-33.02708758002873,18.193359375,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.1494140625,-33.06392419812064,18.193359375,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=18.1494140625,-33.10074540514424,18.193359375,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.841796875,-33.10074540514424,17.8857421875,-33.06392419812064&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.841796875,-33.06392419812064,17.8857421875,-33.02708758002873&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.841796875,-33.02708758002873,17.8857421875,-32.99023555965106&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.841796875,-32.99023555965106,17.8857421875,-32.953368145799324&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://gisportal.dfafrica.co.za/server/rest/services/API/API_BasedOSPLayers/MapServer/export?dpi=96&transparent=true&format=png32&layers=show%3A0%2C1&bbox=17.841796875,-32.953368145799324,17.8857421875,-32.916485347314385&bboxSR=4326&imageSR=4326&size=256%2C256&f=image
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.017578125,-33.02708758002873,18.0615234375,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9736328125,-33.02708758002873,18.017578125,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9736328125,-32.99023555965106,18.017578125,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.017578125,-32.99023555965106,18.0615234375,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.0615234375,-32.99023555965106,18.10546875,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.0615234375,-33.02708758002873,18.10546875,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.0615234375,-33.06392419812064,18.10546875,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.017578125,-33.06392419812064,18.0615234375,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9736328125,-33.06392419812064,18.017578125,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9296875,-33.06392419812064,17.9736328125,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9296875,-33.02708758002873,17.9736328125,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9296875,-32.99023555965106,17.9736328125,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9296875,-32.953368145799324,17.9736328125,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9736328125,-32.953368145799324,18.017578125,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.017578125,-32.953368145799324,18.0615234375,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.0615234375,-32.953368145799324,18.10546875,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.10546875,-32.953368145799324,18.1494140625,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.10546875,-32.99023555965106,18.1494140625,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.10546875,-33.02708758002873,18.1494140625,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.10546875,-33.06392419812064,18.1494140625,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.10546875,-33.10074540514424,18.1494140625,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.0615234375,-33.10074540514424,18.10546875,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.017578125,-33.10074540514424,18.0615234375,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9736328125,-33.10074540514424,18.017578125,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.9296875,-33.10074540514424,17.9736328125,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.8857421875,-33.10074540514424,17.9296875,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.8857421875,-33.06392419812064,17.9296875,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.8857421875,-33.02708758002873,17.9296875,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.8857421875,-32.99023555965106,17.9296875,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.8857421875,-32.953368145799324,17.9296875,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.1494140625,-32.953368145799324,18.193359375,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.1494140625,-32.99023555965106,18.193359375,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.1494140625,-33.02708758002873,18.193359375,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.1494140625,-33.06392419812064,18.193359375,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=18.1494140625,-33.10074540514424,18.193359375,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.841796875,-33.10074540514424,17.8857421875,-33.06392419812064&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.841796875,-33.06392419812064,17.8857421875,-33.02708758002873&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.841796875,-33.02708758002873,17.8857421875,-32.99023555965106&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.841796875,-32.99023555965106,17.8857421875,-32.953368145799324&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://mtnsi.mtn.co.za/cache/geoserver/wms?mlid=lteCoverage&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=mtnsi:MTNSA-Coverage-LTE&STYLES=&FORMAT=image/png&TRANSPARENT=TRUE&TILED=TRUE&SRS=EPSG%3A4326&BBOX=17.841796875,-32.953368145799324,17.8857421875,-32.916485347314385&WIDTH=256&HEIGHT=256
+    SERVICE: WMS
+    REQUEST: GetMap
+    VERSION: 1.1.1
+    LAYERS: mtnsi:MTNSA-Coverage-LTE
+
+  - GET https://circletel-customer.agilitygis.com/assets/img/map-marker-ready.png
+
+  - GET https://circletel-customer.agilitygis.com/assets/img/map-marker-planned.png
+
+  - GET https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictions?1s23%20Granite%20Rd%2C%20Witkoppen%2C%20Sandton%2C%202068&4sen-US&7scountry%3Aza&9sgeocode&9sestablishment&15e3&20s97191B1838674FB4941C563C450A02D7euy0&21m1&2e1&r_url=https%3A%2F%2Fcircletel-customer.agilitygis.com%2F&callback=_xdc_._9nm3fc&key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&token=52807
+
+
+
+
+====================================================================================================
+🌐 SITE: Supersonic
+📍 ADDRESS: 18 Rasmus Erasmus Boulevard, Heritage Hill, Centurion, South Africa
+⏰ TIMESTAMP: 2025-10-16T08:13:28.191Z
+====================================================================================================
+
+
+📡 COVERAGE/LEAD API CALLS (38 total):
+
+1. GET https://supersonic.co.za/home
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html; charset=utf-8
+   Response Body:
+     <!DOCTYPE html><html lang="en" data-critters-container><head>
+         <title>Supersonic - Leading ISP in South Africa | High-Speed Internet Solutions</title>
+         <meta charset="utf-8">
+     
+         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0 user-scalable=no">
+     
+     
+         <base href="/">
+     
+         <!-- Favicon -->
+         <link rel="icon" type="image/png" href="assets/icons/favicon.ico">
+         <!-- Fonts -->
+         <link href="assets/fonts/inter/inter.css" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="assets/fonts/inter/inter.css" media="all"></noscript>
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+         <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_iWtGd_ozvdECWithSize.woff2" as="font" type="font/woff2" crossorigin>
+     ... (truncated)
+
+2. GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "headerText": "Find out what speeds are waiting at your address",
+         "bodyText": "Get the right deal, right where you are — in just a few simple steps.\nIt only takes 10 seconds. No forms.",
+         "text_color_hex": "#ffffff",
+         "image": {
+           "id": 1134,
+           "url": "https://supersonic.sudosky.com/uploads/DESKTOP_9fdbf32ef2.jpg"
+         },
+         "mobileImage": {
+           "id": 1133,
+           "url": "https://supersonic.sudosky.com/uploads/MOBILE_ac108317a2.jpg"
+         }
+       },
+     ... (truncated)
+
+3. GET https://t.co/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=2&event_id=19849837-fa65-4592-9342-0933f139c7a8&events=%5B%5B%22pageview%22%2C%7B%7D%5D%5D&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&tw_order_quantity=0&tw_sale_amount=0&txn_id=o80eb&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+4. GET https://t.co/1/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=3&event=%7B%7D&event_id=570c4c7c-a61d-4323-a360-5e9f1cedfef1&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&txn_id=ogjos&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+5. GET https://bat.bing.com/action/0?ti=343194057&tm=gtm002&Ver=2&mid=70dfbfd4-e225-4032-b73a-483ef2b7521b&bo=1&sid=f48aa380aa6711f0a69569b0d418e7ce&vid=f48b0000aa6711f0968535f075e022c4&vids=1&msclkid=N&uach=pv%3D10.0&pi=918639831&lg=en-US&sw=1920&sh=1080&sc=24&nwd=1&tl=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&kw=Supersonic,%20high-speed%20internet%20South%20Africa,%20reliable%20ISP,%20affordable%20internet%20plans,%20home%20internet,%20business%20internet,%20internet%20deals,%20uncapped%20fibre,%20coverage%20check,%20Supersonic%20login&p=https%3A%2F%2Fsupersonic.co.za%2Fhome&r=&lt=5360&evt=pageLoad&sv=2&cdb=AQAQ&rn=604830
+   Status: 204 
+
+6. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602390092&li_adsId=d45728f5-a0bd-472e-bbc6-635bbd7c5ac9&url=https%3A%2F%2Fsupersonic.co.za%2Fhome
+   Status: 302 
+
+7. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602390092&li_adsId=d45728f5-a0bd-472e-bbc6-635bbd7c5ac9&url=https%3A%2F%2Fsupersonic.co.za%2Fhome&cookiesTest=true
+   Status: 302 
+
+8. GET https://px.ads.linkedin.com/attribution_trigger?pid=3888540&time=1760602390092&url=https%3A%2F%2Fsupersonic.co.za%2Fhome
+   Status: 200 
+   Response Headers:
+     content-type: application/json
+   Response Body:
+     {}
+
+9. GET https://supersonic.sudosky.com/api/home-page-body?populate=*
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "testimonials": [
+           {
+             "Body": "I have only had the best service and experience from Supersonic. They have assisted me in a professional and highly skilled manner everytime.",
+             "Stars": 5,
+             "Title": "Here's what our clients say:",
+             "Author": "Andres Cameron"
+           },
+           {
+             "Body": "I have only had the best service and experience from Supersonic. They have assisted me in a professional and highly skilled manner everytime.",
+             "Stars": 3,
+             "Title": "Here's what our clients say:",
+             "Author": "Bradley White"
+     ... (truncated)
+
+10. GET https://supersonic.sudosky.com/api/home-page-reasons?populate[icon][fields][1]=url&populate[icon][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": [
+         {
+           "id": 9,
+           "title": "Coverage",
+           "text": "Powered by MTN with 96% coverage and partnered with top fibre providers, we ensure faster speeds, seamless streaming, and efficient downloads.",
+           "header": null,
+           "createdAt": "2024-07-31T13:54:02.263Z",
+           "updatedAt": "2025-04-24T06:49:45.674Z",
+           "publishedAt": "2024-07-31T13:54:04.972Z",
+           "icon": {
+             "id": 1044,
+             "url": "https://supersonic.sudosky.com/uploads/coverage_824e3211aa.svg",
+             "alternativeText": null
+           }
+     ... (truncated)
+
+11. GET https://supersonic.sudosky.com/api/home-page-banners?populate[banner][fields][1]=url&populate[mobileBanner][fields][2]=alternativeText&populate[mobileBanner][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": [
+         {
+           "id": 8,
+           "createdAt": "2025-03-12T07:56:47.106Z",
+           "updatedAt": "2025-08-06T09:12:07.902Z",
+           "publishedAt": "2025-08-06T09:12:07.899Z",
+           "banner": [
+             {
+               "id": 1144,
+               "url": "https://supersonic.sudosky.com/uploads/Website_banners_1920x400_ad589e3c38_a49b89a492.png"
+             }
+           ],
+           "mobileBanner": [
+             {
+     ... (truncated)
+
+12. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+13. GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "headerText": "Find out what speeds are waiting at your address",
+         "bodyText": "Get the right deal, right where you are — in just a few simple steps.\nIt only takes 10 seconds. No forms.",
+         "text_color_hex": "#ffffff",
+         "image": {
+           "id": 1134,
+           "url": "https://supersonic.sudosky.com/uploads/DESKTOP_9fdbf32ef2.jpg"
+         },
+         "mobileImage": {
+           "id": 1133,
+           "url": "https://supersonic.sudosky.com/uploads/MOBILE_ac108317a2.jpg"
+         }
+       },
+     ... (truncated)
+
+14. GET https://www.linkedin.com/px/li_sync?redirect=https%3A%2F%2Fpx.ads.linkedin.com%2Fcollect%3Fv%3D2%26fmt%3Djs%26pid%3D3888540%26time%3D1760602390092%26li_adsId%3Dd45728f5-a0bd-472e-bbc6-635bbd7c5ac9%26url%3Dhttps%253A%252F%252Fsupersonic.co.za%252Fhome%26cookiesTest%3Dtrue%26liSync%3Dtrue
+   Status: 302 
+
+15. GET https://pixel.quantserve.com/pixel;r=1175522065;labels=_fp.event.PageView;event=refresh;rf=3;a=p-K0nJSVgMebKH6;url=https%3A%2F%2Fsupersonic.co.za%2Fhome;ns=0;ce=1;qjs=1;qv=eed76d27-20251007131428;ref=;dst=0;et=1760602392088;tzo=-120;ogl=title.Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%2Ctype.website%2Cdescription.Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa%252E%20Discover%20ou%2Cimage.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fassets%2Fimages%2Flogo%2Flogo%252Esvg%2Curl.https%3A%2F%2Fsupersonic%252Eco%252Eza;d=supersonic.co.za;uht=2;fpan=1;fpa=P1-1634faa1-fb19-4907-9299-d2f0d952f084;pbc=;_ses=99aad6bc-7db6-4143-839a-2fb836e6187c;_seg=0;_ss=1;gdpr=0;mdl=
+   Status: 200 
+   Response Headers:
+     content-type: image/gif
+
+16. GET https://t.co/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=2&event_id=f291585d-23e9-4f2a-9717-d22d6de0dd83&events=%5B%5B%22pageview%22%2C%7B%7D%5D%5D&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&tw_order_quantity=0&tw_sale_amount=0&txn_id=o80eb&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+17. GET https://t.co/1/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=3&event=%7B%7D&event_id=c6645b3c-93f7-45c5-860a-b8281094e198&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fhome&tw_iframe_status=0&txn_id=ogjos&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+18. GET https://supersonic.co.za/assets/icons/heroicons-solid.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+
+19. GET https://supersonic.co.za/assets/icons/material-twotone.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+
+20. GET https://supersonic.co.za/assets/images/logo/logo.svg
+   Status: 200 OK
+   Response Headers:
+     content-type: image/svg+xml
+
+21. GET https://pixel.quantserve.com/pixel;r=671515791;labels=_fp.event.PageView;event=refresh;rf=3;a=p-K0nJSVgMebKH6;url=https%3A%2F%2Fsupersonic.co.za%2Fhome;ns=0;ce=1;qjs=1;qv=eed76d27-20251007131428;ref=;dst=0;et=1760602392540;tzo=-120;ogl=title.Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%2Ctype.website%2Cdescription.Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa%252E%20Discover%20ou%2Cimage.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fassets%2Fimages%2Flogo%2Flogo%252Esvg%2Curl.https%3A%2F%2Fsupersonic%252Eco%252Eza;d=supersonic.co.za;uht=2;fpan=1;fpa=P1-aeaa450b-81ec-46c5-a326-8664dedb6d9e;pbc=;_ses=99aad6bc-7db6-4143-839a-2fb836e6187c;_seg=1;gdpr=0;mdl=
+   Status: 200 
+   Response Headers:
+     content-type: image/gif
+
+22. GET https://supersonic.sudosky.com/uploads/installation_17adeba194.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+23. GET https://supersonic.co.za/slick.653a4cbba6e1a2b3.woff
+   Status: 200 OK
+   Response Headers:
+     content-type: font/woff
+
+24. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+25. GET https://px.ads.linkedin.com/collect?v=2&fmt=js&pid=3888540&time=1760602390092&li_adsId=d45728f5-a0bd-472e-bbc6-635bbd7c5ac9&url=https%3A%2F%2Fsupersonic.co.za%2Fhome&cookiesTest=true&liSync=true
+   Status: 200 
+   Response Headers:
+     content-type: application/javascript
+
+26. GET https://supersonic.co.za/ajax-loader.0b80f665935ef7de.gif
+   Status: 200 OK
+   Response Headers:
+     content-type: image/gif
+
+27. GET https://supersonic.sudosky.com/uploads/coverage_824e3211aa.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+28. GET https://supersonic.sudosky.com/uploads/no_contracts_1a81c3a068.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+29. GET https://supersonic.sudosky.com/uploads/reliability_d9035a0425.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+30. GET https://supersonic.sudosky.com/uploads/simple_plans_79be9cb952.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+31. GET https://supersonic.sudosky.com/uploads/uncapped_2959b8d912.svg
+   Status: 200 
+   Response Headers:
+     content-type: image/svg+xml
+
+32. GET https://supersonic.sudosky.com/api/partner-logo?populate[logos][fields][1]=url&populate[logos][fields][2]=alternativeText
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T09:42:26.455Z",
+         "updatedAt": "2025-04-24T10:08:40.346Z",
+         "publishedAt": "2024-04-22T09:42:27.833Z",
+         "logos": [
+           {
+             "id": 1098,
+             "url": "https://supersonic.sudosky.com/uploads/evotel_0598989a7b.png",
+             "alternativeText": null
+           },
+           {
+             "id": 1095,
+             "url": "https://supersonic.sudosky.com/uploads/frogfoot_02c9be43f9.png",
+     ... (truncated)
+
+33. GET https://supersonic.sudosky.com/api/sign-up-screen-image?populate[image][fields][1]=url&populate[logo][fields][1]=url
+   Status: 200 
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Request Headers:
+     authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c549d2cb31b3b86881a49ce28aeb3b16eb1a79e9e9e155b34651...
+   Response Body:
+     {
+       "data": {
+         "id": 2,
+         "createdAt": "2024-04-22T07:56:42.462Z",
+         "updatedAt": "2025-04-24T07:44:34.271Z",
+         "publishedAt": "2024-04-25T09:12:48.477Z",
+         "image": null,
+         "logo": {
+           "id": 1109,
+           "url": "https://supersonic.sudosky.com/uploads/sign_up_be243e2f9c.png"
+         }
+       },
+       "meta": {}
+     }
+
+34. GET https://bat.bing.com/action/0?ti=343194057&tm=gtm002&Ver=2&mid=164a1d3d-8d83-4a7a-bb98-9ca5fa1e190f&bo=1&sid=f48aa380aa6711f0a69569b0d418e7ce&vid=f48b0000aa6711f0968535f075e022c4&vids=0&msclkid=N&page_path=%2Fsign-in&spa=Y&p=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&uach=pv%3D10.0&pi=918639831&lg=en-US&sw=1920&sh=1080&sc=24&nwd=1&tl=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&kw=Supersonic,%20high-speed%20internet%20South%20Africa,%20reliable%20ISP,%20affordable%20internet%20plans,%20home%20internet,%20business%20internet,%20internet%20deals,%20uncapped%20fibre,%20coverage%20check,%20Supersonic%20login&r=https%3A%2F%2Fsupersonic.co.za%2Fhome&evt=pageLoad&sv=2&cdb=AQAQ&rn=901699
+   Status: 204 
+
+35. GET https://server-side-tagging-f73nmgjrda-uc.a.run.app/_/service_worker/5a20/sw_iframe.html?origin=https%3A%2F%2Fsupersonic.co.za&1p=1
+   Status: 200 
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     <!DOCTYPE html>
+     <html>
+     <head>
+       <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+     </head>
+     <body>
+       <script>
+     'use strict';var m={};class n{constructor(a){this.j=a;this.g={};this.h={};this.i=0;this.id=String(Math.floor(Number.MAX_SAFE_INTEGER*Math.random()))}}function p(a){return a.performance&&a.performance.now()||Date.now()}
+     var q=function(a,c){class d{constructor(b,f,g){this.failureType=b;this.data=f;this.g=g;this.h=new n(p(g))}u(b,f){const g=b.clientId;if(b.type===0){b.isDead=!0;var e=this.h,h=p(this.g);e.g[g]==null&&(e.g[g]=0,e.h[g]=h,e.i++);e.g[g]++;b.stats={targetId:e.id,clientCount:e.i,totalLifeMs:Math.round(h-e.j),heartbeatCount:e.g[g],clientLifeMs:Math.round(h-e.h[g])}}b.failure={failureType:this.failureType,data:this.data};f(b)}}return new d(5,a,c)};/*
+     
+      Copyright Google LLC
+      SPDX-License-Identifier: Apache-2.0
+     */
+     let r=globalThis.trustedTypes,t;function u(){let a=null;if(!r)return a;try{const c=d=>d;a=r.createPolicy("goog#html",{createHTML:c,createScript:c,createScriptURL:c})}catch(c){}return a};var v=class{constructor(a){this.g=a}toString(){return this.g+""}};function w(a){const c=a;var d;t===void 0&&(t=u());var b=(d=t)?d.createScriptURL(c):c;return new v(b)}function x(a){if(a instanceof v)return a.g;throw Error("");};function y(a,...c){if(c.length===0)return w(a[0]);let d=a[0];for(let b=0;b<c.length;b++)d+=encodeURIComponent(c[b])+a[b+1];return w(d)}function z(a){var c=y`sw.js`,d=x(c).toString();const b=d.split(/[?#]/),f=/[?]/.test(d)?"?"+b[1]:"";return A(b[0],f,/[#]/.test(d)?"#"+(f?b[2]:b[1]):"",a)}
+     function A(a,c,d,b){function f(e,h){e!=null&&(Array.isArray(e)?e.forEach(l=>f(l,h)):(c+=g+encodeURIComponent(h)+"="+encodeURIComponent(e),g="&"))}let g=c.length?"&":"?";b.constructor===Object&&(b=Object.entries(b));Array.isArray(b)?b.forEach(e=>f(e[1],e[0])):b.forEach(f);return w(a+c+d)};const B=/Chrome\/(\d+)/;var D=function(a){const c=a.origin;if(c){var d=a.o?"swe.js":"sw.js",b=a.g?y`/static/service_worker/${a.g}/${d}?origin=${c}`:y`/gtm/static/${d}?origin=${c}`,f=new Map([["origin",c]]);a.h&&f.set("path",a.h);var g=a.l?z(f):b,e=()=>{const k=B.exec(a.window.navigator.userAgent);return k&&Number(k[1])<119},h=a.window.document.location.href;a.g&&(a.l?h=`${a.h}/_/service_worker`:e()||(h="/static/service_worker"));var l={scope:h};a.g&&(l.updateViaCache="all");a.window.navigator.serviceWorker.register(x(g),
+     ... (truncated)
+
+36. GET https://t.co/1/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=3&event=%7B%7D&event_id=cc388096-5a2a-422b-8d32-753dcecbc1a3&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Sign%20In%20to%20your%20Account&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&tw_iframe_status=0&txn_id=ogjos&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+37. GET https://t.co/i/adsct?bci=5&dv=Africa%2FJohannesburg%26en-US%26Google%20Inc.%26Win32%26255%261920%261080%2612%2624%261920%261080%260%26na&eci=2&event_id=a02b6607-4031-40d9-8ad5-74d34dbe2bd8&events=%5B%5B%22pageview%22%2C%7B%7D%5D%5D&integration=advertiser&p_id=Twitter&p_user_id=0&pl_id=07fdbeb4-714a-454e-b759-f5d6f12623a3&pt=Supersonic%20-%20Sign%20In%20to%20your%20Account&tw_document_href=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&tw_iframe_status=0&tw_order_quantity=0&tw_sale_amount=0&txn_id=o80eb&type=javascript&version=2.3.34
+   Status: 200 
+   Response Headers:
+     content-type: image/gif;charset=utf-8
+
+38. GET https://pixel.quantserve.com/pixel;r=1689716100;labels=_fp.event.PageView;event=refresh;rf=0;a=p-K0nJSVgMebKH6;url=https%3A%2F%2Fsupersonic.co.za%2Fsign-in;ns=0;ce=1;qjs=1;qv=eed76d27-20251007131428;ref=;dst=0;et=1760602403464;tzo=-120;ogl=title.Supersonic%20-%20Sign%20In%20to%20your%20Account%2Ctype.website%2Cdescription.Sign%20in%20to%20your%20Supersonic%20account%252E%2Cimage.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fassets%2Fimages%2Flogo%2Flogo%252Esvg%2Curl.https%3A%2F%2Fsupersonic%252Eco%252Eza%2Fsign-in;d=supersonic.co.za;uht=2;fpan=0;fpa=P1-aeaa450b-81ec-46c5-a326-8664dedb6d9e;pbc=;_ses=99aad6bc-7db6-4143-839a-2fb836e6187c;_seg=1;gdpr=0;mdl=
+   Status: 200 
+   Response Headers:
+     content-type: image/gif
+
+
+🔐 AUTHENTICATION ANALYSIS:
+
+Found 12 requests with authentication:
+  - GET https://supersonic.co.za/assets/i18n/en.json
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.co.za/assets/icons/heroicons-solid.svg
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.co.za/assets/icons/material-twotone.svg
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+  - GET https://supersonic.sudosky.com/api/home-page-header?fields[0]=headerText&populate[image][fields][1]=url&fields[1]=bodyText&fields[2]=text_color_hex&populate[mobileImage][fields][3]=url
+    Authorization: Bearer 6ebb671412e42506d0b09bfd5881d9bb9891ba902c5...
+
+
+🍪 COOKIES (32 total):
+
+  CLID
+    Domain: www.clarity.ms
+    Value: 8f106c5ea22d45c18820294ba2a5e8f9.20251016.20261016
+    Secure: true, HttpOnly: true, SameSite: None
+
+  _clck
+    Domain: .supersonic.co.za
+    Value: srmdhg%5E2%5Eg07%5E0%5E2115
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _gcl_au
+    Domain: .supersonic.co.za
+    Value: 1.1.1022604300.1760602389
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _fbp
+    Domain: .supersonic.co.za
+    Value: fb.2.1760602390773.948149596249573417
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  guest_id_marketing
+    Domain: .twitter.com
+    Value: v1%3A176060239083663964
+    Secure: true, HttpOnly: false, SameSite: None
+
+  guest_id_ads
+    Domain: .twitter.com
+    Value: v1%3A176060239083663964
+    Secure: true, HttpOnly: false, SameSite: None
+
+  personalization_id
+    Domain: .twitter.com
+    Value: "v1_bjchylNzZOpPke1eBHLgWA=="
+    Secure: true, HttpOnly: false, SameSite: None
+
+  guest_id
+    Domain: .twitter.com
+    Value: v1%3A176060239083663964
+    Secure: true, HttpOnly: false, SameSite: None
+
+  muc_ads
+    Domain: .t.co
+    Value: e1211740-81a8-4c41-96fc-ef47fc26a9cc
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MUID
+    Domain: .bing.com
+    Value: 31F5FD15B7E264CC23BBEB92B62B6505
+    Secure: true, HttpOnly: false, SameSite: None
+
+  li_sugr
+    Domain: .linkedin.com
+    Value: 4c8d5985-4d58-4140-9a82-2dbfd063b055
+    Secure: true, HttpOnly: false, SameSite: None
+
+  bcookie
+    Domain: .linkedin.com
+    Value: "v=2&aee2f81f-15cc-43c0-81f6-4e53ec1d3db2"
+    Secure: true, HttpOnly: false, SameSite: None
+
+  lidc
+    Domain: .linkedin.com
+    Value: "b=VGST02:s=V:r=V:a=V:p=V:g=3650:u=1:x=1:i=1760602391:t=1760688791:v=2:sig=AQEcT...
+    Secure: true, HttpOnly: false, SameSite: None
+
+  UserMatchHistory
+    Domain: .linkedin.com
+    Value: AQIoi9jczbyP5gAAAZnsFIPThnm5Df_ie3KenKgKX0a5fWMXLHSnXieAsyH9_VCgvILte_UWvFa5Wg
+    Secure: true, HttpOnly: false, SameSite: None
+
+  AnalyticsSyncHistory
+    Domain: .linkedin.com
+    Value: AQJ8-R3-C3PEEwAAAZnsFIPTzIdzonptFhU1Aen0zsF5zUhDANOqEou38I740ERddrPtlvz1I-kqyFDA...
+    Secure: true, HttpOnly: false, SameSite: None
+
+  _ga
+    Domain: .supersonic.co.za
+    Value: GA1.1.1036873983.1760602392
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  bscookie
+    Domain: .www.linkedin.com
+    Value: "v=1&20251016081312a46cc7ba-436c-412f-8eb5-d955e8bab585AQERMBpDHn5GeCXlGF-3QSicH...
+    Secure: true, HttpOnly: true, SameSite: None
+
+  __cf_bm
+    Domain: .linkedin.com
+    Value: wZDImKF2zVXD352aUnvm0jzLpKPz3a75CtHNIgR9PBE-1760602392-1.0.1.1-WZslHF3UKc4jLhdda...
+    Secure: true, HttpOnly: true, SameSite: None
+
+  IDE
+    Domain: .doubleclick.net
+    Value: AHWqTUmH-PI0oZU7oMZajA3I1eoyckbZxr68fXg0s-BGK0x0tl72XjmnYCw0_Ygn
+    Secure: true, HttpOnly: true, SameSite: None
+
+  __qca
+    Domain: .supersonic.co.za
+    Value: P1-aeaa450b-81ec-46c5-a326-8664dedb6d9e
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  mc
+    Domain: .quantserve.com
+    Value: 68f0a918-e69f6-8f27b-f1448
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MR
+    Domain: .c.bing.com
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  SRM_B
+    Domain: .c.bing.com
+    Value: 31F5FD15B7E264CC23BBEB92B62B6505
+    Secure: true, HttpOnly: false, SameSite: None
+
+  SM
+    Domain: .c.clarity.ms
+    Value: C
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MUID
+    Domain: .clarity.ms
+    Value: 31F5FD15B7E264CC23BBEB92B62B6505
+    Secure: true, HttpOnly: false, SameSite: None
+
+  MR
+    Domain: .c.clarity.ms
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  ANONCHK
+    Domain: .c.clarity.ms
+    Value: 0
+    Secure: true, HttpOnly: false, SameSite: None
+
+  _uetsid
+    Domain: .supersonic.co.za
+    Value: f48aa380aa6711f0a69569b0d418e7ce
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _uetvid
+    Domain: .supersonic.co.za
+    Value: f48b0000aa6711f0968535f075e022c4
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _clsk
+    Domain: .supersonic.co.za
+    Value: 39vjjp%5E1760602403154%5E2%5E1%5Eb.clarity.ms%2Fcollect
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _ga_98TTQDLHZQ
+    Domain: .supersonic.co.za
+    Value: GS2.1.s1760602402$o1$g1$t1760602403$j59$l0$h1357036140
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+  _ga_L2HSQCSW90
+    Domain: .supersonic.co.za
+    Value: GS2.1.s1760602391$o1$g1$t1760602403$j48$l0$h1927116759
+    Secure: false, HttpOnly: false, SameSite: Lax
+
+
+💾 LOCAL STORAGE (11 items):
+
+  lastExternalReferrerTime:
+    1760602390755
+
+  _uetvid_exp:
+    Tue, 10 Nov 2026 08:13:22 GMT
+
+  _uetsid_exp:
+    Fri, 17 Oct 2025 08:13:22 GMT
+
+  topicsLastReferenceTime:
+    1760602402435
+
+  _uetvid:
+    f48b0000aa6711f0968535f075e022c4
+
+  lastExternalReferrer:
+    empty
+
+  _gcl_ls:
+    {"schema":"gcl","version":1,"gcl_ctr":{"value":{"value":0,"timeouts":0,"creationTimeMs":1760602389273},"expires":1768378389273}}
+
+  _uetsid:
+    f48aa380aa6711f0a69569b0d418e7ce
+
+  _qcses_p-K0nJSVgMebKH6:
+    {"lastEvent":1760602403536,"sid":"99aad6bc-7db6-4143-839a-2fb836e6187c","engagementState":{"eventsCount":3}}
+
+  li_adsId:
+    d45728f5-a0bd-472e-bbc6-635bbd7c5ac9
+
+  __qca:
+    {"value":"P1-aeaa450b-81ec-46c5-a326-8664dedb6d9e","expiry":1794471193457}
+
+
+💾 SESSION STORAGE (3 items):
+
+  currentURL:
+    https://supersonic.co.za/sign-in
+
+  previousURL:
+    https://supersonic.co.za/home
+
+  _cltk:
+    d1hnch
+
+
+🗺️  WMS/GIS REQUESTS:
+
+Found 4 WMS/GIS requests:
+  - GET https://www.facebook.com/privacy_sandbox/topics/registration/?id=641934811409941
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=PageView&dl=https%3A%2F%2Fsupersonic.co.za%2Fhome&rl=&if=false&ts=1760602390780&sw=1920&sh=1080&v=2.9.235&r=stable&ec=0&o=4126&fbp=fb.2.1760602390773.948149596249573417&ler=empty&cdl=API_unavailable&pmd[title]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=5360.600000023842&it=1760602390353&coo=false&expv2[0]=pl1&expv2[1]=el3&expv2[2]=bc1&rqm=FGET
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=SubscribedButtonClick&dl=https%3A%2F%2Fsupersonic.co.za%2Fhome&rl=&if=false&ts=1760602402328&cd[buttonFeatures]=%7B%22classList%22%3A%22mdc-button__label%22%2C%22destination%22%3A%22%22%2C%22id%22%3A%22%22%2C%22imageUrl%22%3A%22%22%2C%22innerText%22%3A%22Check%20coverage%22%2C%22numChildButtons%22%3A0%2C%22tag%22%3A%22span%22%2C%22type%22%3Anull%7D&cd[buttonText]=Check%20coverage&cd[formFeatures]=%5B%5D&cd[pageFeatures]=%7B%22title%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%7D&sw=1920&sh=1080&v=2.9.235&r=stable&ec=1&o=4126&fbp=fb.2.1760602390773.948149596249573417&ler=empty&cdl=API_unavailable&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=5360.600000023842&it=1760602390353&coo=false&es=automatic&tm=3&expv2[0]=pl1&expv2[1]=el3&expv2[2]=bc1&rqm=FGET
+
+  - GET https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=641934811409941&ev=PageView&dl=https%3A%2F%2Fsupersonic.co.za%2Fsign-in&rl=&if=false&ts=1760602402432&sw=1920&sh=1080&v=2.9.235&r=stable&ec=2&o=4126&fbp=fb.2.1760602390773.948149596249573417&ler=empty&cdl=API_unavailable&pmd[title]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions&pmd[description]=Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20SolutionsSupersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.&pmd[keywords]=Supersonic%2C%20high-speed%20internet%20South%20Africa%2C%20reliable%20ISP%2C%20affordable%20internet%20plans%2C%20home%20internet%2C%20business%20internet%2C%20internet%20deals%2C%20uncapped%20fibre%2C%20coverage%20check%2C%20Supersonic%20login&pmd[contents]=%5B%7B%22name%22%3A%22Supersonic%20-%20Leading%20ISP%20in%20South%20Africa%20%7C%20High-Speed%20Internet%20Solutions%22%2C%22description%22%3A%22Supersonic%20offers%20high-speed%20internet%20solutions%20across%20South%20Africa.%20Discover%20our%20affordable%20plans%20and%20reliable%20connectivity%20options%20for%20home%20and%20business.%22%7D%5D&plt=5360.600000023842&it=1760602402430&coo=false&expv2[0]=pl1&expv2[1]=el2&expv2[2]=bc1&rqm=FGET
+
+
+
+
+====================================================================================================
+🌐 SITE: CircleTel Customer Portal
+📍 ADDRESS: 18 Rasmus Erasmus Boulevard, Heritage Hill, Centurion, South Africa
+⏰ TIMESTAMP: 2025-10-16T08:14:00.013Z
+====================================================================================================
+
+
+📡 COVERAGE/LEAD API CALLS (10 total):
+
+1. GET https://circletel-customer.agilitygis.com/
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html; charset=utf-8
+   Response Body:
+     
+     
+     
+     <!DOCTYPE html>
+     <html lang="en">
+     <head>
+         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+         <meta title="" />
+         <meta name="description" content="" />
+         <title></title>
+         <link rel="icon"
+               type="image/png"
+               href="https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/">
+     
+     
+     ... (truncated)
+
+2. GET https://circletel-customer.agilitygis.com/Style?host=circletel-customer.agilitygis.com
+   Status: 200 OK
+   Response Headers:
+     content-type: text/css; charset=utf-8
+   Response Body:
+     .dropdown-item.active,
+     .dropdown-item:active {
+       color: #f5831f !important;
+       background-color: transparent;
+       font-weight: bold !important;
+     }
+     .pac-container {
+       z-index: 10000;
+     }
+     body {
+       background-color: whitesmoke;
+     }
+     .btn-primary,
+     .btn-primary.dropdown-toggle {
+       background-color: #f5831f !important;
+     ... (truncated)
+
+3. GET https://circletel-customer.agilitygis.com/app/customerportal/app.html
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     
+     <div class="app-view" ng-controller="AppController as vm" style="height:100%;width:100%;position:fixed;">
+     
+         <div class="vbox">
+             <nav class="navbar navbar-expand-lg navbar-light">
+                 <a class="navbar-brand" ng-click="vm.navbarLogo_onClick()">
+                     <img ng-if="vm.siteSettings['navbar-logo']" ng-src="{{vm.apiDomain}}/api/publicsiteinstance/{{vm.siteInstance.ID}}/image/navbar-logo/" style="max-height:35px;" />
+                     <img ng-if="!vm.siteSettings['navbar-logo']" ng-src="{{vm.apiDomain}}/api/publicsiteinstance/{{vm.siteInstance.ID}}/image/logo-file/" style="max-height:35px;" />
+                 </a>
+                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                     <span class="navbar-toggler-icon"></span>
+                 </button>
+     
+                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                     <ul class="navbar-nav mr-auto">
+     ... (truncated)
+
+4. GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/
+   Status: 200 OK
+   Response Headers:
+     content-type: image/jpeg
+
+5. GET https://circletel-customer.agilitygis.com/app/customerportal/home.html
+   Status: 200 OK
+   Response Headers:
+     content-type: text/html
+   Response Body:
+     
+     <div ng-controller="GetConnectedController as vm" class="">
+     
+         <div full-height ng-if="vm.renderMap">
+             <ng-map disable-default-u-i="true" id="{{vm.mapId}}"
+                     zoom="{{vm.siteSettings['coverage-map-starting-zoom']}}" center="{{vm.center.latitude}}, {{vm.center.longitude}}"
+                     style="position:absolute;top:0px;bottom:0px;right:0px;left:0px;min-height:100%;"
+                     on-click="vm.Map_onClick()"
+                     styles='[{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]'>
+     
+     
+     
+             </ng-map>
+     
+             <div class="input-group map-address-search with-address">
+     ... (truncated)
+
+6. GET https://circletel-customer.agilitygis.com/api/auth/validate
+   Status: 401 Unauthorized
+
+7. GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Fwireless%2Furl
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {}
+
+8. GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/navbar-logo/
+   Status: 200 OK
+   Response Headers:
+     content-type: image/jpeg
+
+9. GET https://circletel-customer.agilitygis.com/api/coverage/wireless
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {
+       "type": "FeatureCollection",
+       "features": [
+         {
+           "type": "Feature",
+           "geometry": {
+             "type": "Point",
+             "coordinates": [
+               30.817699432373047,
+               -27.426700592041016
+             ]
+           },
+           "properties": {
+             "id": 11495806,
+             "status": "Ready",
+     ... (truncated)
+
+10. GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Ffibre%2Furl
+   Status: 200 OK
+   Response Headers:
+     content-type: application/json; charset=utf-8
+   Response Body:
+     {}
+
+
+🔐 AUTHENTICATION ANALYSIS:
+
+❌ No explicit authentication headers found in API requests
+
+
+🍪 COOKIES (3 total):
+
+  ARRAffinity
+    Domain: .circletel-customer.agilitygis.com
+    Value: 1e438bb47191176baf51982278efdb1185d385ae28103b2dff77eb248bb75ffe
+    Secure: true, HttpOnly: true, SameSite: Lax
+
+  ARRAffinitySameSite
+    Domain: .circletel-customer.agilitygis.com
+    Value: 1e438bb47191176baf51982278efdb1185d385ae28103b2dff77eb248bb75ffe
+    Secure: true, HttpOnly: true, SameSite: None
+
+  ASP.NET_SessionId
+    Domain: circletel-customer.agilitygis.com
+    Value: jqecz1rn5rlbdr21zdqp2xfn
+    Secure: true, HttpOnly: true, SameSite: Lax
+
+
+💾 LOCAL STORAGE (1 items):
+
+  agis-public-circletel-customer.agilitygis.com.wireless_coverage:
+    {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[30.817699432373047,-27.426700592041016]},"properti...
+
+
+💾 SESSION STORAGE (0 items):
+
+
+🗺️  WMS/GIS REQUESTS:
+
+Found 26 WMS/GIS requests:
+  - GET https://circletel-customer.agilitygis.com/
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/app.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/fonts/font-awesome/css/font-awesome.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/css/fonts/simple-line-icons/css/simple-line-icons.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/libs/kendo/styles/kendo.common.min.css
+
+  - GET https://circletel-customer.agilitygis.com/assets/libs/kendo/styles/kendo.default-v3.css
+
+  - GET https://circletel-customer.agilitygis.com/Style?host=circletel-customer.agilitygis.com
+
+  - GET https://circletel-customer.agilitygis.com/app/app.min.js?v=2025.07.12
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.routes.js?v=2025.07.12
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.controller.js?v=2025.07.12
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/background-image-global/
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/home.controller.js
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/app.html
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/favicon/
+
+  - GET https://circletel-customer.agilitygis.com/app/customerportal/home.html
+
+  - GET https://circletel-customer.agilitygis.com/api/auth/validate
+
+  - GET https://integration.agilitygis.com/api/publicsiteinstance/85/image/navbar-logo/
+
+  - GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Ffibre%2Furl
+
+  - GET https://circletel-customer.agilitygis.com/api/service?url=gis%2Fcoverage%2Fwireless%2Furl
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/external
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/wireless
+
+  - GET https://maps.googleapis.com/maps/api/js/AuthenticationService.Authenticate?1shttps%3A%2F%2Fcircletel-customer.agilitygis.com%2F&4sAIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&8b0&callback=_xdc_._5mgf2k&key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&token=97084
+
+  - GET https://circletel-customer.agilitygis.com/api/coverage/fibre
+
+  - GET https://circletel-customer.agilitygis.com/assets/img/map-marker-ready.png
+
+  - GET https://circletel-customer.agilitygis.com/assets/img/map-marker-planned.png
+
+  - GET https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictions?1s18%20Rasmus%20Erasmus%20Boulevard%2C%20Heritage%20Hill%2C%20Centurion&4sen-US&7scountry%3Aza&9sgeocode&9sestablishment&15e3&20s7D3FEB2A310E47ADBBC53358C7A598B06e6a&21m1&2e1&r_url=https%3A%2F%2Fcircletel-customer.agilitygis.com%2F&callback=_xdc_._i73mws&key=AIzaSyCByaRqvfmwTKp6Ja3TWeIj3PCL-bCaR_U&token=59972
+
+
+
+
+
+████████████████████████████████████████████████████████████████████████████████████████████████████
+📋 EXECUTIVE SUMMARY REPORT
+████████████████████████████████████████████████████████████████████████████████████████████████████
+
+
+🌐 Supersonic - Witkoppen Spruit Park
+
+📡 API Calls: 9 relevant endpoints
+🔐 Authentication:
+   - Auth Headers: ✅ Yes
+   - Cookies: ✅ 32 cookies
+   - Local Storage: ✅ 11 items
+🗺️  WMS/GIS: ✅ Detected
+
+
+🌐 CircleTel Customer Portal - Witkoppen Spruit Park
+
+📡 API Calls: 13 relevant endpoints
+🔐 Authentication:
+   - Auth Headers: ❌ No
+   - Cookies: ✅ 4 cookies
+   - Local Storage: ✅ 2 items
+🗺️  WMS/GIS: ✅ Detected
+
+
+🌐 Supersonic - 18 Rasmus Erasmus Boulevard
+
+📡 API Calls: 9 relevant endpoints
+🔐 Authentication:
+   - Auth Headers: ✅ Yes
+   - Cookies: ✅ 32 cookies
+   - Local Storage: ✅ 11 items
+🗺️  WMS/GIS: ✅ Detected
+
+
+🌐 CircleTel Customer Portal - 18 Rasmus Erasmus Boulevard
+
+📡 API Calls: 12 relevant endpoints
+🔐 Authentication:
+   - Auth Headers: ❌ No
+   - Cookies: ✅ 3 cookies
+   - Local Storage: ✅ 1 items
+🗺️  WMS/GIS: ✅ Detected
+
+
+💾 Full analysis would be saved to: C:\Projects\circletel-nextjs\test-results\coverage-api-recording-2025-10-16T08-14-00-150Z-ANALYSIS.txt
+

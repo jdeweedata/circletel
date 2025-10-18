@@ -1,0 +1,161 @@
+name: Validate MTN Session
+
+# Validation-only workflow - monitors session health without browser automation
+# Alerts when session expires, manual re-authentication required
+# Compliant with reCAPTCHA requirements (no bypass attempts)
+
+on:
+  # Run every 4 hours
+  schedule:
+    - cron: '0 */4 * * *'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  validate-session:
+    name: Validate MTN SSO Session
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate session via API
+        id: validate
+        env:
+          MTN_SESSION: ${{ secrets.MTN_SESSION }}
+        run: |
+          # Run validation and capture JSON output
+          RESULT=$(npx tsx scripts/validate-mtn-session.ts --json)
+
+          echo "Validation Result:"
+          echo "$RESULT" | jq '.'
+
+          # Extract validation status
+          VALID=$(echo "$RESULT" | jq -r '.valid')
+          MESSAGE=$(echo "$RESULT" | jq -r '.message')
+          TRACKED_EXPIRY=$(echo "$RESULT" | jq -r '.trackedExpiry')
+          MINUTES_LEFT=$(echo "$RESULT" | jq -r '.minutesUntilTrackedExpiry')
+
+          # Export for next steps
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
+          echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+          echo "tracked_expiry=$TRACKED_EXPIRY" >> $GITHUB_OUTPUT
+          echo "minutes_left=$MINUTES_LEFT" >> $GITHUB_OUTPUT
+
+          # Check if session is invalid
+          if [ "$VALID" != "true" ]; then
+            echo "::error::MTN Session is invalid or expired"
+            exit 1
+          fi
+
+          # Warn if approaching tracked expiry (< 60 minutes)
+          if [ "$MINUTES_LEFT" -lt 60 ] && [ "$MINUTES_LEFT" -gt 0 ]; then
+            echo "::warning::Session approaching tracked expiry in $MINUTES_LEFT minutes"
+          fi
+
+          # Note if past tracked expiry but still valid
+          if [ "$MINUTES_LEFT" -lt 0 ]; then
+            echo "::notice::Session past tracked expiry but still valid (server-side session longer than estimate)"
+          fi
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "✅ MTN Session Valid"
+          echo "Message: ${{ steps.validate.outputs.message }}"
+          echo "Tracked Expiry: ${{ steps.validate.outputs.tracked_expiry }}"
+          echo "Minutes Left: ${{ steps.validate.outputs.minutes_left }}"
+
+      - name: Session expired - manual intervention required
+        if: failure()
+        run: |
+          echo "❌ MTN Session Expired"
+          echo ""
+          echo "Manual re-authentication required:"
+          echo ""
+          echo "1. Run locally:"
+          echo "   npx tsx scripts/test-mtn-sso-auth.ts --manual"
+          echo ""
+          echo "2. Export session:"
+          echo "   npx tsx scripts/export-session-env.ts --output-only"
+          echo ""
+          echo "3. Update GitHub Secret:"
+          echo "   gh secret set MTN_SESSION < session.txt"
+          echo ""
+          echo "   Or manually at:"
+          echo "   https://github.com/${{ github.repository }}/settings/secrets/actions"
+          echo ""
+          exit 1
+
+      - name: Send failure notification
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔴 MTN Session Expired - Manual Re-authentication Required',
+              body: `## MTN SSO Session Expired
+
+              The MTN SSO session validation workflow detected an expired session.
+
+              ### Action Required
+
+              Manual re-authentication is needed. Follow these steps:
+
+              1. **Authenticate locally** (with reCAPTCHA):
+                 \`\`\`bash
+                 npx tsx scripts/test-mtn-sso-auth.ts --manual
+                 \`\`\`
+
+              2. **Export session to base64**:
+                 \`\`\`bash
+                 npx tsx scripts/export-session-env.ts --output-only
+                 \`\`\`
+
+              3. **Update GitHub Secret**:
+                 \`\`\`bash
+                 gh secret set MTN_SESSION --body "<paste-base64-here>"
+                 \`\`\`
+
+                 Or update manually at: [GitHub Secrets](https://github.com/${{ github.repository }}/settings/secrets/actions)
+
+              4. **Close this issue** once session is refreshed
+
+              ### Validation Details
+
+              - **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              - **Timestamp**: ${{ steps.validate.outputs.timestamp || 'N/A' }}
+              - **Tracked Expiry**: ${{ steps.validate.outputs.tracked_expiry || 'N/A' }}
+
+              ### Documentation
+
+              - [Session Management Guide](docs/integrations/MTN_SESSION_MANAGEMENT.md)
+              - [Session Lifespan Findings](docs/integrations/mtn/MTN_SESSION_LIFESPAN_FINDINGS.md)
+              `,
+              labels: ['mtn-session', 'authentication', 'action-required']
+            };
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'mtn-session'
+            });
+
+            if (issues.data.length === 0) {
+              await github.rest.issues.create(issue);
+            }

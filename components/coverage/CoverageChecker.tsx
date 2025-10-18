@@ -77,6 +77,9 @@ export function CoverageChecker({
   const [results, setResults] = useState<CoverageResult | null>(null);
   const [showNoServiceDialog, setShowNoServiceDialog] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [progressStage, setProgressStage] = useState(0);
+  const [progressMessage, setProgressMessage] = useState('');
 
   const handleCheckCoverage = async () => {
     if (!address.trim()) {
@@ -86,6 +89,9 @@ export function CoverageChecker({
 
     setIsChecking(true);
     setResults(null);
+    setIsRedirecting(false);
+    setProgressStage(1);
+    setProgressMessage('Finding your location...');
 
     try {
       // Step 1: Geocode the address if coordinates aren't available
@@ -102,13 +108,27 @@ export function CoverageChecker({
         }
       }
 
-      // Step 2: Create a lead entry (similar to Supersonic's process)
+      // Step 2: Create a lead entry and check coverage
+      setProgressStage(2);
+      setProgressMessage('Checking coverage availability...');
+
+      // Extract UTM parameters from URL if available
+      const urlParams = new URLSearchParams(window.location.search);
+      const trackingData = {
+        utm_source: urlParams.get('utm_source') || undefined,
+        utm_medium: urlParams.get('utm_medium') || undefined,
+        utm_campaign: urlParams.get('utm_campaign') || undefined,
+        referrer_url: document.referrer || undefined,
+      };
+
       const leadResponse = await fetch('/api/coverage/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           address,
-          coordinates: finalCoordinates
+          coordinates: finalCoordinates,
+          customer_type: 'residential', // Default to residential, can be made dynamic
+          ...trackingData
         })
       });
 
@@ -119,7 +139,10 @@ export function CoverageChecker({
       const leadData = await leadResponse.json();
       const leadId = leadData.leadId;
 
-      // Step 3: Check coverage and get available packages
+      // Step 3: Load personalized packages
+      setProgressStage(3);
+      setProgressMessage('Loading your personalized packages...');
+
       const coverageResponse = await fetch(`/api/coverage/packages?leadId=${leadId}`);
       if (!coverageResponse.ok) {
         throw new Error('Failed to check coverage');
@@ -134,13 +157,18 @@ export function CoverageChecker({
         leadId
       };
 
-      setResults(result);
-
       if (result.available) {
         toast.success('Great news! Service is available in your area');
         if (onCoverageFound) {
+          // Set redirecting flag to prevent any UI update before redirect
+          setIsRedirecting(true);
+          // Call callback immediately - this will trigger redirect
           onCoverageFound(result);
+          // Keep isChecking true and never set it to false to maintain loading state
+          return;
         }
+        // Only set results if no callback provided (standalone usage)
+        setResults(result);
       } else {
         toast.info('Service coming soon to your area');
         setShowNoServiceDialog(true);
@@ -164,7 +192,10 @@ export function CoverageChecker({
         console.error('Fallback coverage check also failed:', fallbackError);
       }
     } finally {
-      setIsChecking(false);
+      // Only clear loading state if we're not redirecting
+      if (!isRedirecting) {
+        setIsChecking(false);
+      }
     }
   };
 
@@ -219,11 +250,69 @@ export function CoverageChecker({
           </Button>
         </div>
 
+        {/* Progress Indicator */}
+        {isChecking && (
+          <div className="space-y-4 p-6 bg-gray-50 rounded-lg border-2 border-orange-200 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex items-center justify-center gap-2 text-orange-600">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="font-semibold">{progressMessage}</span>
+            </div>
+
+            {/* Progress Steps */}
+            <div className="flex items-center justify-center gap-2">
+              {[1, 2, 3].map((step) => (
+                <div key={step} className="flex items-center gap-2">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                      progressStage > step
+                        ? 'bg-green-500 text-white'
+                        : progressStage === step
+                        ? 'bg-orange-500 text-white ring-2 ring-orange-300 ring-offset-2'
+                        : 'bg-gray-300 text-gray-600'
+                    }`}
+                  >
+                    {progressStage > step ? <CheckCircle className="h-4 w-4" /> : step}
+                  </div>
+                  {step < 3 && (
+                    <div
+                      className={`h-0.5 w-12 transition-all ${
+                        progressStage > step ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Step Labels */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className={`text-xs ${progressStage >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                Location
+              </div>
+              <div className={`text-xs ${progressStage >= 2 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                Coverage
+              </div>
+              <div className={`text-xs ${progressStage >= 3 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                Packages
+              </div>
+            </div>
+          </div>
+        )}
+
         {results && results.available && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+          <div className="space-y-4 animate-in fade-in-slide-in-from-bottom-2">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="h-5 w-5" />
               <span className="font-semibold">Service available at your location!</span>
+            </div>
+
+            {/* MTN Coverage Disclaimer - Phase 1 Fallback Notice */}
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+              <p className="font-medium">📍 Coverage Information</p>
+              <p className="mt-1 text-xs leading-relaxed">
+                Coverage estimates are based on network provider infrastructure data and are as accurate as provided by the network providers.
+                Actual availability may vary based on location and network conditions.
+              </p>
             </div>
 
             <div className="space-y-3">

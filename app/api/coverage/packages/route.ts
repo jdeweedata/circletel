@@ -56,6 +56,10 @@ export async function GET(request: NextRequest) {
           prioritizeSpeed: false
         });
 
+        // ✅ Phase 2: MTN Consumer API enabled
+        // The aggregation service now uses the verified Consumer API endpoint
+        // Fallback to PostGIS only if the Consumer API fails or returns no coverage
+
         if (coverageResult.overallCoverage && coverageResult.bestServices.length > 0) {
           coverageAvailable = true;
 
@@ -69,7 +73,10 @@ export async function GET(request: NextRequest) {
             provider: 'mtn',
             confidence: coverageResult.providers.mtn?.confidence || 'unknown',
             lastUpdated: coverageResult.lastUpdated,
-            servicesFound: availableServices.length
+            servicesFound: availableServices.length,
+            source: coverageResult.providers.mtn?.metadata?.source || 'mtn_consumer_api',
+            phase: coverageResult.providers.mtn?.metadata?.phase || 'phase_3_infrastructure_ready',
+            infrastructureEstimatorAvailable: coverageResult.providers.mtn?.metadata?.infrastructureEstimatorAvailable || true
           };
 
           console.log('Real-time MTN coverage check:', {
@@ -79,7 +86,7 @@ export async function GET(request: NextRequest) {
           });
         }
       } catch (error) {
-        console.error('Real-time coverage check failed:', error);
+        console.error('Real-time coverage check failed (using PostGIS fallback):', error);
 
         // Fallback to legacy PostGIS query if real-time check fails
         const { data: coverageData, error: coverageError } = await supabase

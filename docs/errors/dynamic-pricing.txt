@@ -1,0 +1,905 @@
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1305ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1322ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1487ms
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1304ms
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1428ms
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1373ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1079ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1194ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1133ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1200ms
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1089ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1245ms
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1054ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1052ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1134ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1159ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1206ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1196ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1278ms
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1104ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1238ms
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1455ms
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1205ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1199ms
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1054ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1096ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1280ms
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1283ms
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1322ms
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1116ms
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1232ms
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1077ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1260ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1537ms
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1562ms
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1409ms
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1542ms
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1667ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1108ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1151ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1167ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1221ms
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1198ms
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1340ms
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1192ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1249ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1214ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1238ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1325ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1344ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1271ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1144ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1248ms
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1159ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1325ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1272ms
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1178ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1075ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1213ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1194ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=78415f5f-fd16-4b6f-8f89-b2a177434230& 404 in 1138ms
+ GET /api/dynamic-pricing?productId=e061a151-288d-4f35-9c25-42c72ae7ccb2& 404 in 1119ms
+ GET /api/dynamic-pricing?productId=294072fa-c1b3-41d2-8ca3-08907d08f399& 404 in 1173ms
+ GET /api/dynamic-pricing?productId=fcf92a7c-265f-41e4-9acc-beaa103af5ab& 404 in 1021ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=54732b7d-cc7a-4792-bb84-6f13845c85a0& 404 in 1141ms
+ GET /api/dynamic-pricing?productId=8f1caa5d-f4fd-41c9-b9f6-ad96b593daf4& 404 in 1127ms
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+Error calculating effective pricing: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+PricingService.getEffectivePricing error: {
+  code: 'PGRST202',
+  details: 'Searched for the function public.calculate_effective_pricing with parameters p_context, p_product_id or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.',
+  hint: 'Perhaps you meant to call the function public.populate_geometry_columns',
+  message: 'Could not find the function public.calculate_effective_pricing(p_context, p_product_id) in the schema cache'
+}
+ GET /api/dynamic-pricing?productId=2ff4b91d-578f-48bd-97a0-1d9d903505a9& 404 in 1201ms
+ GET /api/dynamic-pricing?productId=5c0b986a-2f42-4977-86c2-8a242cfce295& 404 in 1236ms
+ ⚠ Server is approaching the used memory threshold, restarting...
