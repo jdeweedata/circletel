@@ -4,6 +4,47 @@
 
 This document explains how to keep MTN SSO sessions alive in production to ensure uninterrupted access to MTN Wholesale APIs.
 
+## 🏢 MTN Product Mapping
+
+### CircleTel Product Portfolio Integration
+
+MTN wholesale products map to CircleTel's product offerings as follows:
+
+| MTN Product | CircleTel Portfolio | Use Case |
+|-------------|-------------------|----------|
+| **Fixed Wireless Broadband** | **SkyFibre** | Coverage feasibility checks for Fixed Wireless/LTE solutions |
+| Wholesale FTTH FNO | Fibre Packages | Fibre-to-the-Home installations |
+| Wholesale FTTH (MNS) | Fibre Packages | Multi-Node FTTH solutions |
+| Wholesale Cloud Connect | Enterprise Cloud | Cloud connectivity services |
+| Wholesale Access Connect | Business Connectivity | Enterprise access solutions |
+| Wholesale Cloud Connect Lite | SME Cloud | Small-medium enterprise cloud |
+| Wholesale Ethernet Wave Leased Line | Enterprise Connectivity | Dedicated leased lines |
+
+**Important**: When performing coverage feasibility checks via `/api/mtn-wholesale/feasibility`:
+- Use `product_names: ["Fixed Wireless Broadband"]` for SkyFibre coverage checks
+- Results indicate 5G/LTE availability for CircleTel's Fixed Wireless offerings
+- This is the primary integration point for the coverage checker on the CircleTel website
+
+### Example Feasibility Request for SkyFibre
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/mtn-wholesale/feasibility \
+  -H "Content-Type: application/json" \
+  -d '{
+    "inputs": [
+      {
+        "address": "123 Main Street, Johannesburg, 2000",
+        "latitude": "-26.2041",
+        "longitude": "28.0473"
+      }
+    ],
+    "product_names": ["Fixed Wireless Broadband"],
+    "requestor": "CircleTel Coverage Checker"
+  }'
+```
+
+**Response indicates SkyFibre availability at the specified location.**
+
 ## ⏱️ Session Lifecycle
 
 - **Duration**: ~60 minutes
