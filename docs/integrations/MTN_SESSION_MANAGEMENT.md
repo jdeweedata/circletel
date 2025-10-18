@@ -27,21 +27,45 @@ MTN wholesale products map to CircleTel's product offerings as follows:
 
 ### Example Feasibility Request for SkyFibre
 
+**NEW: Automatic Geocoding** - You no longer need to provide coordinates! The API will automatically geocode addresses using Google Maps.
+
 ```bash
+# Simple request - address only (RECOMMENDED)
+curl -X POST https://your-domain.vercel.app/api/mtn-wholesale/feasibility \
+  -H "Content-Type: application/json" \
+  -d '{
+    "inputs": [
+      {
+        "address": "18 Rasmus Erasmus, Heritage Hill, Centurion",
+        "customer_name": "Test Customer"
+      }
+    ],
+    "product_names": ["Fixed Wireless Broadband"],
+    "requestor": "coverage@circletel.co.za"
+  }'
+
+# Advanced request - with manual coordinates (optional)
 curl -X POST https://your-domain.vercel.app/api/mtn-wholesale/feasibility \
   -H "Content-Type: application/json" \
   -d '{
     "inputs": [
       {
         "address": "123 Main Street, Johannesburg, 2000",
+        "customer_name": "John Doe",
         "latitude": "-26.2041",
         "longitude": "28.0473"
       }
     ],
     "product_names": ["Fixed Wireless Broadband"],
-    "requestor": "CircleTel Coverage Checker"
+    "requestor": "coverage@circletel.co.za"
   }'
 ```
+
+**How it works:**
+1. If you provide `latitude` and `longitude`, they will be validated and used if within South Africa
+2. If coordinates are missing or invalid, the address is automatically geocoded using Google Maps
+3. Google's accurate coordinates ensure reliable coverage results
+4. Response includes the geocoded coordinates used for the check
 
 **Response indicates SkyFibre availability at the specified location.**
 
