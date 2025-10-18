@@ -1,0 +1,46 @@
+{
+  "cookies": [
+    {
+      "name": "_GRECAPTCHA",
+      "value": "09AG7bzvHfYssyh25A683KwubZ14xAWMq9lGAuvNV_l8XSqWRGMLQ57XKAKHwYRRKH1JK8OfnbH0O_0xjau4D9WQE",
+      "domain": "www.google.com",
+      "path": "/recaptcha",
+      "expires": 1776247598.136988,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "C97A5AC99A3275D7BC234E1C5A43303D",
+      "domain": "sso.mtnbusiness.co.za",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "CASTGC",
+      "value": "TGT-700-WWfChE7ASR03VFeczuFF4vc6hutgtgvAM6oQKUD1XdeD7X2SIe-sohch7Ae",
+      "domain": "sso.mtnbusiness.co.za",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "8728F0CB40D184368C49940F169904BD",
+      "domain": "asp-feasibility.mtnbusiness.co.za",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "sessionId": "C97A5AC99A3275D7BC234E1C5A43303D",
+  "expiresAt": "2025-10-17T11:06:57.049Z"
+}
