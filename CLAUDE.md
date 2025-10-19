@@ -15,13 +15,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Development Workflow
 
+**Daily Memory Management** (Required for 16GB systems):
+1. **Morning:** Run `npm run workflow:start` to optimize memory
+2. **Development:** Use `npm run dev:memory` (never use standard `npm run dev`)
+3. **End of Day:** Run `npm run workflow:cleanup` to free resources
+
 **Pre-Commit Checklist** (Required before every commit):
-1. Run `npm run type-check` to catch TypeScript errors
+1. Run `npm run type-check:memory` to catch TypeScript errors
 2. Fix any errors reported
-3. Run `npm run type-check` again to verify fixes
+3. Run `npm run type-check:memory` again to verify fixes
 4. Commit and push
 
 This prevents Vercel build failures by catching type errors locally. The build process includes both linting and type checking, so running `npm run type-check` locally ensures your commits will deploy successfully.
+
+**Memory Management Commands:**
+- `npm run workflow:start` - Morning memory optimization (interactive)
+- `npm run workflow:start:auto` - Morning optimization (auto-cleanup)
+- `npm run workflow:cleanup` - End-of-day cleanup
+- `npm run memory:check` - Quick memory status
+- `npm run memory:detail` - Detailed memory analysis
+- **Claude Code:** `/memory-start` or `/memory-cleanup`
+
+See: `docs/guides/MEMORY_WORKFLOW_QUICK_START.md` for complete workflow guide.
 
 ## Architecture Overview
 
@@ -378,6 +393,128 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Components should be placed in appropriate subdirectories
 - Maintain separation between public site and admin functionality
 - API routes follow RESTful conventions
+
+### File Organization Rules
+**CRITICAL**: Always create files in the correct directories. Never place files in the project root unless they are configuration files.
+
+#### Configuration Files (Root Directory Only)
+**Allowed in root**:
+- `package.json`, `package-lock.json` - NPM configuration
+- `tsconfig.json` - TypeScript configuration
+- `next.config.mjs`, `next.config.js` - Next.js configuration
+- `tailwind.config.ts` - Tailwind CSS configuration
+- `postcss.config.mjs` - PostCSS configuration
+- `.env`, `.env.local`, `.env.example` - Environment variables
+- `.gitignore`, `.eslintrc.json`, `.prettierrc` - Tool configurations
+- `CLAUDE.md`, `README.md`, `LICENSE` - Documentation
+- `.mcp.json` - MCP server configuration
+
+**Never in root**:
+- Source code files (.ts, .tsx, .js, .jsx)
+- Migration files (.sql)
+- Test files (.test.ts, .spec.ts)
+- Documentation files (except CLAUDE.md and README.md)
+- Screenshots or images
+
+#### Directory-Specific File Placement
+
+**Pages & Routes** (`/app`):
+- Public pages: `/app/page.tsx`, `/app/about/page.tsx`, etc.
+- Admin pages: `/app/admin/[section]/page.tsx`
+- API routes: `/app/api/[endpoint]/route.ts`
+- Dynamic routes: `/app/[slug]/page.tsx`
+- Layout files: `/app/layout.tsx`, `/app/admin/layout.tsx`
+
+**Components** (`/components`):
+- UI components: `/components/ui/[component].tsx`
+- Admin components: `/components/admin/[section]/[component].tsx`
+- Feature components: `/components/[feature]/[component].tsx`
+- Shared components: `/components/shared/[component].tsx`
+
+**Libraries & Utilities** (`/lib`):
+- Type definitions: `/lib/types/[domain].ts`
+- Utility functions: `/lib/utils/[function].ts` or `/lib/utils.ts`
+- Service classes: `/lib/[service]/[class].ts`
+- Configuration: `/lib/config/[config].ts`
+
+**React Hooks** (`/hooks`):
+- Custom hooks: `/hooks/use-[hook-name].ts`
+- Admin hooks: `/hooks/admin/use-[hook-name].ts`
+- Feature hooks: `/hooks/[feature]/use-[hook-name].ts`
+
+**Database** (`/supabase`):
+- Migrations: `/supabase/migrations/[timestamp]_[description].sql`
+- Edge functions: `/supabase/functions/[function-name]/index.ts`
+- Types: `/supabase/types/[type].ts`
+
+**Documentation** (`/docs`):
+- Feature docs: `/docs/features/[FEATURE_NAME].md`
+- API docs: `/docs/api/[API_NAME].md`
+- Setup guides: `/docs/setup/[GUIDE_NAME].md`
+- Architecture: `/docs/architecture/[DOC_NAME].md`
+- Roadmaps: `/docs/roadmap/[ROADMAP_NAME].md`
+- Migration history: `/docs/migration-history/[migration].sql` (archived migrations)
+- Testing docs: `/docs/testing/[TEST_DOC].md`
+- Screenshots: `/docs/screenshots/[screenshot].png`
+- Archive: `/docs/archive/[old-doc].md` (deprecated documentation)
+
+**Scripts** (`/scripts`):
+- Build scripts: `/scripts/build/[script].js`
+- Deployment scripts: `/scripts/deploy/[script].sh`
+- Utility scripts: `/scripts/[script].js`
+- Test scripts: `/scripts/test/[script].js`
+
+**Public Assets** (`/public`):
+- Images: `/public/images/[image].png`
+- Icons: `/public/icons/[icon].svg`
+- Fonts: `/public/fonts/[font].woff2`
+- Static files: `/public/[file]`
+
+**Styles** (`/styles` or inline):
+- Global styles: `/styles/globals.css`
+- Component styles: Use Tailwind CSS classes inline
+- CSS modules: `/styles/[component].module.css`
+
+#### File Naming Conventions
+
+**React Components**:
+- Use PascalCase: `UserProfile.tsx`, `AdminDashboard.tsx`
+- Page files: `page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx`
+- Route files: `route.ts`
+
+**TypeScript Files**:
+- Use kebab-case: `user-service.ts`, `auth-utils.ts`
+- Hooks: `use-auth.ts`, `use-permissions.ts`
+- Types: `user-types.ts`, `api-types.ts`
+
+**SQL Files**:
+- Migration format: `YYYYMMDDHHMMSS_description.sql`
+- Example: `20251020000001_create_payment_transactions.sql`
+
+**Documentation Files**:
+- Use SCREAMING_SNAKE_CASE for guides: `SETUP_GUIDE.md`, `API_REFERENCE.md`
+- Use Title Case for features: `Phase_2_Extensions.md`, `B2B_Roadmap.md`
+
+#### Migration & Cleanup Rules
+
+**When migrating old files**:
+1. Identify file type and purpose
+2. Move to appropriate directory (see above)
+3. Update any imports that reference the moved file
+4. Archive old versions to `/docs/archive/` if needed
+5. Delete temporary or duplicate files
+
+**Archive locations**:
+- Old documentation → `/docs/archive/`
+- Old migrations → `/docs/migration-history/`
+- Test files → `/docs/testing/` or `/tests/`
+- Screenshots → `/docs/screenshots/`
+
+**Root directory should only contain**:
+- Configuration files (listed above)
+- Core documentation (CLAUDE.md, README.md)
+- Git files (.git, .gitignore)
+- Node modules (node_modules/)
 
 ### TypeScript Architecture
 - Strict TypeScript configuration with comprehensive type safety

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Wifi, Shield, Clock, CheckCircle, Signal, Zap, Award } from 'lucide-react';
 import { PricingGrid } from '@/components/coverage/PricingGrid';
+import { NoCoverageLeadForm } from '@/components/coverage/NoCoverageLeadForm';
 
 interface ServicePackage {
   id: string;
@@ -36,7 +37,8 @@ export default function CoveragePage() {
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<CoverageResult | null>(null);
-  const [currentStep, setCurrentStep] = useState<'input' | 'checking' | 'results'>('input');
+  const [currentStep, setCurrentStep] = useState<'input' | 'checking' | 'results' | 'no-coverage'>('input');
+  const [noCoverageCoordinates, setNoCoverageCoordinates] = useState<{ lat: number; lng: number } | undefined>();
 
   const handleCoverageCheck = async () => {
     if (!address.trim()) return;
@@ -79,8 +81,9 @@ export default function CoveragePage() {
         });
         setCurrentStep('results');
       } else {
-        alert('Sorry, no coverage available at this location yet.');
-        setCurrentStep('input');
+        // No coverage - show lead capture form
+        setNoCoverageCoordinates(packagesData.coordinates);
+        setCurrentStep('no-coverage');
       }
     } catch (error) {
       console.error('Coverage check failed:', error);
@@ -142,8 +145,9 @@ export default function CoveragePage() {
               });
               setCurrentStep('results');
             } else {
-              alert('Sorry, no coverage available at your location yet.');
-              setCurrentStep('input');
+              // No coverage - show lead capture form
+              setNoCoverageCoordinates(packagesData.coordinates);
+              setCurrentStep('no-coverage');
             }
           } catch (error) {
             console.error('Coverage check failed:', error);
@@ -246,6 +250,18 @@ export default function CoveragePage() {
                   Scanning MTN network and fibre providers
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* No Coverage - Lead Capture Form */}
+          {currentStep === 'no-coverage' && (
+            <div className="max-w-2xl mx-auto">
+              <NoCoverageLeadForm
+                address={address}
+                coordinates={noCoverageCoordinates}
+                onSuccess={resetCheck}
+                onCancel={resetCheck}
+              />
             </div>
           )}
 

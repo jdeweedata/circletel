@@ -5,11 +5,27 @@
   "scripts": {
     "dev": "next dev",
     "dev:memory": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next dev",
+    "dev:low": "node --max-old-space-size=4096 ./node_modules/next/dist/bin/next dev",
     "build": "next build",
     "build:memory": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next build",
+    "build:ci": "node --max-old-space-size=6144 ./node_modules/next/dist/bin/next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "type-check:memory": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
+    "memory:check": "powershell -File scripts/check-memory.ps1",
+    "memory:detail": "powershell -File scripts/check-memory-detailed.ps1",
+    "workflow:start": "powershell -File scripts/workflow-morning.ps1",
+    "workflow:start:auto": "powershell -File scripts/workflow-morning.ps1 -AutoCleanup",
+    "workflow:cleanup": "powershell -File scripts/workflow-cleanup.ps1",
+    "optimize:vscode": "powershell -File scripts/optimize-vscode.ps1",
+    "optimize:vscode:apply": "powershell -File scripts/optimize-vscode.ps1 -ApplySettings",
+    "optimize:windows": "powershell -File scripts/optimize-windows.ps1",
+    "optimize:browser": "powershell -File scripts/optimize-browser.ps1",
+    "optimize:all": "powershell -File scripts/optimize-dev-environment.ps1",
+    "optimize:all:apply": "powershell -File scripts/optimize-dev-environment.ps1 -ApplyAll",
+    "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\" && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue\"",
+    "analyze": "cross-env ANALYZE=true npm run build:memory"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
@@ -82,6 +98,7 @@
     "tailwindcss-animate": "^1.0.7",
     "use-places-autocomplete": "^4.0.1",
     "vaul": "^0.9.3",
+    "xlsx": "^0.18.5",
     "xml2js": "^0.6.2",
     "zod": "^3.25.76",
     "zustand": "^4.4.7"

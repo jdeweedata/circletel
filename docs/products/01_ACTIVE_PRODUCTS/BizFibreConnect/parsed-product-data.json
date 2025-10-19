@@ -1,0 +1,849 @@
+{
+  "BizFibre Connect": {
+    "totalRows": 209,
+    "data": [
+      [
+        "DFA Business Internet Access Service with ENNI/GNNI Infrastructure"
+      ],
+      [],
+      [
+        "All prices excluding VAT | Version 3.0 - Latest"
+      ],
+      [],
+      [
+        "Product Pricing Structure"
+      ],
+      [],
+      [
+        "Package",
+        "Speed",
+        "Regular Price",
+        "Promo Price",
+        "Router",
+        "Installation Fee",
+        "Total First Month"
+      ],
+      [
+        "BizFibre Connect Lite",
+        "10/10 Mbps",
+        "R 1 699.00",
+        "R -",
+        "Reyee RG-EW1300G (included)",
+        "R 2 500.00",
+        "R4 199.00 (R3 399 promo)"
+      ],
+      [
+        "BizFibre Connect Starter",
+        "25/25 Mbps",
+        "R 1 899.00",
+        "R -",
+        "Reyee RG-EG105G*",
+        "R 3 000.00",
+        "R4 899.00 (R4 399 promo)"
+      ],
+      [
+        "BizFibre Connect Plus",
+        "50/50 Mbps",
+        "R 2 499.00",
+        "R -",
+        "Reyee RG-EG105G-P*",
+        "R 3 500.00",
+        "R5 999.00 (R5 499 promo)"
+      ],
+      [
+        "BizFibre Connect Pro",
+        "100/100 Mbps",
+        "R 2 999.00",
+        "R -",
+        "Reyee RG-EG305GH-P-E**",
+        "R 3 500.00",
+        "R6 499.00 (R5 999 promo)"
+      ],
+      [
+        "BizFibre Connect Ultra",
+        "200/200 Mbps",
+        "R 4 373.00",
+        "R -",
+        "Reyee RG-EG310GH-P-E**",
+        "R 3 500.00",
+        "R7 873.00 (R7 373 promo)"
+      ],
+      [],
+      [
+        "*Requires R500 upfront hardware contribution **Available on rental: Pro R99/month, Ultra R149/month"
+      ],
+      [],
+      [
+        "Detailed Cost Breakdown with DFA Infrastructure"
+      ],
+      [],
+      [
+        "1. BizFibre Connect Lite (10 Mbps)"
+      ],
+      [],
+      [
+        "Component",
+        "Cost",
+        "Router Model & Details"
+      ],
+      [
+        "DFA Wholesale",
+        999,
+        "24-month term rate"
+      ],
+      [
+        "Static IP",
+        50,
+        "Public IPv4 address"
+      ],
+      [
+        "Infrastructure*",
+        71.84,
+        "Shared platform costs"
+      ],
+      [
+        "Router (amortised)",
+        18,
+        "Reyee RG-EW1300G"
+      ],
+      [
+        null,
+        null,
+        "• WiFi 802.11ac Wave 2"
+      ],
+      [
+        null,
+        null,
+        "• 4× Gigabit LAN + 1× WAN"
+      ],
+      [
+        null,
+        null,
+        "• 96 concurrent users"
+      ],
+      [
+        null,
+        null,
+        "• 230m² coverage"
+      ],
+      [
+        "Support",
+        150,
+        "Business hours"
+      ],
+      [
+        "Installation (amortised)",
+        104.16666666666667,
+        "R2,500 ÷ 24 months"
+      ],
+      [
+        "Total Cost",
+        1393.0066666666667
+      ],
+      [
+        "Selling Price ex. VAT",
+        2089.51
+      ],
+      [
+        "Selling Price incl. VAT",
+        2499
+      ],
+      [
+        "Gross Profit",
+        696.5033333333336
+      ],
+      [
+        "Gross Margin",
+        0.3333333333333334
+      ],
+      [],
+      [
+        "2. BizFibre Connect Starter (25 Mbps)"
+      ],
+      [],
+      [
+        "Component",
+        "Cost",
+        "Router Model & Details"
+      ],
+      [
+        "DFA Wholesale",
+        999,
+        "24-month term rate"
+      ],
+      [
+        "Static IP",
+        50,
+        "Public IPv4 address"
+      ],
+      [
+        "Infrastructure*",
+        71.84,
+        "Shared platform costs"
+      ],
+      [
+        "Router (amortised)",
+        21,
+        "Reyee RG-EG105G"
+      ],
+      [
+        null,
+        null,
+        "• Retail: R1,395 incl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Dealer: R1,005 excl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Amortised: R500 ÷ 24 months"
+      ],
+      [
+        null,
+        null,
+        "• 600 Mbps throughput"
+      ],
+      [
+        null,
+        null,
+        "• 5× Gigabit ports"
+      ],
+      [
+        null,
+        null,
+        "• 100 concurrent users"
+      ],
+      [
+        "Extended support",
+        250,
+        "Mon-8pm, 6 days"
+      ],
+      [
+        "Installation (amortised)",
+        125,
+        "R3,000 ÷ 24 months"
+      ],
+      [
+        "Total Cost",
+        1516.84
+      ],
+      [
+        "Selling Price ex. VAT",
+        2275.2599999999998
+      ],
+      [
+        "Selling Price incl. VAT",
+        2616.5489999999995
+      ],
+      [
+        "Gross Profit",
+        758.4199999999998
+      ],
+      [
+        "Gross Margin",
+        0.3333333333333333
+      ],
+      [],
+      [
+        "3. BizFibre Connect Plus (50 Mbps)"
+      ],
+      [],
+      [
+        "Component",
+        "Cost",
+        "Router Model & Details"
+      ],
+      [
+        "DFA Wholesale",
+        1422.23,
+        "24-month term rate"
+      ],
+      [
+        "Static IP",
+        50,
+        "Public IPv4 address"
+      ],
+      [
+        "Infrastructure*",
+        71.84,
+        "Shared platform costs"
+      ],
+      [
+        "Router (amortised)",
+        21,
+        "Reyee RG-EG105G-P"
+      ],
+      [
+        null,
+        null,
+        "• Retail: R1,625 incl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Dealer: R1,150 excl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Amortised: R500 ÷ 24 months"
+      ],
+      [
+        null,
+        null,
+        "• 4× PoE ports (54W)"
+      ],
+      [
+        null,
+        null,
+        "• Power IP phones/cameras"
+      ],
+      [
+        "Installation (amortised)",
+        145.83,
+        "R3,500 ÷ 24 months"
+      ],
+      [
+        "Total Cost",
+        1710.8999999999999
+      ],
+      [
+        "Selling Price ex. VAT",
+        2566.35
+      ],
+      [
+        "Selling Price incl. VAT",
+        2951.3025
+      ],
+      [
+        "Gross Profit",
+        855.45
+      ],
+      [
+        "Gross Margin",
+        0.33333333333333337
+      ],
+      [],
+      [
+        "4. BizFibre Connect Pro (100 Mbps)"
+      ],
+      [],
+      [
+        "Component",
+        "Cost",
+        "Router Model & Details"
+      ],
+      [
+        "DFA Wholesale",
+        1730.75,
+        "24-month term rate"
+      ],
+      [
+        "Static Ips",
+        50,
+        "Public IPv4 address"
+      ],
+      [
+        "Infrastructure*",
+        71.84,
+        "Shared platform costs"
+      ],
+      [
+        "Router rental",
+        99,
+        "Reyee RG-EG305GH-P-E"
+      ],
+      [
+        null,
+        null,
+        "• Retail: R3,425 incl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Dealer: R2,525 excl VAT"
+      ],
+      [
+        null,
+        null,
+        "• 1.5 Gbps throughput"
+      ],
+      [
+        null,
+        null,
+        "• 5× Gigabit (4 WAN capable)"
+      ],
+      [
+        null,
+        null,
+        "• 4× PoE ports (60W)"
+      ],
+      [
+        null,
+        null,
+        "• 64 IPSec VPN tunnels"
+      ],
+      [
+        null,
+        null,
+        "• 350 concurrent users"
+      ],
+      [
+        "24/7 support",
+        350,
+        "Business hours"
+      ],
+      [
+        "Installation (amortised)",
+        145.83,
+        "R3,500 ÷ 24 months"
+      ],
+      [
+        "Total Cost",
+        2447.42
+      ],
+      [
+        "Selling Price ex. VAT",
+        3671.13
+      ],
+      [
+        "Selling Price incl. VAT",
+        4221.7995
+      ],
+      [
+        "Gross Profit",
+        1223.71
+      ],
+      [
+        "Gross Margin",
+        0.3333333333333333
+      ],
+      [],
+      [
+        "5. BizFibre Connect Ultra (200 Mbps)"
+      ],
+      [],
+      [
+        "Component",
+        "Cost",
+        "Router Model & Details"
+      ],
+      [
+        "DFA Wholesale",
+        2875,
+        "24-month term rate"
+      ],
+      [
+        "Static IPs",
+        50,
+        "Public IPv4 address"
+      ],
+      [
+        "Infrastructure*",
+        71.84,
+        "Shared platform costs"
+      ],
+      [
+        "Router rental",
+        149,
+        "Reyee RG-EG310GH-P-E"
+      ],
+      [
+        null,
+        null,
+        "• Retail: R3,625 incl VAT"
+      ],
+      [
+        null,
+        null,
+        "• Dealer: R2,625 excl VAT"
+      ],
+      [
+        null,
+        null,
+        "• 1.5 Gbps throughput"
+      ],
+      [
+        null,
+        null,
+        "• 10× Gigabit (4 WAN capable)"
+      ],
+      [
+        null,
+        null,
+        "• 8× PoE ports (110W)"
+      ],
+      [
+        null,
+        null,
+        "• 64 IPSec VPN tunnels"
+      ],
+      [
+        null,
+        null,
+        "• 350 concurrent users"
+      ],
+      [
+        "Installation (amortised)",
+        145.83333333333334,
+        "R3,500 ÷ 24 months"
+      ],
+      [
+        "Total Cost",
+        3291.6733333333336
+      ],
+      [
+        "Selling Price ex. VAT",
+        4937.51
+      ],
+      [
+        "Selling Price incl. VAT",
+        5678.1365
+      ],
+      [
+        "Gross Profit",
+        1645.8366666666666
+      ],
+      [
+        "Gross Margin",
+        0.3333333333333333
+      ],
+      [],
+      [],
+      [
+        "DFA Infrastructure Requirements (ENNI/GNNI)"
+      ],
+      [],
+      [
+        "Network-to-Network Interface (NNI) Port Costs"
+      ],
+      [],
+      [
+        "Port Type",
+        "Installation (NRC)",
+        "Monthly (MRC)",
+        "Notes"
+      ],
+      [
+        "GNNI 1 Gbps",
+        6050,
+        898,
+        "Standard connectivity"
+      ],
+      [
+        "GNNI 10 Gbps",
+        6050,
+        3300,
+        "High-capacity"
+      ],
+      [
+        "ENNI 1 Gbps",
+        6050,
+        898,
+        "Magellan E-Access"
+      ],
+      [
+        "ENNI 10 Gbps",
+        6050,
+        3300,
+        "Magellan E-Access"
+      ],
+      [
+        "ENNI 100 Gbps",
+        12100,
+        15000,
+        "Ultra high-capacity"
+      ],
+      [],
+      [
+        "Supporting Infrastructure Costs"
+      ],
+      [],
+      [
+        "Service",
+        "Once-off",
+        "Monthly",
+        "Per User/Item"
+      ],
+      [
+        "Echo Internet Transit",
+        0,
+        "R 7/Mbps",
+        "Min 200Mbps = R1,400"
+      ],
+      [
+        "Echo BNG Service",
+        0,
+        "Variable",
+        "R25.40 @ 100+ users"
+      ],
+      [
+        "Echo CGNAT (1Gbps)",
+        2000,
+        1250,
+        "Shared resource"
+      ],
+      [
+        "Static IP Addresses",
+        0,
+        50,
+        "Per static IP"
+      ],
+      [
+        "AgilityGIS BSS",
+        10000,
+        "R 10.96/user",
+        "BSS + Billing Platform"
+      ],
+      [
+        "SFP Module",
+        1500,
+        0,
+        "Per connection"
+      ],
+      [],
+      [
+        "Infrastructure Cost Allocation Model (Per Customer)"
+      ],
+      [],
+      [
+        "At 100 customers steady state:"
+      ],
+      [
+        null,
+        "Once-off",
+        "Monthly",
+        "Per User/Item",
+        "Notes"
+      ],
+      [
+        "GNNI (1Gbps)",
+        6050,
+        898,
+        8.98,
+        "DFA Interconnect at Teraco"
+      ],
+      [
+        "Echo Internet (200Mbps)",
+        0,
+        1400,
+        14,
+        "Min 200Mbps = R1,400"
+      ],
+      [
+        "Echo BNG",
+        0,
+        2540,
+        25.4,
+        "R25.40 @ 100+ users"
+      ],
+      [
+        "Echo CGNAT",
+        2000,
+        1250,
+        12.5,
+        "Shared resource"
+      ],
+      [
+        "AgilityGIS BSS",
+        0,
+        1096,
+        10.96,
+        "BSS + Billing Platform"
+      ],
+      [
+        "Total Infrastructure",
+        null,
+        null,
+        71.84
+      ],
+      [
+        "Static IP",
+        null,
+        null,
+        50
+      ],
+      [
+        "With Static IP",
+        null,
+        null,
+        121.84
+      ],
+      [],
+      [
+        "Installation and Setup Fees"
+      ],
+      [],
+      [
+        "Service",
+        "Standard Fee",
+        "Current Promotion",
+        "Complex Installation"
+      ],
+      [
+        "Site Survey",
+        1500,
+        "FREE (first 100)",
+        "Required for complex sites"
+      ],
+      [
+        "Standard Installation",
+        2500,
+        "50% off",
+        "Professional setup"
+      ],
+      [
+        "Complex Installation",
+        3500,
+        2500,
+        "Multi-floor/difficult access"
+      ],
+      [
+        "Router Configuration",
+        500,
+        "Included",
+        "VLAN, QoS setup"
+      ],
+      [
+        "Additional Outlet",
+        750,
+        "Per outlet",
+        "Extra connection points"
+      ],
+      [],
+      [],
+      [
+        "Cost Analysis Summary"
+      ],
+      [],
+      [
+        "Margin Analysis by Package"
+      ],
+      [],
+      [
+        "Package",
+        "Monthly Revenue",
+        "Total Costs",
+        "Gross Profit",
+        "Margin %"
+      ],
+      [
+        "Lite (10 Mbps)",
+        2089.51,
+        1393.0066666666667,
+        696.5033333333336,
+        0.3333333333333334
+      ],
+      [
+        "Starter (25 Mbps)",
+        2275.2599999999998,
+        1516.84,
+        758.4199999999998,
+        0.3333333333333333
+      ],
+      [
+        "Plus (50 Mbps)",
+        2566.35,
+        1710.8999999999999,
+        855.45,
+        0.33333333333333337
+      ],
+      [
+        "Pro (100 Mbps)",
+        3671.13,
+        2447.42,
+        1223.71,
+        0.3333333333333333
+      ],
+      [
+        "Ultra (200 Mbps)",
+        4937.51,
+        3291.6733333333336,
+        1645.8366666666666,
+        0.3333333333333333
+      ],
+      [],
+      [
+        "Break-even Analysis"
+      ],
+      [],
+      [
+        "Fixed Infrastructure Costs:"
+      ],
+      [],
+      [
+        "GNNI Port:",
+        898
+      ],
+      [
+        "Echo Services: ",
+        2650
+      ],
+      [
+        "Operations: R 50 000/month (staff, office, marketing)"
+      ],
+      [
+        "Total Fixed: R 53 548/month"
+      ],
+      [],
+      [
+        "Break-even Points:"
+      ],
+      [],
+      [
+        "Minimum customers: 72 customers"
+      ],
+      [
+        "Target timeline: Month 4"
+      ],
+      [
+        "Optimal scale: 250+ customers (better margins)"
+      ],
+      [],
+      [],
+      [],
+      [
+        "Notes"
+      ],
+      [],
+      [
+        "*Infrastructure costs include shared GNNI port, Echo Internet transit, BNG service, CGNAT, and AgilityGIS BSS platform costs allocated per customer at 100-customer scale"
+      ],
+      [],
+      [
+        "Router Strategy:"
+      ],
+      [],
+      [
+        "Lite: Router included (cost absorbed)"
+      ],
+      [
+        "Starter/Plus: R500 customer contribution"
+      ],
+      [
+        "Pro/Ultra: Monthly rental model"
+      ],
+      [],
+      [
+        "Contract Terms:"
+      ],
+      [],
+      [
+        "Standard: 24-month contracts"
+      ],
+      [
+        "12-month available with 20% premium"
+      ],
+      [
+        "Month-to-month after initial term"
+      ],
+      [],
+      [
+        "Version Control: Document Version 3.0 - September 2025 Previous Version: 2.0 - Replaced Status: Current and Active"
+      ]
+    ]
+  }
+}

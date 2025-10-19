@@ -323,13 +323,13 @@ export default function AdminCoveragePage() {
               <Activity className="h-4 w-4" />
               Recent Activity
             </TabsTrigger>
-            <PermissionGate permissions={[PERMISSIONS.COVERAGE.TEST]}>
+            <PermissionGate permissions={[PERMISSIONS.COVERAGE.RUN_TESTS]}>
               <TabsTrigger value="testing" className="flex items-center gap-2">
                 <Zap className="h-4 w-4" />
                 Testing Tools
               </TabsTrigger>
             </PermissionGate>
-            <PermissionGate permissions={[PERMISSIONS.COVERAGE.MANAGE]}>
+            <PermissionGate permissions={[PERMISSIONS.COVERAGE.MANAGE_PROVIDERS]}>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Configuration

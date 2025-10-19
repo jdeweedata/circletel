@@ -1,286 +1,147 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { ProductGrid } from '@/components/products/ProductGrid';
-import { ProductFilters } from '@/components/products/ProductFilters';
-import { ProductComparison } from '@/components/products/ProductComparison';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { ProductCard } from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Search, Filter, ShoppingCart, Loader2 } from 'lucide-react';
-import type { Product, ProductFilters as IProductFilters } from '@/lib/types/products';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-function ProductsPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [comparingProducts, setComparingProducts] = useState<Product[]>([]);
-  const [filters, setFilters] = useState<IProductFilters>({
-    category: searchParams.get('category') as any || undefined,
-    service_type: searchParams.get('service_type') as any || undefined,
-    search: searchParams.get('search') || undefined,
-    sort_by: searchParams.get('sort') as any || 'popular',
-  });
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 12,
-    total: 0,
-    totalPages: 0,
-    hasNext: false,
-    hasPrev: false,
-  });
-
-  // Fetch products
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { ProductsClientService } = await import('@/lib/services/products-client');
-
-      const response = await ProductsClientService.getProducts(
-        filters,
-        pagination.page,
-        pagination.limit
-      );
-
-      setProducts(response.products);
-      setPagination({
-        page: response.page,
-        limit: response.per_page,
-        total: response.total,
-        totalPages: response.total_pages,
-        hasNext: response.page < response.total_pages,
-        hasPrev: response.page > 1,
-      });
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to load products. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, pagination.page, pagination.limit]);
-
-  // Fetch products on mount and filter changes
-  useEffect(() => {
-    fetchProducts();
-  }, [filters, pagination.page]);
-
-  // Handle search
-  const handleSearch = () => {
-    setFilters({ ...filters, search: searchQuery });
-    setPagination({ ...pagination, page: 1 });
-  };
-
-  // Handle filter changes
-  const handleFiltersChange = (newFilters: IProductFilters) => {
-    setFilters(newFilters);
-    setPagination({ ...pagination, page: 1 });
-  };
-
-  // Handle product comparison
-  const handleProductCompare = (product: Product) => {
-    if (comparingProducts.find(p => p.id === product.id)) {
-      setComparingProducts(comparingProducts.filter(p => p.id !== product.id));
-      toast.success(`${product.name} removed from comparison`);
-    } else if (comparingProducts.length >= 3) {
-      toast.error('You can compare up to 3 products at a time');
-    } else {
-      setComparingProducts([...comparingProducts, product]);
-      toast.success(`${product.name} added to comparison`);
-    }
-  };
-
-  // Handle product selection (add to cart or navigate)
-  const handleProductSelect = (product: Product) => {
-    // For now, navigate to order page with product
-    router.push(`/order?product=${product.slug}`);
-  };
-
-  // Clear comparison
-  const handleClearComparison = () => {
-    setComparingProducts([]);
-    toast.success('Comparison cleared');
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/10 to-background py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Our Products & Services
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Choose from our range of connectivity and IT service solutions
-          </p>
-          
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="flex-1"
-              />
-              <Button onClick={handleSearch}>
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Desktop Filters */}
-          <aside className="hidden lg:block">
-            <ProductFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-            />
-          </aside>
-
-          {/* Mobile Filter Sheet */}
-          <div className="lg:hidden mb-4">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px]">
-                <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4">
-                  <ProductFilters
-                    filters={filters}
-                    onFiltersChange={handleFiltersChange}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          {/* Products Grid */}
-          <div className="lg:col-span-3">
-            {/* Results Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <p className="text-sm text-muted-foreground">
-                  Showing {products.length} of {pagination.total} products
-                </p>
-                {comparingProducts.length > 0 && (
-                  <Badge variant="secondary">
-                    Comparing {comparingProducts.length} products
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            {/* Category Tabs */}
-            <Tabs
-              value={filters.category || 'all'}
-              onValueChange={(value) => 
-                handleFiltersChange({ 
-                  ...filters, 
-                  category: value === 'all' ? undefined : value as any 
-                })
-              }
-              className="mb-6"
-            >
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="connectivity">Connectivity</TabsTrigger>
-                <TabsTrigger value="it_services">IT Services</TabsTrigger>
-                <TabsTrigger value="bundle">Bundles</TabsTrigger>
-                <TabsTrigger value="add_on">Add-ons</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {/* Product Grid */}
-            <ProductGrid
-              products={products}
-              onProductSelect={handleProductSelect}
-              onProductCompare={handleProductCompare}
-              comparingProducts={comparingProducts.map(p => p.id)}
-              loading={loading}
-            />
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                <Button
-                  variant="outline"
-                  disabled={!pagination.hasPrev}
-                  onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                >
-                  Previous
-                </Button>
-                <div className="flex items-center gap-2">
-                  {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={pageNum === pagination.page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setPagination({ ...pagination, page: pageNum })}
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                  {pagination.totalPages > 5 && (
-                    <span className="text-muted-foreground">...</span>
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  disabled={!pagination.hasNext}
-                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Product Comparison */}
-        {comparingProducts.length > 0 && (
-          <ProductComparison
-            products={comparingProducts}
-            onRemove={handleProductCompare}
-            onClear={handleClearComparison}
-            className="mt-12"
-          />
-        )}
-      </section>
-    </div>
-  );
+interface Product {
+  id: string;
+  name: string;
+  speed: string;
+  price: number;
+  promo_price?: number | null;
+  installation_fee: number;
+  router_model?: string | null;
+  router_included: boolean;
+  router_rental_fee?: number | null;
+  category: string;
+  metadata?: any;
 }
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory]);
+
+  async function fetchProducts() {
+    try {
+      setLoading(true);
+      const url = selectedCategory === 'all'
+        ? '/api/products'
+        : `/api/products?category=${encodeURIComponent(selectedCategory)}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.success) {
+        setProducts(data.products);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleProductSelect(productId: string) {
+    // Navigate to coverage checker or order page
+    router.push(`/coverage?product=${productId}`);
+  }
+
+  // Group products by category
+  const categories = Array.from(new Set(products.map(p => p.category)));
+  const allCategories = ['all', ...categories];
+
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
-    }>
-      <ProductsPageContent />
-    </Suspense>
+    <div className="min-h-screen bg-white">
+      <Navbar />
+
+      <main className="py-16">
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-circleTel-darkNeutral mb-4">
+              Our Internet Packages
+            </h1>
+            <p className="text-lg text-circleTel-secondaryNeutral">
+              High-speed, reliable internet connectivity for your home or business.
+              Choose the perfect package for your needs.
+            </p>
+          </div>
+
+          {/* Category Tabs */}
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-12">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 md:grid-cols-4 gap-2">
+              <TabsTrigger value="all">All Packages</TabsTrigger>
+              <TabsTrigger value="BizFibre Connect">BizFibre</TabsTrigger>
+              <TabsTrigger value="Wireless">Wireless</TabsTrigger>
+              <TabsTrigger value="Enterprise">Enterprise</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-xl text-circleTel-secondaryNeutral mb-4">
+                No products available in this category
+              </p>
+              <Button
+                onClick={() => setSelectedCategory('all')}
+                variant="outline"
+              >
+                View All Packages
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Products Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onSelect={handleProductSelect}
+                    featured={index === 1} // Mark middle product as featured
+                  />
+                ))}
+              </div>
+
+              {/* Call to Action */}
+              <div className="bg-circleTel-lightNeutral rounded-lg p-8 text-center">
+                <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">
+                  Not sure which package is right for you?
+                </h2>
+                <p className="text-circleTel-secondaryNeutral mb-6">
+                  Check if our services are available in your area and get personalized recommendations
+                </p>
+                <Button
+                  size="lg"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                  onClick={() => router.push('/coverage')}
+                >
+                  Check Coverage in Your Area
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
   );
 }
