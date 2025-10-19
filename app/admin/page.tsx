@@ -325,17 +325,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Welcome back, {user?.full_name?.split(' ')[0]}!
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Here&apos;s what&apos;s happening with your product catalogue today.
             {stats.lastUpdated && (
-              <span className="text-xs text-gray-500 ml-2">
+              <span className="text-xs text-gray-400 ml-2">
                 • Last updated {stats.lastUpdated.toLocaleTimeString()}
               </span>
             )}
@@ -349,43 +349,39 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={refresh}
             disabled={isLoading}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
           </Button>
-          <Badge variant="outline" className="text-sm">
-            {user?.role?.replace('_', ' ').toUpperCase()}
-          </Badge>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((stat, index) => (
-          <Card key={index} className={stat.urgent ? 'border-orange-200 bg-orange-50/30' : ''}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+          <Card key={index} className={`border-gray-200 hover:shadow-md transition-shadow ${stat.urgent ? 'border-orange-300' : ''}`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-md ${stat.bgColor}`}>
+              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-3xl font-semibold text-gray-900 mb-1">
                 {stat.value}
                 {stat.urgent && (
                   <Badge variant="destructive" className="ml-2 text-xs">
-                    Urgent
+                    {stats.pendingApprovals}
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-gray-500">
                 {stat.description}
               </p>
             </CardContent>
@@ -394,62 +390,52 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common tasks to manage your product catalogue
-          </CardDescription>
+      <Card className="border-gray-200">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div>
+            <CardTitle className="text-base font-semibold text-gray-900">Quick Actions</CardTitle>
+            <CardDescription className="text-sm text-gray-500 mt-1">
+              Common tasks to manage your product catalogue
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {quickActions.map((action, index) => (
               <PermissionGate
                 key={index}
                 permissions={[action.permission]}
                 fallback={
-                  <Button
-                    disabled
-                    className="h-auto p-4 flex flex-col items-start space-y-2 w-full"
-                    variant="secondary"
-                  >
-                    <div className="w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <action.icon className="h-5 w-5" />
+                  <div className="relative">
+                    <div className="p-4 rounded-lg border border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed">
+                      <div className="flex items-center justify-between mb-2">
+                        <action.icon className="h-5 w-5 text-gray-400" />
                         {action.badge && (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="secondary" className="text-xs">
                             {action.badge}
                           </Badge>
                         )}
                       </div>
-                      <div className="text-left">
-                        <div className="font-medium">{action.title}</div>
-                        <div className="text-sm opacity-90">{action.description}</div>
-                      </div>
+                      <div className="text-sm font-medium text-gray-600">{action.title}</div>
+                      <div className="text-xs text-gray-500 mt-1">{action.description}</div>
                     </div>
-                  </Button>
+                  </div>
                 }
               >
                 <Link href={action.href} className="w-full">
-                  <Button
-                    className={`h-auto p-4 flex flex-col items-start space-y-2 ${action.color} text-white w-full`}
-                  >
-                    <div className="w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <action.icon className="h-5 w-5" />
-                        {action.badge && (
-                          <Badge variant="destructive" className="text-xs">
-                            {action.badge}
-                          </Badge>
-                        )}
-                        <ArrowUpRight className="h-4 w-4 opacity-70" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium">{action.title}</div>
-                        <div className="text-sm opacity-90">{action.description}</div>
-                      </div>
+                  <div className={`p-4 rounded-lg ${action.color} text-white hover:opacity-90 transition-all cursor-pointer`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <action.icon className="h-5 w-5" />
+                      {action.badge && (
+                        <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0">
+                          {action.badge}
+                        </Badge>
+                      )}
+                      <ArrowUpRight className="h-4 w-4 opacity-70" />
                     </div>
-                  </Button>
+                    <div className="text-sm font-medium">{action.title}</div>
+                    <div className="text-xs opacity-80 mt-1">{action.description}</div>
+                  </div>
                 </Link>
               </PermissionGate>
             ))}
@@ -458,16 +444,21 @@ export default function AdminDashboard() {
       </Card>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            Latest changes and updates to the product catalogue
-          </CardDescription>
+      <Card className="border-gray-200">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div>
+            <CardTitle className="text-base font-semibold text-gray-900">Recent Activity</CardTitle>
+            <CardDescription className="text-sm text-gray-500 mt-1">
+              Latest changes and updates to the product catalogue
+            </CardDescription>
+          </div>
+          <Link href="/admin/products?tab=history" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+            See all
+          </Link>
         </CardHeader>
         <CardContent>
           {activityLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="flex items-start space-x-3 p-3 animate-pulse">
                   <div className="h-4 w-4 bg-gray-200 rounded"></div>
@@ -479,30 +470,30 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-1">
               {recentActivity.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Activity className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                  <p>No recent activity</p>
+                <div className="text-center py-12 text-gray-500">
+                  <Activity className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                  <p className="text-sm font-medium text-gray-600">No recent activity</p>
                   <p className="text-xs text-gray-400 mt-1">
                     Product changes will appear here
                   </p>
                 </div>
               ) : (
                 recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
                     <div className="flex-shrink-0 mt-0.5">
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm text-gray-900">
                         {activity.message}
                       </p>
                       <div className="flex items-center space-x-2 mt-1">
                         <p className="text-xs text-gray-500">
                           by {activity.user}
                         </p>
-                        <span className="text-xs text-gray-400">•</span>
+                        <span className="text-xs text-gray-300">•</span>
                         <p className="text-xs text-gray-500">
                           {activity.timestamp}
                         </p>

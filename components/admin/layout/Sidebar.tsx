@@ -219,7 +219,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                 <button
                   onClick={() => isOpen && toggleDropdown(item.name)}
                   className={cn(
-                    'flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                    'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
                     'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                     isOpen && 'cursor-pointer',
                     !isOpen && 'cursor-default'
@@ -240,19 +240,19 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
 
                 {/* Dropdown Content */}
                 {isOpen && isExpanded(item.name) && (
-                  <div className="ml-8 space-y-1 border-l-2 border-gray-100 pl-4">
+                  <div className="ml-9 space-y-1 pl-4">
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
                         className={cn(
-                          'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                          'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
                           isActiveLink(child.href)
-                            ? 'bg-circleTel-orange text-white shadow-sm'
+                            ? 'bg-gray-100 text-gray-900 font-medium'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         )}
                       >
-                        <child.icon className="mr-3 h-4 w-4" />
+                        <child.icon className="mr-2 h-4 w-4" />
                         {child.name}
                       </Link>
                     ))}
@@ -263,9 +263,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
               <Link
                 href={item.href!}
                 className={cn(
-                  'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
                   isActiveLink(item.href!, item.end)
-                    ? 'bg-circleTel-orange text-white'
+                    ? 'bg-gray-100 text-gray-900 shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
@@ -274,8 +274,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   <span className="flex-1">{item.name}</span>
                 )}
                 {isOpen && item.badge && (
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    <Clock className="w-3 h-3 mr-1" />
+                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                     3
                   </span>
                 )}
@@ -288,9 +287,11 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
         {isAdmin && (
           <>
             <div className="pt-4 mt-4 border-t border-gray-200">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                {isOpen ? 'Administration' : ''}
-              </div>
+              {isOpen && (
+                <div className="px-3 py-2 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Administration
+                </div>
+              )}
               {adminNavigation.map((item) => (
                 <div key={item.name}>
                   {item.children ? (
@@ -299,7 +300,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                       <button
                         onClick={() => isOpen && toggleDropdown(item.name)}
                         className={cn(
-                          'flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                          'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
                           'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                           isOpen && 'cursor-pointer',
                           !isOpen && 'cursor-default'
@@ -320,19 +321,19 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
 
                       {/* Admin Dropdown Content */}
                       {isOpen && isExpanded(item.name) && (
-                        <div className="ml-8 space-y-1 border-l-2 border-gray-100 pl-4">
+                        <div className="ml-9 space-y-1 pl-4">
                           {item.children.map((child) => (
                             <Link
                               key={child.href}
                               href={child.href}
                               className={cn(
-                                'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                                'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
                                 isActiveLink(child.href)
-                                  ? 'bg-circleTel-orange text-white shadow-sm'
+                                  ? 'bg-gray-100 text-gray-900 font-medium'
                                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                               )}
                             >
-                              <child.icon className="mr-3 h-4 w-4" />
+                              <child.icon className="mr-2 h-4 w-4" />
                               {child.name}
                             </Link>
                           ))}
@@ -343,9 +344,9 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                     <Link
                       href={item.href!}
                       className={cn(
-                        'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                        'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
                         isActiveLink(item.href!)
-                          ? 'bg-circleTel-orange text-white'
+                          ? 'bg-gray-100 text-gray-900 shadow-sm'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       )}
                     >
