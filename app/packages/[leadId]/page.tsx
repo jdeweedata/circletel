@@ -260,12 +260,23 @@ function PackagesContent() {
     }
   };
 
-  // Group packages by service type
+  // Group packages by service type - match both service_type and product_category
   const packageGroups = {
     all: packages,
-    fibre: packages.filter(p => p.service_type?.toLowerCase() === 'fibre'),
-    wireless: packages.filter(p => p.service_type?.toLowerCase() === 'wireless'),
-    '5g': packages.filter(p => p.service_type?.toLowerCase() === '5g'),
+    fibre: packages.filter(p => {
+      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
+      return serviceType.includes('fibre');
+    }),
+    wireless: packages.filter(p => {
+      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
+      return serviceType.includes('wireless') ||
+             serviceType.includes('lte') ||
+             serviceType.includes('skyfibre');
+    }),
+    '5g': packages.filter(p => {
+      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
+      return serviceType.includes('5g');
+    }),
   };
 
   const filteredPackages = packageGroups[activeTab as keyof typeof packageGroups] || packages;
@@ -333,31 +344,37 @@ function PackagesContent() {
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-4 bg-gray-100 p-1 rounded-xl w-full sm:w-auto">
+                <TabsList className="inline-flex flex-wrap gap-1 bg-gray-100 p-1 rounded-xl">
                   <TabsTrigger
                     value="all"
                     className="rounded-lg font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
                   >
-                    All
+                    All ({packages.length})
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="fibre"
-                    className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
-                  >
-                    Fibre
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="wireless"
-                    className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
-                  >
-                    Wireless
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="5g"
-                    className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
-                  >
-                    5G
-                  </TabsTrigger>
+                  {packageGroups.fibre.length > 0 && (
+                    <TabsTrigger
+                      value="fibre"
+                      className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
+                    >
+                      Fibre ({packageGroups.fibre.length})
+                    </TabsTrigger>
+                  )}
+                  {packageGroups.wireless.length > 0 && (
+                    <TabsTrigger
+                      value="wireless"
+                      className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
+                    >
+                      Wireless ({packageGroups.wireless.length})
+                    </TabsTrigger>
+                  )}
+                  {packageGroups['5g'].length > 0 && (
+                    <TabsTrigger
+                      value="5g"
+                      className="rounded-lg font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white"
+                    >
+                      5G ({packageGroups['5g'].length})
+                    </TabsTrigger>
+                  )}
                 </TabsList>
               </div>
 
