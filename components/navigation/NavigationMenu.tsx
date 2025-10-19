@@ -70,8 +70,9 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
       <NavigationMenuList>
         {/* Home */}
         <NavigationMenuItem>
-          <Link href="/">
-            <NavigationMenuLink
+          <NavigationMenuLink asChild>
+            <Link
+              href="/"
               className={cn(
                 navigationMenuTriggerStyle(),
                 'text-base md:text-lg lg:text-xl',
@@ -79,8 +80,8 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
               )}
             >
               Home
-            </NavigationMenuLink>
-          </Link>
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
 
         {/* Managed IT */}

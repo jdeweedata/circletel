@@ -1,89 +1,139 @@
 'use client';
 
 import React from 'react';
+import { Truck, Wifi, Router, MapPin } from 'lucide-react';
+import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Server, Battery } from 'lucide-react';
-import { CoverageChecker } from '@/components/coverage/CoverageChecker';
 
 export function Hero() {
+  const [address, setAddress] = React.useState('');
+  const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
+
+  const handleLocationSelect = (data: any) => {
+    setAddress(data.address);
+    if (data.latitude && data.longitude) {
+      setCoordinates({ lat: data.latitude, lng: data.longitude });
+    }
+  };
+
+  const handleCheckCoverage = () => {
+    if (address.trim()) {
+      // Store address in sessionStorage for coverage page
+      sessionStorage.setItem('coverageAddress', address);
+      if (coordinates) {
+        sessionStorage.setItem('coverageCoordinates', JSON.stringify(coordinates));
+      }
+      window.location.href = '/coverage';
+    }
+  };
+
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-white to-circleTel-lightNeutral overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-          {/* Text Content */}
-          <div className="w-full md:w-1/2 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-3 text-circleTel-darkNeutral">
-              Empowering SMEs, SOHOs, and Homes with Reliable Tech
-            </h1>
-            <p className="text-xl md:text-2xl text-circleTel-secondaryNeutral mb-5 max-w-xl font-semibold">
-              High-Speed Wireless and Fibre Internet, Proactive IT, and Data Resilience
-            </p>
+    <section className="relative min-h-[600px] md:min-h-[700px] overflow-hidden bg-gradient-to-br from-circleTel-darkNeutral via-purple-900 to-circleTel-darkNeutral">
+      {/* Decorative Background Elements - Afrihost Style */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large gradient circles */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-circleTel-orange rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
 
-            <p className="text-lg text-circleTel-secondaryNeutral mb-8 max-w-xl">
-              No tech jargon, no hidden costs — just reliable IT solutions that work for South African businesses.
-              <strong> Serving urban and rural communities across South Africa.</strong>
-            </p>
+        {/* Smaller decorative dots */}
+        <div className="absolute top-20 left-1/4 w-2 h-2 bg-cyan-400 rounded-full"></div>
+        <div className="absolute top-40 right-1/3 w-3 h-3 bg-purple-400 rounded-full"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-cyan-300 rounded-full"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-3 h-3 bg-purple-300 rounded-full"></div>
 
-            {/* Single Primary CTA */}
-            <div className="flex justify-center md:justify-start">
+        {/* Dotted pattern circles */}
+        <div className="absolute top-1/4 left-20 w-32 h-32 border-4 border-dotted border-purple-400 opacity-20 rounded-full"></div>
+        <div className="absolute bottom-1/4 right-20 w-24 h-24 border-4 border-dotted border-cyan-400 opacity-20 rounded-full"></div>
+      </div>
+
+      <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
+        {/* Hero Content */}
+        <div className="text-center max-w-5xl mx-auto mb-12">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            Connectivity that can fit your budget
+          </h1>
+          <p className="text-2xl md:text-3xl text-white/90 mb-8">
+            Get connected today with our Fibre, LTE and 5G deals.
+          </p>
+        </div>
+
+        {/* Coverage Checker Card */}
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-1 p-2 border-2 border-gray-200 rounded-full bg-gray-50/50 w-full">
+                <AddressAutocomplete
+                  value={address}
+                  onLocationSelect={handleLocationSelect}
+                  placeholder="What's your street address?"
+                  className="w-full h-full"
+                  showLocationButton={true}
+                />
+              </div>
               <Button
-                asChild
+                onClick={handleCheckCoverage}
+                disabled={!address.trim()}
                 size="lg"
-                className="primary-button bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-lg px-8"
+                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-xl px-10 py-7 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:bg-circleTel-orange min-w-[240px] flex items-center gap-3"
               >
-                <a href="#coverage-check">Check Coverage Now</a>
+                <MapPin className="h-6 w-6" />
+                Check coverage
               </Button>
-            </div>
-
-            {/* Trust indicators */}
-            <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-circleTel-secondaryNeutral">
-              <div className="flex items-center">
-                <ShieldCheck size={16} className="text-green-500 mr-1" />
-                <span>POPIA Compliant</span>
-              </div>
-              <div className="flex items-center">
-                <Server size={16} className="text-blue-500 mr-1" />
-                <span>Reliable Network Partners</span>
-              </div>
-              <div className="flex items-center">
-                <Battery size={16} className="text-circleTel-orange mr-1" />
-                <span>Power Outage Ready</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Coverage Checker */}
-          <div id="coverage-check" className="w-full md:w-1/2 flex justify-center animate-scale-in scroll-mt-20">
-            <div className="relative w-full max-w-md">
-              <CoverageChecker
-                className="relative z-10 shadow-xl border-2 bg-white rounded-lg"
-                onCoverageFound={(services) => {
-                  console.log('Services available:', services);
-                  // Navigate to packages page with leadId
-                  if (services.leadId) {
-                    window.location.href = `/packages/${services.leadId}`;
-                  } else {
-                    window.location.href = '/bundles';
-                  }
-                }}
-                onNoCoverage={() => {
-                  console.log('No coverage - capture lead');
-                  // Could show a lead capture modal here
-                }}
-              />
-
-              {/* Decorative Elements */}
-              <div className="absolute top-5 right-5 -z-10 h-full w-full bg-circleTel-orange opacity-5 rounded-lg transform rotate-3"></div>
-              <div className="absolute -bottom-5 -left-5 -z-10 h-full w-full border-2 border-circleTel-orange border-dashed rounded-lg transform -rotate-2"></div>
-
-              {/* Network Nodes */}
-              <div className="absolute -left-4 top-1/4 h-8 w-8 bg-circleTel-orange rounded-full opacity-70 animate-pulse"></div>
-              <div className="absolute -right-4 bottom-1/4 h-6 w-6 bg-circleTel-orange rounded-full opacity-70 animate-pulse"></div>
-              <div className="absolute left-1/2 -bottom-4 h-10 w-10 bg-circleTel-orange rounded-full opacity-50 animate-pulse"></div>
             </div>
           </div>
         </div>
+
+        {/* Value Props */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+          <div className="flex flex-col items-center text-white">
+            <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
+              <Wifi className="w-8 h-8 text-gray-900" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">Go capped or uncapped.</h3>
+          </div>
+          <div className="flex flex-col items-center text-white">
+            <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
+              <Truck className="w-8 h-8 text-gray-900" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">Free delivery.</h3>
+          </div>
+          <div className="flex flex-col items-center text-white">
+            <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
+              <Router className="w-8 h-8 text-gray-900" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">Save R1 000 on a router.*</h3>
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <p className="text-center text-white/60 text-sm mt-8 max-w-4xl mx-auto">
+          *Save up to R1000 if you sign up for selected SIM + Device packages. Only while stocks last. Maximum of 3 promotions per legal entity (business or individual). Offer subject to cancellation policy.
+        </p>
       </div>
+
+      <style jsx>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </section>
   );
 }
