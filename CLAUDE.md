@@ -273,11 +273,20 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - **Configuration**: Global settings, security, and geographic parameters
 
 #### Network Provider System
-- **Database Tables**: `network_providers`, `provider_logos`, `coverage_files`, `provider_configuration`
+- **Database Tables**:
+  - `fttb_network_providers` - Core provider data with health monitoring columns
+  - `provider_api_logs` - API request/response logging with PostGIS coordinates
+  - `provider_logos` - Provider logo storage
+  - `coverage_files` - KML/KMZ coverage file metadata
+  - `provider_configuration` - System-wide provider settings (JSONB)
 - **Type Definitions**: `/lib/types/coverage-providers.ts` with comprehensive interfaces
 - **File Upload Support**: KML/KMZ coverage maps with metadata extraction using `xml2js` and `adm-zip`
 - **Logo Management**: Image processing with Sharp for optimization and resizing
 - **API Testing**: Built-in connection testing for provider APIs
+- **Health Monitoring**: SQL functions for success rate and response time calculations
+  - `calculate_provider_success_rate_24h(provider_id)` - Returns success percentage
+  - `calculate_provider_avg_response_time_24h(provider_id)` - Returns avg response time in ms
+  - `update_provider_health_metrics(provider_id)` - Updates health status (healthy/degraded/down)
 
 #### Coverage API Endpoints
 - `GET /api/coverage/packages?leadId={id}` - Get available packages for a coverage check
@@ -327,6 +336,17 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - **Timestamps**: Automatic created_at/updated_at with triggers
 - **Constraints**: Database-level validation with CHECK constraints
 
+### Database Migration Strategy
+- **Migration Files**: Located in `/supabase/migrations/` with timestamp-based naming
+- **Idempotency**: All migrations use `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`, `ON CONFLICT` clauses
+- **Applied Migrations**: Track via Supabase Dashboard (Project Settings > Database > Migrations)
+- **Manual Application**: Use Supabase Dashboard SQL Editor for most reliable migration application
+- **Verification**: Always verify migrations with `SELECT COUNT(*)` queries after application
+- **Key Migrations**:
+  - `20250201000005_create_rbac_system.sql` - RBAC with 17 role templates (✅ Applied)
+  - `20251019000001_enhance_provider_management_system.sql` - Provider health monitoring (✅ Applied)
+- **Migration Guide**: See `docs/features/MIGRATION_GUIDE_2025-10-19.md` for detailed procedures
+
 ## Important Notes
 
 ### Development Considerations
@@ -334,6 +354,7 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Test credentials (development mode): `admin@circletel.co.za` / `admin123`
 - PWA is disabled in development mode but active in production
 - MCP servers require Claude Code or compatible MCP client to function
+  - Supabase MCP operates in read-only mode (use Dashboard SQL Editor for migrations)
 - Zoho integration has both web UI (demo mode) and MCP server (production) implementations
 - Server may restart due to memory constraints with large compilation processes
 - Development server defaults to port 3006 if 3000 is occupied
@@ -341,6 +362,10 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Playwright testing is configured via MCP server for E2E testing capabilities
 - File uploads require appropriate directory permissions for `/uploads/` folder
 - Admin coverage module provides comprehensive testing tools for API validation
+- **Database Migrations**: Always use Supabase Dashboard SQL Editor for migration application
+  - Programmatic migration tools (CLI, Node.js scripts) may encounter auth/network issues
+  - Dashboard provides most reliable method with immediate feedback
+  - Verify all migrations with SQL queries after application
 
 ### Build and Deployment
 - Uses Vercel for deployment
@@ -368,3 +393,11 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Test coverage includes homepage, coverage checker, admin panel, and order flows
 - Mock data available for coverage APIs during development
 - No traditional unit testing framework configured (relies on TypeScript + E2E)
+
+### Key Implementation Status
+- **RBAC System**: ✅ Complete (17 role templates, 100+ permissions, database-enforced)
+- **Provider Management**: ✅ Phase 1 Complete (database ready, health monitoring, API logging)
+  - Phase 2 (Service Layer) - Next: `ProviderApiClient`, `ProviderService`, `CoverageFileParser`
+  - See `docs/features/COVERAGE_PROVIDER_IMPLEMENTATION_STATUS.md` for roadmap
+- **MTN Integration**: ✅ 3 providers configured (Wholesale MNS, Business WMS, Consumer)
+- **Marketing CMS**: ✅ Complete (Strapi integration with promotions, campaigns, landing pages)

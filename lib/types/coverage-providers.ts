@@ -21,7 +21,7 @@ export interface NetworkProvider {
 
 export interface ApiConfiguration {
   baseUrl?: string;
-  authMethod?: 'none' | 'api_key' | 'oauth' | 'bearer';
+  authMethod?: 'none' | 'api_key' | 'oauth' | 'bearer' | 'sso';
   apiKey?: string;
   authToken?: string;
   rateLimitRpm?: number;
@@ -30,10 +30,20 @@ export interface ApiConfiguration {
   retryDelayMs?: number;
   customHeaders?: Record<string, string>;
   endpoints?: {
+    feasibility?: string;
+    products?: string;
     coverage?: string;
-    packages?: string;
     availability?: string;
   };
+}
+
+export interface SSOConfiguration {
+  enabled: boolean;
+  loginUrl: string;
+  casTicket: string | null;
+  expiryTimestamp: string | null;
+  autoRefreshEnabled: boolean;
+  autoRefreshCron: string;
 }
 
 export interface StaticConfiguration {
@@ -265,4 +275,196 @@ export interface ProviderLogoRow {
   file_path: string;
   dimensions?: { width: number; height: number }; // JSON
   created_at: string;
+}
+
+// New interfaces for provider management system
+
+export interface ProviderApiLog {
+  id: string;
+  providerId: string;
+  endpointType: 'feasibility' | 'products' | 'coverage' | 'availability';
+  requestUrl: string;
+  requestMethod: string;
+  requestHeaders?: Record<string, unknown>;
+  requestBody?: Record<string, unknown>;
+  responseStatus?: number;
+  responseBody?: Record<string, unknown>;
+  responseTimeMs?: number;
+  success: boolean;
+  errorMessage?: string;
+  errorCode?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  address?: string;
+  createdAt: string;
+}
+
+export interface ProviderApiLogRow {
+  id: string;
+  provider_id: string;
+  endpoint_type: 'feasibility' | 'products' | 'coverage' | 'availability';
+  request_url: string;
+  request_method: string;
+  request_headers?: Record<string, unknown>;
+  request_body?: Record<string, unknown>;
+  response_status?: number;
+  response_body?: Record<string, unknown>;
+  response_time_ms?: number;
+  success: boolean;
+  error_message?: string;
+  error_code?: string;
+  coordinates?: unknown; // PostGIS GEOGRAPHY type
+  address?: string;
+  created_at: string;
+}
+
+export interface ProviderConfigurationSetting {
+  id: string;
+  settingKey: string;
+  settingValue: Record<string, unknown>;
+  description?: string;
+  updatedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProviderConfigurationRow {
+  id: string;
+  setting_key: string;
+  setting_value: Record<string, unknown>;
+  description?: string;
+  updated_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProviderHealthMetrics {
+  successRate24h: number;
+  avgResponseTime24h: number;
+  healthStatus: 'healthy' | 'degraded' | 'down' | 'untested';
+  lastHealthCheck?: string;
+  lastSuccessfulCheck?: string;
+}
+
+// Enhanced NetworkProviderRow with new health and config fields
+export interface EnhancedNetworkProviderRow extends NetworkProviderRow {
+  api_config?: Record<string, unknown>;
+  static_config?: Record<string, unknown>;
+  sso_config?: Record<string, unknown>;
+  last_health_check?: string;
+  health_status?: 'healthy' | 'degraded' | 'down' | 'untested';
+  success_rate_24h?: number;
+  avg_response_time_24h?: number;
+  last_successful_check?: string;
+}
+
+// Enhanced NetworkProvider with new fields
+export interface EnhancedNetworkProvider extends NetworkProvider {
+  ssoConfig?: SSOConfiguration;
+  healthMetrics?: ProviderHealthMetrics;
+}
+
+// API request/response types for provider management endpoints
+export interface CreateProviderRequest {
+  name: string;
+  displayName: string;
+  type: 'api' | 'static';
+  description?: string;
+  website?: string;
+  supportContact?: string;
+  apiConfig?: ApiConfiguration;
+  staticConfig?: StaticConfiguration;
+  ssoConfig?: SSOConfiguration;
+  serviceTypes: ServiceType[];
+  priority: number;
+}
+
+export interface UpdateProviderRequest {
+  id: string;
+  displayName?: string;
+  enabled?: boolean;
+  description?: string;
+  website?: string;
+  supportContact?: string;
+  apiConfig?: ApiConfiguration;
+  staticConfig?: StaticConfiguration;
+  ssoConfig?: SSOConfiguration;
+  serviceTypes?: ServiceType[];
+  priority?: number;
+}
+
+export interface TestProviderRequest {
+  providerId: string;
+  address?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  productNames?: string[]; // For feasibility APIs
+  endpointType?: 'feasibility' | 'products' | 'coverage' | 'availability';
+}
+
+export interface TestProviderResponse {
+  success: boolean;
+  providerId: string;
+  providerName: string;
+  requestDetails: {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body?: Record<string, unknown>;
+  };
+  responseDetails: {
+    status: number;
+    body: Record<string, unknown>;
+    timeMs: number;
+  };
+  error?: string;
+  timestamp: string;
+}
+
+export interface ProviderPerformanceMetrics {
+  providerId: string;
+  providerName: string;
+  period: '24h' | '7d' | '30d';
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  successRate: number;
+  avgResponseTime: number;
+  minResponseTime: number;
+  maxResponseTime: number;
+  errorBreakdown: {
+    errorType: string;
+    count: number;
+  }[];
+  geographicDistribution?: {
+    province: string;
+    count: number;
+  }[];
+}
+
+export interface MTNWholesaleConfig {
+  baseUrl: string;
+  apiKey: string;
+  enabledProducts: string[];
+  ssoConfig: SSOConfiguration;
+}
+
+export interface MTNWholesaleTestRequest {
+  address: string;
+  productNames: string[];
+}
+
+export interface RefreshSSOSessionRequest {
+  providerId: string;
+}
+
+export interface RefreshSSOSessionResponse {
+  success: boolean;
+  casTicket: string;
+  expiryTimestamp: string;
+  error?: string;
 }
