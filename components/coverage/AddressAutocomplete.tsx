@@ -304,7 +304,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           onFocus={() => inputValue.length >= 2 && setShowSuggestions(true)}
           placeholder={placeholder}
           className={cn(
-            "h-16 pl-12 pr-20 text-xl rounded-full bg-white/90 backdrop-blur-sm border-2 border-white/30 focus:border-white focus:bg-white text-circleTel-darkNeutral placeholder:text-circleTel-secondaryNeutral/70 placeholder:text-xl",
+            "h-16 pl-12 pr-20 text-2xl rounded-full bg-white/90 backdrop-blur-sm border-2 border-white/30 focus:border-white focus:bg-white text-circleTel-darkNeutral placeholder:text-circleTel-secondaryNeutral/70 placeholder:text-2xl",
             "focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           )}
           autoComplete="off"
