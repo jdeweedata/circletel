@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 export function Hero() {
   const [address, setAddress] = React.useState('');
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [isChecking, setIsChecking] = React.useState(false);
 
   const handleLocationSelect = (data: any) => {
     setAddress(data.address);
@@ -16,14 +17,33 @@ export function Hero() {
     }
   };
 
-  const handleCheckCoverage = () => {
+  const handleCheckCoverage = async () => {
     if (address.trim()) {
-      // Store address in sessionStorage for coverage page
-      sessionStorage.setItem('coverageAddress', address);
-      if (coordinates) {
-        sessionStorage.setItem('coverageCoordinates', JSON.stringify(coordinates));
+      setIsChecking(true);
+      try {
+        // Create a coverage lead
+        const response = await fetch('/api/coverage/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: address.trim(),
+            coordinates: coordinates
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create coverage lead');
+        }
+
+        const data = await response.json();
+
+        // Redirect to packages page with leadId
+        window.location.href = `/packages/${data.leadId}`;
+      } catch (error) {
+        console.error('Coverage check failed:', error);
+        alert('Coverage check failed. Please try again.');
+        setIsChecking(false);
       }
-      window.location.href = '/coverage';
     }
   };
 
@@ -73,12 +93,21 @@ export function Hero() {
               </div>
               <Button
                 onClick={handleCheckCoverage}
-                disabled={!address.trim()}
+                disabled={!address.trim() || isChecking}
                 size="lg"
                 className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-xl px-10 py-7 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:bg-circleTel-orange min-w-[240px] flex items-center gap-3"
               >
-                <MapPin className="h-6 w-6" />
-                Check coverage
+                {isChecking ? (
+                  <>
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="h-6 w-6" />
+                    Check coverage
+                  </>
+                )}
               </Button>
             </div>
           </div>
