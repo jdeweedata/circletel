@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,22 +22,88 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
+import { createClient } from '@supabase/supabase-js';
 
-// Mock stats data - will be replaced with real data
-const mockStats = {
-  totalProducts: 47,
-  pendingApprovals: 3,
-  approvedProducts: 44,
-  revenueImpact: 2450000,
-  lastUpdated: new Date()
-};
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+interface AdminStats {
+  totalProducts: number;
+  pendingApprovals: number;
+  approvedProducts: number;
+  revenueImpact: number;
+  lastUpdated: Date;
+}
+
+interface AuditActivity {
+  id: string;
+  type: string;
+  message: string;
+  timestamp: string;
+  user: string;
+}
 
 function useAdminStatsRealtime() {
+  const [stats, setStats] = useState<AdminStats>({
+    totalProducts: 0,
+    pendingApprovals: 0,
+    approvedProducts: 0,
+    revenueImpact: 0,
+    lastUpdated: new Date()
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStats = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch products
+      const { data: products, error: productsError } = await supabase
+        .from('products')
+        .select('base_price_zar, is_active, status');
+
+      if (productsError) throw productsError;
+
+      // Calculate stats
+      const totalProducts = products?.length || 0;
+      const activeProducts = products?.filter(p => p.is_active) || [];
+      const approvedProducts = activeProducts.length;
+
+      // Calculate monthly recurring revenue
+      const revenueImpact = activeProducts.reduce((sum, p) => {
+        const price = parseFloat(p.base_price_zar || '0');
+        return sum + price;
+      }, 0);
+
+      setStats({
+        totalProducts,
+        pendingApprovals: 0, // No approval workflow implemented yet
+        approvedProducts,
+        revenueImpact: Math.round(revenueImpact),
+        lastUpdated: new Date()
+      });
+    } catch (err) {
+      console.error('Error fetching admin stats:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load statistics');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return {
-    stats: mockStats,
-    isLoading: false,
-    error: null,
-    refresh: () => console.log('Refreshing stats...')
+    stats,
+    isLoading,
+    error,
+    refresh: fetchStats
   };
 }
 
@@ -45,38 +111,105 @@ export default function AdminDashboard() {
   const { user } = useAdminAuth();
   const { can } = usePermissions();
   const { stats, isLoading, error, refresh } = useAdminStatsRealtime();
+  const [recentActivity, setRecentActivity] = useState<AuditActivity[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
 
-  // Mock recent activity data
-  const [recentActivity] = useState([
-    {
-      id: '1',
-      type: 'approval_request',
-      message: 'New product "BizFibre Connect Ultra" submitted for approval',
-      timestamp: '2 hours ago',
-      user: 'John Smith'
-    },
-    {
-      id: '2',
-      type: 'price_update',
-      message: 'Pricing updated for SkyFibre SMB Professional',
-      timestamp: '4 hours ago',
-      user: 'Sarah Johnson'
-    },
-    {
-      id: '3',
-      type: 'product_approved',
-      message: 'SkyFibre Residential Home Max approved and published',
-      timestamp: '1 day ago',
-      user: 'Mike Wilson'
-    },
-    {
-      id: '4',
-      type: 'feature_update',
-      message: 'Router specifications updated for business packages',
-      timestamp: '2 days ago',
-      user: 'Emma Davis'
-    }
-  ]);
+  // Fetch recent activity from audit logs
+  useEffect(() => {
+    const fetchRecentActivity = async () => {
+      try {
+        setActivityLoading(true);
+
+        const { data: auditLogs, error: auditError } = await supabase
+          .from('product_audit_logs')
+          .select(`
+            id,
+            action,
+            changed_fields,
+            changed_by_name,
+            changed_at,
+            change_reason,
+            product_id
+          `)
+          .order('changed_at', { ascending: false })
+          .limit(10);
+
+        if (auditError) throw auditError;
+
+        // Transform audit logs into activity items
+        const activities: AuditActivity[] = await Promise.all(
+          (auditLogs || []).map(async (log) => {
+            // Fetch product name for context
+            const { data: product } = await supabase
+              .from('products')
+              .select('name')
+              .eq('id', log.product_id)
+              .single();
+
+            const productName = product?.name || 'Unknown Product';
+
+            // Determine activity type and message
+            let type = 'feature_update';
+            let message = '';
+
+            if (log.action === 'INSERT') {
+              type = 'product_created';
+              message = `New product "${productName}" created`;
+            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('base_price_zar')) {
+              type = 'price_update';
+              message = `Pricing updated for ${productName}`;
+            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('is_active')) {
+              type = 'status_change';
+              message = `Status changed for ${productName}`;
+            } else if (log.action === 'UPDATE') {
+              type = 'feature_update';
+              const fields = log.changed_fields?.filter(f => f !== 'updated_at').join(', ') || 'properties';
+              message = `Updated ${fields} for ${productName}`;
+            } else if (log.action === 'DELETE') {
+              type = 'product_archived';
+              message = `Product "${productName}" archived`;
+            }
+
+            // Format timestamp
+            const timestamp = formatRelativeTime(new Date(log.changed_at));
+
+            return {
+              id: log.id,
+              type,
+              message,
+              timestamp,
+              user: log.changed_by_name || 'System'
+            };
+          })
+        );
+
+        setRecentActivity(activities);
+      } catch (err) {
+        console.error('Error fetching recent activity:', err);
+        // Set empty array on error
+        setRecentActivity([]);
+      } finally {
+        setActivityLoading(false);
+      }
+    };
+
+    fetchRecentActivity();
+  }, []);
+
+  // Helper function to format relative time
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
 
   const statCards = [
     {
@@ -152,14 +285,20 @@ export default function AdminDashboard() {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'approval_request':
-        return <Clock className="h-4 w-4 text-orange-500" />;
+      case 'product_created':
+        return <Plus className="h-4 w-4 text-green-500" />;
       case 'price_update':
         return <DollarSign className="h-4 w-4 text-blue-500" />;
-      case 'product_approved':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'status_change':
+        return <Activity className="h-4 w-4 text-orange-500" />;
       case 'feature_update':
         return <Package className="h-4 w-4 text-purple-500" />;
+      case 'product_archived':
+        return <Clock className="h-4 w-4 text-red-500" />;
+      case 'approval_request':
+        return <Clock className="h-4 w-4 text-orange-500" />;
+      case 'product_approved':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
       default:
         return <Activity className="h-4 w-4 text-gray-500" />;
     }
@@ -327,33 +466,53 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentActivity.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No recent activity</p>
-            ) : (
-              recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex-shrink-0 mt-0.5">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      {activity.message}
-                    </p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <p className="text-xs text-gray-500">
-                        by {activity.user}
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">
-                        {activity.timestamp}
-                      </p>
-                    </div>
+          {activityLoading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-start space-x-3 p-3 animate-pulse">
+                  <div className="h-4 w-4 bg-gray-200 rounded"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {recentActivity.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Activity className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <p>No recent activity</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Product changes will appear here
+                  </p>
+                </div>
+              ) : (
+                recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {getActivityIcon(activity.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        {activity.message}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <p className="text-xs text-gray-500">
+                          by {activity.user}
+                        </p>
+                        <span className="text-xs text-gray-400">•</span>
+                        <p className="text-xs text-gray-500">
+                          {activity.timestamp}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
