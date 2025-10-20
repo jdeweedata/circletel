@@ -164,10 +164,16 @@ export async function GET(request: NextRequest) {
       }
 
       // Get available packages for the mapped product categories
+      // Note: When no mappings exist, availableServices contains service_type values (e.g., 'SkyFibre', 'HomeFibreConnect')
+      // When mappings exist, productCategories contains product_category values (e.g., 'wireless', 'fibre_consumer')
       const { data: packages, error: packagesError } = await supabase
         .from('service_packages')
         .select('*')
-        .in('product_category', productCategories)
+        .or(
+          mappings && mappings.length > 0
+            ? `product_category.in.(${productCategories.join(',')})`
+            : `service_type.in.(${productCategories.join(',')})`
+        )
         .eq('active', true)
         .order('price', { ascending: true });
 
