@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         lat: coordinates.lat,
         lng: coordinates.lng
       } : null,
-      lead_source: 'coverage_check' as const,
+      lead_source: 'coverage_checker' as const,
       status: 'new',
       metadata: {
         session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
