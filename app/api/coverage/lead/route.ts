@@ -19,15 +19,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a lead entry (similar to Supersonic's process)
+    // Create a minimal lead entry for coverage check
+    // Full customer details will be collected in the order form
     const leadData = {
+      customer_type: 'consumer' as const, // Default to consumer for coverage checks
+      first_name: 'Coverage',  // Placeholder - will be updated during order
+      last_name: 'Check',      // Placeholder - will be updated during order
+      email: `coverage-${Date.now()}@temp.circletel.co.za`, // Temporary email
+      phone: '0000000000',     // Placeholder - will be updated during order
       address,
-      latitude: coordinates?.lat,
-      longitude: coordinates?.lng,
-      status: 'pending',
-      source: 'coverage_check',
-      created_at: new Date().toISOString(),
-      session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      coordinates: coordinates ? {
+        lat: coordinates.lat,
+        lng: coordinates.lng
+      } : null,
+      lead_source: 'coverage_check' as const,
+      status: 'new',
+      metadata: {
+        session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        is_coverage_check: true,
+        checked_at: new Date().toISOString()
+      }
     };
 
     const { data, error } = await supabase
@@ -38,22 +49,22 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return NextResponse.json(
-        { error: 'Failed to create lead' },
+        { error: 'Failed to create coverage lead', details: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       leadId: data.id,
-      session_id: data.session_id,
       status: 'success'
     });
 
   } catch (error) {
     console.error('Lead creation error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
