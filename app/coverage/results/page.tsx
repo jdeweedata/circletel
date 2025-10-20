@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,7 +58,7 @@ type ViewMode = 'grid' | 'comparison';
 type SortBy = 'price-low' | 'price-high' | 'speed-high' | 'speed-low';
 type FilterCategory = 'all' | 'fibre' | 'wireless' | 'business' | 'home';
 
-export default function CoverageResultsPage() {
+function CoverageResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const leadId = searchParams.get('leadId');
@@ -420,5 +420,17 @@ export default function CoverageResultsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function CoverageResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      </div>
+    }>
+      <CoverageResultsContent />
+    </Suspense>
   );
 }
