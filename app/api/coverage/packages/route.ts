@@ -41,12 +41,16 @@ export async function GET(request: NextRequest) {
     let availablePackages: any[] = [];
     let coverageMetadata: any = null;
 
-    if (lead.latitude && lead.longitude) {
+    // Extract coordinates from JSONB structure
+    const lat = lead.coordinates?.lat;
+    const lng = lead.coordinates?.lng;
+
+    if (lat && lng) {
       try {
         // Use real-time MTN coverage aggregation service
         const coordinates: Coordinates = {
-          lat: lead.latitude,
-          lng: lead.longitude
+          lat: lat,
+          lng: lng
         };
 
         const coverageResult = await coverageAggregationService.aggregateCoverage(coordinates, {
@@ -91,8 +95,8 @@ export async function GET(request: NextRequest) {
         // Fallback to legacy PostGIS query if real-time check fails
         const { data: coverageData, error: coverageError } = await supabase
           .rpc('check_coverage_at_point', {
-            lat: lead.latitude,
-            lng: lead.longitude
+            lat: lat,
+            lng: lng
           });
 
         if (!coverageError && coverageData && coverageData.length > 0) {
@@ -207,9 +211,9 @@ export async function GET(request: NextRequest) {
       packages: availablePackages,
       leadId: leadId,
       address: lead.address,
-      coordinates: lead.latitude && lead.longitude ? {
-        lat: lead.latitude,
-        lng: lead.longitude
+      coordinates: lat && lng ? {
+        lat: lat,
+        lng: lng
       } : null,
       metadata: coverageMetadata // Include coverage metadata for debugging
     });
