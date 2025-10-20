@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
-export default function PaymentReturnPage() {
+function PaymentReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -198,5 +198,25 @@ export default function PaymentReturnPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PaymentReturnPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Loader2 className="w-16 h-16 animate-spin text-circleTel-orange mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Loading...</h2>
+              <p className="text-gray-600">Please wait</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <PaymentReturnContent />
+    </Suspense>
   );
 }
