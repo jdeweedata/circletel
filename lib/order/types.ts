@@ -10,6 +10,7 @@ export interface OrderData {
 export interface CoverageData {
   address?: string;
   coordinates?: { lat: number; lng: number };
+  leadId?: string;
   selectedPackage?: PackageDetails;
   pricing?: PricingDetails;
 }
@@ -55,11 +56,18 @@ export interface ValidationErrors {
 export interface PackageDetails {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   monthlyPrice: number;
-  onceOffPrice: number;
+  onceOffPrice?: number;
   speed: string;
-  type: 'fibre' | 'wireless' | 'mobile';
+  type?: 'fibre' | 'wireless' | 'mobile';
+  service_type?: string;
+  product_category?: string;
+  speed_down?: number;
+  speed_up?: number;
+  price?: string;
+  promotion_price?: string | null;
+  promotion_months?: number | null;
   features?: string[];
 }
 

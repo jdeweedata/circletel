@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useOrderContext } from '@/components/order/context/OrderContext';
+import type { PackageDetails } from '@/lib/order/types';
 
 interface Package {
   id: string;
@@ -220,13 +222,19 @@ function PackageCard({ package: pkg, index, onSelect }: PackageCardProps) {
 
 function PackagesContent() {
   const params = useParams();
+  const router = useRouter();
   const leadId = params.leadId as string;
+
+  // Use OrderContext for state persistence
+  const { state, actions } = useOrderContext();
 
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [address, setAddress] = useState('');
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(
+    state.orderData.coverage?.selectedPackage as Package | null
+  );
 
   useEffect(() => {
     fetchPackages();
@@ -240,6 +248,15 @@ function PackagesContent() {
       const data = await response.json();
       setPackages(data.packages || []);
       setAddress(data.address || '');
+
+      // Initialize order with coverage data
+      actions.updateOrderData({
+        coverage: {
+          leadId,
+          address: data.address || '',
+          coordinates: data.coordinates,
+        },
+      });
     } catch (error) {
       console.error('Error fetching packages:', error);
       toast.error('Failed to load packages');
@@ -250,13 +267,54 @@ function PackagesContent() {
 
   const handlePackageSelect = (pkg: Package) => {
     setSelectedPackage(pkg);
+
+    // Convert Package to PackageDetails and save to context
+    const packageDetails: PackageDetails = {
+      id: pkg.id,
+      name: pkg.name,
+      service_type: pkg.service_type,
+      product_category: pkg.product_category,
+      speed_down: pkg.speed_down,
+      speed_up: pkg.speed_up,
+      price: String(pkg.price),
+      promotion_price: pkg.promotion_price ? String(pkg.promotion_price) : null,
+      promotion_months: pkg.promotion_months || null,
+      description: pkg.description,
+      features: pkg.features || [],
+      monthlyPrice: pkg.promotion_price || pkg.price,
+      speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+    };
+
+    // Save selected package to OrderContext
+    actions.updateOrderData({
+      coverage: {
+        ...state.orderData.coverage,
+        selectedPackage: packageDetails,
+        pricing: {
+          monthly: pkg.promotion_price || pkg.price,
+          onceOff: 0,
+          vatIncluded: true,
+          breakdown: [
+            {
+              name: pkg.name,
+              amount: pkg.promotion_price || pkg.price,
+              type: 'monthly',
+            },
+          ],
+        },
+      },
+    });
+
     // Scroll to show the floating CTA
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleContinue = () => {
     if (selectedPackage) {
-      window.location.href = `/order?package=${selectedPackage.id}&leadId=${leadId}`;
+      // Mark coverage step as complete and navigate to next step
+      actions.markStepComplete(1);
+      actions.setCurrentStage(2); // Move to account step
+      router.push('/order/account');
     }
   };
 
