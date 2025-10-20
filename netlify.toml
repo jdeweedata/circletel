@@ -1,0 +1,53 @@
+# Netlify Configuration for CircleTel Next.js App
+# This enables seamless deployment alongside or instead of Vercel
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Next.js Plugin for Netlify (automatically handles routing, SSR, ISR)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Environment variable hints (actual values set in Netlify dashboard)
+# NEXT_PUBLIC_SUPABASE_URL
+# NEXT_PUBLIC_SUPABASE_ANON_KEY
+# SUPABASE_SERVICE_ROLE_KEY
+# SUPABASE_DB_PASSWORD
+# NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+# Redirects and rewrites (handled by Next.js, but fallback for edge cases)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Functions configuration (for API routes)
+[functions]
+  directory = ".netlify/functions/"
+  node_bundler = "esbuild"
+
+# Development settings
+[dev]
+  command = "npm run dev"
+  port = 3006
+  targetPort = 3006
+  autoLaunch = false
