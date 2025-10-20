@@ -7,6 +7,20 @@
 # Testing
 /coverage
 
+# Playwright test artifacts
+.playwright-mcp/**/*.png
+.playwright-mcp/**/*.jpg
+.playwright-mcp/**/*.jpeg
+.playwright-mcp/**/*.webm
+.playwright-mcp/**/*.mp4
+!.playwright-mcp/test-fish-eagle/*.png
+!.playwright-mcp/test-fish-eagle/*.md
+!.playwright-mcp/test-fish-eagle/*.json
+
+# Test result files
+scripts/coverage-api-test-results.json
+scripts/*-test-results.json
+
 # Next.js
 /.next/
 /out/
@@ -26,6 +40,8 @@ yarn-error.log*
 # Local env files
 .env*.local
 .env
+.env.vercel
+.env.vercel.production
 
 # Vercel
 .vercel
