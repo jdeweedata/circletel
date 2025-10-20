@@ -1,0 +1,111 @@
+﻿{
+  // ============================================
+  // VS Code Memory Optimization Settings
+  // Dell Vostro 16 5640 (16GB RAM)
+  // Target: Reduce memory from 3GB+ to 1.5GB
+  // ============================================
+
+  // TypeScript Server Memory Limit
+  "typescript.tsserver.maxTsServerMemory": 2048,
+
+  // File Watching (Reduce monitored files)
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/.cache/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.husky/**": true,
+    "**/.vercel/**": true,
+    "**/coverage/**": true
+  },
+
+  // Search Optimization
+  "search.maxResults": 10000,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true
+  },
+
+  // IntelliSense Optimization
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggest.maxVisibleSuggestions": 8,
+  "editor.suggest.localityBonus": true,
+  "editor.suggest.shareSuggestSelections": false,
+
+  // Problems Panel
+  "problems.maxNumberOfProblems": 100,
+
+  // Disable Telemetry
+  "telemetry.telemetryLevel": "off",
+
+  // Git Optimization
+  "git.autorefresh": false,
+  "git.untrackedChanges": "hidden",
+  "git.ignoreLimitWarning": true,
+
+  // Disable Automatic Updates
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+
+  // Terminal Optimization
+  "terminal.integrated.scrollback": 1000,
+  "terminal.integrated.enablePersistentSessions": false,
+
+  // Editor Performance
+  "editor.semanticHighlighting.enabled": false,
+  "editor.renderWhitespace": "selection",
+  "editor.minimap.enabled": false,
+
+  // Breadcrumbs (Disable if not used)
+  "breadcrumbs.enabled": true,
+
+  // Outline (Reduce depth)
+  "outline.collapseItems": "alwaysCollapse",
+
+  // Exclude from Files Scan
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.next": true
+  },
+
+  // Disable Preview Editors (Saves memory)
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+
+  // Limit Open Editors
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.value": 10,
+  "workbench.editor.limit.perEditorGroup": true,
+
+  // Disable Startup Editor
+  "workbench.startupEditor": "none",
+
+  // Window Performance
+  "window.restoreWindows": "none",
+
+  // Disable Unused Features
+  "javascript.suggest.enabled": true,
+  "typescript.suggest.enabled": true,
+  "css.validate": true,
+  "html.validate.scripts": true,
+
+  // Markdown Preview (Disable auto-sync)
+  "markdown.preview.scrollPreviewWithEditor": false,
+  "markdown.preview.scrollEditorWithPreview": false
+}

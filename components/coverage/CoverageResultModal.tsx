@@ -26,7 +26,26 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
   if (!result) return null;
 
   const handleContactSales = () => {
-    window.open('/contact', '_blank');
+    // Build URL with coverage data to pre-fill contact form
+    const params = new URLSearchParams();
+    params.set('address', address);
+
+    // Add coverage information
+    if (result.hasCoverage) {
+      params.set('coverage', result.thirdPartyRequired ? 'FTTB Available (Third-party)' : 'Direct FTTB Available');
+      if (!result.thirdPartyRequired) {
+        params.set('speeds', '50Mbps - 1Gbps');
+      }
+    } else {
+      params.set('coverage', 'No Direct Coverage');
+      if (result.nearestBuilding) {
+        params.set('nearest', `${result.nearestBuilding.distance}m to ${result.nearestBuilding.buildingName}`);
+      }
+    }
+
+    params.set('service', 'connectivity');
+
+    window.open(`/contact?${params.toString()}`, '_blank');
     onOpenChange(false);
   };
 

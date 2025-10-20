@@ -99,6 +99,7 @@ export interface PaymentMethod {
 }
 
 export interface PaymentData {
+  customerId?: string;
   orderId?: string;
   paymentReference?: string;
   paymentStatus?: 'pending' | 'processing' | 'completed' | 'failed';

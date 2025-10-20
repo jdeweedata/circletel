@@ -30,7 +30,8 @@ import {
   Map,
   Activity,
   TestTube,
-  Building2
+  Building2,
+  Network
 } from 'lucide-react';
 
 interface User {
@@ -116,6 +117,13 @@ const navigation = [
 ];
 
 const adminNavigation = [
+  {
+    name: 'Orchestrator',
+    href: '/admin/orchestrator',
+    icon: Network,
+    adminOnly: true,
+    description: 'AI agent workflows and performance'
+  },
   {
     name: 'Users',
     icon: Users,

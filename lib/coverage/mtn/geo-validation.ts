@@ -548,3 +548,21 @@ export class GeographicValidator {
 
 // Export singleton instance
 export const geographicValidator = new GeographicValidator();
+
+/**
+ * Convenience function: Validate South African coordinates
+ * @param coordinates - Coordinates to validate
+ * @returns ValidationResult with isValid, confidence, province, warnings, etc.
+ */
+export function validateSouthAfricanCoordinates(coordinates: Coordinates): ValidationResult {
+  return geographicValidator.validateCoordinates(coordinates);
+}
+
+/**
+ * Convenience function: Get detailed location information
+ * @param coordinates - Coordinates to analyze
+ * @returns Validation result plus detailed location info
+ */
+export function getLocationInfo(coordinates: Coordinates) {
+  return geographicValidator.getLocationInfo(coordinates);
+}

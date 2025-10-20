@@ -1,7 +1,9 @@
 const https = require('https');
 
 const MTN_API_KEY = 'bdaacbcae8ab77672e545649df54d0df';
-const MTN_BASE_URL = 'https://ftool.mtnbusiness.co.za';
+// Updated to use TEST environment (production has connectivity issues)
+// Production URL: https://ftool.mtnbusiness.co.za (requires IP whitelisting/VPN)
+const MTN_BASE_URL = 'https://asp-feasibility.mtnbusiness.co.za';
 
 function makeRequest(path, method = 'GET', data = null) {
   return new Promise((resolve, reject) => {
@@ -88,8 +90,8 @@ async function testFeasibilityEndpoint(productList) {
     }
   ];
 
-  // Use first product from the list if available
-  const testProducts = productList?.results?.slice(0, 2) || ['Wholesale Business Broadband'];
+  // Use actual products from the API response
+  const testProducts = productList?.outputs?.slice(0, 2) || ['Wholesale Cloud Connect', 'Fixed Wireless Broadband'];
   
   const requestData = {
     inputs: testLocations,

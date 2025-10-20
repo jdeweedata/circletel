@@ -217,6 +217,70 @@ Configured in `.mcp.json`:
 - **shadcn**: UI component integration for Claude Code
 - **Zoho**: Remote CircleTel Zoho MCP server for CRM, Mail, Calendar operations
 - **supabase**: Supabase MCP server for database operations
+- **netlify**: Netlify deployment and site management (new as of 2025-10-20)
+- **canva**: Canva design integration
+- **github**: GitHub repository management
+
+#### Agent System (Claude Code AI Assistants)
+
+CircleTel uses **Claude Code meta-agents** - specialized AI prompt templates that provide intelligent task routing and automated workflows for complex development tasks.
+
+**Documentation**: See `.claude/agents/README.md` for complete agent system guide
+
+**Active Agents** (14 production-ready):
+
+**Core Orchestration**:
+- `orchestrator` - Master coordinator for complex multi-agent workflows, analyzes complexity and routes to optimal agents
+- `context-manager` - Manages memory hierarchy and domain contexts for token efficiency
+- `file-organizer` - Automated project structure maintenance and cleanup
+
+**Development Specialists**:
+- `full-stack-dev` - Complete feature implementation (database + backend + frontend), enforces CircleTel standards
+- `frontend-specialist` - UI/UX development with React, shadcn/ui, Tailwind CSS
+- `backend-specialist` - API development, server-side logic, Supabase integration
+- `integration-specialist` - Third-party API integrations (MTN, Zoho, Stripe, etc.)
+
+**Quality & Maintenance**:
+- `bug-hunter` - Debugging, root cause analysis, bug fixes
+- `testing-agent` - Test generation (unit, integration, E2E with Playwright)
+- `refactoring-agent` - Safe code refactoring and complexity reduction
+- `performance-optimizer` - Performance profiling and optimization
+- `documentation-agent` - Documentation generation and maintenance
+- `product-manager-agent` - Requirements analysis, user story generation
+
+**Infrastructure**:
+- `mcp-manager` - MCP server management, health monitoring, troubleshooting
+
+**How It Works**:
+```
+User: "Implement commission tracking for sales partners"
+
+Claude Code:
+1. Loads orchestrator agent
+2. Analyzes: Medium complexity, 3 layers (DB + API + UI), 120 minutes
+3. Selects: full-stack-dev as primary agent
+4. Executes: 5-phase workflow (Planning → Database → Backend → Frontend → Integration)
+5. Quality Gates: TypeScript validation, RBAC enforcement, design compliance
+6. Handoff: testing-agent → documentation-agent → deployment-check
+7. Result: Production-ready feature with tests and docs
+```
+
+**Key Features**:
+- **Automatic Invocation**: Agents auto-load based on keywords ("implement", "refactor", "debug", etc.)
+- **Intelligent Routing**: Orchestrator selects optimal agent(s) based on task complexity
+- **CircleTel Standards**: All agents enforce RBAC, design system, and file organization rules
+- **Quality Gates**: Built-in TypeScript, testing, and deployment validation
+- **Workflow Templates**: Pre-built workflows for common scenarios (complete feature, bug fix, integration)
+
+**Feature Backlog Integration**:
+- BRS-derived features stored in `docs/features/backlog/`
+- Ready-to-implement specs with orchestrator analysis
+- Example: Commission Tracking (120 min), Sales Quote Journey (180 min)
+
+**Usage Examples**:
+- "Use the full-stack-dev agent to add customer feedback feature"
+- "Analyze and plan the Sales Quote Journey from BRS Section 5.1.1"
+- "Implement Commission Tracking from docs/features/backlog/COMMISSION_TRACKING_FEATURE_SPEC.md"
 
 #### Zoho Integration
 - Full Zoho MCP integration in `/app/admin/zoho`
@@ -533,6 +597,10 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 
 ### Key Implementation Status
 - **RBAC System**: ✅ Complete (17 role templates, 100+ permissions, database-enforced)
+- **Agent System**: ✅ Complete (14 agents, orchestrator tested, feature backlog integration)
+  - See `.claude/agents/README.md` for full agent system documentation
+  - See `docs/features/backlog/` for ready-to-implement BRS features
+  - Test case: Commission Tracking feature (validated 2025-10-20)
 - **Provider Management**: ✅ Phase 1 Complete (database ready, health monitoring, API logging)
   - Phase 2 (Service Layer) - Next: `ProviderApiClient`, `ProviderService`, `CoverageFileParser`
   - See `docs/features/COVERAGE_PROVIDER_IMPLEMENTATION_STATUS.md` for roadmap

@@ -24,6 +24,8 @@
     "optimize:browser": "powershell -File scripts/optimize-browser.ps1",
     "optimize:all": "powershell -File scripts/optimize-dev-environment.ps1",
     "optimize:all:apply": "powershell -File scripts/optimize-dev-environment.ps1 -ApplyAll",
+    "extensions:analyze": "powershell -File scripts/analyze-vscode-extensions.ps1",
+    "vscode:force-cleanup": "powershell -File scripts/force-cleanup-vscode.ps1",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\" && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue\"",
     "analyze": "cross-env ANALYZE=true npm run build:memory"
   },

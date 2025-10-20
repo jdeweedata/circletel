@@ -145,6 +145,7 @@ export const PERMISSIONS = {
     MANAGE_SECURITY: 'system:manage_security',
     PERFORM_BACKUPS: 'system:perform_backups',
     VIEW_AUDIT_TRAIL: 'system:view_audit_trail',
+    VIEW_ORCHESTRATOR: 'system:view_orchestrator',
   },
 } as const
 
