@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { OrderWizard } from '@/components/order/OrderWizard';
@@ -79,7 +79,7 @@ const INITIAL_CUSTOMER_DETAILS: CustomerDetails = {
   whatsapp_opt_in: false,
 };
 
-export default function ConsumerOrderPage() {
+function ConsumerOrderContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const packageId = searchParams.get('package');
@@ -345,5 +345,17 @@ export default function ConsumerOrderPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ConsumerOrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      </div>
+    }>
+      <ConsumerOrderContent />
+    </Suspense>
   );
 }

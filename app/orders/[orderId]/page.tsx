@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +26,7 @@ import { OrderStatusBadge } from '@/components/customer-journey/OrderStatusBadge
 import { OrderTimeline } from '@/components/order/OrderTimeline';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 
-export default function OrderTrackingPage() {
+function OrderTrackingContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const orderId = params.orderId as string;
@@ -472,5 +472,20 @@ export default function OrderTrackingPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function OrderTrackingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <p className="text-lg text-circleTel-secondaryNeutral">Loading...</p>
+        </div>
+      </div>
+    }>
+      <OrderTrackingContent />
+    </Suspense>
   );
 }
