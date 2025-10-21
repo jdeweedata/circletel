@@ -7,6 +7,9 @@ import AdmZip from 'adm-zip';
 import { parseStringPromise } from 'xml2js';
 import { supabase } from '@/lib/supabase';
 
+// Force dynamic rendering - don't pre-render at build time
+export const dynamic = 'force-dynamic';
+
 // Maximum file size: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
