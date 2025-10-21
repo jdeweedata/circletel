@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { AlertCircle, CheckCircle, Clock, MapPin, TestTube, Zap } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, MapPin, TestTube, Zap, Clipboard } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 interface TestResult {
   id: string;
@@ -24,6 +25,7 @@ interface TestResult {
 }
 
 export default function CoverageTestingPage() {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [coordinates, setCoordinates] = useState({ lat: -26.2041, lng: 28.0473 });
@@ -226,6 +228,23 @@ export default function CoverageTestingPage() {
   const formatResponseTime = (ms: number) => {
     if (ms < 1000) return `${ms}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
+  };
+
+  const copyToClipboard = async (data: unknown) => {
+    try {
+      const jsonString = JSON.stringify(data, null, 2);
+      await navigator.clipboard.writeText(jsonString);
+      toast({
+        title: 'Copied to clipboard',
+        description: 'Response data has been copied successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Copy failed',
+        description: 'Failed to copy to clipboard',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -448,8 +467,21 @@ export default function CoverageTestingPage() {
 
                       {result.data && (
                         <details className="text-sm">
-                          <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                            View Response Data
+                          <summary className="cursor-pointer text-muted-foreground hover:text-foreground flex items-center justify-between">
+                            <span>View Response Data</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="ml-2"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                copyToClipboard(result.data);
+                              }}
+                            >
+                              <Clipboard className="h-3 w-3 mr-1" />
+                              Copy
+                            </Button>
                           </summary>
                           <Textarea
                             value={JSON.stringify(result.data, null, 2)}
