@@ -17,8 +17,8 @@ export interface EnhancedPackageCardProps {
   name?: string;
   type?: 'uncapped' | 'capped';
   dataLimit?: string;
-  downloadSpeed: number;
-  uploadSpeed: number;
+  downloadSpeed?: number;
+  uploadSpeed?: number;
   speedUnit?: string;
 
   // Promotional
@@ -194,7 +194,7 @@ export function EnhancedPackageCard({
               {dataLimit}
             </div>
           </div>
-        ) : (
+        ) : downloadSpeed !== undefined && uploadSpeed !== undefined ? (
           // Uncapped plan - show speeds
           <div className="flex gap-4 items-center justify-center mb-4">
             <SpeedIndicator
@@ -208,7 +208,7 @@ export function EnhancedPackageCard({
               unit={speedUnit}
             />
           </div>
-        )}
+        ) : null}
 
         {/* Benefits */}
         {benefits && benefits.length > 0 && (
