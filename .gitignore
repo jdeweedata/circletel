@@ -58,3 +58,9 @@ next-env.d.ts
 *.temp
 # Local Netlify folder
 .netlify
+
+# Documentation (generated and working files)
+/docs/
+
+# Scripts (utility and automation scripts)
+/scripts/*.ps1
