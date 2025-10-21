@@ -149,13 +149,13 @@ export default function AccountPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50/30 via-white to-blue-50/20">
       {/* Checkout Progress */}
       <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <CheckoutProgress currentStep="account" />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
           <Button
@@ -182,9 +182,9 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Main Form - Left/Center Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             {/* Why We Need This Info */}
             <Alert className="border-blue-200 bg-blue-50/50 backdrop-blur-sm">
               <Info className="h-4 w-4 text-blue-600" />
@@ -513,7 +513,7 @@ export default function AccountPage() {
           </div>
 
           {/* Order Summary Sidebar - Right Column */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-4">
             <div className="sticky top-24 space-y-6">
               <Card className="border-0 shadow-xl shadow-gray-200/50 overflow-hidden">
                 <CardHeader className="bg-gradient-to-br from-circleTel-darkNeutral via-gray-800 to-gray-900 text-white pb-6">

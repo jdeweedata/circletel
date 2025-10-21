@@ -69,25 +69,25 @@ export function Hero() {
 
       <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
         {/* Hero Content */}
-        <div className="text-center max-w-5xl mx-auto mb-12">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+        <div className="text-center max-w-5xl mx-auto mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
             Connectivity that can fit your budget
           </h1>
-          <p className="text-2xl md:text-3xl text-white/90 mb-8">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 mb-6 sm:mb-8 px-2">
             Get connected today with our Fibre, LTE and 5G deals.
           </p>
         </div>
 
         {/* Coverage Checker Card */}
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1 p-2 border-2 border-gray-200 rounded-full bg-gray-50/50 w-full">
+        <div className="max-w-6xl mx-auto px-2">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-10">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 md:gap-6">
+              <div className="flex-1 p-1.5 sm:p-2 border-2 border-gray-200 rounded-full bg-gray-50/50 w-full">
                 <AddressAutocomplete
                   value={address}
                   onLocationSelect={handleLocationSelect}
                   placeholder="What's your street address?"
-                  className="w-full h-full"
+                  className="w-full h-full text-sm sm:text-base"
                   showLocationButton={true}
                 />
               </div>
@@ -95,7 +95,7 @@ export function Hero() {
                 onClick={handleCheckCoverage}
                 disabled={!address.trim() || isChecking}
                 size="lg"
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-xl px-10 py-7 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:bg-circleTel-orange min-w-[240px] flex items-center gap-3"
+                className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold text-base sm:text-lg md:text-xl px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-7 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:bg-circleTel-orange w-full sm:w-auto sm:min-w-[200px] md:min-w-[240px] flex items-center justify-center gap-2 sm:gap-3"
               >
                 {isChecking ? (
                   <>
