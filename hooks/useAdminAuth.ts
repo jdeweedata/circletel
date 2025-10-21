@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback } from 'react'
 import { SessionStorage, type AdminUser } from '@/lib/auth/session-storage'
 import { DevAuthService } from '@/lib/auth/dev-auth-service'
