@@ -1,12 +1,8 @@
-import { Metadata } from 'next';
+'use client'
+
 import { OrchestratorDashboard } from '@/components/admin/orchestrator/OrchestratorDashboard';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
-
-export const metadata: Metadata = {
-  title: 'Orchestrator Dashboard | CircleTel Admin',
-  description: 'Monitor AI agent workflows and system performance',
-};
 
 export default function OrchestratorPage() {
   return (
