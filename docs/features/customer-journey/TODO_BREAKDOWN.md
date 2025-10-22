@@ -487,19 +487,122 @@
 - [ ] Test: Order persists across retries
 
 #### Task 3.2: Payment Testing Suite (4 hours)
-- [ ] Create `/docs/testing/payment-flow-tests.md`
-- [ ] Create Playwright test script `/tests/e2e/payment-flow.spec.ts`
+- [x] Create `/docs/testing/payment-flow-tests.md`
+- [x] Create Playwright test script `/tests/e2e/payment-flow.spec.ts`
 - [ ] Test case: Successful payment
 - [ ] Test case: Declined payment (test card)
 - [ ] Test case: Network timeout simulation
 - [ ] Test case: Invalid payment details
 - [ ] Test case: Abandoned payment (close window)
-- [ ] Test case: Webhook processing (Netcash POST)
+- [ ] Test case: Webhook processing (Netcash POST) - *Requires Task 3.3*
 - [ ] Verify payment status updates in database
-- [ ] Test duplicate webhook handling (idempotency)
+- [ ] Test duplicate webhook handling (idempotency) - *Requires Task 3.3*
 - [ ] Document all test results
-- [ ] Test: All 6 test cases pass
-- [ ] Test: Webhook verification works
+- [ ] Test: All 10 test cases pass
+- [ ] Test: Webhook verification works - *Requires Task 3.3*
+
+#### Task 3.3: Netcash Webhook Integration (6 hours) - **HIGH PRIORITY**
+**Based on Netcash API Integration Process Flow Document**
+
+*Implements real-time payment notifications and automated order status updates*
+
+**Database Schema:**
+- [ ] Create `payment_webhooks` table:
+  - `id` (UUID, primary key)
+  - `order_id` (UUID, foreign key to orders)
+  - `webhook_type` (TEXT: 'payment_success', 'payment_failure', 'refund', 'chargeback')
+  - `netcash_transaction_id` (TEXT)
+  - `netcash_reference` (TEXT)
+  - `amount` (NUMERIC)
+  - `status` (TEXT: 'received', 'processed', 'failed')
+  - `raw_payload` (JSONB)
+  - `signature` (TEXT)
+  - `signature_valid` (BOOLEAN)
+  - `processed_at` (TIMESTAMP)
+  - `error_message` (TEXT, nullable)
+  - `created_at` (TIMESTAMP)
+  - Index on `order_id`, `netcash_transaction_id`, `status`
+
+**Backend Implementation:**
+- [ ] Create `/app/api/payment/netcash/webhook/route.ts`
+- [ ] Implement webhook signature verification (HMAC-SHA256)
+- [ ] Add IP whitelist check (Netcash IPs only)
+- [ ] Implement idempotency check (prevent duplicate processing)
+- [ ] Parse webhook payload and extract transaction details
+- [ ] Update order status based on payment result:
+  - `payment_success` → `status: 'active', payment_status: 'paid'`
+  - `payment_failure` → `payment_status: 'failed'`
+  - `refund` → `payment_status: 'refunded'`
+  - `chargeback` → `payment_status: 'chargeback'`
+- [ ] Log all webhooks to `payment_webhooks` table
+- [ ] Send confirmation email on successful payment
+- [ ] Send failed payment notification email
+- [ ] Trigger service activation workflow on success
+- [ ] Add webhook retry mechanism for failed processing
+- [ ] Return 200 OK to Netcash (always, even on error)
+
+**Utility Functions:**
+- [ ] Create `/lib/payment/netcash-webhook-validator.ts`:
+  - `validateWebhookSignature(payload, signature, secret)`
+  - `isNetcashIP(ipAddress)`
+  - `parseWebhookPayload(body)`
+- [ ] Create `/lib/payment/netcash-webhook-processor.ts`:
+  - `processPaymentSuccess(webhookData)`
+  - `processPaymentFailure(webhookData)`
+  - `processRefund(webhookData)`
+  - `processChargeback(webhookData)`
+  - `sendOrderConfirmation(orderId)`
+
+**Testing:**
+- [ ] Create `/tests/api/webhook-netcash.test.ts`
+- [ ] Test: Valid webhook signature accepted
+- [ ] Test: Invalid webhook signature rejected (403)
+- [ ] Test: Non-Netcash IP rejected (403)
+- [ ] Test: Payment success updates order to 'paid'
+- [ ] Test: Payment failure updates order to 'failed'
+- [ ] Test: Duplicate webhooks handled (idempotency)
+- [ ] Test: Malformed payload returns 400
+- [ ] Test: Unknown order ID returns 404
+- [ ] Test: Webhook retry on processing failure
+- [ ] Test: Confirmation email sent on success
+
+**Documentation:**
+- [ ] Document webhook endpoint URL for Netcash config
+- [ ] Document IP whitelist requirements
+- [ ] Document signature verification process
+- [ ] Create `/docs/integrations/NETCASH_WEBHOOK_SETUP.md`
+- [ ] Add webhook monitoring dashboard to admin panel
+
+**Security:**
+- [ ] Store webhook secret in environment variable
+- [ ] Implement rate limiting (max 100 requests/minute per IP)
+- [ ] Add request logging for security audit
+- [ ] Validate all webhook fields against schema
+
+**Monitoring:**
+- [ ] Create admin page: `/app/admin/payments/webhooks`
+- [ ] Display recent webhooks with status
+- [ ] Show failed webhooks for manual review
+- [ ] Add webhook retry button
+- [ ] Add webhook statistics (success rate, avg processing time)
+
+**Deployment:**
+- [ ] Configure webhook URL in Netcash merchant portal
+- [ ] Add webhook endpoint to firewall whitelist
+- [ ] Test webhook in production with test payment
+- [ ] Monitor webhook processing for 24 hours
+- [ ] Document incident response for webhook failures
+
+**Test: Webhook Integration:**
+- [ ] Test: Successful payment webhook processed
+- [ ] Test: Order status updated in real-time
+- [ ] Test: Confirmation email sent automatically
+- [ ] Test: Failed payment webhook handled gracefully
+- [ ] Test: Duplicate webhooks idempotent
+- [ ] Test: Invalid signatures rejected
+- [ ] Test: Admin can view webhook logs
+
+**Priority:** HIGH - Required for production reliability
 
 ---
 
