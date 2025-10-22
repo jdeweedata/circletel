@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type ServiceType = 'fibre' | 'lte' | 'wireless';
+export type ServiceType = 'fibre' | 'lte' | '5g' | 'wireless';
 
 interface ServiceToggleProps {
   activeService: ServiceType;
