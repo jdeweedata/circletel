@@ -11,7 +11,7 @@
 import { test, expect, Page } from '@playwright/test';
 
 // Test configuration
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3006';
+const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3005';
 const TEST_EMAIL = 'payment-test@circletel.co.za';
 const TEST_ADDRESS = '123 Test Street, Cape Town, 8001';
 

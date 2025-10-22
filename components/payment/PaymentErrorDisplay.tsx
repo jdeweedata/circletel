@@ -68,7 +68,7 @@ export function PaymentErrorDisplay({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} data-testid="payment-error-display">
       {/* Main Error Alert */}
       <Alert className={`${getSeverityColor()}`}>
         <div className="flex items-start gap-3">
@@ -167,7 +167,7 @@ export function PaymentErrorDisplay({
 
       {/* Alternative Payment Methods Card (after 3 retries) */}
       {showAlternative && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-amber-200 bg-amber-50" data-testid="alternative-payment-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-amber-900">
               <AlertTriangle className="h-5 w-5" />

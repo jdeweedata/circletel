@@ -224,7 +224,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
 
       {/* Retry Session Info Banner */}
       {retrySession.hasData && !showErrorDisplay && (
-        <Alert className="border-blue-200 bg-blue-50">
+        <Alert className="border-blue-200 bg-blue-50" data-testid="retry-session-banner">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-900">
             <div className="flex items-center justify-between">
@@ -265,7 +265,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
       )}
 
       {/* Order Summary Card */}
-      <Card>
+      <Card data-testid="order-summary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5 text-circleTel-orange" />
