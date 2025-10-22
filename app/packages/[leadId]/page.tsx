@@ -43,7 +43,7 @@ function PackagesContent() {
   const [activeService, setActiveService] = useState<ServiceType>('fibre');
   const [address, setAddress] = useState('');
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(
-    state.orderData.coverage?.selectedPackage as Package | null
+    null
   );
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
