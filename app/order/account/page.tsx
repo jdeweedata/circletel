@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
+import { OrderBreadcrumb } from '@/components/order/OrderBreadcrumb';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -142,17 +143,13 @@ export default function AccountPage() {
     router.back();
   };
 
-  // Get selected package info from OrderContext
-  const selectedPackage = state.selectedPackage;
+  // Get selected package info from OrderContext - Fixed: Use correct path
+  const selectedPackage = state.orderData.coverage?.selectedPackage;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50/30 via-white to-blue-50/20">
-      {/* Checkout Progress */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <CheckoutProgress currentStep="account" />
-        </div>
-      </div>
+      {/* Breadcrumb Navigation */}
+      <OrderBreadcrumb />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -570,27 +567,28 @@ export default function AccountPage() {
                         )}
                       </div>
 
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50/50 border-2 border-green-200/60 rounded-xl p-5 mt-5">
-                        <div className="flex items-center gap-2 mb-3">
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                          <p className="text-sm font-bold text-green-900">What's Included</p>
-                        </div>
-                        <ul className="space-y-2.5">
-                          <li className="flex items-center gap-2.5 text-sm text-green-800">
-                            <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
+                      <div className="border-t border-gray-200 pt-5 mt-5 space-y-3">
+                        <p className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-4">What's Included</p>
+                        <ul className="space-y-3">
+                          <li className="flex items-center gap-3 text-sm text-gray-700">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
                             <span>Free professional installation</span>
                           </li>
-                          <li className="flex items-center gap-2.5 text-sm text-green-800">
-                            <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
-                            <span>Free router included</span>
+                          <li className="flex items-center gap-3 text-sm text-gray-700">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                            <span>Free-to-use router</span>
                           </li>
-                          <li className="flex items-center gap-2.5 text-sm text-green-800">
-                            <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
-                            <span>24/7 customer support</span>
+                          <li className="flex items-center gap-3 text-sm text-gray-700">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                            <span>Free setup worth R287.50</span>
                           </li>
-                          <li className="flex items-center gap-2.5 text-sm text-green-800">
-                            <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
-                            <span>No contract required</span>
+                          <li className="flex items-center gap-3 text-sm text-gray-700">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                            <span>Installation time: 7 days</span>
+                          </li>
+                          <li className="flex items-center gap-3 text-sm text-gray-700">
+                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                            <span>Order processing fee: R249</span>
                           </li>
                         </ul>
                       </div>
