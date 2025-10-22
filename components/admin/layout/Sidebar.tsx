@@ -31,7 +31,8 @@ import {
   Activity,
   TestTube,
   Building2,
-  Network
+  Network,
+  ShieldCheck
 } from 'lucide-react';
 
 interface User {
@@ -78,6 +79,12 @@ const navigation = [
     href: '/admin/forms',
     icon: FileText,
     description: 'Manage client assessment forms'
+  },
+  {
+    name: 'KYC Review',
+    href: '/admin/kyc',
+    icon: ShieldCheck,
+    description: 'Review customer verification documents'
   },
   {
     name: 'Zoho Integration',
