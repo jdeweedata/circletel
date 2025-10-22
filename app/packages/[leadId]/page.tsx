@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ServiceToggle, ServiceType } from '@/components/ui/service-toggle';
@@ -31,7 +31,9 @@ interface Package {
 function PackagesContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const leadId = params.leadId as string;
+  const coverageType = searchParams.get('type') || 'residential';
 
   // Use OrderContext for state persistence
   const { state, actions } = useOrderContext();
@@ -47,11 +49,11 @@ function PackagesContent() {
 
   useEffect(() => {
     fetchPackages();
-  }, [leadId]);
+  }, [leadId, coverageType]);
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch(`/api/coverage/packages?leadId=${leadId}`);
+      const response = await fetch(`/api/coverage/packages?leadId=${leadId}&type=${coverageType}`);
       if (!response.ok) throw new Error('Failed to fetch packages');
 
       const data = await response.json();
