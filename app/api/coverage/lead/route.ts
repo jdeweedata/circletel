@@ -10,7 +10,7 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, coordinates } = body;
+    const { address, coordinates, coverageType } = body;
 
     if (!address) {
       return NextResponse.json(
@@ -19,10 +19,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine customer type from coverageType parameter (residential -> consumer, business -> business)
+    const customerType = coverageType === 'business' ? 'business' : 'consumer';
+
     // Create a minimal lead entry for coverage check
     // Full customer details will be collected in the order form
     const leadData = {
-      customer_type: 'consumer' as const, // Default to consumer for coverage checks
+      customer_type: customerType as 'consumer' | 'business',
       first_name: 'Coverage',  // Placeholder - will be updated during order
       last_name: 'Check',      // Placeholder - will be updated during order
       email: `coverage-${Date.now()}@temp.circletel.co.za`, // Temporary email
