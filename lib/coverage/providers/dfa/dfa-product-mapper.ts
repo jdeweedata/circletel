@@ -5,7 +5,7 @@
  * Handles connected and near-net coverage scenarios
  */
 
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/integrations/supabase/client';
 import type { DFACoverageResponse } from './types';
 
 export interface MappedProduct {
