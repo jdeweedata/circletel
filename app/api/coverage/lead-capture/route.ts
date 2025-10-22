@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
-import { createZohoLead } from '@/lib/zoho/lead-capture';
+import { sendCoverageLeadAlert } from '@/lib/notifications/sales-alerts';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { CreateCoverageLeadInput } from '@/lib/types/customer-journey';
 
@@ -56,26 +56,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sync to Zoho CRM (async, don't block response)
-    createZohoLead(lead, false)
-      .then((zohoResult) => {
-        if (zohoResult.success) {
-          console.log('Lead synced to Zoho:', zohoResult.zohoLeadId);
-          // Update lead with Zoho ID
-          supabase
-            .from('coverage_leads')
-            .update({
-              zoho_lead_id: zohoResult.zohoLeadId,
-              zoho_synced_at: new Date().toISOString(),
-            })
-            .eq('id', lead.id)
-            .then(() => console.log('Lead updated with Zoho ID'));
+    // Send sales team alert with Zoho CRM integration (async, don't block response)
+    sendCoverageLeadAlert({
+      id: lead.id,
+      customer_type: lead.customer_type,
+      first_name: lead.first_name,
+      last_name: lead.last_name,
+      email: lead.email,
+      phone: lead.phone,
+      company_name: lead.company_name || undefined,
+      address: lead.address,
+      suburb: lead.suburb || undefined,
+      city: lead.city || undefined,
+      province: lead.province || undefined,
+      postal_code: lead.postal_code || undefined,
+      requested_service_type: lead.service_interest || undefined,
+      requested_speed: undefined,
+      budget_range: lead.budget_range || undefined,
+      coordinates: lead.coordinates ? {
+        lat: lead.coordinates.lat || lead.coordinates.latitude,
+        lng: lead.coordinates.lng || lead.coordinates.longitude
+      } : undefined,
+      coverage_available: body.metadata?.coverage_available,
+      lead_source: lead.lead_source || undefined,
+      source_campaign: lead.metadata?.campaign || undefined,
+    })
+      .then((salesResult) => {
+        if (salesResult.success) {
+          console.log('Sales alert sent successfully:', {
+            emailSent: salesResult.emailSent,
+            zohoLeadId: salesResult.zohoLeadId,
+          });
         } else {
-          console.error('Failed to sync to Zoho:', zohoResult.error);
+          console.error('Sales alert failed:', salesResult.errors);
         }
       })
       .catch((error) => {
-        console.error('Zoho sync error:', error);
+        console.error('Sales alert error:', error);
       });
 
     // Send confirmation email (async, don't block response)
