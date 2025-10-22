@@ -156,46 +156,61 @@ window.location.href = `/packages/${data.leadId}?type=${activeTab}`;
 
 ---
 
-## Product Filtering (Next Phase)
+## Product Filtering ✅ IMPLEMENTED
 
 ### Requirements
 
 **Residential Tab**:
-- Show only consumer products
-- Filter where `target_market = 'consumer'` or `'residential'`
-- HomeFibreConnect, 5G/LTE Consumer packages
+- ✅ Show only consumer products
+- ✅ Filter where `target_market = 'consumer'` or `'residential'`
+- ✅ HomeFibreConnect, 5G/LTE Consumer packages
 
 **Business Tab**:
-- Show only business products
-- Filter where `target_market = 'business'` or `'enterprise'`
-- BizFibreConnect, 5G/LTE Business packages
+- ✅ Show only business products
+- ✅ Filter where `target_market = 'business'` or `'enterprise'`
+- ✅ BizFibreConnect, 5G/LTE Business packages
 
-### Implementation Needed
+### Implementation Complete
 
-**Packages API** (`/api/coverage/packages`):
+**Packages API** (`/api/coverage/packages/route.ts`):
 ```typescript
 // Read type from query params
 const { searchParams } = new URL(request.url);
-const type = searchParams.get('type') || 'residential';
-
-// Filter packages by target_market
-const packages = allPackages.filter(p => {
-  if (type === 'business') {
-    return ['business', 'enterprise'].includes(p.target_market);
-  } else {
-    return ['consumer', 'residential'].includes(p.target_market);
-  }
-});
-```
-
-**Packages Page** (`app/packages/[leadId]/page.tsx`):
-```typescript
-// Read type from URL
-const searchParams = new URLSearchParams(window.location.search);
 const coverageType = searchParams.get('type') || 'residential';
 
-// Pass to API
-const response = await fetch(`/api/coverage/packages?leadId=${leadId}&type=${coverageType}`);
+// Filter packages by target_market based on coverage type
+const targetMarkets = coverageType === 'business'
+  ? ['business', 'enterprise']
+  : ['consumer', 'residential'];
+
+const { data: packages, error: packagesError } = await supabase
+  .from('service_packages')
+  .select('*')
+  .or(
+    mappings && mappings.length > 0
+      ? `product_category.in.(${productCategories.join(',')})`
+      : `service_type.in.(${productCategories.join(',')})`
+  )
+  .in('target_market', targetMarkets)  // ✅ Product filtering added
+  .eq('active', true)
+  .order('price', { ascending: true });
+```
+
+**Frontend Integration** (`components/home/HeroWithTabs.tsx`):
+```typescript
+// Coverage type passed to API
+const response = await fetch('/api/coverage/lead', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    address: address.trim(),
+    coordinates: coordinates,
+    coverageType: activeTab  // 'residential' or 'business'
+  })
+});
+
+// Redirect with type parameter
+window.location.href = `/packages/${data.leadId}?type=${activeTab}`;
 ```
 
 ---
@@ -256,11 +271,11 @@ import { HeroWithTabs } from "@/components/home/HeroWithTabs";
 
 ## Future Enhancements
 
-### Phase 2 - Product Filtering
+### Phase 2 - Product Filtering ✅ COMPLETE
 1. ✅ Tab implementation complete
-2. ⏳ Update coverage lead API to store coverage type
-3. ⏳ Update packages API to filter by target_market
-4. ⏳ Test residential vs business product filtering
+2. ✅ Coverage type passed through frontend
+3. ✅ Packages API filters by target_market
+4. ⏳ Test residential vs business product filtering in staging
 
 ### Phase 3 - Analytics
 1. Track which tab users prefer

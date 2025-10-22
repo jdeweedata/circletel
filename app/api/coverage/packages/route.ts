@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('leadId');
+    const coverageType = searchParams.get('type') || 'residential'; // Get coverage type from URL
 
     if (!leadId) {
       return NextResponse.json(
@@ -20,6 +21,8 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log('Packages API called with:', { leadId, coverageType });
 
     // Get lead information
     const { data: lead, error: leadError } = await supabase
@@ -166,6 +169,11 @@ export async function GET(request: NextRequest) {
       // Get available packages for the mapped product categories
       // Note: When no mappings exist, availableServices contains service_type values (e.g., 'SkyFibre', 'HomeFibreConnect')
       // When mappings exist, productCategories contains product_category values (e.g., 'wireless', 'fibre_consumer')
+      // Filter by target_market based on coverage type (residential vs business)
+      const targetMarkets = coverageType === 'business'
+        ? ['business', 'enterprise']
+        : ['consumer', 'residential'];
+
       const { data: packages, error: packagesError } = await supabase
         .from('service_packages')
         .select('*')
@@ -174,6 +182,7 @@ export async function GET(request: NextRequest) {
             ? `product_category.in.(${productCategories.join(',')})`
             : `service_type.in.(${productCategories.join(',')})`
         )
+        .in('target_market', targetMarkets)
         .eq('active', true)
         .order('price', { ascending: true });
 
@@ -195,6 +204,8 @@ export async function GET(request: NextRequest) {
 
       // Log for debugging
       console.log('Coverage check:', {
+        coverageType,
+        targetMarkets,
         availableServices,
         productCategories,
         packagesFound: availablePackages.length
