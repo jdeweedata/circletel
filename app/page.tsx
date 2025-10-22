@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
-import { Hero } from "@/components/home/Hero";
+import { HeroWithTabs } from "@/components/home/HeroWithTabs";
 import { ValueProposition } from "@/components/home/ValueProposition";
 import { ServicesSnapshot } from "@/components/home/ServicesSnapshot";
 import { SuccessStories } from "@/components/home/SuccessStories";
@@ -12,7 +12,7 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <main>
-        <Hero />
+        <HeroWithTabs />
         <ValueProposition />
         <ServicesSnapshot />
         <SuccessStories />
