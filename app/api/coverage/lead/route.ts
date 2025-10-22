@@ -19,8 +19,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine customer type from coverageType parameter (residential -> consumer, business -> business)
-    const customerType = coverageType === 'business' ? 'business' : 'consumer';
+    // Determine customer type from coverageType parameter
+    // Database enum has: 'consumer', 'smme', 'enterprise'
+    // Map: residential -> consumer, business -> smme (covers both SME and enterprise)
+    const customerType = coverageType === 'business' ? 'smme' : 'consumer';
 
     // Create a minimal lead entry for coverage check
     // Full customer details will be collected in the order form

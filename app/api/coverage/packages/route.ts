@@ -169,8 +169,10 @@ export async function GET(request: NextRequest) {
       // Get available packages for the mapped product categories
       // Note: When no mappings exist, availableServices contains service_type values (e.g., 'SkyFibre', 'HomeFibreConnect')
       // When mappings exist, productCategories contains product_category values (e.g., 'wireless', 'fibre_consumer')
-      // Filter by customer_type based on coverage type (residential vs business)
-      const customerType = coverageType === 'business' ? 'business' : 'consumer';
+      // Filter by customer_type based on coverage type
+      // Note: service_packages.customer_type is VARCHAR with values: 'business', 'consumer'
+      // coverage_leads.customer_type is ENUM with values: 'consumer', 'smme', 'enterprise'
+      const packageCustomerType = coverageType === 'business' ? 'business' : 'consumer';
 
       const { data: packages, error: packagesError } = await supabase
         .from('service_packages')
@@ -180,7 +182,7 @@ export async function GET(request: NextRequest) {
             ? `product_category.in.(${productCategories.join(',')})`
             : `service_type.in.(${productCategories.join(',')})`
         )
-        .eq('customer_type', customerType)
+        .eq('customer_type', packageCustomerType)
         .eq('active', true)
         .order('price', { ascending: true });
 
@@ -203,7 +205,7 @@ export async function GET(request: NextRequest) {
       // Log for debugging
       console.log('Coverage check:', {
         coverageType,
-        customerType,
+        packageCustomerType,
         availableServices,
         productCategories,
         packagesFound: availablePackages.length
