@@ -1,10 +1,12 @@
 /**
  * Admin KYC Verification API Route
  * Handles approve/reject actions for KYC documents
+ * Sends email notifications to customers
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get document to find associated order
+    // Get document and order details for notifications
     const { data: document, error: docError } = await supabase
       .from('kyc_documents')
       .select('id, consumer_order_id, customer_email, customer_name')
@@ -56,6 +58,17 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Document not found' },
         { status: 404 }
       );
+    }
+
+    // Get order details for email notification
+    const { data: order, error: orderError } = await supabase
+      .from('consumer_orders')
+      .select('order_number, first_name, last_name, email')
+      .eq('id', document.consumer_order_id)
+      .single();
+
+    if (orderError) {
+      console.error('Failed to fetch order:', orderError);
     }
 
     // Update document status
@@ -83,6 +96,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Update order status based on verification result
+    let emailSent = false;
+    let emailError: string | undefined;
+
     if (status === 'approved') {
       // Check if all documents for this order are approved
       const { data: allDocs, error: docsError } = await supabase
@@ -101,6 +117,26 @@ export async function POST(request: NextRequest) {
             .from('consumer_orders')
             .update({ status: 'kyc_approved' })
             .eq('id', document.consumer_order_id);
+
+          // Send approval email
+          if (order) {
+            try {
+              const emailResult = await EmailNotificationService.sendKycApproval(
+                order.email,
+                `${order.first_name} ${order.last_name}`,
+                order.order_number
+              );
+              emailSent = emailResult.success;
+              emailError = emailResult.error;
+
+              if (!emailSent) {
+                console.error('Failed to send KYC approval email:', emailError);
+              }
+            } catch (error: any) {
+              console.error('Error sending KYC approval email:', error);
+              emailError = error.message;
+            }
+          }
         }
       }
     } else if (status === 'rejected') {
@@ -109,14 +145,34 @@ export async function POST(request: NextRequest) {
         .from('consumer_orders')
         .update({ status: 'kyc_rejected' })
         .eq('id', document.consumer_order_id);
-    }
 
-    // TODO: Send email notification to customer
-    // This will be implemented in the next task
+      // Send rejection email
+      if (order && rejectionReason) {
+        try {
+          const emailResult = await EmailNotificationService.sendKycRejection(
+            order.email,
+            `${order.first_name} ${order.last_name}`,
+            order.order_number,
+            rejectionReason
+          );
+          emailSent = emailResult.success;
+          emailError = emailResult.error;
+
+          if (!emailSent) {
+            console.error('Failed to send KYC rejection email:', emailError);
+          }
+        } catch (error: any) {
+          console.error('Error sending KYC rejection email:', error);
+          emailError = error.message;
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: `Document ${status} successfully`,
+      emailSent,
+      emailError,
     });
   } catch (error: any) {
     console.error('API error:', error);

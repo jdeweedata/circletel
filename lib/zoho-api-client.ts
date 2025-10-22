@@ -144,9 +144,39 @@ export class ZohoAPIClient {
     return this.makeRequest('crm', '/Deals', 'POST', { data: [dealData] });
   }
 
+  async searchCRMRecords(module: string, criteria: string): Promise<ZohoAPIResponse> {
+    return this.makeRequest('crm', `/${module}/search?criteria=${encodeURIComponent(criteria)}`);
+  }
+
+  async updateCRMRecord(module: string, recordId: string, data: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('crm', `/${module}/${recordId}`, 'PUT', { data: [data] });
+  }
+
+  async createCRMRecord(module: string, data: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('crm', `/${module}`, 'POST', { data: [data] });
+  }
+
+  // Books Methods
+  async createBooksContact(contactData: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('books', '/contacts', 'POST', contactData);
+  }
+
+  async createBooksInvoice(invoiceData: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('books', '/invoices', 'POST', invoiceData);
+  }
+
+  // Billing Methods
+  async createBillingSubscription(subscriptionData: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('billing', '/subscriptions', 'POST', subscriptionData);
+  }
+
   // Mail Methods
+  async sendMail(mailData: Record<string, unknown>): Promise<ZohoAPIResponse> {
+    return this.makeRequest('mail', '/messages', 'POST', mailData);
+  }
+
   async sendEmail(emailData: Record<string, unknown>): Promise<ZohoAPIResponse> {
-    return this.makeRequest('mail', '/messages', 'POST', emailData);
+    return this.sendMail(emailData);
   }
 
   // Calendar Methods
