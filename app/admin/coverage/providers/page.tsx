@@ -377,15 +377,21 @@ export default function ProvidersManagementPage() {
                     <div>
                       <Label className="text-xs text-muted-foreground">Service Types</Label>
                       <div className="flex flex-wrap gap-1">
-                        {provider.serviceTypes.slice(0, 3).map(type => (
-                          <Badge key={type} variant="outline" className="text-xs">
-                            {type.toUpperCase()}
-                          </Badge>
-                        ))}
-                        {provider.serviceTypes.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{provider.serviceTypes.length - 3}
-                          </Badge>
+                        {provider.serviceTypes && provider.serviceTypes.length > 0 ? (
+                          <>
+                            {provider.serviceTypes.slice(0, 3).map(type => (
+                              <Badge key={type} variant="outline" className="text-xs">
+                                {type.toUpperCase()}
+                              </Badge>
+                            ))}
+                            {provider.serviceTypes.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{provider.serviceTypes.length - 3}
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Not configured</span>
                         )}
                       </div>
                     </div>

@@ -329,6 +329,14 @@ QueryProvider
 #### Multi-Provider Coverage Integration
 The coverage system is designed to aggregate data from multiple telecommunications providers:
 
+- **Multi-Provider Architecture** (Phase 1A Complete - 2025-10-21):
+  - **Database Schema**: Enhanced `fttb_network_providers` with `provider_code`, `service_offerings`, `coverage_source`
+  - **Product Mapping**: `service_packages.compatible_providers` array links products to multiple providers
+  - **Mapping Table**: `provider_product_mappings` for complex provider-to-product transformations
+  - **Active Providers**: MTN (enabled), MetroFibre, Openserve, DFA, Vumatel (placeholders)
+  - **Provider Registry Pattern**: Centralized provider configuration with standard interfaces
+  - **Fallback Strategy**: Multi-tier fallback (MTN Business → MTN Consumer → Provider APIs → Mock)
+
 - **MTN Integration**: Primary provider with dual-source approach
   - Business API: `/lib/coverage/mtn/wms-client.ts` for enterprise services
   - Consumer API: WMS endpoint for residential services
@@ -337,12 +345,14 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - Performance monitoring: `/lib/coverage/mtn/monitoring.ts` with metrics tracking
   - Geographic validation: `/lib/coverage/mtn/geo-validation.ts` for South African bounds
   - Test data available in `/lib/coverage/mtn/test-data.ts` for development
+  - **13 Products**: HomeFibreConnect (4), BizFibreConnect (3), 5G/LTE Consumer (3), 5G/LTE Business (3)
 
 - **Aggregation Service**: `/lib/coverage/aggregation-service.ts`
   - Singleton pattern for consistent state management
   - Caching layer for performance (5-minute TTL)
   - Service recommendation engine with scoring algorithms
   - Support for multiple service types: fibre, 5G, LTE, wireless, etc.
+  - Multi-provider product aggregation and deduplication
 
 #### Admin Coverage Management
 - **Dashboard**: Real-time monitoring and system overview at `/app/admin/coverage`
@@ -354,10 +364,17 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 #### Network Provider System
 - **Database Tables**:
   - `fttb_network_providers` - Core provider data with health monitoring columns
+    - **New Columns (2025-10-21)**: `provider_code` (unique), `service_offerings` (JSONB), `coverage_source`, `api_version`, `api_documentation_url`
+  - `provider_product_mappings` - Maps provider service types to CircleTel products (NEW 2025-10-21)
   - `provider_api_logs` - API request/response logging with PostGIS coordinates
   - `provider_logos` - Provider logo storage
   - `coverage_files` - KML/KMZ coverage file metadata
   - `provider_configuration` - System-wide provider settings (JSONB)
+  - `service_packages` - Product catalog
+    - **New Columns (2025-10-21)**: `compatible_providers` (TEXT[]), `provider_specific_config` (JSONB), `provider_priority`
+- **Database Views**:
+  - `v_active_providers` - Active providers with capabilities
+  - `v_products_with_providers` - Products with their compatible provider details
 - **Type Definitions**: `/lib/types/coverage-providers.ts` with comprehensive interfaces
 - **File Upload Support**: KML/KMZ coverage maps with metadata extraction using `xml2js` and `adm-zip`
 - **Logo Management**: Image processing with Sharp for optimization and resizing
@@ -417,14 +434,17 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 
 ### Database Migration Strategy
 - **Migration Files**: Located in `/supabase/migrations/` with timestamp-based naming
-- **Idempotency**: All migrations use `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`, `ON CONFLICT` clauses
+- **Idempotency**: All migrations use `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`
 - **Applied Migrations**: Track via Supabase Dashboard (Project Settings > Database > Migrations)
 - **Manual Application**: Use Supabase Dashboard SQL Editor for most reliable migration application
 - **Verification**: Always verify migrations with `SELECT COUNT(*)` queries after application
 - **Key Migrations**:
   - `20250201000005_create_rbac_system.sql` - RBAC with 17 role templates (✅ Applied)
   - `20251019000001_enhance_provider_management_system.sql` - Provider health monitoring (✅ Applied)
-- **Migration Guide**: See `docs/features/MIGRATION_GUIDE_2025-10-19.md` for detailed procedures
+  - `20251021000011_cleanup_and_migrate_fixed.sql` - Multi-provider architecture (✅ Ready - Fixed ON CONFLICT)
+  - `20251021000010_add_products_final.sql` - 15 products: 4 HomeFibre + 5 BizFibre + 3 SkyFibre + 3 MTN 5G (✅ Ready)
+- **Important**: Avoid `ON CONFLICT` clauses unless table has explicit unique constraints
+- **Migration Guide**: See `APPLY_MANUALLY.md` for step-by-step migration application
 
 ## Important Notes
 
@@ -601,8 +621,20 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - See `.claude/agents/README.md` for full agent system documentation
   - See `docs/features/backlog/` for ready-to-implement BRS features
   - Test case: Commission Tracking feature (validated 2025-10-20)
+- **Multi-Provider Architecture**: ✅ Phase 1A Ready to Apply (2025-10-21)
+  - Database schema enhanced with `provider_code`, `service_offerings`, `coverage_source`
+  - `service_packages` table enhanced with `compatible_providers` array
+  - New `provider_product_mappings` table for complex provider-product relationships
+  - 5 providers configured: MTN (active), DFA (active), MetroFibre, Openserve, Vumatel (placeholder)
+  - **15 Products Ready**: HomeFibreConnect (4 MTN), BizFibreConnect (5 DFA), SkyFibre (3 MTN), MTN 5G Business (3 MTN)
+  - **Critical**: BizFibre uses DFA provider, NOT MTN (based on official product documentation)
+  - Views created: `v_active_providers`, `v_products_with_providers`
+  - Migration files: `20251021000011_cleanup_and_migrate_fixed.sql` + `20251021000010_add_products_final.sql`
+  - See `APPLY_MANUALLY.md` for application guide
+  - See `docs/features/customer-journey/MERGED_IMPLEMENTATION_PLAN.md` for roadmap
+  - See `docs/features/customer-journey/MULTI_PROVIDER_ARCHITECTURE.md` for technical architecture
 - **Provider Management**: ✅ Phase 1 Complete (database ready, health monitoring, API logging)
-  - Phase 2 (Service Layer) - Next: `ProviderApiClient`, `ProviderService`, `CoverageFileParser`
+  - Phase 2 (Service Layer) - In Progress: Provider mapping interfaces, registry, directory structure
   - See `docs/features/COVERAGE_PROVIDER_IMPLEMENTATION_STATUS.md` for roadmap
 - **MTN Integration**: ✅ 3 providers configured (Wholesale MNS, Business WMS, Consumer)
 - **Marketing CMS**: ✅ Complete (Strapi integration with promotions, campaigns, landing pages)

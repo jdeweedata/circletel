@@ -4,13 +4,23 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { uploadKycDocument } from '@/lib/storage/supabase-upload';
 import type { KycDocumentType } from '@/lib/types/customer-journey';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use service role key to bypass RLS for public API
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
 
     // Get form data
     const formData = await request.formData();
@@ -39,10 +49,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify order exists
+    // Verify order exists and get customer info
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
-      .select('id, customer_type')
+      .select('id, first_name, last_name, email, phone')
       .eq('id', orderId)
       .single();
 
@@ -53,8 +63,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload file to Supabase Storage
-    const uploadResult = await uploadKycDocument(file, orderId, documentType);
+    // Upload file to Supabase Storage (pass service role client)
+    const uploadResult = await uploadKycDocument(file, orderId, documentType, supabase);
 
     if (!uploadResult.success) {
       return NextResponse.json(
@@ -63,18 +73,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create KYC document record in database
+    // Get customer info from order
+    const customerName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Customer';
+    const customerEmail = order.email || '';
+    const customerPhone = order.phone || '';
+    const customerType = 'consumer'; // Consumer orders are always consumer type
+
+    // Create KYC document record in database (using existing schema from 20251019000003)
     const { data: kycDocument, error: dbError } = await supabase
       .from('kyc_documents')
       .insert({
-        order_id: orderId,
+        consumer_order_id: orderId, // Using existing column name
+        customer_type: customerType,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
         document_type: documentType,
+        document_title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension for title
         file_name: file.name,
+        file_path: uploadResult.path, // Using existing column name
         file_size: file.size,
         file_type: file.type,
-        storage_path: uploadResult.path,
-        storage_url: uploadResult.url,
         verification_status: 'pending',
+        is_sensitive: true,
+        encrypted: false,
       })
       .select()
       .single();
@@ -117,7 +139,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use service role key to bypass RLS for public API
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');
 
@@ -132,7 +164,7 @@ export async function GET(request: NextRequest) {
     const { data: documents, error } = await supabase
       .from('kyc_documents')
       .select('*')
-      .eq('order_id', orderId)
+      .eq('consumer_order_id', orderId)
       .order('created_at', { ascending: false });
 
     if (error) {

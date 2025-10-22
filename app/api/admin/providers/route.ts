@@ -1,6 +1,6 @@
 // Network Providers Management API
 import { NextRequest, NextResponse } from 'next/server';
-import { mtnWMSClient } from '@/lib/coverage/mtn/wms-client';
+import { createClient } from '@supabase/supabase-js';
 
 interface CreateProviderRequest {
   name: string;
@@ -23,56 +23,35 @@ interface UpdateProviderRequest extends Partial<CreateProviderRequest> {
 // Get all network providers
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const { searchParams } = new URL(request.url);
     const enabled = searchParams.get('enabled');
     const type = searchParams.get('type');
 
-    // Build query conditions
-    let query = `
-      SELECT
-        np.*,
-        pl.file_path as logo_path,
-        pl.filename as logo_filename,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', cf.id,
-              'filename', cf.filename,
-              'type', cf.type,
-              'status', cf.status
-            )
-          ) FILTER (WHERE cf.id IS NOT NULL),
-          '[]'::json
-        ) as coverage_files
-      FROM network_providers np
-      LEFT JOIN provider_logos pl ON np.logo_id = pl.id
-      LEFT JOIN coverage_files cf ON np.id = cf.provider_id
-    `;
-
-    const conditions = [];
-    const params = [];
+    // Build query
+    let query = supabase
+      .from('fttb_network_providers')
+      .select('*');
 
     if (enabled !== null) {
-      conditions.push(`np.enabled = $${params.length + 1}`);
-      params.push(enabled === 'true');
+      query = query.eq('enabled', enabled === 'true');
     }
 
     if (type) {
-      conditions.push(`np.type = $${params.length + 1}`);
-      params.push(type);
+      query = query.eq('type', type);
     }
 
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(' AND ')}`;
-    }
+    query = query.order('priority', { ascending: true });
 
-    query += `
-      GROUP BY np.id, pl.file_path, pl.filename
-      ORDER BY np.priority ASC, np.name ASC
-    `;
-
-    const { data, error } = await mtnWMSClient.supabase
-      .rpc('execute_sql', { query, params });
+    const { data, error } = await query;
 
     if (error) {
       throw error;

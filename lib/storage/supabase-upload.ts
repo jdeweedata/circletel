@@ -3,14 +3,16 @@
  * Handles file uploads to Supabase Storage with validation and error handling
  */
 
-import { createClient } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import type { KycDocumentType } from '@/lib/types/customer-journey';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface UploadOptions {
   bucket: string;
   folder?: string;
   maxSizeBytes?: number;
   allowedTypes?: string[];
+  supabaseClient?: SupabaseClient; // Optional custom client (e.g., with service role)
 }
 
 export interface UploadResult {
@@ -71,7 +73,8 @@ export async function uploadFile(
       return { success: false, error: validation.error };
     }
 
-    const supabase = createClient();
+    // Use custom client if provided, otherwise use default
+    const client = options.supabaseClient || supabase;
 
     // Generate unique filename
     const timestamp = Date.now();
@@ -84,7 +87,7 @@ export async function uploadFile(
     const path = folder ? `${folder}/${filename}` : filename;
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { data, error } = await client.storage
       .from(options.bucket)
       .upload(path, file, {
         cacheControl: '3600',
@@ -102,7 +105,7 @@ export async function uploadFile(
     // Get public URL
     const {
       data: { publicUrl },
-    } = supabase.storage.from(options.bucket).getPublicUrl(data.path);
+    } = client.storage.from(options.bucket).getPublicUrl(data.path);
 
     return {
       success: true,
@@ -125,13 +128,15 @@ export async function uploadFile(
 export async function uploadKycDocument(
   file: File,
   orderId: string,
-  documentType: KycDocumentType
+  documentType: KycDocumentType,
+  supabaseClient?: SupabaseClient
 ): Promise<UploadResult> {
   return uploadFile(file, {
     bucket: 'kyc-documents',
     folder: `${orderId}/${documentType}`,
     maxSizeBytes: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+    supabaseClient, // Pass through the custom client
   });
 }
 
@@ -143,7 +148,6 @@ export async function deleteFile(
   path: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = createClient();
 
     const { error } = await supabase.storage.from(bucket).remove([path]);
 
@@ -166,7 +170,6 @@ export async function getSignedUrl(
   expiresIn: number = 3600
 ): Promise<{ url?: string; error?: string }> {
   try {
-    const supabase = createClient();
 
     const { data, error } = await supabase.storage
       .from(bucket)
