@@ -4,8 +4,9 @@ import { mtnWMSClient } from './mtn/wms-client';
 import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
-import { checkDFACoverage } from './dfa/client';
 import { InfrastructureSignalEstimator } from './mtn/infrastructure-estimator';
+import { dfaCoverageClient } from './providers/dfa';
+import { dfaProductMapper } from './providers/dfa';
 
 export interface AggregatedCoverageResponse {
   coordinates: Coordinates;
@@ -268,15 +269,119 @@ export class CoverageAggregationService {
   }
 
   /**
-   * Get DFA/Openserve fibre coverage
+   * Get DFA fibre coverage using ArcGIS REST API
+   *
+   * ✅ PHASE 1A ENABLED - DFA Provider Integration (October 22, 2025)
+   * Using DFA ArcGIS REST API: https://gisportal.dfafrica.co.za/server/rest/services/API
+   * Checks Connected Buildings (active fiber) and Near-Net Buildings (within 200m)
+   * Documentation: docs/integrations/DFA_ARCGIS_INTEGRATION_ANALYSIS.md
    */
   private async getDFACoverage(
     coordinates: Coordinates,
     serviceTypes?: ServiceType[]
   ): Promise<CoverageResponse> {
-    // Use DFA client to check fibre coverage
-    const dfaResponse = await checkDFACoverage(coordinates, serviceTypes);
-    return dfaResponse;
+    try {
+      // Use DFA ArcGIS client to check coverage
+      const dfaResponse = await dfaCoverageClient.checkCoverage({
+        latitude: coordinates.lat,
+        longitude: coordinates.lng,
+        checkNearNet: true,
+        maxNearNetDistance: 200
+      });
+
+      if (!dfaResponse.hasCoverage) {
+        // No DFA coverage at location
+        return {
+          available: false,
+          coordinates,
+          confidence: 'high', // High confidence that no coverage exists
+          services: [],
+          providers: [{
+            name: 'DFA',
+            available: false,
+            services: []
+          }],
+          lastUpdated: new Date().toISOString(),
+          metadata: {
+            source: 'dfa_arcgis_api',
+            endpoint: 'https://gisportal.dfafrica.co.za/server/rest/services/API',
+            coverageType: 'none',
+            note: dfaResponse.message
+          }
+        };
+      }
+
+      // Get available products based on coverage type
+      const mappedProducts = await dfaProductMapper.mapToProducts(dfaResponse);
+
+      // Convert mapped products to service coverage format
+      const services = mappedProducts.map(product => ({
+        type: 'fibre' as ServiceType,
+        available: true,
+        signal: 'good' as SignalStrength, // Fiber is always 'good' when connected
+        provider: 'DFA',
+        technology: 'FTTB',
+        estimatedSpeed: {
+          download: product.download_speed,
+          upload: product.upload_speed,
+          unit: 'Mbps' as const
+        },
+        metadata: {
+          productId: product.id,
+          productName: product.name,
+          price: product.price,
+          coverageType: product.coverage_details.coverage_type,
+          installationNote: product.coverage_details.installation_note
+        }
+      }));
+
+      // Get installation estimate
+      const installationEstimate = dfaProductMapper.getInstallationEstimate(dfaResponse);
+
+      return {
+        available: true,
+        coordinates,
+        confidence: dfaResponse.coverageType === 'connected' ? 'high' : 'medium',
+        services,
+        providers: [{
+          name: 'DFA',
+          available: true,
+          services
+        }],
+        lastUpdated: new Date().toISOString(),
+        metadata: {
+          source: 'dfa_arcgis_api',
+          endpoint: 'https://gisportal.dfafrica.co.za/server/rest/services/API',
+          coverageType: dfaResponse.coverageType,
+          buildingId: dfaResponse.buildingDetails?.buildingId,
+          distance: dfaResponse.nearNetDetails?.distance,
+          installationEstimate,
+          productsAvailable: mappedProducts.length,
+          note: dfaResponse.message
+        }
+      };
+    } catch (error) {
+      console.error('[DFA Coverage] API check failed:', error);
+
+      // Return low-confidence unavailable on error
+      return {
+        available: false,
+        coordinates,
+        confidence: 'low',
+        services: [],
+        providers: [{
+          name: 'DFA',
+          available: false,
+          services: []
+        }],
+        lastUpdated: new Date().toISOString(),
+        metadata: {
+          source: 'dfa_arcgis_api_error',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          note: 'DFA API integration failed - check logs'
+        }
+      };
+    }
   }
 
   /**
