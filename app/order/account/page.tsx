@@ -27,13 +27,17 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckoutProgress } from '@/components/ui/checkout-progress';
-import { User, Mail, Phone, Building, ShieldCheck, ArrowLeft, Sparkles, CheckCircle2, Info, LogIn } from 'lucide-react';
+import { User, Mail, Phone, Building, ShieldCheck, ArrowLeft, Sparkles, CheckCircle2, Info, LogIn, Lock, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
+import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
+import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
-// Form validation schema with business fields
+// Form validation schema with business fields and password
 const accountSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   phone: z.string().min(10, 'Please enter a valid phone number').regex(/^[0-9+\s()-]+$/, 'Please enter a valid phone number'),
@@ -43,6 +47,9 @@ const accountSchema = z.object({
   // Business-specific fields (optional)
   companyName: z.string().optional(),
   vatNumber: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 }).refine((data) => {
   // If business account, company name is required
   if (data.accountType === 'business' && !data.companyName) {
@@ -59,10 +66,13 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function AccountPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
+  const { signUp } = useCustomerAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [mode, setMode] = React.useState<'signup' | 'signin'>('signup');
   const [emailForSignIn, setEmailForSignIn] = React.useState('');
   const [checkingEmail, setCheckingEmail] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
   // Set current stage to 2 when this page loads
   React.useEffect(() => {
@@ -76,6 +86,8 @@ export default function AccountPage() {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       email: state.orderData.account?.email || '',
+      password: '',
+      confirmPassword: '',
       firstName: state.orderData.account?.firstName || '',
       lastName: state.orderData.account?.lastName || '',
       phone: state.orderData.account?.phone || '',
@@ -132,26 +144,31 @@ export default function AccountPage() {
     setIsSubmitting(true);
 
     try {
-      // Save customer to database (handles both new and existing customers)
-      const response = await fetch('/api/customers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      // Sign up with Supabase Auth
+      const result = await signUp(
+        data.email,
+        data.password,
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phone: data.phone,
+          accountType: data.accountType,
+          businessName: data.companyName,
+          taxNumber: data.vatNumber,
+        }
+      );
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to save customer');
+      if (result.error) {
+        toast.error(result.error);
+        return;
       }
 
       // Save account data to OrderContext (including customer ID)
       actions.updateOrderData({
         account: {
           ...data,
-          isAuthenticated: false,
+          isAuthenticated: true,
         },
       });
 
@@ -171,12 +188,16 @@ export default function AccountPage() {
       // Move to next stage
       actions.setCurrentStage(3);
 
-      // Navigate to KYC verification page
-      router.push('/order/verification');
+      // Show success message
+      toast.success('Account created! Please check your email to verify your account.');
+
+      // Navigate to email verification page
+      router.push('/order/verify-email');
     } catch (error) {
-      console.error('Error saving account data:', error);
+      console.error('Error creating account:', error);
+      toast.error('Failed to create account. Please try again.');
       actions.setErrors({
-        account: ['Failed to save account information. Please try again.'],
+        account: ['Failed to create account. Please try again.'],
       });
     } finally {
       setIsSubmitting(false);
@@ -480,6 +501,88 @@ export default function AccountPage() {
                           </FormItem>
                         )}
                       />
+
+                      {/* Password Field */}
+                      {mode === 'signup' && (
+                        <>
+                          <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2 text-base font-semibold text-circleTel-darkNeutral">
+                                  <Lock className="h-4 w-4 text-circleTel-orange" />
+                                  Password
+                                </FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input
+                                      type={showPassword ? "text" : "password"}
+                                      placeholder="••••••••"
+                                      {...field}
+                                      autoComplete="new-password"
+                                      className="h-12 border-2 focus:border-circleTel-orange focus:ring-4 focus:ring-circleTel-orange/10 transition-all pr-12"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowPassword(!showPassword)}
+                                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-circleTel-orange transition-colors"
+                                    >
+                                      {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                      ) : (
+                                        <Eye className="h-5 w-5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                </FormControl>
+                                <FormDescription className="text-sm text-gray-600">
+                                  Must be at least 8 characters
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-semibold text-circleTel-darkNeutral">
+                                  Confirm Password
+                                </FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input
+                                      type={showConfirmPassword ? "text" : "password"}
+                                      placeholder="••••••••"
+                                      {...field}
+                                      autoComplete="new-password"
+                                      className="h-12 border-2 focus:border-circleTel-orange focus:ring-4 focus:ring-circleTel-orange/10 transition-all pr-12"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-circleTel-orange transition-colors"
+                                    >
+                                      {showConfirmPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                      ) : (
+                                        <Eye className="h-5 w-5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                </FormControl>
+                                <FormDescription className="text-sm text-gray-600">
+                                  Re-enter your password to confirm
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
 
                       {/* Phone Number */}
                       <FormField
