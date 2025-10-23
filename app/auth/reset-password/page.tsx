@@ -39,7 +39,6 @@ export default function ResetPasswordPage() {
     const handlePasswordResetLink = async () => {
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
-      const code = searchParams.get('code');
 
       if (error) {
         setHasError(true);
@@ -47,19 +46,29 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // Try PKCE flow first
+      const { createClient } = await import('@/integrations/supabase/client');
+      const supabase = createClient();
+
+      // First, check if Supabase client has already established a session from hash fragment
+      // (Magic Link template puts tokens in URL hash: #access_token=...&type=recovery)
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (sessionData.session) {
+        console.log('Session already established from URL hash fragment');
+        toast.success('Session verified! Please set your new password.');
+        return;
+      }
+
+      // Try PKCE flow (for code parameter in query string)
+      const code = searchParams.get('code');
       if (code) {
         try {
-          const { createClient } = await import('@/integrations/supabase/client');
-          const supabase = createClient();
-
           const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
           if (exchangeError) {
             console.error('Code exchange error:', exchangeError);
             // Don't set error yet, try token_hash approach
           } else if (data.session) {
-            // Session established successfully, user can now set password
             toast.success('Session verified! Please set your new password.');
             return;
           }
@@ -68,15 +77,12 @@ export default function ResetPasswordPage() {
         }
       }
 
-      // Try implicit flow with token_hash (for password recovery emails)
+      // Try implicit flow with token_hash (for token_hash parameter in query string)
       const tokenHash = searchParams.get('token_hash');
       const type = searchParams.get('type');
 
       if (tokenHash && type === 'recovery') {
         try {
-          const { createClient } = await import('@/integrations/supabase/client');
-          const supabase = createClient();
-
           const { data, error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: 'recovery',
@@ -90,7 +96,6 @@ export default function ResetPasswordPage() {
           }
 
           if (data.session) {
-            // Session established successfully
             toast.success('Session verified! Please set your new password.');
             return;
           }
@@ -101,7 +106,7 @@ export default function ResetPasswordPage() {
         }
       }
 
-      // If neither worked, show error
+      // If no valid session or token found, show error
       if (code || tokenHash) {
         setHasError(true);
         toast.error('Invalid or expired reset link. Please request a new one.');
