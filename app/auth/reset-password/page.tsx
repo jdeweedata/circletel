@@ -47,7 +47,7 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // If we have a code, we need to exchange it for a session first
+      // Try PKCE flow first
       if (code) {
         try {
           const { createClient } = await import('@/integrations/supabase/client');
@@ -57,20 +57,54 @@ export default function ResetPasswordPage() {
 
           if (exchangeError) {
             console.error('Code exchange error:', exchangeError);
+            // Don't set error yet, try token_hash approach
+          } else if (data.session) {
+            // Session established successfully, user can now set password
+            toast.success('Session verified! Please set your new password.');
+            return;
+          }
+        } catch (err) {
+          console.error('Password reset link error:', err);
+        }
+      }
+
+      // Try implicit flow with token_hash (for password recovery emails)
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
+
+      if (tokenHash && type === 'recovery') {
+        try {
+          const { createClient } = await import('@/integrations/supabase/client');
+          const supabase = createClient();
+
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+
+          if (verifyError) {
+            console.error('Token verification error:', verifyError);
             setHasError(true);
             toast.error('Invalid or expired reset link. Please request a new one.');
             return;
           }
 
           if (data.session) {
-            // Session established successfully, user can now set password
+            // Session established successfully
             toast.success('Session verified! Please set your new password.');
+            return;
           }
         } catch (err) {
-          console.error('Password reset link error:', err);
+          console.error('Token verification error:', err);
           setHasError(true);
           toast.error('Failed to verify reset link. Please try again.');
         }
+      }
+
+      // If neither worked, show error
+      if (code || tokenHash) {
+        setHasError(true);
+        toast.error('Invalid or expired reset link. Please request a new one.');
       }
     };
 
