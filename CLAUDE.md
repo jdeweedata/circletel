@@ -645,3 +645,9 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - E2E order flow validated (address → coverage → packages → account)
   - **Known Issues**: See `docs/features/backlog/UX_ORDER_SUMMARY_PACKAGE_DISPLAY.md` for UX improvements
   - **Next Steps**: Production environment configuration and smoke test
+- **Interactive Coverage Map Modal**: ✅ Complete (WebAfrica-style modal with Google Maps integration)
+  - Component: `components/coverage/InteractiveCoverageMapModal.tsx`
+  - Global provider: `components/providers/GoogleMapsProvider.tsx` (uses existing GoogleMapsService)
+  - Integrated on home page (`HeroWithTabs.tsx`) and coverage checker (`CoverageChecker.tsx`)
+  - Features: Address autocomplete, click-to-place marker, draggable marker, map/satellite toggle
+  - Fixed Google Maps API multiple loading issue by consolidating to single loader

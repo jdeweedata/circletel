@@ -4,6 +4,7 @@ import React from 'react';
 import { Truck, Wifi, Router, MapPin, Home, Building2 } from 'lucide-react';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
+import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 
 type CoverageType = 'residential' | 'business';
 
@@ -37,6 +38,7 @@ export function HeroWithTabs() {
   const [address, setAddress] = React.useState('');
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
   const [isChecking, setIsChecking] = React.useState(false);
+  const [showMapModal, setShowMapModal] = React.useState(false);
 
   const currentTab = COVERAGE_TABS.find(tab => tab.id === activeTab) || COVERAGE_TABS[0];
 
@@ -76,6 +78,15 @@ export function HeroWithTabs() {
         setIsChecking(false);
       }
     }
+  };
+
+  const handleMapSearch = (searchAddress: string, searchCoordinates: { lat: number; lng: number }) => {
+    setAddress(searchAddress);
+    setCoordinates(searchCoordinates);
+    // Automatically trigger coverage check
+    setTimeout(() => {
+      handleCheckCoverage();
+    }, 100);
   };
 
   return (
@@ -173,15 +184,35 @@ export function HeroWithTabs() {
                 </Button>
               </div>
 
+              {/* Interactive Map Link */}
+              <p className="text-center text-sm text-gray-600 mt-4">
+                <button
+                  onClick={() => setShowMapModal(true)}
+                  className="text-circleTel-orange hover:text-circleTel-orange/80 font-medium underline transition-colors"
+                >
+                  Click here
+                </button>
+                {' '}to use our interactive map.
+              </p>
+
               {/* Tab-specific messaging */}
               {activeTab === 'business' && (
-                <p className="text-sm text-gray-600 mt-4 text-center">
+                <p className="text-sm text-gray-600 mt-2 text-center">
                   Need help? Call <span className="font-semibold text-circleTel-orange">087 087 6305</span> to speak with a business connectivity specialist.
                 </p>
               )}
             </div>
           </div>
         </div>
+
+        {/* Interactive Coverage Map Modal */}
+        <InteractiveCoverageMapModal
+          isOpen={showMapModal}
+          onClose={() => setShowMapModal(false)}
+          onSearch={handleMapSearch}
+          initialAddress={address}
+          initialCoordinates={coordinates || undefined}
+        />
 
         {/* Value Props */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">

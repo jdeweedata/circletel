@@ -1,0 +1,30 @@
+[
+  {
+    "address": "18 Rasmus Erasmus, Heritage Hill",
+    "type": "residential",
+    "geocoded": {
+      "success": false,
+      "error": "Google Maps API key not configured. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable."
+    },
+    "businessAPI": {
+      "success": false
+    },
+    "consumerAPI": {
+      "success": false
+    }
+  },
+  {
+    "address": "7 Autumn Street, Rivonia, Sandton",
+    "type": "business",
+    "geocoded": {
+      "success": false,
+      "error": "Google Maps API key not configured. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable."
+    },
+    "businessAPI": {
+      "success": false
+    },
+    "consumerAPI": {
+      "success": false
+    }
+  }
+]

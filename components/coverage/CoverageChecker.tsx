@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { createClient } from '@supabase/supabase-js';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { PackageCard } from '@/components/packages/PackageCard';
+import { InteractiveCoverageMapModal } from './InteractiveCoverageMapModal';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -80,6 +81,7 @@ export function CoverageChecker({
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [progressStage, setProgressStage] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
+  const [showMapModal, setShowMapModal] = useState(false);
 
   const handleCheckCoverage = async () => {
     if (!address.trim()) {
@@ -213,6 +215,15 @@ export function CoverageChecker({
     }
   };
 
+  const handleMapSearch = (searchAddress: string, searchCoordinates: { lat: number; lng: number }) => {
+    setAddress(searchAddress);
+    setCoordinates(searchCoordinates);
+    // Automatically trigger coverage check
+    setTimeout(() => {
+      handleCheckCoverage();
+    }, 100);
+  };
+
   return (
     <Card className={className}>
       <CardHeader>
@@ -248,7 +259,27 @@ export function CoverageChecker({
               </>
             )}
           </Button>
+
+          {/* Interactive Map Link */}
+          <p className="text-center text-sm text-gray-600">
+            <button
+              onClick={() => setShowMapModal(true)}
+              className="text-orange-600 hover:text-orange-700 font-medium underline transition-colors"
+            >
+              Click here
+            </button>
+            {' '}to use our interactive map.
+          </p>
         </div>
+
+        {/* Interactive Coverage Map Modal */}
+        <InteractiveCoverageMapModal
+          isOpen={showMapModal}
+          onClose={() => setShowMapModal(false)}
+          onSearch={handleMapSearch}
+          initialAddress={address}
+          initialCoordinates={coordinates || undefined}
+        />
 
         {/* Progress Indicator */}
         {isChecking && (

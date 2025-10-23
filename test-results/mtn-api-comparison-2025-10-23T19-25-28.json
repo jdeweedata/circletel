@@ -1,0 +1,10 @@
+{
+  "residential": {
+    "wholesale": null,
+    "consumer": null
+  },
+  "business": {
+    "wholesale": null,
+    "consumer": null
+  }
+}

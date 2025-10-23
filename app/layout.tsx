@@ -7,7 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { PWAProvider } from "@/components/providers/PWAProvider";
 import { OfflineProvider } from "@/components/providers/OfflineProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { GoogleMapsPreloader } from "@/components/providers/GoogleMapsPreloader";
+import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
 
@@ -98,15 +98,16 @@ export default function RootLayout({
           <PWAProvider>
             <OfflineProvider>
               <TooltipProvider>
-                <CustomerAuthProvider>
-                  <OrderContextProvider>
-                    <GoogleMapsPreloader />
-                    <Toaster />
-                    <Sonner />
-                    {children}
-                    <Analytics />
-                  </OrderContextProvider>
-                </CustomerAuthProvider>
+                <GoogleMapsProvider>
+                  <CustomerAuthProvider>
+                    <OrderContextProvider>
+                      <Toaster />
+                      <Sonner />
+                      {children}
+                      <Analytics />
+                    </OrderContextProvider>
+                  </CustomerAuthProvider>
+                </GoogleMapsProvider>
               </TooltipProvider>
             </OfflineProvider>
           </PWAProvider>
