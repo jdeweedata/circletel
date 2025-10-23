@@ -28,8 +28,7 @@ export default function AuthCallbackPage() {
       try {
         const supabase = createClient();
 
-        // Get the code from the URL (Supabase PKCE flow)
-        const code = searchParams.get('code');
+        // Check for errors first
         const error = searchParams.get('error');
         const errorDescription = searchParams.get('error_description');
 
@@ -39,32 +38,61 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        if (!code) {
-          setStatus('error');
-          setErrorMessage('No verification code found in URL');
-          return;
+        // Try PKCE flow first (for password resets and some email confirmations)
+        const code = searchParams.get('code');
+
+        if (code) {
+          try {
+            // Exchange code for session (PKCE flow)
+            const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+            if (exchangeError) {
+              // If PKCE fails, fall back to implicit flow
+              console.log('PKCE flow failed, trying implicit flow:', exchangeError.message);
+              throw exchangeError;
+            }
+
+            if (data.session) {
+              setStatus('success');
+              setTimeout(() => {
+                router.push('/my-account/dashboard');
+              }, 2000);
+              return;
+            }
+          } catch (pkceError) {
+            console.log('PKCE exchange failed, falling back to implicit flow');
+          }
         }
 
-        // Exchange code for session
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        // Try implicit flow (for email confirmations with token_hash)
+        const tokenHash = searchParams.get('token_hash');
+        const type = searchParams.get('type');
 
-        if (exchangeError) {
-          setStatus('error');
-          setErrorMessage(exchangeError.message);
-          return;
+        if (tokenHash && type) {
+          // Verify the token hash
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: type as any,
+          });
+
+          if (verifyError) {
+            setStatus('error');
+            setErrorMessage(verifyError.message);
+            return;
+          }
+
+          if (data.session) {
+            setStatus('success');
+            setTimeout(() => {
+              router.push('/my-account/dashboard');
+            }, 2000);
+            return;
+          }
         }
 
-        if (data.session) {
-          setStatus('success');
-
-          // Redirect to dashboard after short delay
-          setTimeout(() => {
-            router.push('/my-account/dashboard');
-          }, 2000);
-        } else {
-          setStatus('error');
-          setErrorMessage('Failed to create session');
-        }
+        // If neither flow worked
+        setStatus('error');
+        setErrorMessage('No valid verification code or token found in URL');
       } catch (error) {
         console.error('Auth callback error:', error);
         setStatus('error');
