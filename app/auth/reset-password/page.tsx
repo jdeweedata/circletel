@@ -51,8 +51,39 @@ export default function ResetPasswordPage() {
       const { createClient } = await import('@/integrations/supabase/client');
       const supabase = createClient();
 
-      // Check if there's a hash fragment with access_token (Magic Link implicit flow)
-      // The hash format is: #access_token=...&expires_at=...&refresh_token=...&type=recovery
+      // First check: token_hash in query string (custom email template)
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
+
+      if (tokenHash && type === 'recovery') {
+        console.log('Detected token_hash in query string, verifying OTP...');
+        try {
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+
+          if (verifyError) {
+            console.error('Token verification error:', verifyError);
+            setHasError(true);
+            toast.error('Invalid or expired reset link. Please request a new one.');
+            return;
+          }
+
+          if (data.session) {
+            console.log('Session established from token_hash');
+            toast.success('Session verified! Please set your new password.');
+            return;
+          }
+        } catch (err) {
+          console.error('Token verification error:', err);
+          setHasError(true);
+          toast.error('Failed to verify reset link. Please try again.');
+        }
+        return;
+      }
+
+      // Second check: access_token in hash fragment (default Magic Link)
       if (window.location.hash && window.location.hash.includes('access_token')) {
         console.log('Detected access_token in URL hash, manually setting session...');
 
