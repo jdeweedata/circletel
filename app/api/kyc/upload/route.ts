@@ -49,18 +49,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify order exists and get customer info
-    const { data: order, error: orderError } = await supabase
-      .from('consumer_orders')
-      .select('id, first_name, last_name, email, phone')
-      .eq('id', orderId)
-      .single();
+    // Verify order exists and get customer info (allow 'pending' for pre-order uploads)
+    let order = null;
+    if (orderId !== 'pending') {
+      const { data, error: orderError } = await supabase
+        .from('consumer_orders')
+        .select('id, first_name, last_name, email, phone')
+        .eq('id', orderId)
+        .single();
 
-    if (orderError || !order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
+      if (orderError || !data) {
+        return NextResponse.json(
+          { error: 'Order not found' },
+          { status: 404 }
+        );
+      }
+      order = data;
     }
 
     // Upload file to Supabase Storage (pass service role client)
@@ -74,9 +78,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get customer info from order
-    const customerName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Customer';
-    const customerEmail = order.email || '';
-    const customerPhone = order.phone || '';
+    const customerName = order ? `${order.first_name || ''} ${order.last_name || ''}`.trim() : 'Pending Customer';
+    const customerEmail = order?.email || '';
+    const customerPhone = order?.phone || '';
     const customerType = 'consumer'; // Consumer orders are always consumer type
 
     // Create KYC document record in database (using existing schema from 20251019000003)
