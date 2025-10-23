@@ -6,7 +6,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ServiceToggle, ServiceType } from '@/components/ui/service-toggle';
 import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
-import { PackageDetailSidebar, MobilePackageDetailOverlay } from '@/components/ui/package-detail-sidebar';
+import { CompactPackageCard } from '@/components/ui/compact-package-card';
+import { PackageDetailSidebar, MobilePackageDetailOverlay, type BenefitItem, type AdditionalInfoItem } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield } from 'lucide-react';
 import { toast } from 'sonner';
@@ -333,74 +334,107 @@ function PackagesContent() {
               </p>
             </div>
 
-            {/* Packages Grid - 3x3 Layout */}
-            <div>
-              {filteredPackages.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8">
-                  {filteredPackages.map((pkg) => {
-                    const cardProps = mapPackageToCardProps(pkg);
-                    return (
-                      <EnhancedPackageCard
-                        key={pkg.id}
-                        {...cardProps}
-                        selected={selectedPackage?.id === pkg.id}
-                        onClick={() => handlePackageSelect(pkg)}
-                        onOrderClick={() => handleContinue()}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-16 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">
-                    No {activeService} packages available at this location.
-                  </p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Try switching to another service type above.
-                  </p>
+            {/* Two-Column Layout: Compact Cards (Left) + Detail Sidebar (Right) */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              {/* Left Column: Compact Package Cards Grid */}
+              <div className="flex-1">
+                {filteredPackages.length > 0 ? (
+                  <div className="flex flex-wrap gap-3 justify-start">
+                    {filteredPackages.map((pkg) => {
+                      const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
+                      const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
+                        if (serviceType.includes('homefibre') || serviceType.includes('fibre_consumer')) {
+                          return 'pink';
+                        } else if (serviceType.includes('bizfibre') || serviceType.includes('fibre_business')) {
+                          return 'orange';
+                        } else if (serviceType.includes('wireless') || serviceType.includes('lte')) {
+                          return 'blue';
+                        } else if (serviceType.includes('5g')) {
+                          return 'yellow';
+                        }
+                        return 'pink';
+                      };
+
+                      return (
+                        <CompactPackageCard
+                          key={pkg.id}
+                          promoPrice={pkg.promotion_price || pkg.price}
+                          originalPrice={pkg.promotion_price ? pkg.price : undefined}
+                          promoBadge={pkg.promotion_price ? `${pkg.promotion_months}-MONTH PROMO` : undefined}
+                          badgeColor={getBadgeColor()}
+                          name={pkg.name}
+                          type="uncapped"
+                          downloadSpeed={pkg.speed_down}
+                          uploadSpeed={pkg.speed_up}
+                          selected={selectedPackage?.id === pkg.id}
+                          onClick={() => handlePackageSelect(pkg)}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                    <p className="text-gray-500">
+                      No {activeService} packages available at this location.
+                    </p>
+                    <p className="text-sm text-gray-400 mt-2">
+                      Try switching to another service type above.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Sticky Detail Sidebar (Desktop Only) */}
+              {selectedPackage && (
+                <div className="hidden lg:block lg:w-[400px]">
+                  <PackageDetailSidebar
+                    promoPrice={selectedPackage.promotion_price || selectedPackage.price}
+                    originalPrice={selectedPackage.promotion_price ? selectedPackage.price : undefined}
+                    promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
+                    name={selectedPackage.name}
+                    type="uncapped"
+                    downloadSpeed={selectedPackage.speed_down}
+                    uploadSpeed={selectedPackage.speed_up}
+                    providerName={selectedPackage.service_type}
+                    benefits={[
+                      {
+                        text: 'Free set-up worth R1699',
+                        tooltipTitle: 'Free set-up worth R1699',
+                        tooltipDescription: "We'll cover your set-up fee on your behalf. You're welcome! If your Fibre is not installed and activated within 14 (MDU) / 21 (SDU) days, we will credit your account with R999. T&Cs apply."
+                      } as BenefitItem,
+                      {
+                        text: 'Fully insured, Free-to-Use Router',
+                        tooltipTitle: 'Fully insured, Free-to-Use Router',
+                        tooltipDescription: 'Your router is fully covered for the duration of your contract. No worries if it breaks - we will replace it at no cost to you.'
+                      } as BenefitItem,
+                    ]}
+                    additionalInfo={{
+                      title: 'What else you should know:',
+                      items: [
+                        {
+                          text: 'Installation time: 7 days*',
+                          tooltipTitle: 'Installation time: 7 days*',
+                          tooltipDescription: 'Average installation time is 7 working days from order confirmation. Actual time may vary based on location and infrastructure availability.'
+                        } as AdditionalInfoItem,
+                        {
+                          text: 'Once-off processing fee: R249',
+                          tooltipTitle: 'Once-off processing fee: R249',
+                          tooltipDescription: 'This one-time fee covers administrative costs for setting up your account and processing your order.'
+                        } as AdditionalInfoItem,
+                        {
+                          text: 'Month-to-month contract',
+                        },
+                        {
+                          text: '24/7 customer support',
+                        },
+                      ] as (string | AdditionalInfoItem)[],
+                    }}
+                    recommended={filteredPackages.indexOf(selectedPackage) === 0}
+                    onOrderClick={handleContinue}
+                  />
                 </div>
               )}
             </div>
-
-            {/* Selected Package Details - Full Width Below Grid */}
-            {selectedPackage && (
-              <div className="mt-8 bg-white rounded-xl shadow-lg p-8 border-2 border-circleTel-orange">
-                <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-circleTel-darkNeutral mb-2">
-                      {selectedPackage.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4">{selectedPackage.description}</p>
-
-                    {/* Pricing Display */}
-                    <div className="flex items-baseline gap-3">
-                      {selectedPackage.promotion_price && selectedPackage.promotion_price !== selectedPackage.price && (
-                        <span className="text-lg text-gray-500 line-through">
-                          R{Number(selectedPackage.price).toLocaleString()}pm
-                        </span>
-                      )}
-                      <span className="text-4xl font-bold text-circleTel-orange">
-                        R{Number(selectedPackage.promotion_price || selectedPackage.price).toLocaleString()}
-                      </span>
-                      <span className="text-xl text-circleTel-secondaryNeutral">pm</span>
-                      {selectedPackage.promotion_months && (
-                        <span className="text-sm text-gray-600 ml-2">
-                          / first {selectedPackage.promotion_months} months
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={handleContinue}
-                    size="lg"
-                    className="bg-circleTel-orange hover:bg-orange-600 text-white whitespace-nowrap"
-                  >
-                    Continue with this package
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -464,7 +498,58 @@ function PackagesContent() {
         </div>
       </div>
 
-      {/* Floating CTA (Mobile Only) - Simplified for 3x3 grid */}
+      {/* Mobile Package Detail Overlay */}
+      {selectedPackage && isMobileSidebarOpen && (
+        <MobilePackageDetailOverlay
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+          promoPrice={selectedPackage.promotion_price || selectedPackage.price}
+          originalPrice={selectedPackage.promotion_price ? selectedPackage.price : undefined}
+          promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
+          name={selectedPackage.name}
+          type="uncapped"
+          downloadSpeed={selectedPackage.speed_down}
+          uploadSpeed={selectedPackage.speed_up}
+          providerName={selectedPackage.service_type}
+          benefits={[
+            {
+              text: 'Free set-up worth R1699',
+              tooltipTitle: 'Free set-up worth R1699',
+              tooltipDescription: "We'll cover your set-up fee on your behalf. You're welcome! If your Fibre is not installed and activated within 14 (MDU) / 21 (SDU) days, we will credit your account with R999. T&Cs apply."
+            } as BenefitItem,
+            {
+              text: 'Fully insured, Free-to-Use Router',
+              tooltipTitle: 'Fully insured, Free-to-Use Router',
+              tooltipDescription: 'Your router is fully covered for the duration of your contract. No worries if it breaks - we will replace it at no cost to you.'
+            } as BenefitItem,
+          ]}
+          additionalInfo={{
+            title: 'What else you should know:',
+            items: [
+              {
+                text: 'Installation time: 7 days*',
+                tooltipTitle: 'Installation time: 7 days*',
+                tooltipDescription: 'Average installation time is 7 working days from order confirmation. Actual time may vary based on location and infrastructure availability.'
+              } as AdditionalInfoItem,
+              {
+                text: 'Once-off processing fee: R249',
+                tooltipTitle: 'Once-off processing fee: R249',
+                tooltipDescription: 'This one-time fee covers administrative costs for setting up your account and processing your order.'
+              } as AdditionalInfoItem,
+              {
+                text: 'Month-to-month contract',
+              },
+              {
+                text: '24/7 customer support',
+              },
+            ] as (string | AdditionalInfoItem)[],
+          }}
+          recommended={filteredPackages.indexOf(selectedPackage) === 0}
+          onOrderClick={handleContinue}
+        />
+      )}
+
+      {/* Floating CTA (Mobile Only) - Trigger for Detail Overlay */}
       {selectedPackage && !isMobileSidebarOpen && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-circleTel-orange shadow-2xl p-4 z-40 animate-in slide-in-from-bottom duration-300">
           <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">

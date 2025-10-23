@@ -655,3 +655,11 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - **UI Improvements**: ✅ Recent updates (2025-10-23)
   - Removed breadcrumb navigation from packages page (`/app/packages/[leadId]/page.tsx`) for cleaner UI
   - Modal viewport fixes ensuring Close and Search buttons always visible on all screen sizes
+  - **WebAfrica-Style Package Display**: ✅ Complete (2025-10-23)
+    - **CompactPackageCard**: Small, clickable cards (141px × 135px mobile, 188px × 140px desktop) inspired by WebAfrica's design
+    - **Two-Column Layout**: Package cards grid (left) + sticky detail sidebar (right) for improved browsing experience
+    - **InfoTooltipModal**: Blue info icon buttons that trigger modals with detailed benefit explanations
+    - **Enhanced Sidebar**: Added RECOMMENDED badge, info tooltips for benefits/additional info, expandable sections
+    - **Responsive Design**: Desktop shows sticky sidebar, mobile shows full-screen overlay with floating CTA
+    - **View 6-8 packages at once** vs previous 3-4, improved visual hierarchy and package comparison
+    - Components: `components/ui/compact-package-card.tsx`, `components/ui/info-tooltip-modal.tsx`, enhanced `components/ui/package-detail-sidebar.tsx`

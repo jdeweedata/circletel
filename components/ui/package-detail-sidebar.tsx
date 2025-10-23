@@ -4,6 +4,19 @@ import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { InfoTooltipModal } from '@/components/ui/info-tooltip-modal';
+
+export interface BenefitItem {
+  text: string;
+  tooltipTitle?: string;
+  tooltipDescription?: string;
+}
+
+export interface AdditionalInfoItem {
+  text: string;
+  tooltipTitle?: string;
+  tooltipDescription?: string;
+}
 
 export interface PackageDetailSidebarProps {
   // Package identification
@@ -28,14 +41,17 @@ export interface PackageDetailSidebarProps {
   providerName?: string;
   providerLogo?: string;
 
-  // Benefits
-  benefits?: string[];
+  // Benefits (can be string array or BenefitItem array)
+  benefits?: (string | BenefitItem)[];
 
   // Additional information (expandable)
   additionalInfo?: {
     title?: string;
-    items?: string[];
+    items?: (string | AdditionalInfoItem)[];
   };
+
+  // Promotional
+  recommended?: boolean;
 
   // Actions
   onOrderClick?: () => void;
@@ -97,6 +113,7 @@ export function PackageDetailSidebar({
   providerLogo,
   benefits,
   additionalInfo,
+  recommended = false,
   onOrderClick,
   onClose,
   className,
@@ -122,11 +139,18 @@ export function PackageDetailSidebar({
       role="complementary"
       aria-label="Package details"
     >
+      {/* RECOMMENDED Badge (WebAfrica-style, top bar) */}
+      {recommended && (
+        <div className="h-[35px] text-center text-white flex items-center justify-center text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-pink-600 to-pink-500 rounded-t-lg">
+          RECOMMENDED
+        </div>
+      )}
+
       {/* Mobile Close Button */}
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="absolute top-4 right-4 md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
           aria-label="Close package details"
         >
           <X className="w-5 h-5 text-gray-600" />
@@ -216,26 +240,36 @@ export function PackageDetailSidebar({
           )}
         </div>
 
-        {/* Benefits Section */}
+        {/* Benefits Section (with optional tooltips) */}
         {benefits && benefits.length > 0 && (
           <div className="mb-6 pb-6 border-b border-gray-200">
             <h3 className="text-pink-600 font-semibold text-sm mb-3 uppercase tracking-wide">
               What you get for free:
             </h3>
             <div className="space-y-2">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-circleTel-secondaryNeutral">
-                    {benefit}
-                  </span>
-                </div>
-              ))}
+              {benefits.map((benefit, index) => {
+                const benefitText = typeof benefit === 'string' ? benefit : benefit.text;
+                const hasTooltip = typeof benefit === 'object' && benefit.tooltipTitle && benefit.tooltipDescription;
+
+                return (
+                  <div key={index} className="flex items-start gap-2">
+                    <span className="text-sm text-circleTel-secondaryNeutral flex-1">
+                      {benefitText}
+                    </span>
+                    {hasTooltip && (
+                      <InfoTooltipModal
+                        title={benefit.tooltipTitle!}
+                        description={benefit.tooltipDescription!}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Additional Information (Expandable) */}
+        {/* Additional Information (Expandable, with optional tooltips) */}
         {additionalInfo && additionalInfo.items && additionalInfo.items.length > 0 && (
           <div className="mb-6">
             <button
@@ -243,25 +277,35 @@ export function PackageDetailSidebar({
               className="flex items-center justify-between w-full text-left font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors"
               aria-expanded={isAdditionalInfoExpanded}
             >
-              <span className="text-sm uppercase tracking-wide">
-                {additionalInfo.title || 'What else you should know'}
+              <span className="text-sm uppercase tracking-wide text-pink-600">
+                {additionalInfo.title || 'What else you should know:'}
               </span>
               {isAdditionalInfoExpanded ? (
-                <ChevronUp className="w-5 h-5" />
+                <ChevronUp className="w-5 h-5 text-pink-600" />
               ) : (
-                <ChevronDown className="w-5 h-5" />
+                <ChevronDown className="w-5 h-5 text-pink-600" />
               )}
             </button>
             {isAdditionalInfoExpanded && (
-              <div className="mt-3 space-y-2 pl-2">
-                {additionalInfo.items.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-circleTel-orange flex-shrink-0 mt-2" />
-                    <span className="text-sm text-circleTel-secondaryNeutral">
-                      {item}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-3 space-y-2">
+                {additionalInfo.items.map((item, index) => {
+                  const itemText = typeof item === 'string' ? item : item.text;
+                  const hasTooltip = typeof item === 'object' && item.tooltipTitle && item.tooltipDescription;
+
+                  return (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="text-sm text-circleTel-secondaryNeutral flex-1">
+                        {itemText}
+                      </span>
+                      {hasTooltip && (
+                        <InfoTooltipModal
+                          title={item.tooltipTitle!}
+                          description={item.tooltipDescription!}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
