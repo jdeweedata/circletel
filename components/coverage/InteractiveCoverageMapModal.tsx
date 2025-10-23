@@ -98,7 +98,7 @@ export function InteractiveCoverageMapModal({
 
   const mapContainerStyle = {
     width: '100%',
-    height: isFullscreen ? 'calc(100vh - 320px)' : '500px'
+    height: isFullscreen ? 'calc(100vh - 320px)' : '400px'
   };
 
   const mapOptions = {
@@ -112,7 +112,7 @@ export function InteractiveCoverageMapModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-[90vw] w-[1200px] p-0 bg-white rounded-3xl overflow-hidden"
+        className="max-w-[90vw] w-[1200px] max-h-[90vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col"
         aria-describedby="interactive-coverage-map-description"
       >
         {/* Header */}
@@ -139,7 +139,7 @@ export function InteractiveCoverageMapModal({
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-white px-8 py-6">
+        <div className="relative bg-white px-8 py-6 flex-1 overflow-y-auto">
           {loadError && (
             <div className="text-center py-8 text-red-600">
               Error loading Google Maps. Please try again later.
