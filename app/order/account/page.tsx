@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { PasswordStrength } from '@/components/ui/password-strength';
+import { EmailAvailability } from '@/components/ui/email-availability';
 
 // Form validation schema with business fields and password
 const accountSchema = z.object({
@@ -107,6 +108,9 @@ export default function AccountPage() {
 
   // Watch password for strength indicator
   const password = form.watch('password');
+
+  // Watch email for real-time availability checking
+  const email = form.watch('email');
 
   // Check if customer exists by email
   const handleCheckEmail = async (email: string) => {
@@ -499,6 +503,9 @@ export default function AccountPage() {
                                 )}
                               </div>
                             </FormControl>
+                            {mode === 'signup' && (
+                              <EmailAvailability email={email || ''} />
+                            )}
                             <FormDescription className="text-sm text-gray-600 flex items-center gap-1.5">
                               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                               {mode === 'signup'

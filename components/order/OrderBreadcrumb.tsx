@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
-import { ChevronRight, Lock } from 'lucide-react';
+import { ChevronRight, Lock, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BreadcrumbStep {
@@ -38,6 +38,9 @@ export function OrderBreadcrumb() {
                       : 'text-white/60'
                   )}
                 >
+                  {step.number < currentStage && (
+                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                  )}
                   <span className="text-sm md:text-base">{step.label}</span>
                 </div>
                 {index < BREADCRUMB_STEPS.length - 1 && (
