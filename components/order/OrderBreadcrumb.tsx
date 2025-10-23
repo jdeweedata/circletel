@@ -12,11 +12,10 @@ interface BreadcrumbStep {
 }
 
 const BREADCRUMB_STEPS: BreadcrumbStep[] = [
-  { number: 1, label: 'Choose Package', path: '/packages' },
-  { number: 2, label: 'Create Account', path: '/order/account' },
-  { number: 3, label: 'Contact Details', path: '/order/contact' },
-  { number: 4, label: 'Installation', path: '/order/installation' },
-  { number: 5, label: 'Payment', path: '/order/payment' },
+  { number: 1, label: 'Check Coverage', path: '/coverage' },
+  { number: 2, label: 'Choose Package', path: '/packages' },
+  { number: 3, label: 'Create Account', path: '/order/account' },
+  { number: 4, label: 'Verification', path: '/order/verification' },
 ];
 
 export function OrderBreadcrumb() {

@@ -149,14 +149,14 @@ export interface PaymentData {
   amount?: number;
 }
 
-// Order stages - New 3-step journey (Afrihost-inspired)
-export type OrderStage = 1 | 2 | 3;
-export type OrderStageId = 'coverage' | 'package' | 'account';
+// Order stages - New 4-step journey (with KYC verification)
+export type OrderStage = 1 | 2 | 3 | 4;
+export type OrderStageId = 'coverage' | 'package' | 'account' | 'verification';
 
-export const STAGE_NAMES = ['Check Coverage', 'Choose Package', 'Create Account'] as const;
-export const TOTAL_STAGES = 3;
+export const STAGE_NAMES = ['Check Coverage', 'Choose Package', 'Create Account', 'Verification'] as const;
+export const TOTAL_STAGES = 4;
 
-export const STAGE_IDS: OrderStageId[] = ['coverage', 'package', 'account'];
+export const STAGE_IDS: OrderStageId[] = ['coverage', 'package', 'account', 'verification'];
 
 // Map stage numbers to IDs
 export const getStageId = (stage: OrderStage): OrderStageId => {
@@ -164,6 +164,7 @@ export const getStageId = (stage: OrderStage): OrderStageId => {
     1: 'coverage',
     2: 'package',
     3: 'account',
+    4: 'verification',
   };
   return map[stage];
 };
@@ -174,6 +175,7 @@ export const getStageNumber = (stageId: OrderStageId): OrderStage => {
     coverage: 1,
     package: 2,
     account: 3,
+    verification: 4,
   };
   return map[stageId];
 };
