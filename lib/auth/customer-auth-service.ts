@@ -82,33 +82,39 @@ export class CustomerAuthService {
         };
       }
 
-      // 2. Create customer record linked to auth user
-      const { data: customer, error: customerError } = await supabase
-        .from('customers')
-        .insert({
+      // 2. Create customer record via API route (uses service role to bypass RLS)
+      // We use an API route instead of direct client INSERT because RLS policies
+      // may not recognize auth.uid() immediately after signup
+      const customerResponse = await fetch('/api/auth/create-customer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           auth_user_id: authData.user.id,
           first_name: customerData.firstName,
           last_name: customerData.lastName,
           email: email,
           phone: customerData.phone,
           account_type: customerData.accountType || 'personal',
-          email_verified: false,
-          status: 'active',
-        })
-        .select()
-        .single();
+        }),
+      });
 
-      if (customerError) {
-        console.error('Failed to create customer record:', customerError);
+      const customerResult = await customerResponse.json();
+
+      if (!customerResult.success) {
+        console.error('Failed to create customer record:', customerResult.error);
         // Note: Auth user is already created, but customer record failed
         // This is OK - customer can still verify email and we can create record later
         return {
           user: authData.user,
           customer: null,
           session: authData.session,
-          error: `Account created but profile setup failed: ${customerError.message}`
+          error: `Account created but profile setup failed: ${customerResult.error}`
         };
       }
+
+      const customer = customerResult.customer;
 
       return {
         user: authData.user,
@@ -330,7 +336,7 @@ export class CustomerAuthService {
       const supabase = createClient();
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/my-account/reset-password`
+        redirectTo: `${window.location.origin}/auth/reset-password`
       });
 
       if (error) {

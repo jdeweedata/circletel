@@ -94,11 +94,22 @@ See: `docs/guides/MEMORY_WORKFLOW_QUICK_START.md` for complete workflow guide.
 ### Design System
 
 #### Brand Colors (Tailwind Config)
+**CircleTel Primary Colors**:
 - `circleTel-orange`: #F5831F (primary brand color)
 - `circleTel-white`: #FFFFFF
 - `circleTel-darkNeutral`: #1F2937
 - `circleTel-secondaryNeutral`: #4B5563
 - `circleTel-lightNeutral`: #E6E9EF
+
+**WebAfrica-Inspired Colors** (added 2025-10-23):
+- `webafrica-pink`: #E91E63 (can be substituted with circleTel-orange for branding)
+- `webafrica-blue`: #1E4B85 (dark blue for buttons and text)
+- `webafrica-blue-light`: #CDD6F4 (input borders)
+- `webafrica-blue-lighter`: #E8F0FF (backgrounds)
+- `webafrica-blue-bg`: #F5F9FF (soft backgrounds)
+- `webafrica-blue-dark`: #163a6b (button hover states)
+
+**Design Pattern**: Use CircleTel orange for primary actions and accents, WebAfrica blue for secondary elements and text. This creates a professional, conversion-optimized look while maintaining brand identity.
 
 #### Typography
 - Primary: Arial, Helvetica, sans-serif (system fonts for consistent performance)
@@ -113,6 +124,42 @@ See: `docs/guides/MEMORY_WORKFLOW_QUICK_START.md` for complete workflow guide.
 - Protected routes redirect to `/admin/login` when not authenticated
 - Session management via `useAdminAuth` hook in `/hooks/useAdminAuth.ts`
 - Environment detection: Vercel preview URLs use dev mode for easier testing
+
+#### Customer Authentication (NEW - 2025-10-24)
+Complete customer-facing authentication system with WebAfrica-inspired design:
+
+**Authentication Pages**:
+- `/order/account` - Customer signup (WebAfrica-inspired design)
+- `/auth/login` - Customer login
+- `/auth/forgot-password` - Password reset request
+- `/auth/reset-password` - Password reset confirmation
+- `/auth/callback` - Email verification callback handler
+- `/order/verify-email` - Email verification instructions
+
+**Authentication Service** (`lib/auth/customer-auth-service.ts`):
+- Centralized customer authentication logic
+- Methods: `signUp()`, `signIn()`, `signOut()`, `getSession()`, `getCustomer()`
+- Email verification: `resendVerificationEmail()`, `isEmailVerified()`
+- Password reset: `sendPasswordResetEmail()`, `updatePassword()`
+
+**Server-Side Customer Creation**:
+- API route: `/app/api/auth/create-customer/route.ts`
+- Uses service role to bypass RLS timing issues during signup
+- Creates customer record in `customers` table immediately after auth user creation
+- Prevents "new row violates row-level security policy" errors
+
+**Database Triggers** (Migration: `20251024000003_fix_email_verification_trigger.sql`):
+- `sync_customer_email_verified()` - Syncs email verification from auth.users to customers table
+- `update_customer_last_login()` - Updates last_login on customer sign-in
+- Both use `SECURITY DEFINER` to bypass RLS during trigger execution
+- Proper GRANT statements ensure triggers can execute successfully
+
+**Key Implementation Details**:
+- Supabase Auth with PKCE flow for enhanced security
+- Email verification required (Supabase sends emails automatically)
+- Database synchronization via triggers (auth.users ↔ customers table)
+- Service role pattern for privileged operations during signup
+- WebAfrica-inspired UI: Soft blue gradients, floating labels, 56px inputs
 
 #### Role-Based Access Control (RBAC)
 Complete RBAC system with granular permissions:
@@ -444,6 +491,9 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - `20251021000006_cleanup_and_migrate.sql` - Multi-provider architecture (✅ Applied 2025-10-21)
   - `20251021000007_add_mtn_products.sql` - 13 MTN products (✅ Applied 2025-10-21)
   - `20251022000010_add_account_type_to_customers.sql` - Customer account_type column (✅ Applied 2025-10-22)
+  - `20251024000001_add_customer_insert_policy.sql` - Initial RLS policy for customer INSERT (⚠️ Superseded)
+  - `20251024000002_fix_customer_insert_rls_v2.sql` - Comprehensive RLS policy fix (⚠️ Superseded by API approach)
+  - `20251024000003_fix_email_verification_trigger.sql` - Fixed email verification and last_login triggers (✅ Applied 2025-10-24)
 - **CLI Migration Research**: See `docs/database/CLI_MIGRATION_RESEARCH_2025-10-22.md` for comprehensive analysis
   - **Conclusion**: Supabase Dashboard SQL Editor is the most reliable method
   - **CLI Limitations**: Authentication issues, connection pooler restrictions, read-only MCP mode
@@ -551,6 +601,7 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Deployment scripts: `/scripts/deploy/[script].sh`
 - Utility scripts: `/scripts/[script].js`
 - Test scripts: `/scripts/test/[script].js`
+- Database utilities: `/scripts/check-user-verification.js` (check email verification status)
 
 **Public Assets** (`/public`):
 - Images: `/public/images/[image].png`
@@ -663,3 +714,24 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
     - **Responsive Design**: Desktop shows sticky sidebar, mobile shows full-screen overlay with floating CTA
     - **View 6-8 packages at once** vs previous 3-4, improved visual hierarchy and package comparison
     - Components: `components/ui/compact-package-card.tsx`, `components/ui/info-tooltip-modal.tsx`, enhanced `components/ui/package-detail-sidebar.tsx`
+  - **WebAfrica-Style Account Page**: ✅ Complete (2025-10-23)
+    - **TopProgressBar**: Orange progress bar with step indicators (Create Account → Payment → Order Confirmation)
+    - **FloatingInput**: 56px height inputs with floating labels, light blue borders (#CDD6F4)
+    - **CollapsibleSection**: Expandable sections with chevron icons for future use
+    - **Simplified Form**: 4 fields only (Name, Surname, Email, Phone) - removed password, account type, business fields
+    - **Design**: Soft blue gradient background, decorative circles, centered white card container (1200px max-width)
+    - **Branding**: CircleTel orange for progress bar and accents, WebAfrica dark blue (#1E4B85) for submit button
+    - **Password Flow**: Moved to email verification step for better UX and security
+    - **Components**: `components/order/TopProgressBar.tsx`, `components/ui/floating-input.tsx`, `components/ui/collapsible-section.tsx`
+    - **Page**: Complete refactor of `/app/order/account/page.tsx` with WebAfrica-inspired layout
+    - **Colors**: Added `webafrica` color palette to Tailwind config (pink, blue variants)
+- **Customer Authentication System**: ✅ Complete (2025-10-24)
+  - **Signup Flow**: WebAfrica-inspired signup at `/order/account` with automatic email verification
+  - **Login Flow**: Customer login at `/auth/login` with password recovery
+  - **Password Reset**: Complete forgot password → reset password flow with secure tokens
+  - **Email Verification**: Automatic emails via Supabase with callback handling at `/auth/callback`
+  - **Database Synchronization**: Triggers sync email verification and last_login between auth.users and customers tables
+  - **Service Role Pattern**: API route `/api/auth/create-customer` bypasses RLS timing issues during signup
+  - **Authentication Service**: Centralized logic in `lib/auth/customer-auth-service.ts` with 10+ methods
+  - **Testing Documentation**: Complete testing reports in `docs/testing/` (AUTH_TESTING_REPORT.md, SUCCESSFUL_SIGNUP_TEST.md)
+  - **Known Issue**: Email verification requires clicking link in email (trigger tested successfully with migration `20251024000003`)

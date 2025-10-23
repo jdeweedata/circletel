@@ -94,6 +94,17 @@ export default {
 						600: '#2563EB',
 						700: '#1D4ED8',
 					}
+				},
+				// WebAfrica-inspired colors (adapted with CircleTel orange)
+				'webafrica': {
+					pink: '#E91E63',
+					'pink-light': '#F48FB1',
+					'pink-dark': '#C2185B',
+					blue: '#1E4B85',
+					'blue-light': '#CDD6F4',
+					'blue-lighter': '#E8F0FF',
+					'blue-bg': '#F5F9FF',
+					'blue-dark': '#163a6b',
 				}
 			},
 			borderRadius: {
