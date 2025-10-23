@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { CheckCircle, Clock, AlertCircle, Package, MapPin, User, Calendar } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/integrations/supabase/server';
 
 interface Props {
   params: Promise<{ orderId: string }>;
