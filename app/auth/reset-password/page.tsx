@@ -193,11 +193,18 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      // Update password using Supabase Auth
-      const result = await CustomerAuthService.updatePassword(data.password);
+      // Import and use the SAME Supabase client instance
+      const { createClient } = await import('@/integrations/supabase/client');
+      const supabase = createClient();
 
-      if (result.error) {
-        toast.error(result.error);
+      // Update password using Supabase Auth directly
+      const { error } = await supabase.auth.updateUser({
+        password: data.password
+      });
+
+      if (error) {
+        console.error('Update password error:', error);
+        toast.error(error.message || 'Failed to reset password');
         return;
       }
 
