@@ -114,8 +114,12 @@ BEGIN
     -- Enable RLS if not already enabled
     ALTER TABLE consumer_orders ENABLE ROW LEVEL SECURITY;
 
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Customers can view own consumer orders" ON consumer_orders;
+    DROP POLICY IF EXISTS "Service role can manage all consumer orders" ON consumer_orders;
+
     -- Customer can view their own consumer orders
-    EXECUTE 'CREATE POLICY IF NOT EXISTS "Customers can view own consumer orders"
+    EXECUTE 'CREATE POLICY "Customers can view own consumer orders"
     ON consumer_orders
     FOR SELECT
     USING (
@@ -127,7 +131,7 @@ BEGIN
     )';
 
     -- Service role can manage all consumer orders
-    EXECUTE 'CREATE POLICY IF NOT EXISTS "Service role can manage all consumer orders"
+    EXECUTE 'CREATE POLICY "Service role can manage all consumer orders"
     ON consumer_orders
     FOR ALL
     USING (auth.role() = ''service_role'')
@@ -148,8 +152,13 @@ BEGIN
     -- Enable RLS if not already enabled
     ALTER TABLE kyc_documents ENABLE ROW LEVEL SECURITY;
 
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Customers can view own kyc documents" ON kyc_documents;
+    DROP POLICY IF EXISTS "Customers can upload own kyc documents" ON kyc_documents;
+    DROP POLICY IF EXISTS "Service role can manage all kyc documents" ON kyc_documents;
+
     -- Customer can view their own KYC documents
-    EXECUTE 'CREATE POLICY IF NOT EXISTS "Customers can view own kyc documents"
+    EXECUTE 'CREATE POLICY "Customers can view own kyc documents"
     ON kyc_documents
     FOR SELECT
     USING (
@@ -162,7 +171,7 @@ BEGIN
     )';
 
     -- Customer can upload KYC documents for their own orders
-    EXECUTE 'CREATE POLICY IF NOT EXISTS "Customers can upload own kyc documents"
+    EXECUTE 'CREATE POLICY "Customers can upload own kyc documents"
     ON kyc_documents
     FOR INSERT
     WITH CHECK (
@@ -175,7 +184,7 @@ BEGIN
     )';
 
     -- Service role can manage all KYC documents
-    EXECUTE 'CREATE POLICY IF NOT EXISTS "Service role can manage all kyc documents"
+    EXECUTE 'CREATE POLICY "Service role can manage all kyc documents"
     ON kyc_documents
     FOR ALL
     USING (auth.role() = ''service_role'')
