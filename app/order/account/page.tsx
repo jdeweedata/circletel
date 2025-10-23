@@ -477,7 +477,7 @@ export default function AccountPage() {
                           </>
                         ) : (
                           <>
-                            Continue to Installation Details
+                            Continue to Verification
                             <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
                           </>
                         )}
