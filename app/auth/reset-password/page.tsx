@@ -36,13 +36,45 @@ export default function ResetPasswordPage() {
 
   // Check if we have the access token from the URL (Supabase sends this after clicking reset link)
   useEffect(() => {
-    const error = searchParams.get('error');
-    const errorDescription = searchParams.get('error_description');
+    const handlePasswordResetLink = async () => {
+      const error = searchParams.get('error');
+      const errorDescription = searchParams.get('error_description');
+      const code = searchParams.get('code');
 
-    if (error) {
-      setHasError(true);
-      toast.error(errorDescription || 'Invalid or expired reset link');
-    }
+      if (error) {
+        setHasError(true);
+        toast.error(errorDescription || 'Invalid or expired reset link');
+        return;
+      }
+
+      // If we have a code, we need to exchange it for a session first
+      if (code) {
+        try {
+          const { createClient } = await import('@/integrations/supabase/client');
+          const supabase = createClient();
+
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (exchangeError) {
+            console.error('Code exchange error:', exchangeError);
+            setHasError(true);
+            toast.error('Invalid or expired reset link. Please request a new one.');
+            return;
+          }
+
+          if (data.session) {
+            // Session established successfully, user can now set password
+            toast.success('Session verified! Please set your new password.');
+          }
+        } catch (err) {
+          console.error('Password reset link error:', err);
+          setHasError(true);
+          toast.error('Failed to verify reset link. Please try again.');
+        }
+      }
+    };
+
+    handlePasswordResetLink();
   }, [searchParams]);
 
   const {
