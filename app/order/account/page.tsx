@@ -246,9 +246,9 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-6 md:gap-6 lg:gap-8 xl:gap-10">
-          {/* Main Form - Left/Center Column */}
-          <div className="md:col-span-8 lg:col-span-8 xl:col-span-8 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12">
+          {/* Main Form - Left Column (2/3 width on large screens) */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Sign-In Mode Alert */}
             {mode === 'signin' && (
               <Alert className="border-green-200 bg-green-50/50 backdrop-blur-sm animate-in fade-in-50 slide-in-from-top-2 duration-300">
@@ -686,8 +686,8 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Order Summary Sidebar - Right Column */}
-          <div className="md:col-span-4 lg:col-span-4 xl:col-span-4">
+          {/* Order Summary Sidebar - Right Column (1/3 width on large screens) */}
+          <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               <Card className="border-0 shadow-xl shadow-gray-200/50 overflow-hidden">
                 <CardHeader className="bg-gradient-to-br from-circleTel-darkNeutral via-gray-800 to-gray-900 text-white pb-6">
