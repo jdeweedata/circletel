@@ -651,3 +651,7 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - Integrated on home page (`HeroWithTabs.tsx`) and coverage checker (`CoverageChecker.tsx`)
   - Features: Address autocomplete, click-to-place marker, draggable marker, map/satellite toggle
   - Fixed Google Maps API multiple loading issue by consolidating to single loader
+  - Responsive design: Fixed modal footer visibility on smaller viewports (720px height) with proper flexbox constraints
+- **UI Improvements**: ✅ Recent updates (2025-10-23)
+  - Removed breadcrumb navigation from packages page (`/app/packages/[leadId]/page.tsx`) for cleaner UI
+  - Modal viewport fixes ensuring Close and Search buttons always visible on all screen sizes
