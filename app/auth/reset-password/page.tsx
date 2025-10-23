@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
+import { createClient } from '@/integrations/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -33,6 +34,7 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
+  const supabaseRef = useRef<SupabaseClient | null>(null);
 
   // Check if we have the access token from the URL (Supabase sends this after clicking reset link)
   useEffect(() => {
@@ -48,8 +50,11 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      const { createClient } = await import('@/integrations/supabase/client');
-      const supabase = createClient();
+      // Create a single Supabase client instance and store it in ref
+      if (!supabaseRef.current) {
+        supabaseRef.current = createClient();
+      }
+      const supabase = supabaseRef.current;
 
       // First check: token_hash in query string (custom email template)
       const tokenHash = searchParams.get('token_hash');
@@ -193,9 +198,12 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      // Import and use the SAME Supabase client instance
-      const { createClient } = await import('@/integrations/supabase/client');
-      const supabase = createClient();
+      // Use the SAME Supabase client instance from the ref
+      if (!supabaseRef.current) {
+        toast.error('Session not initialized. Please refresh the page.');
+        return;
+      }
+      const supabase = supabaseRef.current;
 
       // Update password using Supabase Auth directly
       const { error } = await supabase.auth.updateUser({
