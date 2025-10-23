@@ -27,8 +27,9 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckoutProgress } from '@/components/ui/checkout-progress';
-import { User, Mail, Phone, Building, ShieldCheck, ArrowLeft, Sparkles, CheckCircle2, Info } from 'lucide-react';
+import { User, Mail, Phone, Building, ShieldCheck, ArrowLeft, Sparkles, CheckCircle2, Info, LogIn } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 // Form validation schema with business fields
 const accountSchema = z.object({
@@ -59,6 +60,9 @@ export default function AccountPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [mode, setMode] = React.useState<'signup' | 'signin'>('signup');
+  const [emailForSignIn, setEmailForSignIn] = React.useState('');
+  const [checkingEmail, setCheckingEmail] = React.useState(false);
 
   // Set current stage to 2 when this page loads
   React.useEffect(() => {
@@ -84,11 +88,51 @@ export default function AccountPage() {
   // Watch account type for progressive disclosure
   const accountType = form.watch('accountType');
 
+  // Check if customer exists by email
+  const handleCheckEmail = async (email: string) => {
+    if (!email || !email.includes('@')) return;
+
+    setCheckingEmail(true);
+    try {
+      const response = await fetch(`/api/customers?email=${encodeURIComponent(email)}`);
+      const result = await response.json();
+
+      if (result.success && result.customer) {
+        // Customer exists - switch to sign-in mode
+        setMode('signin');
+        setEmailForSignIn(email);
+        toast.success('Welcome back! Please verify your email to continue.');
+
+        // Pre-fill form with existing customer data
+        form.setValue('firstName', result.customer.first_name || '');
+        form.setValue('lastName', result.customer.last_name || '');
+        form.setValue('phone', result.customer.phone || '');
+        form.setValue('accountType', result.customer.account_type || 'personal');
+
+        // Send OTP for sign-in
+        await fetch('/api/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type: 'signin' }),
+        });
+      } else {
+        // New customer - stay in signup mode
+        setMode('signup');
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+      // Stay in signup mode on error
+      setMode('signup');
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
   const onSubmit = async (data: AccountFormValues) => {
     setIsSubmitting(true);
 
     try {
-      // Save customer to database
+      // Save customer to database (handles both new and existing customers)
       const response = await fetch('/api/customers', {
         method: 'POST',
         headers: {
@@ -166,14 +210,16 @@ export default function AccountPage() {
 
           <div className="flex items-start gap-4">
             <div className="hidden sm:flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-circleTel-orange to-orange-600 text-white shadow-lg">
-              <User className="h-7 w-7" />
+              {mode === 'signup' ? <User className="h-7 w-7" /> : <LogIn className="h-7 w-7" />}
             </div>
             <div className="flex-1">
               <h1 className="text-3xl sm:text-4xl font-bold text-circleTel-darkNeutral mb-3 bg-gradient-to-r from-circleTel-darkNeutral to-gray-700 bg-clip-text">
-                Create Your Account
+                {mode === 'signup' ? 'Create Your Account' : 'Welcome Back!'}
               </h1>
               <p className="text-base sm:text-lg text-circleTel-secondaryNeutral max-w-2xl">
-                Just a few details to get you started with CircleTel. We'll use this information to set up your account and keep you updated about your order.
+                {mode === 'signup'
+                  ? "Just a few details to get you started with CircleTel. We'll use this information to set up your account and keep you updated about your order."
+                  : "We found your account! Please verify your details to continue with your order."}
               </p>
             </div>
           </div>
@@ -182,13 +228,25 @@ export default function AccountPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-6 md:gap-6 lg:gap-8 xl:gap-10">
           {/* Main Form - Left/Center Column */}
           <div className="md:col-span-8 lg:col-span-8 xl:col-span-8 space-y-4 sm:space-y-6">
+            {/* Sign-In Mode Alert */}
+            {mode === 'signin' && (
+              <Alert className="border-green-200 bg-green-50/50 backdrop-blur-sm animate-in fade-in-50 slide-in-from-top-2 duration-300">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-sm text-green-900">
+                  <span className="font-semibold">Account found!</span> We've pre-filled your information. Please review and update if needed, then continue to verification.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Why We Need This Info */}
-            <Alert className="border-blue-200 bg-blue-50/50 backdrop-blur-sm">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-sm text-blue-900">
-                <span className="font-semibold">Quick setup:</span> This information helps us create your account, schedule installation, and send you important updates about your service.
-              </AlertDescription>
-            </Alert>
+            {mode === 'signup' && (
+              <Alert className="border-blue-200 bg-blue-50/50 backdrop-blur-sm">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm text-blue-900">
+                  <span className="font-semibold">Quick setup:</span> This information helps us create your account, schedule installation, and send you important updates about your service.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <Card className="border-0 shadow-xl shadow-gray-200/50 overflow-hidden">
               <CardHeader className="bg-gradient-to-br from-circleTel-orange/10 via-orange-50/50 to-white border-b border-orange-100/50 pb-6">
@@ -390,17 +448,33 @@ export default function AccountPage() {
                               Email Address
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                type="email"
-                                placeholder="john.doe@example.com"
-                                {...field}
-                                autoComplete="email"
-                                className="h-12 border-2 focus:border-circleTel-orange focus:ring-4 focus:ring-circleTel-orange/10 transition-all"
-                              />
+                              <div className="relative">
+                                <Input
+                                  type="email"
+                                  placeholder="john.doe@example.com"
+                                  {...field}
+                                  autoComplete="email"
+                                  onBlur={(e) => {
+                                    field.onBlur();
+                                    handleCheckEmail(e.target.value);
+                                  }}
+                                  className="h-12 border-2 focus:border-circleTel-orange focus:ring-4 focus:ring-circleTel-orange/10 transition-all"
+                                />
+                                {checkingEmail && (
+                                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <svg className="animate-spin h-5 w-5 text-circleTel-orange" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
                             </FormControl>
                             <FormDescription className="text-sm text-gray-600 flex items-center gap-1.5">
                               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                              Order confirmations and updates will be sent here
+                              {mode === 'signup'
+                                ? 'Order confirmations and updates will be sent here'
+                                : 'Existing account detected - we\'ll send a verification code'}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
