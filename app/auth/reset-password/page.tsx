@@ -54,32 +54,43 @@ export default function ResetPasswordPage() {
       // Check if there's a hash fragment with access_token (Magic Link implicit flow)
       // The hash format is: #access_token=...&expires_at=...&refresh_token=...&type=recovery
       if (window.location.hash && window.location.hash.includes('access_token')) {
-        console.log('Detected access_token in URL hash, waiting for Supabase to establish session...');
+        console.log('Detected access_token in URL hash, manually setting session...');
 
-        // Listen for auth state change when session is established from hash
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log('Auth state changed:', event, 'Session:', !!session);
+        // Parse the hash fragment to extract tokens
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
 
-          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-            if (mounted) {
-              console.log('Session established from URL hash fragment');
+        if (accessToken && refreshToken) {
+          try {
+            // Manually set the session using the tokens from the hash
+            const { data, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (sessionError) {
+              console.error('Error setting session:', sessionError);
+              setHasError(true);
+              toast.error('Failed to establish session. Please request a new reset link.');
+              return;
+            }
+
+            if (data.session) {
+              console.log('Session manually established from hash fragment tokens');
               toast.success('Session verified! Please set your new password.');
             }
+          } catch (err) {
+            console.error('Session setup error:', err);
+            setHasError(true);
+            toast.error('Failed to establish session. Please try again.');
           }
-        });
-
-        // Also check immediately in case session is already established
-        setTimeout(async () => {
-          const { data: sessionData } = await supabase.auth.getSession();
-          if (sessionData.session && mounted) {
-            console.log('Session already established from URL hash fragment');
-            toast.success('Session verified! Please set your new password.');
-          }
-        }, 500);
-
-        return () => {
-          subscription.unsubscribe();
-        };
+        } else {
+          console.error('Missing access_token or refresh_token in hash');
+          setHasError(true);
+          toast.error('Invalid reset link format. Please request a new one.');
+        }
+        return;
       }
 
       // Try PKCE flow (for code parameter in query string)
