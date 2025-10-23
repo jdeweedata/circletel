@@ -217,7 +217,7 @@ export default function AccountPage() {
       <OrderBreadcrumb />
 
       {/* Main Content */}
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
           <Button
@@ -246,9 +246,9 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12">
-          {/* Main Form - Left Column (2/3 width on large screens) */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+          {/* Main Form - Left Column (3/5 width on large screens) */}
+          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {/* Sign-In Mode Alert */}
             {mode === 'signin' && (
               <Alert className="border-green-200 bg-green-50/50 backdrop-blur-sm animate-in fade-in-50 slide-in-from-top-2 duration-300">
@@ -686,8 +686,8 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Order Summary Sidebar - Right Column (1/3 width on large screens) */}
-          <div className="lg:col-span-1">
+          {/* Order Summary Sidebar - Right Column (2/5 width on large screens) */}
+          <div className="lg:col-span-2">
             <div className="sticky top-24 space-y-6">
               <Card className="border-0 shadow-xl shadow-gray-200/50 overflow-hidden">
                 <CardHeader className="bg-gradient-to-br from-circleTel-darkNeutral via-gray-800 to-gray-900 text-white pb-6">
