@@ -67,23 +67,85 @@ export default function KycVerificationPage() {
     setIsSubmitting(true);
 
     try {
-      // Update KYC status to under_review
+      // Create order in database
+      const coverageData = state.orderData.coverage || {};
+      const packageData = state.orderData.package || {};
+
+      const orderResponse = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Customer data
+          customerName: `${accountData.firstName || ''} ${accountData.lastName || ''}`.trim() || 'Customer',
+          customerEmail: accountData.email || '',
+          customerPhone: accountData.phone || '',
+          idNumber: accountData.idNumber || '',
+          accountType: accountData.accountType || 'personal',
+
+          // Business data (if applicable)
+          businessName: accountData.businessName,
+          businessRegistration: accountData.businessRegistration,
+          taxNumber: accountData.taxNumber,
+
+          // Package data
+          packageId: packageData.selectedPackage?.id,
+          packageName: packageData.selectedPackage?.name,
+          serviceType: packageData.selectedPackage?.type || 'fibre',
+          speedDown: packageData.selectedPackage?.speed_down || 0,
+          speedUp: packageData.selectedPackage?.speed_up || 0,
+          monthlyPrice: packageData.pricing?.monthly || packageData.selectedPackage?.monthlyPrice || 0,
+          installationFee: packageData.pricing?.onceOff || packageData.selectedPackage?.onceOffPrice || 0,
+
+          // Coverage/Installation data
+          installationAddress: coverageData.address || '',
+          coordinates: coverageData.coordinates,
+          locationType: coverageData.locationType,
+
+          // Installation preferences
+          preferredDate: accountData.preferredInstallationDate,
+          alternativeDate: accountData.alternativeInstallationDate,
+          onsiteContact: accountData.onsiteContact,
+          specialInstructions: accountData.specialInstructions,
+
+          // KYC status
+          kycStatus: 'under_review',
+          kycSubmittedAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.error || 'Failed to create order');
+      }
+
+      const { order } = await orderResponse.json();
+
+      // Update context with order details
       actions.updateOrderData({
         kyc: {
           ...kycData,
           verificationStatus: 'under_review',
           submittedAt: new Date(),
+        },
+        payment: {
+          orderId: order.id,
+          paymentReference: order.payment_reference,
+          paymentStatus: 'pending',
         }
       });
 
       actions.markStepComplete(4);
-      toast.success('Documents submitted for review');
 
-      // Navigate to payment page
-      router.push('/order/payment');
+      toast.success('Order submitted successfully!', {
+        description: 'Your KYC documents are under review. We\'ll notify you once approved.'
+      });
+
+      // Navigate to confirmation page (NOT payment)
+      router.push(`/order/confirmation/${order.id}`);
+
     } catch (error) {
       console.error('Submission error:', error);
-      toast.error('Failed to submit documents');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit order');
     } finally {
       setIsSubmitting(false);
     }
