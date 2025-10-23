@@ -1,9 +1,13 @@
-// Order data structure
+import { LocationType } from '@/lib/types/location-type';
+
+// Order data structure - New 3-step journey
 export interface OrderData {
   coverage: CoverageData;
+  package: PackageSelectionData;
   account: AccountData;
-  contact: ContactData;
-  installation: InstallationData;
+  // Legacy fields (still supported for backward compatibility)
+  contact?: ContactData;
+  installation?: InstallationData;
   payment?: PaymentData;
 }
 
@@ -11,19 +15,51 @@ export interface CoverageData {
   address?: string;
   coordinates?: { lat: number; lng: number };
   leadId?: string;
+  availableServices?: string[];
+  locationType?: LocationType;
+}
+
+export interface PackageSelectionData {
   selectedPackage?: PackageDetails;
   pricing?: PricingDetails;
 }
 
 export interface AccountData {
+  // Authentication
   email?: string;
+  password?: string;
+  isAuthenticated?: boolean;
+
+  // Personal Info
   firstName?: string;
   lastName?: string;
   phone?: string;
+  idNumber?: string;
+
+  // Account Type
   accountType?: 'personal' | 'business';
-  isAuthenticated?: boolean;
+  businessName?: string;
+  businessRegistration?: string;
+  taxNumber?: string;
+
+  // Installation Details
+  installationAddress?: Address;
+  installationLocationType?: LocationType;
+  preferredInstallationDate?: Date;
+  alternativeInstallationDate?: Date;
+  onsiteContact?: {
+    name: string;
+    phone: string;
+    isAccountHolder: boolean;
+  };
+  specialInstructions?: string;
+
+  // Payment
+  paymentMethod?: PaymentMethod;
+  termsAccepted?: boolean;
 }
 
+// Legacy types (deprecated but still supported)
 export interface ContactData {
   customerType?: 'personal' | 'business';
   contactName?: string;
@@ -38,6 +74,7 @@ export interface ContactData {
 export interface InstallationData {
   preferredDate?: Date;
   alternativeDate?: Date;
+  locationType?: LocationType;
   onsiteContact?: {
     name: string;
     phone: string;
@@ -65,10 +102,13 @@ export interface PackageDetails {
   product_category?: string;
   speed_down?: number;
   speed_up?: number;
-  price?: string;
-  promotion_price?: string | null;
+  price?: string | number;
+  promotion_price?: string | number | null;
   promotion_months?: number | null;
   features?: string[];
+  installation_fee?: number;
+  router_included?: boolean;
+  activation_fee?: number;
 }
 
 export interface PricingDetails {
@@ -108,8 +148,36 @@ export interface PaymentData {
   amount?: number;
 }
 
-// Order stages
-export type OrderStage = 1 | 2 | 3 | 4 | 5;
+// Order stages - New 3-step journey (Afrihost-inspired)
+export type OrderStage = 1 | 2 | 3;
+export type OrderStageId = 'coverage' | 'package' | 'account';
 
-export const STAGE_NAMES = ['Coverage', 'Account', 'Contact', 'Installation', 'Payment'] as const;
-export const TOTAL_STAGES = 5;
+export const STAGE_NAMES = ['Check Coverage', 'Choose Package', 'Create Account'] as const;
+export const TOTAL_STAGES = 3;
+
+export const STAGE_IDS: OrderStageId[] = ['coverage', 'package', 'account'];
+
+// Map stage numbers to IDs
+export const getStageId = (stage: OrderStage): OrderStageId => {
+  const map: Record<OrderStage, OrderStageId> = {
+    1: 'coverage',
+    2: 'package',
+    3: 'account',
+  };
+  return map[stage];
+};
+
+// Map stage IDs to numbers
+export const getStageNumber = (stageId: OrderStageId): OrderStage => {
+  const map: Record<OrderStageId, OrderStage> = {
+    coverage: 1,
+    package: 2,
+    account: 3,
+  };
+  return map[stageId];
+};
+
+// Legacy 5-stage support (deprecated, for backward compatibility)
+export type LegacyOrderStage = 1 | 2 | 3 | 4 | 5;
+export const LEGACY_STAGE_NAMES = ['Coverage', 'Account', 'Contact', 'Installation', 'Payment'] as const;
+export const LEGACY_TOTAL_STAGES = 5;

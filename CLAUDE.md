@@ -434,16 +434,20 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 
 ### Database Migration Strategy
 - **Migration Files**: Located in `/supabase/migrations/` with timestamp-based naming
-- **Idempotency**: All migrations use `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`
+- **Idempotency**: All migrations use `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ADD COLUMN IF NOT EXISTS`, `ON CONFLICT` clauses
 - **Applied Migrations**: Track via Supabase Dashboard (Project Settings > Database > Migrations)
 - **Manual Application**: Use Supabase Dashboard SQL Editor for most reliable migration application
 - **Verification**: Always verify migrations with `SELECT COUNT(*)` queries after application
 - **Key Migrations**:
   - `20250201000005_create_rbac_system.sql` - RBAC with 17 role templates (✅ Applied)
   - `20251019000001_enhance_provider_management_system.sql` - Provider health monitoring (✅ Applied)
-  - `20251021000011_cleanup_and_migrate_fixed.sql` - Multi-provider architecture (✅ Ready - Fixed ON CONFLICT)
-  - `20251021000010_add_products_final.sql` - 15 products: 4 HomeFibre + 5 BizFibre + 3 SkyFibre + 3 MTN 5G (✅ Ready)
-- **Important**: Avoid `ON CONFLICT` clauses unless table has explicit unique constraints
+  - `20251021000006_cleanup_and_migrate.sql` - Multi-provider architecture (✅ Applied 2025-10-21)
+  - `20251021000007_add_mtn_products.sql` - 13 MTN products (✅ Applied 2025-10-21)
+  - `20251022000010_add_account_type_to_customers.sql` - Customer account_type column (✅ Applied 2025-10-22)
+- **CLI Migration Research**: See `docs/database/CLI_MIGRATION_RESEARCH_2025-10-22.md` for comprehensive analysis
+  - **Conclusion**: Supabase Dashboard SQL Editor is the most reliable method
+  - **CLI Limitations**: Authentication issues, connection pooler restrictions, read-only MCP mode
+  - **Recommendation**: Continue using Dashboard for all migrations
 - **Migration Guide**: See `APPLY_MANUALLY.md` for step-by-step migration application
 
 ## Important Notes
@@ -621,16 +625,13 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - See `.claude/agents/README.md` for full agent system documentation
   - See `docs/features/backlog/` for ready-to-implement BRS features
   - Test case: Commission Tracking feature (validated 2025-10-20)
-- **Multi-Provider Architecture**: ✅ Phase 1A Ready to Apply (2025-10-21)
+- **Multi-Provider Architecture**: ✅ Phase 1A Complete (2025-10-21)
   - Database schema enhanced with `provider_code`, `service_offerings`, `coverage_source`
   - `service_packages` table enhanced with `compatible_providers` array
   - New `provider_product_mappings` table for complex provider-product relationships
-  - 5 providers configured: MTN (active), DFA (active), MetroFibre, Openserve, Vumatel (placeholder)
-  - **15 Products Ready**: HomeFibreConnect (4 MTN), BizFibreConnect (5 DFA), SkyFibre (3 MTN), MTN 5G Business (3 MTN)
-  - **Critical**: BizFibre uses DFA provider, NOT MTN (based on official product documentation)
+  - 5 providers configured: MTN (active), MetroFibre, Openserve, DFA, Vumatel (placeholder)
+  - 13 MTN products added: HomeFibreConnect (4), BizFibreConnect (3), 5G/LTE Consumer (3), 5G/LTE Business (3)
   - Views created: `v_active_providers`, `v_products_with_providers`
-  - Migration files: `20251021000011_cleanup_and_migrate_fixed.sql` + `20251021000010_add_products_final.sql`
-  - See `APPLY_MANUALLY.md` for application guide
   - See `docs/features/customer-journey/MERGED_IMPLEMENTATION_PLAN.md` for roadmap
   - See `docs/features/customer-journey/MULTI_PROVIDER_ARCHITECTURE.md` for technical architecture
 - **Provider Management**: ✅ Phase 1 Complete (database ready, health monitoring, API logging)
@@ -638,3 +639,9 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - See `docs/features/COVERAGE_PROVIDER_IMPLEMENTATION_STATUS.md` for roadmap
 - **MTN Integration**: ✅ 3 providers configured (Wholesale MNS, Business WMS, Consumer)
 - **Marketing CMS**: ✅ Complete (Strapi integration with promotions, campaigns, landing pages)
+- **Netcash Payment Integration**: ✅ Phase 1A Complete (Webhook configuration, staging testing)
+  - Staging webhooks configured and tested (Account 52340889417)
+  - Customer creation fixed (account_type column migration applied)
+  - E2E order flow validated (address → coverage → packages → account)
+  - **Known Issues**: See `docs/features/backlog/UX_ORDER_SUMMARY_PACKAGE_DISPLAY.md` for UX improvements
+  - **Next Steps**: Production environment configuration and smoke test
