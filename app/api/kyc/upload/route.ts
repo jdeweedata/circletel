@@ -83,34 +83,32 @@ export async function POST(request: NextRequest) {
     const customerPhone = order?.phone || '';
     const customerType = 'consumer'; // Consumer orders are always consumer type
 
-    // Create KYC document record in database (using existing schema from 20251019000003)
-    const { data: kycDocument, error: dbError } = await supabase
-      .from('kyc_documents')
-      .insert({
-        consumer_order_id: orderId, // Using existing column name
-        customer_type: customerType,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        document_type: documentType,
-        document_title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension for title
-        file_name: file.name,
-        file_path: uploadResult.path, // Using existing column name
-        file_size: file.size,
-        file_type: file.type,
-        verification_status: 'pending',
-        is_sensitive: true,
-        encrypted: false,
-      })
-      .select()
-      .single();
+    // Create KYC document record in database (skip for pending orders)
+    let kycDocument = null;
+    if (orderId !== 'pending') {
+      const { data, error: dbError } = await supabase
+        .from('kyc_documents')
+        .insert({
+          order_id: orderId,
+          document_type: documentType,
+          file_name: file.name,
+          file_size: file.size,
+          file_type: file.type,
+          storage_path: uploadResult.path,
+          storage_url: uploadResult.url,
+          verification_status: 'pending',
+        })
+        .select()
+        .single();
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      return NextResponse.json(
-        { error: 'Failed to create document record' },
-        { status: 500 }
-      );
+      if (dbError) {
+        console.error('Database error:', dbError);
+        return NextResponse.json(
+          { error: 'Failed to create document record' },
+          { status: 500 }
+        );
+      }
+      kycDocument = data;
     }
 
     // Update order status to kyc_pending if not already
@@ -128,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      documentId: kycDocument.id,
+      documentId: kycDocument?.id || 'pending',
       url: uploadResult.url,
       message: 'Document uploaded successfully',
     });
