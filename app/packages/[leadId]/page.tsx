@@ -8,7 +8,6 @@ import { ServiceToggle, ServiceType } from '@/components/ui/service-toggle';
 import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
 import { PackageDetailSidebar, MobilePackageDetailOverlay } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
-import { SecureSignupProgress } from '@/components/ui/secure-signup-progress';
 import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -270,13 +269,6 @@ function PackagesContent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
-
-      {/* Breadcrumb Navigation */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <SecureSignupProgress currentStep="package" variant="subtle" showSecureBadge={false} />
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 py-8 lg:py-12">
         {/* Coverage Hero Section */}
