@@ -158,6 +158,7 @@ BEGIN
     DROP POLICY IF EXISTS "Service role can manage all kyc documents" ON kyc_documents;
 
     -- Customer can view their own KYC documents
+    -- Handle both order_id (newer schema) and consumer_order_id (older schema)
     EXECUTE 'CREATE POLICY "Customers can view own kyc documents"
     ON kyc_documents
     FOR SELECT
@@ -165,7 +166,11 @@ BEGIN
       EXISTS (
         SELECT 1 FROM consumer_orders
         JOIN customers ON customers.email = consumer_orders.email
-        WHERE kyc_documents.order_id = consumer_orders.id
+        WHERE (
+          (kyc_documents.order_id IS NOT NULL AND kyc_documents.order_id = consumer_orders.id)
+          OR
+          (kyc_documents.consumer_order_id IS NOT NULL AND kyc_documents.consumer_order_id = consumer_orders.id)
+        )
         AND customers.auth_user_id = auth.uid()
       )
     )';
@@ -178,7 +183,11 @@ BEGIN
       EXISTS (
         SELECT 1 FROM consumer_orders
         JOIN customers ON customers.email = consumer_orders.email
-        WHERE kyc_documents.order_id = consumer_orders.id
+        WHERE (
+          (kyc_documents.order_id IS NOT NULL AND kyc_documents.order_id = consumer_orders.id)
+          OR
+          (kyc_documents.consumer_order_id IS NOT NULL AND kyc_documents.consumer_order_id = consumer_orders.id)
+        )
         AND customers.auth_user_id = auth.uid()
       )
     )';
