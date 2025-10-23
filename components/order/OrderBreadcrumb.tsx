@@ -33,11 +33,9 @@ export function OrderBreadcrumb() {
                 <div
                   className={cn(
                     'flex items-center gap-2 whitespace-nowrap transition-all duration-200',
-                    step.number === currentStage
+                    step.number < currentStage
                       ? 'text-white font-semibold'
-                      : step.number < currentStage
-                      ? 'text-white/90'
-                      : 'text-white/50'
+                      : 'text-white/60'
                   )}
                 >
                   <span className="text-sm md:text-base">{step.label}</span>
