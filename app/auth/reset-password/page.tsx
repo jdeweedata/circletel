@@ -132,42 +132,12 @@ export default function ResetPasswordPage() {
 
           if (exchangeError) {
             console.error('Code exchange error:', exchangeError);
-            // Don't set error yet, try token_hash approach
           } else if (data.session) {
             toast.success('Session verified! Please set your new password.');
             return;
           }
         } catch (err) {
           console.error('Password reset link error:', err);
-        }
-      }
-
-      // Try implicit flow with token_hash (for token_hash parameter in query string)
-      const tokenHash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
-
-      if (tokenHash && type === 'recovery') {
-        try {
-          const { data, error: verifyError } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: 'recovery',
-          });
-
-          if (verifyError) {
-            console.error('Token verification error:', verifyError);
-            setHasError(true);
-            toast.error('Invalid or expired reset link. Please request a new one.');
-            return;
-          }
-
-          if (data.session) {
-            toast.success('Session verified! Please set your new password.');
-            return;
-          }
-        } catch (err) {
-          console.error('Token verification error:', err);
-          setHasError(true);
-          toast.error('Failed to verify reset link. Please try again.');
         }
       }
 
