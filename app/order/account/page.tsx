@@ -127,8 +127,8 @@ export default function AccountPage() {
       // Move to next stage
       actions.setCurrentStage(3);
 
-      // Navigate to contact page
-      router.push('/order/contact');
+      // Navigate to KYC verification page
+      router.push('/order/verification');
     } catch (error) {
       console.error('Error saving account data:', error);
       actions.setErrors({
