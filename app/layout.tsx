@@ -9,6 +9,7 @@ import { OfflineProvider } from "@/components/providers/OfflineProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { GoogleMapsPreloader } from "@/components/providers/GoogleMapsPreloader";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
+import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
 
 
 export const metadata: Metadata = {
@@ -97,13 +98,15 @@ export default function RootLayout({
           <PWAProvider>
             <OfflineProvider>
               <TooltipProvider>
-                <OrderContextProvider>
-                  <GoogleMapsPreloader />
-                  <Toaster />
-                  <Sonner />
-                  {children}
-                  <Analytics />
-                </OrderContextProvider>
+                <CustomerAuthProvider>
+                  <OrderContextProvider>
+                    <GoogleMapsPreloader />
+                    <Toaster />
+                    <Sonner />
+                    {children}
+                    <Analytics />
+                  </OrderContextProvider>
+                </CustomerAuthProvider>
               </TooltipProvider>
             </OfflineProvider>
           </PWAProvider>
