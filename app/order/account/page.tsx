@@ -152,7 +152,7 @@ export default function AccountPage() {
       <OrderBreadcrumb />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
           <Button
@@ -179,9 +179,9 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-6 md:gap-6 lg:gap-8 xl:gap-10">
           {/* Main Form - Left/Center Column */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="md:col-span-8 lg:col-span-8 xl:col-span-8 space-y-4 sm:space-y-6">
             {/* Why We Need This Info */}
             <Alert className="border-blue-200 bg-blue-50/50 backdrop-blur-sm">
               <Info className="h-4 w-4 text-blue-600" />
@@ -510,7 +510,7 @@ export default function AccountPage() {
           </div>
 
           {/* Order Summary Sidebar - Right Column */}
-          <div className="lg:col-span-4">
+          <div className="md:col-span-4 lg:col-span-4 xl:col-span-4">
             <div className="sticky top-24 space-y-6">
               <Card className="border-0 shadow-xl shadow-gray-200/50 overflow-hidden">
                 <CardHeader className="bg-gradient-to-br from-circleTel-darkNeutral via-gray-800 to-gray-900 text-white pb-6">
