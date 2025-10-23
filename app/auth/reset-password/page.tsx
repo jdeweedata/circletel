@@ -36,6 +36,8 @@ export default function ResetPasswordPage() {
 
   // Check if we have the access token from the URL (Supabase sends this after clicking reset link)
   useEffect(() => {
+    let mounted = true;
+
     const handlePasswordResetLink = async () => {
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
@@ -49,14 +51,35 @@ export default function ResetPasswordPage() {
       const { createClient } = await import('@/integrations/supabase/client');
       const supabase = createClient();
 
-      // First, check if Supabase client has already established a session from hash fragment
-      // (Magic Link template puts tokens in URL hash: #access_token=...&type=recovery)
-      const { data: sessionData } = await supabase.auth.getSession();
+      // Check if there's a hash fragment with access_token (Magic Link implicit flow)
+      // The hash format is: #access_token=...&expires_at=...&refresh_token=...&type=recovery
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        console.log('Detected access_token in URL hash, waiting for Supabase to establish session...');
 
-      if (sessionData.session) {
-        console.log('Session already established from URL hash fragment');
-        toast.success('Session verified! Please set your new password.');
-        return;
+        // Listen for auth state change when session is established from hash
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('Auth state changed:', event, 'Session:', !!session);
+
+          if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+            if (mounted) {
+              console.log('Session established from URL hash fragment');
+              toast.success('Session verified! Please set your new password.');
+            }
+          }
+        });
+
+        // Also check immediately in case session is already established
+        setTimeout(async () => {
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData.session && mounted) {
+            console.log('Session already established from URL hash fragment');
+            toast.success('Session verified! Please set your new password.');
+          }
+        }, 500);
+
+        return () => {
+          subscription.unsubscribe();
+        };
       }
 
       // Try PKCE flow (for code parameter in query string)
@@ -114,6 +137,10 @@ export default function ResetPasswordPage() {
     };
 
     handlePasswordResetLink();
+
+    return () => {
+      mounted = false;
+    };
   }, [searchParams]);
 
   const {
