@@ -98,7 +98,7 @@ export function InteractiveCoverageMapModal({
 
   const mapContainerStyle = {
     width: '100%',
-    height: isFullscreen ? 'calc(100vh - 320px)' : '400px'
+    height: isFullscreen ? 'calc(100vh - 320px)' : '350px'
   };
 
   const mapOptions = {
@@ -139,7 +139,7 @@ export function InteractiveCoverageMapModal({
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-white px-8 py-6 flex-1 overflow-y-auto">
+        <div className="relative bg-white px-8 py-6 flex-1 overflow-y-auto min-h-0">
           {loadError && (
             <div className="text-center py-8 text-red-600">
               Error loading Google Maps. Please try again later.
@@ -242,7 +242,7 @@ export function InteractiveCoverageMapModal({
         </div>
 
         {/* Footer with Action Buttons */}
-        <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+        <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
           <Button
             onClick={onClose}
             variant="outline"
