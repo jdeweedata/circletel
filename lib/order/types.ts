@@ -2,6 +2,7 @@ import { LocationType } from '@/lib/types/location-type';
 
 // Order data structure - New 3-step journey
 export interface OrderData {
+  kyc?: KycData;
   coverage: CoverageData;
   package: PackageSelectionData;
   account: AccountData;
@@ -181,3 +182,47 @@ export const getStageNumber = (stageId: OrderStageId): OrderStage => {
 export type LegacyOrderStage = 1 | 2 | 3 | 4 | 5;
 export const LEGACY_STAGE_NAMES = ['Coverage', 'Account', 'Contact', 'Installation', 'Payment'] as const;
 export const LEGACY_TOTAL_STAGES = 5;
+
+// KYC Verification Data
+export interface KycData {
+  verificationStatus?: 'pending' | 'under_review' | 'approved' | 'rejected';
+  submittedAt?: Date;
+  rejectionReason?: string;
+  idDocumentUploaded?: boolean;
+  proofOfAddressUploaded?: boolean;
+  bankStatementUploaded?: boolean;
+  companyRegistrationUploaded?: boolean;
+  documentsUploaded?: boolean;
+}
+
+// KYC Helper Functions
+export function hasRequiredKycDocuments(kycData: KycData): boolean {
+  const accountType = 'personal'; // This should be passed or derived from context
+  const hasIdDocument = kycData?.idDocumentUploaded === true;
+  const hasProofOfAddress = kycData?.proofOfAddressUploaded === true;
+  
+  if (accountType === 'business') {
+    return hasIdDocument && hasProofOfAddress && (kycData?.companyRegistrationUploaded === true);
+  }
+  
+  return hasIdDocument && hasProofOfAddress;
+}
+
+export function getKycStatusDisplay(status?: string): string {
+  switch (status) {
+    case 'pending':
+      return 'Pending';
+    case 'under_review':
+      return 'Under Review';
+    case 'approved':
+      return 'Approved';
+    case 'rejected':
+      return 'Rejected';
+    default:
+      return 'Not Submitted';
+  }
+}
+
+export function isKycApproved(kycData?: KycData): boolean {
+  return kycData?.verificationStatus === 'approved';
+}
