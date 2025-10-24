@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import { createClient } from '@/integrations/supabase/client';
+
 import { OrderData, OrderStage, ValidationErrors } from '@/lib/order/types';
 
 const STORAGE_KEY = 'circletel_order_state';
@@ -111,6 +113,70 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
     }
   }, [state, isHydrated]);
 
+  // Helpers
+  const hasLocalOrder = (s: OrderState) => {
+    return (
+      (s.completedSteps?.length ?? 0) > 0 ||
+      Object.keys(s.orderData?.account || {}).length > 0 ||
+      Object.keys(s.orderData?.contact || {}).length > 0 ||
+      Object.keys(s.orderData?.installation || {}).length > 0 ||
+      Object.keys(s.orderData?.coverage || {}).length > 0
+    );
+  };
+
+  // On hydrate, if authenticated: load server draft and hydrate if local is empty; otherwise push local to server
+  useEffect(() => {
+    if (!isHydrated) return;
+    const run = async () => {
+      try {
+        const supabase = createClient();
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) return;
+        const res = await fetch('/api/order-drafts', { cache: 'no-store' });
+        if (!res.ok) return;
+        const json = await res.json();
+        const serverDraft = json?.draft as { data?: OrderState } | null;
+        const localHas = hasLocalOrder(state);
+        if (!localHas && serverDraft?.data) {
+          dispatch({ type: 'HYDRATE_STATE', payload: serverDraft.data });
+          return;
+        }
+        if (localHas && !serverDraft) {
+          await fetch('/api/order-drafts', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: state }),
+          });
+        }
+      } catch (e) {
+        console.error('Order draft init sync failed:', e);
+      }
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated]);
+
+  // Debounced sync to server when state changes and user is authenticated
+  useEffect(() => {
+    if (!isHydrated) return;
+    const timer = setTimeout(async () => {
+      try {
+        const supabase = createClient();
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) return;
+        if (!hasLocalOrder(state)) return;
+        await fetch('/api/order-drafts', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: state }),
+        });
+      } catch (e) {
+        console.error('Order draft sync failed:', e);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [state, isHydrated]);
+
   const actions = React.useMemo(() => ({
     setCurrentStage: (stage: number) => {
       dispatch({ type: 'SET_STAGE', payload: stage });
@@ -138,6 +204,16 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
         localStorage.removeItem(STORAGE_KEY);
         console.log('Order state reset and cleared from localStorage');
       }
+      (async () => {
+        try {
+          const supabase = createClient();
+          const { data: userData } = await supabase.auth.getUser();
+          if (!userData?.user) return;
+          await fetch('/api/order-drafts', { method: 'DELETE' });
+        } catch (e) {
+          console.error('Failed to delete server order draft:', e);
+        }
+      })();
     },
   }), []);
 

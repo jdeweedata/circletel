@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { useOrderContext } from '@/components/order/context/OrderContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ import type { ConsumerOrder } from '@/lib/types/customer-journey';
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useCustomerAuth();
+  const { state: orderState, actions: orderActions } = useOrderContext();
   const [orders, setOrders] = useState<ConsumerOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -82,6 +84,25 @@ export default function DashboardPage() {
   }
 
   const recentOrders = orders.slice(0, 3);
+
+  // Determine if there is a local in-progress order to resume
+  const hasLocalOrder = !!orderState && (
+    (orderState.completedSteps?.length ?? 0) > 0 ||
+    Object.keys(orderState.orderData?.account || {}).length > 0 ||
+    Object.keys(orderState.orderData?.contact || {}).length > 0 ||
+    Object.keys(orderState.orderData?.installation || {}).length > 0 ||
+    Object.keys(orderState.orderData?.coverage || {}).length > 0
+  );
+
+  const nextOrderRoute = (() => {
+    const data = orderState?.orderData || {} as any;
+    // Choose next step based on missing sections
+    if (!data.account || Object.keys(data.account).length === 0) return '/order/account';
+    if (!data.contact || Object.keys(data.contact).length === 0) return '/order/contact';
+    if (!data.installation || Object.keys(data.installation).length === 0) return '/order/installation';
+    // If all present but not finalized, proceed to payment/verification
+    return '/order/payment';
+  })();
 
   return (
     <div className="space-y-6">

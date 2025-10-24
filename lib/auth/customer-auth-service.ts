@@ -165,12 +165,12 @@ export class CustomerAuthService {
         };
       }
 
-      // Fetch customer record
+      // Fetch customer record (graceful when no row exists)
       const { data: customer, error: customerError } = await supabase
         .from('customers')
         .select('*')
         .eq('auth_user_id', authData.user.id)
-        .single();
+        .maybeSingle();
 
       if (customerError) {
         console.error('Failed to fetch customer record:', customerError);
@@ -277,12 +277,12 @@ export class CustomerAuthService {
         return { customer: null, error: 'Not authenticated' };
       }
 
-      // Fetch customer record
+      // Fetch customer record (graceful when no row exists)
       const { data: customer, error: customerError } = await supabase
         .from('customers')
         .select('*')
         .eq('auth_user_id', userData.user.id)
-        .single();
+        .maybeSingle();
 
       if (customerError) {
         return { customer: null, error: customerError.message };
