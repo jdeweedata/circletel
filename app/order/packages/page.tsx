@@ -28,6 +28,7 @@ export default function OrderPackagesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'fibre' | 'wireless'>('fibre');
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
   const leadId = searchParams.get('leadId');
   const address = searchParams.get('address');
@@ -269,7 +270,8 @@ export default function OrderPackagesPage() {
                       </Button>
                     </CardFooter>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -340,7 +342,8 @@ export default function OrderPackagesPage() {
                       </Button>
                     </CardFooter>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>
