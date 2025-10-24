@@ -114,14 +114,35 @@ function PackagesContent() {
         });
 
         // Select first available service type
+        let defaultService: ServiceType | null = null;
         if (hasFibre) {
+          defaultService = 'fibre';
           setActiveService('fibre');
         } else if (hasLTE) {
+          defaultService = 'lte';
           setActiveService('lte');
         } else if (has5G) {
+          defaultService = '5g';
           setActiveService('5g');
         } else if (hasWireless) {
+          defaultService = 'wireless';
           setActiveService('wireless');
+        }
+
+        // Also set default selected package to the FIRST card of the chosen service
+        if (defaultService) {
+          const matchesService = (p: Package, s: ServiceType) => {
+            const st = (p.service_type || p.product_category || '').toLowerCase();
+            if (s === 'fibre') return st.includes('fibre') && !st.includes('skyfibre');
+            if (s === 'lte') return st.includes('lte') && !st.includes('5g');
+            if (s === '5g') return st.includes('5g');
+            if (s === 'wireless') return (st.includes('wireless') || st.includes('skyfibre')) && !st.includes('lte') && !st.includes('5g');
+            return false;
+          };
+          const firstOfService = data.packages.find((p: Package) => matchesService(p, defaultService!));
+          if (firstOfService) {
+            setSelectedPackage(firstOfService);
+          }
         }
       }
     } catch (error) {
@@ -219,6 +240,19 @@ function PackagesContent() {
   };
 
   const filteredPackages = getFilteredPackages();
+
+  // Auto-select first package for the current service
+  useEffect(() => {
+    if (loading) return;
+    const current = getFilteredPackages();
+    if (current.length === 0) {
+      setSelectedPackage(null);
+      return;
+    }
+    if (!selectedPackage || !current.some((p) => p.id === selectedPackage.id)) {
+      setSelectedPackage(current[0]);
+    }
+  }, [loading, activeService, packages]);
 
   // Phase 3: Get visible packages based on pagination state
   const visiblePackages = showAllPackages
