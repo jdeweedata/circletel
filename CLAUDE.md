@@ -1,248 +1,182 @@
-# CircleTel Next.js - Claude Code Guide
+# CLAUDE.md
 
-> **Navigation Hub**: This file provides quick orientation. For detailed context, load domain-specific memory files in `.claude/memory/`.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Quick Start
+## Project Overview
 
-**Project**: Enterprise telecommunications platform (B2B/B2C ISP)
-**Stack**: Next.js 15, TypeScript, Supabase, Tailwind CSS, Strapi CMS
+**CircleTel** - Enterprise telecommunications platform (B2B/B2C ISP) for South Africa
+**Stack**: Next.js 15, TypeScript, Supabase PostgreSQL, Tailwind CSS, Strapi CMS
 **Supabase Project**: `agyjovdugmtopasyvlng`
 
-### Essential Commands
+## Essential Commands
+
 ```bash
-npm run dev:memory       # Start dev server (ALWAYS use :memory variant)
-npm run type-check       # REQUIRED before every commit
-npm run build:memory     # Production build with memory allocation
+# Development (ALWAYS use :memory variant - prevents out-of-memory crashes)
+npm run dev:memory          # Start dev server with 8GB heap
+npm run dev:low             # Lower memory variant (4GB)
+
+# Type Checking (MANDATORY before commits)
+npm run type-check          # TypeScript validation
+npm run type-check:memory   # Type check with increased memory
+
+# Build
+npm run build:memory        # Production build with 8GB heap
+npm run build:ci            # CI build with 6GB heap
+
+# Testing
+npm run lint                # ESLint
+npm run test:e2e            # Playwright E2E tests
+
+# Utilities
+npm run clean               # Clear .next and cache
+npm run orchestrate         # Run multi-agent orchestrator
 ```
 
-### Pre-Commit Checklist (MANDATORY)
+### Pre-Commit Checklist (CRITICAL)
+
 1. `npm run type-check` → Fix all errors
 2. `npm run type-check` again → Verify clean
 3. Commit and push
 
-**Why**: This prevents Vercel build failures by catching TypeScript errors locally.
+**Why**: Prevents Vercel build failures by catching TypeScript errors locally.
 
-## Memory Architecture
+## Architecture Overview
 
-### Load ONE Domain Context Per Task
+### Multi-Layer Coverage System
 
-| Domain | Load When | Memory File |
-|--------|-----------|-------------|
-| **Frontend** | UI components, pages, styling, UX | `.claude/memory/frontend/CLAUDE.md` |
-| **Backend** | API routes, server logic, data processing | `.claude/memory/backend/CLAUDE.md` |
-| **Infrastructure** | Deployment, builds, CI/CD, performance | `.claude/memory/infrastructure/CLAUDE.md` |
-| **Integrations** | External APIs (MTN, Zoho, Strapi, Maps) | `.claude/memory/integrations/CLAUDE.md` |
-| **Testing** | Playwright E2E, validation, test scripts | `.claude/memory/testing/CLAUDE.md` |
-| **CMS** | Strapi content, marketing pages | `.claude/memory/cms/CLAUDE.md` |
-| **Product** | Features, roadmap, business logic | `.claude/memory/product/CLAUDE.md` |
+CircleTel uses a 4-layer fallback system for coverage checking:
 
-### Context Switching Protocol
-1. **Identify task domain**: What layer are you working on?
-2. **Load ONE memory file**: Import only the relevant context
-3. **Work on task**: Make changes, test, validate
-4. **Switch domains**: Run `/compact preserve active-layer` before loading new context
+1. **MTN Business API** (WMS) - Primary provider
+2. **MTN Consumer API** - Fallback
+3. **Provider-Specific APIs** (DFA, Vumatel, etc.)
+4. **Mock Data** - Development/testing
 
-### Memory Guidelines
-- **Token Budget**: Each domain file ≤ 2,000 tokens
-- **No Log Pollution**: Never include console output, test results, or traces
-- **Update Triggers**: Update memories after architectural changes only, not every code change
-- **Cross-Reference**: Memories can reference other domains (e.g., "See backend memory for API patterns")
+**Key Files**:
+- `lib/coverage/aggregation-service.ts` - Orchestrates fallback
+- `lib/coverage/mtn/wms-realtime-client.ts` - MTN integration
+- `lib/coverage/mtn/cache.ts` - 5-minute response caching
 
-## Quick Reference
+### Order State Management
 
-### Tech Stack
-- **Framework**: Next.js 15 (App Router), TypeScript (strict mode)
-- **Database**: Supabase PostgreSQL with RLS
-- **UI**: Tailwind CSS + shadcn/ui (Radix primitives)
-- **State**: React Query (server) + Zustand (client)
-- **Auth**: Supabase Auth + RBAC (17 role templates, 100+ permissions)
-- **Testing**: Playwright via MCP
-- **Deployment**: Vercel (primary) + Netlify (backup)
-- **PWA**: next-pwa with offline support
+3-stage order flow with centralized state:
 
-### Brand Colors (Tailwind Config)
-```typescript
-'circleTel-orange': '#F5831F'      // Primary brand
-'circleTel-darkNeutral': '#1F2937' // Dark text
-'circleTel-lightNeutral': '#E6E9EF' // Light backgrounds
-```
+1. **Coverage** → Check address availability
+2. **Package** → Select product
+3. **Account** → Customer details + payment
 
-### Project Structure (High-Level)
-```
-circletel-nextjs/
-├── .claude/
-│   ├── memory/              # Domain-specific contexts (LOAD THESE)
-│   ├── agents/              # AI agent templates
-│   ├── skills/              # Automation skills
-│   └── CLAUDE.md            # Session starter guide
-├── app/                     # Next.js App Router
-│   ├── admin/               # Protected admin panel
-│   ├── api/                 # API routes
-│   ├── coverage/            # Coverage checker
-│   └── [...public pages]
-├── components/              # React components
-│   ├── ui/                  # shadcn/ui library
-│   ├── admin/               # Admin components
-│   └── [...domain components]
-├── lib/                     # Services, utilities, types
-│   ├── coverage/            # Multi-provider coverage
-│   ├── rbac/                # Permission system
-│   ├── types/               # TypeScript definitions
-│   └── auth/                # Authentication services
-├── hooks/                   # Custom React hooks
-├── supabase/                # Database migrations
-├── docs/                    # Documentation
-│   ├── features/            # Feature specs
-│   ├── integrations/        # API integration docs
-│   ├── testing/             # Test reports
-│   └── RECENT_CHANGES.md    # Implementation status log
-└── scripts/                 # Utility scripts
-```
+**Implementation**:
+- `components/order/context/OrderContext.tsx` - Zustand store
+- `lib/order/types.ts` - TypeScript interfaces
+- State persists in localStorage for user session
 
-### Key File Locations
+### RBAC Permission System
 
-| Purpose | Path |
-|---------|------|
-| Session Starter | `.claude/CLAUDE.md` |
-| Recent Changes | `docs/RECENT_CHANGES.md` |
-| Admin Auth | `hooks/useAdminAuth.ts` |
-| Customer Auth | `lib/auth/customer-auth-service.ts` |
-| RBAC Permissions | `lib/rbac/permissions.ts` |
-| Coverage Aggregator | `lib/coverage/aggregation-service.ts` |
-| MTN Integration | `lib/coverage/mtn/wms-client.ts` |
+- **17 role templates** (Account Manager, Sales Rep, Tech Support, etc.)
+- **100+ granular permissions** (products:read, orders:create, etc.)
+- **Row Level Security** (RLS) enforced in Supabase
 
-### Environment Variables (Critical)
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://agyjovdugmtopasyvlng.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<key>
-SUPABASE_SERVICE_ROLE_KEY=<key>
+**Key Files**:
+- `lib/rbac/permissions.ts` - Permission definitions
+- `lib/rbac/role-templates.ts` - Role configurations
+- `hooks/useAdminAuth.ts` - Permission checking hook
 
-# Google Maps
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<key>
+### Component Architecture
 
-# Strapi CMS (optional)
-NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
-STRAPI_API_TOKEN=<token>
-```
+UI follows shadcn/ui patterns with CircleTel customizations:
 
-See `.env.example` for complete list.
+- **Base**: shadcn/ui components (`components/ui/`)
+- **Domain**: Feature-specific (`components/admin/`, `components/coverage/`)
+- **Providers**: Context/state (`components/providers/`)
 
-## File Organization Rules (CRITICAL)
+**Package Cards Example**:
+- `CompactPackageCard.tsx` - Grid view (compact)
+- `EnhancedPackageCard.tsx` - Detail view (full features)
+- `PackageDetailSidebar.tsx` - Side panel with benefits
 
-### Configuration Files (Root Only)
-**Allowed in root**:
-- `package.json`, `tsconfig.json`, `next.config.mjs`, `tailwind.config.ts`
-- `.env*`, `.gitignore`, `.eslintrc.json`
-- `CLAUDE.md`, `README.md`, `LICENSE`, `.mcp.json`
+## TypeScript Patterns
 
-**Never in root**: Source code (`.ts`, `.tsx`), migrations (`.sql`), tests, screenshots
-
-### Directory Placement
-
-| File Type | Location |
-|-----------|----------|
-| Pages | `/app/[page]/page.tsx` |
-| API Routes | `/app/api/[endpoint]/route.ts` |
-| Components | `/components/[domain]/[Component].tsx` |
-| Hooks | `/hooks/use-[name].ts` |
-| Types | `/lib/types/[domain].ts` |
-| Services | `/lib/[service]/[class].ts` |
-| Migrations | `/supabase/migrations/[timestamp]_*.sql` |
-| Documentation | `/docs/[category]/[DOC].md` |
-| Test Files | `/docs/testing/[test].js` |
-| Screenshots | `/docs/screenshots/[image].png` |
-| Archive | `/docs/archive/[old-file]` |
-
-### File Naming Conventions
-- **Components**: PascalCase (`UserProfile.tsx`)
-- **Pages**: `page.tsx`, `layout.tsx`, `route.ts`
-- **Hooks**: `use-[name].ts` (kebab-case)
-- **Services**: `[name]-service.ts` (kebab-case)
-- **Migrations**: `YYYYMMDDHHMMSS_description.sql`
-- **Docs**: `SCREAMING_SNAKE_CASE.md` or `Title_Case.md`
-
-## Architecture Principles
-
-1. **Type Safety First**: Strict TypeScript, no `any`, mandatory type checking pre-commit
-2. **Modular Design**: Clear separation of concerns (see domain memories)
-3. **Multi-Provider Fallback**: 4-layer coverage fallback (MTN Business → Consumer → Provider APIs → Mock)
-4. **RBAC Everywhere**: Permission gates on all admin features
-5. **Progressive Enhancement**: PWA with offline support, graceful degradation
-6. **Documentation Co-location**: Keep docs near code (`/docs` mirrors `/app` structure)
-
-## TypeScript Patterns (Quick Reference)
+### Next.js 15 API Routes (REQUIRED)
 
 ```typescript
-// Next.js 15 API Route Params (REQUIRED pattern)
+// ✅ CORRECT: Async params pattern
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params
+  // ... rest of handler
 }
 
-// Strapi Response Types (use correct one)
-type StrapiResponse<T> = { data: T }              // Single entity
-type StrapiCollectionResponse<T> = { data: T[] }  // Collection
-
-// API Response Pattern (always use)
-type ApiResponse<T> = {
-  success: boolean
-  data?: T
-  error?: string
+// ❌ WRONG: Old synchronous pattern
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // This will fail in Next.js 15
 }
 ```
 
-## Import Conventions
+### Supabase Client Patterns
 
 ```typescript
-// ✅ GOOD: Organized imports
-import React, { useState } from 'react'           // React
-import { useQuery } from '@tanstack/react-query'  // External
-import { Button } from '@/components/ui/button'   // Internal
-import type { User } from '@/lib/types'           // Types
-
-// ✅ GOOD: Use @ alias for all project imports
+// Server-side (API routes)
 import { createClient } from '@/lib/supabase/server'
 
-// ❌ BAD: Relative imports
-import { createClient } from '../../../lib/supabase/server'
+export async function GET() {
+  const supabase = await createClient() // Service role client
+  const { data } = await supabase.from('table').select()
+}
+
+// Client-side (components)
+import { createClient } from '@/lib/supabase/client'
+
+const supabase = createClient() // Anonymous client with RLS
 ```
 
-## Agent Skills System
+### Order State Updates
 
-| Skill | Purpose | Auto-Load Trigger |
-|-------|---------|-------------------|
-| **deployment-check** | Pre-deployment validation | "ready to deploy", "check deployment" |
-| **coverage-check** | Test coverage APIs | "test coverage", "check MTN" |
-| **sql-assistant** | Natural language to SQL | "show me data", "query database" |
-| **product-import** | Import products from Excel | "import products", "load Excel" |
-| **admin-setup** | Configure RBAC roles | "setup admin", "create role" |
-| **supabase-fetch** | Query database | "fetch from Supabase" |
+```typescript
+import { useOrderContext } from '@/components/order/context/OrderContext'
 
-**Full Documentation**: `.claude/skills/README.md`
+const { state, actions } = useOrderContext()
+
+// ✅ CORRECT: Update proper section
+actions.updateOrderData({
+  package: {
+    selectedPackage: packageDetails,
+    pricing: { monthly: 799, onceOff: 0 }
+  }
+})
+
+// ❌ WRONG: Don't put package data in coverage
+actions.updateOrderData({
+  coverage: {
+    selectedPackage: packageDetails // Type error!
+  }
+})
+```
 
 ## Common Debugging Patterns
 
 ### Infinite Loading States
+
 **Symptom**: Component stuck on "Loading..." indefinitely
 
 **Cause**: Async callbacks without error handling
 
 **Solution**:
 ```typescript
-// ❌ BAD: No error handling
+// ❌ BAD
 useEffect(() => {
   const callback = async () => {
-    const data = await fetchData() // If throws, loading never becomes false
+    const data = await fetchData() // If throws, loading stays true
     setState(data)
     setLoading(false)
   }
-  someListener(callback)
+  onAuthStateChange(callback)
 }, [])
 
-// ✅ GOOD: Proper error handling
+// ✅ GOOD
 useEffect(() => {
   const callback = async () => {
     try {
@@ -255,57 +189,225 @@ useEffect(() => {
       setLoading(false) // Always executes
     }
   }
-  someListener(callback)
+  onAuthStateChange(callback)
 }, [])
 ```
 
-**Real Example**: `CustomerAuthProvider` (components/providers/CustomerAuthProvider.tsx:107-113)
-- See commit `24547cb` for implementation
+**Real Example**: `CustomerAuthProvider` (commit `24547cb`)
 
-### Authentication Flow Debugging
-**Tools**:
-- Browser console: Check for "Auth state changed:" logs
-- Network tab: Look for `/auth/v1/token` requests
-- LocalStorage: Inspect `sb-agyjovdugmtopasyvlng-auth-token`
-- Database: Query `customers` table to verify records exist
+### MTN API Anti-Bot Detection
 
-## Documentation
+MTN APIs require specific headers to avoid bot detection:
 
-### Core Documentation
-- **Session Starter**: `.claude/CLAUDE.md` - Start here for new sessions
-- **Recent Changes**: `docs/RECENT_CHANGES.md` - Implementation status and updates
-- **Memory Guide**: `docs/claude-docs/MEMORY_HIERARCHY_GUIDE.md` - How to use domain memories
-- **Skills Guide**: `.claude/skills/README.md` - Automation skills reference
+```typescript
+const headers = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Referer': 'https://www.mtn.co.za/',
+  'Origin': 'https://www.mtn.co.za'
+}
+```
 
-### Domain-Specific Documentation
-- **RBAC System**: `docs/rbac/RBAC_SYSTEM_GUIDE.md`
-- **Customer Journey**:
-  - **Visual Journey Maps**: `docs/features/customer-journey/VISUAL_CUSTOMER_JOURNEY.md` ⭐ NEW - Mermaid diagrams
-  - **Improvements & Optimizations**: `docs/features/customer-journey/JOURNEY_IMPROVEMENTS.md` ⭐ NEW - 70+ recommendations
-  - **Pain Points Analysis**: `docs/features/customer-journey/PAIN_POINTS_ANALYSIS.md` ⭐ NEW - Prioritized issues
-  - Implementation Plan: `docs/features/customer-journey/IMPLEMENTATION_PLAN.md`
-- **Architecture**:
-  - **Auth Decision**: `docs/architecture/SUPABASE_VS_CLERK_AUTH_ANALYSIS.md` ⭐ NEW - Stay with Supabase (detailed analysis)
-- **Multi-Provider Coverage**: `docs/features/customer-journey/MULTI_PROVIDER_ARCHITECTURE.md`
-- **MTN Integration**: `docs/integrations/DFA_INTEGRATION_FINAL_STATUS.md`
-- **Marketing CMS**: `docs/marketing/README.md`
-- **Netcash Payments**: `docs/integrations/NETCASH_MIGRATION_CHECKLIST.md`
+See `lib/coverage/mtn/wms-realtime-client.ts:89-103`
+
+### TypeScript Memory Issues
+
+Large projects may hit heap limits during type checking:
+
+```bash
+# If you see "JavaScript heap out of memory":
+npm run type-check:memory  # Use increased heap (4GB)
+npm run build:memory       # Use 8GB heap for builds
+```
+
+## File Organization Rules
+
+### Root Directory (Configuration Only)
+
+**Allowed**:
+- `package.json`, `tsconfig.json`, `next.config.mjs`, `tailwind.config.ts`
+- `.env*`, `.gitignore`, `.eslintrc.json`
+- `CLAUDE.md`, `README.md`, `ROADMAP.md`, `AGENTS.md`
+
+**Never**: Source code, migrations, tests, documentation, screenshots
+
+### Directory Structure
+
+| File Type | Location | Example |
+|-----------|----------|---------|
+| Pages | `app/[page]/page.tsx` | `app/packages/[leadId]/page.tsx` |
+| API Routes | `app/api/[endpoint]/route.ts` | `app/api/coverage/packages/route.ts` |
+| Components | `components/[domain]/` | `components/admin/products/` |
+| UI Library | `components/ui/` | `components/ui/button.tsx` |
+| Hooks | `hooks/use-[name].ts` | `hooks/useAdminAuth.ts` |
+| Services | `lib/[service]/` | `lib/coverage/aggregation-service.ts` |
+| Types | `lib/types/` | `lib/types/location-type.ts` |
+| Migrations | `supabase/migrations/` | `supabase/migrations/20251024_*.sql` |
+| Docs | `docs/[category]/` | `docs/implementation/` |
+| Scripts | `scripts/` | `scripts/verify-provider-logos.js` |
+
+### Naming Conventions
+
+- **Components**: PascalCase (`CompactPackageCard.tsx`)
+- **Pages**: `page.tsx`, `layout.tsx`, `route.ts`
+- **Hooks**: `use-[name].ts` (kebab-case)
+- **Services**: `[name]-service.ts` (kebab-case)
+- **Migrations**: `YYYYMMDDHHMMSS_description.sql`
+- **Docs**: `SCREAMING_SNAKE_CASE.md`
+
+## Import Conventions
+
+```typescript
+// ✅ GOOD: Organized by category
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { useOrderContext } from '@/components/order/context/OrderContext'
+import type { Package } from '@/lib/types'
+
+// ✅ GOOD: Use @ alias for project imports
+import { createClient } from '@/lib/supabase/server'
+
+// ❌ BAD: Relative imports
+import { createClient } from '../../../lib/supabase/server'
+```
+
+## Brand Guidelines
+
+### Colors (Tailwind Config)
+
+```typescript
+'circleTel-orange': '#F5831F'           // Primary brand
+'circleTel-darkNeutral': '#1F2937'      // Dark text
+'circleTel-secondaryNeutral': '#4B5563' // Secondary text
+'circleTel-lightNeutral': '#E6E9EF'     // Light backgrounds
+'circleTel-white': '#FFFFFF'            // White
+```
+
+### Typography
+
+- **Primary**: Arial, Helvetica, sans-serif
+- **Monospace**: Consolas, "Courier New", monospace
+- **Font Weights**: Use `font-semibold` (600), `font-bold` (700), `font-extrabold` (800)
+
+### Package Card Design (Recent Update)
+
+- **Unselected**: Orange gradient (`from-[#F5831F] to-[#e67516]`)
+- **Selected**: Dark blue (`#1E4B85`)
+- **Shadows**: Use color-matched shadows (not grey borders)
+- **Hover**: `scale-[1.02]` with `duration-300 ease-in-out`
+- **Touch Targets**: Minimum 44px × 44px on mobile
+
+## Key Integrations
+
+### MTN Coverage API
+
+```typescript
+// Real-time coverage check
+import { WMSRealtimeClient } from '@/lib/coverage/mtn/wms-realtime-client'
+
+const client = new WMSRealtimeClient()
+const result = await client.getCoverageDetailedRealtime(
+  { lat: -26.1234, lng: 28.5678 },
+  'fibre'
+)
+```
+
+### Supabase Database
+
+**Tables**:
+- `service_packages` - Products/packages
+- `coverage_leads` - Coverage check results
+- `customers` - Customer accounts
+- `orders` - Order records
+- `admin_users` - Admin accounts
+- `fttb_network_providers` - Provider metadata
+
+**Views**:
+- `v_providers_with_logos` - Providers with logo data
+
+### Environment Variables
+
+```env
+# Supabase (REQUIRED)
+NEXT_PUBLIC_SUPABASE_URL=https://agyjovdugmtopasyvlng.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<key>
+SUPABASE_SERVICE_ROLE_KEY=<key>
+
+# Google Maps (REQUIRED)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<key>
+
+# Strapi CMS (Optional)
+NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
+STRAPI_API_TOKEN=<token>
+
+# Zoho CRM (Optional)
+ZOHO_CLIENT_ID=<id>
+ZOHO_CLIENT_SECRET=<secret>
+```
+
+See `.env.example` for complete list.
+
+## Agent Skills System
+
+CircleTel includes custom automation skills:
+
+| Skill | Purpose | Command |
+|-------|---------|---------|
+| **supabase-fetch** | Query database with pre-built operations | See `.claude/skills/supabase-fetch/` |
+| **sql-assistant** | Natural language to SQL | See `.claude/skills/sql-assistant/` |
+| **deployment-check** | Pre-deployment validation | See `.claude/skills/deployment-check/` |
+| **coverage-check** | Test multi-provider coverage | See `.claude/skills/coverage-check/` |
+| **product-import** | Import products from Excel | See `.claude/skills/product-import/` |
+| **admin-setup** | Configure RBAC roles/users | See `.claude/skills/admin-setup/` |
+
+**Documentation**: `.claude/skills/README.md`
+
+## Documentation Structure
+
+```
+docs/
+├── implementation/         # Implementation guides (color schemes, features)
+├── features/              # Feature specifications
+│   └── customer-journey/  # Customer journey maps and optimizations
+├── integrations/          # API integration docs (MTN, Netcash, Zoho)
+├── testing/               # Test reports and results
+├── deployment/            # Deployment guides (Vercel, Netlify)
+├── admin/                 # Admin panel documentation
+├── architecture/          # System architecture decisions
+├── migrations/            # Database migration instructions
+└── templates/             # Document templates (FEATURE_PROPOSAL.md)
+```
+
+**Key Docs**:
+- `docs/RECENT_CHANGES.md` - Latest implementation status
+- `docs/implementation/COMPACT_PACKAGE_CARD_*` - Package card design docs
+- `docs/features/customer-journey/VISUAL_CUSTOMER_JOURNEY.md` - Journey maps
+- `docs/integrations/DFA_INTEGRATION_FINAL_STATUS.md` - DFA coverage integration
 
 ## Getting Started (New Session)
 
-1. **Read This File**: Orient yourself with project structure
-2. **Load `.claude/CLAUDE.md`**: Get session-specific context and decision log
-3. **Check `docs/RECENT_CHANGES.md`**: See latest implementation status
-4. **Identify Task Domain**: What are you working on?
-5. **Load ONE Memory File**: Import only the relevant domain context (frontend/backend/etc.)
-6. **Run Type Check**: `npm run type-check` to see current state
-7. **Make Changes**: Implement feature/fix
-8. **Validate**: `npm run type-check` again before committing
-9. **Switch Domains**: Run `/compact preserve active-layer` before loading new context
+1. Run `npm run type-check` to see current compilation state
+2. Check `docs/RECENT_CHANGES.md` for latest updates
+3. Review relevant documentation in `docs/` for your task
+4. Make changes following patterns in this file
+5. Run `npm run type-check` before committing
+6. Test locally with `npm run dev:memory`
+
+## Memory Management
+
+Node.js heap limits prevent out-of-memory crashes:
+
+- **Development**: Use `npm run dev:memory` (8GB heap)
+- **Type Checking**: Use `npm run type-check:memory` (4GB heap)
+- **Building**: Use `npm run build:memory` (8GB heap)
+- **CI/CD**: Use `npm run build:ci` (6GB heap)
+
+If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-10-24
-**Memory Version**: 3.0 (Optimized Navigation Hub)
-**Root File Token Count**: ~3,000 tokens (reduced from ~15,000)
+**Last Updated**: 2025-01-24
+**Version**: 4.0
 **Maintained By**: Development Team + Claude Code

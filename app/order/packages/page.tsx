@@ -105,12 +105,27 @@ export default function OrderPackagesPage() {
     fetchPackages();
   }, [leadId]);
 
+  // Set default selected package when filteredPackages or selectedType changes
+  useEffect(() => {
+    if (!loading && filteredPackages.length > 0) {
+      setSelectedPackageId(filteredPackages[0].id);
+    } else {
+      setSelectedPackageId(null);
+    }
+  }, [loading, selectedType, packages]);
+
   const filteredPackages = packages.filter((pkg) => pkg.type === selectedType);
   const fibreCount = packages.filter((pkg) => pkg.type === 'fibre').length;
   const wirelessCount = packages.filter((pkg) => pkg.type === 'wireless').length;
 
   const handleSelectPackage = (packageId: string) => {
-    router.push(`/order/account?leadId=${leadId}&packageId=${packageId}`);
+    setSelectedPackageId(packageId);
+  };
+
+  const handleContinue = () => {
+    if (selectedPackageId) {
+      router.push(`/order/account?leadId=${leadId}&packageId=${selectedPackageId}`);
+    }
   };
 
   return (
@@ -163,13 +178,16 @@ export default function OrderPackagesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPackages.map((pkg) => (
-                  <Card
-                    key={pkg.id}
-                    className={`relative overflow-hidden transition-all hover:shadow-lg ${
-                      pkg.popular ? 'border-circleTel-orange border-2' : ''
-                    }`}
-                  >
+                {filteredPackages.map((pkg) => {
+                  const isSelected = selectedPackageId === pkg.id;
+                  return (
+                    <Card
+                      key={pkg.id}
+                      className={`relative overflow-hidden transition-all hover:shadow-lg ${
+                        pkg.popular ? 'border-circleTel-orange border-2' : ''
+                      } ${isSelected ? 'ring-2 ring-circleTel-orange shadow-xl' : ''}`}
+                      onClick={() => handleSelectPackage(pkg.id)}
+                    >
                     {pkg.popular && (
                       <div className="absolute top-0 right-0">
                         <Badge className="bg-circleTel-orange text-white rounded-none rounded-bl-lg px-4 py-1">
@@ -239,14 +257,15 @@ export default function OrderPackagesPage() {
                     </CardContent>
                     <CardFooter>
                       <Button
-                        onClick={() => handleSelectPackage(pkg.id)}
+                        onClick={handleContinue}
                         className={`w-full h-12 text-base font-semibold ${
-                          pkg.popular
+                          isSelected
                             ? 'bg-circleTel-orange hover:bg-circleTel-orange/90'
                             : 'bg-gray-900 hover:bg-gray-800'
                         }`}
+                        disabled={!isSelected}
                       >
-                        Order Now
+                        {isSelected ? 'Selected' : 'Select'}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -263,12 +282,16 @@ export default function OrderPackagesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPackages.map((pkg) => (
-                  <Card key={pkg.id} className="relative overflow-hidden transition-all hover:shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-2xl">{pkg.name}</CardTitle>
-                      <CardDescription className="text-base">{pkg.description}</CardDescription>
-                    </CardHeader>
+                {filteredPackages.map((pkg) => {
+                  const isSelected = selectedPackageId === pkg.id;
+                  return (
+                    <Card key={pkg.id} className={`relative overflow-hidden transition-all hover:shadow-lg ${isSelected ? 'ring-2 ring-circleTel-orange shadow-xl' : ''}`}
+                      onClick={() => handleSelectPackage(pkg.id)}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-2xl">{pkg.name}</CardTitle>
+                        <CardDescription className="text-base">{pkg.description}</CardDescription>
+                      </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Pricing */}
                       <div>
@@ -305,10 +328,15 @@ export default function OrderPackagesPage() {
                     </CardContent>
                     <CardFooter>
                       <Button
-                        onClick={() => handleSelectPackage(pkg.id)}
-                        className="w-full h-12 text-base font-semibold bg-gray-900 hover:bg-gray-800"
+                        onClick={handleContinue}
+                        className={`w-full h-12 text-base font-semibold ${
+                          isSelected
+                            ? 'bg-circleTel-orange hover:bg-circleTel-orange/90'
+                            : 'bg-gray-900 hover:bg-gray-800'
+                        }`}
+                        disabled={!isSelected}
                       >
-                        Order Now
+                        {isSelected ? 'Selected' : 'Select'}
                       </Button>
                     </CardFooter>
                   </Card>
