@@ -125,12 +125,12 @@ export function CompactPackageCard({
         // Phase 3: Smoother transition with ease-in-out
         'transition-all duration-300 ease-in-out',
 
-        // Selected state: light grey background + subtle grey ring for visibility
+        // Selected state: white background + strong grey ring for visibility
         selected && [
-          'bg-gray-100 text-circleTel-darkNeutral',
+          'bg-white text-gray-900',
           'border-2 border-gray-300',
-          'shadow-xl shadow-gray-300/20',
-          'ring-3 ring-gray-400 ring-offset-2 ring-offset-gray-50'
+          'shadow-xl shadow-gray-400/30',
+          'ring-4 ring-gray-500 ring-offset-2 ring-offset-white'
         ],
 
         // Unselected state: brand orange with professional gradient and shadow
@@ -167,7 +167,7 @@ export function CompactPackageCard({
           {/* Subtle background for logo visibility */}
           <div className={cn(
             'rounded-lg px-2 py-1.5 backdrop-blur-sm',
-            selected ? 'bg-white/20' : 'bg-white/15'
+            selected ? 'bg-gray-100' : 'bg-white/15'
           )}>
             <ProviderLogo
               providerCode={provider.code}
@@ -246,7 +246,7 @@ export function CompactPackageCard({
           <div className={cn(
             'flex-col w-full text-center md:text-left',
             'text-3xl md:text-3xl xl:text-4xl font-extrabold block order-2 md:order-1',
-            selected ? 'text-gray-900 drop-shadow-none' : 'text-white',
+            selected ? 'text-gray-900' : 'text-white',
             selected ? 'drop-shadow-none' : 'drop-shadow-md',
             // Phase 3: Consistent width and tabular numbers for alignment
             'min-w-[140px] tabular-nums'
@@ -260,7 +260,7 @@ export function CompactPackageCard({
               'flex-col w-full text-center md:text-left text-sm block order-1 md:order-2 line-through',
               // Enhanced contrast for strikethrough price
               selected
-                ? 'text-gray-700'
+                ? 'text-gray-600'
                 : 'text-white/90 drop-shadow-sm',
               'font-semibold'
             )}>
