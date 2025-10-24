@@ -333,7 +333,12 @@ export class CustomerAuthService {
    */
   static async sendPasswordResetEmail(email: string): Promise<{ error: string | null }> {
     try {
-      const supabase = createClient();
+      // Staging mitigation: use implicit flow to avoid PKCE verifier mismatch across devices
+      const isStaging = (typeof window !== 'undefined') && (
+        window.location.host.includes('staging') ||
+        (process.env.NEXT_PUBLIC_ENV || '').toLowerCase() === 'staging'
+      );
+      const supabase = createClient({ flowType: isStaging ? 'implicit' : 'pkce' });
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`

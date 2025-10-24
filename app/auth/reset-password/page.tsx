@@ -34,6 +34,7 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
+  const [errorHint, setErrorHint] = React.useState<string | null>(null);
   const supabaseRef = useRef<SupabaseClient | null>(null);
 
   // Check if we have the access token from the URL (Supabase sends this after clicking reset link)
@@ -137,12 +138,32 @@ export default function ResetPasswordPage() {
 
           if (exchangeError) {
             console.error('Code exchange error:', exchangeError);
+            setHasError(true);
+            // Common PKCE failures: code_verifier mismatch or expired/used code
+            const msg = exchangeError.message?.toLowerCase() || '';
+            if (msg.includes('verifier') || msg.includes('pkce') || msg.includes('expired') || msg.includes('code')) {
+              setErrorHint('This reset link requires opening in the SAME browser you requested it from. If you requested it on another device/browser or the link expired, request a new one below.');
+            } else {
+              setErrorHint('We could not establish a session from this link. Please request a new reset link and open it in the same browser.');
+            }
+            toast.error('Invalid or expired reset link. Request a new one and open it in the same browser.');
+            return;
           } else if (data.session) {
             toast.success('Session verified! Please set your new password.');
+            return;
+          } else {
+            // No error and no session -> treat as failure with guidance
+            setHasError(true);
+            setErrorHint('We could not establish a session from this link. Please request a new reset link and open it in the same browser.');
+            toast.error('Unable to verify session from link. Please request a new reset link.');
             return;
           }
         } catch (err) {
           console.error('Password reset link error:', err);
+          setHasError(true);
+          setErrorHint('There was a problem verifying the link. Request a new reset link and open it in the same browser.');
+          toast.error('Failed to verify reset link. Please request a new one.');
+          return;
         }
       }
 
@@ -250,9 +271,14 @@ export default function ResetPasswordPage() {
           <h3 className="text-circleTel-orange font-bold text-lg sm:text-xl mb-2">
             Invalid or Expired Link
           </h3>
-          <p className="text-gray-600 text-sm sm:text-base mb-6">
-            This password reset link is invalid or has expired. Please request a new password reset.
+          <p className="text-gray-600 text-sm sm:text-base mb-4">
+            This password reset link is invalid or has expired.
           </p>
+          {errorHint && (
+            <p className="text-gray-600 text-xs sm:text-sm mb-6">
+              {errorHint}
+            </p>
+          )}
 
           <Link
             href="/auth/forgot-password"
@@ -260,6 +286,14 @@ export default function ResetPasswordPage() {
           >
             Request New Reset Link
           </Link>
+          <div className="mt-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-webafrica-blue hover:underline"
+            >
+              Reload this page
+            </button>
+          </div>
         </div>
       </div>
     );

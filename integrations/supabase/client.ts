@@ -8,13 +8,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env
  * Create a new Supabase client instance
  * Used for client-side authentication and real-time subscriptions
  */
-export function createClient() {
+export function createClient(options?: { flowType?: 'pkce' | 'implicit' }) {
   return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      flowType: 'pkce', // Use PKCE flow for better security
+      flowType: options?.flowType ?? 'pkce', // Default to PKCE, allow override
     },
     global: {
       headers: {
