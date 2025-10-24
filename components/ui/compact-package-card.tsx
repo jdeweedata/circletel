@@ -2,8 +2,14 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowDown, ArrowUp, Check } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, Infinity, Info } from 'lucide-react';
 import { ProviderLogo } from '@/components/products/ProviderLogo';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface CompactPackageCardProps {
   // Pricing
@@ -71,6 +77,12 @@ export interface CompactPackageCardProps {
  * 7. Better package type styling with icon
  * 8. Enhanced hover states
  *
+ * Phase 3 Improvements (2025-10-24):
+ * 9. Price consistency with tabular-nums and min-width for alignment
+ * 10. Infinity icon for "Uncapped" with tooltip
+ * 11. Green color coding for uncapped feature (WCAG AA compliant)
+ * 12. Smoother hover effects (reduced scale, better shadow)
+ *
  * @example
  * ```tsx
  * <CompactPackageCard
@@ -110,7 +122,8 @@ export function CompactPackageCard({
         'relative w-full sm:w-[200px] xl:w-[240px]',
         'min-h-[180px] sm:h-[200px] xl:h-[220px]',
         'flex flex-col rounded-2xl cursor-pointer',
-        'transition-all duration-200',
+        // Phase 3: Smoother transition with ease-in-out
+        'transition-all duration-300 ease-in-out',
 
         // Selected state: brand blue background with white text
         selected && [
@@ -130,10 +143,9 @@ export function CompactPackageCard({
           'border border-orange-500/30'
         ],
 
-        // Enhanced hover effect
-        'hover:shadow-2xl hover:scale-[1.03]',
+        // Phase 3: More subtle hover effect (1.02 scale, better shadow)
+        'hover:shadow-2xl hover:shadow-orange-500/30 hover:scale-[1.02]',
         selected && 'hover:shadow-webafrica-blue/40',
-        !selected && 'hover:shadow-orange-500/50',
 
         className
       )}
@@ -195,26 +207,50 @@ export function CompactPackageCard({
         </div>
       )}
 
-      {/* Package Type Label with Icon - More Prominent */}
+      {/* Phase 3: Package Type Label with Infinity Icon & Green Color + Tooltip */}
       <div className="h-6 pt-2 px-4">
-        <div className={cn(
-          'flex w-full items-center justify-center md:justify-start gap-1.5',
-          'text-xs md:text-sm font-bold capitalize',
-          'text-white drop-shadow-sm'
-        )}>
-          <Check className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
-          <span>{type}</span>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn(
+                'flex w-full items-center justify-center md:justify-start gap-1.5',
+                'text-xs md:text-sm font-bold capitalize',
+                // Phase 3: Green color for uncapped (WCAG AA compliant on orange background)
+                type === 'uncapped'
+                  ? 'text-green-300 drop-shadow-sm'
+                  : 'text-white drop-shadow-sm'
+              )}>
+                {/* Phase 3: Infinity icon for uncapped */}
+                {type === 'uncapped' ? (
+                  <Infinity className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
+                ) : (
+                  <Check className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
+                )}
+                <span>{type}</span>
+                <Info className="w-3 h-3 md:w-3.5 md:h-3.5 ml-0.5 opacity-70" aria-hidden="true" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[200px]">
+              <p className="text-xs">
+                {type === 'uncapped'
+                  ? 'Unlimited data with no caps or restrictions'
+                  : 'Fixed monthly data allowance'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      {/* Pricing Section - Enhanced Size & Weight */}
+      {/* Pricing Section - Enhanced Size & Weight with Phase 3 Consistency */}
       <div className="flex flex-col px-3 pt-3">
         <div className="flex md:flex-row flex-wrap flex-col-reverse items-center">
-          {/* Promotional Price (EXTRA LARGE & BOLD) */}
+          {/* Promotional Price (EXTRA LARGE & BOLD with tabular-nums) */}
           <div className={cn(
             'flex-col w-full text-center md:text-left',
             'text-3xl md:text-3xl xl:text-4xl font-extrabold block order-2 md:order-1',
-            'text-white drop-shadow-md'
+            'text-white drop-shadow-md',
+            // Phase 3: Consistent width and tabular numbers for alignment
+            'min-w-[140px] tabular-nums'
           )}>
             {currency}{promoPrice.toLocaleString()}<span className="text-base md:text-lg font-bold">{period}</span>
           </div>

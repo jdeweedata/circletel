@@ -9,12 +9,18 @@ import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
 import { CompactPackageCard } from '@/components/ui/compact-package-card';
 import { PackageDetailSidebar, MobilePackageDetailOverlay, type BenefitItem, type AdditionalInfoItem } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield, RefreshCw } from 'lucide-react';
+import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield, RefreshCw, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import type { PackageDetails } from '@/lib/order/types';
 import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface Package {
   id: string;
@@ -58,6 +64,10 @@ function PackagesContent() {
     null
   );
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Phase 3: Pagination state - show 8 packages initially
+  const [showAllPackages, setShowAllPackages] = useState(false);
+  const INITIAL_PACKAGE_COUNT = 8;
 
   useEffect(() => {
     fetchPackages();
@@ -210,6 +220,14 @@ function PackagesContent() {
 
   const filteredPackages = getFilteredPackages();
 
+  // Phase 3: Get visible packages based on pagination state
+  const visiblePackages = showAllPackages
+    ? filteredPackages
+    : filteredPackages.slice(0, INITIAL_PACKAGE_COUNT);
+
+  const hasMorePackages = filteredPackages.length > INITIAL_PACKAGE_COUNT;
+  const remainingCount = filteredPackages.length - INITIAL_PACKAGE_COUNT;
+
   // Count packages by service type
   const packageCounts = {
     fibre: packages.filter(p => {
@@ -359,19 +377,26 @@ function PackagesContent() {
               />
             </div>
 
-            {/* MTN Coverage Disclaimer - Enhanced with Action Button */}
-            <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex-1">
-                  <p className="font-semibold text-blue-900 flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4" />
-                    Coverage Information
-                  </p>
-                  <p className="text-sm text-blue-800 leading-relaxed">
-                    Coverage estimates are based on network provider infrastructure data and are as accurate as provided by the network providers.
-                    Actual availability may vary based on location and network conditions.
-                  </p>
-                </div>
+            {/* Phase 3: Optimized Coverage Disclaimer with Tooltip */}
+            <div className="mb-8 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 text-blue-900 cursor-help">
+                        <MapPin className="w-4 h-4 shrink-0" />
+                        <span className="text-sm font-semibold">Coverage estimates may vary</span>
+                        <Info className="w-4 h-4 shrink-0 opacity-70" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[300px] p-3">
+                      <p className="text-xs leading-relaxed">
+                        Coverage estimates are based on network provider infrastructure data and are as accurate as
+                        provided by the network providers. Actual availability may vary based on location and network conditions.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button
                   onClick={handleCheckAnotherAddress}
                   variant="outline"
@@ -389,49 +414,85 @@ function PackagesContent() {
               {/* Left Column: Compact Package Cards Grid - MOBILE OPTIMIZED */}
               <div className="flex-1">
                 {filteredPackages.length > 0 ? (
-                  <div className={cn(
-                    // MOBILE: Single column with full width cards
-                    'grid grid-cols-1',
-                    // TABLET: 2 columns
-                    'sm:grid-cols-2',
-                    // DESKTOP: 3 columns
-                    'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3',
-                    // Spacing
-                    'gap-4 sm:gap-5 md:gap-6'
-                  )}>
-                    {filteredPackages.map((pkg) => {
-                      const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
-                      const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
-                        if (serviceType.includes('homefibre') || serviceType.includes('fibre_consumer')) {
+                  <>
+                    <div className={cn(
+                      // MOBILE: Single column with full width cards
+                      'grid grid-cols-1',
+                      // TABLET: 2 columns
+                      'sm:grid-cols-2',
+                      // DESKTOP: 3 columns
+                      'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3',
+                      // Spacing
+                      'gap-4 sm:gap-5 md:gap-6'
+                    )}>
+                      {visiblePackages.map((pkg) => {
+                        const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
+                        const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
+                          if (serviceType.includes('homefibre') || serviceType.includes('fibre_consumer')) {
+                            return 'pink';
+                          } else if (serviceType.includes('bizfibre') || serviceType.includes('fibre_business')) {
+                            return 'orange';
+                          } else if (serviceType.includes('wireless') || serviceType.includes('lte')) {
+                            return 'blue';
+                          } else if (serviceType.includes('5g')) {
+                            return 'yellow';
+                          }
                           return 'pink';
-                        } else if (serviceType.includes('bizfibre') || serviceType.includes('fibre_business')) {
-                          return 'orange';
-                        } else if (serviceType.includes('wireless') || serviceType.includes('lte')) {
-                          return 'blue';
-                        } else if (serviceType.includes('5g')) {
-                          return 'yellow';
-                        }
-                        return 'pink';
-                      };
+                        };
 
-                      return (
-                        <CompactPackageCard
-                          key={pkg.id}
-                          promoPrice={pkg.promotion_price || pkg.price}
-                          originalPrice={pkg.promotion_price ? pkg.price : undefined}
-                          promoBadge={pkg.promotion_price ? `${pkg.promotion_months}-MONTH PROMO` : undefined}
-                          badgeColor={getBadgeColor()}
-                          name={pkg.name}
-                          type="uncapped"
-                          downloadSpeed={pkg.speed_down}
-                          uploadSpeed={pkg.speed_up}
-                          provider={pkg.provider}
-                          selected={selectedPackage?.id === pkg.id}
-                          onClick={() => handlePackageSelect(pkg)}
-                        />
-                      );
-                    })}
-                  </div>
+                        return (
+                          <CompactPackageCard
+                            key={pkg.id}
+                            promoPrice={pkg.promotion_price || pkg.price}
+                            originalPrice={pkg.promotion_price ? pkg.price : undefined}
+                            promoBadge={pkg.promotion_price ? `${pkg.promotion_months}-MONTH PROMO` : undefined}
+                            badgeColor={getBadgeColor()}
+                            name={pkg.name}
+                            type="uncapped"
+                            downloadSpeed={pkg.speed_down}
+                            uploadSpeed={pkg.speed_up}
+                            provider={pkg.provider}
+                            selected={selectedPackage?.id === pkg.id}
+                            onClick={() => handlePackageSelect(pkg)}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Phase 3: Show More / Show Less Button */}
+                    {hasMorePackages && (
+                      <div className="mt-8 flex justify-center">
+                        <Button
+                          onClick={() => {
+                            setShowAllPackages(!showAllPackages);
+                            // Smooth scroll to top of packages when collapsing
+                            if (showAllPackages) {
+                              window.scrollTo({ top: 300, behavior: 'smooth' });
+                            }
+                          }}
+                          variant="outline"
+                          size="lg"
+                          className={cn(
+                            'min-w-[200px] border-2',
+                            'transition-all duration-200',
+                            'hover:bg-circleTel-orange hover:text-white hover:border-circleTel-orange'
+                          )}
+                        >
+                          {showAllPackages ? (
+                            <>
+                              <ChevronUp className="w-5 h-5 mr-2" />
+                              Show Less
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="w-5 h-5 mr-2" />
+                              Show {remainingCount} More {remainingCount === 1 ? 'Package' : 'Packages'}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-16 bg-gray-50 rounded-xl">
                     <p className="text-gray-500">
