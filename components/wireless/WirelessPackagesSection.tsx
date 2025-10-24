@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingCart, Star, Wifi, Truck, Settings, Gauge } from "lucide-react"
+import { ShoppingCart, Star, Wifi, Truck, Settings, Gauge, Check, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Card } from "@/components/ui/card"
 
 // Packages that match the Afrihost Pure Wireless design exactly
 const wirelessPackages = {
@@ -74,6 +75,14 @@ const features = [
 
 export function WirelessPackagesSection() {
   const router = useRouter()
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null)
+
+  // Set default selection to first package on mount
+  useEffect(() => {
+    if (wirelessPackages.all.length > 0) {
+      setSelectedPackageId(wirelessPackages.all[0].id)
+    }
+  }, [])
 
   const getFilteredPackages = (filter: string) => {
     if (filter === "all") return wirelessPackages.all
@@ -84,23 +93,39 @@ export function WirelessPackagesSection() {
     router.push(`/wireless/order?package=${packageId}`)
   }
 
-  const PackageCard = ({ pkg }: { pkg: any }) => (
-    <div className="text-center cursor-pointer transition-all hover:shadow-lg bg-white rounded-xl p-6 border border-gray-100">
-      <div className="text-xs text-muted-foreground mb-2">Uncapped</div>
-      <div className="text-4xl font-bold text-gray-900 mb-2">{pkg.speed}</div>
-      <div className="text-sm text-muted-foreground mb-6">{pkg.description}</div>
+  const selectedPackage = wirelessPackages.all.find(pkg => pkg.id === selectedPackageId)
 
-      <Button
-        onClick={() => handlePackageSelect(pkg.id)}
-        className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold py-3 rounded-lg group"
+  const PackageCard = ({ pkg }: { pkg: any }) => {
+    const isSelected = selectedPackageId === pkg.id
+
+    return (
+      <div 
+        className={`text-center cursor-pointer transition-all bg-white rounded-xl p-6 border-2 ${
+          isSelected 
+            ? 'border-circleTel-orange shadow-lg ring-2 ring-circleTel-orange ring-offset-2' 
+            : 'border-gray-100 hover:border-circleTel-orange/50 hover:shadow-lg'
+        }`}
+        onClick={() => setSelectedPackageId(pkg.id)}
       >
-        <span className="flex items-center justify-center gap-2">
-          <span>{pkg.price}</span>
-          <ShoppingCart className="w-4 h-4 group-hover:animate-pulse" />
-        </span>
-      </Button>
-    </div>
-  )
+        <div className="text-xs text-muted-foreground mb-3 uppercase tracking-wide">Uncapped</div>
+        <div className="text-4xl font-bold text-gray-900 mb-3">{pkg.speed}</div>
+        <div className="text-sm text-muted-foreground mb-8 min-h-[40px] flex items-center justify-center">{pkg.description}</div>
+
+        <Button
+          onClick={(e) => {
+            e.stopPropagation()
+            handlePackageSelect(pkg.id)
+          }}
+          className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-semibold py-3 rounded-lg"
+        >
+          <span className="flex items-center justify-center gap-2">
+            <span>{pkg.price}</span>
+            <ShoppingCart className="w-4 h-4 group-hover:animate-pulse" />
+          </span>
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-gray-50 rounded-2xl p-8">
@@ -153,6 +178,47 @@ export function WirelessPackagesSection() {
           <div className="mb-6">
             <h3 className="text-2xl font-bold italic text-circleTel-orange mb-6">CircleTel Wireless</h3>
           </div>
+
+          {/* Selected Package Info Card */}
+          {selectedPackage && (
+            <Card className="mb-6 p-6 bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 border-circleTel-orange/20">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h4 className="font-bold text-lg text-circleTel-darkNeutral">{selectedPackage.speed}</h4>
+                  <p className="text-sm text-circleTel-secondaryNeutral mt-1">{selectedPackage.description}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-circleTel-orange">{selectedPackage.price}</div>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>Uncapped data usage</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>No throttling or FUP</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>Month-to-month contract</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-circleTel-darkNeutral">
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span>24/7 customer support</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => handlePackageSelect(selectedPackage.id)}
+                className="w-full bg-circleTel-darkNeutral hover:bg-circleTel-darkNeutral/90 text-white font-semibold py-3 rounded-lg"
+              >
+                Order Now
+              </Button>
+            </Card>
+          )}
 
           <div className="space-y-4">
             {features.map((feature, index) => (
