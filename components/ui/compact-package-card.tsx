@@ -125,12 +125,12 @@ export function CompactPackageCard({
         // Phase 3: Smoother transition with ease-in-out
         'transition-all duration-300 ease-in-out',
 
-        // Selected state: white surface + strong orange ring for WCAG contrast
+        // Selected state: light grey background + subtle grey ring for visibility
         selected && [
-          'bg-white text-circleTel-darkNeutral',
-          'border-2 border-circleTel-orange',
-          'shadow-xl shadow-orange-500/20',
-          'ring-4 ring-circleTel-orange ring-offset-2 ring-offset-white'
+          'bg-gray-100 text-circleTel-darkNeutral',
+          'border-2 border-gray-300',
+          'shadow-xl shadow-gray-300/20',
+          'ring-3 ring-gray-400 ring-offset-2 ring-offset-gray-50'
         ],
 
         // Unselected state: brand orange with professional gradient and shadow
@@ -167,7 +167,7 @@ export function CompactPackageCard({
           {/* Subtle background for logo visibility */}
           <div className={cn(
             'rounded-lg px-2 py-1.5 backdrop-blur-sm',
-            selected ? 'bg-gray-100' : 'bg-white/15'
+            selected ? 'bg-white/20' : 'bg-white/15'
           )}>
             <ProviderLogo
               providerCode={provider.code}
@@ -246,8 +246,8 @@ export function CompactPackageCard({
           <div className={cn(
             'flex-col w-full text-center md:text-left',
             'text-3xl md:text-3xl xl:text-4xl font-extrabold block order-2 md:order-1',
-            selected ? 'text-gray-900' : 'text-white',
-            'drop-shadow-md',
+            selected ? 'text-gray-900 drop-shadow-none' : 'text-white',
+            selected ? 'drop-shadow-none' : 'drop-shadow-md',
             // Phase 3: Consistent width and tabular numbers for alignment
             'min-w-[140px] tabular-nums'
           )}>
@@ -260,7 +260,7 @@ export function CompactPackageCard({
               'flex-col w-full text-center md:text-left text-sm block order-1 md:order-2 line-through',
               // Enhanced contrast for strikethrough price
               selected
-                ? 'text-gray-600 drop-shadow-none'
+                ? 'text-gray-700'
                 : 'text-white/90 drop-shadow-sm',
               'font-semibold'
             )}>
@@ -273,7 +273,7 @@ export function CompactPackageCard({
         {downloadSpeed !== undefined && uploadSpeed !== undefined && (
           <div className={cn(
             'w-full text-center md:text-left px-2 mt-4',
-            selected ? 'text-gray-800' : 'text-white'
+            selected ? 'text-gray-900' : 'text-white'
           )}>
             <div className="flex gap-4 items-center justify-center md:justify-start">
               {/* Download Speed */}
@@ -303,8 +303,8 @@ export function CompactPackageCard({
             // Minimum touch target of 44px (py-2.5 = 10px * 2 + text height ≈ 44px)
             selected && [
               'bg-circleTel-orange text-white',
-              'hover:bg-circleTel-orange/90',
-              'focus:ring-circleTel-orange'
+              'hover:bg-orange-600',
+              'focus:ring-orange-500'
             ],
             !selected && [
               'bg-white/95 text-[#F5831F]',
