@@ -13,6 +13,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/integrations/supabase/client';
 import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import type { User, Session } from '@supabase/supabase-js';
@@ -52,13 +53,23 @@ interface CustomerAuthContextType {
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(undefined);
 
 export function CustomerAuthProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Skip auth initialization on password reset and auth callback pages to prevent
+  // competing Supabase client instances that clear the session
+  const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
+
   // Initialize auth state on mount
   useEffect(() => {
+    // Skip initialization on auth pages
+    if (isAuthPage) {
+      setLoading(false);
+      return;
+    }
     const supabase = createClient();
 
     // Get initial session
@@ -107,7 +118,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isAuthPage]);
 
   // Refresh customer data from database
   const refreshCustomer = async () => {
