@@ -670,6 +670,62 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
 - Mock data available for coverage APIs during development
 - No traditional unit testing framework configured (relies on TypeScript + E2E)
 
+### Common Debugging Patterns
+
+#### Infinite Loading States in React
+**Symptom**: Component stuck showing "Loading..." indefinitely
+**Common Causes**:
+1. **Async callbacks without error handling**: Unhandled promise rejections in event handlers prevent state updates
+2. **Missing finally blocks**: Loading state not set to false if async operation fails
+3. **Competing state updates**: Multiple components or effects setting conflicting states
+
+**Solution Pattern**:
+```typescript
+// ❌ BAD: No error handling
+useEffect(() => {
+  const callback = async () => {
+    const data = await fetchData(); // If this throws, loading never becomes false
+    setState(data);
+    setLoading(false);
+  };
+  someListener(callback);
+}, []);
+
+// ✅ GOOD: Proper error handling
+useEffect(() => {
+  const callback = async () => {
+    try {
+      const data = await fetchData();
+      setState(data);
+    } catch (error) {
+      console.error('Failed to fetch:', error);
+      setState(null);
+    } finally {
+      setLoading(false); // Always executes
+    }
+  };
+  someListener(callback);
+}, []);
+```
+
+**Real Example**: `CustomerAuthProvider` (components/providers/CustomerAuthProvider.tsx:107-113)
+- The `onAuthStateChange` callback must wrap `getCustomer()` in try-catch
+- Ensures `setLoading(false)` always executes even if customer fetch fails
+- See commit `24547cb` for implementation
+
+#### Authentication Flow Debugging
+**Tools**:
+- Browser console: Check for "Auth state changed:" logs
+- Network tab: Look for `/auth/v1/token` requests
+- LocalStorage: Inspect `sb-{project-ref}-auth-token` for session data
+- Database: Query `customers` table to verify customer records exist
+
+**Common Issues**:
+1. **Session exists but dashboard won't load**: Check `authLoading` state in provider
+2. **Multiple SIGNED_IN events**: Normal behavior, but callbacks must be idempotent
+3. **Customer record missing**: Use `/api/auth/create-customer` API route pattern
+4. **Email verification not syncing**: Check database triggers have `SECURITY DEFINER` and proper grants
+
 ### Key Implementation Status
 - **RBAC System**: ✅ Complete (17 role templates, 100+ permissions, database-enforced)
 - **Agent System**: ✅ Complete (14 agents, orchestrator tested, feature backlog integration)
@@ -734,4 +790,8 @@ The coverage system is designed to aggregate data from multiple telecommunicatio
   - **Service Role Pattern**: API route `/api/auth/create-customer` bypasses RLS timing issues during signup
   - **Authentication Service**: Centralized logic in `lib/auth/customer-auth-service.ts` with 10+ methods
   - **Testing Documentation**: Complete testing reports in `docs/testing/` (AUTH_TESTING_REPORT.md, SUCCESSFUL_SIGNUP_TEST.md)
+  - **Critical Fix (2025-10-24)**: Added error handling to `CustomerAuthProvider` `onAuthStateChange` callback to prevent infinite loading states
+    - Issue: Unhandled errors in async `getCustomer()` calls would prevent `setLoading(false)` from executing
+    - Solution: Wrapped customer fetch in try-catch to ensure loading state always updates
+    - Commit: `24547cb` - "fix(auth): add error handling to onAuthStateChange callback"
   - **Known Issue**: Email verification requires clicking link in email (trigger tested successfully with migration `20251024000003`)
