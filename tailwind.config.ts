@@ -137,7 +137,7 @@ export default {
 				'scale-in': 'scale-in 0.2s ease-out'
 			},
 			fontFamily: {
-				'sans': ['Arial', 'Helvetica', 'sans-serif'],
+				'sans': ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Helvetica', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji'],
 				'mono': ['Consolas', '"Courier New"', 'monospace'],
 			}
 		}

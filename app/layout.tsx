@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter } from "next/font/google";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +12,6 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
-
 
 export const metadata: Metadata = {
   title: "CircleTel - Reliable Tech Solutions",
@@ -74,13 +75,15 @@ export const viewport = {
   themeColor: '#F5831F',
 };
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-sans">
+    <html lang="en" className={`${inter.variable} font-sans`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
@@ -93,7 +96,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#F5831F" />
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
         <QueryProvider>
           <PWAProvider>
             <OfflineProvider>
