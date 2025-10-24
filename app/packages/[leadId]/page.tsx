@@ -9,7 +9,7 @@ import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
 import { CompactPackageCard } from '@/components/ui/compact-package-card';
 import { PackageDetailSidebar, MobilePackageDetailOverlay, type BenefitItem, type AdditionalInfoItem } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield } from 'lucide-react';
+import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -146,8 +146,7 @@ function PackagesContent() {
 
     // Save selected package to OrderContext
     actions.updateOrderData({
-      coverage: {
-        ...state.orderData.coverage,
+      package: {
         selectedPackage: packageDetails,
         pricing: {
           monthly: pkg.promotion_price || pkg.price,
@@ -175,6 +174,10 @@ function PackagesContent() {
       actions.setCurrentStage(2); // Move to account step
       router.push('/order/account');
     }
+  };
+
+  const handleCheckAnotherAddress = () => {
+    router.push('/coverage');
   };
 
   // Map ServiceType to package filtering logic
@@ -296,7 +299,7 @@ function PackagesContent() {
           </div>
         ) : (
           <>
-            {/* Coverage Hero Section */}
+            {/* Coverage Hero Section - Enhanced with Check Another Address CTA */}
             <div className="relative bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-3xl p-8 lg:p-12 mb-8 text-white overflow-hidden">
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -314,9 +317,19 @@ function PackagesContent() {
                   <MapPin className="w-5 h-5" />
                   <span>{address || 'Your selected location'}</span>
                 </div>
-                <p className="text-lg text-orange-100">
+                <p className="text-lg text-orange-100 mb-6">
                   Choose from our available packages below and get connected today.
                 </p>
+
+                {/* Check Another Address Button */}
+                <Button
+                  onClick={handleCheckAnotherAddress}
+                  variant="outline"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Check Another Address
+                </Button>
               </div>
             </div>
 
@@ -346,24 +359,46 @@ function PackagesContent() {
               />
             </div>
 
-            {/* MTN Coverage Disclaimer */}
+            {/* MTN Coverage Disclaimer - Enhanced with Action Button */}
             <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="font-semibold text-blue-900 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Coverage Information
-              </p>
-              <p className="mt-2 text-sm text-blue-800 leading-relaxed">
-                Coverage estimates are based on network provider infrastructure data and are as accurate as provided by the network providers.
-                Actual availability may vary based on location and network conditions.
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex-1">
+                  <p className="font-semibold text-blue-900 flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4" />
+                    Coverage Information
+                  </p>
+                  <p className="text-sm text-blue-800 leading-relaxed">
+                    Coverage estimates are based on network provider infrastructure data and are as accurate as provided by the network providers.
+                    Actual availability may vary based on location and network conditions.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleCheckAnotherAddress}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Check Another
+                </Button>
+              </div>
             </div>
 
             {/* Two-Column Layout: Compact Cards (Left) + Detail Sidebar (Right) */}
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-              {/* Left Column: Compact Package Cards Grid */}
+              {/* Left Column: Compact Package Cards Grid - MOBILE OPTIMIZED */}
               <div className="flex-1">
                 {filteredPackages.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+                  <div className={cn(
+                    // MOBILE: Single column with full width cards
+                    'grid grid-cols-1',
+                    // TABLET: 2 columns
+                    'sm:grid-cols-2',
+                    // DESKTOP: 3 columns
+                    'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3',
+                    // Spacing
+                    'gap-4 sm:gap-5 md:gap-6'
+                  )}>
                     {filteredPackages.map((pkg) => {
                       const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
                       const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
@@ -573,7 +608,7 @@ function PackagesContent() {
         />
       )}
 
-      {/* Floating CTA (Mobile Only) - Trigger for Detail Overlay */}
+      {/* Floating CTA (Mobile Only) - Enhanced Touch Target */}
       {selectedPackage && !isMobileSidebarOpen && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-circleTel-orange shadow-2xl p-4 z-40 animate-in slide-in-from-bottom duration-300">
           <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -592,15 +627,15 @@ function PackagesContent() {
               <Button
                 variant="outline"
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="flex-1 sm:flex-none"
-                size="sm"
+                className="flex-1 sm:flex-none min-h-[44px]"
+                size="default"
               >
                 View Details
               </Button>
               <Button
                 onClick={handleContinue}
-                className="flex-1 sm:flex-none bg-circleTel-orange hover:bg-orange-600 text-white"
-                size="sm"
+                className="flex-1 sm:flex-none bg-circleTel-orange hover:bg-orange-600 text-white min-h-[44px]"
+                size="default"
               >
                 Continue →
               </Button>
