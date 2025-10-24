@@ -105,10 +105,20 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         if (currentSession?.user) {
           // Fetch customer record when user signs in
           try {
-            const { customer: customerData } = await CustomerAuthService.getCustomer();
+            console.log('[CustomerAuthProvider] Fetching customer record...');
+
+            // Add timeout to prevent hanging indefinitely
+            const timeoutPromise = new Promise<{ customer: null; error: string }>((_, reject) => {
+              setTimeout(() => reject(new Error('Customer fetch timeout after 5 seconds')), 5000);
+            });
+
+            const customerPromise = CustomerAuthService.getCustomer();
+            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
+
+            console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
             setCustomer(customerData);
           } catch (error) {
-            console.error('Failed to fetch customer in auth state change:', error);
+            console.error('[CustomerAuthProvider] Failed to fetch customer:', error);
             setCustomer(null);
           }
         } else {
