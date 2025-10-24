@@ -104,8 +104,13 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
         if (currentSession?.user) {
           // Fetch customer record when user signs in
-          const { customer: customerData } = await CustomerAuthService.getCustomer();
-          setCustomer(customerData);
+          try {
+            const { customer: customerData } = await CustomerAuthService.getCustomer();
+            setCustomer(customerData);
+          } catch (error) {
+            console.error('Failed to fetch customer in auth state change:', error);
+            setCustomer(null);
+          }
         } else {
           // Clear customer data when user signs out
           setCustomer(null);
