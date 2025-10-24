@@ -67,18 +67,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` }
-      } as any);
-      if (error) toast.error(error.message);
-    } catch (e: any) {
-      toast.error(e?.message || 'Google sign-in failed');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -88,17 +76,14 @@ export default function LoginPage() {
       <div className="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-200/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Content */}
-      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex items-start justify-center">
-        {/* Back Button */}
-        <div className="hidden mb-6"></div>
-
+      <div className="relative max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Main Heading */}
-        <h1 className="text-circleTel-darkNeutral text-3xl font-bold text-center mb-8 sm:mb-10">
+        <h1 className="text-circleTel-darkNeutral text-3xl font-bold text-center mb-8">
           Log in to continue
         </h1>
 
         {/* White Form Container */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border max-w-md w-full mx-auto">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border w-full">
           {/* Login Section */}
           <div className="mb-8">
             <h3 className="text-circleTel-orange font-bold text-lg sm:text-xl mb-2">
@@ -201,22 +186,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </form>
-
-            {/* OR divider */}
-            <div className="flex items-center gap-4 my-6">
-              <div className="h-px bg-gray-200 flex-1" />
-              <span className="text-xs uppercase tracking-wider text-gray-500">OR</span>
-              <div className="h-px bg-gray-200 flex-1" />
-            </div>
-
-            {/* Google Sign-in */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full border border-gray-300 text-gray-800 font-semibold px-8 py-3.5 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Continue with Google
-            </button>
 
             {/* Sign up */}
             <div className="my-6">
