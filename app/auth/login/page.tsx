@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   // Get redirect path from query params (e.g., ?redirect=/order/payment)
-  const redirectPath = searchParams.get('redirect') || '/my-account/dashboard';
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
 
   const {
     control,

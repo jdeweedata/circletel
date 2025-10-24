@@ -55,7 +55,7 @@ export default function AuthCallbackPage() {
             if (data.session) {
               setStatus('success');
               setTimeout(() => {
-                router.push('/my-account/dashboard');
+                router.push('/dashboard');
               }, 2000);
               return;
             }
@@ -84,7 +84,7 @@ export default function AuthCallbackPage() {
           if (data.session) {
             setStatus('success');
             setTimeout(() => {
-              router.push('/my-account/dashboard');
+              router.push('/dashboard');
             }, 2000);
             return;
           }

@@ -31,7 +31,7 @@ export default function VerifyEmailPage() {
   React.useEffect(() => {
     if (isEmailVerified) {
       toast.success('Email verified! Redirecting to dashboard...');
-      router.push('/my-account/dashboard');
+      router.push('/dashboard');
     }
   }, [isEmailVerified, router]);
 
@@ -66,7 +66,7 @@ export default function VerifyEmailPage() {
   };
 
   const handleContinueToDashboard = () => {
-    router.push('/my-account/dashboard');
+    router.push('/dashboard');
   };
 
   return (
