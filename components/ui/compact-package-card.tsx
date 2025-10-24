@@ -119,18 +119,18 @@ export function CompactPackageCard({
     <div
       className={cn(
         // Base styles with increased dimensions for better mobile touch targets
-        'relative w-full sm:w-[200px] xl:w-[240px]',
-        'min-h-[180px] sm:h-[200px] xl:h-[220px]',
+        'relative w-full',
+        'min-h-[240px] md:min-h-[260px] xl:min-h-[300px] h-auto',
         'flex flex-col rounded-2xl cursor-pointer',
         // Phase 3: Smoother transition with ease-in-out
         'transition-all duration-300 ease-in-out',
 
-        // Selected state: brand blue background with white text
+        // Selected state: white surface + strong orange ring for WCAG contrast
         selected && [
-          'bg-webafrica-blue text-white',
-          'border-2 border-webafrica-blue',
-          'shadow-xl shadow-webafrica-blue/30',
-          'ring-2 ring-webafrica-blue ring-offset-2'
+          'bg-white text-circleTel-darkNeutral',
+          'border-2 border-circleTel-orange',
+          'shadow-xl shadow-orange-500/20',
+          'ring-4 ring-circleTel-orange ring-offset-2 ring-offset-white'
         ],
 
         // Unselected state: brand orange with professional gradient and shadow
@@ -167,9 +167,7 @@ export function CompactPackageCard({
           {/* Subtle background for logo visibility */}
           <div className={cn(
             'rounded-lg px-2 py-1.5 backdrop-blur-sm',
-            selected
-              ? 'bg-white/10'
-              : 'bg-white/15'
+            selected ? 'bg-gray-100' : 'bg-white/15'
           )}>
             <ProviderLogo
               providerCode={provider.code}
@@ -242,13 +240,14 @@ export function CompactPackageCard({
       </div>
 
       {/* Pricing Section - Enhanced Size & Weight with Phase 3 Consistency */}
-      <div className="flex flex-col px-3 pt-3">
+      <div className="flex flex-col px-4 pt-4">
         <div className="flex md:flex-row flex-wrap flex-col-reverse items-center">
           {/* Promotional Price (EXTRA LARGE & BOLD with tabular-nums) */}
           <div className={cn(
             'flex-col w-full text-center md:text-left',
             'text-3xl md:text-3xl xl:text-4xl font-extrabold block order-2 md:order-1',
-            'text-white drop-shadow-md',
+            selected ? 'text-gray-900' : 'text-white',
+            'drop-shadow-md',
             // Phase 3: Consistent width and tabular numbers for alignment
             'min-w-[140px] tabular-nums'
           )}>
@@ -261,7 +260,7 @@ export function CompactPackageCard({
               'flex-col w-full text-center md:text-left text-sm block order-1 md:order-2 line-through',
               // Enhanced contrast for strikethrough price
               selected
-                ? 'text-blue-200 drop-shadow-sm'
+                ? 'text-gray-600 drop-shadow-none'
                 : 'text-white/90 drop-shadow-sm',
               'font-semibold'
             )}>
@@ -274,7 +273,7 @@ export function CompactPackageCard({
         {downloadSpeed !== undefined && uploadSpeed !== undefined && (
           <div className={cn(
             'w-full text-center md:text-left px-2 mt-4',
-            'text-white'
+            selected ? 'text-gray-800' : 'text-white'
           )}>
             <div className="flex gap-4 items-center justify-center md:justify-start">
               {/* Download Speed */}
@@ -294,7 +293,7 @@ export function CompactPackageCard({
       </div>
 
       {/* Call-to-Action Button - New Addition */}
-      <div className="mt-auto px-3 pb-3 pt-2">
+      <div className="mt-auto px-4 pb-4 pt-3">
         <button
           className={cn(
             'w-full py-2.5 px-4 rounded-lg',
@@ -303,9 +302,9 @@ export function CompactPackageCard({
             'focus:outline-none focus:ring-2 focus:ring-offset-2',
             // Minimum touch target of 44px (py-2.5 = 10px * 2 + text height ≈ 44px)
             selected && [
-              'bg-white text-webafrica-blue',
-              'hover:bg-gray-100',
-              'focus:ring-white'
+              'bg-circleTel-orange text-white',
+              'hover:bg-circleTel-orange/90',
+              'focus:ring-circleTel-orange'
             ],
             !selected && [
               'bg-white/95 text-[#F5831F]',

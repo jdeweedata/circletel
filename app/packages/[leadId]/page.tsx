@@ -454,8 +454,8 @@ function PackagesContent() {
                       'grid grid-cols-1',
                       // TABLET: 2 columns
                       'sm:grid-cols-2',
-                      // DESKTOP: 3 columns
-                      'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3',
+                      // DESKTOP: keep 2 columns even at xl+ to widen cards
+                      'md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2',
                       // Spacing
                       'gap-4 sm:gap-5 md:gap-6'
                     )}>
