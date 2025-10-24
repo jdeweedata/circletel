@@ -169,17 +169,19 @@ export function CompactPackageCard({
             'rounded-lg px-2 py-1.5 backdrop-blur-sm',
             selected ? 'bg-gray-100' : 'bg-white/15'
           )}>
-            <ProviderLogo
-              providerCode={provider.code}
-              providerName={provider.name}
-              logoUrl={provider.logo_url}
-              logoDarkUrl={provider.logo_dark_url}
-              logoLightUrl={provider.logo_light_url}
-              logoFormat={(provider.logo_format as 'svg' | 'png' | 'jpg') || 'svg'}
-              variant="grayscale"
-              size="small"
-              priority={false}
-            />
+            <div className={selected ? 'brightness-50' : ''}>
+              <ProviderLogo
+                providerCode={provider.code}
+                providerName={provider.name}
+                logoUrl={provider.logo_url}
+                logoDarkUrl={provider.logo_dark_url}
+                logoLightUrl={provider.logo_light_url}
+                logoFormat={(provider.logo_format as 'svg' | 'png' | 'jpg') || 'svg'}
+                variant="grayscale"
+                size="small"
+                priority={false}
+              />
+            </div>
           </div>
         </div>
       )}
