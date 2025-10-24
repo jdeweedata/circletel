@@ -53,6 +53,12 @@ export interface CompactPackageCardProps {
  * - Minimal content: price + speed indicators
  * - Click to view full details in sidebar
  *
+ * Color Improvements (2025-10-24):
+ * - Uses brand orange (#F5831F) with subtle gradient
+ * - Enhanced contrast for better accessibility
+ * - Professional shadow instead of visible border
+ * - Logo background for better visibility
+ *
  * @example
  * ```tsx
  * <CompactPackageCard
@@ -92,16 +98,28 @@ export function CompactPackageCard({
         'relative w-[180px] xl:w-[220px] h-[160px] xl:h-[170px]',
         'flex flex-col rounded-2xl cursor-pointer',
         'transition-all duration-200',
-        'border border-gray-200',
 
         // Selected state: dark blue background with white text
-        selected && 'bg-[#1E4B85] text-white border-[#1E4B85]',
+        selected && [
+          'bg-webafrica-blue text-white',
+          'border-2 border-webafrica-blue',
+          'shadow-md shadow-webafrica-blue/20'
+        ],
 
-        // Unselected state: vibrant orange background with white text
-        !selected && 'bg-gradient-to-br from-orange-400 to-orange-300 text-white',
+        // Unselected state: brand orange with professional gradient and shadow
+        !selected && [
+          // Use brand orange with a subtle darker gradient for depth
+          'bg-gradient-to-br from-[#F5831F] via-[#F5831F] to-[#e67516]',
+          'text-white',
+          // Professional shadow for depth (no visible border)
+          'shadow-lg shadow-orange-500/25',
+          'border border-orange-500/30'
+        ],
 
         // Hover effect
-        'hover:shadow-lg hover:scale-105',
+        'hover:shadow-xl hover:scale-105',
+        selected && 'hover:shadow-webafrica-blue/30',
+        !selected && 'hover:shadow-orange-500/40',
 
         className
       )}
@@ -120,17 +138,25 @@ export function CompactPackageCard({
       {/* Provider Logo (Top of Card) */}
       {provider && (
         <div className="flex justify-center pt-2 pb-1 px-2">
-          <ProviderLogo
-            providerCode={provider.code}
-            providerName={provider.name}
-            logoUrl={provider.logo_url}
-            logoDarkUrl={provider.logo_dark_url}
-            logoLightUrl={provider.logo_light_url}
-            logoFormat={(provider.logo_format as 'svg' | 'png' | 'jpg') || 'svg'}
-            variant="grayscale"
-            size="small"
-            priority={false}
-          />
+          {/* Subtle background for logo visibility */}
+          <div className={cn(
+            'rounded-lg px-2 py-1 backdrop-blur-sm',
+            selected
+              ? 'bg-white/10'
+              : 'bg-white/15'
+          )}>
+            <ProviderLogo
+              providerCode={provider.code}
+              providerName={provider.name}
+              logoUrl={provider.logo_url}
+              logoDarkUrl={provider.logo_dark_url}
+              logoLightUrl={provider.logo_light_url}
+              logoFormat={(provider.logo_format as 'svg' | 'png' | 'jpg') || 'svg'}
+              variant="grayscale"
+              size="small"
+              priority={false}
+            />
+          </div>
         </div>
       )}
 
@@ -169,7 +195,7 @@ export function CompactPackageCard({
           {/* Promotional Price (Large) */}
           <div className={cn(
             'flex-col w-full text-center md:text-left text-xl xl:text-2xl font-bold block order-2 md:order-1',
-            'text-white'
+            'text-white drop-shadow-sm'
           )}>
             {currency}{promoPrice.toLocaleString()}{period}
           </div>
@@ -178,7 +204,10 @@ export function CompactPackageCard({
           {originalPrice && originalPrice !== promoPrice && (
             <div className={cn(
               'flex-col w-full text-center md:text-left text-xs block order-1 md:order-2 line-through',
-              selected ? 'text-blue-200' : 'text-white/70'
+              // Enhanced contrast for strikethrough price
+              selected
+                ? 'text-blue-200 drop-shadow-sm'
+                : 'text-white/85 drop-shadow-sm'
             )}>
               {currency}{originalPrice.toLocaleString()}{period}
             </div>
@@ -194,14 +223,14 @@ export function CompactPackageCard({
             <div className="flex gap-3 items-center justify-center md:justify-start">
               {/* Download Speed */}
               <div className="flex items-center gap-1" title={`Download: ${downloadSpeed}${speedUnit}`}>
-                <ArrowDown className="w-3 h-3" aria-hidden="true" />
-                <span className="text-xs font-semibold">{downloadSpeed}{speedUnit}</span>
+                <ArrowDown className="w-3 h-3 drop-shadow-sm" aria-hidden="true" />
+                <span className="text-xs font-semibold drop-shadow-sm">{downloadSpeed}{speedUnit}</span>
               </div>
 
               {/* Upload Speed */}
               <div className="flex items-center gap-1" title={`Upload: ${uploadSpeed}${speedUnit}`}>
-                <ArrowUp className="w-3 h-3" aria-hidden="true" />
-                <span className="text-xs font-semibold">{uploadSpeed}{speedUnit}</span>
+                <ArrowUp className="w-3 h-3 drop-shadow-sm" aria-hidden="true" />
+                <span className="text-xs font-semibold drop-shadow-sm">{uploadSpeed}{speedUnit}</span>
               </div>
             </div>
           </div>

@@ -363,7 +363,7 @@ function PackagesContent() {
               {/* Left Column: Compact Package Cards Grid */}
               <div className="flex-1">
                 {filteredPackages.length > 0 ? (
-                  <div className="flex flex-wrap gap-3 justify-start">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
                     {filteredPackages.map((pkg) => {
                       const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
                       const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
