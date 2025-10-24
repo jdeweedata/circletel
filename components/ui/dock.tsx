@@ -96,7 +96,7 @@ function Dock({
         height: height,
         scrollbarWidth: 'none',
       }}
-      className='mx-2 flex max-w-full items-end overflow-x-auto'
+      className='mx-2 flex max-w-full items-end justify-center overflow-x-visible pointer-events-none'
     >
       <motion.div
         onMouseMove={({ pageX }) => {
@@ -108,7 +108,7 @@ function Dock({
           mouseX.set(Infinity);
         }}
         className={cn(
-          'mx-auto flex w-fit gap-4 rounded-2xl bg-gray-50 px-4 dark:bg-neutral-900',
+          'pointer-events-auto mx-auto flex w-fit gap-4 rounded-3xl bg-white/70 px-4 py-3 ring-1 ring-black/10 shadow-2xl backdrop-blur-xl dark:bg-neutral-900/60',
           className
         )}
         style={{ height: panelHeight }}
@@ -138,7 +138,7 @@ function DockItem({ children, className }: DockItemProps) {
   const widthTransform = useTransform(
     mouseDistance,
     [-distance, 0, distance],
-    [40, magnification, 40]
+    [48, magnification, 48]
   );
 
   const width = useSpring(widthTransform, spring);
@@ -186,9 +186,9 @@ function DockLabel({ children, className, ...rest }: DockLabelProps) {
           initial={{ opacity: 0, y: 0 }}
           animate={{ opacity: 1, y: -10 }}
           exit={{ opacity: 0, y: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.18 }}
           className={cn(
-            'absolute -top-6 left-1/2 w-fit whitespace-pre rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white',
+            'absolute -top-7 left-1/2 w-fit whitespace-pre rounded-md border border-white/10 bg-neutral-900/90 px-2 py-0.5 text-xs text-white shadow-lg backdrop-blur-sm',
             className
           )}
           role='tooltip'
@@ -209,7 +209,7 @@ function DockIcon({ children, className, ...rest }: DockIconProps) {
 
   return (
     <motion.div
-      style={{ width: widthTransform }}
+      style={{ width: widthTransform, height: widthTransform }}
       className={cn('flex items-center justify-center', className)}
     >
       {children}
