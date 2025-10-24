@@ -215,9 +215,11 @@ export function CompactPackageCard({
               <div className={cn(
                 'flex w-full items-center justify-center md:justify-start gap-1.5',
                 'text-xs md:text-sm font-bold capitalize',
-                // Phase 3: Green color for uncapped (WCAG AA compliant on orange background)
-                type === 'uncapped'
-                  ? 'text-green-300 drop-shadow-sm'
+                // Adapt text color based on selected state
+                selected
+                  ? 'text-gray-700'
+                  : type === 'uncapped'
+                  ? 'text-white drop-shadow-sm'
                   : 'text-white drop-shadow-sm'
               )}>
                 {/* Phase 3: Infinity icon for uncapped */}
@@ -230,7 +232,7 @@ export function CompactPackageCard({
                 <Info className="w-3 h-3 md:w-3.5 md:h-3.5 ml-0.5 opacity-70" aria-hidden="true" />
               </div>
             </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[200px]">
+            <TooltipContent side="top" className={cn('max-w-[200px]', selected ? 'bg-gray-900 text-white' : 'bg-white text-gray-900')}>
               <p className="text-xs">
                 {type === 'uncapped'
                   ? 'Unlimited data with no caps or restrictions'
