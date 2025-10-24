@@ -31,7 +31,7 @@ const navigation = [
 export default function DashboardLayout({
   children,
 }: {
-  children: React.node;
+  children: React.ReactNode;
 }) {
   const router = useRouter();
   const { user, signOut, loading } = useCustomerAuth();
@@ -63,6 +63,14 @@ export default function DashboardLayout({
     return null;
   }
 
+  const displayName = (
+    [user.user_metadata?.firstName, user.user_metadata?.lastName].filter(Boolean).join(' ') ||
+    (user.user_metadata as any)?.full_name ||
+    (user.user_metadata as any)?.name ||
+    (user.email ? user.email.split('@')[0] : '') ||
+    'User'
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-blue-50/20">
       {/* Header */}
@@ -70,8 +78,7 @@ export default function DashboardLayout({
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="CircleTel" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
+              <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel" className="h-8 w-auto" />
             </Link>
 
             <div className="flex items-center gap-4">
@@ -79,7 +86,7 @@ export default function DashboardLayout({
               <div className="hidden md:flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-semibold text-circleTel-darkNeutral">
-                    {user.user_metadata?.firstName} {user.user_metadata?.lastName}
+                    {displayName}
                   </p>
                   <p className="text-xs text-circleTel-secondaryNeutral">{user.email}</p>
                 </div>
@@ -118,9 +125,7 @@ export default function DashboardLayout({
                     <User className="h-6 w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">
-                      {user.user_metadata?.firstName || 'Customer'}
-                    </p>
+                    <p className="font-semibold truncate">{displayName}</p>
                     <p className="text-xs text-white/80 truncate">{user.email}</p>
                   </div>
                 </div>
@@ -168,9 +173,7 @@ export default function DashboardLayout({
                         <User className="h-6 w-6" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold">
-                          {user.user_metadata?.firstName} {user.user_metadata?.lastName}
-                        </p>
+                        <p className="font-semibold">{displayName}</p>
                         <p className="text-xs text-white/80 truncate">{user.email}</p>
                       </div>
                     </div>

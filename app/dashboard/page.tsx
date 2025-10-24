@@ -111,7 +111,13 @@ export default function DashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Welcome back, {user?.user_metadata?.firstName || 'Customer'}!
+              {(() => {
+                const displayName = ([user?.user_metadata?.firstName, user?.user_metadata?.lastName].filter(Boolean).join(' '))
+                  || (user?.user_metadata as any)?.full_name
+                  || (user?.user_metadata as any)?.name
+                  || (user?.email ? user.email.split('@')[0] : '');
+                return `Welcome back, ${displayName || 'Welcome'}!`;
+              })()}
             </h1>
             <p className="text-lg text-white/90">
               Manage your CircleTel services and orders

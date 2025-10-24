@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="CircleTel">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5831F"/>
+      <stop offset="100%" stop-color="#ff9a42"/>
+    </linearGradient>
+  </defs>
+  <rect rx="8" ry="8" width="40" height="40" fill="url(#g)"/>
+  <g fill="#fff" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="16" text-anchor="middle">
+    <text x="20" y="24">CT</text>
+  </g>
+</svg>

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import Link from 'next/link';
 import { ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
+import { createClient } from '@/integrations/supabase/client';
 
 // Login form validation schema
 const loginSchema = z.object({
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const { signIn } = useCustomerAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [rememberMe, setRememberMe] = React.useState(false);
 
   // Get redirect path from query params (e.g., ?redirect=/order/payment)
   const redirectPath = searchParams.get('redirect') || '/dashboard';
@@ -65,34 +67,38 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` }
+      } as any);
+      if (error) toast.error(error.message);
+    } catch (e: any) {
+      toast.error(e?.message || 'Google sign-in failed');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-blue-100/30 to-white relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Decorative Background Circles */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-200/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden absolute top-20 left-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden absolute bottom-20 right-10 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-200/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Content */}
-      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex items-start justify-center">
         {/* Back Button */}
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-webafrica-blue hover:text-webafrica-blue-dark transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Back</span>
-          </button>
-        </div>
+        <div className="hidden mb-6"></div>
 
         {/* Main Heading */}
-        <h1 className="text-webafrica-blue text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12">
-          Welcome back to CircleTel
+        <h1 className="text-circleTel-darkNeutral text-3xl font-bold text-center mb-8 sm:mb-10">
+          Log in to continue
         </h1>
 
         {/* White Form Container */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm max-w-lg mx-auto">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border max-w-md w-full mx-auto">
           {/* Login Section */}
           <div className="mb-8">
             <h3 className="text-circleTel-orange font-bold text-lg sm:text-xl mb-2">
@@ -103,17 +109,7 @@ export default function LoginPage() {
             </p>
 
             {/* New Customer Banner */}
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-8 flex items-center justify-between">
-              <span className="text-webafrica-blue font-medium text-sm sm:text-base">
-                New Customer?
-              </span>
-              <Link
-                href="/order/account"
-                className="text-webafrica-blue font-bold hover:underline text-sm sm:text-base"
-              >
-                Create Account
-              </Link>
-            </div>
+            <div className="hidden bg-blue-50 border border-blue-100 rounded-lg p-4 mb-8 items-center justify-between"></div>
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -162,13 +158,22 @@ export default function LoginPage() {
                 )}
               />
 
-              {/* Forgot Password Link */}
-              <div className="flex justify-end">
+              {/* Remember Me + Forgot Password */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span>Keep me logged in for 7 days</span>
+                </label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-webafrica-blue text-sm hover:underline"
                 >
-                  Forgot your password?
+                  Forgot password
                 </Link>
               </div>
 
@@ -177,7 +182,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-webafrica-blue text-white font-extrabold px-8 py-3.5 rounded-full hover:bg-webafrica-blue-dark transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-circleTel-orange text-white font-extrabold px-8 py-3.5 rounded-md hover:bg-circleTel-orange/90 transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -190,12 +195,42 @@ export default function LoginPage() {
                   ) : (
                     <>
                       <Lock className="w-5 h-5" />
-                      Sign In
+                      Log in
                     </>
                   )}
                 </button>
               </div>
             </form>
+
+            {/* OR divider */}
+            <div className="flex items-center gap-4 my-6">
+              <div className="h-px bg-gray-200 flex-1" />
+              <span className="text-xs uppercase tracking-wider text-gray-500">OR</span>
+              <div className="h-px bg-gray-200 flex-1" />
+            </div>
+
+            {/* Google Sign-in */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full border border-gray-300 text-gray-800 font-semibold px-8 py-3.5 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              Continue with Google
+            </button>
+
+            {/* Sign up */}
+            <div className="my-6">
+              <div className="h-px bg-gray-200" />
+              <p className="text-center text-sm text-gray-600 mt-4">Don't have an account yet?</p>
+              <Link href="/order/account" className="block mt-3">
+                <button
+                  type="button"
+                  className="w-full border border-gray-300 text-gray-800 font-bold px-8 py-3.5 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Sign up
+                </button>
+              </Link>
+            </div>
           </div>
 
           {/* Security Notice */}
