@@ -18,7 +18,7 @@ import { OrderBreadcrumb } from '@/components/order/OrderBreadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, CheckCircle2, RefreshCcw, ArrowRight, Inbox, Clock } from 'lucide-react';
+import { Mail, CheckCircle2, RefreshCcw, ArrowRight, Inbox, Clock, AlertCircle, ChevronDown, ChevronUp, HelpCircle, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function VerifyEmailPage() {
@@ -26,6 +26,8 @@ export default function VerifyEmailPage() {
   const { user, isEmailVerified, resendVerification } = useCustomerAuth();
   const [isResending, setIsResending] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
+  const [urgencyTimer, setUrgencyTimer] = React.useState(600); // 10 minutes in seconds
+  const [showFAQ, setShowFAQ] = React.useState(false);
 
   // Check if already verified
   React.useEffect(() => {
@@ -42,6 +44,21 @@ export default function VerifyEmailPage() {
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  // 10-minute urgency timer
+  React.useEffect(() => {
+    if (urgencyTimer > 0 && !isEmailVerified) {
+      const timer = setTimeout(() => setUrgencyTimer(urgencyTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [urgencyTimer, isEmailVerified]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleResendEmail = async () => {
     if (!user?.email || countdown > 0) return;
@@ -69,6 +86,12 @@ export default function VerifyEmailPage() {
     router.push('/dashboard');
   };
 
+  const handleChangeEmail = () => {
+    // Log user out and redirect to signup
+    toast.info('Logging out to change email...');
+    router.push('/auth/signup');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30">
       {/* Breadcrumb Navigation */}
@@ -92,6 +115,34 @@ export default function VerifyEmailPage() {
           </CardHeader>
 
           <CardContent className="pt-8 pb-10 px-8 space-y-8">
+            {/* Urgency Timer Banner */}
+            {urgencyTimer > 0 && (
+              <Alert className={`border-2 ${urgencyTimer < 180 ? 'border-red-300 bg-red-50' : 'border-orange-300 bg-orange-50'}`}>
+                <AlertCircle className={`h-5 w-5 ${urgencyTimer < 180 ? 'text-red-600' : 'text-orange-600'}`} />
+                <AlertDescription className={`${urgencyTimer < 180 ? 'text-red-900' : 'text-orange-900'} text-base font-semibold`}>
+                  {urgencyTimer < 180 ? '🔥 Urgent: ' : '⏰ '}Please verify within {formatTime(urgencyTimer)} to keep your session active
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Wrong Email Option */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-3">
+                <Edit2 className="h-5 w-5 text-gray-600" />
+                <span className="text-sm text-gray-700">
+                  Sent to: <span className="font-semibold">{user?.email}</span>
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleChangeEmail}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              >
+                Wrong email?
+              </Button>
+            </div>
+
             {/* Instructions */}
             <div className="space-y-6">
               <Alert className="border-blue-200 bg-blue-50/50">
@@ -182,16 +233,71 @@ export default function VerifyEmailPage() {
               </Button>
             </div>
 
-            {/* Help Section */}
-            <Alert className="border-amber-200 bg-amber-50/50">
-              <Clock className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-900 text-sm">
-                <span className="font-semibold">Email not arriving?</span> It may take a few minutes. Check your spam folder or contact support at{' '}
-                <a href="mailto:support@circletel.co.za" className="underline hover:text-amber-700">
-                  support@circletel.co.za
-                </a>
-              </AlertDescription>
-            </Alert>
+            {/* Troubleshooting FAQ */}
+            <div className="border-t pt-6">
+              <Button
+                variant="ghost"
+                onClick={() => setShowFAQ(!showFAQ)}
+                className="w-full flex items-center justify-between text-base font-semibold text-gray-900 hover:bg-gray-50 py-4"
+              >
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5 text-blue-600" />
+                  Need help? Troubleshooting FAQ
+                </div>
+                {showFAQ ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </Button>
+
+              {showFAQ && (
+                <div className="mt-4 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                  {/* FAQ Item 1 */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-semibold text-blue-900 mb-2">📧 Email not arriving?</p>
+                    <p className="text-sm text-blue-800">
+                      It may take 2-5 minutes. Check your spam/junk folder - look for emails from "noreply@circletel.co.za" or "CircleTel".
+                    </p>
+                  </div>
+
+                  {/* FAQ Item 2 */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-semibold text-blue-900 mb-2">🔗 Link not working?</p>
+                    <p className="text-sm text-blue-800">
+                      Links expire after 24 hours. Click "Resend email" above to get a fresh verification link.
+                    </p>
+                  </div>
+
+                  {/* FAQ Item 3 */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-semibold text-blue-900 mb-2">📱 Using mobile?</p>
+                    <p className="text-sm text-blue-800">
+                      Make sure you're opening the link in your phone's browser (Safari, Chrome). Email apps sometimes block verification links.
+                    </p>
+                  </div>
+
+                  {/* FAQ Item 4 */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-semibold text-blue-900 mb-2">❌ Wrong email address?</p>
+                    <p className="text-sm text-blue-800">
+                      Click "Wrong email?" above to sign up again with the correct email address.
+                    </p>
+                  </div>
+
+                  {/* FAQ Item 5 */}
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="font-semibold text-amber-900 mb-2">🆘 Still need help?</p>
+                    <p className="text-sm text-amber-800">
+                      Contact our support team:{' '}
+                      <a href="mailto:support@circletel.co.za" className="underline hover:text-amber-700 font-semibold">
+                        support@circletel.co.za
+                      </a>{' '}
+                      or call{' '}
+                      <a href="tel:0860123456" className="underline hover:text-amber-700 font-semibold">
+                        086 012 3456
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 

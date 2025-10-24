@@ -75,20 +75,56 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     // Get initial session
     const initializeAuth = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log('[CustomerAuthProvider] Initializing auth...');
+
+        // Add timeout protection for session fetch
+        const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((_, reject) => {
+          setTimeout(() => reject(new Error('Session fetch timeout after 5 seconds')), 5000);
+        });
+
+        const sessionPromise = supabase.auth.getSession();
+        const { data: { session: currentSession } } = await Promise.race([
+          sessionPromise,
+          sessionTimeoutPromise
+        ]) as any;
 
         if (currentSession) {
+          console.log('[CustomerAuthProvider] Session found, setting user state...');
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record
-          const { customer: customerData } = await CustomerAuthService.getCustomer();
-          setCustomer(customerData);
+          // Fetch customer record with timeout protection
+          try {
+            const customerTimeoutPromise = new Promise<{ customer: null; error: string }>((_, reject) => {
+              setTimeout(() => reject(new Error('Customer fetch timeout after 5 seconds')), 5000);
+            });
+
+            const customerPromise = CustomerAuthService.getCustomer();
+            const { customer: customerData } = await Promise.race([
+              customerPromise,
+              customerTimeoutPromise
+            ]);
+
+            console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
+            setCustomer(customerData);
+          } catch (customerError) {
+            console.error('[CustomerAuthProvider] Failed to fetch customer during init:', customerError);
+            // Set customer to null but don't fail the entire auth initialization
+            setCustomer(null);
+          }
+        } else {
+          console.log('[CustomerAuthProvider] No session found');
         }
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        console.error('[CustomerAuthProvider] Failed to initialize auth:', error);
+        // Ensure state is reset on error
+        setSession(null);
+        setUser(null);
+        setCustomer(null);
       } finally {
+        // ALWAYS set loading to false, even if errors occurred
         setLoading(false);
+        console.log('[CustomerAuthProvider] Auth initialization complete');
       }
     };
 

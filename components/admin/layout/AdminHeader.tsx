@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Menu, LogOut, User } from 'lucide-react';
+import { Menu, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
+import { NotificationBell } from '@/components/admin/notifications/NotificationBell';
 
 interface User {
   full_name?: string;
@@ -47,44 +47,8 @@ export function AdminHeader({ onMenuClick, user, onLogout }: AdminHeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative" data-testid="notification-bell">
-                <Bell className="h-5 w-5" />
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
-                >
-                  3
-                </Badge>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <div className="px-3 py-2 border-b">
-                <h3 className="font-semibold">Notifications</h3>
-                <p className="text-sm text-gray-500">3 pending approvals</p>
-              </div>
-              <DropdownMenuItem>
-                <div className="flex-1">
-                  <p className="font-medium">New product pending approval</p>
-                  <p className="text-sm text-gray-500">BizFibre Connect Ultra submitted for review</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex-1">
-                  <p className="font-medium">Pricing update request</p>
-                  <p className="text-sm text-gray-500">SkyFibre SMB promotional rates</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex-1">
-                  <p className="font-medium">Feature update approval</p>
-                  <p className="text-sm text-gray-500">Residential packages updated</p>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Notifications - New NotificationBell Component */}
+          <NotificationBell />
 
           {/* User menu */}
           <DropdownMenu>

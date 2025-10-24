@@ -111,8 +111,8 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1])
     } else {
-      // Proceed to checkout
-      router.push("/wireless/checkout")
+      // Proceed to payment page
+      router.push("/checkout/payment")
     }
   }
 

@@ -74,6 +74,7 @@ export class MTNWMSRealtimeClient {
 
   /**
    * Check coverage at specific coordinates using WMS GetFeatureInfo
+   * Optimized with parallel queries and timeout controls
    */
   static async checkCoverage(
     coordinates: Coordinates,
@@ -90,10 +91,18 @@ export class MTNWMSRealtimeClient {
       ? this.getLayersForServiceTypes(serviceTypes)
       : Object.values(MTN_WMS_LAYERS);
 
+    // Optimization: Add timeout wrapper for each query
+    const queryWithTimeout = (layer: typeof MTN_WMS_LAYERS[keyof typeof MTN_WMS_LAYERS]) => {
+      return Promise.race([
+        this.queryLayer(coordinates, layer.wmsLayer),
+        new Promise<null>((_, reject) => 
+          setTimeout(() => reject(new Error('Query timeout')), 8000)
+        )
+      ]);
+    };
+
     const results = await Promise.allSettled(
-      layersToCheck.map(layer =>
-        this.queryLayer(coordinates, layer.wmsLayer)
-      )
+      layersToCheck.map(layer => queryWithTimeout(layer))
     );
 
     const services = layersToCheck.map((layer, index) => {

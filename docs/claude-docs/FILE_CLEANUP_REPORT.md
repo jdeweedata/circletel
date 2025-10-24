@@ -1,0 +1,725 @@
+# File Cleanup Report
+
+**Generated**: 2025-10-20T18:17:57.377Z
+**Mode**: Execute
+
+---
+
+## Summary
+
+| Metric | Count |
+|--------|-------|
+| Files Moved | 2 |
+| Files Renamed | 0 |
+| Files Deleted | 0 |
+| Files Archived | 346 |
+| Imports Updated | 0 |
+
+## Files Moved
+
+### next-env.d.ts
+- **Target**: \lib\next-env.d.ts
+- **Reason**: Move to /lib
+
+### PROJECT_STRUCTURE.md
+- **Target**: \docs\PROJECT_STRUCTURE.md
+- **Reason**: Move to /docs
+
+## Files Archived
+
+- `.netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759174055806-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759174055806-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `.netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759175809635-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759175809635-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `.netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759176178077-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759176178077-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759173688162-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `uploads\coverage-maps\mtn-1759174055806-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759174055806-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `uploads\coverage-maps\mtn-1759175809635-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759175809635-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `uploads\coverage-maps\mtn-1759176178077-20250716-mtn-sa.kmz` → `/docs/archive/mtn-1759176178077-20250716-mtn-sa.kmz`
+  - Reason: Duplicate of .netlify\functions-internal\___netlify-server-handler\uploads\coverage-maps\mtn-1759173688162-20250716-mtn-sa.kmz
+- `public\afrihost-wireless-demo.css` → `/docs/archive/afrihost-wireless-demo.css`
+  - Reason: Duplicate of .netlify\static\afrihost-wireless-demo.css
+- `public\afrihost-wireless-demo.html` → `/docs/archive/afrihost-wireless-demo.html`
+  - Reason: Duplicate of .netlify\static\afrihost-wireless-demo.html
+- `public\afrihost-wireless-demo.js` → `/docs/archive/afrihost-wireless-demo.js`
+  - Reason: Duplicate of .netlify\static\afrihost-wireless-demo.js
+- `public\circletel-logo.png` → `/docs/archive/circletel-logo.png`
+  - Reason: Duplicate of .netlify\static\circletel-logo.png
+- `public\devices\tozed-x100-angle.png` → `/docs/archive/tozed-x100-angle.png`
+  - Reason: Duplicate of .netlify\static\devices\tozed-x100-angle.png
+- `public\devices\tozed-x100-back.png` → `/docs/archive/tozed-x100-back.png`
+  - Reason: Duplicate of .netlify\static\devices\tozed-x100-back.png
+- `public\devices\tozed-x100-front.png` → `/docs/archive/tozed-x100-front.png`
+  - Reason: Duplicate of .netlify\static\devices\tozed-x100-front.png
+- `public\devices\tozed-x100-pro-black.png` → `/docs/archive/tozed-x100-pro-black.png`
+  - Reason: Duplicate of .netlify\static\devices\tozed-x100-pro-black.png
+- `public\devices\tozed-x100-side.png` → `/docs/archive/tozed-x100-side.png`
+  - Reason: Duplicate of .netlify\static\devices\tozed-x100-side.png
+- `public\favicon.ico` → `/docs/archive/favicon.ico`
+  - Reason: Duplicate of .netlify\static\favicon.ico
+- `public\icon.svg` → `/docs/archive/icon.svg`
+  - Reason: Duplicate of .netlify\static\icon.svg
+- `public\icons\icon-128x128.txt` → `/docs/archive/icon-128x128.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-128x128.txt
+- `public\icons\icon-144x144.png` → `/docs/archive/icon-144x144.png`
+  - Reason: Duplicate of .netlify\static\icons\icon-144x144.png
+- `public\icons\icon-144x144.svg` → `/docs/archive/icon-144x144.svg`
+  - Reason: Duplicate of .netlify\static\icons\icon-144x144.svg
+- `public\icons\icon-144x144.txt` → `/docs/archive/icon-144x144.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-144x144.txt
+- `public\icons\icon-152x152.txt` → `/docs/archive/icon-152x152.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-152x152.txt
+- `public\icons\icon-192x192.png` → `/docs/archive/icon-192x192.png`
+  - Reason: Duplicate of .netlify\static\icons\icon-192x192.png
+- `public\icons\icon-192x192.txt` → `/docs/archive/icon-192x192.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-192x192.txt
+- `public\icons\icon-384x384.txt` → `/docs/archive/icon-384x384.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-384x384.txt
+- `public\icons\icon-512x512.png` → `/docs/archive/icon-512x512.png`
+  - Reason: Duplicate of .netlify\static\icons\icon-512x512.png
+- `public\icons\icon-512x512.txt` → `/docs/archive/icon-512x512.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-512x512.txt
+- `public\icons\icon-72x72.txt` → `/docs/archive/icon-72x72.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-72x72.txt
+- `public\icons\icon-96x96.txt` → `/docs/archive/icon-96x96.txt`
+  - Reason: Duplicate of .netlify\static\icons\icon-96x96.txt
+- `public\images\icons\money-back.png` → `/docs/archive/money-back.png`
+  - Reason: Duplicate of .netlify\static\images\icons\money-back.png
+- `public\images\icons\pci-dss.png` → `/docs/archive/pci-dss.png`
+  - Reason: Duplicate of .netlify\static\images\icons\pci-dss.png
+- `public\images\icons\secure-payment.png` → `/docs/archive/secure-payment.png`
+  - Reason: Duplicate of .netlify\static\images\icons\secure-payment.png
+- `public\images\packages\home-10mbps.png` → `/docs/archive/home-10mbps.png`
+  - Reason: Duplicate of .netlify\static\images\packages\home-10mbps.png
+- `public\images\packages\home-20mbps.png` → `/docs/archive/home-20mbps.png`
+  - Reason: Duplicate of .netlify\static\images\packages\home-20mbps.png
+- `public\images\packages\home-35mbps.png` → `/docs/archive/home-35mbps.png`
+  - Reason: Duplicate of .netlify\static\images\packages\home-35mbps.png
+- `public\images\packages\home-unlimited.png` → `/docs/archive/home-unlimited.png`
+  - Reason: Duplicate of .netlify\static\images\packages\home-unlimited.png
+- `public\images\packages\shesha-200-capped.png` → `/docs/archive/shesha-200-capped.png`
+  - Reason: Duplicate of .netlify\static\images\packages\shesha-200-capped.png
+- `public\images\packages\shesha-200-uncapped.png` → `/docs/archive/shesha-200-uncapped.png`
+  - Reason: Duplicate of .netlify\static\images\packages\shesha-200-uncapped.png
+- `public\images\packages\shesha-600-uncapped.png` → `/docs/archive/shesha-600-uncapped.png`
+  - Reason: Duplicate of .netlify\static\images\packages\shesha-600-uncapped.png
+- `public\images\packages\shesha-80-capped.png` → `/docs/archive/shesha-80-capped.png`
+  - Reason: Duplicate of .netlify\static\images\packages\shesha-80-capped.png
+- `public\images\payment-logos\amex.png` → `/docs/archive/amex.png`
+  - Reason: Duplicate of .netlify\static\images\payment-logos\amex.png
+- `public\images\payment-logos\mastercard.png` → `/docs/archive/mastercard.png`
+  - Reason: Duplicate of .netlify\static\images\payment-logos\mastercard.png
+- `public\images\payment-logos\netcash-horizontal.png` → `/docs/archive/netcash-horizontal.png`
+  - Reason: Duplicate of .netlify\static\images\payment-logos\netcash-horizontal.png
+- `public\images\payment-logos\ssl-secure.png` → `/docs/archive/ssl-secure.png`
+  - Reason: Duplicate of .netlify\static\images\payment-logos\ssl-secure.png
+- `public\images\payment-logos\visa.png` → `/docs/archive/visa.png`
+  - Reason: Duplicate of .netlify\static\images\payment-logos\visa.png
+- `public\lovable-uploads\0d94be75-5c0a-44bf-95fa-777a85da966e.png` → `/docs/archive/0d94be75-5c0a-44bf-95fa-777a85da966e.png`
+  - Reason: Duplicate of .netlify\static\lovable-uploads\0d94be75-5c0a-44bf-95fa-777a85da966e.png
+- `public\manifest.json` → `/docs/archive/manifest.json`
+  - Reason: Duplicate of .netlify\static\manifest.json
+- `public\products\tp-link-deco-x50-3pack.webp` → `/docs/archive/tp-link-deco-x50-3pack.webp`
+  - Reason: Duplicate of .netlify\static\products\tp-link-deco-x50-3pack.webp
+- `public\sw.js` → `/docs/archive/sw.js`
+  - Reason: Duplicate of .netlify\static\sw.js
+- `public\whatsapp-icon.svg` → `/docs/archive/whatsapp-icon.svg`
+  - Reason: Duplicate of .netlify\static\whatsapp-icon.svg
+- `public\workbox-00a24876.js` → `/docs/archive/workbox-00a24876.js`
+  - Reason: Duplicate of .netlify\static\workbox-00a24876.js
+- `.netlify\static\_next\static\chunks\app\api\admin\coverage-leads\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\coverage-leads\[id]\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\notifications\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\notifications\[id]\read\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\orders\consumer\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\product-approvals\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\product-approvals\[id]\approve\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\product-approvals\[id]\reject\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\products\[id]\audit-logs\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\products\[id]\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\providers\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\providers\[id]\coverage-files\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\providers\[id]\logo\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\providers\[id]\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\admin\reminders\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\auth\send-otp\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\auth\verify-otp\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\aggregate\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\debug\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\geo-validate\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\lead\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\lead-capture\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\leads\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\mtn\check\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\mtn\configs\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\mtn\map-check\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\mtn\monitoring\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\mtn\wms-proxy\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\packages\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\coverage\products\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\geocode\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\mtn-wholesale\auth\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\mtn-wholesale\feasibility\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\mtn-wholesale\products\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\orders\consumer\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\orders\create\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payment\netcash\initiate\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payment\netcash\process\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payment\netcash\tokenize\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payment\netcash\webhook\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payments\callback\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payments\initiate\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\payments\status\[transactionId]\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\products\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\strapi\import\afrihost-devices\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\uploads\coverage-maps\[filename]\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\zoho\mcp\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\api\zoho\test-connection\route-a598c3df084dcb56.js` → `/docs/archive/route-a598c3df084dcb56.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\api\admin\coverage\maps\route-a598c3df084dcb56.js
+- `.netlify\static\_next\static\chunks\app\cloud\hosting\page-1c23079d0667be28.js` → `/docs/archive/page-1c23079d0667be28.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\cloud\backup\page-1c23079d0667be28.js
+- `.netlify\static\_next\static\chunks\app\cloud\migration\page-1c23079d0667be28.js` → `/docs/archive/page-1c23079d0667be28.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\cloud\backup\page-1c23079d0667be28.js
+- `.netlify\static\_next\static\chunks\app\resources\connectivity-guide\page-1c23079d0667be28.js` → `/docs/archive/page-1c23079d0667be28.js`
+  - Reason: Duplicate of .netlify\static\_next\static\chunks\app\cloud\backup\page-1c23079d0667be28.js
+- `.playwright-mcp\.playwright-mcp\phase2-tests\04-business-page-hero.png` → `/docs/archive/04-business-page-hero.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\business\05-hero-buttons-final.png
+- `.playwright-mcp\.playwright-mcp\circletel-heritage-hill-results.png` → `/docs/archive/circletel-heritage-hill-results.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\circletel-coverage-heritage-hill.png
+- `.playwright-mcp\coverage\circletel-coverage-heritage-hill.png` → `/docs/archive/circletel-coverage-heritage-hill.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\circletel-coverage-heritage-hill.png
+- `.playwright-mcp\coverage\circletel-heritage-hill-results.png` → `/docs/archive/circletel-heritage-hill-results.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\circletel-coverage-heritage-hill.png
+- `.playwright-mcp\coverage\coverage-integration-complete.png` → `/docs/archive/coverage-integration-complete.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\coverage-integration-complete.png
+- `.playwright-mcp\coverage\mtn-coverage-heritage-hill.png` → `/docs/archive/mtn-coverage-heritage-hill.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\mtn-coverage-heritage-hill.png
+- `.playwright-mcp\coverage\mtn-map-5g-layer.png` → `/docs/archive/mtn-map-5g-layer.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\mtn-map-5g-layer.png
+- `.playwright-mcp\coverage\mtn-map-heritage-hill-results.png` → `/docs/archive/mtn-map-heritage-hill-results.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\mtn-map-heritage-hill-results.png
+- `.playwright-mcp\.playwright-mcp\supersonic-johannesburg-packages.png` → `/docs/archive/supersonic-johannesburg-packages.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\supersonic-cape-town-packages.png
+- `.playwright-mcp\.playwright-mcp\supersonic-pretoria-packages.png` → `/docs/archive/supersonic-pretoria-packages.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\supersonic-durban-packages.png
+- `.playwright-mcp\.playwright-mcp\test-fish-eagle\04-final-result-with-marker.png` → `/docs/archive/04-final-result-with-marker.png`
+  - Reason: Duplicate of .playwright-mcp\.playwright-mcp\test-fish-eagle\03-address-selected-details-shown.png
+- `.playwright-mcp\homepage\01-homepage-initial.png` → `/docs/archive/01-homepage-initial.png`
+  - Reason: Duplicate of .playwright-mcp\01-homepage-initial.png
+- `.playwright-mcp\homepage\01-vox-homepage-initial.png` → `/docs/archive/01-vox-homepage-initial.png`
+  - Reason: Duplicate of .playwright-mcp\01-vox-homepage-initial.png
+- `.playwright-mcp\customer-journey\02-business-fibre-landing.png` → `/docs/archive/02-business-fibre-landing.png`
+  - Reason: Duplicate of .playwright-mcp\02-business-fibre-landing.png
+- `.playwright-mcp\customer-journey\02-coverage-checker-address-typed.png` → `/docs/archive/02-coverage-checker-address-typed.png`
+  - Reason: Duplicate of .playwright-mcp\02-coverage-checker-address-typed.png
+- `.playwright-mcp\customer-journey\03-business-enquiry-form.png` → `/docs/archive/03-business-enquiry-form.png`
+  - Reason: Duplicate of .playwright-mcp\03-business-enquiry-form.png
+- `.playwright-mcp\packages\03-packages-page.png` → `/docs/archive/03-packages-page.png`
+  - Reason: Duplicate of .playwright-mcp\03-packages-page.png
+- `.playwright-mcp\customer-journey\04-completed-enquiry-form.png` → `/docs/archive/04-completed-enquiry-form.png`
+  - Reason: Duplicate of .playwright-mcp\04-completed-enquiry-form.png
+- `.playwright-mcp\customer-journey\04-order-form.png` → `/docs/archive/04-order-form.png`
+  - Reason: Duplicate of .playwright-mcp\04-order-form.png
+- `.playwright-mcp\customer-journey\05-form-validation-error.png` → `/docs/archive/05-form-validation-error.png`
+  - Reason: Duplicate of .playwright-mcp\05-form-validation-error.png
+- `.playwright-mcp\customer-journey\05-order-form-filled.png` → `/docs/archive/05-order-form-filled.png`
+  - Reason: Duplicate of .playwright-mcp\05-order-form-filled.png
+- `.playwright-mcp\customer-journey\06-connectivity-menu-open.png` → `/docs/archive/06-connectivity-menu-open.png`
+  - Reason: Duplicate of .playwright-mcp\06-connectivity-menu-open.png
+- `.playwright-mcp\admin-billing-dashboard.png` → `/docs/archive/admin-billing-dashboard.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-billing-dashboard.png
+- `.playwright-mcp\admin-cms-management.png` → `/docs/archive/admin-cms-management.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-cms-management.png
+- `.playwright-mcp\admin-coverage-add-provider.png` → `/docs/archive/admin-coverage-add-provider.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-add-provider.png
+- `.playwright-mcp\admin-coverage-configuration.png` → `/docs/archive/admin-coverage-configuration.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-configuration.png
+- `.playwright-mcp\admin-coverage-page.png` → `/docs/archive/admin-coverage-page.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-page.png
+- `.playwright-mcp\admin-coverage-providers-loaded.png` → `/docs/archive/admin-coverage-providers-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-providers-loaded.png
+- `.playwright-mcp\admin-coverage-providers.png` → `/docs/archive/admin-coverage-providers.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-providers.png
+- `.playwright-mcp\admin-coverage-testing-tools.png` → `/docs/archive/admin-coverage-testing-tools.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-coverage-testing-tools.png
+- `.playwright-mcp\admin-dashboard-logged-in.png` → `/docs/archive/admin-dashboard-logged-in.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-dashboard-logged-in.png
+- `.playwright-mcp\admin-dashboard-product-manager-rbac.png` → `/docs/archive/admin-dashboard-product-manager-rbac.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-dashboard-product-manager-rbac.png
+- `.playwright-mcp\admin-font-test.png` → `/docs/archive/admin-font-test.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-font-test.png
+- `.playwright-mcp\admin-import-page-loaded.png` → `/docs/archive/admin-import-page-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-import-page-loaded.png
+- `.playwright-mcp\admin-login-blank.png` → `/docs/archive/admin-login-blank.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-login-blank.png
+- `.playwright-mcp\admin-login-cors-error.png` → `/docs/archive/admin-login-cors-error.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-login-cors-error.png
+- `.playwright-mcp\admin-login-filled.png` → `/docs/archive/admin-login-filled.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-login-filled.png
+- `.playwright-mcp\admin-login-page-loaded.png` → `/docs/archive/admin-login-page-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-login-page-loaded.png
+- `.playwright-mcp\admin-packages-page.png` → `/docs/archive/admin-packages-page.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-packages-page.png
+- `.playwright-mcp\admin-page-initial.png` → `/docs/archive/admin-page-initial.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-page-initial.png
+- `.playwright-mcp\admin-page-test.png` → `/docs/archive/admin-page-test.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-page-test.png
+- `.playwright-mcp\admin-panel-initial.png` → `/docs/archive/admin-panel-initial.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-panel-initial.png
+- `.playwright-mcp\admin-products-error.png` → `/docs/archive/admin-products-error.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-products-error.png
+- `.playwright-mcp\misc\page-2025-09-29T09-49-49-266Z.png` → `/docs/archive/page-2025-09-29T09-49-49-266Z.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-products-error.png
+- `.playwright-mcp\page-2025-09-29T09-49-49-266Z.png` → `/docs/archive/page-2025-09-29T09-49-49-266Z.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-products-error.png
+- `.playwright-mcp\admin-products-page-initial.png` → `/docs/archive/admin-products-page-initial.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-products-page-initial.png
+- `.playwright-mcp\admin-products-working.png` → `/docs/archive/admin-products-working.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-products-working.png
+- `.playwright-mcp\admin-zoho-integration.png` → `/docs/archive/admin-zoho-integration.png`
+  - Reason: Duplicate of .playwright-mcp\admin\admin-zoho-integration.png
+- `.playwright-mcp\login-test-after-submit.png` → `/docs/archive/login-test-after-submit.png`
+  - Reason: Duplicate of .playwright-mcp\admin\login-test-after-submit.png
+- `.playwright-mcp\service-packages-initial.png` → `/docs/archive/service-packages-initial.png`
+  - Reason: Duplicate of .playwright-mcp\admin-service-packages-page.png
+- `.playwright-mcp\competitor-research\afrihost-deals-reference.png` → `/docs/archive/afrihost-deals-reference.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-deals-reference.png
+- `.playwright-mcp\competitor-research\afrihost-demo-screenshot.png` → `/docs/archive/afrihost-demo-screenshot.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-demo-screenshot.png
+- `.playwright-mcp\packages\afrihost-packages-section-detail.png` → `/docs/archive/afrihost-packages-section-detail.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-packages-section-detail.png
+- `.playwright-mcp\competitor-research\afrihost-style-demo.png` → `/docs/archive/afrihost-style-demo.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-style-demo.png
+- `.playwright-mcp\competitor-research\afrihost-style-final.png` → `/docs/archive/afrihost-style-final.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-style-final.png
+- `.playwright-mcp\competitor-research\afrihost-wireless-demo-final.png` → `/docs/archive/afrihost-wireless-demo-final.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-wireless-demo-final.png
+- `.playwright-mcp\competitor-research\afrihost-wireless-demo.png` → `/docs/archive/afrihost-wireless-demo.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-wireless-demo.png
+- `.playwright-mcp\competitor-research\afrihost-wireless-devices-page.png` → `/docs/archive/afrihost-wireless-devices-page.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-wireless-devices-page.png
+- `.playwright-mcp\competitor-research\afrihost-wireless-page-analysis.png` → `/docs/archive/afrihost-wireless-page-analysis.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-wireless-page-analysis.png
+- `.playwright-mcp\competitor-research\afrihost-wireless-page.png` → `/docs/archive/afrihost-wireless-page.png`
+  - Reason: Duplicate of .playwright-mcp\afrihost-wireless-page.png
+- `.playwright-mcp\misc\after-save-attempt-2.png` → `/docs/archive/after-save-attempt-2.png`
+  - Reason: Duplicate of .playwright-mcp\after-save-attempt-2.png
+- `.playwright-mcp\misc\after-save-changes.png` → `/docs/archive/after-save-changes.png`
+  - Reason: Duplicate of .playwright-mcp\after-save-changes.png
+- `.playwright-mcp\misc\audit-history-modal-test.png` → `/docs/archive/audit-history-modal-test.png`
+  - Reason: Duplicate of .playwright-mcp\audit-history-modal-test.png
+- `.playwright-mcp\audit-logging-test-complete.png` → `/docs/archive/audit-logging-test-complete.png`
+  - Reason: Duplicate of .playwright-mcp\audit-logging-final-state.png
+- `.playwright-mcp\misc\billing-customers.png` → `/docs/archive/billing-customers.png`
+  - Reason: Duplicate of .playwright-mcp\billing-customers.png
+- `.playwright-mcp\misc\billing-dashboard.png` → `/docs/archive/billing-dashboard.png`
+  - Reason: Duplicate of .playwright-mcp\billing-dashboard.png
+- `.playwright-mcp\misc\business-pro-page-test.png` → `/docs/archive/business-pro-page-test.png`
+  - Reason: Duplicate of .playwright-mcp\business-pro-page-test.png
+- `.playwright-mcp\competitor-research\cellc-fibre-page.png` → `/docs/archive/cellc-fibre-page.png`
+  - Reason: Duplicate of .playwright-mcp\cellc-fibre-page.png
+- `.playwright-mcp\coverage\centurion-coverage-check.png` → `/docs/archive/centurion-coverage-check.png`
+  - Reason: Duplicate of .playwright-mcp\centurion-coverage-check.png
+- `.playwright-mcp\homepage\circletel-coverage-results.png` → `/docs/archive/circletel-coverage-results.png`
+  - Reason: Duplicate of .playwright-mcp\circletel-coverage-results.png
+- `.playwright-mcp\homepage\circletel-demo-page-full.png` → `/docs/archive/circletel-demo-page-full.png`
+  - Reason: Duplicate of .playwright-mcp\circletel-demo-page-full.png
+- `.playwright-mcp\homepage\circletel-live-site-header.png` → `/docs/archive/circletel-live-site-header.png`
+  - Reason: Duplicate of .playwright-mcp\circletel-live-site-header.png
+- `.playwright-mcp\homepage\circletel-mesh-wifi-page.png` → `/docs/archive/circletel-mesh-wifi-page.png`
+  - Reason: Duplicate of .playwright-mcp\circletel-mesh-wifi-page.png
+- `.playwright-mcp\circletel-portal-witkoppen-spruit-park-initial.png` → `/docs/archive/circletel-portal-witkoppen-spruit-park-initial.png`
+  - Reason: Duplicate of .playwright-mcp\circletel-portal-heritage-hill-initial.png
+- `.playwright-mcp\supersonic-address-entered.png` → `/docs/archive/supersonic-address-entered.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\supersonic-address-entered.png
+- `.playwright-mcp\supersonic-initial-load.png` → `/docs/archive/supersonic-initial-load.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\supersonic-initial-load.png
+- `.playwright-mcp\verizon-business-page.png` → `/docs/archive/verizon-business-page.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\verizon-business-page.png
+- `.playwright-mcp\verizon-home-internet-page.png` → `/docs/archive/verizon-home-internet-page.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\verizon-home-internet-page.png
+- `.playwright-mcp\verizon-style-demo.png` → `/docs/archive/verizon-style-demo.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\verizon-style-demo.png
+- `.playwright-mcp\vox-step1-wireless-business-homepage.png` → `/docs/archive/vox-step1-wireless-business-homepage.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\vox-step1-wireless-business-homepage.png
+- `.playwright-mcp\vox-step2-coverage-check-page.png` → `/docs/archive/vox-step2-coverage-check-page.png`
+  - Reason: Duplicate of .playwright-mcp\competitor-research\vox-step2-coverage-check-page.png
+- `.playwright-mcp\coverage-checker-location-button.png` → `/docs/archive/coverage-checker-location-button.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\coverage-checker-location-button.png
+- `.playwright-mcp\coverage-map-final.png` → `/docs/archive/coverage-map-final.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\coverage-map-final.png
+- `.playwright-mcp\coverage-maps-loaded.png` → `/docs/archive/coverage-maps-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\coverage-maps-loaded.png
+- `.playwright-mcp\coverage-results-step.png` → `/docs/archive/coverage-results-step.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\coverage-results-step.png
+- `.playwright-mcp\map-viewer-modal.png` → `/docs/archive/map-viewer-modal.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\map-viewer-modal.png
+- `.playwright-mcp\map-with-sample-data.png` → `/docs/archive/map-with-sample-data.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\map-with-sample-data.png
+- `.playwright-mcp\maps-page-loaded.png` → `/docs/archive/maps-page-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\maps-page-loaded.png
+- `.playwright-mcp\mtn-consumer-map-initial.png` → `/docs/archive/mtn-consumer-map-initial.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-consumer-map-initial.png
+- `.playwright-mcp\mtn-coverage-browser-test.png` → `/docs/archive/mtn-coverage-browser-test.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-coverage-browser-test.png
+- `.playwright-mcp\mtn-pricing-demo-initial.png` → `/docs/archive/mtn-pricing-demo-initial.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-pricing-demo-initial.png
+- `.playwright-mcp\mtn-pricing-demo-mobile.png` → `/docs/archive/mtn-pricing-demo-mobile.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-pricing-demo-mobile.png
+- `.playwright-mcp\mtn-pricing-demo-router-tab.png` → `/docs/archive/mtn-pricing-demo-router-tab.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-pricing-demo-router-tab.png
+- `.playwright-mcp\mtn-pricing-demo-tablet.png` → `/docs/archive/mtn-pricing-demo-tablet.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-pricing-demo-tablet.png
+- `.playwright-mcp\mtn-uncapped-wireless-map.png` → `/docs/archive/mtn-uncapped-wireless-map.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\mtn-uncapped-wireless-map.png
+- `.playwright-mcp\skyfibre-api-consumer-centurion.png` → `/docs/archive/skyfibre-api-consumer-centurion.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\skyfibre-api-consumer-centurion.png
+- `.playwright-mcp\skyfibre-api-sme-filtered.png` → `/docs/archive/skyfibre-api-sme-filtered.png`
+  - Reason: Duplicate of .playwright-mcp\coverage\skyfibre-api-sme-filtered.png
+- `.playwright-mcp\misc\desktop-logo-test.png` → `/docs/archive/desktop-logo-test.png`
+  - Reason: Duplicate of .playwright-mcp\desktop-logo-test.png
+- `.playwright-mcp\misc\desktop-view-full.png` → `/docs/archive/desktop-view-full.png`
+  - Reason: Duplicate of .playwright-mcp\desktop-view-full.png
+- `.playwright-mcp\product-pages\device-card-component-success.png` → `/docs/archive/device-card-component-success.png`
+  - Reason: Duplicate of .playwright-mcp\device-card-component-success.png
+- `.playwright-mcp\product-pages\device-cards-frontend.png` → `/docs/archive/device-cards-frontend.png`
+  - Reason: Duplicate of .playwright-mcp\device-cards-frontend.png
+- `.playwright-mcp\misc\form-filled-ready-to-save.png` → `/docs/archive/form-filled-ready-to-save.png`
+  - Reason: Duplicate of .playwright-mcp\form-filled-ready-to-save.png
+- `.playwright-mcp\misc\hero-section-test.png` → `/docs/archive/hero-section-test.png`
+  - Reason: Duplicate of .playwright-mcp\hero-section-test.png
+- `.playwright-mcp\misc\home-page-current-state.png` → `/docs/archive/home-page-current-state.png`
+  - Reason: Duplicate of .playwright-mcp\home-page-current-state.png
+- `.playwright-mcp\misc\home-page-viewport.png` → `/docs/archive/home-page-viewport.png`
+  - Reason: Duplicate of .playwright-mcp\home-page-viewport.png
+- `.playwright-mcp\supersonic-homepage-initial.png` → `/docs/archive/supersonic-homepage-initial.png`
+  - Reason: Duplicate of .playwright-mcp\homepage\supersonic-homepage-initial.png
+- `.playwright-mcp\misc\homepage-design.png` → `/docs/archive/homepage-design.png`
+  - Reason: Duplicate of .playwright-mcp\homepage-design.png
+- `.playwright-mcp\misc\homepage-loaded.png` → `/docs/archive/homepage-loaded.png`
+  - Reason: Duplicate of .playwright-mcp\homepage-loaded.png
+- `.playwright-mcp\misc\import-page-screenshot.png` → `/docs/archive/import-page-screenshot.png`
+  - Reason: Duplicate of .playwright-mcp\import-page-screenshot.png
+- `.playwright-mcp\misc\import-success.png` → `/docs/archive/import-success.png`
+  - Reason: Duplicate of .playwright-mcp\import-success.png
+- `.playwright-mcp\product-pages\mesh-wifi-device-cards.png` → `/docs/archive/mesh-wifi-device-cards.png`
+  - Reason: Duplicate of .playwright-mcp\mesh-wifi-device-cards.png
+- `.playwright-mcp\product-pages\mesh-wifi-devices-page.png` → `/docs/archive/mesh-wifi-devices-page.png`
+  - Reason: Duplicate of .playwright-mcp\mesh-wifi-devices-page.png
+- `.playwright-mcp\product-pages\mesh-wifi-page-test.png` → `/docs/archive/mesh-wifi-page-test.png`
+  - Reason: Duplicate of .playwright-mcp\mesh-wifi-page-test.png
+- `.playwright-mcp\page-2025-09-28T17-13-09-008Z.png` → `/docs/archive/page-2025-09-28T17-13-09-008Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-28T17-13-09-008Z.png
+- `.playwright-mcp\page-2025-09-29T07-46-51-875Z.png` → `/docs/archive/page-2025-09-29T07-46-51-875Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T07-46-51-875Z.png
+- `.playwright-mcp\page-2025-09-29T07-50-23-818Z.png` → `/docs/archive/page-2025-09-29T07-50-23-818Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T07-50-23-818Z.png
+- `.playwright-mcp\page-2025-09-29T09-17-32-376Z.png` → `/docs/archive/page-2025-09-29T09-17-32-376Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-17-32-376Z.png
+- `.playwright-mcp\page-2025-09-29T09-27-55-213Z.png` → `/docs/archive/page-2025-09-29T09-27-55-213Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-27-55-213Z.png
+- `.playwright-mcp\page-2025-09-29T09-29-16-424Z.png` → `/docs/archive/page-2025-09-29T09-29-16-424Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-29-16-424Z.png
+- `.playwright-mcp\page-2025-09-29T09-33-15-401Z.png` → `/docs/archive/page-2025-09-29T09-33-15-401Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-33-15-401Z.png
+- `.playwright-mcp\page-2025-09-29T09-36-35-373Z.png` → `/docs/archive/page-2025-09-29T09-36-35-373Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-36-35-373Z.png
+- `.playwright-mcp\page-2025-09-29T09-40-50-543Z.png` → `/docs/archive/page-2025-09-29T09-40-50-543Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-40-50-543Z.png
+- `.playwright-mcp\page-2025-09-29T09-51-54-079Z.png` → `/docs/archive/page-2025-09-29T09-51-54-079Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T09-51-54-079Z.png
+- `.playwright-mcp\page-2025-09-29T19-06-05-356Z.png` → `/docs/archive/page-2025-09-29T19-06-05-356Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-06-05-356Z.png
+- `.playwright-mcp\page-2025-09-29T19-06-25-680Z.png` → `/docs/archive/page-2025-09-29T19-06-25-680Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-06-25-680Z.png
+- `.playwright-mcp\page-2025-09-29T19-07-36-157Z.png` → `/docs/archive/page-2025-09-29T19-07-36-157Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-07-36-157Z.png
+- `.playwright-mcp\page-2025-09-29T19-17-16-147Z.png` → `/docs/archive/page-2025-09-29T19-17-16-147Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-17-16-147Z.png
+- `.playwright-mcp\page-2025-09-29T19-30-30-437Z.png` → `/docs/archive/page-2025-09-29T19-30-30-437Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-30-30-437Z.png
+- `.playwright-mcp\page-2025-09-29T19-31-07-527Z.png` → `/docs/archive/page-2025-09-29T19-31-07-527Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-31-07-527Z.png
+- `.playwright-mcp\page-2025-09-29T19-32-56-167Z.png` → `/docs/archive/page-2025-09-29T19-32-56-167Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-32-56-167Z.png
+- `.playwright-mcp\page-2025-09-29T19-36-56-198Z.png` → `/docs/archive/page-2025-09-29T19-36-56-198Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-36-56-198Z.png
+- `.playwright-mcp\misc\page-2025-09-29T19-59-50-064Z.png` → `/docs/archive/page-2025-09-29T19-59-50-064Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-47-52-488Z.png
+- `.playwright-mcp\page-2025-09-29T19-47-52-488Z.png` → `/docs/archive/page-2025-09-29T19-47-52-488Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-47-52-488Z.png
+- `.playwright-mcp\page-2025-09-29T19-59-50-064Z.png` → `/docs/archive/page-2025-09-29T19-59-50-064Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-47-52-488Z.png
+- `.playwright-mcp\page-2025-09-29T19-52-50-005Z.png` → `/docs/archive/page-2025-09-29T19-52-50-005Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-29T19-52-50-005Z.png
+- `.playwright-mcp\page-2025-09-30T08-53-33-401Z.png` → `/docs/archive/page-2025-09-30T08-53-33-401Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T08-53-33-401Z.png
+- `.playwright-mcp\page-2025-09-30T08-54-04-702Z.png` → `/docs/archive/page-2025-09-30T08-54-04-702Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T08-54-04-702Z.png
+- `.playwright-mcp\page-2025-09-30T08-55-03-840Z.png` → `/docs/archive/page-2025-09-30T08-55-03-840Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T08-55-03-840Z.png
+- `.playwright-mcp\page-2025-09-30T09-35-24-781Z.png` → `/docs/archive/page-2025-09-30T09-35-24-781Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-35-24-781Z.png
+- `.playwright-mcp\page-2025-09-30T09-38-47-631Z.png` → `/docs/archive/page-2025-09-30T09-38-47-631Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-38-47-631Z.png
+- `.playwright-mcp\page-2025-09-30T09-39-41-049Z.png` → `/docs/archive/page-2025-09-30T09-39-41-049Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-39-41-049Z.png
+- `.playwright-mcp\page-2025-09-30T09-53-24-956Z.png` → `/docs/archive/page-2025-09-30T09-53-24-956Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-53-24-956Z.png
+- `.playwright-mcp\page-2025-09-30T09-54-28-775Z.png` → `/docs/archive/page-2025-09-30T09-54-28-775Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-54-28-775Z.png
+- `.playwright-mcp\page-2025-09-30T09-59-58-560Z.png` → `/docs/archive/page-2025-09-30T09-59-58-560Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-09-30T09-59-58-560Z.png
+- `.playwright-mcp\page-2025-10-01T10-07-32-034Z.png` → `/docs/archive/page-2025-10-01T10-07-32-034Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-10-01T10-07-32-034Z.png
+- `.playwright-mcp\page-2025-10-01T10-08-53-319Z.png` → `/docs/archive/page-2025-10-01T10-08-53-319Z.png`
+  - Reason: Duplicate of .playwright-mcp\misc\page-2025-10-01T10-08-53-319Z.png
+- `.playwright-mcp\misc\price-edit-modal-opened.png` → `/docs/archive/price-edit-modal-opened.png`
+  - Reason: Duplicate of .playwright-mcp\misc\price-edit-form-filled.png
+- `.playwright-mcp\price-edit-form-filled.png` → `/docs/archive/price-edit-form-filled.png`
+  - Reason: Duplicate of .playwright-mcp\misc\price-edit-form-filled.png
+- `.playwright-mcp\price-edit-modal-opened.png` → `/docs/archive/price-edit-modal-opened.png`
+  - Reason: Duplicate of .playwright-mcp\misc\price-edit-form-filled.png
+- `.playwright-mcp\products-page-dropdown-menu-product-manager.png` → `/docs/archive/products-page-dropdown-menu-product-manager.png`
+  - Reason: Duplicate of .playwright-mcp\misc\products-page-dropdown-menu-product-manager.png
+- `.playwright-mcp\products-page-frontend.png` → `/docs/archive/products-page-frontend.png`
+  - Reason: Duplicate of .playwright-mcp\misc\products-page-frontend.png
+- `.playwright-mcp\unjani-contract-audit-form.png` → `/docs/archive/unjani-contract-audit-form.png`
+  - Reason: Duplicate of .playwright-mcp\misc\unjani-contract-audit-form.png
+- `.playwright-mcp\unjani-form-original.png` → `/docs/archive/unjani-form-original.png`
+  - Reason: Duplicate of .playwright-mcp\misc\unjani-form-original.png
+- `.playwright-mcp\unjani-form-recreated.png` → `/docs/archive/unjani-form-recreated.png`
+  - Reason: Duplicate of .playwright-mcp\misc\unjani-form-recreated.png
+- `.playwright-mcp\updated-logo-size.png` → `/docs/archive/updated-logo-size.png`
+  - Reason: Duplicate of .playwright-mcp\misc\updated-logo-size.png
+- `.playwright-mcp\updated-promotions-page.png` → `/docs/archive/updated-promotions-page.png`
+  - Reason: Duplicate of .playwright-mcp\misc\updated-promotions-page.png
+- `.playwright-mcp\updated-tp-link-page-specs.png` → `/docs/archive/updated-tp-link-page-specs.png`
+  - Reason: Duplicate of .playwright-mcp\misc\updated-tp-link-page-specs.png
+- `.playwright-mcp\updated-tp-link-page-top.png` → `/docs/archive/updated-tp-link-page-top.png`
+  - Reason: Duplicate of .playwright-mcp\misc\updated-tp-link-page-top.png
+- `.playwright-mcp\voip-page.png` → `/docs/archive/voip-page.png`
+  - Reason: Duplicate of .playwright-mcp\misc\voip-page.png
+- `.playwright-mcp\wifi-mesh-icon-implemented.png` → `/docs/archive/wifi-mesh-icon-implemented.png`
+  - Reason: Duplicate of .playwright-mcp\misc\wifi-mesh-icon-implemented.png
+- `.playwright-mcp\mobile-logo-responsive-test.png` → `/docs/archive/mobile-logo-responsive-test.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\mobile-logo-responsive-test.png
+- `.playwright-mcp\mobile-logo-test.png` → `/docs/archive/mobile-logo-test.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\mobile-logo-test.png
+- `.playwright-mcp\mobile-view.png` → `/docs/archive/mobile-view.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\mobile-view.png
+- `.playwright-mcp\mobile-with-address.png` → `/docs/archive/mobile-with-address.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\mobile-with-address.png
+- `.playwright-mcp\tablet-layout-test.png` → `/docs/archive/tablet-layout-test.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\tablet-layout-test.png
+- `.playwright-mcp\tablet-logo-responsive-test.png` → `/docs/archive/tablet-logo-responsive-test.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\tablet-logo-responsive-test.png
+- `.playwright-mcp\tablet-view.png` → `/docs/archive/tablet-view.png`
+  - Reason: Duplicate of .playwright-mcp\mobile\tablet-view.png
+- `.playwright-mcp\packages\mobile-packages-final.png` → `/docs/archive/mobile-packages-final.png`
+  - Reason: Duplicate of .playwright-mcp\mobile-packages-final.png
+- `.playwright-mcp\packages\mobile-packages-view.png` → `/docs/archive/mobile-packages-view.png`
+  - Reason: Duplicate of .playwright-mcp\mobile-packages-view.png
+- `docs\coverage-tests\bryanston-dr-108-20251015-142605\mtn-5g-fwa\mtn-5g-fwa-coverage-error.png` → `/docs/archive/mtn-5g-fwa-coverage-error.png`
+  - Reason: Duplicate of .playwright-mcp\mtn-5g-fwa-coverage-error.png
+- `.playwright-mcp\packages-display-promotional-pricing.png` → `/docs/archive/packages-display-promotional-pricing.png`
+  - Reason: Duplicate of .playwright-mcp\packages\packages-display-promotional-pricing.png
+- `.playwright-mcp\supersonic-packages-page.png` → `/docs/archive/supersonic-packages-page.png`
+  - Reason: Duplicate of .playwright-mcp\packages\supersonic-packages-page.png
+- `.playwright-mcp\tablet-packages-view.png` → `/docs/archive/tablet-packages-view.png`
+  - Reason: Duplicate of .playwright-mcp\packages\tablet-packages-view.png
+- `.playwright-mcp\wireless-packages-page.png` → `/docs/archive/wireless-packages-page.png`
+  - Reason: Duplicate of .playwright-mcp\packages\wireless-packages-page.png
+- `.playwright-mcp\wireless-packages-working.png` → `/docs/archive/wireless-packages-working.png`
+  - Reason: Duplicate of .playwright-mcp\packages\wireless-packages-working.png
+- `.playwright-mcp\tp-link-deco-x50-hero.png` → `/docs/archive/tp-link-deco-x50-hero.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\tp-link-deco-x50-hero.png
+- `.playwright-mcp\tp-link-features-section.png` → `/docs/archive/tp-link-features-section.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\tp-link-features-section.png
+- `.playwright-mcp\tp-link-hero-section.png` → `/docs/archive/tp-link-hero-section.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\tp-link-hero-section.png
+- `.playwright-mcp\tp-link-product-page-final.png` → `/docs/archive/tp-link-product-page-final.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\tp-link-product-page-final.png
+- `.playwright-mcp\tp-link-specifications.png` → `/docs/archive/tp-link-specifications.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\tp-link-specifications.png
+- `.playwright-mcp\wireless-page-circletel-branded.png` → `/docs/archive/wireless-page-circletel-branded.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\wireless-page-circletel-branded.png
+- `.playwright-mcp\wireless-page-circletel-mobile.png` → `/docs/archive/wireless-page-circletel-mobile.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\wireless-page-circletel-mobile.png
+- `.playwright-mcp\wireless-page-circletel-tablet.png` → `/docs/archive/wireless-page-circletel-tablet.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\wireless-page-circletel-tablet.png
+- `.playwright-mcp\wireless-page-complete.png` → `/docs/archive/wireless-page-complete.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\wireless-page-complete.png
+- `.playwright-mcp\wireless-page-modern-viewport.png` → `/docs/archive/wireless-page-modern-viewport.png`
+  - Reason: Duplicate of .playwright-mcp\product-pages\wireless-page-modern-viewport.png
+- `.playwright-mcp\promotions-devices-filter.png` → `/docs/archive/promotions-devices-filter.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-devices-filter.png
+- `.playwright-mcp\promotions-fibre-filtered.png` → `/docs/archive/promotions-fibre-filtered.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-fibre-filtered.png
+- `.playwright-mcp\promotions\promotions-page-with-canva-images.png` → `/docs/archive/promotions-page-with-canva-images.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-final-test.png
+- `.playwright-mcp\promotions-final-test.png` → `/docs/archive/promotions-final-test.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-final-test.png
+- `.playwright-mcp\promotions-page-with-canva-images.png` → `/docs/archive/promotions-page-with-canva-images.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-final-test.png
+- `.playwright-mcp\promotions-mobile-filter.png` → `/docs/archive/promotions-mobile-filter.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-mobile-filter.png
+- `.playwright-mcp\promotions-page-full.png` → `/docs/archive/promotions-page-full.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-page-full.png
+- `.playwright-mcp\promotions-wireless-filtered.png` → `/docs/archive/promotions-wireless-filtered.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-wireless-filtered.png
+- `.playwright-mcp\promotions-with-header-footer-full.png` → `/docs/archive/promotions-with-header-footer-full.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-with-header-footer-full.png
+- `.playwright-mcp\promotions-with-header-footer-viewport.png` → `/docs/archive/promotions-with-header-footer-viewport.png`
+  - Reason: Duplicate of .playwright-mcp\promotions\promotions-with-header-footer-viewport.png
+- `docs\coverage-tests\bryanston-dr-108-20251015-142605\supersonic\supersonic-coverage-results.png` → `/docs/archive/supersonic-coverage-results.png`
+  - Reason: Duplicate of .playwright-mcp\supersonic-coverage-results.png
+- `.playwright-mcp\supersonic-witkoppen-spruit-park-results.png` → `/docs/archive/supersonic-witkoppen-spruit-park-results.png`
+  - Reason: Duplicate of .playwright-mcp\supersonic-heritage-hill-results.png
+- `.playwright-mcp\test-fish-eagle\03-after-autocomplete.png` → `/docs/archive/03-after-autocomplete.png`
+  - Reason: Duplicate of .playwright-mcp\test-fish-eagle\02-address-typed.png
+- `strapi-cms\database\migrations\.gitkeep` → `/docs/archive/.gitkeep`
+  - Reason: Duplicate of .playwright-mcp\test-fish-eagle\d3db7803ba5c3cc0e3f61317a0cfe4fc.webm
+- `strapi-cms\public\uploads\.gitkeep` → `/docs/archive/.gitkeep`
+  - Reason: Duplicate of .playwright-mcp\test-fish-eagle\d3db7803ba5c3cc0e3f61317a0cfe4fc.webm
+- `strapi-cms\src\api\.gitkeep` → `/docs/archive/.gitkeep`
+  - Reason: Duplicate of .playwright-mcp\test-fish-eagle\d3db7803ba5c3cc0e3f61317a0cfe4fc.webm
+- `strapi-cms\src\extensions\.gitkeep` → `/docs/archive/.gitkeep`
+  - Reason: Duplicate of .playwright-mcp\test-fish-eagle\d3db7803ba5c3cc0e3f61317a0cfe4fc.webm
+- `docs\technical\DESIGN_SYSTEM.md` → `/docs/archive/DESIGN_SYSTEM.md`
+  - Reason: Duplicate of docs\architecture\DESIGN_SYSTEM.md
+- `docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Phase 2 - Implementation\Feature_Addition_Spec_MTN_Feasibility_v1.0.md` → `/docs/archive/Feature_Addition_Spec_MTN_Feasibility_v1.0.md`
+  - Reason: Duplicate of docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Feature_Addition_Spec_MTN_Feasibility_v1.0 (1).md
+- `docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Quick_Reference_Checklist_v1.1.md` → `/docs/archive/Quick_Reference_Checklist_v1.1.md`
+  - Reason: Duplicate of docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Phase 2 - Implementation\Quick_Reference_Checklist_v1.1.md
+- `docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Technical_Review_Response_v1.1.md` → `/docs/archive/Technical_Review_Response_v1.1.md`
+  - Reason: Duplicate of docs\features\2025-10-18_coverage-system\mtn-feasibility-api-integration\Phase 2 - Implementation\Technical_Review_Response_v1.1.md
+- `docs\integrations\mtn\archive\MTN_PAGE_IMPLEMENTATION.md` → `/docs/archive/MTN_PAGE_IMPLEMENTATION.md`
+  - Reason: Duplicate of docs\implementation\MTN_PAGE_IMPLEMENTATION.md
+- `docs\technical\api-endpoints.docx` → `/docs/archive/api-endpoints.docx`
+  - Reason: Duplicate of docs\integrations\api-endpoints.docx
+- `docs\integrations\MTN_API_INVESTIGATION_FINDINGS.md` → `/docs/archive/MTN_API_INVESTIGATION_FINDINGS.md`
+  - Reason: Duplicate of docs\integrations\mtn\consumer-api\MTN_API_INVESTIGATION_FINDINGS.md
+- `docs\integrations\MTN_CONSUMER_API_SPECIFICATION.md` → `/docs/archive/MTN_CONSUMER_API_SPECIFICATION.md`
+  - Reason: Duplicate of docs\integrations\mtn\consumer-api\MTN_CONSUMER_API_SPECIFICATION.md
+- `docs\integrations\MTN_INTEGRATION_SUMMARY.md` → `/docs/archive/MTN_INTEGRATION_SUMMARY.md`
+  - Reason: Duplicate of docs\integrations\mtn\MTN_INTEGRATION_SUMMARY.md
+- `docs\integrations\MTN_PHASE1_COMPLETION.md` → `/docs/archive/MTN_PHASE1_COMPLETION.md`
+  - Reason: Duplicate of docs\integrations\mtn\MTN_PHASE1_COMPLETION.md
+- `docs\integrations\MTN_PHASE2_COMPLETION.md` → `/docs/archive/MTN_PHASE2_COMPLETION.md`
+  - Reason: Duplicate of docs\integrations\mtn\MTN_PHASE2_COMPLETION.md
+- `docs\integrations\MTN_PHASE3_COMPLETION.md` → `/docs/archive/MTN_PHASE3_COMPLETION.md`
+  - Reason: Duplicate of docs\integrations\mtn\MTN_PHASE3_COMPLETION.md
+- `docs\testing\MTN_COVERAGE_COMPARISON_TEST.md` → `/docs/archive/MTN_COVERAGE_COMPARISON_TEST.md`
+  - Reason: Duplicate of docs\integrations\mtn\testing\MTN_COVERAGE_COMPARISON_TEST.md
+- `docs\products\active\BizFibreConnect\bizfibre-connect-product-doc-v2.md` → `/docs/archive/bizfibre-connect-product-doc-v2.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\BizFibreConnect\bizfibre-connect-product-doc-v2.md
+- `docs\products\active\BizFibreConnect\bizfibre-connect-product-doc.md` → `/docs/archive/bizfibre-connect-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\BizFibreConnect\bizfibre-connect-product-doc.md
+- `docs\products\active\BizFibreConnect\bizfibre-router-recommendations.md` → `/docs/archive/bizfibre-router-recommendations.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\BizFibreConnect\bizfibre-router-recommendations.md
+- `docs\products\active\HomeFibreConnect\homefibre-connect-product-doc.md` → `/docs/archive/homefibre-connect-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\HomeFibreConnect\homefibre-connect-product-doc.md
+- `docs\products\active\HomeFibreConnect\homefibreconnect-portfolio.md` → `/docs/archive/homefibreconnect-portfolio.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\HomeFibreConnect\homefibreconnect-portfolio.md
+- `docs\products\active\HomeFibreConnect\router-recommendations-for-homefibreconnect-doc.md` → `/docs/archive/router-recommendations-for-homefibreconnect-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\HomeFibreConnect\router-recommendations-for-homefibreconnect-doc.md
+- `docs\products\active\Managed_Services\EdgeConnect_360\ProductSpec_EdgeConnect-360_v1.0_2025-01-10_21.md` → `/docs/archive/ProductSpec_EdgeConnect-360_v1.0_2025-01-10_21.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\Managed_Services\EdgeConnect_360\ProductSpec_EdgeConnect-360_v1.0_2025-01-10_21.md
+- `docs\products\active\Managed_Services\SD_WAN_Lite\ProductSpec_SD-WAN-Lite_v1.0_2025-01-10_22.md` → `/docs/archive/ProductSpec_SD-WAN-Lite_v1.0_2025-01-10_22.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\Managed_Services\SD_WAN_Lite\ProductSpec_SD-WAN-Lite_v1.0_2025-01-10_22.md
+- `docs\products\active\Managed_Services\SmartBranch_LTE\ProductSpec_SmartBranch-LTE-Backup_v1.0_2025-01-10_23.md` → `/docs/archive/ProductSpec_SmartBranch-LTE-Backup_v1.0_2025-01-10_23.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\Managed_Services\SmartBranch_LTE\ProductSpec_SmartBranch-LTE-Backup_v1.0_2025-01-10_23.md
+- `docs\products\active\MTN 5G-LTE\mtn-5g-product-doc.md` → `/docs/archive/mtn-5g-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\MTN 5G-LTE\mtn-5g-product-doc.md
+- `docs\products\active\MTN 5G-LTE\mtn-broadband-lte-product-doc.md` → `/docs/archive/mtn-broadband-lte-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\MTN 5G-LTE\mtn-broadband-lte-product-doc.md
+- `docs\products\active\MTN 5G-LTE\mtn-lte-uncapped-product-doc.md` → `/docs/archive/mtn-lte-uncapped-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\MTN 5G-LTE\mtn-lte-uncapped-product-doc.md
+- `docs\products\active\SkyFibre\Business\ProductSpec_SkyFibre-Business_v2.0_2025-01-10_19.md` → `/docs/archive/ProductSpec_SkyFibre-Business_v2.0_2025-01-10_19.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Business\ProductSpec_SkyFibre-Business_v2.0_2025-01-10_19.md
+- `docs\products\active\SkyFibre\Business\ProductSpec_SkyFibre-Business_v2.0_2025-09-04_10-00.md` → `/docs/archive/ProductSpec_SkyFibre-Business_v2.0_2025-09-04_10-00.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Business\ProductSpec_SkyFibre-Business_v2.0_2025-09-04_10-00.md
+- `docs\products\active\SkyFibre\per-site-financial-technical.md` → `/docs/archive/per-site-financial-technical.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\per-site-financial-technical.md
+- `docs\products\active\SkyFibre\Residential\skyfibre-home-specs.md` → `/docs/archive/skyfibre-home-specs.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-home-specs.md
+- `docs\products\active\SkyFibre\Residential\skyfibre-product-spec-v6.md` → `/docs/archive/skyfibre-product-spec-v6.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-product-spec-v6.md
+- `docs\products\active\SkyFibre\Residential\skyfibre-residential-product-doc-v7.md` → `/docs/archive/skyfibre-residential-product-doc-v7.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-residential-product-doc-v7.md
+- `docs\products\active\SkyFibre\Residential\skyfibre-residential-product-doc.md` → `/docs/archive/skyfibre-residential-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-residential-product-doc.md
+- `docs\products\active\SkyFibre\Residential\skyfibre-residential-product.pdf` → `/docs/archive/skyfibre-residential-product.pdf`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-residential-product.pdf
+- `docs\products\active\SkyFibre\Residential\skyfibre-router-hardware-recommendations.md` → `/docs/archive/skyfibre-router-hardware-recommendations.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Residential\skyfibre-router-hardware-recommendations.md
+- `docs\products\active\SkyFibre\SME\ProductSpec_SkyFibre-SME_v2.0_2025-01-10_19.md` → `/docs/archive/ProductSpec_SkyFibre-SME_v2.0_2025-01-10_19.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\SME\ProductSpec_SkyFibre-SME_v2.0_2025-01-10_19.md
+- `docs\products\active\SkyFibre\SME\skyfibre-smb-product-doc.md` → `/docs/archive/skyfibre-smb-product-doc.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\SME\skyfibre-smb-product-doc.md
+- `docs\products\active\SkyFibre\SME\skyfibre-smb-router-hardware-recommendations.md` → `/docs/archive/skyfibre-smb-router-hardware-recommendations.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\SME\skyfibre-smb-router-hardware-recommendations.md
+- `docs\products\active\SkyFibre\SME\skyfibre-smb-specs.md` → `/docs/archive/skyfibre-smb-specs.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\SME\skyfibre-smb-specs.md
+- `docs\products\active\SkyFibre\Township\ProductSpec_SkyFibre-Township_v1.0_2025-01-11_00.md` → `/docs/archive/ProductSpec_SkyFibre-Township_v1.0_2025-01-11_00.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Township\ProductSpec_SkyFibre-Township_v1.0_2025-01-11_00.md
+- `docs\products\active\SkyFibre\Township\RADIUS_Integration_AgilityGIS_v1.0_2025-08-10.md` → `/docs/archive/RADIUS_Integration_AgilityGIS_v1.0_2025-08-10.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Township\RADIUS_Integration_AgilityGIS_v1.0_2025-08-10.md
+- `docs\products\active\SkyFibre\Township\User_Experience_Guide_v1.0_2025-08-10.md` → `/docs/archive/User_Experience_Guide_v1.0_2025-08-10.md`
+  - Reason: Duplicate of docs\products\01_ACTIVE_PRODUCTS\SkyFibre\Township\User_Experience_Guide_v1.0_2025-08-10.md
+
+---
+
+**Status**: ✅ Complete

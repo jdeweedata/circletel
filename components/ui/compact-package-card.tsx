@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ProviderLogo } from '@/components/products/ProviderLogo';
 
 export interface CompactPackageCardProps {
   // Pricing
@@ -21,6 +22,17 @@ export interface CompactPackageCardProps {
   // Promotional
   promoBadge?: string; // e.g., "2-MONTH PROMO"
   badgeColor?: 'pink' | 'orange' | 'yellow' | 'blue';
+
+  // Provider information
+  provider?: {
+    code: string;
+    name: string;
+    logo_url: string;
+    logo_dark_url?: string;
+    logo_light_url?: string;
+    logo_format?: string;
+    logo_aspect_ratio?: number;
+  };
 
   // Interaction
   onClick?: () => void;
@@ -66,6 +78,7 @@ export function CompactPackageCard({
   speedUnit = 'Mbps',
   promoBadge,
   badgeColor = 'pink',
+  provider,
   onClick,
   selected = false,
   className,
@@ -75,16 +88,17 @@ export function CompactPackageCard({
   return (
     <div
       className={cn(
-        // Base styles with fixed dimensions (WebAfrica pattern)
-        'relative w-[141px] xl:w-[188px] h-[135px] xl:h-[140px]',
+        // Base styles with bigger dimensions
+        'relative w-[180px] xl:w-[220px] h-[160px] xl:h-[170px]',
         'flex flex-col rounded-2xl cursor-pointer',
         'transition-all duration-200',
+        'border border-gray-200',
 
         // Selected state: dark blue background with white text
-        selected && 'bg-[#1E4B85] text-white',
+        selected && 'bg-[#1E4B85] text-white border-[#1E4B85]',
 
-        // Unselected state: light blue background
-        !selected && 'bg-[#E6F2FE]',
+        // Unselected state: vibrant orange background with white text
+        !selected && 'bg-gradient-to-br from-orange-400 to-orange-300 text-white',
 
         // Hover effect
         'hover:shadow-lg hover:scale-105',
@@ -101,9 +115,26 @@ export function CompactPackageCard({
         }
       }}
       aria-pressed={selected}
-      aria-label={`${name || 'Package'} - ${currency}${promoPrice}${period}`}
+      aria-label={`${name || 'Package'} - ${currency}${promoPrice}${period}${provider ? ` by ${provider.name}` : ''}`}
     >
-      {/* Promotional Badge (Top of Card) */}
+      {/* Provider Logo (Top of Card) */}
+      {provider && (
+        <div className="flex justify-center pt-2 pb-1 px-2">
+          <ProviderLogo
+            providerCode={provider.code}
+            providerName={provider.name}
+            logoUrl={provider.logo_url}
+            logoDarkUrl={provider.logo_dark_url}
+            logoLightUrl={provider.logo_light_url}
+            logoFormat={(provider.logo_format as 'svg' | 'png' | 'jpg') || 'svg'}
+            variant="grayscale"
+            size="small"
+            priority={false}
+          />
+        </div>
+      )}
+
+      {/* Promotional Badge */}
       {hasPromo && (
         <div
           className={cn(
@@ -126,7 +157,7 @@ export function CompactPackageCard({
       <div className="h-5 pt-2 px-4">
         <div className={cn(
           'flex w-full flex-col text-center md:text-left text-[10px] md:text-xs font-semibold gap-1 capitalize',
-          selected ? 'text-white' : 'text-gray-700'
+          'text-white'
         )}>
           {type}
         </div>
@@ -138,7 +169,7 @@ export function CompactPackageCard({
           {/* Promotional Price (Large) */}
           <div className={cn(
             'flex-col w-full text-center md:text-left text-xl xl:text-2xl font-bold block order-2 md:order-1',
-            selected ? 'text-white' : 'text-[#1E4B85]'
+            'text-white'
           )}>
             {currency}{promoPrice.toLocaleString()}{period}
           </div>
@@ -147,7 +178,7 @@ export function CompactPackageCard({
           {originalPrice && originalPrice !== promoPrice && (
             <div className={cn(
               'flex-col w-full text-center md:text-left text-xs block order-1 md:order-2 line-through',
-              selected ? 'text-blue-200' : 'text-gray-500'
+              selected ? 'text-blue-200' : 'text-white/70'
             )}>
               {currency}{originalPrice.toLocaleString()}{period}
             </div>
@@ -158,7 +189,7 @@ export function CompactPackageCard({
         {downloadSpeed !== undefined && uploadSpeed !== undefined && (
           <div className={cn(
             'w-full text-center md:text-left px-3 mt-3',
-            selected ? 'text-white' : 'text-[#1E4B85]'
+            'text-white'
           )}>
             <div className="flex gap-3 items-center justify-center md:justify-start">
               {/* Download Speed */}

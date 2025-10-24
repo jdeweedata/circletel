@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import type { PackageDetails } from '@/lib/order/types';
+import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
 
 interface Package {
   id: string;
@@ -27,6 +28,15 @@ interface Package {
   promotion_months?: number;
   description: string;
   features: string[];
+  provider?: {
+    code: string;
+    name: string;
+    logo_url: string;
+    logo_dark_url?: string;
+    logo_light_url?: string;
+    logo_format?: string;
+    logo_aspect_ratio?: number;
+  };
 }
 
 function PackagesContent() {
@@ -43,6 +53,7 @@ function PackagesContent() {
   const [loading, setLoading] = useState(true);
   const [activeService, setActiveService] = useState<ServiceType>('fibre');
   const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(
     null
   );
@@ -60,6 +71,7 @@ function PackagesContent() {
       const data = await response.json();
       setPackages(data.packages || []);
       setAddress(data.address || '');
+      setCoordinates(data.coordinates || null);
 
       // Initialize order with coverage data
       actions.updateOrderData({
@@ -112,7 +124,8 @@ function PackagesContent() {
 
   const handlePackageSelect = (pkg: Package) => {
     setSelectedPackage(pkg);
-    setIsMobileSidebarOpen(true);
+    // Don't automatically open modal - let user choose via floating CTA
+    setIsMobileSidebarOpen(false);
 
     // Convert Package to PackageDetails and save to context
     const packageDetails: PackageDetails = {
@@ -272,31 +285,42 @@ function PackagesContent() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        {/* Coverage Hero Section */}
-        <div className="relative bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-3xl p-8 lg:p-12 mb-8 text-white overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
+        {/* No Coverage - Show Lead Capture */}
+        {packages.length === 0 ? (
+          <div className="max-w-4xl mx-auto">
+            <NoCoverageLeadCapture
+              address={address}
+              latitude={coordinates?.lat}
+              longitude={coordinates?.lng}
+            />
           </div>
+        ) : (
+          <>
+            {/* Coverage Hero Section */}
+            <div className="relative bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-3xl p-8 lg:p-12 mb-8 text-white overflow-hidden">
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
+              </div>
 
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-              <CheckCircle className="w-8 h-8 text-white" />
+              <div className="relative z-10 max-w-3xl mx-auto text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                  <CheckCircle className="w-8 h-8 text-white" />
+                </div>
+                <h1 className="text-3xl lg:text-4xl font-bold mb-4">
+                  Great News! We&apos;ve Got You Covered
+                </h1>
+                <div className="flex items-center justify-center gap-2 text-lg text-orange-100 mb-4">
+                  <MapPin className="w-5 h-5" />
+                  <span>{address || 'Your selected location'}</span>
+                </div>
+                <p className="text-lg text-orange-100">
+                  Choose from our available packages below and get connected today.
+                </p>
+              </div>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-              Great News! We&apos;ve Got You Covered
-            </h1>
-            <div className="flex items-center justify-center gap-2 text-lg text-orange-100 mb-4">
-              <MapPin className="w-5 h-5" />
-              <span>{address || 'Your selected location'}</span>
-            </div>
-            <p className="text-lg text-orange-100">
-              Choose from our available packages below and get connected today.
-            </p>
-          </div>
-        </div>
 
-        {/* Packages Section */}
+            {/* Packages Section */}
         <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
           <div className="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12">
             <div className="mb-10">
@@ -366,6 +390,7 @@ function PackagesContent() {
                           type="uncapped"
                           downloadSpeed={pkg.speed_down}
                           uploadSpeed={pkg.speed_up}
+                          provider={pkg.provider}
                           selected={selectedPackage?.id === pkg.id}
                           onClick={() => handlePackageSelect(pkg)}
                         />
@@ -496,9 +521,8 @@ function PackagesContent() {
             </a>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Package Detail Overlay */}
+            {/* Mobile Package Detail Overlay */}
       {selectedPackage && isMobileSidebarOpen && (
         <MobilePackageDetailOverlay
           isOpen={isMobileSidebarOpen}
@@ -584,8 +608,11 @@ function PackagesContent() {
           </div>
         </div>
       )}
+          </>
+        )}
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }

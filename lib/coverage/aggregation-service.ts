@@ -4,7 +4,6 @@ import { mtnWMSClient } from './mtn/wms-client';
 import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
-import { InfrastructureSignalEstimator } from './mtn/infrastructure-estimator';
 import { dfaCoverageClient } from './providers/dfa';
 import { dfaProductMapper } from './providers/dfa';
 
@@ -52,6 +51,8 @@ export class CoverageAggregationService {
   private static instance: CoverageAggregationService;
   private cache = new Map<string, { data: AggregatedCoverageResponse; timestamp: number }>();
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
+  // Optimization: Request deduplication for concurrent coverage checks
+  private pendingRequests = new Map<string, Promise<AggregatedCoverageResponse>>();
 
   static getInstance(): CoverageAggregationService {
     if (!this.instance) {
@@ -62,6 +63,7 @@ export class CoverageAggregationService {
 
   /**
    * Aggregate coverage data from multiple providers
+   * Optimized: Deduplicates concurrent requests for same coordinates
    */
   async aggregateCoverage(
     coordinates: Coordinates,
@@ -70,6 +72,33 @@ export class CoverageAggregationService {
     const cacheKey = this.getCacheKey(coordinates, options);
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
+
+    // Optimization: Check if request is already pending
+    const pending = this.pendingRequests.get(cacheKey);
+    if (pending) {
+      console.log('[Coverage Aggregation] Deduplicating concurrent request for', coordinates);
+      return pending;
+    }
+
+    // Create the request promise and store it for deduplication
+    const requestPromise = this.executeAggregation(coordinates, options);
+    this.pendingRequests.set(cacheKey, requestPromise);
+
+    try {
+      return await requestPromise;
+    } finally {
+      this.pendingRequests.delete(cacheKey);
+    }
+  }
+
+  /**
+   * Execute the actual aggregation logic
+   */
+  private async executeAggregation(
+    coordinates: Coordinates,
+    options: CoverageAggregationOptions
+  ): Promise<AggregatedCoverageResponse> {
+    const cacheKey = this.getCacheKey(coordinates, options);
 
     const {
       providers = ['mtn'] as CoverageProvider[],
@@ -657,7 +686,9 @@ export class CoverageAggregationService {
    * Cache management
    */
   private getCacheKey(coordinates: Coordinates, options: CoverageAggregationOptions): string {
-    return `${coordinates.lat.toFixed(6)},${coordinates.lng.toFixed(6)}-${JSON.stringify(options)}`;
+    const providers = (options.providers || ['mtn']).sort().join(',');
+    const serviceTypes = (options.serviceTypes || []).sort().join(',');
+    return `${coordinates.lat.toFixed(4)},${coordinates.lng.toFixed(4)}_${providers}_${serviceTypes}`;
   }
 
   private getFromCache(key: string): AggregatedCoverageResponse | null {

@@ -35,9 +35,25 @@ export interface GeocodingResult {
 
 export class GoogleMapsService {
   private isLoaded = false;
+  private loadingPromise: Promise<typeof google> | null = null;
 
   async loadGoogleMaps(): Promise<typeof google> {
+    // Return if already loaded
     if (this.isLoaded && window.google) {
+      return window.google;
+    }
+
+    // Return existing loading promise to prevent duplicate script tags
+    if (this.loadingPromise) {
+      return this.loadingPromise;
+    }
+
+    // Check if script already exists in DOM
+    const existingScript = document.querySelector(
+      'script[src*="maps.googleapis.com/maps/api/js"]'
+    );
+    if (existingScript && window.google) {
+      this.isLoaded = true;
       return window.google;
     }
 
@@ -45,20 +61,27 @@ export class GoogleMapsService {
       throw new Error('Google Maps API key not found. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.');
     }
 
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+    // Create loading promise
+    this.loadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
 
-    return new Promise((resolve, reject) => {
       script.onload = () => {
         this.isLoaded = true;
+        this.loadingPromise = null;
         resolve(window.google);
       };
       script.onerror = (error) => {
         console.error('Failed to load Google Maps script:', error);
+        this.loadingPromise = null;
         reject(new Error('Failed to load Google Maps. Please check your API key and internet connection.'));
       };
       document.head.appendChild(script);
     });
+
+    return this.loadingPromise;
   }
 
   async searchPlaces(query: string): Promise<PlaceResult[]> {

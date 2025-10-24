@@ -27,7 +27,8 @@
     "extensions:analyze": "powershell -File scripts/analyze-vscode-extensions.ps1",
     "vscode:force-cleanup": "powershell -File scripts/force-cleanup-vscode.ps1",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\" && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue\"",
-    "analyze": "cross-env ANALYZE=true npm run build:memory"
+    "analyze": "cross-env ANALYZE=true npm run build:memory",
+    "orchestrate": "npx tsx scripts/run-orchestrator.ts"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",

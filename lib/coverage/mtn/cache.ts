@@ -22,14 +22,19 @@ export class MTNCoverageCache {
   private maxEntries = 1000;
   private defaultTTL = 30 * 60 * 1000; // 30 minutes
   private hitStats = { hits: 0, misses: 0 };
+  // Optimization: Request deduplication to prevent redundant API calls
+  private pendingRequests = new Map<string, Promise<any>>();
 
   /**
    * Generate cache key based on coordinates and radius
+   * Optimized: Adaptive precision based on radius for better spatial efficiency
    */
   private generateKey(coordinates: Coordinates, radius: number = 500): string {
-    // Round coordinates to reduce cache fragmentation
-    const lat = Math.round(coordinates.lat * 10000) / 10000; // ~11m precision
-    const lng = Math.round(coordinates.lng * 10000) / 10000;
+    // Optimization: Use adaptive precision based on radius
+    // Smaller radius = higher precision, larger radius = lower precision
+    const precision = radius < 100 ? 100000 : radius < 500 ? 10000 : 1000;
+    const lat = Math.round(coordinates.lat * precision) / precision;
+    const lng = Math.round(coordinates.lng * precision) / precision;
     return `${lat},${lng}_${radius}`;
   }
 
@@ -180,7 +185,29 @@ export class MTNCoverageCache {
   }
 
   /**
-   * Get cache statistics
+   * Optimization: Deduplicate concurrent requests for same coordinates
+   */
+  async deduplicateRequest<T>(
+    key: string,
+    fetchFunction: () => Promise<T>
+  ): Promise<T> {
+    // Check if request is already pending
+    const pending = this.pendingRequests.get(key);
+    if (pending) {
+      return pending as Promise<T>;
+    }
+
+    // Create new request and store it
+    const request = fetchFunction().finally(() => {
+      this.pendingRequests.delete(key);
+    });
+
+    this.pendingRequests.set(key, request);
+    return request;
+  }
+
+  /**
+   * Get cache statistics for monitoring
    */
   getStats(): CacheStats {
     const entries = Array.from(this.cache.values());
@@ -201,6 +228,14 @@ export class MTNCoverageCache {
   getHitRatio(): number {
     const total = this.hitStats.hits + this.hitStats.misses;
     return total > 0 ? this.hitStats.hits / total : 0;
+  }
+
+  /**
+   * Clear all cache entries
+   */
+  clear(): void {
+    this.cache.clear();
+    this.hitStats = { hits: 0, misses: 0 };
   }
 
   /**

@@ -187,19 +187,56 @@ export async function GET(request: NextRequest) {
         .order('price', { ascending: true });
 
       if (!packagesError && packages) {
-        availablePackages = packages.map((pkg: any) => ({
-          id: pkg.id,
-          name: pkg.name,
-          service_type: pkg.service_type,
-          product_category: pkg.product_category,
-          speed_down: pkg.speed_down,
-          speed_up: pkg.speed_up,
-          price: pkg.price,
-          promotion_price: pkg.promotion_price,
-          promotion_months: pkg.promotion_months,
-          description: pkg.description,
-          features: pkg.features || []
-        }));
+        // Fetch provider data for packages with compatible_providers
+        const { data: providers, error: providersError } = await supabase
+          .from('fttb_network_providers')
+          .select('provider_code, display_name, logo_url, logo_dark_url, logo_light_url, logo_format, logo_aspect_ratio, priority')
+          .eq('active', true);
+
+        // Create provider lookup map
+        const providerMap = new Map();
+        if (!providersError && providers) {
+          providers.forEach((provider: any) => {
+            providerMap.set(provider.provider_code, provider);
+          });
+        }
+
+        availablePackages = packages.map((pkg: any) => {
+          // Get provider info from compatible_providers array
+          let providerData = null;
+          if (pkg.compatible_providers && pkg.compatible_providers.length > 0) {
+            // Get the first (highest priority) compatible provider
+            const providerCode = pkg.compatible_providers[0];
+            const provider = providerMap.get(providerCode);
+
+            if (provider) {
+              providerData = {
+                code: provider.provider_code,
+                name: provider.display_name,
+                logo_url: provider.logo_url,
+                logo_dark_url: provider.logo_dark_url,
+                logo_light_url: provider.logo_light_url,
+                logo_format: provider.logo_format,
+                logo_aspect_ratio: provider.logo_aspect_ratio
+              };
+            }
+          }
+
+          return {
+            id: pkg.id,
+            name: pkg.name,
+            service_type: pkg.service_type,
+            product_category: pkg.product_category,
+            speed_down: pkg.speed_down,
+            speed_up: pkg.speed_up,
+            price: pkg.price,
+            promotion_price: pkg.promotion_price,
+            promotion_months: pkg.promotion_months,
+            description: pkg.description,
+            features: pkg.features || [],
+            provider: providerData // Add provider data including logo
+          };
+        });
       }
 
       // Log for debugging

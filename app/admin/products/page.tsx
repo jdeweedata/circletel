@@ -113,6 +113,8 @@ export default function AdminProducts() {
       setProductStats({
         total: products.length,
         active: products.filter(p => p.is_active).length,
+        draft: products.filter(p => p.status === 'draft').length,
+        archived: products.filter(p => p.status === 'archived').length,
         featured: products.filter(p => p.is_featured).length,
         popular: products.filter(p => p.is_popular).length
       });
@@ -461,18 +463,33 @@ export default function AdminProducts() {
             {products.length === 0 ? (
               <div className="text-center py-8">
                 <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No products found</p>
-                <p className="text-gray-400">
+                <p className="text-gray-500 text-lg font-medium">No products found</p>
+                <p className="text-gray-400 mt-2">
                   {filters.search || filters.category || filters.status
-                    ? 'Try adjusting your filters'
-                    : 'Get started by creating your first product'}
+                    ? 'No products match your current filters. Try adjusting your search criteria or clearing filters.'
+                    : 'Get started by creating your first product to build your catalogue.'}
                 </p>
-                <Button asChild className="mt-4">
-                  <Link href="/admin/products/new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Product
-                  </Link>
-                </Button>
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  {(filters.search || filters.category || filters.status) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setFilters({});
+                        setPagination({ ...pagination, page: 1 });
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                  <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
+                    <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                      <Link href="/admin/products/new">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Product
+                      </Link>
+                    </Button>
+                  </PermissionGate>
+                </div>
               </div>
             ) : (
               products.map((product) => (
