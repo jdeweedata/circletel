@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Single typed Supabase client (shared across app)
+export const typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -95,14 +95,8 @@ export interface Database {
 // Typed Supabase client
 export type TypedSupabaseClient = ReturnType<typeof createClient<Database>>;
 
-// Export typed client
-export const typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: false
-  },
-});
+// Backwards-compatible alias
+export const supabase = typedSupabase;
 
 // Form submission types and functions
 export interface FormSubmissionResponse {
