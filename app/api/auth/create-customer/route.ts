@@ -39,10 +39,11 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Insert customer record using service role
+    // Insert customer record using service role with ON CONFLICT handling
+    // If email already exists, update the record instead of failing
     const { data: customer, error: customerError } = await supabase
       .from('customers')
-      .insert({
+      .upsert({
         auth_user_id,
         first_name: finalFirstName,
         last_name: finalLastName,
@@ -51,6 +52,9 @@ export async function POST(request: NextRequest) {
         account_type: account_type || 'personal',
         email_verified: false,
         status: 'active',
+      }, {
+        onConflict: 'email',
+        ignoreDuplicates: false // Update existing record
       })
       .select()
       .single();

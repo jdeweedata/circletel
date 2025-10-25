@@ -65,6 +65,26 @@ export class CustomerAuthService {
       });
 
       if (authError) {
+        // Handle rate limiting specifically
+        if (authError.message.includes('429') || authError.message.toLowerCase().includes('rate limit')) {
+          return {
+            user: null,
+            customer: null,
+            session: null,
+            error: 'Too many signup attempts. Please wait a few minutes and try again.'
+          };
+        }
+        
+        // Handle duplicate user (user already exists)
+        if (authError.message.toLowerCase().includes('already registered')) {
+          return {
+            user: null,
+            customer: null,
+            session: null,
+            error: 'This email is already registered. Please sign in instead.'
+          };
+        }
+        
         return {
           user: null,
           customer: null,
@@ -104,6 +124,27 @@ export class CustomerAuthService {
 
       if (!customerResult.success) {
         console.error('Failed to create customer record:', customerResult.error);
+        
+        // If it's a duplicate key error, this is actually OK - the customer record exists
+        // This can happen during retry scenarios or rate limiting
+        if (customerResult.error?.includes('duplicate key') || customerResult.error?.includes('already exists')) {
+          // Try to fetch the existing customer record
+          const { data: existingCustomer } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('email', email)
+            .single();
+          
+          if (existingCustomer) {
+            return {
+              user: authData.user,
+              customer: existingCustomer,
+              session: authData.session,
+              error: null
+            };
+          }
+        }
+        
         // Note: Auth user is already created, but customer record failed
         // This is OK - customer can still verify email and we can create record later
         return {
