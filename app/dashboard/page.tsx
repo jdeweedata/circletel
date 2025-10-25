@@ -5,8 +5,9 @@ import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, CreditCard, Package, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Loader2, Wifi, CreditCard, Package, AlertCircle, CheckCircle, Clock, ChevronRight, Server, MapPin, Copy, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
 
 interface DashboardData {
   customer: {
