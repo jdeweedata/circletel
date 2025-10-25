@@ -1,17 +1,141 @@
 'use client';
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Wifi, CreditCard, Server, MapPin, Copy, ShieldCheck } from "lucide-react";
+import { Loader2, Wifi, CreditCard, Package, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import Link from "next/link";
 
-export default function DashboardPage() {
-  return <NewDashboardContent />;
+interface DashboardData {
+  customer: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    customerSince: string;
+  };
+  services: Array<{
+    id: string;
+    package_name: string;
+    service_type: string;
+    status: string;
+    monthly_price: number;
+    installation_address: string;
+    speed_down: number;
+    speed_up: number;
+  }>;
+  billing: {
+    account_balance: number;
+    payment_method: string;
+    payment_status: string;
+    next_billing_date: string;
+    days_overdue: number;
+  } | null;
+  orders: Array<{
+    id: string;
+    order_number: string;
+    status: string;
+    total_amount: number;
+    created_at: string;
+  }>;
+  invoices: Array<{
+    id: string;
+    invoice_number: string;
+    invoice_date: string;
+    total_amount: number;
+    amount_due: number;
+    status: string;
+  }>;
+  stats: {
+    activeServices: number;
+    totalOrders: number;
+    pendingOrders: number;
+    overdueInvoices: number;
+    accountBalance: number;
+  };
 }
 
-function NewDashboardContent() {
+export default function DashboardPage() {
+  const { user, session } = useCustomerAuth();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      if (!session?.access_token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/dashboard/summary', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          setData(result.data);
+        } else {
+          setError(result.error || 'Failed to load dashboard');
+        }
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, [session]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <p className="text-lg text-gray-600">{error}</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Package className="h-12 w-12 text-gray-400" />
+        <p className="text-lg text-gray-600">No data available</p>
+        <Link href="/">
+          <Button>Browse Packages</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return <DashboardContent data={data} />;
+}
+
+function DashboardContent({ data }: { data: DashboardData }) {
+  const displayName = [data.customer.firstName, data.customer.lastName].filter(Boolean).join(' ') || data.customer.email;
+  const primaryService = data.services[0];
+  const hasActiveService = data.stats.activeServices > 0;
   return (
     <div className="space-y-6">
       <Card className="mb-6">
