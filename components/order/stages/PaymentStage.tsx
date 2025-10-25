@@ -216,16 +216,17 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="w-full">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-circleTel-darkNeutral">Payment</h2>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <h2 className="text-2xl lg:text-3xl font-bold text-circleTel-darkNeutral">Complete Your Order</h2>
         <p className="text-circleTel-secondaryNeutral mt-1">
           Review your order and proceed to secure payment
         </p>
       </div>
 
       {/* Retry Session Info Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {retrySession.hasData && !showErrorDisplay && (
         <Alert className="border-blue-200 bg-blue-50" data-testid="retry-session-banner">
           <AlertCircle className="h-4 w-4 text-blue-600" />
@@ -266,26 +267,32 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
           onBack={handleBackToSummary}
         />
       )}
+      </div>
 
-      {/* Order Summary Card */}
-      <Card data-testid="order-summary">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-circleTel-orange" />
-            Order Summary
-          </CardTitle>
-          <CardDescription>
-            Please review your order details before proceeding
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <OrderSummary />
-        </CardContent>
-      </Card>
-
-      {/* Payment Information Card - Only show if not displaying error */}
+      {/* Two Column Layout */}
       {!showErrorDisplay && (
-        <Card>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Left Column - Order Summary (Sticky on desktop) */}
+            <div className="lg:col-span-1">
+              <div className="lg:sticky lg:top-6">
+                <Card data-testid="order-summary">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Package className="h-5 w-5 text-circleTel-orange" />
+                      Order Summary
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OrderSummary />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Right Column - Payment Options */}
+            <div className="lg:col-span-2">
+              <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-circleTel-orange" />
@@ -507,6 +514,9 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             </p>
           </CardContent>
         </Card>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
