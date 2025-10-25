@@ -9,14 +9,12 @@ import {
   User,
   Mail,
   Phone,
-  Calendar,
   Zap,
   TrendingUp,
   Home,
   MessageSquare
 } from 'lucide-react';
 import { useOrderContext } from './context/OrderContext';
-import { format } from 'date-fns';
 
 export default function OrderSummary() {
   const { state } = useOrderContext();
@@ -215,50 +213,6 @@ export default function OrderSummary() {
               <p className="text-circleTel-secondaryNeutral">
                 {coverage?.address || 'Address not provided'}
               </p>
-            </div>
-          </div>
-
-          {/* Preferred Installation Date */}
-          {installation?.preferredDate && (
-            <div className="flex items-start gap-2">
-              <Calendar className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-circleTel-darkNeutral">Preferred Installation Date</p>
-                <p className="text-circleTel-secondaryNeutral">
-                  {format(new Date(installation.preferredDate), 'EEEE, MMMM d, yyyy')}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Installation Timeline */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
-            <p className="text-xs font-medium text-blue-900 mb-2">📅 Installation Timeline</p>
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                <span className="text-blue-800">
-                  <strong>Day 1-2:</strong> Order processing & scheduling
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                <span className="text-blue-800">
-                  <strong>Day 3-5:</strong> Technician dispatch & installation
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                <span className="text-blue-800">
-                  <strong>Day 6-7:</strong> Activation & testing
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-green-600" />
-                <span className="text-blue-800">
-                  <strong>Day 8:</strong> Service live! 🎉
-                </span>
-              </div>
             </div>
           </div>
         </div>
