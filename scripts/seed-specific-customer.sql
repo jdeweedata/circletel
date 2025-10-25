@@ -17,6 +17,11 @@ BEGIN
     RETURN;
   END IF;
 
+  -- Ensure customer is linked to auth user
+  UPDATE customers
+  SET auth_user_id = (SELECT id FROM auth.users WHERE email = v_customer_email)
+  WHERE id = v_customer_id AND auth_user_id IS NULL;
+
   RAISE NOTICE '✅ Found customer: % (%)', v_customer_email, v_customer_id;
 
   -- Create test service
