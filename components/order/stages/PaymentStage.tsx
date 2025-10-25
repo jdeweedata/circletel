@@ -405,9 +405,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <div className="flex-1">
                       <h4 className="font-medium text-sm text-gray-900 mb-1">Instant EFT</h4>
                       <p className="text-xs text-gray-600 mb-2">Real-time bank transfer - Instant confirmation</p>
-                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
-                        ⚡ Instant
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                          ⚡ Instant
+                        </Badge>
+                        <div className="relative h-5 w-auto">
+                          <Image src="/images/payment-logos/logo_instant-eft.png" alt="Instant EFT" width={50} height={20} className="object-contain" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -433,9 +438,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <div className="flex-1">
                       <h4 className="font-medium text-sm text-gray-900 mb-1">Scan to Pay</h4>
                       <p className="text-xs text-gray-600 mb-2">QR code for mobile wallets & banking apps</p>
-                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
-                        📱 Mobile
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                          📱 Mobile
+                        </Badge>
+                        <div className="relative h-5 w-auto">
+                          <Image src="/images/payment-logos/logo_scan-to-pay.png" alt="Scan to Pay" width={50} height={20} className="object-contain" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
