@@ -142,3 +142,84 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    // Get the request body
+    const body = await request.json();
+    const { first_name, last_name, phone, business_name, business_registration, tax_number } = body;
+
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Extract token from Bearer header
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify user session
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid session' },
+        { status: 401 }
+      );
+    }
+
+    // Get customer record
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (customerError || !customer) {
+      return NextResponse.json(
+        { success: false, error: 'Customer not found' },
+        { status: 404 }
+      );
+    }
+
+    // Update customer record
+    const { data: updatedCustomer, error: updateError } = await supabase
+      .from('customers')
+      .update({
+        first_name,
+        last_name,
+        phone,
+        business_name,
+        business_registration,
+        tax_number,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', customer.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error updating customer:', updateError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to update profile' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      customer: updatedCustomer,
+      message: 'Profile updated successfully',
+    });
+
+  } catch (error) {
+    console.error('Error in customer PUT API:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

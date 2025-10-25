@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { User, Mail, Phone, Building2, FileText, Hash, Save, Edit2, X } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, customer, refreshCustomer } = useCustomerAuth();
+  const { user, customer, refreshCustomer, session } = useCustomerAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,11 +36,19 @@ export default function ProfilePage() {
   }, [customer]);
 
   const handleSave = async () => {
+    if (!session?.access_token) {
+      toast.error('Please log in to update your profile');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const response = await fetch('/api/customers', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
           first_name: formData.firstName,
           last_name: formData.lastName,
@@ -52,7 +60,8 @@ export default function ProfilePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update profile');
       }
 
       await refreshCustomer();
@@ -60,7 +69,7 @@ export default function ProfilePage() {
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }
