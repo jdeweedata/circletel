@@ -5,9 +5,8 @@ import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, CreditCard, Package, AlertCircle, CheckCircle, Clock, ChevronRight, Server, MapPin, Copy, ShieldCheck } from "lucide-react";
+import { Loader2, Wifi, CreditCard, Package, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
 
 interface DashboardData {
   customer: {
@@ -162,221 +161,212 @@ function DashboardContent({ data }: { data: DashboardData }) {
   const displayName = [data.customer.firstName, data.customer.lastName].filter(Boolean).join(' ') || data.customer.email;
   const primaryService = data.services[0];
   const hasActiveService = data.stats.activeServices > 0;
+  
   return (
     <div className="space-y-6">
-      <Card className="mb-6">
-        <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-10">
-          <div className="space-y-1">
-            <div className="text-sm font-medium">Onboarding Progress</div>
-            <p className="text-xs text-muted-foreground">
-              Complete the key onboarding steps to get the most out of Share.
-            </p>
-          </div>
-          <CircularProgress value={75} />
-          <div className="grid flex-1 grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-5">
-            <Step label="Payment" done />
-            <Step label="Scheduling" done />
-            <Step label="Deployment" active />
-            <Step label="Activation" />
-            <div className="hidden items-center justify-end md:flex">
-              <Button variant="secondary" size="sm" className="gap-1">
-                Continue <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Page Title */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
+        <p className="text-gray-600 mt-1">Welcome back, {displayName}</p>
+      </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Your Plan */}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Your Plan</CardTitle>
-              <AnchorLink href="#" className="text-xs text-primary hover:underline">
-                Manage plan
-              </AnchorLink>
+              <div>
+                <p className="text-sm text-gray-600">Active Services</p>
+                <p className="text-3xl font-bold text-circleTel-orange mt-2">{data.stats.activeServices}</p>
+              </div>
+              <Wifi className="h-10 w-10 text-circleTel-orange opacity-20" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Orders</p>
+                <p className="text-3xl font-bold mt-2">{data.stats.totalOrders}</p>
+              </div>
+              <Package className="h-10 w-10 text-blue-500 opacity-20" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Account Balance</p>
+                <p className="text-3xl font-bold mt-2">R{data.stats.accountBalance.toFixed(2)}</p>
+              </div>
+              <CreditCard className="h-10 w-10 text-green-500 opacity-20" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Pending Orders</p>
+                <p className="text-3xl font-bold mt-2">{data.stats.pendingOrders}</p>
+              </div>
+              <Clock className="h-10 w-10 text-yellow-500 opacity-20" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Your Service */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Your Service</CardTitle>
+              <Link href="/dashboard/services" className="text-sm text-circleTel-orange hover:underline">
+                View all
+              </Link>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 rounded-xl border p-3">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10">
-                <Wifi className="h-5 w-5" />
+          <CardContent>
+            {hasActiveService && primaryService ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-orange-50 border border-circleTel-orange/20 rounded-lg">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-gray-900">{primaryService.package_name}</h3>
+                      <p className="text-sm text-gray-600 capitalize">{primaryService.service_type}</p>
+                    </div>
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                      {primaryService.status}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div>
+                      <p className="text-xs text-gray-600">Speed</p>
+                      <p className="font-medium">{primaryService.speed_down}/{primaryService.speed_up} Mbps</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Monthly</p>
+                      <p className="font-medium">R{primaryService.monthly_price}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Type</p>
+                      <p className="font-medium capitalize">{primaryService.service_type}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-sm font-medium">Premium Family</div>
-                <div className="text-xs text-muted-foreground">Monthly Subscription</div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Package className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <p>No active services</p>
+                <Link href="/">
+                  <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Browse Packages</Button>
+                </Link>
               </div>
-              <Badge className="ml-auto" variant="secondary">
-                Active
-              </Badge>
-            </div>
-            <div className="grid grid-cols-3 gap-3 text-sm">
-              <Metric label="Data usage" value="450 GB / 1 TB" />
-              <Metric label="Download speed" value="850 Mbps" />
-              <Metric label="Price" value="$15/mo" />
-            </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Billing Summary */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Billing Summary</CardTitle>
-              <AnchorLink href="#" className="text-xs text-primary hover:underline">
-                Change payment method
-              </AnchorLink>
+              <CardTitle>Billing Summary</CardTitle>
+              <Link href="/dashboard/billing" className="text-sm text-circleTel-orange hover:underline">
+                View invoices
+              </Link>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 rounded-xl border p-3">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10">
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <div className="text-sm">
-                <div className="font-medium">MASTERCARD ••2876</div>
-                <div className="text-xs text-emerald-600">Payment active</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3 text-sm">
-              <Metric label="Card name" value="Edgar Joe" />
-              <Metric label="Exp date" value="02/27" />
-              <Metric label="Next billing date" value="09/08/2025" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Your Network */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Your Network</CardTitle>
-              <AnchorLink href="#" className="text-xs text-primary hover:underline">
-                Report network issue
-              </AnchorLink>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-xl border p-3 text-sm">
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10">
-                  <Server className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-medium">090240287465</div>
-                  <div className="text-xs text-emerald-600">Active</div>
+          <CardContent>
+            {data.billing ? (
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-10 w-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
+                      <CreditCard className="h-5 w-5 text-circleTel-orange" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{data.billing.payment_method || 'No payment method'}</p>
+                      <p className={`text-sm ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
+                        {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-gray-600">Balance Due</p>
+                      <p className="font-medium text-lg">R{data.billing.account_balance.toFixed(2)}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Due: {data.billing.next_billing_date ? new Date(data.billing.next_billing_date).toLocaleDateString() : 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600">Invoices</p>
+                      <p className="font-medium text-lg">{data.invoices.length}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue` : 'All paid'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <ShieldCheck className="h-5 w-5 text-emerald-600" />
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <Metric label="Signal strength" value="Excellent" hintColor="text-emerald-600" />
-              <Metric label="" value="Lagos, Nigeria" icon={<MapPin className="h-4 w-4" />} />
-            </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <p>No billing information</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Referrals */}
-        <Card>
-          <CardHeader className="pb-2">
+        {/* Recent Orders */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Referrals</CardTitle>
-              <AnchorLink href="#" className="text-xs text-primary hover:underline">
-                Track referrals
-              </AnchorLink>
+              <CardTitle>Recent Orders</CardTitle>
+              <Link href="/dashboard/orders" className="text-sm text-circleTel-orange hover:underline">
+                View all
+              </Link>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-xl border p-3 text-sm">
-              <div>
-                <div className="font-medium">Refer 10 friends</div>
-                <div className="text-xs text-muted-foreground">Get 1 month free!</div>
+          <CardContent>
+            {data.orders.length > 0 ? (
+              <div className="space-y-3">
+                {data.orders.slice(0, 3).map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Package className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{order.order_number}</p>
+                        <p className="text-sm text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">R{order.total_amount.toFixed(2)}</p>
+                      <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
+                        {order.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="text-xs text-muted-foreground">2/10 referrals completed</div>
-            </div>
-            <div className="flex gap-2">
-              <Input readOnly value="https://www.share.inc.referral/254163" className="rounded-xl" />
-              <Button
-                variant="secondary"
-                className="rounded-xl"
-                onClick={() => navigator.clipboard.writeText('https://www.share.inc.referral/254163')}
-              >
-                <Copy className="mr-2 h-4 w-4" /> Copy
-              </Button>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Package className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <p>No orders yet</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-}
-
-function AnchorLink({ href = '#', children, className }: { href?: string; children: React.ReactNode; className?: string }) {
-  return (
-    <a
-      href={href}
-      className={className}
-      onClick={(e) => {
-        if (href === '#') e.preventDefault();
-      }}
-    >
-      {children}
-    </a>
-  );
-}
-
-function CircularProgress({ value = 0 }: { value?: number }) {
-  const radius = 40;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.min(100, Math.max(0, value));
-  const offset = circumference - (clamped / 100) * circumference;
-  return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg className="h-24 w-24 -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={radius} strokeWidth="10" className="text-muted-foreground/10" stroke="currentColor" fill="transparent" />
-        <circle
-          cx="50"
-          cy="50"
-          r={radius}
-          strokeWidth="10"
-          strokeLinecap="round"
-          className="text-primary"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          stroke="currentColor"
-          fill="transparent"
-        />
-      </svg>
-      <div className="absolute text-center">
-        <div className="text-2xl font-semibold">{clamped}%</div>
-      </div>
-    </div>
-  );
-}
-
-function Step({ label, active, done }: { label: string; active?: boolean; done?: boolean }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div
-        className={
-          'h-2 w-20 rounded-full ' +
-          (done ? 'bg-primary' : active ? 'bg-primary/60' : 'bg-muted-foreground/20')
-        }
-      />
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
-
-function Metric({ label, value, hintColor, icon }: { label: string; value: string; hintColor?: string; icon?: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border p-3">
-      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-        <span>{label}</span>
-        {icon}
-      </div>
-      <div className={`text-sm font-medium ${hintColor ?? ''}`}>{value}</div>
     </div>
   );
 }
