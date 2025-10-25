@@ -208,7 +208,13 @@ function PackagesContent() {
   };
 
   const handleCheckAnotherAddress = () => {
-    router.push('/coverage');
+    // Clear order context coverage data
+    actions.updateOrderData({
+      coverage: undefined,
+      package: undefined,
+    });
+    // Redirect to home page
+    router.push('/#coverage');
   };
 
   // Map ServiceType to package filtering logic
