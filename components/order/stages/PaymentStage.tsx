@@ -14,8 +14,11 @@ import {
   Shield,
   ArrowLeft,
   Lock,
-  Package
+  Package,
+  Smartphone,
+  Building2
 } from 'lucide-react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { useOrderContext } from '../context/OrderContext';
 import OrderSummary from '../OrderSummary';
@@ -361,23 +364,89 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             </div>
 
             {/* Accepted Payment Methods */}
-            <div className="pt-4">
-              <p className="text-sm font-medium text-circleTel-darkNeutral mb-3">
+            <div className="pt-4 border-t">
+              <p className="text-sm font-semibold text-circleTel-darkNeutral mb-4">
                 Accepted Payment Methods
               </p>
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="outline" className="px-3 py-1">
-                  💳 Credit Card
-                </Badge>
-                <Badge variant="outline" className="px-3 py-1">
-                  💳 Debit Card
-                </Badge>
-                <Badge variant="outline" className="px-3 py-1">
-                  🏦 EFT
-                </Badge>
-                <Badge variant="outline" className="px-3 py-1">
-                  💰 Instant EFT
-                </Badge>
+              
+              {/* Payment Options Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Credit/Debit Cards */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                  <div className="flex items-start gap-3">
+                    <CreditCard className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-gray-900 mb-1">Credit & Debit Cards</h4>
+                      <p className="text-xs text-gray-600 mb-3">Visa, Mastercard, American Express, Diners Club</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="relative h-6 w-auto">
+                          <Image src="/images/payment-logos/logo_mastercard-h.png" alt="Mastercard" width={40} height={24} className="object-contain" />
+                        </div>
+                        <div className="flex gap-1">
+                          <div className="relative h-5 w-auto">
+                            <Image src="/images/payment-logos/verified-by-visa.png" alt="Verified by Visa" width={35} height={20} className="object-contain" />
+                          </div>
+                          <div className="relative h-5 w-auto">
+                            <Image src="/images/payment-logos/mastercard-secure-code.png" alt="Mastercard SecureCode" width={35} height={20} className="object-contain" />
+                          </div>
+                          <div className="relative h-5 w-auto">
+                            <Image src="/images/payment-logos/3d-secure.png" alt="3D Secure" width={35} height={20} className="object-contain" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instant EFT */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                  <div className="flex items-start gap-3">
+                    <Smartphone className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-gray-900 mb-1">Instant EFT</h4>
+                      <p className="text-xs text-gray-600 mb-2">Real-time bank transfer - Instant confirmation</p>
+                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                        ⚡ Instant
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank EFT */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-gray-900 mb-1">Bank EFT</h4>
+                      <p className="text-xs text-gray-600 mb-3">Standard electronic funds transfer</p>
+                      <div className="relative h-6 w-auto">
+                        <Image src="/images/payment-logos/logo_bank-eft-h.png" alt="Bank EFT" width={60} height={24} className="object-contain" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scan to Pay */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                  <div className="flex items-start gap-3">
+                    <Smartphone className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-gray-900 mb-1">Scan to Pay</h4>
+                      <p className="text-xs text-gray-600 mb-2">QR code for mobile wallets & banking apps</p>
+                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                        📱 Mobile
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Powered by Netcash */}
+              <div className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-lg">
+                <span className="text-xs text-gray-600">Powered by</span>
+                <div className="relative h-6 w-auto">
+                  <Image src="/images/payment-logos/logo_netcash-43.png" alt="Netcash" width={80} height={24} className="object-contain" />
+                </div>
               </div>
             </div>
 
