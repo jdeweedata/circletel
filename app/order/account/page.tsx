@@ -3,6 +3,7 @@
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
+import { PackageSummary } from '@/components/order/PackageSummary';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +13,7 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 // Minimal form validation schema - email, password, phone, and terms acceptance
@@ -132,13 +134,28 @@ export default function AccountPage() {
     }
   };
 
+  const handleBack = () => {
+    router.push('/order/packages');
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      {/* Minimal Card Container */}
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          {/* Heading */}
-          <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Progress Bar */}
+      <TopProgressBar currentStep={1} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Package Summary */}
+        {state.orderData.package?.selectedPackage && (
+          <div className="max-w-md mx-auto mb-6">
+            <PackageSummary package={state.orderData.package.selectedPackage} compact />
+          </div>
+        )}
+
+        {/* Minimal Card Container */}
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            {/* Heading */}
+            <div className="mb-6">
             <h1 className="text-2xl font-semibold text-gray-900 mb-2">
               Create an account
             </h1>
@@ -273,6 +290,16 @@ export default function AccountPage() {
               {isSubmitting ? 'Creating account...' : 'Create account'}
             </button>
 
+            {/* Back Button */}
+            <button
+              type="button"
+              onClick={handleBack}
+              className="w-full mt-3 flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Packages
+            </button>
+
             {/* Sign In Link */}
             <div className="text-center text-sm text-gray-600 mt-4">
               Already have an account?{' '}
@@ -285,6 +312,7 @@ export default function AccountPage() {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

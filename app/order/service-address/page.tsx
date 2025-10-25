@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
+import { PackageSummary } from '@/components/order/PackageSummary';
 import { toast } from 'sonner';
 import { MapPin, Building2, Home, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -104,7 +105,7 @@ export default function ServiceAddressPage() {
           country: 'South Africa',
         },
         installationLocationType: propertyType,
-        accountType: serviceType,
+        accountType: serviceType === 'residential' ? 'personal' : 'business',
       },
     });
 
@@ -116,7 +117,7 @@ export default function ServiceAddressPage() {
   };
 
   const handleBack = () => {
-    router.push('/order/verify-otp');
+    router.push('/order/account');
   };
 
   const currentOptions = serviceType === 'residential' ? residentialOptions : businessOptions;
@@ -142,6 +143,13 @@ export default function ServiceAddressPage() {
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
+          {/* Package Summary */}
+          {state.orderData.package?.selectedPackage && (
+            <div className="mb-6">
+              <PackageSummary package={state.orderData.package.selectedPackage} compact />
+            </div>
+          )}
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 lg:p-8">
               {/* Service Type Selection */}
