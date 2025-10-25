@@ -7,17 +7,21 @@ import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import Link from 'next/link';
 
-// Simplified form validation schema - only basic fields, no password
+// Minimal form validation schema - email, password, phone, and terms acceptance
 const accountSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   phone: z.string().min(10, 'Please enter a valid phone number').regex(/^[0-9+\s()-]+$/, 'Please enter a valid phone number'),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: 'You must accept the Terms & Conditions and Privacy Policy',
+  }),
 });
 
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -27,8 +31,6 @@ export default function AccountPage() {
   const { state, actions } = useOrderContext();
   const { signUp } = useCustomerAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [mode, setMode] = React.useState<'signup' | 'signin'>('signup');
-  const [checkingEmail, setCheckingEmail] = React.useState(false);
 
   // Set current stage to 2 when this page loads
   React.useEffect(() => {
@@ -41,70 +43,28 @@ export default function AccountPage() {
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
-      firstName: state.orderData.account?.firstName || '',
-      lastName: state.orderData.account?.lastName || '',
       email: state.orderData.account?.email || '',
+      password: '',
       phone: state.orderData.account?.phone || '',
+      acceptTerms: false,
     },
   });
-
-  // Check if customer exists by email
-  const handleCheckEmail = async (email: string) => {
-    if (!email || !email.includes('@')) return;
-
-    setCheckingEmail(true);
-    try {
-      const response = await fetch(`/api/customers?email=${encodeURIComponent(email)}`);
-      const result = await response.json();
-
-      if (result.success && result.customer) {
-        // Customer exists - switch to sign-in mode
-        setMode('signin');
-        toast.success('Welcome back! Please verify your email to continue.');
-
-        // Pre-fill form with existing customer data
-        setValue('firstName', result.customer.first_name || '');
-        setValue('lastName', result.customer.last_name || '');
-        setValue('phone', result.customer.phone || '');
-
-        // Send OTP for sign-in
-        await fetch('/api/auth/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, type: 'signin' }),
-        });
-      } else {
-        // New customer - stay in signup mode
-        setMode('signup');
-      }
-    } catch (error) {
-      console.error('Error checking email:', error);
-      setMode('signup');
-    } finally {
-      setCheckingEmail(false);
-    }
-  };
 
   const onSubmit = async (data: AccountFormValues) => {
     setIsSubmitting(true);
 
     try {
-      // Generate a temporary password for account creation
-      // User will set their own password during email verification
-      const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!1A`;
-
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth using the provided password
       const result = await signUp(
         data.email,
-        tempPassword,
+        data.password,
         {
-          firstName: data.firstName,
-          lastName: data.lastName,
+          firstName: '', // Will be collected later in the flow
+          lastName: '', // Will be collected later in the flow
           email: data.email,
           phone: data.phone,
           accountType: 'personal', // Default to personal
@@ -119,8 +79,6 @@ export default function AccountPage() {
       // Save account data to OrderContext
       actions.updateOrderData({
         account: {
-          firstName: data.firstName,
-          lastName: data.lastName,
           email: data.email,
           phone: data.phone,
           accountType: 'personal',
@@ -138,6 +96,20 @@ export default function AccountPage() {
         });
       }
 
+      // Send OTP to phone number
+      const otpResponse = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: data.phone }),
+      });
+
+      const otpResult = await otpResponse.json();
+
+      if (!otpResult.success) {
+        toast.error('Account created, but failed to send verification code. Please try again.');
+        // Still allow user to proceed, they can resend OTP
+      }
+
       // Mark step 2 as complete
       actions.markStepComplete(2);
 
@@ -145,10 +117,10 @@ export default function AccountPage() {
       actions.setCurrentStage(3);
 
       // Show success message
-      toast.success('Account created! Please check your email to verify your account.');
+      toast.success('Account created! Please verify your phone number.');
 
-      // Navigate to email verification page
-      router.push('/order/verify-email');
+      // Navigate to OTP verification page
+      router.push(`/order/verify-otp?phone=${encodeURIComponent(data.phone)}`);
     } catch (error) {
       console.error('Error creating account:', error);
       toast.error('Failed to create account. Please try again.');
@@ -161,161 +133,147 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-blue-100/30 to-white relative overflow-hidden">
-      {/* Decorative Background Circles */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-200/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Top Progress Bar */}
-      <TopProgressBar currentStep={1} />
-
-      {/* Main Content */}
-      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Step Label */}
-        <div className="text-center mb-4 sm:mb-6">
-          <p className="text-circleTel-orange text-xs sm:text-sm font-bold uppercase tracking-wide">
-            STEP 1
-          </p>
-        </div>
-
-        {/* Main Heading */}
-        <h1 className="text-webafrica-blue text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12">
-          Create your CircleTel account
-        </h1>
-
-        {/* White Form Container */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm max-w-3xl mx-auto">
-          {/* Personal Details Section */}
-          <div className="mb-8">
-            <h3 className="text-circleTel-orange font-bold text-lg sm:text-xl mb-2">
-              Personal Details
-            </h3>
-            <p className="text-gray-600 text-sm sm:text-base mb-6">
-              To safely complete your online check out, we need a few details.
-              Your information is stored securely and is not shared.
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      {/* Minimal Card Container */}
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          {/* Heading */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              Create an account
+            </h1>
+            <p className="text-sm text-gray-600">
+              Enter your email below to create your account
             </p>
+          </div>
 
-            {/* Already a Customer Banner */}
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-8 flex items-center justify-between">
-              <span className="text-webafrica-blue font-medium text-sm sm:text-base">
-                Already a Customer?
-              </span>
-              <button
-                type="button"
-                onClick={() => router.push('/auth/login')}
-                className="text-webafrica-blue font-bold hover:underline text-sm sm:text-base"
-              >
-                Log In
-              </button>
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email <span className="text-red-600">*</span>
+              </Label>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    className="w-full"
+                    required
+                  />
+                )}
+              />
+              {errors.email && (
+                <p className="text-xs text-red-600">{errors.email.message}</p>
+              )}
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Name Fields - 2 Column Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Controller
-                  name="firstName"
-                  control={control}
-                  render={({ field }) => (
-                    <FloatingInput
-                      {...field}
-                      label="Name"
-                      required
-                      placeholder=" "
-                      error={errors.firstName?.message}
+            {/* Password Field */}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                Password <span className="text-red-600">*</span>
+              </Label>
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full"
+                    required
+                  />
+                )}
+              />
+              {errors.password && (
+                <p className="text-xs text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Phone Field */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                Cellphone Number <span className="text-red-600">*</span>
+              </Label>
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="phone"
+                    type="tel"
+                    placeholder="0821234567"
+                    className="w-full"
+                    required
+                  />
+                )}
+              />
+              {errors.phone && (
+                <p className="text-xs text-red-600">{errors.phone.message}</p>
+              )}
+            </div>
+
+            {/* Terms & Conditions Checkbox */}
+            <div className="space-y-2">
+              <Controller
+                name="acceptTerms"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="acceptTerms"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="mt-1"
                     />
-                  )}
-                />
+                    <label
+                      htmlFor="acceptTerms"
+                      className="text-sm text-gray-700 leading-relaxed cursor-pointer"
+                    >
+                      I agree to the{' '}
+                      <Link
+                        href="/terms"
+                        target="_blank"
+                        className="text-[#F5831F] hover:underline font-medium"
+                      >
+                        Terms & Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        className="text-[#F5831F] hover:underline font-medium"
+                      >
+                        Privacy Policy
+                      </Link>
+                      <span className="text-red-600 ml-1">*</span>
+                    </label>
+                  </div>
+                )}
+              />
+              {errors.acceptTerms && (
+                <p className="text-xs text-red-600">{errors.acceptTerms.message}</p>
+              )}
+            </div>
 
-                <Controller
-                  name="lastName"
-                  control={control}
-                  render={({ field }) => (
-                    <FloatingInput
-                      {...field}
-                      label="Surname"
-                      required
-                      placeholder=" "
-                      error={errors.lastName?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Email and Phone - 2 Column Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <FloatingInput
-                        {...field}
-                        type="email"
-                        label="Email Address"
-                        required
-                        placeholder=" "
-                        error={errors.email?.message}
-                        onBlur={(e) => {
-                          field.onBlur();
-                          handleCheckEmail(e.target.value);
-                        }}
-                      />
-                      {checkingEmail && (
-                        <div className="absolute right-3 top-5">
-                          <svg className="animate-spin h-5 w-5 text-circleTel-orange" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                />
-
-                <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <FloatingInput
-                      {...field}
-                      type="tel"
-                      label="Cellphone Number"
-                      required
-                      placeholder=" "
-                      error={errors.phone?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Submit Button - Right Aligned */}
-              <div className="flex justify-end pt-6">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-webafrica-blue text-white font-extrabold px-8 py-3.5 rounded-full hover:bg-webafrica-blue-dark transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-medium py-2.5 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Creating account...' : 'Create account'}
+            </button>
+          </form>
         </div>
-
-        {/* Footer spacing */}
-        <div className="h-12" />
       </div>
     </div>
   );
