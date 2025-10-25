@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
@@ -67,6 +67,9 @@ export default function ServiceAddressPage() {
     postalCode: '',
   });
 
+  const streetInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
   // Set current stage to 2 when this page loads
   useEffect(() => {
     if (state.currentStage !== 2) {
@@ -80,6 +83,75 @@ export default function ServiceAddressPage() {
       setPropertyType(state.orderData.account.installationLocationType as PropertyType);
     }
   }, [state.orderData.account?.installationLocationType]);
+
+  // Initialize Google Places Autocomplete
+  useEffect(() => {
+    const initializeAutocomplete = async () => {
+      if (!streetInputRef.current) return;
+
+      try {
+        const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
+        const googleMapsService = await loadGoogleMapsService();
+        
+        const autocomplete = new google.maps.places.Autocomplete(streetInputRef.current, {
+          componentRestrictions: { country: 'za' },
+          fields: ['address_components', 'formatted_address', 'geometry'],
+          types: ['address']
+        });
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (!place.address_components) return;
+
+          let streetNumber = '';
+          let route = '';
+          let suburb = '';
+          let locality = '';
+          let province = '';
+          let postalCode = '';
+
+          place.address_components.forEach((component) => {
+            const types = component.types;
+            if (types.includes('street_number')) {
+              streetNumber = component.long_name;
+            } else if (types.includes('route')) {
+              route = component.long_name;
+            } else if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
+              suburb = component.long_name;
+            } else if (types.includes('locality')) {
+              locality = component.long_name;
+            } else if (types.includes('administrative_area_level_1')) {
+              province = component.long_name;
+            } else if (types.includes('postal_code')) {
+              postalCode = component.long_name;
+            }
+          });
+
+          const fullStreet = streetNumber && route ? `${streetNumber} ${route}` : route || place.formatted_address || '';
+
+          setAddress({
+            street: fullStreet,
+            suburb: suburb || locality,
+            city: locality,
+            province,
+            postalCode,
+          });
+        });
+
+        autocompleteRef.current = autocomplete;
+      } catch (error) {
+        console.error('Failed to initialize Google Places:', error);
+      }
+    };
+
+    initializeAutocomplete();
+
+    return () => {
+      if (autocompleteRef.current && typeof google !== 'undefined') {
+        google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+    };
+  }, []);
 
   const handleContinue = () => {
     // Validation
@@ -123,9 +195,49 @@ export default function ServiceAddressPage() {
   const currentOptions = serviceType === 'residential' ? residentialOptions : businessOptions;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Progress Bar */}
-      <TopProgressBar currentStep={2} />
+    <>
+      {/* Custom styles for Google Places Autocomplete dropdown */}
+      <style jsx global>{`
+        .pac-container {
+          background-color: #ffffff !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 0.5rem !important;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+          margin-top: 4px !important;
+          font-family: inherit !important;
+          z-index: 9999 !important;
+        }
+        .pac-item {
+          background-color: #ffffff !important;
+          border-top: 1px solid #f3f4f6 !important;
+          padding: 12px 16px !important;
+          cursor: pointer !important;
+          font-size: 14px !important;
+          line-height: 1.5 !important;
+        }
+        .pac-item:hover {
+          background-color: #f9fafb !important;
+        }
+        .pac-item-selected {
+          background-color: #fef3e7 !important;
+        }
+        .pac-item-query {
+          font-size: 14px !important;
+          color: #111827 !important;
+          font-weight: 500 !important;
+        }
+        .pac-matched {
+          font-weight: 600 !important;
+          color: #F5831F !important;
+        }
+        .pac-icon {
+          display: none !important;
+        }
+      `}</style>
+      
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+        {/* Progress Bar */}
+        <TopProgressBar currentStep={2} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header */}
@@ -205,14 +317,19 @@ export default function ServiceAddressPage() {
                     Street Address *
                   </Label>
                   <Input
+                    ref={streetInputRef}
                     id="street"
                     type="text"
                     value={address.street}
                     onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                    placeholder="e.g., 123 Main Street"
+                    placeholder="Start typing your address..."
                     className="w-full"
+                    autoComplete="off"
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Start typing and select from suggestions
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -282,12 +399,12 @@ export default function ServiceAddressPage() {
                   Property Type *
                 </Label>
                 <Select value={propertyType} onValueChange={(value) => setPropertyType(value as PropertyType)}>
-                  <SelectTrigger className="w-full h-12">
+                  <SelectTrigger className="w-full h-12 bg-white">
                     <SelectValue placeholder="Select your property type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white">
                     {currentOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem key={option.value} value={option.value} className="bg-white hover:bg-gray-50">
                         <div className="flex items-center gap-2">
                           <option.icon className="w-4 h-4 text-gray-500" />
                           <span>{option.label}</span>
@@ -332,6 +449,7 @@ export default function ServiceAddressPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
