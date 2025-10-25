@@ -110,6 +110,7 @@ export interface PackageDetails {
   installation_fee?: number;
   router_included?: boolean;
   activation_fee?: number;
+  delivery_fee?: number;
 }
 
 export interface PricingDetails {
