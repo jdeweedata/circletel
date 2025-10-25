@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         };
 
         const coverageResult = await coverageAggregationService.aggregateCoverage(coordinates, {
-          providers: ['mtn'], // Can expand to other providers in the future
+          providers: ['mtn', 'dfa'], // MTN for wireless, DFA for fibre
           includeAlternatives: true,
           prioritizeReliability: true,
           prioritizeSpeed: false
@@ -76,14 +76,23 @@ export async function GET(request: NextRequest) {
             .map(service => service.serviceType);
 
           // Store metadata for debugging
+          // Check both MTN and DFA providers for metadata
+          const mtnProvider = coverageResult.providers.mtn;
+          const dfaProvider = coverageResult.providers.dfa;
+          
           coverageMetadata = {
-            provider: 'mtn',
-            confidence: coverageResult.providers.mtn?.confidence || 'unknown',
+            providers: {
+              mtn: mtnProvider ? {
+                confidence: mtnProvider.confidence,
+                servicesFound: mtnProvider.services?.length || 0
+              } : null,
+              dfa: dfaProvider ? {
+                confidence: dfaProvider.confidence,
+                servicesFound: dfaProvider.services?.length || 0
+              } : null
+            },
             lastUpdated: coverageResult.lastUpdated,
-            servicesFound: availableServices.length,
-            source: coverageResult.providers.mtn?.metadata?.source || 'mtn_consumer_api',
-            phase: coverageResult.providers.mtn?.metadata?.phase || 'phase_3_infrastructure_ready',
-            infrastructureEstimatorAvailable: coverageResult.providers.mtn?.metadata?.infrastructureEstimatorAvailable || true
+            totalServicesFound: availableServices.length
           };
 
           console.log('Real-time MTN coverage check:', {

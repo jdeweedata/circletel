@@ -49,10 +49,12 @@ export class DFAProductMapper {
       const mappedProduct: MappedProduct = {
         id: product.id,
         name: product.name,
-        category: product.category,
+        // Align to CircleTel schema
+        // Category: use service type label for clarity in UI
+        category: 'BizFibreConnect',
         service_type: product.service_type,
-        download_speed: product.download_speed,
-        upload_speed: product.upload_speed,
+        download_speed: product.speed_down,
+        upload_speed: product.speed_up,
         price: product.price,
         coverage_details: {
           provider_code: 'dfa',
@@ -89,10 +91,11 @@ export class DFAProductMapper {
 
     const { data, error } = await supabase
       .from('service_packages')
-      .select('*')
+      .select('id, name, service_type, product_category, customer_type, speed_down, speed_up, price, description')
+      .eq('service_type', 'BizFibreConnect')
+      .eq('customer_type', 'business')
+      .eq('active', true)
       .contains('compatible_providers', ['dfa'])
-      .eq('category', 'BizFibre')
-      .eq('enabled', true)
       .order('price', { ascending: true });
 
     if (error) {

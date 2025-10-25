@@ -11,6 +11,13 @@ import { dfaProductMapper } from '../lib/coverage/providers/dfa';
 // Test addresses from DFA portal analysis
 const TEST_ADDRESSES = [
   {
+    name: '7 Autumn St, Rivonia, Sandton, 2128',
+    latitude: -26.0525,
+    longitude: 28.0598,
+    expectedCoverage: 'unknown' as const,
+    description: 'User requested test address in Rivonia, Sandton'
+  },
+  {
     name: 'Sandton City (Connected)',
     latitude: -26.1076,
     longitude: 28.0567,
@@ -103,11 +110,15 @@ async function testDFACoverage() {
       }
 
       // Verify expectation
-      const matches = coverageResponse.coverageType === testAddress.expectedCoverage;
-      if (matches) {
-        console.log(`   ✅ Result matches expectation`);
+      if (testAddress.expectedCoverage !== 'unknown') {
+        const matches = coverageResponse.coverageType === testAddress.expectedCoverage;
+        if (matches) {
+          console.log(`   ✅ Result matches expectation`);
+        } else {
+          console.log(`   ⚠️  Result differs from expectation (got: ${coverageResponse.coverageType}, expected: ${testAddress.expectedCoverage})`);
+        }
       } else {
-        console.log(`   ⚠️  Result differs from expectation (got: ${coverageResponse.coverageType}, expected: ${testAddress.expectedCoverage})`);
+        console.log(`   ℹ️  Coverage type: ${coverageResponse.coverageType} (no expectation set)`);
       }
 
     } catch (error) {
