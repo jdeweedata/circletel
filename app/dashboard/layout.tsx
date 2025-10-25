@@ -7,7 +7,6 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Button } from '@/components/ui/button';
 import SidebarNav from '@/components/dashboard/SidebarNav';
 import Topbar from '@/components/dashboard/Topbar';
-import DetailsPanel from '@/components/dashboard/DetailsPanel';
 import {
   Home,
   Package,
@@ -80,7 +79,7 @@ export default function DashboardLayout({
       <Topbar onToggleSidebar={() => setSidebarOpen((v) => !v)} displayName={displayName} email={user.email || ''} />
 
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[256px_minmax(0,1fr)] xl:grid-cols-[256px_minmax(0,1fr)_360px] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[256px_minmax(0,1fr)] gap-6">
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
@@ -91,7 +90,6 @@ export default function DashboardLayout({
           )}
           <SidebarNav />
           <main className="min-w-0">{children}</main>
-          <DetailsPanel />
         </div>
       </div>
 
