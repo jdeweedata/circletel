@@ -139,14 +139,23 @@ export default function CoverageAnalyticsPage() {
   const fetchAnalyticsData = async () => {
     setRefreshing(true);
     try {
-      // In production, these would be real API calls
-      // const response = await fetch(`/api/coverage/analytics?range=${timeRange}`);
-      // const data = await response.json();
+      const response = await fetch(`/api/coverage/analytics?range=${timeRange}`);
+      const result = await response.json();
 
-      // For now, use mock data
-      generateMockData();
+      if (result.success && result.data) {
+        setTimeSeriesData(result.data.timeSeries || []);
+        setProvinceData(result.data.provinceData || []);
+        setErrorData(result.data.errorData || []);
+        setPerformanceTrends(result.data.performanceTrends || []);
+      } else {
+        // Fallback to mock data if no real data available
+        console.warn('No analytics data available, using mock data');
+        generateMockData();
+      }
     } catch (error) {
       console.error('Failed to fetch analytics data:', error);
+      // Fallback to mock data on error
+      generateMockData();
     } finally {
       setLoading(false);
       setRefreshing(false);

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +65,10 @@ export default function AdminCoveragePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [dfaAddress, setDfaAddress] = useState('');
+  const [dfaLoading, setDfaLoading] = useState(false);
+  const [dfaErrorMsg, setDfaErrorMsg] = useState<string | null>(null);
+  const [dfaResult, setDfaResult] = useState<any | null>(null);
 
   const fetchCoverageData = async () => {
     try {
@@ -129,6 +135,30 @@ export default function AdminCoveragePage() {
     const interval = setInterval(fetchCoverageData, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleDfaCheck = async () => {
+    if (!dfaAddress.trim()) return;
+    setDfaLoading(true);
+    setDfaErrorMsg(null);
+    setDfaResult(null);
+    try {
+      const res = await fetch('/api/admin/coverage/dfa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: dfaAddress.trim() })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setDfaErrorMsg(json?.message || 'Failed to check DFA coverage');
+      } else {
+        setDfaResult(json.data);
+      }
+    } catch (e) {
+      setDfaErrorMsg('Failed to check DFA coverage');
+    } finally {
+      setDfaLoading(false);
+    }
+  };
 
   const getHealthBadge = (status: string) => {
     switch (status) {
@@ -501,6 +531,41 @@ export default function AdminCoveragePage() {
                     <MapPin className="h-4 w-4 mr-2" />
                     Test Geo Validation
                   </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>DFA Coverage Check</CardTitle>
+                  <CardDescription>
+                    Check DFA connected or near-net status for an address
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={dfaAddress}
+                      onChange={(e) => setDfaAddress(e.target.value)}
+                      placeholder="Enter address"
+                    />
+                    <Button onClick={handleDfaCheck} disabled={!dfaAddress.trim() || dfaLoading}>
+                      {dfaLoading ? 'Checking...' : 'Check DFA'}
+                    </Button>
+                  </div>
+                  {dfaErrorMsg && (
+                    <div className="text-sm text-red-600">{dfaErrorMsg}</div>
+                  )}
+                  {dfaResult && (
+                    <div className="text-sm space-y-1">
+                      <div><span className="font-semibold">Type:</span> {dfaResult.coverageType}</div>
+                      {dfaResult.coverageType === 'connected' && (
+                        <div className="text-green-700">Connected</div>
+                      )}
+                      {dfaResult.coverageType === 'near-net' && dfaResult.nearNet && (
+                        <div className="text-amber-700">Near-net {dfaResult.nearNet.display} • {dfaResult.nearNet.timeline}</div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
+import { CoverageLogger } from '@/lib/analytics/coverage-logger';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -10,6 +11,8 @@ const supabase = createClient(
 );
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('leadId');
@@ -43,6 +46,8 @@ export async function GET(request: NextRequest) {
     let availableServices: string[] = [];
     let availablePackages: any[] = [];
     let coverageMetadata: any = null;
+    let fibreCoverage: 'connected' | 'near-net' | 'none' | 'unknown' = 'unknown';
+    let fibreNearNetDistance: number | null = null;
 
     // Extract coordinates from JSONB structure
     const lat = lead.coordinates?.lat;
@@ -94,6 +99,32 @@ export async function GET(request: NextRequest) {
             lastUpdated: coverageResult.lastUpdated,
             totalServicesFound: availableServices.length
           };
+
+          const aggMeta = (coverageResult as any)?.metadata;
+          if (aggMeta && typeof aggMeta === 'object') {
+            if (typeof aggMeta.coverageType === 'string') {
+              fibreCoverage = aggMeta.coverageType as any;
+            }
+            if (typeof aggMeta.distance === 'number') {
+              fibreNearNetDistance = aggMeta.distance;
+            }
+          }
+
+          // Derive fibre coverage from DFA provider services if metadata not present
+          if ((fibreCoverage === 'unknown' || fibreCoverage === 'none') && dfaProvider) {
+            const dfaServices = Array.isArray(dfaProvider.services) ? dfaProvider.services : [];
+            if (dfaServices.length > 0) {
+              const ct = dfaServices.map((s: any) => s?.metadata?.coverageType).find((v: any) => typeof v === 'string');
+              if (ct === 'connected' || ct === 'near-net') {
+                fibreCoverage = ct as any;
+              } else {
+                // Presence of DFA fibre services implies some availability; default to connected when unknown
+                fibreCoverage = 'connected';
+              }
+            } else if (dfaProvider.available === false) {
+              fibreCoverage = 'none';
+            }
+          }
 
           console.log('Real-time MTN coverage check:', {
             coordinates,
@@ -246,6 +277,28 @@ export async function GET(request: NextRequest) {
             provider: providerData // Add provider data including logo
           };
         });
+
+        const isBizFibre = (pkg: any) => pkg.service_type === 'BizFibreConnect' || pkg.product_category === 'fibre_business';
+        if (!lat || !lng) {
+          availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+        } else {
+          if (fibreCoverage === 'none' || fibreCoverage === 'unknown') {
+            availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+          } else if (fibreCoverage === 'near-net') {
+            // Frontend: hide BizFibre for near-net; near-net details are for admin module only
+            availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+          } else if (fibreCoverage === 'connected') {
+            availablePackages = availablePackages.map((pkg: any) => {
+              if (isBizFibre(pkg)) {
+                const features = Array.isArray(pkg.features) ? pkg.features.slice() : [];
+                const note = 'Connected building: ready for standard installation (5–10 business days).';
+                if (!features.includes(note)) features.push(note);
+                return { ...pkg, features };
+              }
+              return pkg;
+            });
+          }
+        }
       }
 
       // Log for debugging
@@ -268,6 +321,29 @@ export async function GET(request: NextRequest) {
       })
       .eq('id', leadId);
 
+    // Log analytics
+    const responseTime = Date.now() - startTime;
+    await CoverageLogger.log({
+      endpoint: '/api/coverage/packages',
+      method: 'GET',
+      address: lead.address,
+      latitude: lat,
+      longitude: lng,
+      province: CoverageLogger.extractProvinceFromAddress(lead.address),
+      city: CoverageLogger.extractCityFromAddress(lead.address),
+      coverageType,
+      providerCode: coverageMetadata?.providers ? Object.keys(coverageMetadata.providers)[0] : undefined,
+      statusCode: 200,
+      success: true,
+      responseTimeMs: responseTime,
+      hasCoverage: coverageAvailable,
+      coverageStatus: fibreCoverage,
+      packagesFound: availablePackages.length,
+      leadId,
+      userAgent: request.headers.get('user-agent') || undefined,
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
+    });
+
     return NextResponse.json({
       available: coverageAvailable,
       services: availableServices,
@@ -283,6 +359,21 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Coverage check error:', error);
+    
+    // Log error
+    const responseTime = Date.now() - startTime;
+    await CoverageLogger.log({
+      endpoint: '/api/coverage/packages',
+      method: 'GET',
+      statusCode: 500,
+      success: false,
+      responseTimeMs: responseTime,
+      errorCode: 'INTERNAL_ERROR',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorType: 'INTERNAL_ERROR',
+      userAgent: request.headers.get('user-agent') || undefined
+    });
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

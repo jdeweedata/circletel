@@ -102,8 +102,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const { data, error } = await mtnWMSClient.supabase
-      .from('network_providers')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data, error } = await supabase
+      .from('fttb_network_providers')
       .insert([{
         name: body.name.toLowerCase().replace(/\s+/g, '_'),
         display_name: body.displayName,
@@ -177,6 +186,15 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const updateData: Record<string, unknown> = {};
     if (body.name) updateData.name = body.name.toLowerCase().replace(/\s+/g, '_');
     if (body.displayName) updateData.display_name = body.displayName;
@@ -190,8 +208,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     if (body.priority !== undefined) updateData.priority = body.priority;
     if (body.enabled !== undefined) updateData.enabled = body.enabled;
 
-    const { data, error } = await mtnWMSClient.supabase
-      .from('network_providers')
+    const { data, error} = await supabase
+      .from('fttb_network_providers')
       .update(updateData)
       .eq('id', body.id)
       .select()
@@ -237,8 +255,17 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       }, { status: 400 });
     }
 
-    const { error } = await mtnWMSClient.supabase
-      .from('network_providers')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { error } = await supabase
+      .from('fttb_network_providers')
       .delete()
       .eq('id', id);
 

@@ -128,8 +128,12 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       town: locality,
       buildingComplex: place.name || '',
       postalCode,
-      latitude: place.geometry.location.lat,
-      longitude: place.geometry.location.lng,
+      latitude: typeof (place as any).geometry?.location?.lat === 'function'
+        ? (place as any).geometry.location.lat()
+        : (place as any).geometry?.location?.lat,
+      longitude: typeof (place as any).geometry?.location?.lng === 'function'
+        ? (place as any).geometry.location.lng()
+        : (place as any).geometry?.location?.lng,
     });
   };
 

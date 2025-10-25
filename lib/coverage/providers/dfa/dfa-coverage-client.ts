@@ -158,6 +158,7 @@ export class DFACoverageClient {
       geometry: formatGeometryPoint(webMercator),
       geometryType: 'esriGeometryPoint',
       inSR: '102100',
+      where: "DFA_Connected_Y_N='Yes'",
       outFields:
         'OBJECTID,DFA_Building_ID,Longitude,Latitude,DFA_Connected_Y_N,FTTH,Broadband,Precinct,Promotion',
       outSR: '102100'
@@ -170,10 +171,37 @@ export class DFACoverageClient {
       timeout: this.timeout
     });
 
-    // Check if any features returned AND connection status is "Y"
     if (response.data.features && response.data.features.length > 0) {
       const feature = response.data.features[0];
-      if (feature.attributes.DFA_Connected_Y_N === 'Y') {
+      if (feature.attributes.DFA_Connected_Y_N === 'Yes') {
+        return feature.attributes;
+      }
+    }
+
+    const bbox = createBoundingBox(latitude, longitude, 3);
+    const params2 = new URLSearchParams({
+      f: 'json',
+      returnGeometry: 'false',
+      spatialRel: 'esriSpatialRelIntersects',
+      geometry: formatGeometryEnvelope(bbox),
+      geometryType: 'esriGeometryEnvelope',
+      inSR: '102100',
+      where: "DFA_Connected_Y_N='Yes'",
+      outFields:
+        'OBJECTID,DFA_Building_ID,Longitude,Latitude,DFA_Connected_Y_N,FTTH,Broadband,Precinct,Promotion',
+      outSR: '102100'
+    });
+
+    const response2 = await axios.get<
+      ArcGISQueryResponse<DFAConnectedBuilding>
+    >(`${this.baseUrl}/DFA_Connected_Buildings/MapServer/0/query`, {
+      params: params2,
+      timeout: this.timeout
+    });
+
+    if (response2.data.features && response2.data.features.length > 0) {
+      const feature = response2.data.features[0];
+      if (feature.attributes.DFA_Connected_Y_N === 'Yes') {
         return feature.attributes;
       }
     }

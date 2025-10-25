@@ -24,6 +24,34 @@ export async function POST(request: NextRequest) {
     // Map: residential -> consumer, business -> smme (covers both SME and enterprise)
     const customerType = coverageType === 'business' ? 'smme' : 'consumer';
 
+    let finalCoordinates: { lat: number; lng: number } | null = coordinates ? { lat: coordinates.lat, lng: coordinates.lng } : null;
+    let geocodeMeta: any = null;
+
+    if (!finalCoordinates) {
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      if (apiKey) {
+        try {
+          const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&region=za&components=country:ZA&key=${apiKey}`;
+          const resp = await fetch(url);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.status === 'OK' && data.results && data.results[0]) {
+              const res = data.results[0];
+              if (res.geometry && res.geometry.location && typeof res.geometry.location.lat === 'number' && typeof res.geometry.location.lng === 'number') {
+                finalCoordinates = { lat: res.geometry.location.lat, lng: res.geometry.location.lng };
+                geocodeMeta = {
+                  geocoded: true,
+                  place_id: res.place_id,
+                  formatted_address: res.formatted_address,
+                  geocode_status: data.status
+                };
+              }
+            }
+          }
+        } catch {}
+      }
+    }
+
     // Create a minimal lead entry for coverage check
     // Full customer details will be collected in the order form
     const leadData = {
@@ -33,16 +61,14 @@ export async function POST(request: NextRequest) {
       email: `coverage-${Date.now()}@temp.circletel.co.za`, // Temporary email
       phone: '0000000000',     // Placeholder - will be updated during order
       address,
-      coordinates: coordinates ? {
-        lat: coordinates.lat,
-        lng: coordinates.lng
-      } : null,
+      coordinates: finalCoordinates,
       lead_source: 'coverage_checker' as const,
       status: 'new',
       metadata: {
         session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         is_coverage_check: true,
-        checked_at: new Date().toISOString()
+        checked_at: new Date().toISOString(),
+        ...(geocodeMeta || {})
       }
     };
 
