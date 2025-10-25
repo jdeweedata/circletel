@@ -67,30 +67,40 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchDashboardData() {
       if (!session?.access_token) {
+        console.log('No session token available');
+        setError('Please log in to view your dashboard');
         setLoading(false);
         return;
       }
 
       try {
+        console.log('Fetching dashboard data...');
         const response = await fetch('/api/dashboard/summary', {
           headers: {
             'Authorization': `Bearer ${session.access_token}`
           }
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
+          const errorData = await response.json();
+          console.error('API error:', errorData);
+          throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch dashboard data`);
         }
 
         const result = await response.json();
+        console.log('Dashboard data received:', result);
+        
         if (result.success) {
           setData(result.data);
+          setError(null);
         } else {
           setError(result.error || 'Failed to load dashboard');
         }
       } catch (err) {
         console.error('Dashboard error:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
       } finally {
         setLoading(false);
       }
@@ -109,10 +119,25 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-6">
         <AlertCircle className="h-12 w-12 text-red-500" />
-        <p className="text-lg text-gray-600">{error}</p>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
+        <div className="text-center max-w-md">
+          <p className="text-lg font-semibold text-gray-900 mb-2">Failed to load dashboard</p>
+          <p className="text-sm text-gray-600 mb-4">{error}</p>
+          {error.includes('log in') && (
+            <Link href="/auth/login">
+              <Button className="bg-circleTel-orange hover:bg-orange-600">Go to Login</Button>
+            </Link>
+          )}
+          {!error.includes('log in') && (
+            <div className="flex gap-2 justify-center">
+              <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+              <Link href="/">
+                <Button className="bg-circleTel-orange hover:bg-orange-600">Go Home</Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
