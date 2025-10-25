@@ -36,13 +36,17 @@ export default function ProfilePage() {
   }, [customer]);
 
   const handleSave = async () => {
+    console.log('[Profile] Starting save...', { hasSession: !!session, hasToken: !!session?.access_token });
+    
     if (!session?.access_token) {
+      console.error('[Profile] No session token available');
       toast.error('Please log in to update your profile');
       return;
     }
 
     setIsSaving(true);
     try {
+      console.log('[Profile] Sending PUT request to /api/customers');
       const response = await fetch('/api/customers', {
         method: 'PUT',
         headers: { 
@@ -59,16 +63,22 @@ export default function ProfilePage() {
         }),
       });
 
+      console.log('[Profile] Response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update profile');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('[Profile] API error:', errorData);
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to update profile`);
       }
+
+      const result = await response.json();
+      console.log('[Profile] Update successful:', result);
 
       await refreshCustomer();
       toast.success('Profile updated successfully');
       setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('[Profile] Error updating profile:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsSaving(false);
