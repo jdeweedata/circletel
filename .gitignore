@@ -63,3 +63,5 @@ next-env.d.ts
 # Documentation (generated and working files)
 # Scripts (utility and automation scripts)
 /scripts/*.ps1
+
+.env*.local

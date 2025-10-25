@@ -16,11 +16,18 @@ interface SendSMSParams {
 
 interface ClickatellResponse {
   messages: Array<{
-    apiMessageId: string;
-    accepted: boolean;
+    apiMessageId?: string;
+    accepted?: boolean;
     to: string;
-    error?: string;
+    error?: {
+      code: string;
+      description: string;
+    };
   }>;
+  error?: {
+    code: string;
+    description: string;
+  };
 }
 
 export class ClickatellService {
@@ -39,50 +46,60 @@ export class ClickatellService {
   }
 
   /**
-   * Send SMS message via Clickatell
+   * Send SMS message via Clickatell Platform API v1
    */
   async sendSMS({ to, text }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
       // Ensure phone number is in international format (remove leading 0, add country code)
       const formattedPhone = this.formatPhoneNumber(to);
 
-      const response = await fetch(`${this.config.baseUrl}/message`, {
+      console.log(`[ClickaTell] Sending SMS to ${formattedPhone}`);
+
+      const response = await fetch(this.config.baseUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`,
-          'X-Version': '1',
+          'Authorization': this.config.apiKey, // Platform API uses direct API key, not Bearer
         },
         body: JSON.stringify({
-          text,
-          to: [formattedPhone],
+          messages: [
+            {
+              channel: 'sms',
+              to: formattedPhone,
+              content: text,
+            }
+          ]
         }),
       });
 
+      const data: ClickatellResponse = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Clickatell API error:', errorData);
+        console.error('Clickatell API error:', data);
+        const errorMsg = data.error?.description || data.messages?.[0]?.error?.description || `HTTP ${response.status}: Failed to send SMS`;
         return {
           success: false,
-          error: errorData.error || `HTTP ${response.status}: Failed to send SMS`,
+          error: errorMsg,
         };
       }
 
-      const data: ClickatellResponse = await response.json();
       const message = data.messages[0];
 
-      if (message.accepted) {
-        return {
-          success: true,
-          messageId: message.apiMessageId,
-        };
-      } else {
+      // Check if message has an error
+      if (message.error) {
         return {
           success: false,
-          error: message.error || 'Message was not accepted',
+          error: message.error.description || 'Message was not accepted',
         };
       }
+
+      // Success
+      return {
+        success: true,
+        messageId: message.apiMessageId || 'sent',
+      };
+
     } catch (error) {
       console.error('Error sending SMS via Clickatell:', error);
       return {
