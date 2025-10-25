@@ -1,0 +1,16 @@
+{
+  "name": "CircleTel",
+  "short_name": "CircleTel",
+  "description": "South African Digital Service Provider - Fibre, Wireless & IT Services",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#F5831F",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

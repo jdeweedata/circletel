@@ -15,13 +15,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { auth_user_id, first_name, last_name, email, phone, account_type } = body;
 
-    // Validate required fields
-    if (!auth_user_id || !first_name || !last_name || !email || !phone) {
+    // Validate required fields (allow empty strings for names as they may be collected later)
+    if (!auth_user_id || !email || !phone) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields: auth_user_id, email, and phone are required' },
         { status: 400 }
       );
     }
+
+    // Use placeholder values for empty names
+    const finalFirstName = first_name?.trim() || 'Customer';
+    const finalLastName = last_name?.trim() || 'User';
 
     // Create Supabase client with service role (bypasses RLS)
     const supabase = createClient(
@@ -40,8 +44,8 @@ export async function POST(request: NextRequest) {
       .from('customers')
       .insert({
         auth_user_id,
-        first_name,
-        last_name,
+        first_name: finalFirstName,
+        last_name: finalLastName,
         email,
         phone,
         account_type: account_type || 'personal',

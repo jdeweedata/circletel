@@ -240,7 +240,7 @@ export default function AccountPage() {
                     >
                       I agree to the{' '}
                       <Link
-                        href="/terms"
+                        href="/terms-of-service"
                         target="_blank"
                         className="text-[#F5831F] hover:underline font-medium"
                       >
@@ -248,7 +248,7 @@ export default function AccountPage() {
                       </Link>{' '}
                       and{' '}
                       <Link
-                        href="/privacy"
+                        href="/privacy-policy"
                         target="_blank"
                         className="text-[#F5831F] hover:underline font-medium"
                       >
@@ -272,6 +272,17 @@ export default function AccountPage() {
             >
               {isSubmitting ? 'Creating account...' : 'Create account'}
             </button>
+
+            {/* Sign In Link */}
+            <div className="text-center text-sm text-gray-600 mt-4">
+              Already have an account?{' '}
+              <Link
+                href="/auth/login"
+                className="text-[#F5831F] hover:underline font-medium"
+              >
+                Sign in
+              </Link>
+            </div>
           </form>
         </div>
       </div>
