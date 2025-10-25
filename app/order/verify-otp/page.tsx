@@ -57,8 +57,8 @@ export default function VerifyOTPPage() {
 
       if (result.success) {
         toast.success('Phone number verified successfully!');
-        // Continue to payment step in order flow
-        router.push('/order/payment');
+        // Continue to service address confirmation step
+        router.push('/order/service-address');
       } else {
         toast.error(result.error || 'Invalid verification code');
       }

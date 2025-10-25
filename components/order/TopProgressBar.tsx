@@ -24,15 +24,21 @@ export function TopProgressBar({ currentStep }: TopProgressBarProps) {
     },
     {
       id: 2,
-      label: 'Payment',
+      label: 'Service Address',
       completed: currentStep > 2,
       current: currentStep === 2,
     },
     {
       id: 3,
-      label: 'Order Confirmation',
+      label: 'Payment',
       completed: currentStep > 3,
       current: currentStep === 3,
+    },
+    {
+      id: 4,
+      label: 'Order Confirmation',
+      completed: currentStep > 4,
+      current: currentStep === 4,
     },
   ];
 
