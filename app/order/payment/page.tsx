@@ -24,17 +24,17 @@ export default function PaymentPage() {
       {/* Progress Bar */}
       <TopProgressBar currentStep={3} />
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
-        {/* Package Summary */}
-        {state.orderData.package?.selectedPackage && (
-          <div className="max-w-4xl mx-auto mb-6">
+      {/* Package Summary */}
+      {state.orderData.package?.selectedPackage && (
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto py-4">
             <PackageSummary package={state.orderData.package.selectedPackage} compact />
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Payment Stage Component */}
-        <PaymentStage onComplete={handleComplete} onBack={handleBack} />
-      </div>
+      {/* Payment Stage Component */}
+      <PaymentStage onComplete={handleComplete} onBack={handleBack} />
     </div>
   );
 }

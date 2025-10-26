@@ -218,15 +218,17 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <h2 className="text-2xl lg:text-3xl font-bold text-circleTel-darkNeutral">Complete Your Order</h2>
-        <p className="text-circleTel-secondaryNeutral mt-1">
-          Review your order and proceed to secure payment
-        </p>
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-4">
+          <h2 className="text-2xl lg:text-3xl font-bold text-circleTel-darkNeutral">Complete Your Order</h2>
+          <p className="text-circleTel-secondaryNeutral mt-1">
+            Review your order and proceed to secure payment
+          </p>
+        </div>
       </div>
 
       {/* Retry Session Info Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
       {retrySession.hasData && !showErrorDisplay && (
         <Alert className="border-blue-200 bg-blue-50" data-testid="retry-session-banner">
           <AlertCircle className="h-4 w-4 text-blue-600" />
@@ -271,8 +273,9 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
 
       {/* Two Column Layout */}
       {!showErrorDisplay && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Order Summary (Sticky on desktop) */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-6">
@@ -514,6 +517,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             </p>
           </CardContent>
         </Card>
+            </div>
             </div>
           </div>
         </div>
