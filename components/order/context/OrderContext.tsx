@@ -30,6 +30,7 @@ const initialState: OrderState = {
   currentStage: 1,
   orderData: {
     coverage: {},
+    package: {},
     account: {},
     contact: {},
     installation: {},

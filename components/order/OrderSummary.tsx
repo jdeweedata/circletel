@@ -18,10 +18,10 @@ import { useOrderContext } from './context/OrderContext';
 
 export default function OrderSummary() {
   const { state } = useOrderContext();
-  const { coverage, account, contact, installation } = state.orderData;
+  const { coverage, package: packageData, account, contact, installation } = state.orderData;
 
-  const selectedPackage = coverage?.selectedPackage;
-  const pricing = coverage?.pricing;
+  const selectedPackage = packageData?.selectedPackage;
+  const pricing = packageData?.pricing;
 
   // Calculate pricing
   const basePrice = pricing?.monthly || selectedPackage?.monthlyPrice || 0;

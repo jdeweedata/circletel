@@ -64,7 +64,7 @@ export class GoogleMapsService {
     // Create loading promise
     this.loadingPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&loading=async&region=ZA&language=en`;
       script.async = true;
       script.defer = true;
 
@@ -211,11 +211,26 @@ export class GoogleMapsService {
 
     await this.loadGoogleMaps();
 
-    // South Africa bounds for better results
-    const southAfricaBounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(-34.8, 16.5),
-      new google.maps.LatLng(-22.1, 32.9)
-    );
+    // Wait for places library to be available (with polling)
+    let attempts = 0;
+    const maxAttempts = 20;
+    while (!window.google?.maps?.places?.Autocomplete && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+
+    if (!window.google?.maps?.places?.Autocomplete) {
+      console.error('Google Maps Places library not loaded after waiting');
+      return null;
+    }
+
+    // South Africa bounds for better results (using literal object format)
+    const southAfricaBounds = {
+      north: -22.1,
+      south: -34.8,
+      east: 32.9,
+      west: 16.5
+    };
 
     const autocomplete = new google.maps.places.Autocomplete(input, {
       bounds: southAfricaBounds,

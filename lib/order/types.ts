@@ -111,6 +111,7 @@ export interface PackageDetails {
   router_included?: boolean;
   activation_fee?: number;
   delivery_fee?: number;
+  data_limit?: string;
 }
 
 export interface PricingDetails {

@@ -237,6 +237,45 @@ export class CustomerAuthService {
   }
 
   /**
+   * Sign in with Google OAuth
+   */
+  static async signInWithGoogle(): Promise<{ error: string | null }> {
+    try {
+      const supabase = createClient();
+
+      // Use environment variable if set, otherwise use current origin
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+      const redirectUrl = `${baseUrl}/auth/callback?next=/order/service-address`;
+
+      console.log('[Google OAuth] Redirect URL:', redirectUrl);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      // OAuth sign-in redirects user to Google, so no immediate return needed
+      return { error: null };
+
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      return {
+        error: error instanceof Error ? error.message : 'Google sign-in failed'
+      };
+    }
+  }
+
+  /**
    * Sign out current user
    */
   static async signOut(): Promise<{ error: string | null }> {

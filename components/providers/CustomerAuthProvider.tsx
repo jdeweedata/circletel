@@ -16,7 +16,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/integrations/supabase/client';
 import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
 interface Customer {
   id: string;
@@ -45,6 +45,7 @@ interface CustomerAuthContextType {
   isEmailVerified: boolean;
   signUp: typeof CustomerAuthService.signUp;
   signIn: typeof CustomerAuthService.signIn;
+  signInWithGoogle: typeof CustomerAuthService.signInWithGoogle;
   signOut: typeof CustomerAuthService.signOut;
   refreshCustomer: () => Promise<void>;
   resendVerification: typeof CustomerAuthService.resendVerificationEmail;
@@ -77,9 +78,12 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       try {
         console.log('[CustomerAuthProvider] Initializing auth...');
 
-        // Add timeout protection for session fetch
-        const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((_, reject) => {
-          setTimeout(() => reject(new Error('Session fetch timeout after 5 seconds')), 5000);
+        // Add timeout protection for session fetch (increased to 10 seconds)
+        const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
+          setTimeout(() => {
+            console.warn('[CustomerAuthProvider] Session fetch timed out after 10 seconds');
+            resolve({ data: { session: null } });
+          }, 10000);
         });
 
         const sessionPromise = supabase.auth.getSession();
@@ -95,8 +99,11 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
           // Fetch customer record with timeout protection
           try {
-            const customerTimeoutPromise = new Promise<{ customer: null; error: string }>((_, reject) => {
-              setTimeout(() => reject(new Error('Customer fetch timeout after 5 seconds')), 5000);
+            const customerTimeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 10 seconds');
+                resolve({ customer: null, error: 'Timeout' });
+              }, 10000);
             });
 
             const customerPromise = CustomerAuthService.getCustomer();
@@ -132,7 +139,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      async (event: AuthChangeEvent, currentSession: Session | null) => {
         console.log('Auth state changed:', event);
 
         setSession(currentSession);
@@ -144,8 +151,11 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             console.log('[CustomerAuthProvider] Fetching customer record...');
 
             // Add timeout to prevent hanging indefinitely
-            const timeoutPromise = new Promise<{ customer: null; error: string }>((_, reject) => {
-              setTimeout(() => reject(new Error('Customer fetch timeout after 5 seconds')), 5000);
+            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 10 seconds');
+                resolve({ customer: null, error: 'Timeout' });
+              }, 10000);
             });
 
             const customerPromise = CustomerAuthService.getCustomer();
@@ -191,6 +201,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     isEmailVerified,
     signUp: CustomerAuthService.signUp,
     signIn: CustomerAuthService.signIn,
+    signInWithGoogle: CustomerAuthService.signInWithGoogle,
     signOut: CustomerAuthService.signOut,
     refreshCustomer,
     resendVerification: CustomerAuthService.resendVerificationEmail,

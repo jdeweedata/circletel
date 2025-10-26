@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Validate environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing Supabase credentials:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseKey,
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING'
+  });
+}
+
 // Initialize Supabase client
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl!,
+  supabaseKey!,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  }
 );
 
 export async function POST(request: NextRequest) {
@@ -72,6 +90,11 @@ export async function POST(request: NextRequest) {
       }
     };
 
+    // Test Supabase connection first
+    console.log('🔍 Testing Supabase connection...');
+    console.log('URL:', supabaseUrl?.substring(0, 40));
+    console.log('Key prefix:', supabaseKey?.substring(0, 20));
+
     const { data, error } = await supabase
       .from('coverage_leads')
       .insert([leadData])
@@ -79,10 +102,22 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('❌ Database error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       console.error('Error details:', JSON.stringify(error, null, 2));
+      
+      // Return more helpful error message
       return NextResponse.json(
-        { error: 'Failed to create coverage lead', details: error.message },
+        { 
+          error: 'Failed to create coverage lead', 
+          details: error.message,
+          hint: 'Check Supabase URL and service role key configuration',
+          supabaseUrl: supabaseUrl?.substring(0, 40)
+        },
         { status: 500 }
       );
     }

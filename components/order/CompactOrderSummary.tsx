@@ -14,10 +14,10 @@ import { useOrderContext } from './context/OrderContext';
 
 export default function CompactOrderSummary() {
   const { state } = useOrderContext();
-  const { coverage, account, contact } = state.orderData;
+  const { coverage, package: packageData, account, contact } = state.orderData;
 
-  const selectedPackage = coverage?.selectedPackage;
-  const pricing = coverage?.pricing;
+  const selectedPackage = packageData?.selectedPackage;
+  const pricing = packageData?.pricing;
 
   // Calculate pricing
   const basePrice = pricing?.monthly || selectedPackage?.monthlyPrice || 0;

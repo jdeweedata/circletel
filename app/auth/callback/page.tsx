@@ -38,6 +38,93 @@ export default function AuthCallbackPage() {
           return;
         }
 
+        // Get the 'next' parameter for redirect after auth
+        const next = searchParams.get('next') || '/dashboard';
+
+        // Check for implicit flow (OAuth with hash fragment)
+        // This happens when tokens are in the URL hash instead of query params
+        console.log('[Auth Callback] Checking for hash:', window.location.hash);
+        
+        if (typeof window !== 'undefined' && window.location.hash) {
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          
+          console.log('[Auth Callback] Access token found:', !!accessToken);
+          
+          if (accessToken) {
+            console.log('[Auth Callback] Detected implicit flow OAuth response');
+            
+            // Manually set the session from hash parameters
+            const refreshToken = hashParams.get('refresh_token');
+            
+            if (refreshToken) {
+              console.log('[Auth Callback] Setting session from tokens...');
+              
+              // Set the session using the tokens from the hash
+              const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              
+              if (sessionError) {
+                console.error('[Auth Callback] Failed to set session:', sessionError);
+                setStatus('error');
+                setErrorMessage('Failed to authenticate with Google');
+                return;
+              }
+              
+              const session = sessionData.session;
+              console.log('[Auth Callback] Session set successfully:', !!session?.user);
+            
+            if (session?.user) {
+              // Check if customer record exists
+              const { data: existingCustomer } = await supabase
+                .from('customers')
+                .select('id')
+                .eq('auth_user_id', session.user.id)
+                .maybeSingle();
+
+              if (!existingCustomer && session.user.email) {
+                console.log('[Auth Callback] Creating customer record for OAuth user');
+                console.log('[Auth Callback] User metadata:', session.user.user_metadata);
+                
+                const customerData = {
+                  auth_user_id: session.user.id,
+                  first_name: session.user.user_metadata?.full_name?.split(' ')[0] || session.user.user_metadata?.name?.split(' ')[0] || 'User',
+                  last_name: session.user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || session.user.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
+                  email: session.user.email,
+                  phone: session.user.user_metadata?.phone || session.user.phone || '',
+                  account_type: 'personal',
+                };
+                
+                console.log('[Auth Callback] Customer data payload:', customerData);
+                
+                // Create customer record for OAuth user
+                const response = await fetch('/api/auth/create-customer', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(customerData),
+                });
+                
+                const result = await response.json();
+                console.log('[Auth Callback] Create customer result:', result);
+                
+                if (!result.success) {
+                  console.error('[Auth Callback] Failed to create customer:', result.error);
+                  // Continue anyway - user is authenticated, just missing customer record
+                }
+              }
+
+              setStatus('success');
+              setTimeout(() => {
+                router.push(next);
+              }, 2000);
+              return;
+            }
+            }
+          }
+        }
+
         // Try PKCE flow first (for password resets and some email confirmations)
         const code = searchParams.get('code');
 
@@ -53,9 +140,32 @@ export default function AuthCallbackPage() {
             }
 
             if (data.session) {
+              // Check if customer record exists, create if not (for OAuth users)
+              const { data: existingCustomer } = await supabase
+                .from('customers')
+                .select('id')
+                .eq('auth_user_id', data.session.user.id)
+                .maybeSingle();
+
+              if (!existingCustomer && data.session.user.email) {
+                // Create customer record for OAuth user
+                await fetch('/api/auth/create-customer', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    auth_user_id: data.session.user.id,
+                    first_name: data.session.user.user_metadata?.first_name || '',
+                    last_name: data.session.user.user_metadata?.last_name || '',
+                    email: data.session.user.email,
+                    phone: data.session.user.user_metadata?.phone || '',
+                    account_type: 'personal',
+                  }),
+                });
+              }
+
               setStatus('success');
               setTimeout(() => {
-                router.push('/dashboard');
+                router.push(next);
               }, 2000);
               return;
             }
@@ -82,9 +192,33 @@ export default function AuthCallbackPage() {
           }
 
           if (data.session) {
+            // Check if customer record exists, create if not (for OAuth users)
+            const { data: existingCustomer } = await supabase
+              .from('customers')
+              .select('id')
+              .eq('auth_user_id', data.session.user.id)
+              .maybeSingle();
+
+            if (!existingCustomer && data.session.user.email) {
+              // Create customer record for OAuth user
+              await fetch('/api/auth/create-customer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  auth_user_id: data.session.user.id,
+                  first_name: data.session.user.user_metadata?.first_name || '',
+                  last_name: data.session.user.user_metadata?.last_name || '',
+                  email: data.session.user.email,
+                  phone: data.session.user.user_metadata?.phone || '',
+                  account_type: 'personal',
+                }),
+              });
+            }
+
             setStatus('success');
+            const next = searchParams.get('next') || '/dashboard';
             setTimeout(() => {
-              router.push('/dashboard');
+              router.push(next);
             }, 2000);
             return;
           }

@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Maximize2 } from 'lucide-react';
-import { GoogleMap, Marker, StandaloneSearchBox } from '@react-google-maps/api';
+import { X, Maximize2, MapPin, Crosshair } from 'lucide-react';
+import { GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
 import { useGoogleMaps } from '@/components/providers/GoogleMapsProvider';
 
 interface InteractiveCoverageMapModalProps {
@@ -29,8 +29,10 @@ export function InteractiveCoverageMapModal({
   );
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationDetected, setLocationDetected] = useState(false);
 
-  const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   // Update address when initialAddress changes
@@ -47,25 +49,68 @@ export function InteractiveCoverageMapModal({
     }
   }, [initialCoordinates]);
 
-  const handlePlacesChanged = useCallback(() => {
-    const places = searchBoxRef.current?.getPlaces();
-    if (places && places.length > 0) {
-      const place = places[0];
+  // Auto-detect user location when modal opens (only if no initial coordinates)
+  useEffect(() => {
+    if (isOpen && !initialCoordinates && !locationDetected && typeof navigator !== 'undefined' && navigator.geolocation) {
+      setIsDetectingLocation(true);
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newPosition = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          setMarkerPosition(newPosition);
+          setLocationDetected(true);
+          setIsDetectingLocation(false);
 
-      if (place.geometry?.location) {
-        const newPosition = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
-        };
+          // Reverse geocode to get address
+          if (typeof google !== 'undefined') {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: newPosition }, (results, status) => {
+              if (status === 'OK' && results && results[0]) {
+                setAddress(results[0].formatted_address);
+              }
+            });
+          }
 
-        setMarkerPosition(newPosition);
-        setAddress(place.formatted_address || '');
-
-        // Center map on new location
-        if (mapRef.current) {
-          mapRef.current.panTo(newPosition);
-          mapRef.current.setZoom(18);
+          // Center map on detected location
+          if (mapRef.current) {
+            mapRef.current.panTo(newPosition);
+            mapRef.current.setZoom(18);
+          }
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+          setIsDetectingLocation(false);
+          // Silently fail - user can still search or click on map
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
+      );
+    }
+  }, [isOpen, initialCoordinates, locationDetected]);
+
+  const handlePlaceChanged = useCallback(() => {
+    const place = autocompleteRef.current?.getPlace();
+    
+    if (place && place.geometry?.location) {
+      const newPosition = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+      };
+
+      setMarkerPosition(newPosition);
+      setAddress(place.formatted_address || '');
+
+      // Center map on new location
+      if (mapRef.current) {
+        mapRef.current.panTo(newPosition);
+        mapRef.current.setZoom(18);
       }
     }
   }, []);
@@ -89,6 +134,53 @@ export function InteractiveCoverageMapModal({
     }
   }, []);
 
+  const handleUseMyLocation = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      setIsDetectingLocation(true);
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newPosition = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          setMarkerPosition(newPosition);
+          setLocationDetected(true);
+          setIsDetectingLocation(false);
+
+          // Reverse geocode to get address
+          if (typeof google !== 'undefined') {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: newPosition }, (results, status) => {
+              if (status === 'OK' && results && results[0]) {
+                setAddress(results[0].formatted_address);
+              }
+            });
+          }
+
+          // Center map on detected location
+          if (mapRef.current) {
+            mapRef.current.panTo(newPosition);
+            mapRef.current.setZoom(18);
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setIsDetectingLocation(false);
+          alert('Unable to detect your location. Please enable location services or enter your address manually.');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser. Please enter your address manually.');
+    }
+  }, []);
+
   const handleSearch = () => {
     if (onSearch && address) {
       onSearch(address, markerPosition);
@@ -98,7 +190,7 @@ export function InteractiveCoverageMapModal({
 
   const mapContainerStyle = {
     width: '100%',
-    height: isFullscreen ? 'calc(100vh - 320px)' : '350px'
+    height: isFullscreen ? 'calc(100vh - 280px)' : '500px'
   };
 
   const mapOptions = {
@@ -113,18 +205,17 @@ export function InteractiveCoverageMapModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className="max-w-[90vw] w-[1200px] max-h-[90vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col"
-        aria-describedby="interactive-coverage-map-description"
       >
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
-          <div className="flex items-start justify-between mb-2">
+        <div className="px-8 pt-6 pb-4 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
+          <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-3xl font-bold text-[#1e5a96] mb-2">
+              <DialogTitle className="text-2xl font-bold text-[#1e5a96] mb-1">
                 Internet Coverage Search
-              </h2>
-              <p id="interactive-coverage-map-description" className="text-[#1e5a96] text-base">
+              </DialogTitle>
+              <DialogDescription className="text-[#1e5a96] text-sm">
                 Enter your address or use our map to find your location
-              </p>
+              </DialogDescription>
             </div>
 
             {/* Close Button (Top Right) */}
@@ -139,7 +230,7 @@ export function InteractiveCoverageMapModal({
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-white px-8 py-6 flex-1 overflow-y-auto min-h-0">
+        <div className="relative bg-white px-8 py-4 flex-1 overflow-y-auto min-h-0">
           {loadError && (
             <div className="text-center py-8 text-red-600">
               Error loading Google Maps. Please try again later.
@@ -154,29 +245,90 @@ export function InteractiveCoverageMapModal({
 
           {isLoaded && !loadError && (
             <>
+              {/* Compact Instructions & Location Button */}
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-circleTel-orange" />
+                    <span className="font-medium">Type address</span>
+                  </div>
+                  <span className="text-gray-300">•</span>
+                  <span>Click map</span>
+                  <span className="text-gray-300">•</span>
+                  <span>Drag pin</span>
+                </div>
+
+                {/* Use My Location Button */}
+                <Button
+                  onClick={handleUseMyLocation}
+                  disabled={isDetectingLocation}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-all"
+                >
+                  <Crosshair className={`w-3.5 h-3.5 ${isDetectingLocation ? 'animate-spin' : ''}`} />
+                  {isDetectingLocation ? 'Detecting...' : 'Use My Location'}
+                </Button>
+              </div>
+
               {/* Address Search Input */}
-              <div className="mb-6 relative">
-                <StandaloneSearchBox
-                  onLoad={(ref) => (searchBoxRef.current = ref)}
-                  onPlacesChanged={handlePlacesChanged}
+              <div className="mb-4 relative">
+                <Autocomplete
+                  onLoad={(autocomplete) => { 
+                    autocompleteRef.current = autocomplete;
+                    // Restrict to South Africa only
+                    autocomplete.setComponentRestrictions({ country: 'za' });
+                    // Set bounds to South Africa
+                    autocomplete.setBounds({
+                      north: -22.125,
+                      south: -34.833,
+                      east: 32.895,
+                      west: 16.45
+                    });
+                  }}
+                  onPlaceChanged={handlePlaceChanged}
+                  options={{
+                    componentRestrictions: { country: 'za' },
+                    bounds: {
+                      north: -22.125,
+                      south: -34.833,
+                      east: 32.895,
+                      west: 16.45
+                    },
+                    strictBounds: false,
+                    fields: ['formatted_address', 'geometry', 'name']
+                  }}
                 >
                   <div className="relative">
                     <input
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Enter your address to get started"
-                      className="w-full px-6 py-4 text-base text-[#1e5a96] placeholder-gray-400 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-[#1e5a96] focus:ring-4 focus:ring-[#1e5a96]/10 transition-all shadow-sm"
+                      placeholder="Enter your South African address"
+                      className="w-full px-6 py-3 pr-24 text-base text-[#1e5a96] placeholder-gray-400 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-[#1e5a96] focus:ring-4 focus:ring-[#1e5a96]/10 transition-all shadow-sm"
                     />
+                    {/* Clear Button */}
+                    {address && (
+                      <button
+                        onClick={() => setAddress('')}
+                        className="absolute right-16 top-1/2 -translate-y-1/2 p-2 hover:bg-red-50 rounded-lg transition-colors group"
+                        aria-label="Clear address"
+                        type="button"
+                      >
+                        <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+                      </button>
+                    )}
+                    {/* Fullscreen Toggle */}
                     <button
                       onClick={() => setIsFullscreen(!isFullscreen)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                       aria-label="Toggle fullscreen"
+                      type="button"
                     >
                       <Maximize2 className="w-5 h-5 text-gray-400" />
                     </button>
                   </div>
-                </StandaloneSearchBox>
+                </Autocomplete>
               </div>
 
               {/* Google Map */}
@@ -187,7 +339,7 @@ export function InteractiveCoverageMapModal({
                   zoom={18}
                   options={mapOptions}
                   onClick={handleMapClick}
-                  onLoad={(map) => (mapRef.current = map)}
+                  onLoad={(map) => { mapRef.current = map; }}
                 >
                   {/* Location Marker */}
                   <Marker

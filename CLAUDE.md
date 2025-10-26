@@ -5,8 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 **CircleTel** - Enterprise telecommunications platform (B2B/B2C ISP) for South Africa
-**Stack**: Next.js 15, TypeScript, Supabase PostgreSQL, Tailwind CSS, Strapi CMS
+**Stack**: Next.js 15, TypeScript, Supabase PostgreSQL, Tailwind CSS, Strapi CMS, NetCash Pay Now
 **Supabase Project**: `agyjovdugmtopasyvlng`
+**Payment Gateway**: NetCash Pay Now (20+ payment methods)
 
 ## Essential Commands
 
@@ -68,6 +69,27 @@ CircleTel uses a 4-layer fallback system for coverage checking:
 - `components/order/context/OrderContext.tsx` - Zustand store
 - `lib/order/types.ts` - TypeScript interfaces
 - State persists in localStorage for user session
+
+### Payment System (NetCash Pay Now)
+
+Modern payment interface supporting 20+ payment methods:
+
+**Payment Methods**:
+1. **Card Payments** - 3D Secure (Visa, Mastercard, Amex, Diners)
+2. **Instant EFT** - Real-time bank payments via Ozow
+3. **Capitec Pay** - Fast payments for Capitec customers
+4. **Bank EFT** - Traditional online banking transfers
+5. **Scan to Pay** - Universal QR codes (SnapScan, Zapper)
+6. **Payflex** - Buy Now Pay Later (4 installments)
+7. **1Voucher** - Cash voucher payments (29M customers)
+8. **paymyway** - Available at 24,000+ stores
+9. **SCode Retail** - Barcode payments at 6,000+ outlets
+
+**Implementation**:
+- `components/checkout/InlinePaymentForm.tsx` - Modern inline payment form
+- `components/order/stages/PaymentStage.tsx` - Existing NetCash redirect flow
+- `app/order/payment/demo/page.tsx` - Interactive payment method showcase
+- Framer Motion animations for smooth UX
 
 ### RBAC Permission System
 
@@ -301,6 +323,29 @@ import { createClient } from '../../../lib/supabase/server'
 
 ## Key Integrations
 
+### NetCash Pay Now Payment Gateway
+
+```typescript
+// Payment method selection and processing
+import InlinePaymentForm from '@/components/checkout/InlinePaymentForm'
+
+const orderSummary = {
+  subtotal: 799.00,
+  shipping: 0.00,
+  discount: 100.00,
+  total: 699.00,
+  items: 2,
+  delivery: "Standard (3-5 days)"
+}
+
+// Demo page: /order/payment/demo
+<InlinePaymentForm 
+  orderSummary={orderSummary}
+  onSubmit={handlePayment}
+  isProcessing={false}
+/>
+```
+
 ### MTN Coverage API
 
 ```typescript
@@ -337,6 +382,11 @@ SUPABASE_SERVICE_ROLE_KEY=<key>
 
 # Google Maps (REQUIRED)
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<key>
+
+# NetCash Pay Now (REQUIRED for payments)
+NETCASH_SERVICE_KEY=<key>
+NETCASH_MERCHANT_ID=<id>
+NETCASH_ACCOUNT_SERVICE_KEY=<key>
 
 # Strapi CMS (Optional)
 NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
@@ -408,6 +458,21 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-01-24
-**Version**: 4.0
+**Last Updated**: 2025-10-26
+**Version**: 4.1
 **Maintained By**: Development Team + Claude Code
+
+## Recent Updates (Oct 26, 2025)
+
+### Payment System Enhancement
+- ✅ **NetCash Pay Now Integration** - Added support for 20+ payment methods
+- ✅ **Inline Payment Form** - Modern alternative to redirect flow (`components/checkout/InlinePaymentForm.tsx`)
+- ✅ **Payment Demo Page** - Interactive showcase at `/order/payment/demo`
+- ✅ **Framer Motion Animations** - Smooth payment UI transitions
+- ✅ **Payment Method Selection** - Visual interface for 9 core payment options
+
+### Component Architecture
+- ✅ **21st Magic MCP Integration** - Rapid UI component generation
+- ✅ **Two-Column Payment Layout** - Industry-standard checkout design
+- ✅ **CircleTel Design System** - Consistent orange (#F5831F) branding
+- ✅ **Mobile-First Responsive** - Optimized for South African connectivity
