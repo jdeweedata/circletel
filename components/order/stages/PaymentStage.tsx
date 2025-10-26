@@ -317,7 +317,15 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-700 leading-relaxed">{coverage?.address || 'Address not provided'}</p>
+                    {coverage?.address ? (
+                      <div className="text-sm text-gray-700 leading-relaxed space-y-0.5">
+                        {coverage.address.split(',').map((line, idx) => (
+                          <div key={idx}>{line.trim()}</div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">Address not provided</p>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -383,36 +391,19 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
               </div>
             </div>
 
-            {/* Security Features */}
-            <div className="space-y-2">
-              <div className="flex items-start gap-3">
-                <Shield className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">Secure Payment Processing</p>
-                  <p className="text-xs text-circleTel-secondaryNeutral">
-                    Your payment is processed securely through Netcash's PCI-DSS compliant gateway
-                  </p>
-                </div>
+            {/* Security Features - Compact Grid */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col items-center text-center p-3 bg-green-50 rounded-lg">
+                <Shield className="h-5 w-5 text-green-600 mb-1.5" />
+                <p className="text-xs font-medium text-green-900">PCI-DSS Compliant</p>
               </div>
-
-              <div className="flex items-start gap-3">
-                <Lock className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">256-bit SSL Encryption</p>
-                  <p className="text-xs text-circleTel-secondaryNeutral">
-                    All payment information is encrypted and never stored on our servers
-                  </p>
-                </div>
+              <div className="flex flex-col items-center text-center p-3 bg-green-50 rounded-lg">
+                <Lock className="h-5 w-5 text-green-600 mb-1.5" />
+                <p className="text-xs font-medium text-green-900">256-bit SSL</p>
               </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-medium text-sm">Instant Confirmation</p>
-                  <p className="text-xs text-circleTel-secondaryNeutral">
-                    You'll receive an order confirmation email immediately after payment
-                  </p>
-                </div>
+              <div className="flex flex-col items-center text-center p-3 bg-green-50 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-600 mb-1.5" />
+                <p className="text-xs font-medium text-green-900">Instant Confirm</p>
               </div>
             </div>
 
@@ -425,12 +416,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
               {/* Payment Options Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 {/* Credit/Debit Cards */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-circleTel-orange hover:bg-orange-50/50 transition-all cursor-pointer group">
                   <div className="flex items-start gap-3">
-                    <CreditCard className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-circleTel-orange group-hover:text-white transition-colors">
+                      <CreditCard className="h-5 w-5 text-circleTel-orange group-hover:text-white" />
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900 mb-1">Credit & Debit Cards</h4>
-                      <p className="text-xs text-gray-600 mb-3">Visa, Mastercard, American Express, Diners Club</p>
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1">Credit & Debit Cards</h4>
+                      <p className="text-xs text-gray-600 mb-2">Visa, Mastercard, Amex, Diners</p>
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="relative h-6 w-auto">
                           <Image src="/images/payment-logos/logo_mastercard-h.png" alt="Mastercard" width={40} height={24} className="object-contain" />
@@ -452,11 +445,13 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 </div>
 
                 {/* Instant EFT */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-circleTel-orange hover:bg-orange-50/50 transition-all cursor-pointer group">
                   <div className="flex items-start gap-3">
-                    <Smartphone className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-600 transition-colors">
+                      <Smartphone className="h-5 w-5 text-green-600 group-hover:text-white" />
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900 mb-1">Instant EFT</h4>
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1">Instant EFT</h4>
                       <p className="text-xs text-gray-600 mb-2">Real-time bank transfer - Instant confirmation</p>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
@@ -471,11 +466,13 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 </div>
 
                 {/* Bank EFT */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-circleTel-orange hover:bg-orange-50/50 transition-all cursor-pointer group">
                   <div className="flex items-start gap-3">
-                    <Building2 className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-600 transition-colors">
+                      <Building2 className="h-5 w-5 text-blue-600 group-hover:text-white" />
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900 mb-1">Bank EFT</h4>
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1">Bank EFT</h4>
                       <p className="text-xs text-gray-600 mb-3">Standard electronic funds transfer</p>
                       <div className="relative h-6 w-auto">
                         <Image src="/images/payment-logos/logo_bank-eft-h.png" alt="Bank EFT" width={60} height={24} className="object-contain" />
@@ -485,11 +482,13 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 </div>
 
                 {/* Scan to Pay */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
+                <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-circleTel-orange hover:bg-orange-50/50 transition-all cursor-pointer group">
                   <div className="flex items-start gap-3">
-                    <Smartphone className="h-5 w-5 text-circleTel-orange mt-0.5 flex-shrink-0" />
+                    <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-600 transition-colors">
+                      <Smartphone className="h-5 w-5 text-purple-600 group-hover:text-white" />
+                    </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900 mb-1">Scan to Pay</h4>
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1">Scan to Pay</h4>
                       <p className="text-xs text-gray-600 mb-2">QR code for mobile wallets & banking apps</p>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
@@ -514,14 +513,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-6">
               {onBack && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={onBack}
                   disabled={isProcessing}
-                  className="flex-1"
+                  className="sm:w-32"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
@@ -531,30 +530,30 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
               <Button
                 onClick={handlePayment}
                 disabled={isProcessing}
-                className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90"
+                className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange/90 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Processing Payment...
                   </>
                 ) : (
                   <>
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Pay with Netcash
+                    <Shield className="h-5 w-5 mr-2" />
+                    Complete Secure Payment
                   </>
                 )}
               </Button>
             </div>
 
             {/* Terms Notice */}
-            <p className="text-xs text-center text-circleTel-secondaryNeutral pt-2">
-              By proceeding with payment, you agree to CircleTel's{' '}
-              <a href="/terms" className="text-circleTel-orange hover:underline">
-                Terms of Service
+            <p className="text-xs text-center text-gray-600 pt-3">
+              By proceeding, you agree to{' '}
+              <a href="/terms" className="text-circleTel-orange hover:underline font-medium">
+                Terms
               </a>{' '}
-              and{' '}
-              <a href="/privacy" className="text-circleTel-orange hover:underline">
+              &{' '}
+              <a href="/privacy" className="text-circleTel-orange hover:underline font-medium">
                 Privacy Policy
               </a>
             </p>

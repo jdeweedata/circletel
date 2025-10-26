@@ -86,39 +86,21 @@ export default function OrderSummary() {
             </div>
           )}
 
-          <Separator className="my-3" />
+          <Separator className="my-2" />
 
-          {/* Billing Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Billing Information
-            </h4>
-            <div className="space-y-2 text-xs text-blue-800">
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
-                <span><strong>No payment required today</strong> - You will only be billed once your service is activated</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
-                <span><strong>Pro-rata billing:</strong> Your first bill will be calculated based on the remaining days in the month from activation date</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
-                <span><strong>Recurring billing:</strong> Monthly subscription will be billed on the same day each month after activation</span>
-              </div>
-              {activationFee > 0 && (
-                <div className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span><strong>Activation fee:</strong> R{activationFee.toFixed(2)} will be included in your first bill</span>
-                </div>
-              )}
-              {deliveryFee > 0 && (
-                <div className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span><strong>Delivery fee:</strong> R{deliveryFee.toFixed(2)} is payable upfront for equipment delivery</span>
-                </div>
-              )}
+          {/* Billing Information - Compact */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5" />
+                Billing Details
+              </h4>
+            </div>
+            <div className="space-y-1 text-xs text-blue-800">
+              <p><strong>No payment today</strong> - Billed after activation</p>
+              <p><strong>Pro-rata billing</strong> for first month</p>
+              {activationFee > 0 && <p><strong>Activation:</strong> R{activationFee.toFixed(2)} (first bill)</p>}
+              {deliveryFee > 0 && <p><strong>Delivery:</strong> R{deliveryFee.toFixed(2)} (upfront)</p>}
             </div>
           </div>
 
