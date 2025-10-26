@@ -332,6 +332,20 @@ import { createClient } from '../../../lib/supabase/server'
 - **Hover**: `scale-[1.02]` with `duration-300 ease-in-out`
 - **Touch Targets**: Minimum 44px × 44px on mobile
 
+### Dashboard Component Patterns
+
+**Consumer Dashboard** (`/dashboard`):
+- **Quick Action Cards**: 6 cards in responsive grid (2 cols mobile → 3 cols tablet → 6 cols desktop)
+- **Service Management Dropdown**: Color-coded icons for 6 actions (View Usage, Upgrade, Downgrade, Cancel, Relocate, Log Issue)
+- **Service Card States**: Empty state with CTA, Active state with gradient + status indicator
+- **Stats Cards**: Always use `shadow-md` default, `shadow-xl` on hover, `border-2` for prominence
+
+**Service Management Pages**:
+- `/dashboard/usage` - Usage stats with speed test integration
+- `/dashboard/services/upgrade` - Package comparison with "Recommended" badge
+- `/dashboard/services/downgrade` - Includes warning notice and alternative options
+- All use Suspense for loading states and mock data for development
+
 ## Key Integrations
 
 ### NetCash Pay Now Payment Gateway
@@ -468,6 +482,9 @@ docs/
 
 **Key Docs**:
 - `docs/RECENT_CHANGES.md` - Latest implementation status
+- `docs/analysis/PRIORITY_1_COMPLETE_SUMMARY.md` - Consumer dashboard Quick Wins
+- `docs/analysis/PRIORITY_2A_IMPLEMENTATION.md` - Service management implementation
+- `docs/analysis/CONSUMER_DASHBOARD_COMPARISON.md` - CircleTel vs Supersonic analysis
 - `docs/implementation/COMPACT_PACKAGE_CARD_*` - Package card design docs
 - `docs/features/customer-journey/VISUAL_CUSTOMER_JOURNEY.md` - Journey maps
 - `docs/integrations/DFA_INTEGRATION_FINAL_STATUS.md` - DFA coverage integration
@@ -541,13 +558,20 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-10-26
-**Version**: 4.2
+**Last Updated**: 2025-10-27
+**Version**: 4.3
 **Maintained By**: Development Team + Claude Code
 
-## Recent Updates (Oct 26, 2025)
+## Recent Updates (Oct 27, 2025)
 
-### Payment System Enhancement
+### Consumer Dashboard Enhancement (Priority 2A)
+- ✅ **Service Management Dropdown** - 1-click access to 6 service actions (`components/dashboard/ServiceManageDropdown.tsx`)
+- ✅ **Usage Tracking Page** - Data usage stats & speed test history (`/dashboard/usage`)
+- ✅ **Upgrade/Downgrade Flows** - Self-service package changes (`/dashboard/services/upgrade`, `/dashboard/services/downgrade`)
+- ✅ **66% Navigation Reduction** - From 3 clicks to 1 click for service management
+- ✅ **Supersonic-Inspired UX** - Matches competitor efficiency while maintaining CircleTel branding
+
+### Payment System Enhancement (Oct 26, 2025)
 - ✅ **NetCash Pay Now Integration** - Added support for 20+ payment methods
 - ✅ **Inline Payment Form** - Modern alternative to redirect flow (`components/checkout/InlinePaymentForm.tsx`)
 - ✅ **Payment Demo Page** - Interactive showcase at `/order/payment/demo`

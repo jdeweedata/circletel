@@ -281,21 +281,21 @@ export default function AdminDashboard() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'product_created':
-        return <Plus className="h-4 w-4 text-green-500" />;
+        return <Plus className="h-6 w-6 text-green-600" />;
       case 'price_update':
-        return <DollarSign className="h-4 w-4 text-blue-500" />;
+        return <DollarSign className="h-6 w-6 text-blue-600" />;
       case 'status_change':
-        return <Activity className="h-4 w-4 text-orange-500" />;
+        return <Activity className="h-6 w-6 text-orange-600" />;
       case 'feature_update':
-        return <Package className="h-4 w-4 text-purple-500" />;
+        return <Package className="h-6 w-6 text-purple-600" />;
       case 'product_archived':
-        return <Clock className="h-4 w-4 text-red-500" />;
+        return <Clock className="h-6 w-6 text-red-600" />;
       case 'approval_request':
-        return <Clock className="h-4 w-4 text-orange-500" />;
+        return <Clock className="h-6 w-6 text-orange-600" />;
       case 'product_approved':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-6 w-6 text-green-600" />;
       default:
-        return <Activity className="h-4 w-4 text-gray-500" />;
+        return <Activity className="h-6 w-6 text-gray-600" />;
     }
   };
 
@@ -321,142 +321,136 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
-            Welcome back, {user?.full_name?.split(' ')[0]}!
-          </h1>
-          <p className="text-base text-gray-600 mt-2">
-            Here&apos;s what&apos;s happening with your product catalogue today.
-            {stats.lastUpdated && (
-              <span className="text-sm text-gray-500 ml-2">
-                • Last updated {stats.lastUpdated.toLocaleTimeString()}
-              </span>
+      {/* Welcome Section - Consumer Dashboard Style */}
+      <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">
+              Welcome back, {user?.full_name?.split(' ')[0]}!
+            </h1>
+            <p className="text-base lg:text-lg text-gray-600 mt-2">
+              Here&apos;s what&apos;s happening with your product catalogue today.
+              {stats.lastUpdated && (
+                <span className="text-sm text-gray-500 ml-2">
+                  • Last updated {stats.lastUpdated.toLocaleTimeString()}
+                </span>
+              )}
+            </p>
+            {error && (
+              <div className="flex items-center space-x-2 mt-2 text-red-600">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-sm">Failed to load real-time data: {error}</span>
+              </div>
             )}
-          </p>
-          {error && (
-            <div className="flex items-center space-x-2 mt-2 text-red-600">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">Failed to load real-time data: {error}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={refresh}
-            disabled={isLoading}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refresh}
+              disabled={isLoading}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Stats Grid - Consumer Dashboard Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
-          <Card key={index} className={`border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${stat.urgent ? 'border-orange-300' : ''}`}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+          <Card key={index} className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 ${stat.urgent ? 'border-orange-300' : ''}`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{stat.title}</p>
+                  <p className="text-4xl lg:text-5xl font-extrabold mt-2 tabular-nums" style={{ color: stat.color.replace('text-', '#').replace('orange-600', '#ea580c').replace('blue-600', '#2563eb').replace('green-600', '#16a34a').replace('purple-600', '#9333ea') }}>
+                    {stat.value}
+                    {stat.urgent && (
+                      <Badge variant="destructive" className="ml-2 text-sm align-middle">
+                        {stats.pendingApprovals}
+                      </Badge>
+                    )}
+                  </p>
+                </div>
+                <stat.icon className={`h-12 w-12 ${stat.color} opacity-20`} />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2 tabular-nums">
-                {stat.value}
-                {stat.urgent && (
-                  <Badge variant="destructive" className="ml-2 text-sm">
-                    {stats.pendingApprovals}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-gray-600">
-                {stat.description}
-              </p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <Card className="border-gray-200">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900">Quick Actions</CardTitle>
-            <CardDescription className="text-base text-gray-600 mt-1">
-              Common tasks to manage your product catalogue
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {quickActions.map((action, index) => (
-              <PermissionGate
-                key={index}
-                permissions={[action.permission]}
-                fallback={
-                  <div className="relative">
-                    <div className="p-4 rounded-lg border border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed">
-                      <div className="flex items-center justify-between mb-2">
-                        <action.icon className="h-5 w-5 text-gray-400" />
-                        {action.badge && (
-                          <Badge variant="secondary" className="text-xs">
-                            {action.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-sm font-medium text-gray-600">{action.title}</div>
-                      <div className="text-xs text-gray-500 mt-1">{action.description}</div>
-                    </div>
-                  </div>
-                }
-              >
-                <Link href={action.href} className="w-full">
-                  <div className={`p-4 rounded-lg ${action.color} text-white hover:opacity-90 hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <action.icon className="h-6 w-6" />
-                      {action.badge && (
-                        <Badge variant="secondary" className="text-sm bg-white/20 text-white border-0">
-                          {action.badge}
-                        </Badge>
-                      )}
-                      <ArrowUpRight className="h-5 w-5 opacity-70" />
-                    </div>
-                    <div className="text-base font-bold">{action.title}</div>
-                    <div className="text-sm opacity-90 mt-1">{action.description}</div>
-                  </div>
-                </Link>
-              </PermissionGate>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Quick Actions - Consumer Dashboard Style */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
+          <p className="text-sm text-gray-600 mt-1">Common tasks to manage your product catalogue</p>
+        </div>
 
-      {/* Recent Activity */}
-      <Card className="border-gray-200">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900">Recent Activity</CardTitle>
-            <CardDescription className="text-base text-gray-600 mt-1">
-              Latest changes and updates to the product catalogue
-            </CardDescription>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <PermissionGate
+              key={index}
+              permissions={[action.permission]}
+              fallback={
+                <div className="relative">
+                  <div className="group relative flex flex-col items-center gap-3 p-6 bg-white border-2 border-gray-200 rounded-xl opacity-50 cursor-not-allowed">
+                    <div className="h-14 w-14 rounded-full flex items-center justify-center bg-gray-100">
+                      <action.icon className="h-7 w-7 text-gray-400" />
+                    </div>
+                    <div className="text-center">
+                      <h3 className="font-bold text-sm text-gray-600">{action.title}</h3>
+                    </div>
+                  </div>
+                </div>
+              }
+            >
+              <Link
+                href={action.href}
+                className="group relative flex flex-col items-center gap-3 p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-circleTel-orange hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+              >
+                {/* Icon Container */}
+                <div className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${action.color.replace('bg-', 'bg-').replace(' hover:bg-', '/10 group-hover:bg-')}`}>
+                  <action.icon className={`h-7 w-7 ${action.color.includes('orange') ? 'text-circleTel-orange' : action.color.includes('green') ? 'text-green-600' : action.color.includes('blue') ? 'text-blue-600' : 'text-purple-600'}`} />
+                </div>
+
+                {/* Title */}
+                <div className="text-center">
+                  <h3 className="font-bold text-sm text-gray-900 group-hover:text-circleTel-orange transition-colors">
+                    {action.title}
+                  </h3>
+                  {action.badge && (
+                    <Badge variant="secondary" className="mt-1 text-xs">
+                      {action.badge}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Hover Indicator */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-circleTel-orange rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Link>
+            </PermissionGate>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Activity - Consumer Dashboard Style */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-bold text-gray-900">Recent Activity</CardTitle>
+            <Link href="/admin/products?tab=history" className="text-sm font-semibold text-circleTel-orange hover:underline">
+              See all
+            </Link>
           </div>
-          <Link href="/admin/products?tab=history" className="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline">
-            See all
-          </Link>
         </CardHeader>
         <CardContent>
           {activityLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-start space-x-3 p-3 animate-pulse">
-                  <div className="h-4 w-4 bg-gray-200 rounded"></div>
+                <div key={i} className="flex items-start gap-3 p-4 border rounded-lg animate-pulse">
+                  <div className="h-12 w-12 bg-gray-200 rounded-lg"></div>
                   <div className="flex-1 space-y-2">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -465,34 +459,23 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-3">
               {recentActivity.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Activity className="h-10 w-10 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm font-medium text-gray-600">No recent activity</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Product changes will appear here
-                  </p>
+                <div className="text-center py-8 text-gray-500">
+                  <Activity className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                  <p>No recent activity</p>
                 </div>
               ) : (
                 recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-md hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                    <div className="flex-shrink-0 mt-0.5">
+                  <div key={activity.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
+                    <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-medium text-gray-900">
-                        {activity.message}
+                      <p className="font-bold text-base">{activity.message}</p>
+                      <p className="text-base text-gray-600">
+                        by {activity.user} • {activity.timestamp}
                       </p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <p className="text-sm text-gray-600">
-                          by {activity.user}
-                        </p>
-                        <span className="text-sm text-gray-400">•</span>
-                        <p className="text-sm text-gray-600">
-                          {activity.timestamp}
-                        </p>
-                      </div>
                     </div>
                   </div>
                 ))

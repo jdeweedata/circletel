@@ -5,8 +5,10 @@ import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, CreditCard, Package, AlertCircle, Clock } from "lucide-react";
+import { Loader2, Wifi, CreditCard, Package, AlertCircle, Clock, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
+import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
+import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
 
 interface DashboardData {
   customer: {
@@ -163,16 +165,21 @@ function DashboardContent({ data }: { data: DashboardData }) {
   const hasActiveService = data.stats.activeServices > 0;
   
   return (
-    <div className="space-y-6">
-      {/* Page Title */}
-      <div>
+    <div className="space-y-8">
+      {/* Page Title with Customer ID */}
+      <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
         <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">My Dashboard</h1>
-        <p className="text-base lg:text-lg text-gray-600 mt-2">Welcome back, {displayName}</p>
+        <p className="text-base lg:text-lg text-gray-600 mt-2">
+          Welcome back, <span className="font-bold text-circleTel-orange">{displayName}</span>
+          {data.customer.id && (
+            <span className="text-sm text-gray-500 ml-2">(#{data.customer.id.substring(0, 12)})</span>
+          )}
+        </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -184,7 +191,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -196,7 +203,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -208,7 +215,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -220,6 +227,9 @@ function DashboardContent({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Action Cards */}
+      <QuickActionCards />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Your Service */}
@@ -235,29 +245,58 @@ function DashboardContent({ data }: { data: DashboardData }) {
           <CardContent>
             {hasActiveService && primaryService ? (
               <div className="space-y-4">
-                <div className="p-4 bg-orange-50 border border-circleTel-orange/20 rounded-lg hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-xl text-gray-900">{primaryService.package_name}</h3>
-                      <p className="text-base text-gray-600 capitalize mt-1">{primaryService.service_type}</p>
+                <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-circleTel-orange/30 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
+                  {/* Status Badge with Indicator and Manage Dropdown */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse ring-4 ring-green-200" />
+                      <span className="text-sm font-bold text-green-700 uppercase tracking-wide">
+                        {primaryService.status === 'active' ? 'Connected & Billing' : primaryService.status}
+                      </span>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 font-semibold">
-                      {primaryService.status}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-100 text-green-800 border-2 border-green-300 hover:bg-green-100 font-bold px-3 py-1">
+                        Active
+                      </Badge>
+                      <ServiceManageDropdown
+                        serviceId={primaryService.id}
+                        packageName={primaryService.package_name}
+                      />
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 mt-4">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Speed</p>
-                      <p className="font-bold text-base mt-1">{primaryService.speed_down}/{primaryService.speed_up} Mbps</p>
+
+                  {/* Service Name */}
+                  <div className="mb-4">
+                    <h3 className="font-extrabold text-2xl text-gray-900 mb-1">{primaryService.package_name}</h3>
+                    <p className="text-base text-gray-700 font-semibold capitalize">{primaryService.service_type}</p>
+                  </div>
+
+                  {/* Speed Display with Icons */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 border border-orange-200">
+                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <ArrowUpDown className="h-5 w-5 text-blue-600 rotate-180" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Download</p>
+                        <p className="font-extrabold text-xl text-gray-900">{primaryService.speed_down} <span className="text-sm font-normal">Mbps</span></p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Monthly</p>
-                      <p className="font-bold text-base mt-1 tabular-nums">R{primaryService.monthly_price}</p>
+                    <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 border border-orange-200">
+                      <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <ArrowUpDown className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Upload</p>
+                        <p className="font-extrabold text-xl text-gray-900">{primaryService.speed_up} <span className="text-sm font-normal">Mbps</span></p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Type</p>
-                      <p className="font-bold text-base mt-1 capitalize">{primaryService.service_type}</p>
-                    </div>
+                  </div>
+
+                  {/* Monthly Price */}
+                  <div className="flex items-center justify-between pt-4 border-t-2 border-orange-200">
+                    <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Monthly Fee</span>
+                    <span className="font-extrabold text-2xl text-circleTel-orange tabular-nums">R{primaryService.monthly_price}</span>
                   </div>
                 </div>
               </div>
