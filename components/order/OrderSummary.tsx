@@ -38,59 +38,7 @@ export default function OrderSummary() {
     'Customer';
 
   return (
-    <div className="space-y-6">
-      {/* Package Details Section */}
-      <div>
-        <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
-          <Package className="h-4 w-4 text-circleTel-orange" />
-          Package Details
-        </h3>
-
-        <div className="bg-circleTel-lightNeutral rounded-lg p-4 space-y-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="font-bold text-lg text-circleTel-darkNeutral">
-                {selectedPackage?.name || 'Package Not Selected'}
-              </p>
-              <p className="text-sm text-circleTel-secondaryNeutral">
-                {selectedPackage?.description || ''}
-              </p>
-            </div>
-            <Badge variant="secondary" className="bg-circleTel-orange/10 text-circleTel-orange">
-              {selectedPackage?.type?.toUpperCase() || 'N/A'}
-            </Badge>
-          </div>
-
-          {/* Speed Display */}
-          {selectedPackage?.speed && (
-            <div className="flex items-center gap-2 text-sm">
-              <Zap className="h-4 w-4 text-circleTel-orange" />
-              <span className="font-medium">Speed:</span>
-              <span className="text-circleTel-secondaryNeutral">
-                {selectedPackage.speed}
-              </span>
-            </div>
-          )}
-
-          {/* Features */}
-          {selectedPackage?.features && selectedPackage.features.length > 0 && (
-            <div className="pt-2">
-              <p className="text-xs font-medium text-circleTel-secondaryNeutral mb-2">
-                Included Features:
-              </p>
-              <div className="space-y-1">
-                {selectedPackage.features.slice(0, 3).map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs">
-                    <div className="h-1.5 w-1.5 rounded-full bg-circleTel-orange" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Pricing Breakdown Section */}
       <div>
         <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
@@ -197,95 +145,23 @@ export default function OrderSummary() {
         </div>
       </div>
 
-      {/* Installation Details Section */}
-      <div>
-        <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
-          <Home className="h-4 w-4 text-circleTel-orange" />
-          Installation Details
-        </h3>
-
-        <div className="space-y-3 text-sm">
-          {/* Installation Address */}
-          <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium text-circleTel-darkNeutral">Installation Address</p>
-              <p className="text-circleTel-secondaryNeutral">
-                {coverage?.address || 'Address not provided'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Customer Details Section */}
-      <div>
-        <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
-          <User className="h-4 w-4 text-circleTel-orange" />
-          Customer Details
-        </h3>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-circleTel-secondaryNeutral flex-shrink-0" />
-            <span className="text-circleTel-secondaryNeutral">Name:</span>
-            <span className="font-medium">{customerName}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-circleTel-secondaryNeutral flex-shrink-0" />
-            <span className="text-circleTel-secondaryNeutral">Email:</span>
-            <span className="font-medium">
-              {account?.email || contact?.contactEmail || 'Not provided'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-circleTel-secondaryNeutral flex-shrink-0" />
-            <span className="text-circleTel-secondaryNeutral">Phone:</span>
-            <span className="font-medium">
-              {account?.phone || contact?.contactPhone || 'Not provided'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Special Instructions */}
-      {installation?.specialInstructions && (
-        <div>
-          <h3 className="text-sm font-semibold text-circleTel-darkNeutral mb-3 flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-circleTel-orange" />
-            Special Instructions
-          </h3>
-          <div className="bg-circleTel-lightNeutral rounded-lg p-3">
-            <p className="text-sm text-circleTel-secondaryNeutral">
-              {installation.specialInstructions}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Next Steps */}
-      <div className="bg-circleTel-orange/5 border border-circleTel-orange/20 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-circleTel-orange mb-2">
+      <div className="bg-circleTel-orange/5 border border-circleTel-orange/20 rounded-lg p-3">
+        <h4 className="text-xs font-semibold text-circleTel-orange mb-2">
           What Happens Next?
         </h4>
-        <ul className="space-y-1.5 text-xs text-circleTel-secondaryNeutral">
+        <ul className="space-y-1 text-xs text-circleTel-secondaryNeutral">
           <li className="flex items-start gap-2">
             <span className="text-circleTel-orange mt-0.5">✓</span>
-            <span>You'll receive an order confirmation email immediately</span>
+            <span>Order confirmation email sent immediately</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-circleTel-orange mt-0.5">✓</span>
-            <span>Our team will contact you within 24 hours to schedule installation</span>
+            <span>Team contacts you within 24 hours</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-circleTel-orange mt-0.5">✓</span>
-            <span>A technician will be dispatched on your preferred date</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-circleTel-orange mt-0.5">✓</span>
-            <span>Your service will be activated and tested before completion</span>
+            <span>Installation scheduled at your convenience</span>
           </li>
         </ul>
       </div>
