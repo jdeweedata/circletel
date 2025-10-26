@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ CRITICAL: Context Management
+
+**BEFORE STARTING ANY WORK, RUN:**
+```powershell
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
+```
+
+This analyzes token usage and prevents context overflows. See [Getting Started](#getting-started-new-session) for details.
+
+**Budget Zones**: 🟢 Green (<70%) | 🟡 Yellow (70-85%) | 🔴 Red (>85%)
+
 ## Project Overview
 
 **CircleTel** - Enterprise telecommunications platform (B2B/B2C ISP) for South Africa
@@ -405,14 +416,39 @@ CircleTel includes custom automation skills:
 
 | Skill | Purpose | Command |
 |-------|---------|---------|
-| **supabase-fetch** | Query database with pre-built operations | See `.claude/skills/supabase-fetch/` |
+| **context-manager** 🔥 | Token usage optimization (USE FIRST!) | `powershell -File .claude/skills/context-manager/run-context-analyzer.ps1` |
 | **sql-assistant** | Natural language to SQL | See `.claude/skills/sql-assistant/` |
 | **deployment-check** | Pre-deployment validation | See `.claude/skills/deployment-check/` |
 | **coverage-check** | Test multi-provider coverage | See `.claude/skills/coverage-check/` |
 | **product-import** | Import products from Excel | See `.claude/skills/product-import/` |
 | **admin-setup** | Configure RBAC roles/users | See `.claude/skills/admin-setup/` |
+| **supabase-fetch** | Query database with pre-built operations | See `.claude/skills/supabase-fetch/` |
 
 **Documentation**: `.claude/skills/README.md`
+
+### Context Manager Skill (CRITICAL - Use at Start of Every Session)
+
+**Purpose**: Analyze token usage and prevent context overflows
+
+```powershell
+# Check current token usage (run this FIRST!)
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
+
+# Analyze specific directory before working on it
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path app/admin
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path components
+
+# Get JSON output for scripting
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Json
+```
+
+**Provides**:
+- Total estimated tokens in codebase/directory
+- Budget usage percentage (Green/Yellow/Red zones)
+- Top 10 largest files
+- Specific optimization recommendations
+
+**CircleTel-specific patterns**: `.claude/skills/context-manager/CIRCLETEL_GUIDE.md`
 
 ## Documentation Structure
 
@@ -438,12 +474,59 @@ docs/
 
 ## Getting Started (New Session)
 
-1. Run `npm run type-check` to see current compilation state
-2. Check `docs/RECENT_CHANGES.md` for latest updates
-3. Review relevant documentation in `docs/` for your task
-4. Make changes following patterns in this file
-5. Run `npm run type-check` before committing
-6. Test locally with `npm run dev:memory`
+### MANDATORY: Context Analysis First
+
+**ALWAYS run context analysis before starting work:**
+
+```powershell
+# Analyze entire project
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
+
+# Or analyze specific area of work
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path app/admin
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path components
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path lib
+```
+
+This will show:
+- Total token usage estimation
+- Budget usage percentage (Green/Yellow/Red zones)
+- Largest files requiring line ranges
+- Optimization recommendations
+
+### Context Budget Zones
+
+- **🟢 Green (<70%)**: Normal operation - load files as needed
+- **🟡 Yellow (70-85%)**: Be selective - use line ranges for large files
+- **🔴 Red (>85%)**: Load essentials only - consider starting fresh session
+
+### Workflow
+
+1. **Run context analysis** (MANDATORY)
+2. `npm run type-check` to see current compilation state
+3. Check `docs/RECENT_CHANGES.md` for latest updates
+4. Review relevant documentation in `docs/` for your task
+5. **Load files progressively** - don't load entire directories
+6. Make changes following patterns in this file
+7. Run `npm run type-check` before committing
+8. Test locally with `npm run dev:memory`
+
+### Progressive Loading Pattern
+
+**✅ CORRECT**:
+```
+"Show me the admin layout structure"        # Overview, no files loaded
+"Load app/admin/layout.tsx"                 # Specific file
+"Show me lines 50-100"                      # Section only
+"Update line 75 to add new menu item"      # Targeted change
+```
+
+**❌ WRONG**:
+```
+"Load all admin files"                      # Too broad
+"Show me everything in app/"                # Context overflow
+"Help me understand this codebase"          # Vague, loads too much
+```
 
 ## Memory Management
 
@@ -459,7 +542,7 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 ---
 
 **Last Updated**: 2025-10-26
-**Version**: 4.1
+**Version**: 4.2
 **Maintained By**: Development Team + Claude Code
 
 ## Recent Updates (Oct 26, 2025)
@@ -476,3 +559,17 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 - ✅ **Two-Column Payment Layout** - Industry-standard checkout design
 - ✅ **CircleTel Design System** - Consistent orange (#F5831F) branding
 - ✅ **Mobile-First Responsive** - Optimized for South African connectivity
+
+## Skills System (7 Total)
+
+All skills auto-load when relevant keywords are mentioned. Manual invocation: `/skill <skill-name>`
+
+1. **context-manager** 🔥 - Token optimization (USE FIRST! Keywords: "token usage", "context limit")
+2. **sql-assistant** - Natural language SQL (Keywords: "query database", "show data")
+3. **deployment-check** - Pre-deploy validation (Keywords: "deploy", "ready")
+4. **coverage-check** - Multi-provider coverage testing
+5. **product-import** - Excel imports to Supabase
+6. **admin-setup** - RBAC configuration
+7. **supabase-fetch** - Database queries
+
+**Full documentation**: `.claude/skills/README.md`

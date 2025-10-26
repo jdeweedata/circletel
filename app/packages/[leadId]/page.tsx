@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import type { PackageDetails } from '@/lib/order/types';
 import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
+import { LicensedWirelessLeadCapture } from '@/components/coverage/LicensedWirelessLeadCapture';
 import {
   Tooltip,
   TooltipContent,
@@ -64,6 +65,8 @@ function PackagesContent() {
     null
   );
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [hasLicensedWireless, setHasLicensedWireless] = useState(false);
+  const [requiresQuote, setRequiresQuote] = useState(false);
 
   // Phase 3: Pagination state - show 8 packages initially
   const [showAllPackages, setShowAllPackages] = useState(false);
@@ -82,6 +85,8 @@ function PackagesContent() {
       setPackages(data.packages || []);
       setAddress(data.address || '');
       setCoordinates(data.coordinates || null);
+      setHasLicensedWireless(data.hasLicensedWireless || false);
+      setRequiresQuote(data.requiresQuote || false);
 
       // Initialize order with coverage data
       actions.updateOrderData({
@@ -346,8 +351,18 @@ function PackagesContent() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        {/* No Coverage - Show Lead Capture */}
-        {packages.length === 0 ? (
+        {/* Licensed Wireless (P2P) - Requires Quote */}
+        {requiresQuote ? (
+          <div className="max-w-4xl mx-auto">
+            <LicensedWirelessLeadCapture
+              address={address}
+              latitude={coordinates?.lat}
+              longitude={coordinates?.lng}
+              leadId={leadId}
+            />
+          </div>
+        ) : packages.length === 0 ? (
+          /* No Coverage - Show Lead Capture */
           <div className="max-w-4xl mx-auto">
             <NoCoverageLeadCapture
               address={address}

@@ -60,14 +60,15 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Skip auth initialization on password reset and auth callback pages to prevent
+  // Skip auth initialization on admin, password reset and auth callback pages to prevent
   // competing Supabase client instances that clear the session
+  const isAdminPage = pathname?.startsWith('/admin');
   const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
 
   // Initialize auth state on mount
   useEffect(() => {
-    // Skip initialization on auth pages
-    if (isAuthPage) {
+    // Skip initialization on admin and auth pages
+    if (isAdminPage || isAuthPage) {
       setLoading(false);
       return;
     }

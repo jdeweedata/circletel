@@ -22,13 +22,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase/client';
 
 interface AdminStats {
   totalProducts: number;
@@ -62,30 +56,20 @@ function useAdminStatsRealtime() {
       setIsLoading(true);
       setError(null);
 
-      // Fetch products
-      const { data: products, error: productsError } = await supabase
-        .from('products')
-        .select('base_price_zar, is_active, status');
+      // Fetch stats from API route (uses service role credentials)
+      const response = await fetch('/api/admin/stats');
+      const result = await response.json();
 
-      if (productsError) throw productsError;
-
-      // Calculate stats
-      const totalProducts = products?.length || 0;
-      const activeProducts = products?.filter(p => p.is_active) || [];
-      const approvedProducts = activeProducts.length;
-
-      // Calculate monthly recurring revenue
-      const revenueImpact = activeProducts.reduce((sum, p) => {
-        const price = parseFloat(p.base_price_zar || '0');
-        return sum + price;
-      }, 0);
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.details || 'Failed to fetch stats');
+      }
 
       setStats({
-        totalProducts,
-        pendingApprovals: 0, // No approval workflow implemented yet
-        approvedProducts,
-        revenueImpact: Math.round(revenueImpact),
-        lastUpdated: new Date()
+        totalProducts: result.data.totalProducts,
+        pendingApprovals: result.data.pendingApprovals,
+        approvedProducts: result.data.approvedProducts,
+        revenueImpact: result.data.revenueImpact,
+        lastUpdated: new Date(result.data.lastUpdated)
       });
     } catch (err) {
       console.error('Error fetching admin stats:', err);
@@ -132,19 +116,30 @@ export default function AdminDashboard() {
             product_id
           `)
           .order('changed_at', { ascending: false })
-          .limit(10);
+          .limit(10) as {
+            data: Array<{
+              id: string;
+              action: string;
+              changed_fields: string[] | null;
+              changed_by_name: string | null;
+              changed_at: string;
+              change_reason: string | null;
+              product_id: string;
+            }> | null;
+            error: any
+          };
 
         if (auditError) throw auditError;
 
         // Transform audit logs into activity items
         const activities: AuditActivity[] = await Promise.all(
-          (auditLogs || []).map(async (log) => {
+          (auditLogs || []).map(async (log: any) => {
             // Fetch product name for context
             const { data: product } = await supabase
               .from('products')
               .select('name')
               .eq('id', log.product_id)
-              .single();
+              .single() as { data: { name: string } | null; error: any };
 
             const productName = product?.name || 'Unknown Product';
 
@@ -155,15 +150,15 @@ export default function AdminDashboard() {
             if (log.action === 'INSERT') {
               type = 'product_created';
               message = `New product "${productName}" created`;
-            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('base_price_zar')) {
+            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('monthly_price')) {
               type = 'price_update';
               message = `Pricing updated for ${productName}`;
-            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('is_active')) {
+            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('status')) {
               type = 'status_change';
               message = `Status changed for ${productName}`;
             } else if (log.action === 'UPDATE') {
               type = 'feature_update';
-              const fields = log.changed_fields?.filter(f => f !== 'updated_at').join(', ') || 'properties';
+              const fields = log.changed_fields?.filter((f: string) => f !== 'updated_at').join(', ') || 'properties';
               message = `Updated ${fields} for ${productName}`;
             } else if (log.action === 'DELETE') {
               type = 'product_archived';
@@ -329,13 +324,13 @@ export default function AdminDashboard() {
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
             Welcome back, {user?.full_name?.split(' ')[0]}!
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-base text-gray-600 mt-2">
             Here&apos;s what&apos;s happening with your product catalogue today.
             {stats.lastUpdated && (
-              <span className="text-xs text-gray-400 ml-2">
+              <span className="text-sm text-gray-500 ml-2">
                 • Last updated {stats.lastUpdated.toLocaleTimeString()}
               </span>
             )}
@@ -363,25 +358,25 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((stat, index) => (
-          <Card key={index} className={`border-gray-200 hover:shadow-md transition-shadow ${stat.urgent ? 'border-orange-300' : ''}`}>
+          <Card key={index} className={`border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${stat.urgent ? 'border-orange-300' : ''}`}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 {stat.title}
               </CardTitle>
               <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-semibold text-gray-900 mb-1">
+              <div className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2 tabular-nums">
                 {stat.value}
                 {stat.urgent && (
-                  <Badge variant="destructive" className="ml-2 text-xs">
+                  <Badge variant="destructive" className="ml-2 text-sm">
                     {stats.pendingApprovals}
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-600">
                 {stat.description}
               </p>
             </CardContent>
@@ -393,8 +388,8 @@ export default function AdminDashboard() {
       <Card className="border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div>
-            <CardTitle className="text-base font-semibold text-gray-900">Quick Actions</CardTitle>
-            <CardDescription className="text-sm text-gray-500 mt-1">
+            <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900">Quick Actions</CardTitle>
+            <CardDescription className="text-base text-gray-600 mt-1">
               Common tasks to manage your product catalogue
             </CardDescription>
           </div>
@@ -423,18 +418,18 @@ export default function AdminDashboard() {
                 }
               >
                 <Link href={action.href} className="w-full">
-                  <div className={`p-4 rounded-lg ${action.color} text-white hover:opacity-90 transition-all cursor-pointer`}>
+                  <div className={`p-4 rounded-lg ${action.color} text-white hover:opacity-90 hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg`}>
                     <div className="flex items-center justify-between mb-2">
-                      <action.icon className="h-5 w-5" />
+                      <action.icon className="h-6 w-6" />
                       {action.badge && (
-                        <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0">
+                        <Badge variant="secondary" className="text-sm bg-white/20 text-white border-0">
                           {action.badge}
                         </Badge>
                       )}
-                      <ArrowUpRight className="h-4 w-4 opacity-70" />
+                      <ArrowUpRight className="h-5 w-5 opacity-70" />
                     </div>
-                    <div className="text-sm font-medium">{action.title}</div>
-                    <div className="text-xs opacity-80 mt-1">{action.description}</div>
+                    <div className="text-base font-bold">{action.title}</div>
+                    <div className="text-sm opacity-90 mt-1">{action.description}</div>
                   </div>
                 </Link>
               </PermissionGate>
@@ -447,12 +442,12 @@ export default function AdminDashboard() {
       <Card className="border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div>
-            <CardTitle className="text-base font-semibold text-gray-900">Recent Activity</CardTitle>
-            <CardDescription className="text-sm text-gray-500 mt-1">
+            <CardTitle className="text-xl lg:text-2xl font-bold text-gray-900">Recent Activity</CardTitle>
+            <CardDescription className="text-base text-gray-600 mt-1">
               Latest changes and updates to the product catalogue
             </CardDescription>
           </div>
-          <Link href="/admin/products?tab=history" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/admin/products?tab=history" className="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline">
             See all
           </Link>
         </CardHeader>
@@ -486,15 +481,15 @@ export default function AdminDashboard() {
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">
+                      <p className="text-base font-medium text-gray-900">
                         {activity.message}
                       </p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-600">
                           by {activity.user}
                         </p>
-                        <span className="text-xs text-gray-300">•</span>
-                        <p className="text-xs text-gray-500">
+                        <span className="text-sm text-gray-400">•</span>
+                        <p className="text-sm text-gray-600">
                           {activity.timestamp}
                         </p>
                       </div>

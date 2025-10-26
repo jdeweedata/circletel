@@ -11,27 +11,27 @@ import { DollarSign, Loader2 } from 'lucide-react';
 interface Product {
   id: string;
   name: string;
-  monthly_price: string | number;
-  setup_fee: string | number;
+  base_price_zar: string | number;
+  cost_price_zar: string | number;
 }
 
 interface PriceEditModalProps {
   product: Product;
   open: boolean;
   onClose: () => void;
-  onSave: (productId: string, updates: { monthly_price: number; setup_fee: number; change_reason: string }) => Promise<void>;
+  onSave: (productId: string, updates: { base_price_zar: number; cost_price_zar: number; change_reason: string }) => Promise<void>;
 }
 
 export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModalProps) {
-  const [monthlyPrice, setMonthlyPrice] = useState(parseFloat(product.monthly_price?.toString() || '0'));
-  const [setupFee, setSetupFee] = useState(parseFloat(product.setup_fee?.toString() || '0'));
+  const [monthlyPrice, setMonthlyPrice] = useState(parseFloat(product.base_price_zar?.toString() || '0'));
+  const [setupFee, setSetupFee] = useState(parseFloat(product.cost_price_zar?.toString() || '0'));
   const [changeReason, setChangeReason] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasChanges =
-    monthlyPrice !== parseFloat(product.monthly_price?.toString() || '0') ||
-    setupFee !== parseFloat(product.setup_fee?.toString() || '0');
+    monthlyPrice !== parseFloat(product.base_price_zar?.toString() || '0') ||
+    setupFee !== parseFloat(product.cost_price_zar?.toString() || '0');
 
   const handleSave = async () => {
     if (!changeReason.trim()) {
@@ -49,8 +49,8 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
 
     try {
       await onSave(product.id, {
-        monthly_price: monthlyPrice,
-        setup_fee: setupFee,
+        base_price_zar: monthlyPrice,
+        cost_price_zar: setupFee,
         change_reason: changeReason
       });
       onClose();
@@ -66,8 +66,8 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
 
   const handleCancel = () => {
     // Reset to original values
-    setMonthlyPrice(parseFloat(product.monthly_price?.toString() || '0'));
-    setSetupFee(parseFloat(product.setup_fee?.toString() || '0'));
+    setMonthlyPrice(parseFloat(product.base_price_zar?.toString() || '0'));
+    setSetupFee(parseFloat(product.cost_price_zar?.toString() || '0'));
     setChangeReason('');
     setError(null);
     onClose();
@@ -105,12 +105,12 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
                 placeholder="0.00"
               />
             </div>
-            {monthlyPrice !== parseFloat(product.monthly_price?.toString() || '0') && (
+            {monthlyPrice !== parseFloat(product.base_price_zar?.toString() || '0') && (
               <p className="text-xs text-orange-600">
-                Original: R{parseFloat(product.monthly_price?.toString() || '0').toFixed(2)} →
+                Original: R{parseFloat(product.base_price_zar?.toString() || '0').toFixed(2)} →
                 New: R{monthlyPrice.toFixed(2)}
-                ({monthlyPrice > parseFloat(product.monthly_price?.toString() || '0') ? '+' : ''}
-                R{(monthlyPrice - parseFloat(product.monthly_price?.toString() || '0')).toFixed(2)})
+                ({monthlyPrice > parseFloat(product.base_price_zar?.toString() || '0') ? '+' : ''}
+                R{(monthlyPrice - parseFloat(product.base_price_zar?.toString() || '0')).toFixed(2)})
               </p>
             )}
           </div>
@@ -133,12 +133,12 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
                 placeholder="0.00"
               />
             </div>
-            {setupFee !== parseFloat(product.setup_fee?.toString() || '0') && (
+            {setupFee !== parseFloat(product.cost_price_zar?.toString() || '0') && (
               <p className="text-xs text-orange-600">
-                Original: R{parseFloat(product.setup_fee?.toString() || '0').toFixed(2)} →
+                Original: R{parseFloat(product.cost_price_zar?.toString() || '0').toFixed(2)} →
                 New: R{setupFee.toFixed(2)}
-                ({setupFee > parseFloat(product.setup_fee?.toString() || '0') ? '+' : ''}
-                R{(setupFee - parseFloat(product.setup_fee?.toString() || '0')).toFixed(2)})
+                ({setupFee > parseFloat(product.cost_price_zar?.toString() || '0') ? '+' : ''}
+                R{(setupFee - parseFloat(product.cost_price_zar?.toString() || '0')).toFixed(2)})
               </p>
             )}
           </div>
@@ -171,14 +171,14 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
             <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded text-sm space-y-1">
               <p className="font-semibold">Changes Summary:</p>
               <ul className="list-disc list-inside text-xs">
-                {monthlyPrice !== parseFloat(product.monthly_price?.toString() || '0') && (
+                {monthlyPrice !== parseFloat(product.base_price_zar?.toString() || '0') && (
                   <li>
-                    Monthly price: R{parseFloat(product.monthly_price?.toString() || '0').toFixed(2)} → R{monthlyPrice.toFixed(2)}
+                    Monthly price: R{parseFloat(product.base_price_zar?.toString() || '0').toFixed(2)} → R{monthlyPrice.toFixed(2)}
                   </li>
                 )}
-                {setupFee !== parseFloat(product.setup_fee?.toString() || '0') && (
+                {setupFee !== parseFloat(product.cost_price_zar?.toString() || '0') && (
                   <li>
-                    Setup fee: R{parseFloat(product.setup_fee?.toString() || '0').toFixed(2)} → R{setupFee.toFixed(2)}
+                    Setup fee: R{parseFloat(product.cost_price_zar?.toString() || '0').toFixed(2)} → R{setupFee.toFixed(2)}
                   </li>
                 )}
               </ul>

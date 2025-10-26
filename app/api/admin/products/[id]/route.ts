@@ -36,6 +36,7 @@ export async function GET(
       );
     }
 
+    // Return raw database fields - frontend uses database field names
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
     console.error('Error in GET /api/admin/products/[id]:', error);
@@ -67,15 +68,36 @@ export async function PUT(
 
     const changeReason = body.change_reason;
 
-    // Remove change_reason from update payload and map field names to database columns
-    const { change_reason, monthly_price, setup_fee, ...updateData } = body;
+    // Remove change_reason from update payload and handle all field naming conventions
+    const {
+      change_reason,
+      // Accept multiple naming conventions for backward compatibility
+      price_monthly, price_once_off,           // From edit form (old)
+      monthly_price, setup_fee,                // From PriceEditModal (old)
+      base_price_zar, cost_price_zar,         // Database field names (preferred)
+      ...updateData
+    } = body;
 
-    // Map frontend field names to database column names
-    if (monthly_price !== undefined) {
-      updateData.base_price_zar = monthly_price;
+    // Map all price field variants to database columns (priority: DB names > form names > modal names)
+    if (base_price_zar !== undefined || price_monthly !== undefined || monthly_price !== undefined) {
+      updateData.base_price_zar = base_price_zar ?? price_monthly ?? monthly_price;
     }
-    if (setup_fee !== undefined) {
-      updateData.cost_price_zar = setup_fee;
+    if (cost_price_zar !== undefined || price_once_off !== undefined || setup_fee !== undefined) {
+      updateData.cost_price_zar = cost_price_zar ?? price_once_off ?? setup_fee;
+    }
+
+    // Map other fields if present
+    if (body.speed_download !== undefined) {
+      updateData.speed_download = body.speed_download;
+    }
+    if (body.speed_upload !== undefined) {
+      updateData.speed_upload = body.speed_upload;
+    }
+    if (body.data_limit !== undefined) {
+      updateData.data_limit = body.data_limit;
+    }
+    if (body.contract_duration !== undefined) {
+      updateData.contract_duration = body.contract_duration;
     }
 
     // Update the product

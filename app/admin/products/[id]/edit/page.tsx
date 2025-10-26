@@ -25,15 +25,15 @@ import { FeaturesEditor } from '@/components/admin/products/FeaturesEditor';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// Product edit form schema
+// Product edit form schema - using database field names
 const productEditSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
   sku: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   service: z.string().min(1, 'Service is required'),
   customer_type: z.enum(['consumer', 'smme', 'enterprise']),
-  price_monthly: z.number().min(0, 'Price must be positive').nullable(),
-  price_once_off: z.number().min(0, 'Price must be positive').nullable(),
+  base_price_zar: z.number().min(0, 'Price must be positive').nullable(),
+  cost_price_zar: z.number().min(0, 'Price must be positive').nullable(),
   speed_download: z.number().int().min(0).nullable(),
   speed_upload: z.number().int().min(0).nullable(),
   data_limit: z.string().optional(),
@@ -89,8 +89,8 @@ export default function EditProductPage() {
         setValue('category', data.data.category || '');
         setValue('service', data.data.service || '');
         setValue('customer_type', data.data.customer_type || 'consumer');
-        setValue('price_monthly', data.data.price_monthly || null);
-        setValue('price_once_off', data.data.price_once_off || null);
+        setValue('base_price_zar', data.data.base_price_zar || null);
+        setValue('cost_price_zar', data.data.cost_price_zar || null);
         setValue('speed_download', data.data.speed_download || null);
         setValue('speed_upload', data.data.speed_upload || null);
         setValue('data_limit', data.data.data_limit || '');
@@ -291,30 +291,30 @@ export default function EditProductPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price_monthly">Monthly Price (ZAR)</Label>
+                  <Label htmlFor="base_price_zar">Monthly Price (ZAR)</Label>
                   <Input
-                    id="price_monthly"
+                    id="base_price_zar"
                     type="number"
                     step="0.01"
-                    {...register('price_monthly', { valueAsNumber: true })}
+                    {...register('base_price_zar', { valueAsNumber: true })}
                     placeholder="e.g., 799.00"
                   />
-                  {errors.price_monthly && (
-                    <p className="text-sm text-destructive">{errors.price_monthly.message}</p>
+                  {errors.base_price_zar && (
+                    <p className="text-sm text-destructive">{errors.base_price_zar.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price_once_off">Setup Fee (ZAR)</Label>
+                  <Label htmlFor="cost_price_zar">Setup Fee / Cost (ZAR)</Label>
                   <Input
-                    id="price_once_off"
+                    id="cost_price_zar"
                     type="number"
                     step="0.01"
-                    {...register('price_once_off', { valueAsNumber: true })}
+                    {...register('cost_price_zar', { valueAsNumber: true })}
                     placeholder="e.g., 900.00"
                   />
-                  {errors.price_once_off && (
-                    <p className="text-sm text-destructive">{errors.price_once_off.message}</p>
+                  {errors.cost_price_zar && (
+                    <p className="text-sm text-destructive">{errors.cost_price_zar.message}</p>
                   )}
                 </div>
               </div>

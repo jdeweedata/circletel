@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ProductsClientService } from '@/lib/services/products-client';
-import { Product, ProductFilters, ProductsResponse } from '@/lib/types/products';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { Product, ProductFilters } from '@/lib/types/products';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
@@ -19,12 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -35,24 +29,26 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  Package,
   Search,
   Plus,
-  Edit,
-  Eye,
-  MoreHorizontal,
-  Archive,
-  Copy,
-  ToggleLeft,
-  ToggleRight,
-  Star,
-  TrendingUp,
   RefreshCw,
-  DollarSign,
-  History
+  LayoutGrid,
+  List,
+  Wifi,
+  HardDrive,
+  Code,
+  Headphones,
+  Package as PackageBundle,
 } from 'lucide-react';
+import { AdminProductCard } from '@/components/admin/products/AdminProductCard';
+import { ProductsList } from '@/components/admin/products/ProductsList';
+import { CategorySection } from '@/components/admin/products/CategorySection';
+import { BulkActionsToolbar } from '@/components/admin/products/BulkActionsToolbar';
+import { ProductStatsWidget } from '@/components/admin/products/ProductStatsWidget';
 import { PriceEditModal } from '@/components/admin/products/PriceEditModal';
 import { AuditHistoryModal } from '@/components/admin/products/AuditHistoryModal';
+
+type ViewMode = 'grid' | 'list';
 
 export default function AdminProducts() {
   const { hasPermission } = usePermissions();
@@ -70,10 +66,12 @@ export default function AdminProducts() {
   const [filters, setFilters] = useState<ProductFilters>({});
   const [pagination, setPagination] = useState({
     page: 1,
-    per_page: 20,
+    per_page: 100, // Increased for better category view
     total: 0,
     total_pages: 0
   });
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [priceEditModalOpen, setPriceEditModalOpen] = useState(false);
@@ -81,25 +79,53 @@ export default function AdminProducts() {
   const [auditHistoryModalOpen, setAuditHistoryModalOpen] = useState(false);
   const [productForAudit, setProductForAudit] = useState<Product | null>(null);
 
+  // Load view mode preference from localStorage
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('admin-products-view-mode') as ViewMode;
+    if (savedViewMode) {
+      setViewMode(savedViewMode);
+    }
+  }, []);
+
+  // Save view mode preference
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('admin-products-view-mode', mode);
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response: ProductsResponse = await ProductsClientService.getProducts(
-        filters,
-        pagination.page,
-        pagination.per_page
-      );
-      setProducts(response.products);
+
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        per_page: pagination.per_page.toString()
+      });
+
+      if (filters.category) params.append('category', filters.category);
+      if (filters.service_type) params.append('service_type', filters.service_type);
+      if (filters.status) params.append('status', filters.status);
+      if (filters.search) params.append('search', filters.search);
+      if (filters.sort_by) params.append('sort_by', filters.sort_by);
+
+      const response = await fetch(`/api/admin/products?${params.toString()}`);
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.details || 'Failed to fetch products');
+      }
+
+      setProducts(result.data.products);
       setPagination({
-        page: response.page,
-        per_page: response.per_page,
-        total: response.total,
-        total_pages: response.total_pages
+        page: result.data.page,
+        per_page: result.data.per_page,
+        total: result.data.total,
+        total_pages: result.data.total_pages
       });
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError('Failed to load products');
+      setError(err instanceof Error ? err.message : 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -107,9 +133,6 @@ export default function AdminProducts() {
 
   const fetchStats = async () => {
     try {
-      // TODO: Implement API route for admin stats
-      // const stats = // TODO: API route needed - await ProductsService.getProductStats();
-      // setProductStats(stats);
       setProductStats({
         total: products.length,
         active: products.filter(p => p.is_active).length,
@@ -125,8 +148,11 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchProducts();
-    fetchStats();
   }, [filters, pagination.page]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [products]);
 
   const handleSearch = (search: string) => {
     setFilters({ ...filters, search });
@@ -138,6 +164,234 @@ export default function AdminProducts() {
     setPagination({ ...pagination, page: 1 });
   };
 
+  // Group products by category
+  const productsByCategory = useMemo(() => {
+    const groups: Record<string, Product[]> = {};
+    products.forEach(product => {
+      const category = product.category || 'uncategorized';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(product);
+    });
+    return groups;
+  }, [products]);
+
+  const categoryConfig = {
+    connectivity: {
+      label: 'Connectivity',
+      description: 'Fibre and wireless internet packages',
+      icon: <Wifi className="h-5 w-5" />,
+      color: 'blue' as const,
+    },
+    hardware: {
+      label: 'Hardware',
+      description: 'Routers, switches, and network equipment',
+      icon: <HardDrive className="h-5 w-5" />,
+      color: 'green' as const,
+    },
+    software: {
+      label: 'Software',
+      description: 'Software licenses and subscriptions',
+      icon: <Code className="h-5 w-5" />,
+      color: 'purple' as const,
+    },
+    services: {
+      label: 'Services',
+      description: 'Support and managed services',
+      icon: <Headphones className="h-5 w-5" />,
+      color: 'orange' as const,
+    },
+    bundles: {
+      label: 'Bundles',
+      description: 'Combined product packages',
+      icon: <PackageBundle className="h-5 w-5" />,
+      color: 'gray' as const,
+    },
+  };
+
+  // Selection handlers
+  const handleSelectProduct = (productId: string, selected: boolean) => {
+    setSelectedProductIds(prev =>
+      selected
+        ? [...prev, productId]
+        : prev.filter(id => id !== productId)
+    );
+  };
+
+  const handleClearSelection = () => {
+    setSelectedProductIds([]);
+  };
+
+  const handleSelectAll = (category?: string) => {
+    const productsToSelect = category
+      ? productsByCategory[category] || []
+      : products;
+    setSelectedProductIds(productsToSelect.map(p => p.id));
+  };
+
+  // Bulk operations
+  const handleBulkActivate = async () => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify({
+              is_active: true,
+              change_reason: 'Bulk activation by admin'
+            })
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk activating:', err);
+      setError('Failed to activate products');
+    }
+  };
+
+  const handleBulkDeactivate = async () => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify({
+              is_active: false,
+              change_reason: 'Bulk deactivation by admin'
+            })
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk deactivating:', err);
+      setError('Failed to deactivate products');
+    }
+  };
+
+  const handleBulkArchive = async () => {
+    if (!confirm(`Are you sure you want to archive ${selectedProductIds.length} products?`)) {
+      return;
+    }
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            }
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk archiving:', err);
+      setError('Failed to archive products');
+    }
+  };
+
+  const handleBulkSetCategory = async (category: string) => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify({
+              category,
+              change_reason: `Bulk category change to ${category} by admin`
+            })
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk setting category:', err);
+      setError('Failed to update category');
+    }
+  };
+
+  const handleBulkSetFeatured = async (featured: boolean) => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify({
+              is_featured: featured,
+              change_reason: `Bulk featured update by admin`
+            })
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk setting featured:', err);
+      setError('Failed to update featured status');
+    }
+  };
+
+  const handleBulkSetPopular = async (popular: boolean) => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify({
+              is_popular: popular,
+              change_reason: `Bulk popular update by admin`
+            })
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk setting popular:', err);
+      setError('Failed to update popular status');
+    }
+  };
+
+  // Individual product handlers
   const handleToggleStatus = async (product: Product) => {
     try {
       const newStatus = !product.is_active;
@@ -169,7 +423,8 @@ export default function AdminProducts() {
 
   const handleDuplicate = async (product: Product) => {
     try {
-      // TODO: API route needed - await ProductsService.duplicateProduct(product.id);
+      // TODO: Implement duplicate API endpoint
+      console.log('Duplicate product:', product.id);
       await fetchProducts();
       await fetchStats();
     } catch (err) {
@@ -210,7 +465,7 @@ export default function AdminProducts() {
     setPriceEditModalOpen(true);
   };
 
-  const handlePriceSave = async (productId: string, updates: { monthly_price: number; setup_fee: number; change_reason: string }) => {
+  const handlePriceSave = async (productId: string, updates: { base_price_zar: number; cost_price_zar: number; change_reason: string }) => {
     const response = await fetch(`/api/admin/products/${productId}`, {
       method: 'PUT',
       headers: {
@@ -235,31 +490,16 @@ export default function AdminProducts() {
     setAuditHistoryModalOpen(true);
   };
 
-  const formatPrice = (priceStr: string) => {
-    const price = parseFloat(priceStr);
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(price);
-  };
+  // Drag and drop handler
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
 
-  const getStatusBadge = (product: Product) => {
-    if (!product.is_active) {
-      return <Badge variant="secondary">Inactive</Badge>;
-    }
+    const items = Array.from(products);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    switch (product.status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800">Draft</Badge>;
-      case 'archived':
-        return <Badge className="bg-red-100 text-red-800">Archived</Badge>;
-      default:
-        return <Badge variant="outline" className="capitalize">{product.status}</Badge>;
-    }
+    setProducts(items);
+    // TODO: Persist order to backend
   };
 
   if (loading && products.length === 0) {
@@ -278,13 +518,13 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Product Catalogue Management</h1>
           <p className="text-gray-600 mt-1">
-            Manage your CircleTel product catalogue ({pagination.total} products)
+            Manage your CircleTel product offerings
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -310,6 +550,9 @@ export default function AdminProducts() {
           </PermissionGate>
         </div>
       </div>
+
+      {/* Stats Widget */}
+      <ProductStatsWidget stats={productStats} />
 
       {/* Filters */}
       <Card>
@@ -379,241 +622,129 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Products</p>
-                <p className="text-2xl font-bold">{productStats.total}</p>
-              </div>
-              <Package className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {productStats.active}
-                </p>
-              </div>
-              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <div className="h-4 w-4 bg-green-600 rounded-full"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Drafts</p>
-                <p className="text-2xl font-bold text-gray-600">
-                  {productStats.draft}
-                </p>
-              </div>
-              <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
-                <div className="h-4 w-4 bg-gray-600 rounded-full"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Featured</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {productStats.featured}
-                </p>
-              </div>
-              <Star className="h-8 w-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Popular</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {productStats.popular}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* View Tabs */}
+      <Tabs value={viewMode} onValueChange={(value) => handleViewModeChange(value as ViewMode)}>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="grid" className="flex items-center gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Grid View
+            </TabsTrigger>
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              List View
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Products List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Product Catalogue</CardTitle>
-          <CardDescription>
-            Showing {products.length} of {pagination.total} products
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {products.length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg font-medium">No products found</p>
-                <p className="text-gray-400 mt-2">
-                  {filters.search || filters.category || filters.status
-                    ? 'No products match your current filters. Try adjusting your search criteria or clearing filters.'
-                    : 'Get started by creating your first product to build your catalogue.'}
-                </p>
-                <div className="flex items-center justify-center gap-3 mt-6">
-                  {(filters.search || filters.category || filters.status) && (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setFilters({});
-                        setPagination({ ...pagination, page: 1 });
-                      }}
-                    >
-                      Clear Filters
-                    </Button>
-                  )}
-                  <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
-                    <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
-                      <Link href="/admin/products/new">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Product
-                      </Link>
-                    </Button>
-                  </PermissionGate>
-                </div>
-              </div>
-            ) : (
-              products.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="h-12 w-12 bg-circleTel-lightNeutral rounded-lg flex items-center justify-center">
-                      <Package className="h-6 w-6 text-circleTel-orange" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                        {getStatusBadge(product)}
-                        {product.is_featured && (
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        )}
-                        {product.is_popular && (
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {product.description || 'No description available'}
-                      </p>
-                      <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                        <span>SKU: {product.sku}</span>
-                        <span>•</span>
-                        <span className="capitalize">Category: {product.category}</span>
-                        {product.service_type && (
-                          <>
-                            <span>•</span>
-                            <span>Type: {product.service_type}</span>
-                          </>
-                        )}
-                        <span>•</span>
-                        <span>Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
+          {selectedProductIds.length > 0 && (
+            <div className="text-sm text-gray-600">
+              {selectedProductIds.length} {selectedProductIds.length === 1 ? 'product' : 'products'} selected
+            </div>
+          )}
+        </div>
 
-                  <div className="flex items-center space-x-2">
-                    <div className="text-right mr-4">
-                      <p className="font-semibold text-circleTel-orange">
-                        {formatPrice(product.base_price_zar)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Cost: {formatPrice(product.cost_price_zar)}
-                      </p>
-                    </div>
+        {/* Grid View */}
+        <TabsContent value="grid" className="mt-6">
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="space-y-6">
+              {Object.entries(productsByCategory).map(([category, categoryProducts]) => {
+                const config = categoryConfig[category as keyof typeof categoryConfig] || {
+                  label: category,
+                  description: '',
+                  icon: <PackageBundle className="h-5 w-5" />,
+                  color: 'gray' as const,
+                };
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}`}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        {hasPermission(PERMISSIONS.PRODUCTS.EDIT) && (
-                          <DropdownMenuItem asChild>
-                            <Link href={`/admin/products/${product.id}/edit`}>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
-                        {hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING) && (
-                          <DropdownMenuItem onClick={() => handlePriceEdit(product)}>
-                            <DollarSign className="w-4 h-4 mr-2" />
-                            Edit Price
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => handleViewAuditHistory(product)}>
-                          <History className="w-4 h-4 mr-2" />
-                          View History
-                        </DropdownMenuItem>
-                        {hasPermission(PERMISSIONS.PRODUCTS.EDIT) && (
-                          <DropdownMenuItem onClick={() => handleToggleStatus(product)}>
-                            {product.is_active ? (
-                              <>
-                                <ToggleLeft className="w-4 h-4 mr-2" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                <ToggleRight className="w-4 h-4 mr-2" />
-                                Activate
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        )}
-                        {hasPermission(PERMISSIONS.PRODUCTS.CREATE) && (
-                          <DropdownMenuItem onClick={() => handleDuplicate(product)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                        )}
-                        {hasPermission(PERMISSIONS.PRODUCTS.DELETE) && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setProductToDelete(product);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="text-red-600"
-                          >
-                            <Archive className="w-4 h-4 mr-2" />
-                            Archive
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                return (
+                  <CategorySection
+                    key={category}
+                    title={config.label}
+                    description={config.description}
+                    count={categoryProducts.length}
+                    icon={config.icon}
+                    color={config.color}
+                    defaultExpanded={true}
+                  >
+                    <Droppable droppableId={category}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                        >
+                          {categoryProducts.map((product, index) => (
+                            <Draggable key={product.id} draggableId={product.id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                >
+                                  <AdminProductCard
+                                    product={product}
+                                    selected={selectedProductIds.includes(product.id)}
+                                    onSelect={handleSelectProduct}
+                                    onEdit={(p) => window.location.href = `/admin/products/${p.id}/edit`}
+                                    onView={(p) => window.location.href = `/admin/products/${p.id}`}
+                                    onToggleStatus={handleToggleStatus}
+                                    onDuplicate={handleDuplicate}
+                                    onArchive={(p) => {
+                                      setProductToDelete(p);
+                                      setDeleteDialogOpen(true);
+                                    }}
+                                    onPriceEdit={handlePriceEdit}
+                                    onViewAuditHistory={handleViewAuditHistory}
+                                    hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
+                                    hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
+                                    hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
+                                    hasCreatePermission={hasPermission(PERMISSIONS.PRODUCTS.CREATE)}
+                                    isDragging={snapshot.isDragging}
+                                    dragHandleProps={provided.dragHandleProps}
+                                    showStats={false}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </CategorySection>
+                );
+              })}
+            </div>
+          </DragDropContext>
+        </TabsContent>
+
+        {/* List View */}
+        <TabsContent value="list" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Catalogue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductsList
+                products={products}
+                selectedIds={selectedProductIds}
+                onSelect={handleSelectProduct}
+                onEdit={(p) => window.location.href = `/admin/products/${p.id}/edit`}
+                onToggleStatus={handleToggleStatus}
+                onDuplicate={handleDuplicate}
+                onArchive={(p) => {
+                  setProductToDelete(p);
+                  setDeleteDialogOpen(true);
+                }}
+                onPriceEdit={handlePriceEdit}
+                onViewAuditHistory={handleViewAuditHistory}
+                hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
+                hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
+                hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
+                hasCreatePermission={hasPermission(PERMISSIONS.PRODUCTS.CREATE)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Pagination */}
       {pagination.total_pages > 1 && (
@@ -647,6 +778,20 @@ export default function AdminProducts() {
           </div>
         </div>
       )}
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selectedProductIds.length}
+        onClearSelection={handleClearSelection}
+        onBulkActivate={handleBulkActivate}
+        onBulkDeactivate={handleBulkDeactivate}
+        onBulkArchive={handleBulkArchive}
+        onBulkSetCategory={handleBulkSetCategory}
+        onBulkSetFeatured={handleBulkSetFeatured}
+        onBulkSetPopular={handleBulkSetPopular}
+        hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
+        hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
+      />
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

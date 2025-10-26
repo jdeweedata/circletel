@@ -423,6 +423,51 @@ export default function UIComponentsDemoPage() {
             </p>
           </div>
         </section>
+
+        {/* Interactive Order Flow Demo */}
+        <section className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg p-8">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-orange-900 mb-2">
+                🎯 Interactive Order Flow Journey
+              </h2>
+              <p className="text-orange-800 mb-4">
+                Experience the complete CircleTel customer order journey from account creation to payment confirmation.
+                This interactive demo showcases the full 4-step process with real form validation and animations.
+              </p>
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <h3 className="font-semibold text-orange-900 mb-2">Demo Features:</h3>
+                <ul className="space-y-1 text-sm text-orange-800">
+                  <li>✓ <strong>Account Creation</strong> - Email/Password or Google OAuth</li>
+                  <li>✓ <strong>Service Address</strong> - Residential/Business property selection</li>
+                  <li>✓ <strong>Payment Methods</strong> - 9 payment options with NetCash integration</li>
+                  <li>✓ <strong>Order Confirmation</strong> - Complete order summary and next steps</li>
+                  <li>✓ <strong>Form Validation</strong> - Real-time error handling and feedback</li>
+                  <li>✓ <strong>Smooth Animations</strong> - Framer Motion transitions</li>
+                </ul>
+              </div>
+              <a
+                href="/demo/order-flow"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                Launch Interactive Demo
+              </a>
+              <p className="text-xs text-orange-700 mt-3">
+                <strong>Note:</strong> This is a demo environment. No real orders will be created or payments processed.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

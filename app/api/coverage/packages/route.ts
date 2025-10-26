@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
     let coverageMetadata: any = null;
     let fibreCoverage: 'connected' | 'near-net' | 'none' | 'unknown' = 'unknown';
     let fibreNearNetDistance: number | null = null;
+    let hasLicensedWireless = false;
 
     // Extract coordinates from JSONB structure
     const lat = lead.coordinates?.lat;
@@ -183,12 +184,18 @@ export async function GET(request: NextRequest) {
     }
 
     if (coverageAvailable && availableServices.length > 0) {
+      // Check for licensed_wireless (P2P microwave) - requires quote/lead form
+      const hasLicensedWireless = availableServices.includes('licensed_wireless');
+
+      // Filter out licensed_wireless from normal package display
+      const packageableServices = availableServices.filter(s => s !== 'licensed_wireless');
+
       // Map technical service types to product categories using service_type_mapping
       // Note: availableServices may contain either technical types (from MTN API) or product categories (from legacy coverage_areas)
       const { data: mappings, error: mappingError } = await supabase
         .from('service_type_mapping')
         .select('*')
-        .in('technical_type', availableServices)
+        .in('technical_type', packageableServices)
         .eq('active', true)
         .order('priority', { ascending: true });
 
@@ -203,7 +210,7 @@ export async function GET(request: NextRequest) {
         productCategories = [...new Set(mappings.map((m: any) => m.product_category))];
       } else {
         // No mappings found - services are already product categories (from legacy coverage_areas table)
-        productCategories = availableServices;
+        productCategories = packageableServices;
       }
 
       // Get available packages for the mapped product categories
@@ -354,7 +361,9 @@ export async function GET(request: NextRequest) {
         lat: lat,
         lng: lng
       } : null,
-      metadata: coverageMetadata // Include coverage metadata for debugging
+      metadata: coverageMetadata, // Include coverage metadata for debugging
+      hasLicensedWireless: hasLicensedWireless || false, // Flag for P2P microwave availability
+      requiresQuote: hasLicensedWireless && availablePackages.length === 0 // Show quote form if only licensed_wireless
     });
 
   } catch (error) {

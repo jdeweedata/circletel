@@ -166,56 +166,56 @@ function DashboardContent({ data }: { data: DashboardData }) {
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back, {displayName}</p>
+        <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">My Dashboard</h1>
+        <p className="text-base lg:text-lg text-gray-600 mt-2">Welcome back, {displayName}</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Active Services</p>
-                <p className="text-3xl font-bold text-circleTel-orange mt-2">{data.stats.activeServices}</p>
+                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Active Services</p>
+                <p className="text-4xl lg:text-5xl font-extrabold text-circleTel-orange mt-2 tabular-nums">{data.stats.activeServices}</p>
               </div>
-              <Wifi className="h-10 w-10 text-circleTel-orange opacity-20" />
+              <Wifi className="h-12 w-12 text-circleTel-orange opacity-20" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Orders</p>
-                <p className="text-3xl font-bold mt-2">{data.stats.totalOrders}</p>
+                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Orders</p>
+                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">{data.stats.totalOrders}</p>
               </div>
-              <Package className="h-10 w-10 text-blue-500 opacity-20" />
+              <Package className="h-12 w-12 text-blue-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Account Balance</p>
-                <p className="text-3xl font-bold mt-2">R{data.stats.accountBalance.toFixed(2)}</p>
+                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Account Balance</p>
+                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">R{data.stats.accountBalance.toFixed(2)}</p>
               </div>
-              <CreditCard className="h-10 w-10 text-green-500 opacity-20" />
+              <CreditCard className="h-12 w-12 text-green-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending Orders</p>
-                <p className="text-3xl font-bold mt-2">{data.stats.pendingOrders}</p>
+                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Pending Orders</p>
+                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">{data.stats.pendingOrders}</p>
               </div>
-              <Clock className="h-10 w-10 text-yellow-500 opacity-20" />
+              <Clock className="h-12 w-12 text-yellow-500 opacity-20" />
             </div>
           </CardContent>
         </Card>
@@ -226,8 +226,8 @@ function DashboardContent({ data }: { data: DashboardData }) {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Your Service</CardTitle>
-              <Link href="/dashboard/services" className="text-sm text-circleTel-orange hover:underline">
+              <CardTitle className="text-xl font-bold text-gray-900">Your Service</CardTitle>
+              <Link href="/dashboard/services" className="text-sm font-semibold text-circleTel-orange hover:underline">
                 View all
               </Link>
             </div>
@@ -235,28 +235,28 @@ function DashboardContent({ data }: { data: DashboardData }) {
           <CardContent>
             {hasActiveService && primaryService ? (
               <div className="space-y-4">
-                <div className="p-4 bg-orange-50 border border-circleTel-orange/20 rounded-lg">
+                <div className="p-4 bg-orange-50 border border-circleTel-orange/20 rounded-lg hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-gray-900">{primaryService.package_name}</h3>
-                      <p className="text-sm text-gray-600 capitalize">{primaryService.service_type}</p>
+                      <h3 className="font-bold text-xl text-gray-900">{primaryService.package_name}</h3>
+                      <p className="text-base text-gray-600 capitalize mt-1">{primaryService.service_type}</p>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 font-semibold">
                       {primaryService.status}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div>
-                      <p className="text-xs text-gray-600">Speed</p>
-                      <p className="font-medium">{primaryService.speed_down}/{primaryService.speed_up} Mbps</p>
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Speed</p>
+                      <p className="font-bold text-base mt-1">{primaryService.speed_down}/{primaryService.speed_up} Mbps</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Monthly</p>
-                      <p className="font-medium">R{primaryService.monthly_price}</p>
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Monthly</p>
+                      <p className="font-bold text-base mt-1 tabular-nums">R{primaryService.monthly_price}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Type</p>
-                      <p className="font-medium capitalize">{primaryService.service_type}</p>
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Type</p>
+                      <p className="font-bold text-base mt-1 capitalize">{primaryService.service_type}</p>
                     </div>
                   </div>
                 </div>
@@ -277,8 +277,8 @@ function DashboardContent({ data }: { data: DashboardData }) {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Billing Summary</CardTitle>
-              <Link href="/dashboard/billing" className="text-sm text-circleTel-orange hover:underline">
+              <CardTitle className="text-xl font-bold text-gray-900">Billing Summary</CardTitle>
+              <Link href="/dashboard/billing" className="text-sm font-semibold text-circleTel-orange hover:underline">
                 View invoices
               </Link>
             </div>
@@ -286,30 +286,30 @@ function DashboardContent({ data }: { data: DashboardData }) {
           <CardContent>
             {data.billing ? (
               <div className="space-y-4">
-                <div className="p-4 border rounded-lg">
+                <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <CreditCard className="h-5 w-5 text-circleTel-orange" />
+                    <div className="h-12 w-12 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
+                      <CreditCard className="h-6 w-6 text-circleTel-orange" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{data.billing.payment_method || 'No payment method'}</p>
-                      <p className={`text-sm ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className="font-bold text-base">{data.billing.payment_method || 'No payment method'}</p>
+                      <p className={`text-base font-semibold ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
                         {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs text-gray-600">Balance Due</p>
-                      <p className="font-medium text-lg">R{data.billing.account_balance.toFixed(2)}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Balance Due</p>
+                      <p className="font-extrabold text-2xl text-gray-900 mt-1 tabular-nums">R{data.billing.account_balance.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600 mt-1">
                         Due: {data.billing.next_billing_date ? new Date(data.billing.next_billing_date).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Invoices</p>
-                      <p className="font-medium text-lg">{data.invoices.length}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Invoices</p>
+                      <p className="font-extrabold text-2xl text-gray-900 mt-1 tabular-nums">{data.invoices.length}</p>
+                      <p className="text-sm text-gray-600 mt-1">
                         {data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue` : 'All paid'}
                       </p>
                     </div>
@@ -329,8 +329,8 @@ function DashboardContent({ data }: { data: DashboardData }) {
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Orders</CardTitle>
-              <Link href="/dashboard/orders" className="text-sm text-circleTel-orange hover:underline">
+              <CardTitle className="text-xl font-bold text-gray-900">Recent Orders</CardTitle>
+              <Link href="/dashboard/orders" className="text-sm font-semibold text-circleTel-orange hover:underline">
                 View all
               </Link>
             </div>
@@ -339,19 +339,19 @@ function DashboardContent({ data }: { data: DashboardData }) {
             {data.orders.length > 0 ? (
               <div className="space-y-3">
                 {data.orders.slice(0, 3).map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package className="h-5 w-5 text-gray-600" />
+                      <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Package className="h-6 w-6 text-gray-600" />
                       </div>
                       <div>
-                        <p className="font-medium">{order.order_number}</p>
-                        <p className="text-sm text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-base">{order.order_number}</p>
+                        <p className="text-base text-gray-600">{new Date(order.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">R{order.total_amount.toFixed(2)}</p>
-                      <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
+                      <p className="font-extrabold text-lg tabular-nums">R{order.total_amount.toFixed(2)}</p>
+                      <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-sm font-semibold mt-1">
                         {order.status}
                       </Badge>
                     </div>
