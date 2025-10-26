@@ -16,7 +16,8 @@ import {
   Lock,
   Package,
   Smartphone,
-  Building2
+  Building2,
+  TrendingUp
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -278,11 +279,53 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Order Summary (Sticky on desktop) */}
             <div className="lg:col-span-1">
-              <div className="lg:sticky lg:top-6">
+              <div className="lg:sticky lg:top-6 space-y-4">
+                {/* Package Details Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Package className="h-4 w-4 text-circleTel-orange" />
+                      Your Package
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-bold text-lg text-gray-900">{selectedPackage?.name || 'Package Not Selected'}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{selectedPackage?.speed}</p>
+                      </div>
+                      {selectedPackage?.features && selectedPackage.features.length > 0 && (
+                        <div className="space-y-1.5">
+                          {selectedPackage.features.slice(0, 3).map((feature: any, index: number) => (
+                            <div key={index} className="flex items-start gap-2 text-xs text-gray-700">
+                              <CheckCircle className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Installation Address Card */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Building2 className="h-4 w-4 text-circleTel-orange" />
+                      Installation Address
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-700 leading-relaxed">{coverage?.address || 'Address not provided'}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Order Summary Card */}
                 <Card data-testid="order-summary">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Package className="h-5 w-5 text-circleTel-orange" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <TrendingUp className="h-4 w-4 text-circleTel-orange" />
                       Order Summary
                     </CardTitle>
                   </CardHeader>
@@ -375,12 +418,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
 
             {/* Accepted Payment Methods */}
             <div className="pt-4 border-t">
-              <p className="text-sm font-semibold text-circleTel-darkNeutral mb-4">
-                Accepted Payment Methods
-              </p>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Choose Your Payment Method
+              </h3>
               
               {/* Payment Options Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 {/* Credit/Debit Cards */}
                 <div className="border border-gray-200 rounded-lg p-4 hover:border-circleTel-orange transition-colors">
                   <div className="flex items-start gap-3">
