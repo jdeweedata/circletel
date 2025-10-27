@@ -1,11 +1,8 @@
+'use client';
+
 import { PermissionGate } from '@/components/rbac/PermissionGate'
 import { PartnerNav } from '@/components/partners/PartnerNav'
 import { PERMISSIONS } from '@/lib/rbac/permissions'
-
-export const metadata = {
-  title: 'Partner Portal | CircleTel',
-  description: 'Sales partner portal for CircleTel ISP',
-}
 
 export default function PartnersLayout({
   children,
