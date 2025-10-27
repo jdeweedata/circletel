@@ -197,7 +197,13 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     <div
       className={cn(
         'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
-        isOpen ? 'w-64' : 'w-16'
+        // Mobile: Full overlay sidebar that slides in/out
+        'lg:relative lg:z-auto',
+        isOpen
+          ? 'translate-x-0 w-64'
+          : '-translate-x-full lg:translate-x-0 lg:w-16',
+        // On desktop (lg+), sidebar is part of the layout
+        'lg:flex lg:flex-shrink-0'
       )}
       data-testid="sidebar"
     >

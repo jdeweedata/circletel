@@ -54,24 +54,35 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      {/* Sidebar - Hidden on mobile when closed, overlay when open */}
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         user={user}
       />
 
-      {/* Main content */}
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+      {/* Mobile backdrop overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main content - Full width on mobile, adjusted for sidebar on desktop */}
+      <div className="flex-1 flex flex-col min-h-screen w-full lg:ml-0">
         <AdminHeader
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           user={user}
           onLogout={handleLogout}
+          sidebarOpen={sidebarOpen}
         />
 
-        <main className="p-6">
-          {children}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
+          <div className="max-w-full mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
