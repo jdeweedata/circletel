@@ -61,7 +61,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { user, session } = useCustomerAuth();
+  const { user, session, customer } = useCustomerAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,11 +156,23 @@ export default function DashboardPage() {
     );
   }
 
-  return <DashboardContent data={data} />;
+  return <DashboardContent data={data} user={user} customer={customer} />;
 }
 
-function DashboardContent({ data }: { data: DashboardData }) {
-  const displayName = [data.customer.firstName, data.customer.lastName].filter(Boolean).join(' ') || data.customer.email;
+function DashboardContent({ data, user, customer }: { data: DashboardData; user: any; customer: any }) {
+  // Try multiple sources for the name with fallbacks
+  const firstName = data.customer.firstName ||
+                   customer?.first_name ||
+                   user?.user_metadata?.first_name ||
+                   user?.user_metadata?.full_name?.split(' ')[0] ||
+                   '';
+  const lastName = data.customer.lastName ||
+                  customer?.last_name ||
+                  user?.user_metadata?.last_name ||
+                  user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
+                  '';
+
+  const displayName = [firstName, lastName].filter(Boolean).join(' ') || data.customer.email.split('@')[0];
   const primaryService = data.services[0];
   const hasActiveService = data.stats.activeServices > 0;
   
@@ -170,7 +182,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
       <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
         <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">My Dashboard</h1>
         <p className="text-base lg:text-lg text-gray-600 mt-2">
-          Welcome back, <span className="font-bold text-circleTel-orange">{displayName}</span>
+          Welcome back, <span className="font-bold text-circleTel-orange">{firstName || displayName}</span>!
           {data.customer.id && (
             <span className="text-sm text-gray-500 ml-2">(#{data.customer.id.substring(0, 12)})</span>
           )}
