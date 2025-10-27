@@ -1,21 +1,39 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// Support both old and new Supabase key formats
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
+// Lazy initialization to avoid build-time errors
+let _typedSupabase: ReturnType<typeof createClient<Database>> | null = null;
 
-// Single typed Supabase client (shared across app)
-export const typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: false
-  },
-  global: {
-    headers: {
-      'x-application-name': 'circletel-nextjs',
+function getSupabaseClient() {
+  if (_typedSupabase) return _typedSupabase;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+
+  _typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false
     },
-  },
+    global: {
+      headers: {
+        'x-application-name': 'circletel-nextjs',
+      },
+    },
+  });
+
+  return _typedSupabase;
+}
+
+// Export as a getter to maintain singleton pattern but with lazy initialization
+export const typedSupabase = new Proxy({} as ReturnType<typeof createClient<Database>>, {
+  get(_, prop) {
+    return getSupabaseClient()[prop as keyof ReturnType<typeof createClient<Database>>];
+  }
 });
 
 // Database Types
