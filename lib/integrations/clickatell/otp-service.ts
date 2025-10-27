@@ -44,11 +44,22 @@ export class OTPService {
     // Also store in database for persistence
     try {
       const supabase = await createClient();
-      await supabase.from('otp_verifications').upsert({
+      const now = new Date();
+
+      // Delete any existing unverified OTP for this phone
+      await supabase
+        .from('otp_verifications')
+        .delete()
+        .eq('email', phone)
+        .eq('verified', false);
+
+      // Insert new OTP
+      await supabase.from('otp_verifications').insert({
         email: phone, // Using email column to store phone number
         otp: otp,
         type: 'phone_verification',
         expires_at: expiresAt.toISOString(),
+        created_at: now.toISOString(),
         verified: false,
       });
     } catch (error) {
@@ -119,19 +130,57 @@ export class OTPService {
   }
 
   /**
-   * Check if phone number has a pending OTP
+   * Check if phone number has a pending OTP (database-backed for serverless)
    */
-  hasPendingOTP(phone: string): boolean {
+  async hasPendingOTP(phone: string): Promise<boolean> {
+    // Check in-memory first
     const record = otpStore.get(phone);
-    if (!record) return false;
-    
-    // Check if expired
-    if (new Date() > record.expiresAt) {
-      otpStore.delete(phone);
-      return false;
+    if (record && new Date() <= record.expiresAt) {
+      return true;
     }
 
-    return true;
+    // Check database for serverless environment
+    try {
+      const supabase = await createClient();
+      const { data, error } = await supabase
+        .from('otp_verifications')
+        .select('expires_at, created_at')
+        .eq('email', phone)
+        .eq('verified', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) return false;
+
+      const expiresAt = new Date(data.expires_at);
+      const createdAt = new Date(data.created_at);
+      const now = new Date();
+
+      // Check if expired
+      if (now > expiresAt) {
+        // Clean up expired OTP
+        await supabase
+          .from('otp_verifications')
+          .delete()
+          .eq('email', phone)
+          .eq('verified', false);
+        return false;
+      }
+
+      // Check if OTP was sent recently (within 60 seconds rate limit)
+      const secondsSinceCreation = (now.getTime() - createdAt.getTime()) / 1000;
+
+      if (secondsSinceCreation < 60) {
+        return true; // Rate limit: 60 seconds between requests
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking pending OTP in database:', error);
+      // Fall back to in-memory check
+      return !!(record && new Date() <= record.expiresAt);
+    }
   }
 
   /**

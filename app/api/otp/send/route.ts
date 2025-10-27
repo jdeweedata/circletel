@@ -14,12 +14,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if there's already a pending OTP
-    if (otpService.hasPendingOTP(phone)) {
+    // Check if there's already a pending OTP (database-backed for serverless)
+    const hasPending = await otpService.hasPendingOTP(phone);
+    if (hasPending) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'An OTP has already been sent. Please wait before requesting a new one.' 
+        {
+          success: false,
+          error: 'An OTP has already been sent. Please wait 60 seconds before requesting a new one.',
+          retryAfter: 60
         },
         { status: 429 }
       );

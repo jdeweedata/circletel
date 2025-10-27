@@ -86,7 +86,10 @@ export default function VerifyOTPLoginPage() {
   };
 
   const handleResend = async () => {
+    if (isResending || !canResend) return; // Prevent duplicate requests
+
     setIsResending(true);
+    setCanResend(false); // Immediately disable to prevent double-clicks
 
     try {
       const response = await fetch('/api/otp/send', {
@@ -100,13 +103,23 @@ export default function VerifyOTPLoginPage() {
       if (result.success) {
         toast.success('New verification code sent!');
         setCountdown(60);
-        setCanResend(false);
       } else {
-        toast.error(result.error || 'Failed to resend code');
+        // If rate limited, show how long to wait
+        if (response.status === 429 && result.retryAfter) {
+          toast.error(`Please wait ${result.retryAfter} seconds before requesting a new code`);
+          setCountdown(result.retryAfter);
+        } else {
+          toast.error(result.error || 'Failed to resend code');
+          // Re-enable resend button on error (but not rate limit)
+          if (response.status !== 429) {
+            setCanResend(true);
+          }
+        }
       }
     } catch (error) {
       console.error('Error resending OTP:', error);
       toast.error('Failed to resend code. Please try again.');
+      setCanResend(true); // Re-enable on network error
     } finally {
       setIsResending(false);
     }
