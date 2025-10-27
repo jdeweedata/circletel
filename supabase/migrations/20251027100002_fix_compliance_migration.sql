@@ -250,17 +250,21 @@ END $$;
 -- STEP 6: UPDATE DOCUMENT INDEXES
 -- ============================================
 
--- Drop old indexes
-DROP INDEX IF EXISTS idx_partner_kyc_partner_id;
-DROP INDEX IF EXISTS idx_partner_kyc_verification_status;
+-- Update document indexes
+DO $$
+BEGIN
+  -- Drop old indexes
+  DROP INDEX IF EXISTS idx_partner_kyc_partner_id;
+  DROP INDEX IF EXISTS idx_partner_kyc_verification_status;
 
--- Create new indexes
-CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_partner_id ON partner_compliance_documents(partner_id);
-CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_category ON partner_compliance_documents(document_category);
-CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_verification_status ON partner_compliance_documents(verification_status);
-CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_expiry ON partner_compliance_documents(expiry_date);
+  -- Create new indexes
+  CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_partner_id ON partner_compliance_documents(partner_id);
+  CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_category ON partner_compliance_documents(document_category);
+  CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_verification_status ON partner_compliance_documents(verification_status);
+  CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_expiry ON partner_compliance_documents(expiry_date);
 
-RAISE NOTICE 'Updated document indexes';
+  RAISE NOTICE 'Updated document indexes';
+END $$;
 
 -- ============================================
 -- STEP 7: UPDATE RLS POLICIES
@@ -315,7 +319,10 @@ CREATE POLICY "admins_manage_compliance_documents"
     )
   );
 
-RAISE NOTICE 'Updated RLS policies';
+DO $$
+BEGIN
+  RAISE NOTICE 'Updated RLS policies';
+END $$;
 
 -- ============================================
 -- STEP 8: UPDATE COMMENTS
