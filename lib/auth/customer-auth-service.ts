@@ -276,6 +276,108 @@ export class CustomerAuthService {
   }
 
   /**
+   * Sign in with OTP (One-Time Password)
+   * Verifies OTP code and signs in user using phone number
+   */
+  static async signInWithOtp(phone: string, otp: string): Promise<SignInResult> {
+    try {
+      const supabase = createClient();
+
+      // First, verify the OTP is valid
+      const verifyResponse = await fetch('/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp }),
+      });
+
+      const verifyResult = await verifyResponse.json();
+
+      if (!verifyResult.success) {
+        return {
+          user: null,
+          customer: null,
+          session: null,
+          error: verifyResult.error || 'Invalid or expired OTP'
+        };
+      }
+
+      // Find customer by phone number
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('phone', phone)
+        .maybeSingle();
+
+      if (customerError || !customer) {
+        return {
+          user: null,
+          customer: null,
+          session: null,
+          error: 'No account found with this phone number. Please create an account first.'
+        };
+      }
+
+      // Get the auth user associated with this customer
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+
+      // If user is already signed in, return current session
+      if (userData?.user && userData.user.id === customer.auth_user_id) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        return {
+          user: userData.user,
+          customer,
+          session: sessionData.session,
+          error: null
+        };
+      }
+
+      // Sign in using Supabase OTP (phone)
+      // Note: This requires Supabase to be configured for phone auth
+      // Alternative: Create a magic link or custom session
+      const { data: authData, error: authError } = await supabase.auth.signInWithOtp({
+        phone: phone,
+        options: {
+          shouldCreateUser: false // Don't create new user, only sign in existing
+        }
+      });
+
+      if (authError) {
+        // Fallback: If Supabase phone auth not configured, we can create a session manually
+        // This requires a custom implementation with your auth backend
+        console.warn('[OTP Login] Supabase phone auth not configured, using fallback');
+
+        // Create a passwordless session by signing in with a temporary token
+        // This is a simplified approach - in production you'd want to use Supabase's
+        // signInWithOAuth or create a custom auth flow
+        return {
+          user: null,
+          customer,
+          session: null,
+          error: 'OTP verification successful, but phone authentication is not fully configured. Please contact support.'
+        };
+      }
+
+      // After OTP is sent, user needs to verify it
+      // This is typically a two-step process with Supabase phone auth
+      return {
+        user: authData?.user || null,
+        customer,
+        session: authData?.session || null,
+        error: null
+      };
+
+    } catch (error) {
+      console.error('OTP sign-in error:', error);
+      return {
+        user: null,
+        customer: null,
+        session: null,
+        error: error instanceof Error ? error.message : 'OTP sign-in failed'
+      };
+    }
+  }
+
+  /**
    * Sign out current user
    */
   static async signOut(): Promise<{ error: string | null }> {

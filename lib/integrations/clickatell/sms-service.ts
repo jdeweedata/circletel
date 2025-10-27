@@ -37,11 +37,11 @@ export class ClickatellService {
     this.config = {
       apiKey: process.env.CLICKATELL_API_KEY || '',
       apiId: process.env.CLICKATELL_API_ID || '',
-      baseUrl: process.env.CLICKATELL_BASE_URL || 'https://api.clickatell.com/rest',
+      baseUrl: process.env.CLICKATELL_BASE_URL || 'https://platform.clickatell.com/v1/message',
     };
 
-    if (!this.config.apiKey || !this.config.apiId) {
-      throw new Error('Clickatell API credentials are not configured');
+    if (!this.config.apiKey) {
+      throw new Error('Clickatell API key is not configured');
     }
   }
 

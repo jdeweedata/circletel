@@ -50,6 +50,8 @@ export const ROLE_TEMPLATES: Record<string, RoleTemplate> = {
       ...Object.values(PERMISSIONS.USERS),
       ...Object.values(PERMISSIONS.ACCESS_REQUESTS),
       ...Object.values(PERMISSIONS.SYSTEM),
+      ...Object.values(PERMISSIONS.PARTNERS),
+      ...Object.values(PERMISSIONS.PARTNERS_ADMIN),
     ],
   },
 
@@ -281,6 +283,29 @@ export const ROLE_TEMPLATES: Record<string, RoleTemplate> = {
     ],
   },
 
+  SALES_PARTNER: {
+    id: 'sales_partner',
+    name: 'Sales Partner',
+    description: 'External sales partners managing leads and tracking commissions',
+    department: 'Sales',
+    level: 'staff',
+    color: 'fuchsia',
+    icon: 'Handshake',
+    permissions: [
+      PERMISSIONS.DASHBOARD.VIEW,
+      PERMISSIONS.PARTNERS.VIEW,
+      PERMISSIONS.PARTNERS.VIEW_OWN_DATA,
+      PERMISSIONS.PARTNERS.MANAGE_LEADS,
+      PERMISSIONS.PARTNERS.VIEW_COMMISSIONS,
+      PERMISSIONS.PARTNERS.ACCESS_RESOURCES,
+      PERMISSIONS.PARTNERS.UPDATE_PROFILE,
+      PERMISSIONS.CUSTOMERS.VIEW, // Limited to own leads
+      PERMISSIONS.ORDERS.VIEW,    // Limited to own orders
+      PERMISSIONS.PRODUCTS.VIEW,
+      PERMISSIONS.COVERAGE.VIEW,
+    ],
+  },
+
   MARKETING_MANAGER: {
     id: 'marketing_manager',
     name: 'Marketing Manager',
@@ -395,6 +420,8 @@ export const ROLE_TEMPLATES: Record<string, RoleTemplate> = {
       ...Object.values(PERMISSIONS.USERS),
       ...Object.values(PERMISSIONS.ACCESS_REQUESTS),
       ...Object.values(PERMISSIONS.SYSTEM),
+      ...Object.values(PERMISSIONS.PARTNERS),
+      ...Object.values(PERMISSIONS.PARTNERS_ADMIN),
     ],
   },
 

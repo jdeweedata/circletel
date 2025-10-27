@@ -147,6 +147,28 @@ export const PERMISSIONS = {
     VIEW_AUDIT_TRAIL: 'system:view_audit_trail',
     VIEW_ORCHESTRATOR: 'system:view_orchestrator',
   },
+
+  // Sales Partners Management
+  PARTNERS: {
+    VIEW: 'partners:view',
+    REGISTER: 'partners:register',
+    VIEW_OWN_DATA: 'partners:view_own_data',
+    MANAGE_LEADS: 'partners:manage_leads',
+    VIEW_COMMISSIONS: 'partners:view_commissions',
+    ACCESS_RESOURCES: 'partners:access_resources',
+    UPDATE_PROFILE: 'partners:update_profile',
+  },
+
+  // Sales Partners Administration
+  PARTNERS_ADMIN: {
+    VIEW_ALL: 'partners_admin:view_all',
+    APPROVE: 'partners_admin:approve',
+    REJECT: 'partners_admin:reject',
+    ASSIGN_LEADS: 'partners_admin:assign_leads',
+    MANAGE_COMMISSIONS: 'partners_admin:manage_commissions',
+    APPROVE_PAYOUTS: 'partners_admin:approve_payouts',
+    VIEW_ANALYTICS: 'partners_admin:view_analytics',
+  },
 } as const
 
 // Flatten permissions for easy iteration
@@ -172,6 +194,8 @@ export const PERMISSION_CATEGORIES = {
   'User Management': PERMISSIONS.USERS,
   'Access Control': PERMISSIONS.ACCESS_REQUESTS,
   'System Administration': PERMISSIONS.SYSTEM,
+  'Sales Partners': PERMISSIONS.PARTNERS,
+  'Partner Administration': PERMISSIONS.PARTNERS_ADMIN,
 } as const
 
 // Helper type for permission strings
