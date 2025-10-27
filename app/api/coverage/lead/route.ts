@@ -50,14 +50,14 @@ export async function POST(request: NextRequest) {
     // Create a minimal lead entry for coverage check
     // Full customer details will be collected in the order form
     const leadData = {
-      customer_type: customerType as 'consumer' | 'business',
+      customer_type: customerType,
       first_name: 'Coverage',  // Placeholder - will be updated during order
       last_name: 'Check',      // Placeholder - will be updated during order
       email: `coverage-${Date.now()}@temp.circletel.co.za`, // Temporary email
       phone: '0000000000',     // Placeholder - will be updated during order
       address,
       coordinates: finalCoordinates,
-      lead_source: 'coverage_checker' as const,
+      lead_source: 'coverage_checker',
       status: 'new',
       metadata: {
         session_id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -66,11 +66,6 @@ export async function POST(request: NextRequest) {
         ...(geocodeMeta || {})
       }
     };
-
-    // Test Supabase connection first
-    console.log('🔍 Testing Supabase connection...');
-    console.log('URL:', supabaseUrl?.substring(0, 40));
-    console.log('Key prefix:', supabaseKey?.substring(0, 20));
 
     const { data, error } = await supabase
       .from('coverage_leads')
@@ -85,15 +80,11 @@ export async function POST(request: NextRequest) {
         hint: error.hint,
         code: error.code
       });
-      console.error('Error details:', JSON.stringify(error, null, 2));
-      
-      // Return more helpful error message
+
       return NextResponse.json(
-        { 
-          error: 'Failed to create coverage lead', 
-          details: error.message,
-          hint: 'Check Supabase URL and service role key configuration',
-          supabaseUrl: supabaseUrl?.substring(0, 40)
+        {
+          error: 'Failed to create coverage lead',
+          details: error.message
         },
         { status: 500 }
       );
@@ -115,6 +106,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('leadId');
 

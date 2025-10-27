@@ -130,6 +130,7 @@ export class MTNWMSRealtimeClient {
 
   /**
    * Query specific WMS layer for coverage at coordinates
+   * FIXED: Now queries the actual coverage layer instead of OSM base layer
    */
   private static async queryLayer(
     coordinates: Coordinates,
@@ -139,12 +140,13 @@ export class MTNWMSRealtimeClient {
       const bbox = this.calculateBBox(coordinates, this.DEFAULT_ZOOM);
       const pixelCoords = this.latLngToPixel(coordinates, bbox);
 
+      // CRITICAL FIX: Query the actual coverage layer, not the OSM base layer
       const params = new URLSearchParams({
         service: 'WMS',
         version: '1.3.0',
         request: 'GetFeatureInfo',
-        layers: this.QUERY_LAYER,
-        query_layers: this.QUERY_LAYER,
+        layers: wmsLayer, // Use the actual coverage layer
+        query_layers: wmsLayer, // Query the coverage layer, not OSM
         feature_count: '100',
         srs: this.SRS,
         bbox: bbox.join(','),
@@ -160,7 +162,10 @@ export class MTNWMSRealtimeClient {
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'CircleTel-Coverage-Checker/1.0'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': 'https://www.mtn.co.za/',
+          'Origin': 'https://www.mtn.co.za'
         },
         cache: 'no-cache' // Always get fresh coverage data
       });
