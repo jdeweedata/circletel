@@ -37,6 +37,15 @@ CREATE TABLE IF NOT EXISTS partners (
   account_type TEXT,
   branch_code TEXT,
 
+  -- Partner Identification (generated on approval)
+  partner_number TEXT UNIQUE,  -- e.g., "CTPL-2025-001" - Generated when status = 'approved'
+
+  -- Commission Structure
+  commission_rate DECIMAL(5, 2) NOT NULL DEFAULT 0,  -- Commission percentage (e.g., 10.50 for 10.5%)
+  tier TEXT NOT NULL DEFAULT 'bronze' CHECK (
+    tier IN ('bronze', 'silver', 'gold', 'platinum')
+  ),
+
   -- Status Management
   status TEXT NOT NULL DEFAULT 'pending' CHECK (
     status IN ('pending', 'under_review', 'approved', 'rejected', 'suspended')
@@ -46,11 +55,12 @@ CREATE TABLE IF NOT EXISTS partners (
   approved_at TIMESTAMPTZ,
   rejected_at TIMESTAMPTZ,
 
-  -- KYC Management
-  kyc_status TEXT NOT NULL DEFAULT 'incomplete' CHECK (
-    kyc_status IN ('incomplete', 'submitted', 'verified', 'rejected')
+  -- FICA/Compliance Management
+  compliance_status TEXT NOT NULL DEFAULT 'incomplete' CHECK (
+    compliance_status IN ('incomplete', 'submitted', 'under_review', 'verified', 'rejected')
   ),
-  kyc_verified_at TIMESTAMPTZ,
+  compliance_verified_at TIMESTAMPTZ,
+  compliance_notes TEXT,
 
   -- Performance Metrics
   total_leads INTEGER NOT NULL DEFAULT 0,
@@ -64,40 +74,59 @@ CREATE TABLE IF NOT EXISTS partners (
 );
 
 -- ============================================
--- PARTNER KYC DOCUMENTS TABLE
+-- PARTNER COMPLIANCE DOCUMENTS TABLE (FICA/CIPC)
 -- ============================================
 
-CREATE TABLE IF NOT EXISTS partner_kyc_documents (
+CREATE TABLE IF NOT EXISTS partner_compliance_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   partner_id UUID REFERENCES partners(id) ON DELETE CASCADE NOT NULL,
 
-  -- Document Details
-  document_type TEXT NOT NULL CHECK (
-    document_type IN (
-      'id_document',
-      'proof_of_address',
-      'business_registration',
-      'tax_certificate',
-      'bank_statement',
-      'other'
+  -- Document Category
+  document_category TEXT NOT NULL CHECK (
+    document_category IN (
+      'fica_identity',       -- FICA: ID documents, passports
+      'fica_address',        -- FICA: Proof of residential address
+      'cipc_registration',   -- CIPC: CK1, CoR 14.3, Company Registration
+      'cipc_profile',        -- CIPC: Company Profile (recent)
+      'cipc_directors',      -- CIPC: CM1, List of Directors
+      'cipc_founding',       -- CIPC: MOI, Founding Statement
+      'tax_clearance',       -- SARS: Tax Clearance Certificate
+      'vat_registration',    -- SARS: VAT Registration Certificate
+      'bank_confirmation',   -- Banking: Bank confirmation letter
+      'bank_statement',      -- Banking: Cancelled cheque or statement
+      'business_address',    -- Business: Proof of business address
+      'authorization',       -- Business: Resolution, signatory authorization
+      'other'                -- Other supporting documents
     )
   ),
-  document_name TEXT NOT NULL,
-  file_path TEXT NOT NULL,  -- Supabase Storage path
+
+  -- Specific Document Type (within category)
+  document_type TEXT NOT NULL,  -- e.g., "South African ID", "CK1", "Tax Clearance"
+  document_name TEXT NOT NULL,  -- Original filename
+  file_path TEXT NOT NULL,      -- Supabase Storage path
   file_size INTEGER,
   mime_type TEXT,
 
+  -- Document Metadata
+  document_number TEXT,          -- ID number, registration number, etc.
+  issue_date DATE,
+  expiry_date DATE,
+
   -- Verification
   verification_status TEXT NOT NULL DEFAULT 'pending' CHECK (
-    verification_status IN ('pending', 'approved', 'rejected')
+    verification_status IN ('pending', 'approved', 'rejected', 'expired')
   ),
   verified_by UUID REFERENCES admin_users(id),
   verified_at TIMESTAMPTZ,
   rejection_reason TEXT,
 
+  -- Requirements
+  is_required BOOLEAN NOT NULL DEFAULT true,
+  is_sensitive BOOLEAN NOT NULL DEFAULT true,
+
   -- Timestamps
   uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  expires_at TIMESTAMPTZ
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ============================================
@@ -142,12 +171,16 @@ ADD COLUMN IF NOT EXISTS partner_last_contact TIMESTAMPTZ;
 -- Partners indexes
 CREATE INDEX IF NOT EXISTS idx_partners_user_id ON partners(user_id);
 CREATE INDEX IF NOT EXISTS idx_partners_status ON partners(status);
-CREATE INDEX IF NOT EXISTS idx_partners_kyc_status ON partners(kyc_status);
+CREATE INDEX IF NOT EXISTS idx_partners_compliance_status ON partners(compliance_status);
 CREATE INDEX IF NOT EXISTS idx_partners_email ON partners(email);
+CREATE INDEX IF NOT EXISTS idx_partners_partner_number ON partners(partner_number);
+CREATE INDEX IF NOT EXISTS idx_partners_tier ON partners(tier);
 
--- KYC Documents indexes
-CREATE INDEX IF NOT EXISTS idx_partner_kyc_partner_id ON partner_kyc_documents(partner_id);
-CREATE INDEX IF NOT EXISTS idx_partner_kyc_verification_status ON partner_kyc_documents(verification_status);
+-- Compliance Documents indexes (FICA/CIPC)
+CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_partner_id ON partner_compliance_documents(partner_id);
+CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_category ON partner_compliance_documents(document_category);
+CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_verification_status ON partner_compliance_documents(verification_status);
+CREATE INDEX IF NOT EXISTS idx_partner_compliance_docs_expiry ON partner_compliance_documents(expiry_date);
 
 -- Lead Activities indexes
 CREATE INDEX IF NOT EXISTS idx_partner_activities_lead ON partner_lead_activities(lead_id);
@@ -163,7 +196,7 @@ CREATE INDEX IF NOT EXISTS idx_coverage_leads_partner ON coverage_leads(assigned
 
 -- Enable RLS on all partner tables
 ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
-ALTER TABLE partner_kyc_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partner_compliance_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partner_lead_activities ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
@@ -225,12 +258,12 @@ CREATE POLICY "admins_manage_partners"
   );
 
 -- ============================================
--- PARTNER KYC DOCUMENTS POLICIES
+-- PARTNER COMPLIANCE DOCUMENTS POLICIES (FICA/CIPC)
 -- ============================================
 
 -- Partners can view own documents
-CREATE POLICY "partners_view_own_documents"
-  ON partner_kyc_documents FOR SELECT
+CREATE POLICY "partners_view_own_compliance_documents"
+  ON partner_compliance_documents FOR SELECT
   USING (
     partner_id IN (
       SELECT id FROM partners WHERE user_id = auth.uid()
@@ -238,8 +271,8 @@ CREATE POLICY "partners_view_own_documents"
   );
 
 -- Partners can upload documents
-CREATE POLICY "partners_upload_documents"
-  ON partner_kyc_documents FOR INSERT
+CREATE POLICY "partners_upload_compliance_documents"
+  ON partner_compliance_documents FOR INSERT
   WITH CHECK (
     partner_id IN (
       SELECT id FROM partners WHERE user_id = auth.uid()
@@ -247,8 +280,8 @@ CREATE POLICY "partners_upload_documents"
   );
 
 -- Partners can delete own unverified documents
-CREATE POLICY "partners_delete_own_unverified_documents"
-  ON partner_kyc_documents FOR DELETE
+CREATE POLICY "partners_delete_own_unverified_compliance_documents"
+  ON partner_compliance_documents FOR DELETE
   USING (
     partner_id IN (
       SELECT id FROM partners WHERE user_id = auth.uid()
@@ -256,9 +289,9 @@ CREATE POLICY "partners_delete_own_unverified_documents"
     AND verification_status = 'pending'
   );
 
--- Admins can view all documents
-CREATE POLICY "admins_view_all_documents"
-  ON partner_kyc_documents FOR SELECT
+-- Admins can view all compliance documents
+CREATE POLICY "admins_view_all_compliance_documents"
+  ON partner_compliance_documents FOR SELECT
   USING (
     EXISTS (
       SELECT 1 FROM admin_users
@@ -270,9 +303,9 @@ CREATE POLICY "admins_view_all_documents"
     )
   );
 
--- Admins can manage documents
-CREATE POLICY "admins_manage_documents"
-  ON partner_kyc_documents FOR ALL
+-- Admins can manage compliance documents
+CREATE POLICY "admins_manage_compliance_documents"
+  ON partner_compliance_documents FOR ALL
   USING (
     EXISTS (
       SELECT 1 FROM admin_users
@@ -428,11 +461,11 @@ CREATE TRIGGER trigger_update_partner_metrics
 -- ============================================
 
 COMMENT ON TABLE partners IS 'Sales partners who manage leads and earn commissions (BRS 5.3.1)';
-COMMENT ON TABLE partner_kyc_documents IS 'KYC verification documents for partner onboarding (BRS 5.3.1)';
+COMMENT ON TABLE partner_compliance_documents IS 'FICA/CIPC compliance documents for partner onboarding - includes identity verification, company registration, tax compliance, and banking verification (BRS 5.3.1)';
 COMMENT ON TABLE partner_lead_activities IS 'Activity tracking for partner lead management (BRS 5.3.2)';
 
 COMMENT ON COLUMN partners.status IS 'Partner approval status: pending, under_review, approved, rejected, suspended';
-COMMENT ON COLUMN partners.kyc_status IS 'KYC verification status: incomplete, submitted, verified, rejected';
+COMMENT ON COLUMN partners.compliance_status IS 'FICA/CIPC compliance status: incomplete, submitted, under_review, verified, rejected';
 COMMENT ON COLUMN partners.total_commission_earned IS 'Total lifetime commission earned (ZAR)';
 COMMENT ON COLUMN partners.pending_commission IS 'Commission pending payout (ZAR)';
 
