@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import {
   validateWebhookRequest,
   determineWebhookType,
@@ -24,11 +24,6 @@ import {
 // ==================================================================
 // CONFIGURATION
 // ==================================================================
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // Rate limiting configuration (100 requests per minute per IP)
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute in milliseconds
@@ -282,6 +277,8 @@ export async function POST(req: NextRequest) {
   let webhookId: string | undefined;
 
   try {
+    const supabase = await createClient();
+
     // ==================================================================
     // 1. RATE LIMITING
     // ==================================================================

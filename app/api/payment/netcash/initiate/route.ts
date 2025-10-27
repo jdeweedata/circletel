@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from '@/lib/supabase/server';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -20,6 +15,7 @@ interface InitiatePaymentRequest {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
     const body: InitiatePaymentRequest = await request.json();
 
     // Validate required fields

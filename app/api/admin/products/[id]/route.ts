@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import { getAuthenticatedUser } from '@/lib/auth/api-auth';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 // GET /api/admin/products/[id] - Get single product details
 export async function GET(
@@ -14,6 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+    const supabase = await createClient();
 
     const { data: product, error } = await supabase
       .from('products')
@@ -54,6 +50,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
+    const supabase = await createClient();
     const body = await request.json();
 
     // Get authenticated user from Supabase session
@@ -161,6 +158,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
+    const supabase = await createClient();
 
     // Get authenticated user from Supabase session
     const user = await getAuthenticatedUser(request);

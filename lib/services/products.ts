@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import {
   Product,
   CreateProductData,
@@ -7,10 +7,10 @@ import {
   ProductsResponse
 } from '@/lib/types/products';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper to get Supabase client (lazy initialization)
+async function getSupabase() {
+  return await createClient();
+}
 
 export class ProductsService {
   /**
@@ -22,6 +22,7 @@ export class ProductsService {
     perPage: number = 10
   ): Promise<ProductsResponse> {
     try {
+      const supabase = await getSupabase();
       let query = supabase
         .from('products')
         .select('*', { count: 'exact' });
@@ -108,6 +109,7 @@ export class ProductsService {
    */
   static async getProduct(id: string): Promise<Product | null> {
     try {
+      const supabase = await getSupabase();
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -131,6 +133,7 @@ export class ProductsService {
    */
   static async getProductBySlug(slug: string): Promise<Product | null> {
     try {
+      const supabase = await getSupabase();
       const { data, error } = await supabase
         .from('products')
         .select('*')

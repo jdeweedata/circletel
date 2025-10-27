@@ -1,32 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Validate environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing Supabase credentials:', {
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseKey,
-    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING'
-  });
-}
-
-// Initialize Supabase client
-const supabase = createClient(
-  supabaseUrl!,
-  supabaseKey!,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
-    }
-  }
-);
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
     const body = await request.json();
     const { address, coordinates, coverageType } = body;
 
