@@ -1,15 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 import {
   Product,
   ProductFilters,
   ProductsResponse
 } from '@/lib/types/products';
 
-// Client-safe Supabase instance using anon key for read-only operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Helper to get Supabase client (lazy initialization)
+function getSupabase() {
+  return createClient();
+}
 
 export class ProductsClientService {
   /**
@@ -21,6 +20,7 @@ export class ProductsClientService {
     perPage: number = 10
   ): Promise<ProductsResponse> {
     try {
+      const supabase = getSupabase();
       let query = supabase
         .from('products')
         .select('*', { count: 'exact' });

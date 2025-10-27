@@ -4,7 +4,7 @@
  * Task 3.3: Netcash Webhook Integration
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import type { NetcashWebhookPayload } from './netcash-webhook-validator';
 
@@ -32,17 +32,10 @@ export interface OrderUpdateData {
 // INITIALIZATION
 // ==================================================================
 
-// Initialize Supabase client (service role for bypassing RLS)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
+// Helper to get Supabase client (lazy initialization)
+async function getSupabase() {
+  return await createClient();
+}
 
 // Initialize Resend for email notifications
 const resend = new Resend(process.env.RESEND_API_KEY);

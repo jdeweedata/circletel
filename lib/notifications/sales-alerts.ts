@@ -5,12 +5,12 @@
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper to get Supabase client (lazy initialization)
+async function getSupabase() {
+  return await createClient();
+}
 
 // Sales team configuration from environment variables
 const SALES_TEAM_EMAIL = process.env.SALES_TEAM_EMAIL || 'sales@circletel.co.za';
@@ -93,6 +93,7 @@ export async function sendCoverageLeadAlert(
 
     if (zohoResult.success) {
       // Update coverage_leads table with Zoho ID
+      const supabase = await getSupabase();
       await supabase
         .from('coverage_leads')
         .update({
@@ -104,6 +105,7 @@ export async function sendCoverageLeadAlert(
         .eq('id', leadData.id);
     } else {
       // Log Zoho sync failure but continue with alerts
+      const supabase = await getSupabase();
       await supabase
         .from('coverage_leads')
         .update({
