@@ -39,6 +39,22 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    // Verify auth user exists before creating customer record
+    // This prevents foreign key constraint violations
+    const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(auth_user_id);
+
+    if (authUserError || !authUser) {
+      console.error('Auth user not found:', authUserError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Auth user not found. Please try again in a moment.`,
+          code: 'AUTH_USER_NOT_FOUND'
+        },
+        { status: 400 }
+      );
+    }
+
     // Insert customer record using service role with ON CONFLICT handling
     // If email already exists, update the record instead of failing
     const { data: customer, error: customerError } = await supabase

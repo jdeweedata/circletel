@@ -105,29 +105,53 @@ export class CustomerAuthService {
       // 2. Create customer record via API route (uses service role to bypass RLS)
       // We use an API route instead of direct client INSERT because RLS policies
       // may not recognize auth.uid() immediately after signup
-      const customerResponse = await fetch('/api/auth/create-customer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          auth_user_id: authData.user.id,
-          first_name: customerData.firstName,
-          last_name: customerData.lastName,
-          email: email,
-          phone: customerData.phone,
-          account_type: customerData.accountType || 'personal',
-        }),
-      });
 
-      const customerResult = await customerResponse.json();
+      // Add small delay to ensure auth user is fully committed in database
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (!customerResult.success) {
-        console.error('Failed to create customer record:', customerResult.error);
-        
+      // Retry mechanism for customer creation (up to 3 attempts)
+      let customerResponse;
+      let customerResult;
+      let lastError = null;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        customerResponse = await fetch('/api/auth/create-customer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            auth_user_id: authData.user.id,
+            first_name: customerData.firstName,
+            last_name: customerData.lastName,
+            email: email,
+            phone: customerData.phone,
+            account_type: customerData.accountType || 'personal',
+          }),
+        });
+
+        customerResult = await customerResponse.json();
+
+        // If successful or not a timing issue, break
+        if (customerResult.success || (customerResult.code !== 'AUTH_USER_NOT_FOUND' && !customerResult.error?.includes('foreign key'))) {
+          break;
+        }
+
+        lastError = customerResult.error;
+
+        // Wait before retry (exponential backoff: 500ms, 1s, 2s)
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt - 1)));
+        }
+      }
+
+      if (!customerResult || !customerResult.success) {
+        const errorMsg = lastError || customerResult?.error || 'Unknown error';
+        console.error('Failed to create customer record:', errorMsg);
+
         // If it's a duplicate key error, this is actually OK - the customer record exists
         // This can happen during retry scenarios or rate limiting
-        if (customerResult.error?.includes('duplicate key') || customerResult.error?.includes('already exists')) {
+        if (errorMsg?.includes('duplicate key') || errorMsg?.includes('already exists')) {
           // Try to fetch the existing customer record
           const { data: existingCustomer } = await supabase
             .from('customers')
@@ -151,7 +175,7 @@ export class CustomerAuthService {
           user: authData.user,
           customer: null,
           session: authData.session,
-          error: `Account created but profile setup failed: ${customerResult.error}`
+          error: `Account created but profile setup failed: ${errorMsg}`
         };
       }
 
