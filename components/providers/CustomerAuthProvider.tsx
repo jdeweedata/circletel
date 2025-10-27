@@ -46,6 +46,7 @@ interface CustomerAuthContextType {
   signUp: typeof CustomerAuthService.signUp;
   signIn: typeof CustomerAuthService.signIn;
   signInWithGoogle: typeof CustomerAuthService.signInWithGoogle;
+  signInWithOtp: typeof CustomerAuthService.signInWithOtp;
   signOut: typeof CustomerAuthService.signOut;
   refreshCustomer: () => Promise<void>;
   resendVerification: typeof CustomerAuthService.resendVerificationEmail;
@@ -203,6 +204,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     signUp: CustomerAuthService.signUp,
     signIn: CustomerAuthService.signIn,
     signInWithGoogle: CustomerAuthService.signInWithGoogle,
+    signInWithOtp: CustomerAuthService.signInWithOtp,
     signOut: CustomerAuthService.signOut,
     refreshCustomer,
     resendVerification: CustomerAuthService.resendVerificationEmail,
