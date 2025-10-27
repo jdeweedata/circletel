@@ -121,19 +121,23 @@ END $$;
 -- STEP 3: UPDATE INDEXES
 -- ============================================
 
--- Drop old kyc_status index
-DROP INDEX IF EXISTS idx_partners_kyc_status;
+-- Update partner indexes
+DO $$
+BEGIN
+  -- Drop old kyc_status index
+  DROP INDEX IF EXISTS idx_partners_kyc_status;
 
--- Create new compliance_status index
-CREATE INDEX IF NOT EXISTS idx_partners_compliance_status ON partners(compliance_status);
+  -- Create new compliance_status index
+  CREATE INDEX IF NOT EXISTS idx_partners_compliance_status ON partners(compliance_status);
 
--- Create partner_number index
-CREATE INDEX IF NOT EXISTS idx_partners_partner_number ON partners(partner_number);
+  -- Create partner_number index
+  CREATE INDEX IF NOT EXISTS idx_partners_partner_number ON partners(partner_number);
 
--- Create tier index
-CREATE INDEX IF NOT EXISTS idx_partners_tier ON partners(tier);
+  -- Create tier index
+  CREATE INDEX IF NOT EXISTS idx_partners_tier ON partners(tier);
 
-RAISE NOTICE 'Updated partner indexes';
+  RAISE NOTICE 'Updated partner indexes';
+END $$;
 
 -- ============================================
 -- STEP 4: RENAME TABLE
