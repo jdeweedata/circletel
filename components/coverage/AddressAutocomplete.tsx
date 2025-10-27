@@ -292,11 +292,11 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     <div className={cn("relative w-full", className)}>
       <div className="relative">
         {isLoading ? (
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-circleTel-orange"></div>
+          <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-circleTel-orange"></div>
           </div>
         ) : (
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral h-5 w-5" />
+          <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral h-4 w-4 sm:h-5 sm:w-5" />
         )}
         <Input
           ref={inputRef}
@@ -308,7 +308,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           onFocus={() => inputValue.length >= 2 && setShowSuggestions(true)}
           placeholder={placeholder}
           className={cn(
-            "h-16 pl-12 pr-20 text-3xl font-medium rounded-full bg-white/90 backdrop-blur-sm border-2 border-white/30 focus:border-white focus:bg-white text-circleTel-darkNeutral placeholder:text-circleTel-secondaryNeutral/70 placeholder:text-xl",
+            "h-12 sm:h-14 md:h-16 pl-10 sm:pl-12 pr-16 sm:pr-20 text-base sm:text-xl md:text-2xl lg:text-3xl font-medium rounded-full bg-white/90 backdrop-blur-sm border-2 border-white/30 focus:border-white focus:bg-white text-circleTel-darkNeutral placeholder:text-circleTel-secondaryNeutral/70 placeholder:text-sm sm:placeholder:text-base md:placeholder:text-xl",
             "focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           )}
           autoComplete="off"
@@ -316,14 +316,14 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         {inputValue && (
           <button
             onClick={clearInput}
-            className="absolute right-20 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral hover:text-circleTel-darkNeutral transition-colors z-10"
+            className="absolute right-14 sm:right-16 md:right-20 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral hover:text-circleTel-darkNeutral transition-colors z-10"
             type="button"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
         {showLocationButton && (
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 z-10">
             <LocationButton
               onLocationSelect={onLocationSelect}
               className=""
@@ -343,7 +343,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"
+          className="absolute z-50 w-full mt-2 bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto"
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -351,17 +351,17 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
               type="button"
               onClick={() => handleSuggestionSelect(suggestion)}
               className={cn(
-                "w-full text-left px-4 py-3 hover:bg-circleTel-lightNeutral transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-2xl last:rounded-b-2xl",
+                "w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-circleTel-lightNeutral transition-colors border-b border-gray-100 last:border-b-0 first:rounded-t-xl first:sm:rounded-t-2xl last:rounded-b-xl last:sm:rounded-b-2xl",
                 selectedIndex === index && "bg-circleTel-lightNeutral"
               )}
             >
-              <div className="flex items-start gap-3">
-                <Search className="h-4 w-4 text-circleTel-secondaryNeutral mt-1 flex-shrink-0" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-circleTel-secondaryNeutral mt-0.5 sm:mt-1 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-circleTel-darkNeutral">
+                  <div className="font-medium text-sm sm:text-base text-circleTel-darkNeutral">
                     {suggestion.address}
                   </div>
-                  <div className="text-sm text-circleTel-secondaryNeutral">
+                  <div className="text-xs sm:text-sm text-circleTel-secondaryNeutral">
                     {suggestion.suburb}, {suggestion.city}, {suggestion.province} {suggestion.postalCode}
                   </div>
                 </div>
