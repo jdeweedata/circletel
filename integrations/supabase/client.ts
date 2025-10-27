@@ -2,6 +2,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { supabase as sharedSupabase } from '@/lib/supabase';
 
+// Capture env vars at module level (Next.js replaces these at build time)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
 /**
  * Create a new Supabase client instance
  * Used for client-side authentication and real-time subscriptions
@@ -12,12 +16,8 @@ export function createClient(options?: { flowType?: 'pkce' | 'implicit' }) {
     return sharedSupabase as any;
   }
 
-  // Get environment variables at runtime
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+    throw new Error('Missing Supabase environment variables. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
   }
 
   // Only when explicitly requesting a different flow type (rare), create a temporary client

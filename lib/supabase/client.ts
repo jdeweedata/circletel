@@ -5,17 +5,18 @@
 
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-// Lazy initialization to avoid build-time errors
+// Capture env vars at module level (Next.js replaces these at build time)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+// Lazy initialization - client created on first use
 let _supabaseClient: ReturnType<typeof createSupabaseClient> | null = null;
 
 function getSupabaseClient() {
   if (_supabaseClient) return _supabaseClient;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+    throw new Error('Missing Supabase environment variables. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
   }
 
   _supabaseClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
