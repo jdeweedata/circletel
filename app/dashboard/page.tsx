@@ -160,14 +160,22 @@ export default function DashboardPage() {
 }
 
 function DashboardContent({ data, user, customer }: { data: DashboardData; user: any; customer: any }) {
-  // Try multiple sources for the name with fallbacks
-  const firstName = data.customer.firstName ||
-                   customer?.first_name ||
+  // Helper to check if a name is a placeholder/default value
+  const isPlaceholder = (name: string | undefined) => {
+    if (!name) return true;
+    const cleaned = name.trim().toLowerCase();
+    return cleaned === 'customer' || cleaned === 'user' || cleaned === '';
+  };
+
+  // Try multiple sources for the name with fallbacks, skipping placeholder values
+  const firstName = (!isPlaceholder(data.customer.firstName) && data.customer.firstName) ||
+                   (!isPlaceholder(customer?.first_name) && customer?.first_name) ||
                    user?.user_metadata?.first_name ||
                    user?.user_metadata?.full_name?.split(' ')[0] ||
                    '';
-  const lastName = data.customer.lastName ||
-                  customer?.last_name ||
+
+  const lastName = (!isPlaceholder(data.customer.lastName) && data.customer.lastName) ||
+                  (!isPlaceholder(customer?.last_name) && customer?.last_name) ||
                   user?.user_metadata?.last_name ||
                   user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
                   '';
