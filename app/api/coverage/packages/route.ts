@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
 import { CoverageLogger } from '@/lib/analytics/coverage-logger';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('leadId');
     const coverageType = searchParams.get('type') || 'residential'; // Get coverage type from URL

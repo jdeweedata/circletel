@@ -11,15 +11,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import { ZohoActivationService } from '@/lib/integrations/zoho/zoho-activation-service';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import crypto from 'crypto';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export async function POST(
   request: NextRequest,
@@ -27,6 +22,7 @@ export async function POST(
 ) {
   try {
     const { orderId } = await context.params;
+    const supabase = await createClient();
 
     // Validate orderId
     if (!orderId) {
@@ -280,6 +276,7 @@ export async function GET(
 ) {
   try {
     const { orderId } = await context.params;
+    const supabase = await createClient();
 
     const { data: order, error } = await supabase
       .from('consumer_orders')
