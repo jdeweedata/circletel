@@ -37,8 +37,14 @@ async function getSupabase() {
   return await createClient();
 }
 
-// Initialize Resend for email notifications
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Helper to get Resend client (lazy initialization)
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(apiKey);
+}
 
 // ==================================================================
 // PAYMENT SUCCESS PROCESSING
@@ -374,6 +380,7 @@ async function sendOrderConfirmationEmail(order: any): Promise<void> {
   }
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: 'CircleTel <orders@circletel.co.za>',
       to: order.customer_email,
@@ -426,6 +433,7 @@ async function sendPaymentFailureEmail(order: any, errorMessage: string): Promis
   if (!process.env.RESEND_API_KEY) return;
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: 'CircleTel <orders@circletel.co.za>',
       to: order.customer_email,
@@ -468,6 +476,7 @@ async function sendRefundNotificationEmail(order: any, refundAmount: number): Pr
   if (!process.env.RESEND_API_KEY) return;
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: 'CircleTel <finance@circletel.co.za>',
       to: order.customer_email,
@@ -507,6 +516,7 @@ async function sendChargebackAlert(order: any, payload: NetcashWebhookPayload): 
   if (!process.env.RESEND_API_KEY) return;
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: 'CircleTel Alerts <alerts@circletel.co.za>',
       to: 'finance@circletel.co.za',

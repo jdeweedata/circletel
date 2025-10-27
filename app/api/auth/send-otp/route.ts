@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
+// Helper to get Resend client (lazy initialization)
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(apiKey);
+}
 
 // Generate a 6-digit OTP
 function generateOTP(): string {
@@ -46,6 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Send OTP email via Resend
     try {
+      const resend = getResend();
       const { data: emailData, error: emailError } = await resend.emails.send({
         from: 'CircleTel <noreply@circletel.co.za>',
         to: [email],
