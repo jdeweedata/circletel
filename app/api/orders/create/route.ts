@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 
@@ -30,14 +30,16 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Generate order number
+    // Generate order number and payment reference
     const orderNumber = await generateOrderNumber(supabase);
+    const paymentReference = `PAY-${orderNumber}`; // Generate payment reference from order number
 
     // Create order in database
     const { data: order, error: dbError } = await supabase
       .from('consumer_orders')
       .insert({
         order_number: orderNumber,
+        payment_reference: paymentReference,
 
         // Customer details
         first_name: body.first_name,
@@ -135,6 +137,7 @@ export async function POST(request: NextRequest) {
       order: {
         id: order.id,
         order_number: order.order_number,
+        payment_reference: order.payment_reference,
         first_name: order.first_name,
         last_name: order.last_name,
         email: order.email,

@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Verify order exists
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('id', orderId)
       .single();
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Update order status to processing
     const { error: updateError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .update({
         payment_status: 'processing',
         updated_at: new Date().toISOString()

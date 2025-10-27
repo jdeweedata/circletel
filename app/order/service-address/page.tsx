@@ -59,22 +59,17 @@ export default function ServiceAddressPage() {
     state.orderData.account?.accountType === 'business' ? 'business' : 'residential'
   );
   const [propertyType, setPropertyType] = useState<PropertyType | ''>('');
-  const [address, setAddress] = useState({
-    street: state.orderData.coverage?.address || '',
-    suburb: '',
-    city: '',
-    province: '',
-    postalCode: '',
-  });
+  const [installationAddress, setInstallationAddress] = useState(
+    state.orderData.coverage?.address || ''
+  );
 
   const streetInputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   // Load persisted address from localStorage as backup
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedData = localStorage.getItem('circletel_coverage_address');
-      if (savedData && !address.street) {
+      if (savedData && !installationAddress) {
         try {
           const parsed = JSON.parse(savedData);
           // Only load if it's less than 24 hours old
@@ -83,15 +78,7 @@ export default function ServiceAddressPage() {
           const hoursDiff = (now.getTime() - timestamp.getTime()) / (1000 * 60 * 60);
 
           if (hoursDiff < 24 && parsed.address) {
-            // Load full address with all components
-            const components = parsed.addressComponents || {};
-            setAddress({
-              street: parsed.address,
-              suburb: components.suburb || '',
-              city: components.city || '',
-              province: components.province || '',
-              postalCode: components.postalCode || ''
-            });
+            setInstallationAddress(parsed.address);
 
             // Set service type if available
             if (parsed.type) {
@@ -103,7 +90,7 @@ export default function ServiceAddressPage() {
         }
       }
     }
-  }, [address.street]);
+  }, [installationAddress]);
 
   // Set current stage to 2 when this page loads
   useEffect(() => {
@@ -119,79 +106,12 @@ export default function ServiceAddressPage() {
     }
   }, [state.orderData.account?.installationLocationType]);
 
-  // Initialize Google Places Autocomplete
-  useEffect(() => {
-    const initializeAutocomplete = async () => {
-      if (!streetInputRef.current) return;
-
-      try {
-        const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
-        const googleMapsService = await loadGoogleMapsService();
-        
-        const autocomplete = new google.maps.places.Autocomplete(streetInputRef.current, {
-          componentRestrictions: { country: 'za' },
-          fields: ['address_components', 'formatted_address', 'geometry'],
-          types: ['address']
-        });
-
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (!place.address_components) return;
-
-          let streetNumber = '';
-          let route = '';
-          let suburb = '';
-          let locality = '';
-          let province = '';
-          let postalCode = '';
-
-          place.address_components.forEach((component) => {
-            const types = component.types;
-            if (types.includes('street_number')) {
-              streetNumber = component.long_name;
-            } else if (types.includes('route')) {
-              route = component.long_name;
-            } else if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
-              suburb = component.long_name;
-            } else if (types.includes('locality')) {
-              locality = component.long_name;
-            } else if (types.includes('administrative_area_level_1')) {
-              province = component.long_name;
-            } else if (types.includes('postal_code')) {
-              postalCode = component.long_name;
-            }
-          });
-
-          const fullStreet = streetNumber && route ? `${streetNumber} ${route}` : route || place.formatted_address || '';
-
-          setAddress({
-            street: fullStreet,
-            suburb: suburb || locality,
-            city: locality,
-            province,
-            postalCode,
-          });
-        });
-
-        autocompleteRef.current = autocomplete;
-      } catch (error) {
-        console.error('Failed to initialize Google Places:', error);
-      }
-    };
-
-    initializeAutocomplete();
-
-    return () => {
-      if (autocompleteRef.current && typeof google !== 'undefined') {
-        google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
-    };
-  }, []);
+  // Note: Google Places Autocomplete removed - address is read-only from coverage check
 
   const handleContinue = () => {
     // Validation
-    if (!address.street.trim()) {
-      toast.error('Please enter your street address');
+    if (!installationAddress.trim()) {
+      toast.error('Installation address is required');
       return;
     }
     if (!propertyType) {
@@ -199,10 +119,10 @@ export default function ServiceAddressPage() {
       return;
     }
 
-    // Update localStorage with full address details
+    // Update localStorage
     if (typeof window !== 'undefined') {
       const existingData = localStorage.getItem('circletel_coverage_address');
-      let savedData = { address: address.street, type: serviceType };
+      let savedData = { address: installationAddress, type: serviceType };
 
       if (existingData) {
         try {
@@ -215,9 +135,8 @@ export default function ServiceAddressPage() {
 
       localStorage.setItem('circletel_coverage_address', JSON.stringify({
         ...savedData,
-        address: address.street,
+        address: installationAddress,
         type: serviceType,
-        fullAddress: address,
         propertyType: propertyType,
         timestamp: new Date().toISOString()
       }));
@@ -228,11 +147,7 @@ export default function ServiceAddressPage() {
       account: {
         ...state.orderData.account,
         installationAddress: {
-          street: address.street,
-          suburb: address.suburb,
-          city: address.city,
-          province: address.province,
-          postalCode: address.postalCode,
+          street: installationAddress,
           country: 'South Africa',
         },
         installationLocationType: propertyType,
@@ -254,47 +169,7 @@ export default function ServiceAddressPage() {
   const currentOptions = serviceType === 'residential' ? residentialOptions : businessOptions;
 
   return (
-    <>
-      {/* Custom styles for Google Places Autocomplete dropdown */}
-      <style jsx global>{`
-        .pac-container {
-          background-color: #ffffff !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 0.5rem !important;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-          margin-top: 4px !important;
-          font-family: inherit !important;
-          z-index: 9999 !important;
-        }
-        .pac-item {
-          background-color: #ffffff !important;
-          border-top: 1px solid #f3f4f6 !important;
-          padding: 12px 16px !important;
-          cursor: pointer !important;
-          font-size: 14px !important;
-          line-height: 1.5 !important;
-        }
-        .pac-item:hover {
-          background-color: #f9fafb !important;
-        }
-        .pac-item-selected {
-          background-color: #fef3e7 !important;
-        }
-        .pac-item-query {
-          font-size: 14px !important;
-          color: #111827 !important;
-          font-weight: 500 !important;
-        }
-        .pac-matched {
-          font-weight: 600 !important;
-          color: #F5831F !important;
-        }
-        .pac-icon {
-          display: none !important;
-        }
-      `}</style>
-      
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Progress Bar */}
         <TopProgressBar currentStep={2} />
 
@@ -369,86 +244,35 @@ export default function ServiceAddressPage() {
                 </div>
               </div>
 
-              {/* Address Fields */}
+              {/* Address Fields - Read Only for Confirmation */}
               <div className="space-y-6 mb-8">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900 mb-1">
+                        Service Address (from Coverage Check)
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        This address cannot be changed. If you need to check a different address, please start a new coverage check.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="street" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Street Address *
+                    Installation Address *
                   </Label>
                   <Input
                     ref={streetInputRef}
                     id="street"
                     type="text"
-                    value={address.street}
-                    onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                    placeholder="Start typing your address..."
-                    className="w-full"
-                    autoComplete="off"
-                    required
+                    value={installationAddress}
+                    className="w-full bg-gray-50 cursor-not-allowed"
+                    disabled
+                    readOnly
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Start typing and select from suggestions
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="suburb" className="text-sm font-medium text-gray-700 mb-2 block">
-                      Suburb
-                    </Label>
-                    <Input
-                      id="suburb"
-                      type="text"
-                      value={address.suburb}
-                      onChange={(e) => setAddress({ ...address, suburb: e.target.value })}
-                      placeholder="e.g., Sandton"
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="city" className="text-sm font-medium text-gray-700 mb-2 block">
-                      City
-                    </Label>
-                    <Input
-                      id="city"
-                      type="text"
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                      placeholder="e.g., Johannesburg"
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="province" className="text-sm font-medium text-gray-700 mb-2 block">
-                      Province
-                    </Label>
-                    <Input
-                      id="province"
-                      type="text"
-                      value={address.province}
-                      onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                      placeholder="e.g., Gauteng"
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700 mb-2 block">
-                      Postal Code
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      type="text"
-                      value={address.postalCode}
-                      onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
-                      placeholder="e.g., 2196"
-                      className="w-full"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -508,7 +332,6 @@ export default function ServiceAddressPage() {
           </div>
         </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }

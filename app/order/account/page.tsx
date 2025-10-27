@@ -17,8 +17,10 @@ import { ArrowLeft, Eye, EyeOff, Info, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Minimal form validation schema - email, password, phone, and terms acceptance
+// Form validation schema - firstName, lastName, email, password, phone, and terms acceptance
 const accountSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   phone: z.string().min(10, 'Please enter a valid phone number').regex(/^[0-9+\s()-]+$/, 'Please enter a valid phone number'),
@@ -53,6 +55,8 @@ export default function AccountPage() {
   } = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
+      firstName: state.orderData.account?.firstName || '',
+      lastName: state.orderData.account?.lastName || '',
       email: state.orderData.account?.email || '',
       password: '',
       phone: state.orderData.account?.phone || '',
@@ -67,10 +71,12 @@ export default function AccountPage() {
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
       // Only save if there's actual data
-      if (watchedValues.email || watchedValues.phone) {
+      if (watchedValues.email || watchedValues.phone || watchedValues.firstName || watchedValues.lastName) {
         actions.updateOrderData({
           account: {
             ...state.orderData.account,
+            firstName: watchedValues.firstName,
+            lastName: watchedValues.lastName,
             email: watchedValues.email,
             phone: watchedValues.phone,
           } as any,
@@ -79,7 +85,7 @@ export default function AccountPage() {
     }, 1000); // Debounce for 1 second
 
     return () => clearTimeout(timeoutId);
-  }, [watchedValues.email, watchedValues.phone]);
+  }, [watchedValues.firstName, watchedValues.lastName, watchedValues.email, watchedValues.phone]);
 
   const onSubmit = async (data: AccountFormValues) => {
     setIsSubmitting(true);
@@ -90,8 +96,8 @@ export default function AccountPage() {
         data.email,
         data.password,
         {
-          firstName: '', // Will be collected later in the flow
-          lastName: '', // Will be collected later in the flow
+          firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
           phone: data.phone,
           accountType: 'personal', // Default to personal
@@ -106,6 +112,8 @@ export default function AccountPage() {
       // Save account data to OrderContext
       actions.updateOrderData({
         account: {
+          firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
           phone: data.phone,
           accountType: 'personal',
@@ -241,6 +249,58 @@ export default function AccountPage() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  {/* First Name Field */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="firstName" className="text-sm sm:text-base font-semibold text-gray-700">
+                        First Name <span className="text-red-600">*</span>
+                      </Label>
+                    </div>
+                    <Controller
+                      name="firstName"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          id="firstName"
+                          type="text"
+                          placeholder="John"
+                          className="w-full text-sm sm:text-base"
+                          required
+                        />
+                      )}
+                    />
+                    {errors.firstName && (
+                      <p className="text-xs text-red-600">{errors.firstName.message}</p>
+                    )}
+                  </div>
+
+                  {/* Last Name Field */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="lastName" className="text-sm sm:text-base font-semibold text-gray-700">
+                        Last Name <span className="text-red-600">*</span>
+                      </Label>
+                    </div>
+                    <Controller
+                      name="lastName"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          id="lastName"
+                          type="text"
+                          placeholder="Doe"
+                          className="w-full text-sm sm:text-base"
+                          required
+                        />
+                      )}
+                    />
+                    {errors.lastName && (
+                      <p className="text-xs text-red-600">{errors.lastName.message}</p>
+                    )}
+                  </div>
+
                   {/* Email Field */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
