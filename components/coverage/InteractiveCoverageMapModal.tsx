@@ -181,8 +181,59 @@ export function InteractiveCoverageMapModal({
     }
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (onSearch && address) {
+      // Extract address components from the current address
+      let addressComponents = {};
+
+      if (typeof google !== 'undefined') {
+        try {
+          const geocoder = new google.maps.Geocoder();
+          const result = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+            geocoder.geocode({ location: markerPosition }, (results, status) => {
+              if (status === 'OK' && results) {
+                resolve(results);
+              } else {
+                reject(status);
+              }
+            });
+          });
+
+          if (result && result[0]) {
+            let suburb = '';
+            let city = '';
+            let province = '';
+            let postalCode = '';
+
+            result[0].address_components?.forEach((component) => {
+              const types = component.types;
+              if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
+                suburb = component.long_name;
+              } else if (types.includes('locality')) {
+                city = component.long_name;
+              } else if (types.includes('administrative_area_level_1')) {
+                province = component.long_name;
+              } else if (types.includes('postal_code')) {
+                postalCode = component.long_name;
+              }
+            });
+
+            addressComponents = { suburb, city, province, postalCode };
+          }
+        } catch (error) {
+          console.error('Failed to extract address components:', error);
+        }
+      }
+
+      // Store address in localStorage for persistence with full components
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('circletel_coverage_address', JSON.stringify({
+          address: address,
+          coordinates: markerPosition,
+          addressComponents: addressComponents,
+          timestamp: new Date().toISOString()
+        }));
+      }
       onSearch(address, markerPosition);
       onClose();
     }
@@ -190,7 +241,8 @@ export function InteractiveCoverageMapModal({
 
   const mapContainerStyle = {
     width: '100%',
-    height: isFullscreen ? 'calc(100vh - 280px)' : '500px'
+    height: 'calc(100vh - 280px)', // Full screen minus header and footer
+    minHeight: '400px'
   };
 
   const mapOptions = {
@@ -204,16 +256,16 @@ export function InteractiveCoverageMapModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-[90vw] w-[1200px] max-h-[90vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col"
+        className="max-w-full w-screen h-screen max-h-screen p-0 bg-white overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="px-8 pt-6 pb-4 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
+        <div className="px-4 md:px-8 pt-4 md:pt-6 pb-3 md:pb-4 bg-gradient-to-b from-gray-50 to-white border-b border-gray-100 flex-shrink-0">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-2xl font-bold text-[#1e5a96] mb-1">
+              <DialogTitle className="text-xl md:text-2xl lg:text-3xl font-bold text-[#1e5a96] mb-1">
                 Internet Coverage Search
               </DialogTitle>
-              <DialogDescription className="text-[#1e5a96] text-sm">
+              <DialogDescription className="text-[#1e5a96] text-xs md:text-sm">
                 Enter your address or use our map to find your location
               </DialogDescription>
             </div>
@@ -221,16 +273,16 @@ export function InteractiveCoverageMapModal({
             {/* Close Button (Top Right) */}
             <button
               onClick={onClose}
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-[#1e5a96] text-white hover:bg-[#164672] transition-colors shadow-md"
+              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e5a96] text-white hover:bg-[#164672] transition-colors shadow-md"
               aria-label="Close modal"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
           </div>
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-white px-8 py-4 flex-1 overflow-y-auto min-h-0">
+        <div className="relative bg-white px-4 md:px-8 py-3 md:py-4 flex-1 overflow-y-auto min-h-0">
           {loadError && (
             <div className="text-center py-8 text-red-600">
               Error loading Google Maps. Please try again later.
@@ -246,16 +298,16 @@ export function InteractiveCoverageMapModal({
           {isLoaded && !loadError && (
             <>
               {/* Compact Instructions & Location Button */}
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
+              <div className="mb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 md:gap-3 text-xs text-gray-600 flex-wrap">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-circleTel-orange" />
                     <span className="font-medium">Type address</span>
                   </div>
-                  <span className="text-gray-300">•</span>
-                  <span>Click map</span>
-                  <span className="text-gray-300">•</span>
-                  <span>Drag pin</span>
+                  <span className="text-gray-300 hidden md:inline">•</span>
+                  <span className="hidden md:inline">Click map</span>
+                  <span className="text-gray-300 hidden md:inline">•</span>
+                  <span className="hidden md:inline">Drag pin</span>
                 </div>
 
                 {/* Use My Location Button */}
@@ -264,7 +316,7 @@ export function InteractiveCoverageMapModal({
                   disabled={isDetectingLocation}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-all"
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-all w-full md:w-auto"
                 >
                   <Crosshair className={`w-3.5 h-3.5 ${isDetectingLocation ? 'animate-spin' : ''}`} />
                   {isDetectingLocation ? 'Detecting...' : 'Use My Location'}
@@ -305,28 +357,19 @@ export function InteractiveCoverageMapModal({
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="Enter your South African address"
-                      className="w-full px-6 py-3 pr-24 text-base text-[#1e5a96] placeholder-gray-400 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-[#1e5a96] focus:ring-4 focus:ring-[#1e5a96]/10 transition-all shadow-sm"
+                      className="w-full px-4 md:px-6 py-2.5 md:py-3 pr-12 text-sm md:text-base text-[#1e5a96] placeholder-gray-400 border-2 border-gray-200 rounded-xl md:rounded-2xl focus:outline-none focus:border-[#1e5a96] focus:ring-4 focus:ring-[#1e5a96]/10 transition-all shadow-sm"
                     />
                     {/* Clear Button */}
                     {address && (
                       <button
                         onClick={() => setAddress('')}
-                        className="absolute right-16 top-1/2 -translate-y-1/2 p-2 hover:bg-red-50 rounded-lg transition-colors group"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-red-50 rounded-lg transition-colors group"
                         aria-label="Clear address"
                         type="button"
                       >
                         <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
                       </button>
                     )}
-                    {/* Fullscreen Toggle */}
-                    <button
-                      onClick={() => setIsFullscreen(!isFullscreen)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Toggle fullscreen"
-                      type="button"
-                    >
-                      <Maximize2 className="w-5 h-5 text-gray-400" />
-                    </button>
                   </div>
                 </Autocomplete>
               </div>
@@ -394,18 +437,18 @@ export function InteractiveCoverageMapModal({
         </div>
 
         {/* Footer with Action Buttons */}
-        <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="px-4 md:px-8 py-4 md:py-6 bg-gray-50 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-3 flex-shrink-0">
           <Button
             onClick={onClose}
             variant="outline"
-            className="px-8 py-6 text-base font-semibold text-[#1e5a96] border-2 border-[#1e5a96] hover:bg-[#1e5a96] hover:text-white rounded-full transition-all shadow-sm"
+            className="w-full md:w-auto px-6 md:px-8 py-4 md:py-6 text-sm md:text-base font-semibold text-[#1e5a96] border-2 border-[#1e5a96] hover:bg-[#1e5a96] hover:text-white rounded-full transition-all shadow-sm"
           >
             Close
           </Button>
 
           <Button
             onClick={handleSearch}
-            className="px-10 py-6 text-base font-semibold bg-[#1e5a96] hover:bg-[#164672] text-white rounded-full transition-all shadow-md hover:shadow-lg"
+            className="w-full md:w-auto px-8 md:px-10 py-4 md:py-6 text-sm md:text-base font-semibold bg-[#1e5a96] hover:bg-[#164672] text-white rounded-full transition-all shadow-md hover:shadow-lg"
           >
             Search
           </Button>

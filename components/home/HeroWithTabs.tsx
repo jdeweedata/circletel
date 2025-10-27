@@ -37,22 +37,67 @@ export function HeroWithTabs() {
   const [activeTab, setActiveTab] = React.useState<CoverageType>('residential');
   const [address, setAddress] = React.useState('');
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [addressComponents, setAddressComponents] = React.useState<any>(null);
   const [isChecking, setIsChecking] = React.useState(false);
   const [showMapModal, setShowMapModal] = React.useState(false);
 
   const currentTab = COVERAGE_TABS.find(tab => tab.id === activeTab) || COVERAGE_TABS[0];
+
+  // Load persisted address from localStorage on mount
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('circletel_coverage_address');
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          // Only load if it's less than 24 hours old
+          const timestamp = new Date(parsed.timestamp);
+          const now = new Date();
+          const hoursDiff = (now.getTime() - timestamp.getTime()) / (1000 * 60 * 60);
+
+          if (hoursDiff < 24 && parsed.address) {
+            setAddress(parsed.address);
+            if (parsed.coordinates) {
+              setCoordinates(parsed.coordinates);
+            }
+            if (parsed.type) {
+              setActiveTab(parsed.type);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load saved address:', error);
+        }
+      }
+    }
+  }, []);
 
   const handleLocationSelect = (data: any) => {
     setAddress(data.address);
     if (data.latitude && data.longitude) {
       setCoordinates({ lat: data.latitude, lng: data.longitude });
     }
+    // Store full address components for later use
+    setAddressComponents({
+      suburb: data.suburb || data.town || '',
+      city: data.town || '',
+      province: data.province || '',
+      postalCode: data.postalCode || ''
+    });
   };
 
   const handleCheckCoverage = async () => {
     if (address.trim()) {
       setIsChecking(true);
       try {
+        // Store address in localStorage for persistence with full components
+        localStorage.setItem('circletel_coverage_address', JSON.stringify({
+          address: address.trim(),
+          coordinates: coordinates,
+          type: activeTab,
+          addressComponents: addressComponents || {},
+          timestamp: new Date().toISOString()
+        }));
+
         // Create a coverage lead with type
         const response = await fetch('/api/coverage/lead', {
           method: 'POST',

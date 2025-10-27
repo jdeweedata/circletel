@@ -102,6 +102,45 @@ Modern payment interface supporting 20+ payment methods:
 - `app/order/payment/demo/page.tsx` - Interactive payment method showcase
 - Framer Motion animations for smooth UX
 
+### Partner Portal & Compliance System
+
+B2B partner management with FICA/CIPC compliance for South African regulations:
+
+**Onboarding Flow**:
+1. **Registration** (`/partners/onboarding`) - Business details, banking info
+2. **Document Upload** (`/partners/onboarding/verify`) - FICA/CIPC compliance documents
+3. **Admin Review** - Compliance verification, partner number generation
+4. **Approval** - Status: `incomplete` → `submitted` → `under_review` → `verified`
+
+**Document Categories** (13 total):
+- FICA: Identity, Proof of Address
+- CIPC: Registration (CK1), Company Profile, Directors (CM1), MOI
+- SARS: Tax Clearance, VAT Registration
+- Banking: Confirmation Letter, Bank Statement
+- Business: Proof of Address, Authorization
+
+**Business Type Requirements**:
+- `sole_proprietor`: 5 required, 2 optional
+- `company`: 11 required, 1 optional
+- `partnership`: 7 required, 2 optional
+
+**Partner Number Format**: `CTPL-YYYY-NNN` (e.g., `CTPL-2025-001`)
+
+**Key Files**:
+- `lib/partners/compliance-requirements.ts` - Document requirements logic
+- `app/partners/onboarding/page.tsx` - Registration form
+- `app/partners/onboarding/verify/page.tsx` - Document upload UI
+- `app/api/partners/compliance/upload/route.ts` - File upload to Supabase Storage
+- `supabase/storage/partner-compliance-documents` - Private bucket (20MB limit, PDF/JPG/PNG/ZIP)
+
+**Storage Structure**: `{partner_id}/{category}/{timestamp}_{filename}`
+
+**RLS Policies** (4 total):
+1. Partners upload own documents (INSERT)
+2. Partners view own documents (SELECT)
+3. Partners delete own unverified documents (DELETE)
+4. Admins access all documents (ALL)
+
 ### RBAC Permission System
 
 - **17 role templates** (Account Manager, Sales Rep, Tech Support, etc.)
@@ -227,6 +266,30 @@ useEffect(() => {
 ```
 
 **Real Example**: `CustomerAuthProvider` (commit `24547cb`)
+
+### Auth Provider Page Exclusions
+
+**Critical Pattern**: Auth providers must skip initialization on pages with different auth systems to prevent competing Supabase clients.
+
+```typescript
+// CustomerAuthProvider.tsx
+const isAdminPage = pathname?.startsWith('/admin');
+const isPartnerPage = pathname?.startsWith('/partners');
+const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
+
+useEffect(() => {
+  // Skip initialization on admin, partner, and auth pages
+  if (isAdminPage || isPartnerPage || isAuthPage) {
+    setLoading(false);
+    return;
+  }
+  // ... initialize customer auth
+}, [isAdminPage, isPartnerPage, isAuthPage]);
+```
+
+**Why**: Different auth contexts (customer, admin, partner) should not interfere with each other. Each system has its own provider and should only run on its designated pages.
+
+**File**: `components/providers/CustomerAuthProvider.tsx:64-76`
 
 ### MTN API Anti-Bot Detection
 
@@ -386,13 +449,41 @@ const result = await client.getCoverageDetailedRealtime(
 
 ### Supabase Database
 
-**Tables**:
+**Core Tables**:
 - `service_packages` - Products/packages
 - `coverage_leads` - Coverage check results
 - `customers` - Customer accounts
 - `orders` - Order records
-- `admin_users` - Admin accounts
+- `admin_users` - Admin accounts with RBAC
 - `fttb_network_providers` - Provider metadata
+
+**Partner Tables**:
+- `partners` - Partner business details, compliance status, partner number
+- `partner_compliance_documents` - FICA/CIPC document records
+- `partner_leads` - Leads assigned to partners
+- `partner_commissions` - Commission tracking
+
+**Partner Table Key Columns**:
+```sql
+partners:
+  - partner_number TEXT UNIQUE  -- CTPL-YYYY-NNN
+  - compliance_status TEXT      -- incomplete|submitted|under_review|verified|rejected
+  - compliance_verified_at TIMESTAMPTZ
+  - commission_rate DECIMAL(5,2)
+  - tier TEXT                   -- bronze|silver|gold|platinum
+  - status TEXT                 -- pending|active|suspended|terminated
+
+partner_compliance_documents:
+  - document_category TEXT      -- 13 FICA/CIPC categories
+  - verification_status TEXT    -- pending|approved|rejected
+  - document_number TEXT        -- ID/Registration numbers
+  - expiry_date DATE           -- For documents with expiry
+  - is_required BOOLEAN
+  - is_sensitive BOOLEAN
+```
+
+**Storage Buckets**:
+- `partner-compliance-documents` - Private bucket (20MB, PDF/JPG/PNG/ZIP)
 
 **Views**:
 - `v_providers_with_logos` - Providers with logo data
@@ -559,10 +650,20 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 ---
 
 **Last Updated**: 2025-10-27
-**Version**: 4.3
+**Version**: 4.4
 **Maintained By**: Development Team + Claude Code
 
 ## Recent Updates (Oct 27, 2025)
+
+### Partner Portal & Compliance System (COMPLETE)
+- ✅ **Partner Registration** - Business details, banking info (`/partners/onboarding`)
+- ✅ **FICA/CIPC Document Upload** - 13 SA-specific compliance categories (`/partners/onboarding/verify`)
+- ✅ **Business-Type Requirements** - Dynamic requirements (5-11 documents) based on business type
+- ✅ **Supabase Storage Integration** - Private bucket with RLS policies for document security
+- ✅ **Real-time Progress Tracking** - Visual progress bar (0-100%) as documents uploaded
+- ✅ **Compliance Requirements Logic** - `lib/partners/compliance-requirements.ts` (452 lines)
+- ✅ **E2E Testing** - Automated test suite (7/7 tests passing ✅)
+- ✅ **Auth Provider Fix** - CustomerAuthProvider skips partner pages to prevent conflicts
 
 ### Consumer Dashboard Enhancement (Priority 2A)
 - ✅ **Service Management Dropdown** - 1-click access to 6 service actions (`components/dashboard/ServiceManageDropdown.tsx`)
@@ -577,12 +678,6 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 - ✅ **Payment Demo Page** - Interactive showcase at `/order/payment/demo`
 - ✅ **Framer Motion Animations** - Smooth payment UI transitions
 - ✅ **Payment Method Selection** - Visual interface for 9 core payment options
-
-### Component Architecture
-- ✅ **21st Magic MCP Integration** - Rapid UI component generation
-- ✅ **Two-Column Payment Layout** - Industry-standard checkout design
-- ✅ **CircleTel Design System** - Consistent orange (#F5831F) branding
-- ✅ **Mobile-First Responsive** - Optimized for South African connectivity
 
 ## Skills System (7 Total)
 

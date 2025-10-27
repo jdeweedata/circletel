@@ -70,6 +70,41 @@ export default function ServiceAddressPage() {
   const streetInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
+  // Load persisted address from localStorage as backup
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('circletel_coverage_address');
+      if (savedData && !address.street) {
+        try {
+          const parsed = JSON.parse(savedData);
+          // Only load if it's less than 24 hours old
+          const timestamp = new Date(parsed.timestamp);
+          const now = new Date();
+          const hoursDiff = (now.getTime() - timestamp.getTime()) / (1000 * 60 * 60);
+
+          if (hoursDiff < 24 && parsed.address) {
+            // Load full address with all components
+            const components = parsed.addressComponents || {};
+            setAddress({
+              street: parsed.address,
+              suburb: components.suburb || '',
+              city: components.city || '',
+              province: components.province || '',
+              postalCode: components.postalCode || ''
+            });
+
+            // Set service type if available
+            if (parsed.type) {
+              setServiceType(parsed.type);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load saved address:', error);
+        }
+      }
+    }
+  }, [address.street]);
+
   // Set current stage to 2 when this page loads
   useEffect(() => {
     if (state.currentStage !== 2) {
@@ -162,6 +197,30 @@ export default function ServiceAddressPage() {
     if (!propertyType) {
       toast.error('Please select your property type');
       return;
+    }
+
+    // Update localStorage with full address details
+    if (typeof window !== 'undefined') {
+      const existingData = localStorage.getItem('circletel_coverage_address');
+      let savedData = { address: address.street, type: serviceType };
+
+      if (existingData) {
+        try {
+          const parsed = JSON.parse(existingData);
+          savedData = { ...parsed, ...savedData };
+        } catch (error) {
+          console.error('Failed to parse existing address data:', error);
+        }
+      }
+
+      localStorage.setItem('circletel_coverage_address', JSON.stringify({
+        ...savedData,
+        address: address.street,
+        type: serviceType,
+        fullAddress: address,
+        propertyType: propertyType,
+        timestamp: new Date().toISOString()
+      }));
     }
 
     // Save to order context
