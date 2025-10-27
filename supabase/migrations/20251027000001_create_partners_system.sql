@@ -352,7 +352,7 @@ CREATE POLICY "admins_view_all_activities"
 -- ============================================
 
 -- Update existing RLS policy to allow partners to view assigned leads
-CREATE POLICY IF NOT EXISTS "partners_view_assigned_leads"
+CREATE POLICY "partners_view_assigned_leads"
   ON coverage_leads FOR SELECT
   USING (
     assigned_partner_id IN (
@@ -361,7 +361,7 @@ CREATE POLICY IF NOT EXISTS "partners_view_assigned_leads"
   );
 
 -- Partners can update assigned leads (notes, last contact)
-CREATE POLICY IF NOT EXISTS "partners_update_assigned_leads"
+CREATE POLICY "partners_update_assigned_leads"
   ON coverage_leads FOR UPDATE
   USING (
     assigned_partner_id IN (
