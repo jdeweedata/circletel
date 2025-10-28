@@ -25,9 +25,14 @@ export async function POST(request: NextRequest) {
     // Create coverage lead with coordinates if available
     const leadData: any = {
       address,
-      customer_type: 'business',
-      lead_source: 'quote_request',
+      customer_type: 'consumer', // Using 'consumer' as valid enum value
+      lead_source: 'coverage_checker', // Using 'coverage_checker' as valid enum value
       status: 'new',
+      // Required fields with placeholders (to be filled in Step 2 of form)
+      first_name: 'Quote',
+      last_name: 'Request',
+      email: 'pending@quote.request',
+      phone: '0000000000',
       // Add coordinates in PostGIS geography format if provided
       ...(coordinates?.lat && coordinates?.lng && {
         coordinates: {
