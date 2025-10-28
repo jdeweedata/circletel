@@ -6,8 +6,8 @@
 
 -- Add tracking columns to orders table
 ALTER TABLE public.orders
-ADD COLUMN IF NOT EXISTS order_type VARCHAR(50) DEFAULT 'fiber',
-ADD COLUMN IF NOT EXISTS fulfillment_status VARCHAR(50) DEFAULT 'order_confirmed',
+ADD COLUMN IF NOT EXISTS order_type VARCHAR(50),
+ADD COLUMN IF NOT EXISTS fulfillment_status VARCHAR(50),
 ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(50),
 ADD COLUMN IF NOT EXISTS delivery_tracking_number VARCHAR(255),
 ADD COLUMN IF NOT EXISTS delivery_carrier VARCHAR(100),
@@ -23,6 +23,18 @@ ADD COLUMN IF NOT EXISTS installation_notes TEXT,
 ADD COLUMN IF NOT EXISTS activation_date TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS billing_start_date TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS expected_completion_date TIMESTAMPTZ;
+
+-- Update existing rows to have valid default values
+UPDATE public.orders
+SET
+  order_type = 'fiber',
+  fulfillment_status = 'order_confirmed'
+WHERE order_type IS NULL OR fulfillment_status IS NULL;
+
+-- Set defaults for new rows
+ALTER TABLE public.orders
+ALTER COLUMN order_type SET DEFAULT 'fiber',
+ALTER COLUMN fulfillment_status SET DEFAULT 'order_confirmed';
 
 -- Add constraints for new columns
 ALTER TABLE public.orders
