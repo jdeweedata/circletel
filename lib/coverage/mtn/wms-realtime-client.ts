@@ -35,11 +35,18 @@ export interface WMSGetFeatureInfoResponse {
  * Discovered from https://mtnsi.mtn.co.za/cache/geoserver/GetMapConfiguration.json
  */
 export const MTN_WMS_LAYERS = {
+  FIVE_G: {
+    layerId: '5GCoverage',
+    wmsLayer: 'mtnsi:MTNSA-Coverage-5G-5G',
+    wmsStyle: 'MTNSA-Coverage-5G-5G',
+    label: '5G Cellular',
+    serviceType: '5g' as ServiceType
+  },
   UNCAPPED_WIRELESS: {
     layerId: 'UncappedWirelessEBU',
     wmsLayer: 'mtnsi:MTNSA-Coverage-Tarana',
     wmsStyle: 'MTN-Coverage-UWA-EBU',
-    label: 'Uncapped Wireless',
+    label: 'Uncapped Wireless (Tarana)',
     serviceType: 'uncapped_wireless' as ServiceType
   },
   FIXED_LTE: {
