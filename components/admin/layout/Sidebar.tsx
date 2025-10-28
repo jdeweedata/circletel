@@ -5,6 +5,12 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   LayoutDashboard,
   Package,
   CheckCircle,
@@ -228,19 +234,20 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const isExpanded = (itemName: string) => expandedItems.includes(itemName);
 
   return (
-    <div
-      className={cn(
-        'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
-        // Mobile: Full overlay sidebar that slides in/out
-        'lg:relative lg:z-auto',
-        isOpen
-          ? 'translate-x-0 w-64'
-          : '-translate-x-full lg:translate-x-0 lg:w-16',
-        // On desktop (lg+), sidebar is part of the layout
-        'lg:flex lg:flex-shrink-0'
-      )}
-      data-testid="sidebar"
-    >
+    <TooltipProvider delayDuration={300}>
+      <div
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+          // Mobile: Full overlay sidebar that slides in/out
+          'lg:relative lg:z-auto',
+          isOpen
+            ? 'translate-x-0 w-64'
+            : '-translate-x-full lg:translate-x-0 lg:w-16',
+          // On desktop (lg+), sidebar is part of the layout
+          'lg:flex lg:flex-shrink-0'
+        )}
+        data-testid="sidebar"
+      >
       {/* Header */}
       <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
         {isOpen && (
@@ -271,27 +278,36 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
             {item.children ? (
               <div className="space-y-1">
                 {/* Dropdown Header - Clickable */}
-                <button
-                  onClick={() => isOpen && toggleDropdown(item.name)}
-                  className={cn(
-                    'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                    'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                    isOpen && 'cursor-pointer',
-                    !isOpen && 'cursor-default'
-                  )}
-                >
-                  <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                  {isOpen && (
-                    <>
-                      <span className="flex-1 text-left">{item.name}</span>
-                      {isExpanded(item.name) ? (
-                        <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => isOpen && toggleDropdown(item.name)}
+                      className={cn(
+                        'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                        'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                        isOpen && 'cursor-pointer',
+                        !isOpen && 'cursor-default'
                       )}
-                    </>
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      {isOpen && (
+                        <>
+                          <span className="flex-1 text-left">{item.name}</span>
+                          {isExpanded(item.name) ? (
+                            <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                          )}
+                        </>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  {!isOpen && (
+                    <TooltipContent side="right" className="font-medium">
+                      {item.name}
+                    </TooltipContent>
                   )}
-                </button>
+                </Tooltip>
 
                 {/* Dropdown Content */}
                 {isOpen && isExpanded(item.name) && (
@@ -315,25 +331,34 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                 )}
               </div>
             ) : (
-              <Link
-                href={item.href!}
-                className={cn(
-                  'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                  isActiveLink(item.href!, item.end)
-                    ? 'bg-gray-100 text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={item.href!}
+                    className={cn(
+                      'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                      isActiveLink(item.href!, item.end)
+                        ? 'bg-gray-100 text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    )}
+                  >
+                    <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                    {isOpen && (
+                      <span className="flex-1">{item.name}</span>
+                    )}
+                    {isOpen && item.badge && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        3
+                      </span>
+                    )}
+                  </Link>
+                </TooltipTrigger>
+                {!isOpen && (
+                  <TooltipContent side="right" className="font-medium">
+                    {item.name}
+                  </TooltipContent>
                 )}
-              >
-                <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                {isOpen && (
-                  <span className="flex-1">{item.name}</span>
-                )}
-                {isOpen && item.badge && (
-                  <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    3
-                  </span>
-                )}
-              </Link>
+              </Tooltip>
             )}
           </div>
         ))}
@@ -352,27 +377,36 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   {item.children ? (
                     <div className="space-y-1">
                       {/* Admin Dropdown Header - Clickable */}
-                      <button
-                        onClick={() => isOpen && toggleDropdown(item.name)}
-                        className={cn(
-                          'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                          'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                          isOpen && 'cursor-pointer',
-                          !isOpen && 'cursor-default'
-                        )}
-                      >
-                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                        {isOpen && (
-                          <>
-                            <span className="flex-1 text-left">{item.name}</span>
-                            {isExpanded(item.name) ? (
-                              <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => isOpen && toggleDropdown(item.name)}
+                            className={cn(
+                              'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                              'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                              isOpen && 'cursor-pointer',
+                              !isOpen && 'cursor-default'
                             )}
-                          </>
+                          >
+                            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                            {isOpen && (
+                              <>
+                                <span className="flex-1 text-left">{item.name}</span>
+                                {isExpanded(item.name) ? (
+                                  <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                                )}
+                              </>
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        {!isOpen && (
+                          <TooltipContent side="right" className="font-medium">
+                            {item.name}
+                          </TooltipContent>
                         )}
-                      </button>
+                      </Tooltip>
 
                       {/* Admin Dropdown Content */}
                       {isOpen && isExpanded(item.name) && (
@@ -396,18 +430,27 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                       )}
                     </div>
                   ) : (
-                    <Link
-                      href={item.href!}
-                      className={cn(
-                        'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                        isActiveLink(item.href!)
-                          ? 'bg-gray-100 text-gray-900 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href={item.href!}
+                          className={cn(
+                            'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                            isActiveLink(item.href!)
+                              ? 'bg-gray-100 text-gray-900 shadow-sm'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          )}
+                        >
+                          <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                          {isOpen && item.name}
+                        </Link>
+                      </TooltipTrigger>
+                      {!isOpen && (
+                        <TooltipContent side="right" className="font-medium">
+                          {item.name}
+                        </TooltipContent>
                       )}
-                    >
-                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                      {isOpen && item.name}
-                    </Link>
+                    </Tooltip>
                   )}
                 </div>
               ))}
@@ -437,5 +480,6 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 }
