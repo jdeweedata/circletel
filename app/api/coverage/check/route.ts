@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('active', true)
       .eq('customer_type', 'business')
-      .order('monthly_price', { ascending: true });
+      .order('price', { ascending: true });
 
     if (packagesError) {
       console.error('Error fetching packages:', packagesError);
