@@ -11,7 +11,8 @@ export default function VerifyOTPPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') || '';
-  
+  const email = searchParams.get('email') || '';
+
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -123,6 +124,32 @@ export default function VerifyOTPPage() {
               <span className="font-medium text-gray-900">{maskPhone(phone)}</span>
             </p>
           </div>
+
+          {/* Email Verification Notice */}
+          {email && (
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                    Email Verification Required
+                  </h3>
+                  <p className="text-xs text-blue-800 leading-relaxed mb-2">
+                    We've sent a verification link to <strong>{email}</strong>
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    Please check your inbox and click the link to verify your email address before logging in.
+                    Don't forget to check your spam folder!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleVerify} className="space-y-6">

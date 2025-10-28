@@ -151,11 +151,13 @@ export default function AccountPage() {
       // Move to next stage
       actions.setCurrentStage(3);
 
-      // Show success message
-      toast.success('Account created! Please verify your phone number.');
+      // Show success messages
+      toast.success('Account created successfully!', { duration: 4000 });
+      toast.info('📧 Verification email sent! Please check your inbox and verify your email address.', { duration: 6000 });
+      toast.info('📱 SMS verification code sent to your phone.', { duration: 4000 });
 
       // Navigate to OTP verification page
-      router.push(`/order/verify-otp?phone=${encodeURIComponent(data.phone)}`);
+      router.push(`/order/verify-otp?phone=${encodeURIComponent(data.phone)}&email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       console.error('Error creating account:', error);
       toast.error('Failed to create account. Please try again.');
