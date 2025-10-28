@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
       const pkg = packageMap.get(selection.package_id);
       if (!pkg) throw new Error(`Package ${selection.package_id} not found`);
 
-      const monthly = pkg.monthly_price * selection.quantity;
-      const installation = (pkg.installation_price || 0) * selection.quantity;
+      const monthly = (pkg.price || 0) * selection.quantity;
+      const installation = 0; // No installation price in database
 
       subtotal_monthly += monthly;
       subtotal_installation += installation;
@@ -110,8 +110,8 @@ export async function POST(request: NextRequest) {
         package_id: pkg.id,
         item_type: selection.item_type,
         quantity: selection.quantity,
-        monthly_price: pkg.monthly_price,
-        installation_price: pkg.installation_price || 0,
+        monthly_price: pkg.price || 0,
+        installation_price: 0,
         custom_pricing: false,
         service_name: pkg.name,
         service_type: pkg.service_type,
