@@ -103,7 +103,7 @@ function QuoteRequestFormContent() {
 
     try {
       // Call coverage API
-      const response = await fetch('/api/coverage/aggregate', {
+      const response = await fetch('/api/coverage/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address })
