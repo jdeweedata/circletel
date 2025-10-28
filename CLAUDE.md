@@ -453,15 +453,57 @@ const result = await client.getCoverageDetailedRealtime(
 - `service_packages` - Products/packages
 - `coverage_leads` - Coverage check results
 - `customers` - Customer accounts
-- `orders` - Order records
+- `consumer_orders` - B2C consumer orders (simplified flow)
+- `orders` - Legacy order records (being phased out)
 - `admin_users` - Admin accounts with RBAC
 - `fttb_network_providers` - Provider metadata
+- `business_quotes` - B2B SMME quotes and pricing
 
 **Partner Tables**:
 - `partners` - Partner business details, compliance status, partner number
 - `partner_compliance_documents` - FICA/CIPC document records
 - `partner_leads` - Leads assigned to partners
 - `partner_commissions` - Commission tracking
+
+**Consumer Orders Table Structure**:
+```sql
+consumer_orders:
+  - id UUID PRIMARY KEY
+  - order_number TEXT UNIQUE    -- Auto-generated order reference
+
+  -- Customer Info
+  - first_name, last_name, email, phone TEXT
+
+  -- Addresses
+  - installation_address TEXT   -- Primary installation location
+  - billing_same_as_installation BOOLEAN
+  - billing_address TEXT        -- Separate billing if needed
+
+  -- Product Selection
+  - service_package_id UUID
+  - package_name, package_speed TEXT
+  - package_price, installation_fee DECIMAL(10,2)
+  - router_included BOOLEAN
+
+  -- Payment
+  - payment_method TEXT         -- eft|card|debit_order|cash
+  - payment_status TEXT         -- pending|paid|partial|failed|refunded
+  - payment_reference TEXT
+  - total_paid DECIMAL(10,2)
+
+  -- Order Status (12 states)
+  - status order_status         -- pending → payment → KYC → installation → active
+
+  -- Installation Timeline
+  - preferred_installation_date DATE
+  - installation_scheduled_date DATE
+  - installation_completed_date DATE
+  - activation_date DATE
+
+  -- Tracking
+  - lead_source TEXT            -- coverage_checker|referral|etc
+  - account_number, connection_id TEXT
+```
 
 **Partner Table Key Columns**:
 ```sql
@@ -649,13 +691,40 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-10-27
-**Version**: 4.4
+**Last Updated**: 2025-10-28
+**Version**: 4.5
 **Maintained By**: Development Team + Claude Code
 
-## Recent Updates (Oct 27, 2025)
+## Recent Updates (Oct 28, 2025)
 
-### Partner Portal & Compliance System (COMPLETE)
+### Admin Orders Management System (COMPLETE)
+- ✅ **Orders List Page** (`/admin/orders`) - Comprehensive orders management interface
+  - 4 stat cards (Total Orders, Pending, Active, Total Revenue)
+  - Real-time search (order number, customer name, email, phone)
+  - Dual filtering (order status + payment status)
+  - Orders table with 8 columns and status badges
+  - Export and Refresh functionality
+- ✅ **Order Detail Page** (`/admin/orders/[id]`) - Full order information view
+  - 8 comprehensive sections (customer, addresses, package, payment, timeline, source, notes)
+  - Responsive 3-column layout with sidebar
+  - Interactive elements (Edit, Print, Export)
+  - Clickable email and phone links
+  - Status tracking across 12 order states and 5 payment states
+
+### Admin Dashboard Enhancement (Oct 28, 2025)
+- ✅ **Comprehensive Dashboard** - Transformed from product-focused to platform-wide overview
+  - 8 stat cards covering all business areas (revenue, approvals, quotes, orders, customers, leads)
+  - Clickable cards for quick navigation
+  - Urgent badge for pending approvals
+  - Month-to-date metrics for customers and leads
+- ✅ **Enhanced Sidebar Navigation** - Added missing menu items
+  - Quotes dropdown (All, Pending, Accepted)
+  - Orders management link
+  - Customers link
+  - Notifications link
+  - Hover tooltips for collapsed sidebar state
+
+### Partner Portal & Compliance System (Oct 27, 2025)
 - ✅ **Partner Registration** - Business details, banking info (`/partners/onboarding`)
 - ✅ **FICA/CIPC Document Upload** - 13 SA-specific compliance categories (`/partners/onboarding/verify`)
 - ✅ **Business-Type Requirements** - Dynamic requirements (5-11 documents) based on business type
