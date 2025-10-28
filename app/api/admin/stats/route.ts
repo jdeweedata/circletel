@@ -1,6 +1,6 @@
 /**
  * Admin Stats API Route
- * GET /api/admin/stats - Fetch dashboard statistics
+ * GET /api/admin/stats - Fetch comprehensive dashboard statistics
  */
 
 import { NextResponse } from 'next/server';
@@ -10,42 +10,121 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Fetch products with service role access
-    const { data: products, error: productsError } = await supabase
-      .from('products')
-      .select('pricing, status');
+    // Fetch all stats in parallel for performance
+    const [
+      productsResult,
+      quotesResult,
+      ordersResult,
+      customersResult,
+      leadsResult
+    ] = await Promise.all([
+      // Products
+      supabase.from('products').select('pricing, status'),
 
-    if (productsError) {
-      console.error('Error fetching products:', productsError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch products',
-          details: productsError.message
-        },
-        { status: 500 }
-      );
-    }
+      // Business Quotes
+      supabase.from('business_quotes').select('status, total_monthly, created_at'),
 
-    // Calculate stats
-    const totalProducts = products?.length || 0;
-    const activeProducts = (products || []).filter((p: any) => p.status === 'active');
+      // Orders
+      supabase.from('consumer_orders').select('status, total_amount, created_at'),
+
+      // Customers
+      supabase.from('customers').select('id, created_at'),
+
+      // Coverage Leads
+      supabase.from('coverage_leads').select('id, created_at')
+    ]);
+
+    // Products stats
+    const products = productsResult.data || [];
+    const totalProducts = products.length;
+    const activeProducts = products.filter((p: any) => p.status === 'active');
     const approvedProducts = activeProducts.length;
+    const pendingProducts = products.filter((p: any) => p.status === 'pending').length;
 
-    // Calculate monthly recurring revenue
-    const revenueImpact = activeProducts.reduce((sum: number, p: any) => {
-      // pricing is a JSONB object like {"monthly": 799, "installation": 0}
+    // Calculate product revenue potential
+    const productRevenue = activeProducts.reduce((sum: number, p: any) => {
       const price = typeof p.pricing === 'object' && p.pricing !== null
         ? parseFloat(p.pricing.monthly?.toString() || '0')
         : 0;
       return sum + price;
     }, 0);
 
+    // Quotes stats
+    const quotes = quotesResult.data || [];
+    const totalQuotes = quotes.length;
+    const pendingQuotes = quotes.filter((q: any) => q.status === 'pending_approval').length;
+    const acceptedQuotes = quotes.filter((q: any) => q.status === 'accepted').length;
+
+    // Calculate quote revenue (accepted quotes only)
+    const quoteRevenue = quotes
+      .filter((q: any) => q.status === 'accepted')
+      .reduce((sum: number, q: any) => sum + (parseFloat(q.total_monthly) || 0), 0);
+
+    // Orders stats
+    const orders = ordersResult.data || [];
+    const totalOrders = orders.length;
+    const pendingOrders = orders.filter((o: any) => o.status === 'pending').length;
+    const activeOrders = orders.filter((o: any) => o.status === 'active').length;
+
+    // Calculate order revenue
+    const orderRevenue = orders
+      .filter((o: any) => o.status === 'active')
+      .reduce((sum: number, o: any) => sum + (parseFloat(o.total_amount) || 0), 0);
+
+    // Customers stats
+    const customers = customersResult.data || [];
+    const totalCustomers = customers.length;
+
+    // New customers this month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const newCustomersThisMonth = customers.filter((c: any) =>
+      new Date(c.created_at) >= startOfMonth
+    ).length;
+
+    // Coverage Leads stats
+    const leads = leadsResult.data || [];
+    const totalLeads = leads.length;
+
+    // New leads this month
+    const newLeadsThisMonth = leads.filter((l: any) =>
+      new Date(l.created_at) >= startOfMonth
+    ).length;
+
+    // Total revenue (orders + quotes)
+    const totalRevenue = orderRevenue + quoteRevenue;
+
     const stats = {
+      // Products
       totalProducts,
-      pendingApprovals: 0, // No approval workflow implemented yet
       approvedProducts,
-      revenueImpact: Math.round(revenueImpact),
+      pendingProducts,
+      productRevenue: Math.round(productRevenue),
+
+      // Quotes
+      totalQuotes,
+      pendingQuotes,
+      acceptedQuotes,
+      quoteRevenue: Math.round(quoteRevenue),
+
+      // Orders
+      totalOrders,
+      pendingOrders,
+      activeOrders,
+      orderRevenue: Math.round(orderRevenue),
+
+      // Customers
+      totalCustomers,
+      newCustomersThisMonth,
+
+      // Leads
+      totalLeads,
+      newLeadsThisMonth,
+
+      // Overall
+      totalRevenue: Math.round(totalRevenue),
+      pendingApprovals: pendingProducts + pendingQuotes,
+
       lastUpdated: new Date().toISOString()
     };
 

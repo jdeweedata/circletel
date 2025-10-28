@@ -2,51 +2,85 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Package,
-  Clock,
-  CheckCircle,
+  FileText,
+  ShoppingCart,
+  Users,
   TrendingUp,
   Plus,
-  ArrowUpRight,
-  Activity,
-  Users,
+  CheckCircle,
+  Clock,
   DollarSign,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Target,
+  Bell,
+  BarChart3
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
-import { supabase } from '@/lib/supabase/client';
 
 interface AdminStats {
+  // Products
   totalProducts: number;
-  pendingApprovals: number;
   approvedProducts: number;
-  revenueImpact: number;
-  lastUpdated: Date;
-}
+  pendingProducts: number;
+  productRevenue: number;
 
-interface AuditActivity {
-  id: string;
-  type: string;
-  message: string;
-  timestamp: string;
-  user: string;
+  // Quotes
+  totalQuotes: number;
+  pendingQuotes: number;
+  acceptedQuotes: number;
+  quoteRevenue: number;
+
+  // Orders
+  totalOrders: number;
+  pendingOrders: number;
+  activeOrders: number;
+  orderRevenue: number;
+
+  // Customers
+  totalCustomers: number;
+  newCustomersThisMonth: number;
+
+  // Leads
+  totalLeads: number;
+  newLeadsThisMonth: number;
+
+  // Overall
+  totalRevenue: number;
+  pendingApprovals: number;
+
+  lastUpdated: string;
 }
 
 function useAdminStatsRealtime() {
   const [stats, setStats] = useState<AdminStats>({
     totalProducts: 0,
-    pendingApprovals: 0,
     approvedProducts: 0,
-    revenueImpact: 0,
-    lastUpdated: new Date()
+    pendingProducts: 0,
+    productRevenue: 0,
+    totalQuotes: 0,
+    pendingQuotes: 0,
+    acceptedQuotes: 0,
+    quoteRevenue: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    activeOrders: 0,
+    orderRevenue: 0,
+    totalCustomers: 0,
+    newCustomersThisMonth: 0,
+    totalLeads: 0,
+    newLeadsThisMonth: 0,
+    totalRevenue: 0,
+    pendingApprovals: 0,
+    lastUpdated: new Date().toISOString()
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +90,6 @@ function useAdminStatsRealtime() {
       setIsLoading(true);
       setError(null);
 
-      // Fetch stats from API route (uses service role credentials)
       const response = await fetch('/api/admin/stats');
       const result = await response.json();
 
@@ -64,13 +97,7 @@ function useAdminStatsRealtime() {
         throw new Error(result.error || result.details || 'Failed to fetch stats');
       }
 
-      setStats({
-        totalProducts: result.data.totalProducts,
-        pendingApprovals: result.data.pendingApprovals,
-        approvedProducts: result.data.approvedProducts,
-        revenueImpact: result.data.revenueImpact,
-        lastUpdated: new Date(result.data.lastUpdated)
-      });
+      setStats(result.data);
     } catch (err) {
       console.error('Error fetching admin stats:', err);
       setError(err instanceof Error ? err.message : 'Failed to load statistics');
@@ -95,220 +122,153 @@ export default function AdminDashboard() {
   const { user } = useAdminAuth();
   const { can } = usePermissions();
   const { stats, isLoading, error, refresh } = useAdminStatsRealtime();
-  const [recentActivity, setRecentActivity] = useState<AuditActivity[]>([]);
-  const [activityLoading, setActivityLoading] = useState(true);
-
-  // Fetch recent activity from audit logs
-  useEffect(() => {
-    const fetchRecentActivity = async () => {
-      try {
-        setActivityLoading(true);
-
-        const { data: auditLogs, error: auditError } = await supabase
-          .from('product_audit_logs')
-          .select(`
-            id,
-            action,
-            changed_fields,
-            changed_by_name,
-            changed_at,
-            change_reason,
-            product_id
-          `)
-          .order('changed_at', { ascending: false })
-          .limit(10) as {
-            data: Array<{
-              id: string;
-              action: string;
-              changed_fields: string[] | null;
-              changed_by_name: string | null;
-              changed_at: string;
-              change_reason: string | null;
-              product_id: string;
-            }> | null;
-            error: any
-          };
-
-        if (auditError) throw auditError;
-
-        // Transform audit logs into activity items
-        const activities: AuditActivity[] = await Promise.all(
-          (auditLogs || []).map(async (log: any) => {
-            // Fetch product name for context
-            const { data: product } = await supabase
-              .from('products')
-              .select('name')
-              .eq('id', log.product_id)
-              .single() as { data: { name: string } | null; error: any };
-
-            const productName = product?.name || 'Unknown Product';
-
-            // Determine activity type and message
-            let type = 'feature_update';
-            let message = '';
-
-            if (log.action === 'INSERT') {
-              type = 'product_created';
-              message = `New product "${productName}" created`;
-            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('monthly_price')) {
-              type = 'price_update';
-              message = `Pricing updated for ${productName}`;
-            } else if (log.action === 'UPDATE' && log.changed_fields?.includes('status')) {
-              type = 'status_change';
-              message = `Status changed for ${productName}`;
-            } else if (log.action === 'UPDATE') {
-              type = 'feature_update';
-              const fields = log.changed_fields?.filter((f: string) => f !== 'updated_at').join(', ') || 'properties';
-              message = `Updated ${fields} for ${productName}`;
-            } else if (log.action === 'DELETE') {
-              type = 'product_archived';
-              message = `Product "${productName}" archived`;
-            }
-
-            // Format timestamp
-            const timestamp = formatRelativeTime(new Date(log.changed_at));
-
-            return {
-              id: log.id,
-              type,
-              message,
-              timestamp,
-              user: log.changed_by_name || 'System'
-            };
-          })
-        );
-
-        setRecentActivity(activities);
-      } catch (err) {
-        console.error('Error fetching recent activity:', err);
-        // Set empty array on error
-        setRecentActivity([]);
-      } finally {
-        setActivityLoading(false);
-      }
-    };
-
-    fetchRecentActivity();
-  }, []);
-
-  // Helper function to format relative time
-  const formatRelativeTime = (date: Date): string => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString();
-  };
 
   const statCards = [
     {
-      title: 'Total Products',
-      value: stats.totalProducts,
-      description: 'Active product catalogue',
-      icon: Package,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      title: 'Total Revenue',
+      value: `R${stats.totalRevenue.toLocaleString()}`,
+      description: 'Active monthly revenue',
+      icon: DollarSign,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
       title: 'Pending Approvals',
       value: stats.pendingApprovals,
-      description: 'Awaiting review',
+      description: 'Quotes + Products awaiting review',
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       urgent: stats.pendingApprovals > 0
     },
     {
-      title: 'Approved Products',
-      value: stats.approvedProducts,
-      description: 'Live on website',
-      icon: CheckCircle,
+      title: 'Business Quotes',
+      value: stats.totalQuotes,
+      description: `${stats.pendingQuotes} pending, ${stats.acceptedQuotes} accepted`,
+      icon: FileText,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Customer Orders',
+      value: stats.totalOrders,
+      description: `${stats.activeOrders} active, ${stats.pendingOrders} pending`,
+      icon: ShoppingCart,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
-      title: 'Revenue Impact',
-      value: `R${stats.revenueImpact.toLocaleString()}`,
-      description: 'Monthly recurring revenue',
-      icon: DollarSign,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      title: 'Total Customers',
+      value: stats.totalCustomers,
+      description: `${stats.newCustomersThisMonth} new this month`,
+      icon: Users,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50'
+    },
+    {
+      title: 'Coverage Leads',
+      value: stats.totalLeads,
+      description: `${stats.newLeadsThisMonth} new this month`,
+      icon: Target,
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-50'
+    },
+    {
+      title: 'Active Products',
+      value: stats.approvedProducts,
+      description: `${stats.totalProducts} total products`,
+      icon: Package,
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50'
+    },
+    {
+      title: 'Quote Revenue',
+      value: `R${stats.quoteRevenue.toLocaleString()}`,
+      description: 'From accepted quotes',
+      icon: TrendingUp,
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50'
     }
   ];
 
   const quickActions = [
     {
-      title: 'Add New Product',
-      description: 'Create a new product offering',
+      title: 'Review Quotes',
+      description: 'Process pending quotes',
+      icon: FileText,
+      href: '/admin/quotes?status=pending_approval',
+      color: 'bg-blue-600 hover:bg-blue-700',
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
+      badge: stats.pendingQuotes > 0 ? stats.pendingQuotes : undefined
+    },
+    {
+      title: 'Manage Orders',
+      description: 'View customer orders',
+      icon: ShoppingCart,
+      href: '/admin/orders',
+      color: 'bg-green-600 hover:bg-green-700',
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
+      badge: stats.pendingOrders > 0 ? stats.pendingOrders : undefined
+    },
+    {
+      title: 'Add Product',
+      description: 'Create new offering',
       icon: Plus,
       href: '/admin/products/new',
       color: 'bg-circleTel-orange hover:bg-circleTel-orange/90',
       permission: PERMISSIONS.PRODUCTS.CREATE
     },
     {
-      title: 'Review Approvals',
-      description: 'Process pending approvals',
-      icon: CheckCircle,
-      href: '/admin/workflow',
-      color: 'bg-green-600 hover:bg-green-700',
-      permission: PERMISSIONS.PRODUCTS.APPROVE,
-      badge: stats.pendingApprovals > 0 ? stats.pendingApprovals : undefined
-    },
-    {
-      title: 'View Analytics',
-      description: 'Product performance metrics',
-      icon: TrendingUp,
-      href: '/admin/analytics',
-      color: 'bg-blue-600 hover:bg-blue-700',
+      title: 'View Customers',
+      description: 'Customer accounts',
+      icon: Users,
+      href: '/admin/customers',
+      color: 'bg-indigo-600 hover:bg-indigo-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
-      title: 'Manage Users',
-      description: 'Admin user management',
-      icon: Users,
-      href: '/admin/users',
+      title: 'Coverage Leads',
+      description: 'View coverage requests',
+      icon: Target,
+      href: '/admin/coverage',
+      color: 'bg-cyan-600 hover:bg-cyan-700',
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
+    },
+    {
+      title: 'Analytics',
+      description: 'Performance metrics',
+      icon: BarChart3,
+      href: '/admin/analytics',
       color: 'bg-purple-600 hover:bg-purple-700',
-      permission: PERMISSIONS.USERS.MANAGE_ROLES
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
+    },
+    {
+      title: 'Notifications',
+      description: 'Email templates',
+      icon: Bell,
+      href: '/admin/notifications',
+      color: 'bg-yellow-600 hover:bg-yellow-700',
+      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
+    },
+    {
+      title: 'Product Approvals',
+      description: 'Review pending products',
+      icon: CheckCircle,
+      href: '/admin/workflow',
+      color: 'bg-teal-600 hover:bg-teal-700',
+      permission: PERMISSIONS.PRODUCTS.APPROVE,
+      badge: stats.pendingProducts > 0 ? stats.pendingProducts : undefined
     }
   ];
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'product_created':
-        return <Plus className="h-6 w-6 text-green-600" />;
-      case 'price_update':
-        return <DollarSign className="h-6 w-6 text-blue-600" />;
-      case 'status_change':
-        return <Activity className="h-6 w-6 text-orange-600" />;
-      case 'feature_update':
-        return <Package className="h-6 w-6 text-purple-600" />;
-      case 'product_archived':
-        return <Clock className="h-6 w-6 text-red-600" />;
-      case 'approval_request':
-        return <Clock className="h-6 w-6 text-orange-600" />;
-      case 'product_approved':
-        return <CheckCircle className="h-6 w-6 text-green-600" />;
-      default:
-        return <Activity className="h-6 w-6 text-gray-600" />;
-    }
-  };
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <Card key={i} className="animate-pulse">
-              <CardHeader className="pb-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
                 <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-full"></div>
               </CardContent>
@@ -321,7 +281,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section - Consumer Dashboard Style */}
+      {/* Welcome Section */}
       <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
         <div className="flex items-center justify-between">
           <div>
@@ -329,17 +289,17 @@ export default function AdminDashboard() {
               Welcome back, {user?.full_name?.split(' ')[0]}!
             </h1>
             <p className="text-base lg:text-lg text-gray-600 mt-2">
-              Here&apos;s what&apos;s happening with your product catalogue today.
+              Here&apos;s your admin dashboard overview
               {stats.lastUpdated && (
                 <span className="text-sm text-gray-500 ml-2">
-                  • Last updated {stats.lastUpdated.toLocaleTimeString()}
+                  • Last updated {new Date(stats.lastUpdated).toLocaleTimeString()}
                 </span>
               )}
             </p>
             {error && (
               <div className="flex items-center space-x-2 mt-2 text-red-600">
                 <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">Failed to load real-time data: {error}</span>
+                <span className="text-sm">Failed to load data: {error}</span>
               </div>
             )}
           </div>
@@ -357,35 +317,58 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid - Consumer Dashboard Style */}
+      {/* Stats Grid - 8 Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
-          <Card key={index} className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 ${stat.urgent ? 'border-orange-300' : ''}`}>
+          <Card
+            key={index}
+            className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 ${
+              stat.urgent ? 'border-orange-300 ring-2 ring-orange-200' : ''
+            }`}
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{stat.title}</p>
-                  <p className="text-4xl lg:text-5xl font-extrabold mt-2 tabular-nums" style={{ color: stat.color.replace('text-', '#').replace('orange-600', '#ea580c').replace('blue-600', '#2563eb').replace('green-600', '#16a34a').replace('purple-600', '#9333ea') }}>
-                    {stat.value}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                    {stat.title}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <p
+                      className="text-3xl lg:text-4xl font-extrabold tabular-nums"
+                      style={{
+                        color: stat.color.replace('text-', '#')
+                          .replace('purple-600', '#9333ea')
+                          .replace('orange-600', '#ea580c')
+                          .replace('blue-600', '#2563eb')
+                          .replace('green-600', '#16a34a')
+                          .replace('indigo-600', '#4f46e5')
+                          .replace('cyan-600', '#0891b2')
+                          .replace('teal-600', '#0d9488')
+                          .replace('emerald-600', '#059669')
+                      }}
+                    >
+                      {stat.value}
+                    </p>
                     {stat.urgent && (
-                      <Badge variant="destructive" className="ml-2 text-sm align-middle">
-                        {stats.pendingApprovals}
+                      <Badge variant="destructive" className="text-xs">
+                        ACTION NEEDED
                       </Badge>
                     )}
-                  </p>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
                 </div>
-                <stat.icon className={`h-12 w-12 ${stat.color} opacity-20`} />
+                <stat.icon className={`h-12 w-12 ${stat.color} opacity-20 flex-shrink-0`} />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Quick Actions - Consumer Dashboard Style */}
+      {/* Quick Actions */}
       <div className="space-y-3">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-          <p className="text-sm text-gray-600 mt-1">Common tasks to manage your product catalogue</p>
+          <p className="text-sm text-gray-600 mt-1">Common administrative tasks</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -412,7 +395,16 @@ export default function AdminDashboard() {
               >
                 {/* Icon Container */}
                 <div className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${action.color.replace('bg-', 'bg-').replace(' hover:bg-', '/10 group-hover:bg-')}`}>
-                  <action.icon className={`h-7 w-7 ${action.color.includes('orange') ? 'text-circleTel-orange' : action.color.includes('green') ? 'text-green-600' : action.color.includes('blue') ? 'text-blue-600' : 'text-purple-600'}`} />
+                  <action.icon className={`h-7 w-7 ${
+                    action.color.includes('orange') ? 'text-circleTel-orange' :
+                    action.color.includes('green') ? 'text-green-600' :
+                    action.color.includes('blue') ? 'text-blue-600' :
+                    action.color.includes('purple') ? 'text-purple-600' :
+                    action.color.includes('indigo') ? 'text-indigo-600' :
+                    action.color.includes('cyan') ? 'text-cyan-600' :
+                    action.color.includes('yellow') ? 'text-yellow-600' :
+                    'text-teal-600'
+                  }`} />
                 </div>
 
                 {/* Title */}
@@ -421,7 +413,7 @@ export default function AdminDashboard() {
                     {action.title}
                   </h3>
                   {action.badge && (
-                    <Badge variant="secondary" className="mt-1 text-xs">
+                    <Badge variant="destructive" className="mt-1 text-xs">
                       {action.badge}
                     </Badge>
                   )}
@@ -434,56 +426,6 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
-
-      {/* Recent Activity - Consumer Dashboard Style */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold text-gray-900">Recent Activity</CardTitle>
-            <Link href="/admin/products?tab=history" className="text-sm font-semibold text-circleTel-orange hover:underline">
-              See all
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {activityLoading ? (
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 border rounded-lg animate-pulse">
-                  <div className="h-12 w-12 bg-gray-200 rounded-lg"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentActivity.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Activity className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No recent activity</p>
-                </div>
-              ) : (
-                recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
-                    <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-base">{activity.message}</p>
-                      <p className="text-base text-gray-600">
-                        by {activity.user} • {activity.timestamp}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
