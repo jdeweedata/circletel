@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, AlertCircle, MapPin, Building2, Phone, Mail, User, FileText } from 'lucide-react';
+import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 
 type Step = 'coverage' | 'details' | 'packages' | 'review' | 'success';
 
@@ -58,6 +59,7 @@ function QuoteRequestFormContent() {
 
   // Form data
   const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [coverageResult, setCoverageResult] = useState<CoverageResult | null>(null);
   const [customerType, setCustomerType] = useState<'smme' | 'enterprise'>('smme');
   const [companyName, setCompanyName] = useState('');
@@ -106,7 +108,10 @@ function QuoteRequestFormContent() {
       const response = await fetch('/api/coverage/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address })
+        body: JSON.stringify({
+          address,
+          coordinates: coordinates || undefined
+        })
       });
 
       const data = await response.json();
@@ -115,7 +120,7 @@ function QuoteRequestFormContent() {
         setCoverageResult({
           lead_id: data.lead_id,
           address: data.formatted_address || address,
-          coordinates: data.coordinates,
+          coordinates: data.coordinates || coordinates,
           available: true,
           packages: data.packages || []
         });
@@ -263,12 +268,17 @@ function QuoteRequestFormContent() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="address">Service Address *</Label>
-                <Input
-                  id="address"
+                <AddressAutocomplete
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onLocationSelect={(location) => {
+                    setAddress(location.address);
+                    if (location.latitude && location.longitude) {
+                      setCoordinates({ lat: location.latitude, lng: location.longitude });
+                    }
+                  }}
                   placeholder="Enter street address, suburb, city"
-                  onKeyPress={(e) => e.key === 'Enter' && handleCoverageCheck()}
+                  className="w-full"
+                  showLocationButton={true}
                 />
               </div>
               <Button
