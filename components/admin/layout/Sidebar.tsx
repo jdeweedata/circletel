@@ -32,7 +32,14 @@ import {
   TestTube,
   Building2,
   Network,
-  ShieldCheck
+  ShieldCheck,
+  ShoppingCart,
+  Bell,
+  Target,
+  Handshake,
+  UserPlus,
+  LinkIcon,
+  MapPin
 } from 'lucide-react';
 
 interface User {
@@ -64,6 +71,27 @@ const navigation = [
     ]
   },
   {
+    name: 'Quotes',
+    icon: FileText,
+    children: [
+      { name: 'All Quotes', href: '/admin/quotes', icon: List },
+      { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: Clock },
+      { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: CheckCircle }
+    ]
+  },
+  {
+    name: 'Orders',
+    href: '/admin/orders',
+    icon: ShoppingCart,
+    description: 'Manage customer orders'
+  },
+  {
+    name: 'Customers',
+    href: '/admin/customers',
+    icon: Users,
+    description: 'Manage customer accounts'
+  },
+  {
     name: 'Approvals',
     href: '/admin/workflow',
     icon: CheckCircle,
@@ -85,6 +113,12 @@ const navigation = [
     href: '/admin/kyc',
     icon: ShieldCheck,
     description: 'Review customer verification documents'
+  },
+  {
+    name: 'Notifications',
+    href: '/admin/notifications',
+    icon: Bell,
+    description: 'Email templates and notification logs'
   },
   {
     name: 'Zoho Integration',
