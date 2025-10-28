@@ -28,8 +28,15 @@ export default function BusinessPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/connectivity/fibre"
+                  href="/quotes/request"
                   className="bg-circleTel-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
+                >
+                  Request Quote
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+                <Link
+                  href="/connectivity/fibre"
+                  className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center border border-white/30 transition-colors"
                 >
                   Check Coverage
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -200,10 +207,10 @@ export default function BusinessPage() {
               <p className="text-sm text-gray-500 mb-6">50Mbps starting package (excl. VAT)</p>
 
               <Link
-                href="/connectivity/fibre"
+                href="/quotes/request"
                 className="block w-full bg-circleTel-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors"
               >
-                Check Coverage
+                Request Quote
               </Link>
             </div>
 
@@ -260,8 +267,15 @@ export default function BusinessPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/connectivity/fibre"
+              href="/quotes/request"
               className="bg-white text-circleTel-orange hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
+            >
+              Request Quote
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+            <Link
+              href="/connectivity/fibre"
+              className="bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               Check Coverage
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -272,13 +286,6 @@ export default function BusinessPage() {
             >
               <Phone className="mr-2 h-5 w-5" />
               087 087 6305
-            </a>
-            <a
-              href="mailto:contactus@circletel.co.za"
-              className="bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
-            >
-              <Mail className="mr-2 h-5 w-5" />
-              Email Us
             </a>
           </div>
         </div>

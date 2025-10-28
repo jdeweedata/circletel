@@ -143,8 +143,11 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           </AccordionItem>
         </Accordion>
 
-        <div className="pt-2">
-          <Button asChild className="w-full" onClick={() => setIsMenuOpen(false)}>
+        <div className="pt-2 flex flex-col gap-2">
+          <Button asChild variant="outline" className="w-full border-circleTel-orange text-circleTel-orange" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/quotes/request">Request Quote</Link>
+          </Button>
+          <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90" onClick={() => setIsMenuOpen(false)}>
             <Link href="/contact">Contact Us</Link>
           </Button>
         </div>

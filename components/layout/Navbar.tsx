@@ -22,7 +22,10 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:gap-2">
             <DesktopNavigationMenu />
-            <Button asChild className="ml-4 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
+            <Button asChild variant="outline" className="ml-4 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
+              <Link href="/quotes/request">Request Quote</Link>
+            </Button>
+            <Button asChild className="ml-2 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
               <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
