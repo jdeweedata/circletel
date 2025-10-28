@@ -9,14 +9,12 @@ import {
   Package,
   Settings,
   HelpCircle,
-  Network,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
   { label: 'Dashboard', href: '/dashboard', icon: Home },
   { label: 'Accounts', href: '/dashboard/profile', icon: UserCircle },
-  { label: 'Network', href: '/dashboard/tracking', icon: Network },
   { label: 'Orders', href: '/dashboard/orders', icon: Package },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Help & Support', href: '#', icon: HelpCircle },
