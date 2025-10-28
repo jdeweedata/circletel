@@ -11,7 +11,7 @@ import { createClient } from '@/integrations/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { address } = await request.json();
+    const { address, coordinates } = await request.json();
 
     if (!address) {
       return NextResponse.json(
@@ -22,22 +22,40 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Create coverage lead
+    // Create coverage lead with coordinates if available
+    const leadData: any = {
+      address,
+      customer_type: 'business',
+      lead_source: 'quote_request',
+      status: 'new',
+      // Add coordinates in PostGIS geography format if provided
+      ...(coordinates?.lat && coordinates?.lng && {
+        coordinates: {
+          type: 'Point',
+          coordinates: [coordinates.lng, coordinates.lat]
+        }
+      })
+    };
+
     const { data: lead, error: leadError } = await supabase
       .from('coverage_leads')
-      .insert({
-        address,
-        customer_type: 'business',
-        lead_source: 'quote_request',
-        status: 'new'
-      })
+      .insert(leadData)
       .select()
       .single();
 
-    if (leadError || !lead) {
+    if (leadError) {
       console.error('Error creating coverage lead:', leadError);
+      console.error('Lead data attempted:', leadData);
       return NextResponse.json(
-        { success: false, error: 'Failed to check coverage' },
+        { success: false, error: 'Failed to check coverage', details: leadError.message },
+        { status: 500 }
+      );
+    }
+
+    if (!lead) {
+      console.error('No lead returned from insert');
+      return NextResponse.json(
+        { success: false, error: 'Failed to create coverage lead' },
         { status: 500 }
       );
     }
