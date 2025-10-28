@@ -91,16 +91,17 @@ export default function AdminOrdersPage() {
 
       if (error) throw error;
 
-      setOrders(data || []);
+      const ordersData = (data || []) as Order[];
+      setOrders(ordersData);
 
       // Calculate stats
-      const total = data?.length || 0;
-      const pending = data?.filter(o => o.status === 'pending').length || 0;
-      const active = data?.filter(o => o.status === 'active').length || 0;
-      const cancelled = data?.filter(o => o.status === 'cancelled').length || 0;
-      const totalRevenue = data
-        ?.filter(o => o.status === 'active')
-        .reduce((sum, o) => sum + (parseFloat(o.package_price as any) || 0), 0) || 0;
+      const total = ordersData.length;
+      const pending = ordersData.filter(o => o.status === 'pending').length;
+      const active = ordersData.filter(o => o.status === 'active').length;
+      const cancelled = ordersData.filter(o => o.status === 'cancelled').length;
+      const totalRevenue = ordersData
+        .filter(o => o.status === 'active')
+        .reduce((sum, o) => sum + (parseFloat(o.package_price as any) || 0), 0);
 
       setStats({ total, pending, active, cancelled, totalRevenue });
     } catch (error) {
