@@ -33,17 +33,10 @@ export function TopProgressBar({ currentStep }: TopProgressBarProps) {
     },
     {
       id: 3,
-      label: 'Payment',
-      shortLabel: 'Payment',
-      completed: currentStep > 3,
-      current: currentStep === 3,
-    },
-    {
-      id: 4,
       label: 'Confirmation',
       shortLabel: 'Done',
-      completed: currentStep > 4,
-      current: currentStep === 4,
+      completed: currentStep > 3,
+      current: currentStep === 3,
     },
   ];
 

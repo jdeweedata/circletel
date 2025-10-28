@@ -108,7 +108,7 @@ export default function ServiceAddressPage() {
 
   // Note: Google Places Autocomplete removed - address is read-only from coverage check
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     // Validation
     if (!installationAddress.trim()) {
       toast.error('Installation address is required');
@@ -158,8 +158,60 @@ export default function ServiceAddressPage() {
     // Mark step as complete
     actions.markStepComplete(2);
 
-    toast.success('Service address confirmed!');
-    router.push('/order/payment');
+    // Create pending order (without payment)
+    try {
+      toast.loading('Creating your order...');
+
+      const { coverage, package: packageData, account } = state.orderData;
+      const selectedPackage = packageData?.selectedPackage;
+      const pricing = packageData?.pricing;
+
+      const orderResponse = await fetch('/api/orders/create-pending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Package details
+          service_package_id: selectedPackage?.id || null,
+          package_name: selectedPackage?.name || 'Selected Package',
+          package_speed: selectedPackage?.speed || '',
+          package_price: pricing?.monthly || selectedPackage?.monthlyPrice || 0,
+
+          // Installation details
+          installation_address: installationAddress,
+          coordinates: coverage?.coordinates || null,
+          installation_location_type: propertyType,
+          installation_fee: pricing?.onceOff || selectedPackage?.onceOffPrice || 0,
+
+          // Customer details
+          email: account?.email || '',
+          phone: account?.phone || '',
+          first_name: account?.firstName || '',
+          last_name: account?.lastName || '',
+          account_type: serviceType === 'residential' ? 'personal' : 'business',
+        }),
+      });
+
+      const result = await orderResponse.json();
+
+      if (!orderResponse.ok || !result.success) {
+        throw new Error(result.error || 'Failed to create order');
+      }
+
+      toast.dismiss();
+      toast.success('Order created! Please log in to complete your order.');
+
+      // Redirect to dashboard (will show login if not authenticated)
+      // Store order ID for later reference
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('circletel_pending_order_id', result.order.id);
+      }
+
+      router.push('/dashboard');
+    } catch (error) {
+      toast.dismiss();
+      console.error('Order creation error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create order. Please try again.');
+    }
   };
 
   const handleBack = () => {
@@ -314,7 +366,7 @@ export default function ServiceAddressPage() {
                   onClick={handleContinue}
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-medium rounded-lg transition-colors"
                 >
-                  Continue to Payment
+                  Create Order
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
