@@ -437,11 +437,11 @@ function QuoteRequestFormContent() {
                         </div>
                         <div className="text-right">
                           <p className="text-xl font-bold text-circleTel-orange">
-                            R{pkg.monthly_price.toFixed(2)}/mo
+                            R{pkg.price?.toFixed(2) || '0.00'}/mo
                           </p>
-                          {pkg.installation_price > 0 && (
-                            <p className="text-sm text-gray-500">
-                              +R{pkg.installation_price.toFixed(2)} install
+                          {pkg.promotion_price && (
+                            <p className="text-sm text-gray-500 line-through">
+                              Was R{pkg.promotion_price.toFixed(2)}
                             </p>
                           )}
                         </div>
@@ -538,7 +538,7 @@ function QuoteRequestFormContent() {
                     return pkg ? (
                       <div key={pkg.id} className="text-sm bg-gray-50 p-3 rounded">
                         <p className="font-medium">{pkg.name}</p>
-                        <p className="text-gray-600">R{pkg.monthly_price}/mo x {sel.quantity}</p>
+                        <p className="text-gray-600">R{pkg.price}/mo x {sel.quantity}</p>
                       </div>
                     ) : null;
                   })}
