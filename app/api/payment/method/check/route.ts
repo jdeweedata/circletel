@@ -24,10 +24,9 @@ export async function GET(request: NextRequest) {
     // Check if customer has any completed payment validations
     // A completed validation charge indicates they have a verified payment method
     const { data: validations, error: validationError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('id, payment_status')
-      .eq('customer_id', user.id)
-      .eq('is_validation_charge', true)
+      .eq('email', user.email)
       .eq('payment_status', 'completed')
       .limit(1);
 

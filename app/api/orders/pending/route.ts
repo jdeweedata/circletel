@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
 
     // Fetch pending orders for this customer
     const { data: orders, error: ordersError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('id, order_number, package_name, package_price, installation_address, created_at, status, payment_status')
-      .eq('customer_id', user.id)
+      .eq('email', user.email)
       .eq('status', 'pending_payment')
       .order('created_at', { ascending: false });
 

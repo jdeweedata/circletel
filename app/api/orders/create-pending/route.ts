@@ -45,48 +45,85 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate payment reference
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    const paymentReference = `CT-${timestamp}-${random}`;
+    // Generate order number
+    const orderNumber = await generateOrderNumber(supabase);
+    const paymentReference = `PAY-${orderNumber}`;
 
-    // Create pending order
+    // Create pending order (using consumer_orders table)
     const orderData = {
-      // Customer info (will be linked after authentication)
-      customer_id: user?.id || null, // May be null if not logged in yet
+      // Order identifiers
+      order_number: orderNumber,
+      payment_reference: paymentReference,
+
+      // Customer info
       first_name: first_name || email.split('@')[0],
       last_name: last_name || 'Customer',
       email,
       phone: phone || '',
+      alternate_phone: null,
+
+      // Installation address
+      installation_address,
+      suburb: null,
+      city: null,
+      province: null,
+      postal_code: null,
+      coordinates: coordinates || null,
+      special_instructions: null,
+
+      // Billing address (same as installation by default)
+      billing_same_as_installation: true,
+      billing_address: null,
+      billing_suburb: null,
+      billing_city: null,
+      billing_province: null,
+      billing_postal_code: null,
 
       // Package details
-      service_package_id,
+      service_package_id: service_package_id || null,
       package_name,
       package_speed: package_speed || '',
       package_price: package_price || 0,
-
-      // Installation details
-      installation_address,
-      coordinates: coordinates || null,
-      installation_location_type: installation_location_type || null,
       installation_fee: installation_fee || 0,
+      router_included: false,
+      router_rental_fee: null,
 
-      // Order status
-      status: 'pending_payment',
-      payment_reference: paymentReference,
+      // References
+      coverage_check_id: null,
+      coverage_lead_id: null,
+
+      // Payment
+      payment_method: null,
       payment_status: 'pending',
+      total_paid: 0,
 
-      // Account type
-      account_type: account_type || 'personal',
+      // Status
+      status: 'pending_payment',
 
-      // Order metadata
-      created_at: new Date().toISOString(),
+      // Installation preferences
+      preferred_installation_date: null,
+      installation_scheduled_date: null,
+      installation_time_slot: null,
+
+      // Contact preferences
+      contact_preference: 'email',
+      marketing_opt_in: false,
+      whatsapp_opt_in: false,
+
+      // Lead source
+      lead_source: 'coverage_checker',
+      source_campaign: null,
+      referral_code: null,
+
+      // Metadata
+      metadata: {},
+      internal_notes: null,
     };
 
     console.log('Creating pending order:', orderData);
 
     const { data: order, error: orderError } = await supabase
-      .from('orders')
+      .from('consumer_orders')
       .insert([orderData])
       .select()
       .single();
@@ -127,4 +164,37 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to generate unique order number (same as /api/orders/create)
+async function generateOrderNumber(supabase: any): Promise<string> {
+  const date = new Date();
+  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+  const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
+  let orderNumber = `ORD-${dateStr}-${randomNum}`;
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  // Check if order number exists, regenerate if it does
+  while (attempts < maxAttempts) {
+    const { data } = await supabase
+      .from('consumer_orders')
+      .select('id')
+      .eq('order_number', orderNumber)
+      .single();
+
+    if (!data) {
+      // Order number is unique
+      return orderNumber;
+    }
+
+    // Generate new random number
+    const newRandomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    orderNumber = `ORD-${dateStr}-${newRandomNum}`;
+    attempts++;
+  }
+
+  // Fallback: use timestamp
+  return `ORD-${dateStr}-${Date.now().toString().slice(-4)}`;
 }
