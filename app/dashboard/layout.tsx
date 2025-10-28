@@ -78,8 +78,8 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       <Topbar onToggleSidebar={() => setSidebarOpen((v) => !v)} displayName={displayName} email={user.email || ''} />
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[256px_minmax(0,1fr)] gap-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6 xl:gap-8">
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
@@ -96,7 +96,7 @@ export default function DashboardLayout({
 
       {/* Footer */}
       <footer className="border-t bg-white/80 backdrop-blur-sm mt-12">
-        <div className="container mx-auto px-4 py-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-circleTel-secondaryNeutral">
             <p>© 2025 CircleTel. All rights reserved.</p>
             <div className="flex gap-6">

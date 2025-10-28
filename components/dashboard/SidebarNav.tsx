@@ -42,8 +42,8 @@ export default function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white">
-      <div className="flex h-screen sticky top-0 flex-col gap-2 p-3">
+    <aside className="hidden lg:flex w-[280px] shrink-0 border-r bg-white">
+      <div className="flex h-screen sticky top-0 flex-col gap-2 p-4">
         <div className="flex items-center gap-2 px-3 py-2">
           <img src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel" className="h-6 w-auto" />
         </div>

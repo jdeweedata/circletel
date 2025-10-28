@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px;">
+
+    <h1 style="color: #F5831F; margin: 0 0 20px 0;">CircleTel</h1>
+
+    <h2 style="color: #333; font-size: 20px;">Verify Your Email Address</h2>
+
+    <p style="color: #666; line-height: 1.6;">
+      Thank you for signing up with CircleTel. Click the link below to verify your email address:
+    </p>
+
+    <p style="margin: 30px 0;">
+      <a href="{{ .ConfirmationURL }}" style="background-color: #F5831F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+        Verify Email
+      </a>
+    </p>
+
+    <p style="color: #999; font-size: 12px;">
+      This link expires in 24 hours. If you didn't create this account, please ignore this email.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+    <p style="color: #666; font-size: 13px;">
+      Questions? Email us at <a href="mailto:contactus@circletel.co.za" style="color: #F5831F;">contactus@circletel.co.za</a> or call 087 087 6305
+    </p>
+
+    <p style="color: #999; font-size: 11px;">
+      © {{ .Year }} CircleTel. All rights reserved.
+    </p>
+
+  </div>
+</body>
+</html>

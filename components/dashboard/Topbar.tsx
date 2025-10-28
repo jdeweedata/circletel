@@ -12,7 +12,7 @@ type Props = {
 export default function Topbar({ onToggleSidebar, displayName, email }: Props) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b">
-      <div className="flex items-center gap-3 px-4 lg:px-6 h-14">
+      <div className="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-14">
         {/* Mobile menu */}
         <button
           onClick={onToggleSidebar}
