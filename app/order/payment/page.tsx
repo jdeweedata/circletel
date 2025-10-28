@@ -42,6 +42,9 @@ export default function PaymentPage() {
   const installationFee = pricing?.onceOff || selectedPackage?.onceOffPrice || 0;
   const totalAmount = basePrice + installationFee;
 
+  // Validation charge: R1.00 to verify payment method
+  const VALIDATION_AMOUNT = 1.00;
+
   // Set current stage to 3 when this page loads
   useEffect(() => {
     if (state.currentStage !== 3) {
@@ -99,10 +102,14 @@ export default function PaymentPage() {
         service_package_id: selectedPackage.id || null,
         package_name: selectedPackage.name,
         package_speed: selectedPackage.speed,
-        package_price: basePrice,
+        package_price: basePrice, // Actual package price (for subscription billing)
 
         // Pricing
         installation_fee: installationFee,
+
+        // Validation charge (R1.00 credited to client account)
+        payment_amount: VALIDATION_AMOUNT,
+        is_validation_charge: true,
 
         // Installation address
         installation_address: coverage.address,
@@ -154,12 +161,14 @@ export default function PaymentPage() {
       saveOrderId(order.id);
 
       // Step 2: Initiate Netcash payment
+      // Note: Charging R1.00 for payment method validation only
+      // The actual package fee will be billed separately via subscription
       const paymentResponse = await fetch('/api/payment/netcash/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: order.id,
-          amount: totalAmount,
+          amount: VALIDATION_AMOUNT, // R1.00 validation charge (credited to client account)
           customerEmail: account.email,
           customerName: `${firstName} ${lastName}`.trim(),
           paymentReference: order.payment_reference,
@@ -271,6 +280,7 @@ export default function PaymentPage() {
                   Order Summary
                 </Label>
                 <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                  {/* Package Details */}
                   <div className="flex justify-between items-center pb-3 border-b border-gray-200">
                     <span className="text-sm text-gray-600">Monthly Subscription</span>
                     <span className="text-base font-semibold text-gray-900">R{basePrice.toFixed(2)}</span>
@@ -281,13 +291,31 @@ export default function PaymentPage() {
                       {installationFee > 0 ? `R${installationFee.toFixed(2)}` : 'FREE'}
                     </span>
                   </div>
+
+                  {/* Validation Charge Notice */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 mb-1">
+                          Payment Method Validation
+                        </p>
+                        <p className="text-xs text-blue-700">
+                          We'll charge <strong>R1.00</strong> to verify your payment method.
+                          This amount will be <strong>credited to your account</strong> and can be used towards your service.
+                          Your first monthly bill will be processed separately after service activation.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex justify-between items-center pt-2">
-                    <span className="text-base font-bold text-gray-900">Total Due Today</span>
-                    <span className="text-2xl font-bold text-circleTel-orange">R{totalAmount.toFixed(2)}</span>
+                    <span className="text-base font-bold text-gray-900">Charge Today (Validation)</span>
+                    <span className="text-2xl font-bold text-circleTel-orange">R{VALIDATION_AMOUNT.toFixed(2)}</span>
                   </div>
                   <div className="pt-2">
                     <p className="text-xs text-gray-500">
-                      * Monthly billing starts after service activation
+                      * Package fee of R{basePrice.toFixed(2)}/month will be billed separately after service activation
                     </p>
                   </div>
                 </div>
