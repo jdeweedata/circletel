@@ -25,11 +25,11 @@ interface QuickAction {
 
 const quickActions: QuickAction[] = [
   {
-    id: 'pay-now',
-    title: 'Pay Now',
+    id: 'payment-method',
+    title: 'Payment Method',
     icon: CreditCard,
-    href: '/dashboard/billing/pay',
-    description: 'Make a payment',
+    href: '/dashboard/payment-method',
+    description: 'Manage payment method',
     iconBg: 'bg-blue-100',
     iconColor: 'text-blue-600',
   },

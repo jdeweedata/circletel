@@ -65,6 +65,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingOrders, setPendingOrders] = useState<number>(0);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -93,13 +94,30 @@ export default function DashboardPage() {
 
         const result = await response.json();
         console.log('Dashboard data received:', result);
-        
+
         if (result.success) {
           setData(result.data);
           setError(null);
         } else {
           setError(result.error || 'Failed to load dashboard');
         }
+
+        // Fetch pending orders count
+        try {
+          const pendingResponse = await fetch('/api/orders/pending', {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          });
+
+          if (pendingResponse.ok) {
+            const pendingData = await pendingResponse.json();
+            setPendingOrders(pendingData.orders?.length || 0);
+          }
+        } catch (pendingError) {
+          console.error('Error fetching pending orders:', pendingError);
+        }
+
       } catch (err) {
         console.error('Dashboard error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
@@ -156,10 +174,10 @@ export default function DashboardPage() {
     );
   }
 
-  return <DashboardContent data={data} user={user} customer={customer} />;
+  return <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} />;
 }
 
-function DashboardContent({ data, user, customer }: { data: DashboardData; user: any; customer: any }) {
+function DashboardContent({ data, user, customer, pendingOrders }: { data: DashboardData; user: any; customer: any; pendingOrders: number }) {
   // Helper to check if a name is a placeholder/default value
   const isPlaceholder = (name: string | undefined) => {
     if (!name) return true;
@@ -196,6 +214,32 @@ function DashboardContent({ data, user, customer }: { data: DashboardData; user:
           )}
         </p>
       </div>
+
+      {/* Pending Orders Alert */}
+      {pendingOrders > 0 && (
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-circleTel-orange rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-circleTel-orange rounded-lg">
+              <AlertCircle className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Complete Your Order
+              </h3>
+              <p className="text-gray-700 mb-4">
+                You have <strong>{pendingOrders}</strong> pending {pendingOrders === 1 ? 'order' : 'orders'} waiting for payment method validation.
+                Add a payment method to complete your order and start enjoying high-speed connectivity.
+              </p>
+              <Link href="/dashboard/payment-method">
+                <Button className="bg-circleTel-orange hover:bg-orange-600 font-semibold shadow-md">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Add Payment Method
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
