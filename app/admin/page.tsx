@@ -130,7 +130,8 @@ export default function AdminDashboard() {
       description: 'Active monthly revenue',
       icon: DollarSign,
       color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      bgColor: 'bg-purple-50',
+      href: '/admin/analytics'
     },
     {
       title: 'Pending Approvals',
@@ -139,7 +140,8 @@ export default function AdminDashboard() {
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
-      urgent: stats.pendingApprovals > 0
+      urgent: stats.pendingApprovals > 0,
+      href: '/admin/workflow'
     },
     {
       title: 'Business Quotes',
@@ -147,7 +149,8 @@ export default function AdminDashboard() {
       description: `${stats.pendingQuotes} pending, ${stats.acceptedQuotes} accepted`,
       icon: FileText,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
+      href: '/admin/quotes'
     },
     {
       title: 'Customer Orders',
@@ -155,7 +158,8 @@ export default function AdminDashboard() {
       description: `${stats.activeOrders} active, ${stats.pendingOrders} pending`,
       icon: ShoppingCart,
       color: 'text-green-600',
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
+      href: '/admin/orders'
     },
     {
       title: 'Total Customers',
@@ -163,7 +167,8 @@ export default function AdminDashboard() {
       description: `${stats.newCustomersThisMonth} new this month`,
       icon: Users,
       color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50'
+      bgColor: 'bg-indigo-50',
+      href: '/admin/customers'
     },
     {
       title: 'Coverage Leads',
@@ -171,7 +176,8 @@ export default function AdminDashboard() {
       description: `${stats.newLeadsThisMonth} new this month`,
       icon: Target,
       color: 'text-cyan-600',
-      bgColor: 'bg-cyan-50'
+      bgColor: 'bg-cyan-50',
+      href: '/admin/coverage'
     },
     {
       title: 'Active Products',
@@ -179,7 +185,8 @@ export default function AdminDashboard() {
       description: `${stats.totalProducts} total products`,
       icon: Package,
       color: 'text-teal-600',
-      bgColor: 'bg-teal-50'
+      bgColor: 'bg-teal-50',
+      href: '/admin/products'
     },
     {
       title: 'Quote Revenue',
@@ -187,7 +194,8 @@ export default function AdminDashboard() {
       description: 'From accepted quotes',
       icon: TrendingUp,
       color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50'
+      bgColor: 'bg-emerald-50',
+      href: '/admin/quotes?status=accepted'
     }
   ];
 
@@ -320,47 +328,52 @@ export default function AdminDashboard() {
       {/* Stats Grid - 8 Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
-          <Card
+          <Link
             key={index}
-            className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 ${
-              stat.urgent ? 'border-orange-300 ring-2 ring-orange-200' : ''
-            }`}
+            href={stat.href}
+            className="block"
           >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                    {stat.title}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <p
-                      className="text-3xl lg:text-4xl font-extrabold tabular-nums"
-                      style={{
-                        color: stat.color.replace('text-', '#')
-                          .replace('purple-600', '#9333ea')
-                          .replace('orange-600', '#ea580c')
-                          .replace('blue-600', '#2563eb')
-                          .replace('green-600', '#16a34a')
-                          .replace('indigo-600', '#4f46e5')
-                          .replace('cyan-600', '#0891b2')
-                          .replace('teal-600', '#0d9488')
-                          .replace('emerald-600', '#059669')
-                      }}
-                    >
-                      {stat.value}
+            <Card
+              className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 cursor-pointer hover:border-circleTel-orange ${
+                stat.urgent ? 'border-orange-300 ring-2 ring-orange-200' : ''
+              }`}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                      {stat.title}
                     </p>
-                    {stat.urgent && (
-                      <Badge variant="destructive" className="text-xs">
-                        ACTION NEEDED
-                      </Badge>
-                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <p
+                        className="text-3xl lg:text-4xl font-extrabold tabular-nums"
+                        style={{
+                          color: stat.color.replace('text-', '#')
+                            .replace('purple-600', '#9333ea')
+                            .replace('orange-600', '#ea580c')
+                            .replace('blue-600', '#2563eb')
+                            .replace('green-600', '#16a34a')
+                            .replace('indigo-600', '#4f46e5')
+                            .replace('cyan-600', '#0891b2')
+                            .replace('teal-600', '#0d9488')
+                            .replace('emerald-600', '#059669')
+                        }}
+                      >
+                        {stat.value}
+                      </p>
+                      {stat.urgent && (
+                        <Badge variant="destructive" className="text-xs">
+                          ACTION NEEDED
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
+                  <stat.icon className={`h-12 w-12 ${stat.color} opacity-20 flex-shrink-0`} />
                 </div>
-                <stat.icon className={`h-12 w-12 ${stat.color} opacity-20 flex-shrink-0`} />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
