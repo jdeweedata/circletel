@@ -5,35 +5,20 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   UserCircle,
-  FileText,
   CreditCard,
   Package,
-  Ticket,
   Settings,
   HelpCircle,
-  BarChart2,
   Network,
-  MapPin,
-  Building2,
-  MessageSquare,
-  Box,
-  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
   { label: 'Dashboard', href: '/dashboard', icon: Home },
   { label: 'Accounts', href: '/dashboard/profile', icon: UserCircle },
-  { label: 'Addresses', href: '#', icon: MapPin, disabled: true },
-  { label: 'Properties', href: '#', icon: Building2, disabled: true },
-  { label: 'Communications', href: '#', icon: MessageSquare, disabled: true },
-  { label: 'Inventory', href: '#', icon: Box, disabled: true },
-  { label: 'Issues', href: '#', icon: AlertTriangle, disabled: true },
   { label: 'Network', href: '/dashboard/tracking', icon: Network },
   { label: 'Orders', href: '/dashboard/orders', icon: Package },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Tickets', href: '#', icon: Ticket, disabled: true },
-  { label: 'Analytics', href: '#', icon: BarChart2, disabled: true },
   { label: 'Help & Support', href: '#', icon: HelpCircle },
   { label: 'Settings', href: '#', icon: Settings },
 ];
