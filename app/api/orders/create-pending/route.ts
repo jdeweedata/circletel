@@ -7,12 +7,21 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('[create-pending] Starting order creation...');
+
     const supabase = await createClient();
+    console.log('[create-pending] Supabase client created');
 
     // Get authenticated user (may not be authenticated yet)
     const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('[create-pending] User auth check:', user ? 'Authenticated' : 'Not authenticated');
 
     const body = await request.json();
+    console.log('[create-pending] Request body received:', {
+      hasEmail: !!body.email,
+      hasPackageName: !!body.package_name,
+      hasInstallationAddress: !!body.installation_address
+    });
     const {
       // Package details
       service_package_id,
@@ -98,7 +107,7 @@ export async function POST(request: NextRequest) {
       total_paid: 0,
 
       // Status
-      status: 'pending_payment',
+      status: 'pending',
 
       // Installation preferences
       preferred_installation_date: null,
