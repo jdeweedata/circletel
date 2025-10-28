@@ -73,6 +73,11 @@ function QuoteRequestFormContent() {
   const [customerNotes, setCustomerNotes] = useState('');
   const [quoteNumber, setQuoteNumber] = useState('');
 
+  // Package filtering state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'price' | 'speed' | 'name'>('price');
+
   // Validate token on mount
   useEffect(() => {
     if (token) {
@@ -205,6 +210,44 @@ function QuoteRequestFormContent() {
         quantity: 1
       }]);
     }
+  };
+
+  // Filter and sort packages
+  const getFilteredPackages = () => {
+    if (!coverageResult?.packages) return [];
+
+    let filtered = coverageResult.packages;
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter((pkg: any) =>
+        pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pkg.service_type.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by service type
+    if (selectedServiceType !== 'all') {
+      filtered = filtered.filter((pkg: any) =>
+        pkg.service_type.toLowerCase() === selectedServiceType.toLowerCase()
+      );
+    }
+
+    // Sort packages
+    filtered = [...filtered].sort((a: any, b: any) => {
+      switch (sortBy) {
+        case 'price':
+          return (a.price || 0) - (b.price || 0);
+        case 'speed':
+          return (b.speed_down || 0) - (a.speed_down || 0);
+        case 'name':
+          return a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
   };
 
   return (
@@ -415,8 +458,75 @@ function QuoteRequestFormContent() {
               </Alert>
 
               {coverageResult && coverageResult.packages.length > 0 ? (
-                <div className="grid gap-4">
-                  {coverageResult.packages.map((pkg: any) => (
+                <>
+                  {/* Filters and Search */}
+                  <div className="space-y-4 bg-gray-100 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Search */}
+                      <div>
+                        <Label htmlFor="search">Search Packages</Label>
+                        <Input
+                          id="search"
+                          placeholder="Search by name or type..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Service Type Filter */}
+                      <div>
+                        <Label htmlFor="serviceType">Service Type</Label>
+                        <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+                          <SelectTrigger id="serviceType">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="lte">LTE</SelectItem>
+                            <SelectItem value="5g">5G</SelectItem>
+                            <SelectItem value="fibre">Fibre</SelectItem>
+                            <SelectItem value="wireless">Wireless</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Sort By */}
+                      <div>
+                        <Label htmlFor="sortBy">Sort By</Label>
+                        <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+                          <SelectTrigger id="sortBy">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="price">Price (Low to High)</SelectItem>
+                            <SelectItem value="speed">Speed (High to Low)</SelectItem>
+                            <SelectItem value="name">Name (A-Z)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>
+                        Showing {getFilteredPackages().length} of {coverageResult.packages.length} packages
+                      </span>
+                      {(searchQuery || selectedServiceType !== 'all') && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('');
+                            setSelectedServiceType('all');
+                          }}
+                          className="text-circleTel-orange hover:underline"
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Package List */}
+                  <div className="grid gap-4 max-h-[600px] overflow-y-auto pr-2">
+                    {getFilteredPackages().map((pkg: any) => (
                     <div
                       key={pkg.id}
                       className={`border-2 rounded-lg p-4 cursor-pointer transition ${
@@ -448,7 +558,8 @@ function QuoteRequestFormContent() {
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                </>
               ) : (
                 <Alert>
                   <AlertDescription>
