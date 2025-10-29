@@ -20,16 +20,28 @@
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/circletel/circletel-nextjs.git
+# Clone the repository with submodules
+git clone --recurse-submodules https://github.com/jdeweedata/circletel-nextjs.git
 cd circletel-nextjs
 
-# Install dependencies
+# If you already cloned without --recurse-submodules, initialize submodules:
+git submodule update --init --recursive
+
+# Install dependencies (main project)
 npm install
+
+# Install dependencies (Strapi CMS)
+cd strapi-cms
+npm install
+cd ..
 
 # Set up environment variables
 cp .env.example .env.local
 # Edit .env.local with your credentials
+
+# Set up Strapi environment variables
+cp strapi-cms/.env.example strapi-cms/.env
+# Edit strapi-cms/.env with your CMS credentials
 
 # Run development server
 npm run dev
@@ -114,7 +126,8 @@ circletel-nextjs/
 ├── supabase/             # Supabase configuration
 │   ├── functions/        # Edge functions
 │   └── migrations/       # SQL migrations
-└── strapi-cms/           # Strapi CMS instance
+└── strapi-cms/           # Git submodule: circletel-strapi-cms
+                          # (see https://github.com/jdeweedata/circletel-strapi-cms)
 ```
 
 ---
@@ -186,6 +199,41 @@ See `.env.example` for required variables:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
 - And more...
+
+---
+
+## 📦 Working with Git Submodules
+
+The Strapi CMS is maintained as a separate repository linked via git submodule.
+
+### Common Submodule Commands
+
+```bash
+# Update submodule to latest commit
+cd strapi-cms
+git pull origin main
+cd ..
+git add strapi-cms
+git commit -m "Update Strapi CMS submodule"
+
+# Check submodule status
+git submodule status
+
+# Pull main repo and update all submodules
+git pull
+git submodule update --remote
+
+# Clone project with submodules
+git clone --recurse-submodules https://github.com/jdeweedata/circletel-nextjs.git
+
+# If you forgot --recurse-submodules
+git submodule update --init --recursive
+```
+
+### Strapi CMS Repository
+- **Repository**: [circletel-strapi-cms](https://github.com/jdeweedata/circletel-strapi-cms)
+- **Purpose**: Content management system for marketing pages, campaigns, and promotions
+- **Deployment**: Separate from main Next.js app
 
 ---
 
