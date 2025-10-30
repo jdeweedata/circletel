@@ -71,18 +71,53 @@ export async function middleware(request: NextRequest) {
   );
 
   // If accessing protected admin routes without authentication
-  if (pathname.startsWith('/admin') && !isPublicAdminRoute &&!user) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/admin/login';
-    redirectUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(redirectUrl);
+  if (pathname.startsWith('/admin') && !isPublicAdminRoute) {
+    if (!user) {
+      // No user session at all
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/admin/login';
+      redirectUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // User has session, but verify they're in admin_users table
+    const { data: adminUser, error: adminError } = await supabase
+      .from('admin_users')
+      .select('id, is_active')
+      .eq('id', user.id)
+      .single();
+
+    if (adminError || !adminUser || !adminUser.is_active) {
+      // User not in admin_users or inactive - sign them out and redirect
+      console.log('[Middleware] User not authorized as admin:', {
+        userId: user.id,
+        error: adminError?.message,
+        hasAdminUser: !!adminUser,
+        isActive: adminUser?.is_active
+      });
+      
+      await supabase.auth.signOut();
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/admin/login';
+      redirectUrl.searchParams.set('error', 'unauthorized');
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
-  // If logged in and trying to access login/signup, redirect to dashboard
+  // If logged in as admin and trying to access login/signup, redirect to dashboard
   if (isPublicAdminRoute && user) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/admin';
-    return NextResponse.redirect(redirectUrl);
+    // Verify they're actually an admin before redirecting
+    const { data: adminUser } = await supabase
+      .from('admin_users')
+      .select('id, is_active')
+      .eq('id', user.id)
+      .single();
+
+    if (adminUser && adminUser.is_active) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/admin';
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   return response;
