@@ -59,11 +59,11 @@ export default function AdminLoginPage() {
       // Show success message
       toast.success('Welcome back!');
 
-      // Redirect to admin dashboard
-      router.push('/admin');
+      // Small delay to ensure cookies are set before redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Refresh the page to ensure session is loaded
-      router.refresh();
+      // Redirect to admin dashboard
+      window.location.href = '/admin';
     } catch (error) {
       console.error('Error signing in:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to sign in. Please try again.');

@@ -8,15 +8,20 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  const pathname = request.nextUrl.pathname;
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          const cookies = request.cookies.getAll();
+          console.log('[Middleware] Cookies count:', cookies.length);
+          return cookies;
         },
         setAll(cookiesToSet) {
+          console.log('[Middleware] Setting cookies count:', cookiesToSet.length);
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           );
@@ -31,12 +36,18 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Get current session
+  // Get current user (authenticates with Supabase server)
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
+  console.log('[Middleware] Auth result:', {
+    pathname,
+    hasUser: !!user,
+    userEmail: user?.email,
+    error: userError?.message,
+  });
 
   // Public admin routes (login, signup, forgot password, reset password)
   const publicAdminRoutes = [
@@ -52,8 +63,8 @@ export async function middleware(request: NextRequest) {
 
   // If accessing admin routes (excluding public routes)
   if (pathname.startsWith('/admin') && !isPublicAdminRoute) {
-    // If no session, redirect to login
-    if (!session) {
+    // If no user, redirect to login
+    if (!user) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/admin/login';
       redirectUrl.searchParams.set('redirect', pathname);
@@ -64,7 +75,7 @@ export async function middleware(request: NextRequest) {
     const { data: adminUser, error } = await supabase
       .from('admin_users')
       .select('id, is_active, role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .maybeSingle();
 
     // If user is not an admin or account is inactive, redirect to login
@@ -80,12 +91,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // If logged in and trying to access login/signup, redirect to dashboard
-  if (isPublicAdminRoute && session) {
+  if (isPublicAdminRoute && user) {
     // Check if user is an admin
     const { data: adminUser } = await supabase
       .from('admin_users')
       .select('id, is_active')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .maybeSingle();
 
     if (adminUser && adminUser.is_active) {
