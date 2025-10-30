@@ -1,47 +1,54 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { Loader2 } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading, logout, validateSession } = useAdminAuth();
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const router = useRouter();
   const pathname = usePathname();
+  const supabase = createClient();
 
   // Public routes that don't require authentication
   const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
 
+  // Get user from localStorage (saved by login page)
   useEffect(() => {
-    // Skip validation for public routes
-    if (!isPublicRoute) {
-      validateSession();
+    if (isPublicRoute) {
+      setIsLoading(false);
+      return;
     }
-  }, [isPublicRoute, validateSession]);
 
-  // Redirect to login if not authenticated (in useEffect to avoid render issues)
-  useEffect(() => {
-    if (!isPublicRoute && !isLoading && !user) {
-      router.push('/admin/login');
+    try {
+      const storedUser = localStorage.getItem('admin_user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Error loading user:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isPublicRoute, isLoading, user, router]);
+  }, [isPublicRoute]);
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {
     return <>{children}</>;
   }
 
-  // For protected routes, show loading while checking auth
-  if (isLoading) {
+  // For protected routes, middleware has already validated auth
+  // Just show loading while fetching user details
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
@@ -49,18 +56,10 @@ export default function AdminLayout({
     );
   }
 
-  // Show loading while redirecting
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
-      </div>
-    );
-  }
-
-  const handleLogout = () => {
-    logout();
-    router.push('/admin/login');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('admin_user');
+    window.location.href = '/admin/login';
   };
 
   return (

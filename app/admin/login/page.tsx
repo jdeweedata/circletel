@@ -56,6 +56,11 @@ export default function AdminLoginPage() {
         throw new Error(result.error || 'Login failed');
       }
 
+      // Save user to localStorage for admin layout
+      if (result.user) {
+        localStorage.setItem('admin_user', JSON.stringify(result.user));
+      }
+
       // Show success message
       toast.success('Welcome back!');
 

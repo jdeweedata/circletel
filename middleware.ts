@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // IMPORTANT: Initial response uses headers only, not full request
+  // Cookies will be added via setAll() callback
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -17,17 +19,26 @@ export async function middleware(request: NextRequest) {
       cookies: {
         getAll() {
           const cookies = request.cookies.getAll();
-          console.log('[Middleware] Cookies count:', cookies.length);
+          const authCookie = cookies.find(c => c.name.includes('auth-token'));
+          console.log('[Middleware] Cookies:', {
+            count: cookies.length,
+            hasAuthCookie: !!authCookie,
+            authCookiePreview: authCookie ? authCookie.value.substring(0, 50) + '...' : 'none'
+          });
           return cookies;
         },
         setAll(cookiesToSet) {
           console.log('[Middleware] Setting cookies count:', cookiesToSet.length);
-          cookiesToSet.forEach(({ name, value, options }) =>
+          // Step 1: Update request cookies (for server-side reads in this request)
+          // Note: request.cookies.set() does NOT accept options parameter
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
+          // Step 2: Create new response with updated request
           response = NextResponse.next({
             request,
           });
+          // Step 3: Set cookies on response (for browser) WITH options
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -36,20 +47,18 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Get current user (authenticates with Supabase server)
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  // Refresh session and get current user
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  console.log('[Middleware] Auth result:', {
+  console.log('[Middleware] Session refresh result:', {
     pathname,
     hasUser: !!user,
+    userId: user?.id,
     userEmail: user?.email,
-    error: userError?.message,
+    error: error?.message
   });
 
-  // Public admin routes (login, signup, forgot password, reset password)
+  // Public admin routes
   const publicAdminRoutes = [
     '/admin/login',
     '/admin/signup',
@@ -61,49 +70,19 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  // If accessing admin routes (excluding public routes)
-  if (pathname.startsWith('/admin') && !isPublicAdminRoute) {
-    // If no user, redirect to login
-    if (!user) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/admin/login';
-      redirectUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    // Check if user exists in admin_users table
-    const { data: adminUser, error } = await supabase
-      .from('admin_users')
-      .select('id, is_active, role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    // If user is not an admin or account is inactive, redirect to login
-    if (error || !adminUser || !adminUser.is_active) {
-      // Clear session
-      await supabase.auth.signOut();
-
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/admin/login';
-      redirectUrl.searchParams.set('error', 'unauthorized');
-      return NextResponse.redirect(redirectUrl);
-    }
+  // If accessing protected admin routes without authentication
+  if (pathname.startsWith('/admin') && !isPublicAdminRoute &&!user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/admin/login';
+    redirectUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 
   // If logged in and trying to access login/signup, redirect to dashboard
   if (isPublicAdminRoute && user) {
-    // Check if user is an admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (adminUser && adminUser.is_active) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/admin';
-      return NextResponse.redirect(redirectUrl);
-    }
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/admin';
+    return NextResponse.redirect(redirectUrl);
   }
 
   return response;
