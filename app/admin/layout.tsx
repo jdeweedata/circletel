@@ -28,6 +28,13 @@ export default function AdminLayout({
     }
   }, [isPublicRoute, validateSession]);
 
+  // Redirect to login if not authenticated (in useEffect to avoid render issues)
+  useEffect(() => {
+    if (!isPublicRoute && !isLoading && !user) {
+      router.push('/admin/login');
+    }
+  }, [isPublicRoute, isLoading, user, router]);
+
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {
     return <>{children}</>;
@@ -42,10 +49,13 @@ export default function AdminLayout({
     );
   }
 
-  // Redirect to login if not authenticated
+  // Show loading while redirecting
   if (!user) {
-    router.push('/admin/login');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      </div>
+    );
   }
 
   const handleLogout = () => {

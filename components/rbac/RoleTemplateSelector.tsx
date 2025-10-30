@@ -20,7 +20,36 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Shield, Crown, Package, Target, TrendingUp, Headphones, FileEdit, Book, Search } from 'lucide-react'
+import {
+  Shield,
+  Crown,
+  Package,
+  Target,
+  TrendingUp,
+  Headphones,
+  FileEdit,
+  Book,
+  Search,
+  Cpu,
+  Sparkles,
+  Briefcase,
+  Users,
+  Map,
+  Settings,
+  DollarSign,
+  BarChart,
+  Workflow,
+  UserCheck,
+  Handshake,
+  Megaphone,
+  MessageCircle,
+  Server,
+  Eye,
+  Calculator,
+  Receipt,
+  Truck,
+  ClipboardList
+} from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<{className?: string}>> = {
   Shield,
@@ -31,6 +60,25 @@ const ICON_MAP: Record<string, React.ComponentType<{className?: string}>> = {
   Headphones,
   FileEdit,
   Book,
+  Cpu,
+  Sparkles,
+  Briefcase,
+  Users,
+  Map,
+  Settings,
+  DollarSign,
+  BarChart,
+  Workflow,
+  UserCheck,
+  Handshake,
+  Megaphone,
+  MessageCircle,
+  Server,
+  Eye,
+  Calculator,
+  Receipt,
+  Truck,
+  ClipboardList
 }
 
 interface RoleTemplateSelectorProps {
