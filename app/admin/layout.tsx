@@ -22,38 +22,71 @@ export default function AdminLayout({
   const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
 
-  // Get user from localStorage (saved by login page)
+  // Get user from Supabase session (not localStorage)
   useEffect(() => {
     if (isPublicRoute) {
       setIsLoading(false);
       return;
     }
 
-    try {
-      const storedUser = localStorage.getItem('admin_user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          // No session, redirect to login
+          window.location.href = '/admin/login?error=unauthorized';
+          return;
+        }
+
+        // Get admin user details
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (adminUser) {
+          setUser({
+            ...session.user,
+            ...adminUser
+          });
+        } else {
+          // User exists but not in admin_users table
+          window.location.href = '/admin/login?error=unauthorized';
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        window.location.href = '/admin/login?error=unauthorized';
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading user:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isPublicRoute]);
+    };
+
+    checkAuth();
+  }, [isPublicRoute, supabase]);
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {
     return <>{children}</>;
   }
 
-  // For protected routes, middleware has already validated auth
-  // Just show loading while fetching user details
-  if (isLoading || !user) {
+  // Show loading while checking auth
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
+  }
+
+  // If no user after loading completes, middleware should have redirected
+  // This is a safety check
+  if (!user) {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/admin/login?error=unauthorized';
+    }
+    return null;
   }
 
   const handleLogout = async () => {
