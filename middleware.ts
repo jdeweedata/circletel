@@ -88,7 +88,8 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (adminError || !adminUser || !adminUser.is_active) {
-      // User not in admin_users or inactive - sign them out and redirect
+      // User not in admin_users or inactive - redirect to login
+      // Let the layout handle signOut to avoid middleware redirect loops
       console.log('[Middleware] User not authorized as admin:', {
         userId: user.id,
         error: adminError?.message,
@@ -96,26 +97,11 @@ export async function middleware(request: NextRequest) {
         isActive: adminUser?.is_active
       });
 
-      // Sign out and clear cookies
-      await supabase.auth.signOut();
-
-      // Create redirect response and clear all auth cookies
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/admin/login';
       redirectUrl.searchParams.set('error', 'unauthorized');
-
-      const redirectResponse = NextResponse.redirect(redirectUrl);
-
-      // Clear all Supabase auth cookies
-      const cookiesToClear = request.cookies.getAll().filter(cookie =>
-        cookie.name.includes('auth') || cookie.name.includes('supabase')
-      );
-
-      cookiesToClear.forEach(cookie => {
-        redirectResponse.cookies.delete(cookie.name);
-      });
-
-      return redirectResponse;
+      redirectUrl.searchParams.set('signout', 'true'); // Tell layout to sign out
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
