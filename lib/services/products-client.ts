@@ -13,6 +13,7 @@ function getSupabase() {
 export class ProductsClientService {
   /**
    * Get all products with filtering and pagination (client-side)
+   * Now using service_packages as single source of truth
    */
   static async getProducts(
     filters: ProductFilters = {},
@@ -22,12 +23,12 @@ export class ProductsClientService {
     try {
       const supabase = getSupabase();
       let query = supabase
-        .from('products')
+        .from('service_packages')
         .select('*', { count: 'exact' });
 
-      // Apply filters
+      // Apply filters (mapped to service_packages fields)
       if (filters.category) {
-        query = query.eq('category', filters.category);
+        query = query.eq('product_category', filters.category);
       }
 
       if (filters.service_type) {
@@ -39,7 +40,7 @@ export class ProductsClientService {
       }
 
       if (filters.is_active !== undefined) {
-        query = query.eq('is_active', filters.is_active);
+        query = query.eq('active', filters.is_active);
       }
 
       if (filters.is_featured !== undefined) {
@@ -54,13 +55,13 @@ export class ProductsClientService {
         query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,sku.ilike.%${filters.search}%`);
       }
 
-      // Apply sorting
+      // Apply sorting (mapped to service_packages fields)
       switch (filters.sort_by) {
         case 'price_asc':
-          query = query.order('base_price_zar', { ascending: true });
+          query = query.order('price', { ascending: true }); // service_packages uses 'price' not 'base_price_zar'
           break;
         case 'price_desc':
-          query = query.order('base_price_zar', { ascending: false });
+          query = query.order('price', { ascending: false });
           break;
         case 'name_asc':
           query = query.order('name', { ascending: true });
@@ -72,7 +73,7 @@ export class ProductsClientService {
           query = query.order('updated_at', { ascending: false });
           break;
         default:
-          query = query.order('created_at', { ascending: false });
+          query = query.order('sort_order', { ascending: true, nullsLast: true }); // service_packages has sort_order
       }
 
       // Apply pagination

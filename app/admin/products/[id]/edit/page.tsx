@@ -32,8 +32,15 @@ const productEditSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   service: z.string().min(1, 'Service is required'),
   customer_type: z.enum(['consumer', 'smme', 'enterprise']),
+  // Root-level pricing fields (legacy/backward compatibility)
   base_price_zar: z.number().min(0, 'Price must be positive').nullable(),
   cost_price_zar: z.number().min(0, 'Price must be positive').nullable(),
+  // Pricing object fields (preferred - synced with root-level on save)
+  pricing_monthly: z.number().min(0, 'Monthly fee must be positive').nullable(),
+  pricing_setup: z.number().min(0, 'Setup fee must be positive').nullable(),
+  pricing_download_speed: z.number().int().min(0).nullable(),
+  pricing_upload_speed: z.number().int().min(0).nullable(),
+  // Legacy speed fields (for backward compatibility)
   speed_download: z.number().int().min(0).nullable(),
   speed_upload: z.number().int().min(0).nullable(),
   data_limit: z.string().optional(),
@@ -87,12 +94,24 @@ export default function EditProductPage() {
         setValue('name', data.data.name || '');
         setValue('sku', data.data.sku || '');
         setValue('category', data.data.category || '');
-        setValue('service', data.data.service || '');
+        setValue('service', data.data.service_type || data.data.service || '');
         setValue('customer_type', data.data.customer_type || 'consumer');
+
+        // Root-level pricing (legacy/backward compatibility)
         setValue('base_price_zar', data.data.base_price_zar || null);
         setValue('cost_price_zar', data.data.cost_price_zar || null);
-        setValue('speed_download', data.data.speed_download || null);
-        setValue('speed_upload', data.data.speed_upload || null);
+
+        // Pricing object fields (preferred - read from pricing JSONB if available)
+        const pricing = data.data.pricing || {};
+        setValue('pricing_monthly', pricing.monthly || data.data.base_price_zar || null);
+        setValue('pricing_setup', pricing.setup || data.data.cost_price_zar || null);
+        setValue('pricing_download_speed', pricing.download_speed || data.data.speed_download || null);
+        setValue('pricing_upload_speed', pricing.upload_speed || data.data.speed_upload || null);
+
+        // Legacy speed fields
+        setValue('speed_download', data.data.speed_download || pricing.download_speed || null);
+        setValue('speed_upload', data.data.speed_upload || pricing.upload_speed || null);
+
         setValue('data_limit', data.data.data_limit || '');
         setValue('contract_duration', data.data.contract_duration || '');
         setValue('description', data.data.description || '');
@@ -121,10 +140,30 @@ export default function EditProductPage() {
     try {
       setSaving(true);
 
+      // Build the pricing JSONB object from form data
+      const pricingObject = {
+        monthly: data.pricing_monthly || data.base_price_zar || 0,
+        setup: data.pricing_setup || data.cost_price_zar || 0,
+        download_speed: data.pricing_download_speed || data.speed_download || 0,
+        upload_speed: data.pricing_upload_speed || data.speed_upload || 0,
+      };
+
+      // Sync root-level fields with pricing object (for backward compatibility)
+      const syncedData = {
+        ...data,
+        // Sync pricing: primary source is pricing object fields
+        base_price_zar: data.pricing_monthly || data.base_price_zar,
+        cost_price_zar: data.pricing_setup || data.cost_price_zar,
+        speed_download: data.pricing_download_speed || data.speed_download,
+        speed_upload: data.pricing_upload_speed || data.speed_upload,
+        // Add the pricing JSONB object
+        pricing: pricingObject,
+      };
+
       const response = await fetch(`/api/admin/products/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(syncedData),
       });
 
       const result = await response.json();
@@ -135,7 +174,7 @@ export default function EditProductPage() {
 
       toast({
         title: 'Success',
-        description: 'Product updated successfully',
+        description: 'Product updated successfully (both pricing fields synced)',
       });
 
       // Redirect back to products list
@@ -285,37 +324,90 @@ export default function EditProductPage() {
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
               <CardDescription>
-                Monthly subscription and one-time fees
+                Recurring and non-recurring fees (both fields will be synced on save)
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="base_price_zar">Monthly Price (ZAR)</Label>
-                  <Input
-                    id="base_price_zar"
-                    type="number"
-                    step="0.01"
-                    {...register('base_price_zar', { valueAsNumber: true })}
-                    placeholder="e.g., 799.00"
-                  />
-                  {errors.base_price_zar && (
-                    <p className="text-sm text-destructive">{errors.base_price_zar.message}</p>
-                  )}
+            <CardContent className="space-y-6">
+              {/* Primary Pricing (from pricing JSONB object) */}
+              <div className="space-y-4 p-4 bg-muted/50 rounded-lg border-2 border-circleTel-orange/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-2 w-2 rounded-full bg-circleTel-orange"></div>
+                  <p className="text-sm font-semibold text-circleTel-orange">
+                    Primary Pricing (from pricing object)
+                  </p>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pricing_monthly">
+                      Recurring Fee (Monthly) *
+                    </Label>
+                    <Input
+                      id="pricing_monthly"
+                      type="number"
+                      step="0.01"
+                      {...register('pricing_monthly', { valueAsNumber: true })}
+                      placeholder="e.g., 749.00"
+                      className="font-semibold"
+                    />
+                    {errors.pricing_monthly && (
+                      <p className="text-sm text-destructive">{errors.pricing_monthly.message}</p>
+                    )}
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="cost_price_zar">Setup Fee / Cost (ZAR)</Label>
-                  <Input
-                    id="cost_price_zar"
-                    type="number"
-                    step="0.01"
-                    {...register('cost_price_zar', { valueAsNumber: true })}
-                    placeholder="e.g., 900.00"
-                  />
-                  {errors.cost_price_zar && (
-                    <p className="text-sm text-destructive">{errors.cost_price_zar.message}</p>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="pricing_setup">
+                      Non-Recurring Fee (Setup) *
+                    </Label>
+                    <Input
+                      id="pricing_setup"
+                      type="number"
+                      step="0.01"
+                      {...register('pricing_setup', { valueAsNumber: true })}
+                      placeholder="e.g., 2500.00"
+                      className="font-semibold"
+                    />
+                    {errors.pricing_setup && (
+                      <p className="text-sm text-destructive">{errors.pricing_setup.message}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Legacy Pricing Fields (for backward compatibility) */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Legacy Fields (auto-synced with primary pricing above)
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="base_price_zar" className="text-sm text-muted-foreground">
+                      Base Price (ZAR)
+                    </Label>
+                    <Input
+                      id="base_price_zar"
+                      type="number"
+                      step="0.01"
+                      {...register('base_price_zar', { valueAsNumber: true })}
+                      placeholder="e.g., 749.00"
+                      className="text-muted-foreground"
+                      disabled
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cost_price_zar" className="text-sm text-muted-foreground">
+                      Cost Price (ZAR)
+                    </Label>
+                    <Input
+                      id="cost_price_zar"
+                      type="number"
+                      step="0.01"
+                      {...register('cost_price_zar', { valueAsNumber: true })}
+                      placeholder="e.g., 2500.00"
+                      className="text-muted-foreground"
+                      disabled
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -329,32 +421,79 @@ export default function EditProductPage() {
                 Speed, data limits, and contract terms
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="speed_download">Download Speed (Mbps)</Label>
-                  <Input
-                    id="speed_download"
-                    type="number"
-                    {...register('speed_download', { valueAsNumber: true })}
-                    placeholder="e.g., 50"
-                  />
-                  {errors.speed_download && (
-                    <p className="text-sm text-destructive">{errors.speed_download.message}</p>
-                  )}
+            <CardContent className="space-y-6">
+              {/* Primary Speed Fields (from pricing JSONB object) */}
+              <div className="space-y-4 p-4 bg-muted/50 rounded-lg border-2 border-circleTel-orange/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-2 w-2 rounded-full bg-circleTel-orange"></div>
+                  <p className="text-sm font-semibold text-circleTel-orange">
+                    Primary Speed Settings (from pricing object)
+                  </p>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pricing_download_speed">Download Speed (Mbps) *</Label>
+                    <Input
+                      id="pricing_download_speed"
+                      type="number"
+                      {...register('pricing_download_speed', { valueAsNumber: true })}
+                      placeholder="e.g., 50"
+                      className="font-semibold"
+                    />
+                    {errors.pricing_download_speed && (
+                      <p className="text-sm text-destructive">{errors.pricing_download_speed.message}</p>
+                    )}
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="speed_upload">Upload Speed (Mbps)</Label>
-                  <Input
-                    id="speed_upload"
-                    type="number"
-                    {...register('speed_upload', { valueAsNumber: true })}
-                    placeholder="e.g., 50"
-                  />
-                  {errors.speed_upload && (
-                    <p className="text-sm text-destructive">{errors.speed_upload.message}</p>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="pricing_upload_speed">Upload Speed (Mbps) *</Label>
+                    <Input
+                      id="pricing_upload_speed"
+                      type="number"
+                      {...register('pricing_upload_speed', { valueAsNumber: true })}
+                      placeholder="e.g., 25"
+                      className="font-semibold"
+                    />
+                    {errors.pricing_upload_speed && (
+                      <p className="text-sm text-destructive">{errors.pricing_upload_speed.message}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Legacy Speed Fields */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Legacy Speed Fields (auto-synced with primary speeds above)
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="speed_download" className="text-sm text-muted-foreground">
+                      Download Speed (Mbps)
+                    </Label>
+                    <Input
+                      id="speed_download"
+                      type="number"
+                      {...register('speed_download', { valueAsNumber: true })}
+                      placeholder="e.g., 50"
+                      className="text-muted-foreground"
+                      disabled
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="speed_upload" className="text-sm text-muted-foreground">
+                      Upload Speed (Mbps)
+                    </Label>
+                    <Input
+                      id="speed_upload"
+                      type="number"
+                      {...register('speed_upload', { valueAsNumber: true })}
+                      placeholder="e.g., 25"
+                      className="text-muted-foreground"
+                      disabled
+                    />
+                  </div>
                 </div>
               </div>
 

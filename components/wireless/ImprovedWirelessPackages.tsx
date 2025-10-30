@@ -12,11 +12,16 @@ import { Card } from "@/components/ui/card"
 // Transform product data for wireless packages
 const transformProductToWirelessPackage = (product: Product) => {
   const pricing = product.pricing;
+
+  // Read speed from pricing object (preferred) or fallback to Unknown
   const speed = pricing ?
     (pricing.download_speed >= 1000 ?
       `${pricing.download_speed / 1000}Gbps` :
       `${pricing.download_speed}Mbps`) :
     'Unknown Speed';
+
+  // Read price from pricing object (preferred) or fallback to base_price_zar for backward compatibility
+  const monthlyPrice = pricing?.monthly ?? parseFloat(product.base_price_zar);
 
   return {
     id: product.id,
@@ -24,7 +29,7 @@ const transformProductToWirelessPackage = (product: Product) => {
     speed,
     name: product.name,
     description: product.description || "High-speed connectivity",
-    price: Math.round(parseFloat(product.base_price_zar)),
+    price: Math.round(monthlyPrice), // Now reads from pricing.monthly with fallback
     featured: product.is_featured,
     popular: product.is_popular,
     product
