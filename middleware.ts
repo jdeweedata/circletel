@@ -80,14 +80,29 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    // User has session, but verify they're in admin_users table
-    const { data: adminUser, error: adminError } = await supabase
+    // User has session, but verify they're in admin_users table (by id with email fallback)
+    const { data: adminById, error: adminErrorById } = await supabase
       .from('admin_users')
-      .select('id, is_active')
+      .select('id, is_active, email')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (adminError || !adminUser || !adminUser.is_active) {
+    let adminUser = adminById;
+    let adminError = adminErrorById;
+
+    if ((!adminUser || adminError) && user.email) {
+      const { data: adminByEmail, error: adminErrorByEmail } = await supabase
+        .from('admin_users')
+        .select('id, is_active, email')
+        .eq('email', user.email)
+        .maybeSingle();
+      if (adminByEmail) {
+        adminUser = adminByEmail;
+        adminError = adminErrorByEmail;
+      }
+    }
+
+    if (!adminUser || !adminUser.is_active) {
       // User not in admin_users or inactive - redirect to login
       // Let the layout handle signOut to avoid middleware redirect loops
       console.log('[Middleware] User not authorized as admin:', {
@@ -115,12 +130,24 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // Verify they're actually an admin before redirecting
-    const { data: adminUser } = await supabase
+    // Verify they're actually an admin before redirecting (by id with email fallback)
+    const { data: adminById } = await supabase
       .from('admin_users')
-      .select('id, is_active')
+      .select('id, is_active, email')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    let adminUser = adminById;
+    if ((!adminUser) && user.email) {
+      const { data: adminByEmail } = await supabase
+        .from('admin_users')
+        .select('id, is_active, email')
+        .eq('email', user.email)
+        .maybeSingle();
+      if (adminByEmail) {
+        adminUser = adminByEmail;
+      }
+    }
 
     if (adminUser && adminUser.is_active) {
       const redirectUrl = request.nextUrl.clone();

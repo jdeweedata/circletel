@@ -43,16 +43,31 @@ export default function AdminLayout({
           return;
         }
 
-        // Get admin user details
-        const { data: adminUser, error: adminError } = await supabase
+        // Get admin user details (by id, with email fallback)
+        const { data: adminById, error: adminErrorById } = await supabase
           .from('admin_users')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
+
+        let adminUser = adminById;
+        let adminError = adminErrorById;
+
+        if ((!adminUser || adminError) && session.user.email) {
+          const { data: adminByEmail, error: adminErrorByEmail } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('email', session.user.email)
+            .maybeSingle();
+          if (adminByEmail) {
+            adminUser = adminByEmail;
+            adminError = adminErrorByEmail;
+          }
+        }
 
         if (!isMounted) return;
 
-        if (adminError || !adminUser) {
+        if (!adminUser) {
           // User exists but not in admin_users table, or query failed
           console.error('Admin user fetch error:', adminError);
           await supabase.auth.signOut(); // Clear invalid session
