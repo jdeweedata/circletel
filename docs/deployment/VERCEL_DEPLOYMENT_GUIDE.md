@@ -232,12 +232,52 @@ vercel logs <deployment-url>
 
 ### **Issue: Deployment Stuck in "Queued"**
 
-**Cause**: GitHub Actions is blocking the deployment due to billing issues.
+**Cause 1**: GitHub Actions is blocking the deployment due to billing issues.
 
 **Solution**:
 1. Disable GitHub Actions workflow (see above)
 2. Let Vercel's built-in GitHub integration handle deployments
 3. Or manually deploy from Vercel Dashboard
+
+**Cause 2**: Concurrent build limit reached (only 1 build at a time on free/hobby plans)
+
+**Symptoms**:
+- Multiple deployments stuck in "Queued" status
+- New pushes don't trigger builds
+- Manual deployments also get queued
+
+**Solutions**:
+
+1. **Cancel Queued Deployments**:
+   ```bash
+   # Go to Vercel Dashboard
+   # Navigate to: Deployments tab
+   # Click on each queued deployment → Cancel
+   ```
+
+2. **Wait for Current Build**:
+   - Check if a build is currently running
+   - Wait for it to complete (usually 2-5 minutes)
+   - Queue will process automatically
+
+3. **Switch Build Region**:
+   - Go to: Project Settings → General → Build & Development Settings
+   - Try changing region from `iad1` (default) to `cle1` or `sin1`
+   - Redeploy
+
+4. **Check Vercel Status**:
+   - Visit: https://www.vercel-status.com/
+   - Check for ongoing incidents
+
+5. **Manual Deploy from Dashboard**:
+   - Go to: Deployments tab
+   - Find the last successful deployment
+   - Click "Redeploy" → "Use existing build cache"
+
+6. **Contact Vercel Support**:
+   - If issue persists for >30 minutes
+   - Go to: https://vercel.com/help
+   - Report deployment stuck in queue
 
 ### **Issue: "GitHub Actions Billing Error"**
 
