@@ -73,87 +73,23 @@ export async function middleware(request: NextRequest) {
   // If accessing protected admin routes without authentication
   if (pathname.startsWith('/admin') && !isPublicAdminRoute) {
     if (!user) {
-      // No user session at all
+      // No user session at all - redirect to login
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/admin/login';
       redirectUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(redirectUrl);
     }
 
-    // User has session, but verify they're in admin_users table (by id with email fallback)
-    const { data: adminById, error: adminErrorById } = await supabase
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    let adminUser = adminById;
-    let adminError = adminErrorById;
-
-    if ((!adminUser || adminError) && user.email) {
-      const { data: adminByEmail, error: adminErrorByEmail } = await supabase
-        .from('admin_users')
-        .select('id, is_active, email')
-        .eq('email', user.email)
-        .maybeSingle();
-      if (adminByEmail) {
-        adminUser = adminByEmail;
-        adminError = adminErrorByEmail;
-      }
-    }
-
-    if (!adminUser || !adminUser.is_active) {
-      // User not in admin_users or inactive - redirect to login
-      // Let the layout handle signOut to avoid middleware redirect loops
-      console.log('[Middleware] User not authorized as admin:', {
-        userId: user.id,
-        error: adminError?.message,
-        hasAdminUser: !!adminUser,
-        isActive: adminUser?.is_active
-      });
-
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/admin/login';
-      redirectUrl.searchParams.set('error', 'unauthorized');
-      redirectUrl.searchParams.set('signout', 'true'); // Tell layout to sign out
-      return NextResponse.redirect(redirectUrl);
-    }
+    // User has session - let the client-side layout verify admin_users table
+    // This avoids redirect loops and works with the existing layout auth logic
   }
 
-  // If logged in as admin and trying to access login/signup, redirect to dashboard
-  // BUT skip this if signout=true is present (user is being signed out)
+  // If logged in and trying to access login/signup pages, allow it
+  // The login page itself will handle redirecting authenticated users
+  // This avoids middleware redirect loops
   if (isPublicAdminRoute && user) {
-    const signoutParam = request.nextUrl.searchParams.get('signout');
-
-    // If signout=true, let them access the login page to sign out
-    if (signoutParam === 'true') {
-      return response;
-    }
-
-    // Verify they're actually an admin before redirecting (by id with email fallback)
-    const { data: adminById } = await supabase
-      .from('admin_users')
-      .select('id, is_active, email')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    let adminUser = adminById;
-    if ((!adminUser) && user.email) {
-      const { data: adminByEmail } = await supabase
-        .from('admin_users')
-        .select('id, is_active, email')
-        .eq('email', user.email)
-        .maybeSingle();
-      if (adminByEmail) {
-        adminUser = adminByEmail;
-      }
-    }
-
-    if (adminUser && adminUser.is_active) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/admin';
-      return NextResponse.redirect(redirectUrl);
-    }
+    // Let the login page handle the redirect decision
+    return response;
   }
 
   return response;

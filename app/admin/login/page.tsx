@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
-  // Handle signout from middleware redirect
+  // Handle signout from middleware redirect and check existing auth
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('signout') === 'true') {
@@ -43,7 +43,35 @@ export default function AdminLoginPage() {
         ? `${window.location.pathname}?${params.toString()}`
         : window.location.pathname;
       window.history.replaceState({}, '', newUrl);
+      return;
     }
+
+    // Check if user is already authenticated and is an admin
+    const checkExistingAuth = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+          // Check if user is in admin_users table
+          const { data: adminUser } = await supabase
+            .from('admin_users')
+            .select('id, is_active')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (adminUser && adminUser.is_active) {
+            // Already authenticated as admin - redirect to dashboard
+            window.location.href = '/admin';
+          }
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+      }
+    };
+
+    checkExistingAuth();
   }, []);
 
   const form = useForm<LoginFormValues>({
