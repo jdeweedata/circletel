@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { createClient } from '@/integrations/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 import { OrderData, OrderStage, ValidationErrors } from '@/lib/order/types';
 

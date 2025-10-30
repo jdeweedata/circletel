@@ -14,7 +14,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/integrations/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
