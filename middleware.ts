@@ -106,7 +106,15 @@ export async function middleware(request: NextRequest) {
   }
 
   // If logged in as admin and trying to access login/signup, redirect to dashboard
+  // BUT skip this if signout=true is present (user is being signed out)
   if (isPublicAdminRoute && user) {
+    const signoutParam = request.nextUrl.searchParams.get('signout');
+
+    // If signout=true, let them access the login page to sign out
+    if (signoutParam === 'true') {
+      return response;
+    }
+
     // Verify they're actually an admin before redirecting
     const { data: adminUser } = await supabase
       .from('admin_users')
