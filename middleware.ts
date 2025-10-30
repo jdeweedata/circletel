@@ -95,12 +95,27 @@ export async function middleware(request: NextRequest) {
         hasAdminUser: !!adminUser,
         isActive: adminUser?.is_active
       });
-      
+
+      // Sign out and clear cookies
       await supabase.auth.signOut();
+
+      // Create redirect response and clear all auth cookies
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = '/admin/login';
       redirectUrl.searchParams.set('error', 'unauthorized');
-      return NextResponse.redirect(redirectUrl);
+
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+
+      // Clear all Supabase auth cookies
+      const cookiesToClear = request.cookies.getAll().filter(cookie =>
+        cookie.name.includes('auth') || cookie.name.includes('supabase')
+      );
+
+      cookiesToClear.forEach(cookie => {
+        redirectResponse.cookies.delete(cookie.name);
+      });
+
+      return redirectResponse;
     }
   }
 
