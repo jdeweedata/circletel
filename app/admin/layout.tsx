@@ -29,42 +29,60 @@ export default function AdminLayout({
       return;
     }
 
+    let isMounted = true;
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (!session) {
-          // No session, redirect to login
+        if (!isMounted) return;
+
+        if (sessionError || !session) {
+          // No session or session error, redirect to login
+          await supabase.auth.signOut(); // Clear any stale session
           window.location.href = '/admin/login?error=unauthorized';
           return;
         }
 
         // Get admin user details
-        const { data: adminUser } = await supabase
+        const { data: adminUser, error: adminError } = await supabase
           .from('admin_users')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
-        if (adminUser) {
-          setUser({
-            ...session.user,
-            ...adminUser
-          });
-        } else {
-          // User exists but not in admin_users table
+        if (!isMounted) return;
+
+        if (adminError || !adminUser) {
+          // User exists but not in admin_users table, or query failed
+          console.error('Admin user fetch error:', adminError);
+          await supabase.auth.signOut(); // Clear invalid session
           window.location.href = '/admin/login?error=unauthorized';
+          return;
         }
+
+        setUser({
+          ...session.user,
+          ...adminUser
+        });
       } catch (error) {
         console.error('Error loading user:', error);
-        window.location.href = '/admin/login?error=unauthorized';
+        if (isMounted) {
+          await supabase.auth.signOut(); // Clear session on error
+          window.location.href = '/admin/login?error=unauthorized';
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAuth();
-  }, [isPublicRoute, supabase]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isPublicRoute]); // Removed supabase from dependencies to prevent infinite loop
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 import { OrderData, OrderStage, ValidationErrors } from '@/lib/order/types';
@@ -86,11 +87,23 @@ const OrderContext = createContext<{
 } | null>(null);
 
 export function OrderContextProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [state, dispatch] = useReducer(orderReducer, initialState);
   const [isHydrated, setIsHydrated] = React.useState(false);
 
+  // Skip order context on admin, partner, and auth pages
+  const isAdminPage = pathname?.startsWith('/admin');
+  const isPartnerPage = pathname?.startsWith('/partners');
+  const isAuthPage = pathname?.startsWith('/auth');
+  const shouldSkipContext = isAdminPage || isPartnerPage || isAuthPage;
+
   // Load order state from localStorage on mount
   useEffect(() => {
+    if (shouldSkipContext) {
+      setIsHydrated(true);
+      return;
+    }
+
     if (typeof window !== 'undefined') {
       const savedState = localStorage.getItem(STORAGE_KEY);
       if (savedState) {
@@ -104,15 +117,16 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
       }
       setIsHydrated(true);
     }
-  }, []);
+  }, [shouldSkipContext]);
 
   // Save order state to localStorage whenever it changes
   useEffect(() => {
+    if (shouldSkipContext) return;
     if (isHydrated && typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       console.log('Order state saved to localStorage');
     }
-  }, [state, isHydrated]);
+  }, [state, isHydrated, shouldSkipContext]);
 
   // Helpers
   const hasLocalOrder = (s: OrderState) => {
@@ -127,7 +141,7 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
 
   // On hydrate, if authenticated: load server draft and hydrate if local is empty; otherwise push local to server
   useEffect(() => {
-    if (!isHydrated) return;
+    if (shouldSkipContext || !isHydrated) return;
     const run = async () => {
       try {
         const supabase = createClient();
@@ -159,7 +173,7 @@ export function OrderContextProvider({ children }: { children: React.ReactNode }
 
   // Debounced sync to server when state changes and user is authenticated
   useEffect(() => {
-    if (!isHydrated) return;
+    if (shouldSkipContext || !isHydrated) return;
     const timer = setTimeout(async () => {
       try {
         const supabase = createClient();
