@@ -18,8 +18,8 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/admin/login', '/admin/signup'];
-  const isPublicRoute = publicRoutes.includes(pathname);
+  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
   useEffect(() => {
     // Skip validation for public routes
