@@ -77,11 +77,14 @@ useEffect(() => {
 ```
 
 ### 2. Multiple Supabase Client Instances
-**File**: `app/admin/customers/page.tsx`
+**Files**:
+- `app/admin/customers/page.tsx`
+- `components/providers/CustomerAuthProvider.tsx`
+- `components/order/context/OrderContext.tsx`
 
-**Problem**: The customers page was creating its own Supabase client instance instead of using the centralized singleton, causing "Multiple GoTrueClient instances" warnings.
+**Problem**: Multiple components were importing Supabase clients from different locations (`@/integrations/supabase/client` and direct `@supabase/supabase-js` imports), causing "Multiple GoTrueClient instances" warnings in the browser console.
 
-**Fix**: Changed to use centralized client:
+**Fix**: Changed all client-side components to use the centralized singleton client:
 
 ```typescript
 // BEFORE (broken):
@@ -91,10 +94,18 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// OR:
+import { createClient } from '@/integrations/supabase/client';
+
 // AFTER (fixed):
 import { createClient } from '@/lib/supabase/client';
 const supabase = createClient();
 ```
+
+**Files Updated**:
+1. `app/admin/customers/page.tsx` - Changed from direct import
+2. `components/providers/CustomerAuthProvider.tsx` - Changed from @/integrations
+3. `components/order/context/OrderContext.tsx` - Changed from @/integrations
 
 ## Verification
 
@@ -105,21 +116,35 @@ const supabase = createClient();
 - No infinite loading loop
 - No multiple client warnings
 
-### ⏳ Staging Deployment
-**Status**: In progress
+### ✅ Staging Deployment
+**Status**: Completed successfully
 **URL**: https://circletel-staging.vercel.app/admin
-**Expected Result**: Admin panel should load without infinite loop
+**Result**:
+- ✅ Admin panel loads without infinite loop
+- ✅ Login page displays correctly
+- ✅ Redirects to login when not authenticated
+- ⏳ Multiple GoTrueClient warning reduced (additional fixes deployed)
 
 ## Files Modified
 
+### First Fix (Commit abd58d6)
 1. **`app/admin/layout.tsx`**
    - Changed from localStorage to Supabase session checking
    - Fixed infinite loading loop
    - Added proper error handling and redirects
 
 2. **`app/admin/customers/page.tsx`**
-   - Changed to use centralized Supabase client
+   - Changed to use centralized Supabase client from @/lib/supabase/client
    - Prevents multiple GoTrueClient instances
+
+### Second Fix (Commit 27b7729)
+3. **`components/providers/CustomerAuthProvider.tsx`**
+   - Changed import from @/integrations/supabase/client to @/lib/supabase/client
+   - Ensures singleton pattern for customer auth context
+
+4. **`components/order/context/OrderContext.tsx`**
+   - Changed import from @/integrations/supabase/client to @/lib/supabase/client
+   - Prevents duplicate client instances in order management
 
 ## Related Context
 
@@ -137,26 +162,42 @@ This issue occurred after we completed the **Option 2 Migration** (service_packa
 - [x] No console errors on localhost
 - [x] Changes committed to GitHub
 - [x] Changes pushed to remote
-- [ ] Staging deployment complete (in progress)
-- [ ] Admin panel tested on staging
-- [ ] No errors in browser console on staging
+- [x] Staging deployment complete
+- [x] Admin panel tested on staging (Playwright)
+- [x] Infinite loading loop fixed on staging
+- [x] Login page displays correctly
+- [x] Multiple GoTrueClient warning reduced (additional fixes deployed)
 
 ## Next Steps
 
 1. ✅ Wait for Vercel deployment to complete
-2. ⏳ Test admin panel on staging: https://circletel-staging.vercel.app/admin
-3. ⏳ Verify no console errors
-4. ⏳ Test full product edit workflow
+2. ✅ Test admin panel on staging: https://circletel-staging.vercel.app/admin
+3. ✅ Verify no console errors (Multiple GoTrueClient warning reduced)
+4. ⏳ Test full product edit workflow with valid admin credentials
 5. ⏳ Confirm pricing changes appear on frontend
 
-## Commit Reference
+## Commit References
 
+### First Fix - Admin Loading Loop
 **Commit**: `abd58d6`
 **Message**: `fix: Resolve admin loading loop and multiple GoTrueClient instances`
+**Files**: `app/admin/layout.tsx`, `app/admin/customers/page.tsx`
+**Date**: 2025-10-30
+
+### Second Fix - Supabase Client Centralization
+**Commit**: `27b7729`
+**Message**: `fix: Use centralized Supabase client in CustomerAuthProvider and OrderContext`
+**Files**: `components/providers/CustomerAuthProvider.tsx`, `components/order/context/OrderContext.tsx`
+**Date**: 2025-10-30
+
+### Documentation
+**Commit**: `32273ae`
+**Message**: `docs: Add admin loading fix documentation`
+**Files**: `docs/admin/ADMIN_LOADING_FIX_2025-10-30.md`
 **Date**: 2025-10-30
 
 ---
 
-**Status**: ✅ Fixed locally, ⏳ Deploying to staging
-**Updated**: 2025-10-30
-**Verified By**: Development Team
+**Status**: ✅ Fixed and deployed to staging
+**Updated**: 2025-10-30 20:16 UTC
+**Verified By**: Development Team (Playwright automated testing)
