@@ -76,8 +76,8 @@ export default function AdminLayout({
         }
 
         setUser({
-          ...session.user,
-          ...adminUser
+          ...(session.user as any),
+          ...(adminUser as any)
         });
       } catch (error) {
         console.error('Error loading user:', error);
