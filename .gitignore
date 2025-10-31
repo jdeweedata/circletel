@@ -20,6 +20,15 @@
 # Test result files
 scripts/coverage-api-test-results.json
 scripts/*-test-results.json
+test-results/**/*.json
+test-results/.last-run.json
+
+# Playwright reports
+playwright-report/
+playwright-report-staging/
+test-results/*chromium/
+test-results/*firefox/
+test-results/*webkit/
 
 # Next.js
 /.next/
