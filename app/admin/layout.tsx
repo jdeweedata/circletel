@@ -22,7 +22,7 @@ export default function AdminLayout({
   const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
 
-  // Get user from Supabase session (not localStorage)
+  // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (isPublicRoute) {
       setIsLoading(false);
@@ -32,57 +32,26 @@ export default function AdminLayout({
     let isMounted = true;
     const checkAuth = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Call API endpoint which validates session server-side from cookies
+        const response = await fetch('/api/admin/me');
+        const result = await response.json();
 
         if (!isMounted) return;
 
-        if (sessionError || !session) {
-          // No session or session error, redirect to login
-          await supabase.auth.signOut(); // Clear any stale session
+        if (!response.ok || !result.success || !result.user) {
+          // Not authenticated or not an admin user
+          console.error('Admin user fetch error:', result.error);
+          await supabase.auth.signOut(); // Clear any client-side session
           window.location.href = '/admin/login?error=unauthorized';
           return;
         }
 
-        // Get admin user details (by id, with email fallback)
-        const { data: adminById, error: adminErrorById } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        let adminUser = adminById;
-        let adminError = adminErrorById;
-
-        if ((!adminUser || adminError) && session.user.email) {
-          const { data: adminByEmail, error: adminErrorByEmail } = await supabase
-            .from('admin_users')
-            .select('*')
-            .eq('email', session.user.email)
-            .maybeSingle();
-          if (adminByEmail) {
-            adminUser = adminByEmail;
-            adminError = adminErrorByEmail;
-          }
-        }
-
-        if (!isMounted) return;
-
-        if (!adminUser) {
-          // User exists but not in admin_users table, or query failed
-          console.error('Admin user fetch error:', adminError);
-          await supabase.auth.signOut(); // Clear invalid session
-          window.location.href = '/admin/login?error=unauthorized';
-          return;
-        }
-
-        setUser({
-          ...(session.user as any),
-          ...(adminUser as any)
-        });
+        // Set user from API response
+        setUser(result.user);
       } catch (error) {
         console.error('Error loading user:', error);
         if (isMounted) {
-          await supabase.auth.signOut(); // Clear session on error
+          await supabase.auth.signOut();
           window.location.href = '/admin/login?error=unauthorized';
         }
       } finally {
@@ -97,7 +66,7 @@ export default function AdminLayout({
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute]); // Removed supabase from dependencies to prevent infinite loop
+  }, [isPublicRoute, supabase]); // Added supabase back since we only use it for signOut
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {
@@ -124,7 +93,6 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem('admin_user');
     window.location.href = '/admin/login';
   };
 

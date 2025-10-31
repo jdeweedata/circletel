@@ -7,8 +7,8 @@ import { createServerClient } from '@supabase/ssr';
  */
 
 export async function POST(request: NextRequest) {
-  // Create response object that we'll modify with cookies
-  let response = NextResponse.json({ success: false });
+  // Store cookies that will be set by Supabase SSR client
+  const cookiesToSet: Array<{ name: string; value: string; options?: any }> = [];
 
   try {
     const { email, password } = await request.json();
@@ -41,14 +41,13 @@ export async function POST(request: NextRequest) {
             console.log('[Login API] Cookies from request count:', cookies.length);
             return cookies;
           },
-          setAll(cookiesToSet) {
-            console.log('[Login API] Setting cookies count:', cookiesToSet.length);
-            if (cookiesToSet.length > 0) {
-              console.log('[Login API] First cookie name:', cookiesToSet[0].name);
+          setAll(cookies) {
+            console.log('[Login API] Capturing cookies to set, count:', cookies.length);
+            if (cookies.length > 0) {
+              console.log('[Login API] First cookie name:', cookies[0].name);
             }
-            cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options);
-            });
+            // Store cookies to be set on final response
+            cookiesToSet.push(...cookies);
           },
         },
       }
@@ -149,23 +148,26 @@ export async function POST(request: NextRequest) {
 
     console.log(`Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
 
-    // IMPORTANT: Return the response object that has cookies set by supabaseSSR
-    // Don't create a new response - that would lose the cookies!
-    return NextResponse.json(
-      {
-        success: true,
-        user: {
-          id: adminUser.id,
-          email: adminUser.email,
-          full_name: adminUser.full_name,
-          role: adminUser.role,
-          role_template_id: adminUser.role_template_id,
-        },
+    // Create success response and set all cookies captured from Supabase SSR client
+    const successResponse = NextResponse.json({
+      success: true,
+      user: {
+        id: adminUser.id,
+        email: adminUser.email,
+        full_name: adminUser.full_name,
+        role: adminUser.role,
+        role_template_id: adminUser.role_template_id,
       },
-      {
-        headers: response.headers, // Include the headers with Set-Cookie from response
-      }
-    );
+    });
+
+    // Set all auth cookies on the response
+    cookiesToSet.forEach(({ name, value, options }) => {
+      successResponse.cookies.set(name, value, options);
+    });
+
+    console.log('[Login API] Final response cookie count:', cookiesToSet.length);
+
+    return successResponse;
   } catch (error) {
     console.error('Admin login error:', error);
 

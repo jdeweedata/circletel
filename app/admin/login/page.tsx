@@ -35,7 +35,6 @@ export default function AdminLoginPage() {
         const supabase = createClient();
         supabase.auth.signOut().catch(console.error);
       });
-      localStorage.removeItem('admin_user');
 
       // Remove signout param from URL
       params.delete('signout');
@@ -54,16 +53,14 @@ export default function AdminLoginPage() {
         const { data: { session } } = await supabase.auth.getSession();
 
         if (session) {
-          // Check if user is in admin_users table
-          const { data: adminUser } = await supabase
-            .from('admin_users')
-            .select('id, is_active')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          if (adminUser && adminUser.is_active) {
-            // Already authenticated as admin - redirect to dashboard
-            window.location.href = '/admin';
+          // Check if user is an admin via API endpoint
+          const response = await fetch('/api/admin/me');
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.user) {
+              // Already authenticated as admin - redirect to dashboard
+              window.location.href = '/admin';
+            }
           }
         }
       } catch (error) {
@@ -102,11 +99,6 @@ export default function AdminLoginPage() {
 
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'Login failed');
-      }
-
-      // Save user to localStorage for admin layout
-      if (result.user) {
-        localStorage.setItem('admin_user', JSON.stringify(result.user));
       }
 
       // Show success message
