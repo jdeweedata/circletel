@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/integrations/supabase/server';
 
 /**
  * Get Current Admin User API
@@ -9,40 +8,24 @@ import { createServerClient } from '@supabase/ssr';
 
 export async function GET(request: NextRequest) {
   try {
-    // Create SSR client to get session from cookies
-    const supabaseSSR = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {
-            // No need to set cookies for GET request
-          },
-        },
-      }
-    );
+    // Create SSR client with cookies for session management
+    const supabase = await createClient();
 
-    // Get current session
-    const { data: { session }, error: sessionError } = await supabaseSSR.auth.getSession();
+    // Get current user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (sessionError || !session) {
+    if (authError || !user) {
       return NextResponse.json(
         { success: false, error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    // Use service role client to fetch admin user (bypasses RLS)
-    const supabaseAdmin = await createClient();
-
     // Get admin user by auth user ID
-    const { data: adminUser, error: adminError } = await supabaseAdmin
+    const { data: adminUser, error: adminError } = await supabase
       .from('admin_users')
       .select('id, email, full_name, is_active, role, role_template_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .maybeSingle();
 
     if (adminError || !adminUser) {
