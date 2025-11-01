@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { createClient as createAdminClient } from '@/lib/supabase/server';
 
 /**
  * Get Current Admin User API
@@ -9,10 +10,10 @@ import { createClient } from '@/integrations/supabase/server';
 export async function GET(request: NextRequest) {
   try {
     // Create SSR client with cookies for session management
-    const supabase = await createClient();
+    const supabaseSSR = await createSSRClient();
 
     // Get current user from session
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -21,14 +22,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Use service role client to bypass RLS when checking admin_users
+    const supabaseAdmin = await createAdminClient();
+
     // Get admin user by auth user ID
-    const { data: adminUser, error: adminError } = await supabase
+    const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
       .select('id, email, full_name, is_active, role, role_template_id')
       .eq('id', user.id)
       .maybeSingle();
 
     if (adminError || !adminUser) {
+      console.error('Admin user fetch error:', adminError?.message || 'User not found in admin_users table');
       return NextResponse.json(
         { success: false, error: 'User not found in admin_users table' },
         { status: 404 }
