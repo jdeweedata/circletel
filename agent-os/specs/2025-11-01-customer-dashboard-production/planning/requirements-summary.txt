@@ -1,0 +1,38 @@
+REQUIREMENTS GATHERING COMPLETE
+
+10 Initial Questions + 10 Follow-up Questions = 20 Total Questions Answered
+Comprehensive technical decisions document provided (50+ pages)
+
+KEY DECISIONS SUMMARY:
+1. Database: Dual FK approach (customer_id + auth_user_id)
+2. Table Consolidation: Deprecate orders, migrate to consumer_orders
+3. Interstellio: Hybrid sync (real-time + hourly batch)
+4. NetCash: eMandate/DebiCheck for recurring billing
+5. SMS: Clickatell with 10 critical triggers
+6. Invoice Cron: Vercel Cron at 02:00 SAST with monitoring
+7. Account Numbers: CT-YYYY-NNNNN continuous counter
+8. Migration: Strict validation, no auto-fixing
+9. Payment Dashboard: Masked details, OTP verification
+10. Admin Controls: Mandatory reason/notes, immediate effect
+
+INTEGRATION POINTS:
+- Interstellio API (usage tracking, service management)
+- NetCash eMandate (recurring billing, mandates)
+- Clickatell SMS (10 notification triggers)
+- Resend Email (invoice delivery, notifications)
+- Vercel Cron (daily invoice generation)
+
+DATABASE CHANGES:
+- 4 billing tables (invoices, payments, billing, audit_log)
+- 2 service tables (services, usage_history)
+- 3 tracking tables (admin_log, cron_log, validation_errors)
+- 1 counter table (account_number_counter)
+- Add customer_id + auth_user_id to consumer_orders
+
+EXTERNAL DEPENDENCIES:
+- Interstellio API credentials
+- NetCash eMandate API access
+- Clickatell SMS account
+- Resend email domain verification
+
+Ready for spec creation phase.

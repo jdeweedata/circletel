@@ -102,6 +102,41 @@ Modern payment interface supporting 20+ payment methods:
 - `app/order/payment/demo/page.tsx` - Interactive payment method showcase
 - Framer Motion animations for smooth UX
 
+### B2B Quote-to-Contract KYC Workflow
+
+**NEW**: Automated B2B onboarding system with integrated FICA-compliant KYC verification:
+
+**7-Stage Workflow**:
+1. **Quote Generation** → Agent creates quote, manager approves
+2. **Light KYC Verification** → Didit AI extracts ID, company docs, proof of address (<3 min)
+3. **Contract Generation** → Auto-generated with "KYC Verified by Didit" badge
+4. **Digital Signature** → ZOHO Sign (customer → CircleTel sequential signing)
+5. **Invoice & Payment** → NetCash Pay Now payment processing
+6. **Installation** → Technician scheduling and completion
+7. **RICA Submission** → Auto-populated from KYC data, service activation
+
+**Key Components**:
+- `lib/integrations/didit/` - KYC verification (session manager, webhook handler, risk scoring)
+- `lib/contracts/contract-generator.ts` - Contract PDF generation with KYC badge
+- `lib/integrations/zoho/sign-service.ts` - Digital signature requests
+- `lib/integrations/zoho/sync-service.ts` - CRM sync with KYC/RICA status fields
+- `lib/invoices/invoice-generator.ts` - Invoice creation from contracts
+- `lib/compliance/rica-paired-submission.ts` - RICA auto-submission using Didit data
+
+**Database Tables**:
+- `kyc_sessions` - KYC verification sessions with extracted data (JSONB)
+- `contracts` - Contracts with auto-numbering (CT-YYYY-NNN format)
+- `invoices` - Invoices with auto-numbering (INV-YYYY-NNN format)
+- `rica_submissions` - RICA submissions with ICASA tracking
+
+**Integration Points**:
+- **Didit API**: Webhook signature verification (HMAC-SHA256), risk tier calculation
+- **ZOHO CRM**: Custom fields (KYC_Status, Risk_Tier, RICA_Status, Contract_Number, MRR)
+- **ZOHO Sign**: Sequential signing workflow, signature tracking
+- **NetCash**: Payment webhooks update invoice status → trigger order creation
+
+**Spec Location**: `agent-os/specs/20251101-b2b-quote-to-contract-kyc/spec.md`
+
 ### Partner Portal & Compliance System
 
 B2B partner management with FICA/CIPC compliance for South African regulations:
@@ -227,6 +262,49 @@ actions.updateOrderData({
   }
 })
 ```
+
+### Webhook Signature Verification (HMAC-SHA256)
+
+**Pattern used across Didit, ZOHO, NetCash webhooks**:
+
+```typescript
+import crypto from 'crypto'
+
+// ✅ CORRECT: Timing-safe comparison
+function verifyWebhookSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex')
+
+  // Use timing-safe comparison to prevent timing attacks
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  )
+}
+
+// Usage in API route
+export async function POST(request: NextRequest) {
+  const signature = request.headers.get('x-webhook-signature')
+  const payload = await request.text()
+
+  if (!verifyWebhookSignature(payload, signature, WEBHOOK_SECRET)) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  }
+
+  // Process webhook...
+}
+```
+
+**Examples**:
+- `lib/integrations/didit/webhook-handler.ts` - Didit KYC webhooks
+- `lib/payments/payment-processor.ts` - NetCash payment webhooks
+- `lib/integrations/zoho/sign-service.ts` - ZOHO Sign webhooks
 
 ## Common Debugging Patterns
 
@@ -459,11 +537,31 @@ const result = await client.getCoverageDetailedRealtime(
 - `fttb_network_providers` - Provider metadata
 - `business_quotes` - B2B SMME quotes and pricing
 
+**B2B Quote-to-Contract Tables** (NEW):
+- `kyc_sessions` - Didit KYC verification sessions with extracted_data (JSONB)
+- `contracts` - Generated contracts with auto-numbering (CT-YYYY-NNN)
+- `invoices` - Invoices with auto-numbering (INV-YYYY-NNN), VAT calculation
+- `payment_transactions` - Payment records linked to invoices
+- `billing_cycles` - Recurring billing schedules
+- `payment_methods` - Stored payment methods (debit orders)
+- `rica_submissions` - RICA submissions with ICASA tracking IDs
+- `installation_schedules` - Technician scheduling and completion tracking
+
 **Partner Tables**:
 - `partners` - Partner business details, compliance status, partner number
 - `partner_compliance_documents` - FICA/CIPC document records
 - `partner_leads` - Leads assigned to partners
 - `partner_commissions` - Commission tracking
+
+**Customer Dashboard Tables** (NEW - In Development):
+- `customer_services` - Active services with lifecycle tracking
+- `customer_billing` - Billing configuration and payment methods
+- `customer_invoices` - Generated invoices with auto-numbering
+- `customer_payment_methods` - Multiple payment methods per customer
+- `usage_history` - Interstellio usage data sync
+- `service_action_log` - Audit trail for admin actions
+- `service_suspensions` - Service suspension tracking
+- `migration_review_queue` - Data migration validation
 
 **Consumer Orders Table Structure**:
 ```sql
@@ -556,6 +654,32 @@ ZOHO_CLIENT_SECRET=<secret>
 ```
 
 See `.env.example` for complete list.
+
+## Agent-OS Implementation System
+
+CircleTel uses **Agent-OS** for structured feature implementation with specialized subagents:
+
+**Location**: `agent-os/specs/[spec-id]/`
+
+**Multi-Phase Process**:
+1. **Spec Creation**: Detailed specification with user stories, architecture, database schema
+2. **Task Breakdown**: 15-20 task groups with story points, dependencies, acceptance criteria
+3. **Agent Delegation**: Tasks assigned to specialized subagents (database-engineer, backend-engineer, api-engineer, frontend-engineer, testing-engineer)
+4. **Verification**: Backend-verifier, frontend-verifier, implementation-verifier validate completed work
+5. **Final Report**: Comprehensive verification report with test results
+
+**Specialized Subagents**:
+- `database-engineer` - Migrations, RLS policies, indexes, triggers
+- `backend-engineer` - Business logic, service layers, integrations
+- `api-engineer` - Next.js API routes, webhooks, request validation
+- `frontend-engineer` - React components, pages, forms, responsive design
+- `testing-engineer` - E2E tests, integration tests, test coverage
+
+**Example Specs**:
+- `agent-os/specs/20251101-b2b-quote-to-contract-kyc/` - B2B KYC workflow (700+ lines, 61 story points, 64% complete)
+- `agent-os/specs/2025-11-01-customer-dashboard-production/` - Customer dashboard production readiness (1,200+ lines, 147 story points)
+
+**Testing Policy**: Each task group writes 2-8 focused tests (not more!) to prevent over-engineering
 
 ## Agent Skills System
 
@@ -691,11 +815,63 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-10-28
-**Version**: 4.5
+**Last Updated**: 2025-11-02
+**Version**: 5.1
 **Maintained By**: Development Team + Claude Code
 
-## Recent Updates (Oct 28, 2025)
+**Major Changes in v5.1**:
+- Added Customer Dashboard Production Readiness spec (147 story points, 4-week timeline)
+- Updated database schema with customer dashboard tables (customer_services, customer_billing, etc.)
+- Added account number system documentation (CT-YYYY-NNNNN format)
+- Added billing automation and payment method management
+- Added Interstellio API usage tracking integration
+
+**Previous Changes (v5.0)**:
+- Added B2B Quote-to-Contract KYC Workflow documentation
+- Added Agent-OS implementation system documentation
+- Added webhook signature verification pattern (HMAC-SHA256)
+- Updated database schema with KYC/contracts/invoicing tables
+
+## Recent Updates (Nov 2, 2025)
+
+### Customer Dashboard Production Readiness (SPEC CREATED - Ready for Implementation)
+- ✅ **Specification Created** (1,200+ lines) - Complete technical specification
+- ✅ **Task Breakdown** (147 story points, 20 task groups) - 4-week implementation timeline
+- ✅ **Verification Complete** (98% readiness score) - Approved for implementation
+
+**Scope**: Make customer dashboard `/dashboard` production-ready with full database integration
+- **Database**: 10 new/modified tables (customer_services, customer_billing, customer_invoices, usage_history, etc.)
+- **Account Numbers**: CT-YYYY-NNNNN format with continuous counter
+- **Billing System**: User-selectable billing dates (1st, 5th, 25th, 30th), pro-rata calculations, 7-day invoice advance
+- **Payment Methods**: NetCash eMandate integration, multiple payment methods per customer
+- **Integrations**: Interstellio API (usage tracking), Clickatell SMS (10 notifications), NetCash webhooks
+- **Admin Controls**: Service activation/suspension/cancellation with mandatory audit logging
+- **Scheduled Jobs**: Vercel Cron for invoice generation (02:00 SAST daily)
+
+**Phase 1 (Week 1)**: Database schema fixes, account number system, migration scripts (34 story points)
+
+**Spec Location**: `agent-os/specs/2025-11-01-customer-dashboard-production/`
+
+### B2B Quote-to-Contract KYC Workflow (IN PROGRESS - 64% Complete)
+- ✅ **Sprint 1: KYC Foundation** (20 points) - COMPLETE
+  - Database layer: `kyc_sessions`, `rica_submissions` tables with RLS policies
+  - Didit KYC integration: Session manager, webhook handler, risk scoring
+  - KYC API endpoints: Session creation, webhook processing, status tracking
+  - KYC frontend: `LightKYCSession` component, status badges, customer verification page
+- ✅ **Sprint 2: Contracts & CRM** (8/16 points) - 50% COMPLETE
+  - Contracts database: `contracts` table with auto-numbering (CT-YYYY-NNN)
+  - Contract generation: PDF with "KYC Verified by Didit" badge
+  - ZOHO Sign integration: Sequential signing workflow, webhook handling
+  - ZOHO CRM sync: Bidirectional sync with custom KYC/RICA fields
+  - Contract API endpoints: Create, retrieve, download PDF
+- ✅ **Sprint 3: Invoicing** (3/13 points) - 23% COMPLETE
+  - Invoicing database: `invoices`, `payment_transactions`, `billing_cycles` tables
+  - Invoice generation: Auto-numbering (INV-YYYY-NNN), VAT calculation (15%)
+  - NetCash payment processor: Payment initiation, webhook handling
+- ⏳ **Remaining**: RICA auto-submission, activation endpoints, notifications (4 task groups)
+
+**Implementation Status**: 9/14 task groups complete
+**Spec**: `agent-os/specs/20251101-b2b-quote-to-contract-kyc/`
 
 ### Admin Orders Management System (COMPLETE)
 - ✅ **Orders List Page** (`/admin/orders`) - Comprehensive orders management interface
