@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Eye, Calendar, Building2, FileText } from 'lucide-react';
+import { Loader2, Search, Eye, Calendar, Building2, FileText, Plus } from 'lucide-react';
 import type { BusinessQuote } from '@/lib/quotes/types';
 
 interface QuoteWithDetails extends BusinessQuote {
@@ -134,11 +134,20 @@ export default function AdminQuotesPage() {
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Business Quotes</h1>
-        <p className="text-circleTel-secondaryNeutral mt-1">
-          Manage and track business quote requests
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">Business Quotes</h1>
+          <p className="text-circleTel-secondaryNeutral mt-1">
+            Manage and track business quote requests
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push('/admin/quotes/new')}
+          className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          New Quote
+        </Button>
       </div>
 
       {/* Filters */}
