@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { mtnCoverageMonitor } from '@/lib/coverage/mtn/monitoring';
 import { mtnCoverageCache } from '@/lib/coverage/mtn/cache';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 

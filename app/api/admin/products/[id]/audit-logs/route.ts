@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 // GET /api/admin/products/[id]/audit-logs - Get audit trail for a product
 export async function GET(
