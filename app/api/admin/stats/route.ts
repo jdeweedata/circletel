@@ -4,10 +4,11 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
+    // Use service role client to bypass RLS for admin stats
     const supabase = await createClient();
 
     // Fetch all stats in parallel for performance
