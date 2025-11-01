@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { createClient as createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 // ============================================================================
@@ -55,13 +56,14 @@ const ListNotificationsQuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use SSR client for auth
+    const supabaseSSR = await createSSRClient();
 
     // Auth check
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -69,6 +71,9 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Use service role client for querying notifications
+    const supabase = await createAdminClient();
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -159,13 +164,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Use SSR client for auth
+    const supabaseSSR = await createSSRClient();
 
     // Auth check (service role for system notifications)
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -173,6 +179,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Use service role client for data operations
+    const supabase = await createAdminClient();
 
     // Parse and validate request body
     const body = await request.json();
