@@ -106,7 +106,26 @@ function isMobileDeal(plan, device) {
     return false;
   }
 
+  // ✅ CHECK CPE/Router devices FIRST (before brand exclusions)
+  // This ensures "Huawei CPE" is included before "Huawei" handset check
+  if (deviceStr.includes('cpe') ||
+      deviceStr.includes('router') ||
+      deviceStr.includes('modem')) {
+    // But exclude MoMo Point of Sale devices (not typical CPE)
+    if (deviceStr.includes('momo point of sale') || 
+        deviceStr.includes('point of sale')) {
+      return false;
+    }
+    return true; // All other CPE/routers are included
+  }
+
+  // ✅ INCLUDE SIM-only plans (Use Your Own device)
+  if (device === 'Use Your Own' && planStr.includes('made for business')) {
+    return true;
+  }
+
   // ❌ EXCLUDE HANDSETS (phones, tablets)
+  // This check comes AFTER CPE check, so "Huawei CPE" is already handled
   if (deviceStr.includes('phone') ||
       deviceStr.includes('galaxy') ||
       deviceStr.includes('iphone') ||
@@ -118,25 +137,6 @@ function isMobileDeal(plan, device) {
       deviceStr.includes('sony') ||
       deviceStr.includes('lg')) {
     return false;
-  }
-
-  // ✅ INCLUDE CPE/Router devices (5G/LTE home internet)
-  if (deviceStr.includes('router') ||
-      deviceStr.includes('cpe') ||
-      deviceStr.includes('modem') ||
-      deviceStr.includes('tozed')) {
-    return true;
-  }
-
-  // ❌ EXCLUDE MoMo Point of Sale devices (not typical CPE)
-  if (deviceStr.includes('momo point of sale') || 
-      deviceStr.includes('point of sale')) {
-    return false;
-  }
-  
-  // ✅ INCLUDE SIM-only plans (Use Your Own device)
-  if (device === 'Use Your Own' && planStr.includes('made for business')) {
-    return true;
   }
   
   // Default: exclude everything else
