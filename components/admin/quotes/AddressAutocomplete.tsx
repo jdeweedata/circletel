@@ -21,6 +21,7 @@ export function AddressAutocomplete({
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isReady, setIsReady] = React.useState(false);
+  const [internalValue, setInternalValue] = React.useState(value);
 
   useEffect(() => {
     // Check if Google Maps API is already loaded
@@ -50,7 +51,7 @@ export function AddressAutocomplete({
     }
 
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`;
     script.async = true;
     script.defer = true;
     script.onload = () => {
@@ -94,12 +95,20 @@ export function AddressAutocomplete({
     }
   };
 
+  // Sync external value changes with internal state
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
   return (
     <div className="relative">
       <Input
         ref={inputRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={internalValue}
+        onChange={(e) => {
+          setInternalValue(e.target.value);
+          onChange(e.target.value);
+        }}
         placeholder={placeholder}
         className={className}
         disabled={isLoading}
