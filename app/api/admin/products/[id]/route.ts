@@ -11,6 +11,8 @@ export async function GET(
     const { id } = await context.params;
     const supabase = await createClient();
 
+    console.log('[Product Detail API] Fetching product:', id);
+
     // Now using service_packages as single source of truth
     const { data: product, error } = await supabase
       .from('service_packages')
@@ -19,39 +21,72 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('Error fetching product:', error);
+      console.error('[Product Detail API] Database error:', {
+        error,
+        productId: id,
+        errorCode: error.code,
+        errorMessage: error.message,
+        errorDetails: error.details
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch product' },
+        { success: false, error: `Database error: ${error.message}` },
         { status: 500 }
       );
     }
 
     if (!product) {
+      console.warn('[Product Detail API] Product not found:', id);
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    // Map service_packages fields to match frontend expectations
-    const mappedProduct = {
-      ...product,
-      // Map service_packages fields to products fields for compatibility
-      category: product.product_category || 'connectivity',
-      service: product.service_type,
-      customer_type: product.customer_type === 'business' ? 'smme' : 'consumer',
-      is_active: product.active,
-      featured: product.is_featured || false,
-      data_limit: product.metadata?.data_limit || '',
-      contract_duration: product.metadata?.contract_duration || '',
-    };
+    console.log('[Product Detail API] Product found:', {
+      id: product.id,
+      name: product.name,
+      hasMetadata: !!product.metadata,
+      hasPricing: !!product.pricing
+    });
 
-    // Return mapped fields - frontend uses database field names
-    return NextResponse.json({ success: true, data: mappedProduct });
+    // Map service_packages fields to match frontend expectations
+    try {
+      const mappedProduct = {
+        ...product,
+        // Map service_packages fields to products fields for compatibility
+        category: product.product_category || 'connectivity',
+        service: product.service_type,
+        customer_type: product.customer_type === 'business' ? 'smme' : 'consumer',
+        is_active: product.active,
+        featured: product.is_featured || false,
+        data_limit: product.metadata?.data_limit || '',
+        contract_duration: product.metadata?.contract_duration || '',
+      };
+
+      console.log('[Product Detail API] Successfully mapped product');
+      
+      // Return mapped fields - frontend uses database field names
+      return NextResponse.json({ success: true, data: mappedProduct });
+    } catch (mappingError) {
+      console.error('[Product Detail API] Error mapping product data:', {
+        mappingError,
+        productKeys: Object.keys(product),
+        productData: product
+      });
+      throw mappingError; // Re-throw to be caught by outer catch
+    }
   } catch (error) {
-    console.error('Error in GET /api/admin/products/[id]:', error);
+    console.error('[Product Detail API] Unexpected error:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Internal server error',
+        details: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
