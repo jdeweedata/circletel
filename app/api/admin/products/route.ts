@@ -56,23 +56,24 @@ export async function GET(request: NextRequest) {
     // Filter by contract term
     if (contractTerm && contractTerm !== 'all') {
       const term = parseInt(contractTerm);
-      // Simple equality check on contract_term field
-      query = query.eq('contract_term', term);
+      // Check metadata->contractTerm (MTN import uses camelCase)
+      // Using contains for JSONB field matching
+      query = query.contains('metadata', { contractTerm: term });
     }
 
     // Filter by device type
+    // Device info is stored in product name and metadata->oemDevice
     if (deviceType && deviceType !== 'all') {
       if (deviceType === 'sim_only') {
-        // SIM-only products (Use Your Own device or null)
-        query = query.or('device.ilike.%Use Your Own%,device.is.null');
+        // SIM-only products (Use Your Own device)
+        query = query.ilike('name', '%Use Your Own%');
       } else if (deviceType === 'cpe') {
-        // CPE/Router devices
-        query = query.or('device.ilike.%CPE%,device.ilike.%router%,device.ilike.%modem%,device.ilike.%Tozed%,device.ilike.%Huawei H%');
+        // CPE/Router devices - search in product name
+        query = query.or('name.ilike.%CPE%,name.ilike.%router%,name.ilike.%modem%,name.ilike.%Tozed%,name.ilike.%Huawei H155%');
       } else if (deviceType === 'handset') {
-        // Handset/phone devices
-        query = query.or('device.ilike.%iPhone%,device.ilike.%Samsung%,device.ilike.%Galaxy%,device.ilike.%Oppo%,device.ilike.%Vivo%,device.ilike.%Huawei Nova%');
+        // Handset/phone devices - search in product name
+        query = query.or('name.ilike.%iPhone%,name.ilike.%Samsung%,name.ilike.%Galaxy%,name.ilike.%Oppo%,name.ilike.%Vivo%,name.ilike.%Huawei Nova%');
       }
-      // Skip 'other' filter - too complex with .not() chains
     }
 
     // Filter by technology
