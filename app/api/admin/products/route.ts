@@ -65,8 +65,9 @@ export async function GET(request: NextRequest) {
     // Device info is stored in product name and metadata->oemDevice
     if (deviceType && deviceType !== 'all') {
       if (deviceType === 'sim_only') {
-        // SIM-only products (Use Your Own device)
-        query = query.ilike('name', '%Use Your Own%');
+        // SIM-only products - search in description for "SIM Only"
+        // Product names without "+ Device" and descriptions contain "SIM Only"
+        query = query.ilike('description', '%SIM Only%');
       } else if (deviceType === 'cpe') {
         // CPE/Router devices - search in product name
         query = query.or('name.ilike.%CPE%,name.ilike.%router%,name.ilike.%modem%,name.ilike.%Tozed%,name.ilike.%Huawei H155%');
