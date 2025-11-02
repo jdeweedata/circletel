@@ -568,41 +568,36 @@ function PackagesContent() {
                     originalPrice={selectedPackage.promotion_price ? selectedPackage.price : undefined}
                     promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
                     name={selectedPackage.name}
-                    type="uncapped"
+                    type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
                     downloadSpeed={selectedPackage.speed_down}
                     uploadSpeed={selectedPackage.speed_up}
-                    providerName={selectedPackage.service_type}
-                    benefits={[
-                      {
-                        text: 'Free set-up worth R1699',
-                        tooltipTitle: 'Free set-up worth R1699',
-                        tooltipDescription: "We'll cover your set-up fee on your behalf. You're welcome! If your Fibre is not installed and activated within 14 (MDU) / 21 (SDU) days, we will credit your account with R999. T&Cs apply."
-                      } as BenefitItem,
-                      {
-                        text: 'Fully insured, Free-to-Use Router',
-                        tooltipTitle: 'Fully insured, Free-to-Use Router',
-                        tooltipDescription: 'Your router is fully covered for the duration of your contract. No worries if it breaks - we will replace it at no cost to you.'
-                      } as BenefitItem,
-                    ]}
+                    providerName={selectedPackage.provider?.name || selectedPackage.service_type}
+                    benefits={
+                      // Map package features to benefits - take features that look like benefits (contain "free", "included", etc.)
+                      selectedPackage.features
+                        ?.filter(f => 
+                          f.toLowerCase().includes('free') || 
+                          f.toLowerCase().includes('included') ||
+                          f.toLowerCase().includes('router') ||
+                          f.toLowerCase().includes('installation') ||
+                          f.toLowerCase().includes('insured')
+                        )
+                        .slice(0, 4) // Limit to 4 benefits
+                        .map(feature => ({ text: feature })) || []
+                    }
                     additionalInfo={{
                       title: 'What else you should know:',
                       items: [
-                        {
-                          text: 'Installation time: 7 days*',
-                          tooltipTitle: 'Installation time: 7 days*',
-                          tooltipDescription: 'Average installation time is 7 working days from order confirmation. Actual time may vary based on location and infrastructure availability.'
-                        } as AdditionalInfoItem,
-                        {
-                          text: 'Once-off processing fee: R249',
-                          tooltipTitle: 'Once-off processing fee: R249',
-                          tooltipDescription: 'This one-time fee covers administrative costs for setting up your account and processing your order.'
-                        } as AdditionalInfoItem,
-                        {
-                          text: 'Month-to-month contract',
-                        },
-                        {
-                          text: '24/7 customer support',
-                        },
+                        // Include remaining features as additional info
+                        ...selectedPackage.features
+                          ?.filter(f => 
+                            !f.toLowerCase().includes('free') && 
+                            !f.toLowerCase().includes('included') &&
+                            !f.toLowerCase().includes('router') &&
+                            !f.toLowerCase().includes('insured')
+                          )
+                          .slice(0, 6) // Limit to 6 items
+                          .map(feature => ({ text: feature })) || [],
                       ] as (string | AdditionalInfoItem)[],
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
