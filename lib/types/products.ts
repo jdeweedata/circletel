@@ -125,6 +125,8 @@ export interface ProductFilters {
   max_speed?: number | null;
   contract_term?: number;
   device_type?: string;
+  technology?: string;
+  data_package?: string;
 }
 
 export interface ProductsResponse {

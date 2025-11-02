@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sort_by') || 'created_desc';
     const contractTerm = searchParams.get('contract_term');
     const deviceType = searchParams.get('device_type');
+    const technology = searchParams.get('technology');
+    const dataPackage = searchParams.get('data_package');
 
     // Build query - using service_packages as single source of truth
     let query = supabase
@@ -77,6 +79,39 @@ export async function GET(request: NextRequest) {
           .not('device', 'ilike', '%iPhone%')
           .not('device', 'ilike', '%Samsung%')
           .not('device', 'is', null);
+      }
+    }
+
+    // Filter by technology
+    if (technology) {
+      if (technology === '5g') {
+        query = query.eq('service_type', '5g');
+      } else if (technology === 'lte') {
+        query = query.eq('service_type', 'lte');
+      } else if (technology === 'fibre') {
+        // Fibre products (HomeFibreConnect, BizFibreConnect, SkyFibre)
+        query = query.or('service_type.eq.HomeFibreConnect,service_type.eq.BizFibreConnect,service_type.ilike.%Fibre%');
+      } else if (technology === 'wireless') {
+        // Wireless products (SkyFibre, other wireless)
+        query = query.or('service_type.eq.SkyFibre,service_type.ilike.%Wireless%');
+      }
+    }
+
+    // Filter by data package
+    if (dataPackage) {
+      if (dataPackage === '0-10') {
+        // 0-10 GB: Check metadata->inclusivePlanData or data_allowance
+        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.0,data_allowance.lte.10');
+      } else if (dataPackage === '10-50') {
+        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.10,data_allowance.lte.50');
+      } else if (dataPackage === '50-100') {
+        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.50,data_allowance.lte.100');
+      } else if (dataPackage === '100-500') {
+        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.100,data_allowance.lte.500');
+      } else if (dataPackage === '500+') {
+        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.500');
+      } else if (dataPackage === 'uncapped') {
+        query = query.or('name.ilike.%Uncapped%,description.ilike.%Uncapped%,metadata->inclusivePlanData.ilike.%Uncapped%');
       }
     }
 

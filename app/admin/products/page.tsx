@@ -110,6 +110,8 @@ export default function AdminProducts() {
       if (filters.sort_by) params.append('sort_by', filters.sort_by);
       if (filters.contract_term) params.append('contract_term', filters.contract_term.toString());
       if (filters.device_type) params.append('device_type', filters.device_type);
+      if (filters.technology) params.append('technology', filters.technology);
+      if (filters.data_package) params.append('data_package', filters.data_package);
 
       const response = await fetch(`/api/admin/products?${params.toString()}`);
       const result = await response.json();
@@ -624,6 +626,34 @@ export default function AdminProducts() {
                   <SelectItem value="cpe">CPE/Router</SelectItem>
                   <SelectItem value="handset">Handset</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value) => handleFilterChange('technology', value)}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Technology" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tech</SelectItem>
+                  <SelectItem value="5g">5G</SelectItem>
+                  <SelectItem value="lte">LTE</SelectItem>
+                  <SelectItem value="fibre">Fibre</SelectItem>
+                  <SelectItem value="wireless">Wireless</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value) => handleFilterChange('data_package', value)}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Data Package" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Data</SelectItem>
+                  <SelectItem value="0-10">0-10 GB</SelectItem>
+                  <SelectItem value="10-50">10-50 GB</SelectItem>
+                  <SelectItem value="50-100">50-100 GB</SelectItem>
+                  <SelectItem value="100-500">100-500 GB</SelectItem>
+                  <SelectItem value="500+">500+ GB</SelectItem>
+                  <SelectItem value="uncapped">Uncapped</SelectItem>
                 </SelectContent>
               </Select>
 
