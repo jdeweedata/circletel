@@ -728,7 +728,7 @@ export default function AdminProducts() {
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                         >
                           {categoryProducts.map((product, index) => (
                             <Draggable key={product.id} draggableId={product.id} index={index}>

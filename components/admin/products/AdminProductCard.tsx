@@ -6,6 +6,7 @@ import { Product } from '@/lib/types/products';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { ProviderLogo } from '@/components/products/ProviderLogo';
 import {
   Package,
@@ -369,27 +370,18 @@ export function AdminProductCard({
         {/* Action Buttons */}
         <div className="flex gap-2">
           {hasEditPermission && onToggleStatus && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleStatus(product);
-              }}
-            >
-              {product.is_active ? (
-                <>
-                  <ToggleLeft className="w-4 h-4 mr-1" />
-                  Deactivate
-                </>
-              ) : (
-                <>
-                  <ToggleRight className="w-4 h-4 mr-1" />
-                  Activate
-                </>
-              )}
-            </Button>
+            <div className="flex items-center justify-between flex-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50">
+              <span className="text-sm font-medium text-gray-700">
+                {product.is_active ? 'Active' : 'Inactive'}
+              </span>
+              <Switch
+                checked={product.is_active}
+                onCheckedChange={(checked) => {
+                  onToggleStatus(product);
+                }}
+                className="data-[state=checked]:bg-circleTel-orange"
+              />
+            </div>
           )}
 
           {/* More Actions Dropdown */}

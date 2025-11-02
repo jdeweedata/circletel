@@ -398,12 +398,12 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           <div className="p-6">
             {data.billing ? (
               <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-6">
                   <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <CreditCard className="h-5 w-5 text-circleTel-orange" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-sm text-gray-900">{data.billing.payment_method || 'No payment method'}</p>
+                    <p className="text-sm font-medium text-gray-900">{data.billing.payment_method || 'No payment method'}</p>
                     <p className={`text-xs font-medium ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
                       {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
                     </p>
