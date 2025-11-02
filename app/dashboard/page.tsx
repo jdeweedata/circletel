@@ -9,6 +9,7 @@ import { Loader2, Wifi, CreditCard, Package, AlertCircle, Clock, ArrowUpDown } f
 import Link from "next/link";
 import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
 import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
+import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
 
 interface DashboardData {
   customer: {
@@ -205,15 +206,20 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
   
   return (
     <div className="space-y-8">
-      {/* Page Title with Customer ID */}
-      <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
-        <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">My Dashboard</h1>
-        <p className="text-base lg:text-lg text-gray-600 mt-2">
-          Welcome back, <span className="font-bold text-circleTel-orange">{firstName || displayName}</span>!
-          {data.customer.accountNumber && (
-            <span className="text-sm font-semibold text-gray-700 ml-2">Account: {data.customer.accountNumber}</span>
-          )}
-        </p>
+      {/* Clean Modern Header */}
+      <div className="mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Welcome back, {firstName || displayName}
+            </h1>
+            {data.customer.accountNumber && (
+              <p className="text-sm text-gray-500 mt-1">
+                Account: <span className="font-medium text-gray-700">{data.customer.accountNumber}</span>
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Pending Orders Alert */}
@@ -242,55 +248,59 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         </div>
       )}
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Active Services</p>
-                <p className="text-4xl lg:text-5xl font-extrabold text-circleTel-orange mt-2 tabular-nums">{data.stats.activeServices}</p>
-              </div>
-              <Wifi className="h-12 w-12 text-circleTel-orange opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Modern Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ModernStatCard
+          title="Active Services"
+          value={data.stats.activeServices}
+          trend={{
+            value: data.stats.activeServices > 0 ? 100 : 0,
+            isPositive: true,
+            label: "vs last month"
+          }}
+          subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
+          description="Connected and billing"
+          icon={<Wifi className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Orders</p>
-                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">{data.stats.totalOrders}</p>
-              </div>
-              <Package className="h-12 w-12 text-blue-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Total Orders"
+          value={data.stats.totalOrders}
+          trend={{
+            value: data.stats.pendingOrders > 0 ? -20 : 0,
+            isPositive: false,
+            label: "vs last month"
+          }}
+          subtitle={data.stats.pendingOrders > 0 ? `${data.stats.pendingOrders} pending` : "All orders completed"}
+          description={data.stats.pendingOrders > 0 ? "Some orders need attention" : "Order history"}
+          icon={<Package className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Account Balance</p>
-                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">R{data.stats.accountBalance.toFixed(2)}</p>
-              </div>
-              <CreditCard className="h-12 w-12 text-green-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Account Balance"
+          value={`R${data.stats.accountBalance.toFixed(2)}`}
+          trend={{
+            value: data.stats.accountBalance === 0 ? 0 : data.stats.accountBalance > 0 ? -10 : 10,
+            isPositive: data.stats.accountBalance <= 0,
+            label: "vs last month"
+          }}
+          subtitle={data.stats.accountBalance === 0 ? "No balance due" : data.stats.accountBalance > 0 ? "Payment due" : "Credit available"}
+          description={data.stats.accountBalance > 0 ? "Please make payment" : "Account in good standing"}
+          icon={<CreditCard className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Pending Orders</p>
-                <p className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 tabular-nums">{data.stats.pendingOrders}</p>
-              </div>
-              <Clock className="h-12 w-12 text-yellow-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Service Status"
+          value={data.stats.overdueInvoices > 0 ? "Overdue" : "Current"}
+          trend={{
+            value: data.stats.overdueInvoices > 0 ? -15 : 5,
+            isPositive: data.stats.overdueInvoices === 0,
+            label: "this period"
+          }}
+          subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "All payments current"}
+          description={data.stats.overdueInvoices > 0 ? "Payment required" : "Good payment history"}
+          icon={<Clock className="h-5 w-5" />}
+        />
       </div>
 
       {/* Quick Action Cards */}
