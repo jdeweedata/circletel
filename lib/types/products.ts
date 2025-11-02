@@ -123,6 +123,8 @@ export interface ProductFilters {
   max_price?: number | null;
   min_speed?: number | null;
   max_speed?: number | null;
+  contract_term?: number;
+  device_type?: string;
 }
 
 export interface ProductsResponse {

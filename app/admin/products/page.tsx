@@ -108,6 +108,8 @@ export default function AdminProducts() {
       if (filters.status) params.append('status', filters.status);
       if (filters.search) params.append('search', filters.search);
       if (filters.sort_by) params.append('sort_by', filters.sort_by);
+      if (filters.contract_term) params.append('contract_term', filters.contract_term.toString());
+      if (filters.device_type) params.append('device_type', filters.device_type);
 
       const response = await fetch(`/api/admin/products?${params.toString()}`);
       const result = await response.json();
@@ -571,7 +573,7 @@ export default function AdminProducts() {
                 />
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               <Select onValueChange={(value) => handleFilterChange('category', value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Categories" />
@@ -596,6 +598,32 @@ export default function AdminProducts() {
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value) => handleFilterChange('contract_term', value)}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Contract Term" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Terms</SelectItem>
+                  <SelectItem value="0">Month-to-Month</SelectItem>
+                  <SelectItem value="12">12 Months</SelectItem>
+                  <SelectItem value="24">24 Months</SelectItem>
+                  <SelectItem value="36">36 Months</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value) => handleFilterChange('device_type', value)}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Device Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Devices</SelectItem>
+                  <SelectItem value="sim_only">SIM-Only</SelectItem>
+                  <SelectItem value="cpe">CPE/Router</SelectItem>
+                  <SelectItem value="handset">Handset</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
 

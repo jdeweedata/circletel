@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
     const sortBy = searchParams.get('sort_by') || 'created_desc';
+    const contractTerm = searchParams.get('contract_term');
+    const deviceType = searchParams.get('device_type');
 
     // Build query - using service_packages as single source of truth
     let query = supabase
@@ -47,6 +49,35 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,slug.ilike.%${search}%`);
+    }
+
+    // Filter by contract term
+    if (contractTerm) {
+      const term = parseInt(contractTerm);
+      // Check both contract_term field and metadata->contract_months
+      query = query.or(`contract_term.eq.${term},metadata->contract_months.eq.${term}`);
+    }
+
+    // Filter by device type
+    if (deviceType) {
+      if (deviceType === 'sim_only') {
+        // SIM-only products (Use Your Own device)
+        query = query.or(`device.ilike.%Use Your Own%,device.is.null`);
+      } else if (deviceType === 'cpe') {
+        // CPE/Router devices
+        query = query.or(`device.ilike.%CPE%,device.ilike.%router%,device.ilike.%modem%,device.ilike.%Tozed%,device.ilike.%Huawei H%`);
+      } else if (deviceType === 'handset') {
+        // Handset/phone devices
+        query = query.or(`device.ilike.%iPhone%,device.ilike.%Samsung%,device.ilike.%Galaxy%,device.ilike.%Oppo%,device.ilike.%Vivo%,device.ilike.%Huawei Nova%`);
+      } else if (deviceType === 'other') {
+        // Other devices (not SIM-only, CPE, or handset)
+        query = query.not('device', 'ilike', '%Use Your Own%')
+          .not('device', 'ilike', '%CPE%')
+          .not('device', 'ilike', '%router%')
+          .not('device', 'ilike', '%iPhone%')
+          .not('device', 'ilike', '%Samsung%')
+          .not('device', 'is', null);
+      }
     }
 
     // Apply sorting
