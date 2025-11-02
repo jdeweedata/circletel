@@ -77,6 +77,52 @@ function parseSMS(smsStr) {
 }
 
 /**
+ * Determine if device/plan is 5G or LTE
+ */
+function determineServiceType(device, plan) {
+  // Check device name for 5G indicator
+  const deviceStr = String(device || '').toLowerCase();
+  const planStr = String(plan || '').toLowerCase();
+  
+  if (deviceStr.includes('5g') || planStr.includes('5g')) {
+    return '5g';
+  }
+  
+  // All other mobile deals are LTE (default for mobile data)
+  return 'lte';
+}
+
+/**
+ * Check if this is a mobile/wireless deal (not fibre or other service)
+ */
+function isMobileDeal(plan, device) {
+  const planStr = String(plan || '').toLowerCase();
+  const deviceStr = String(device || '').toLowerCase();
+  
+  // Exclude fibre deals
+  if (planStr.includes('fibre') || planStr.includes('fiber')) {
+    return false;
+  }
+  
+  // Include if it's a mobile plan (Made For Business, etc.)
+  if (planStr.includes('made for business') || 
+      planStr.includes('mobile') ||
+      planStr.includes('data+') ||
+      deviceStr !== 'use your own' ||
+      deviceStr.includes('phone') ||
+      deviceStr.includes('galaxy') ||
+      deviceStr.includes('iphone') ||
+      deviceStr.includes('oppo') ||
+      deviceStr.includes('vivo') ||
+      deviceStr.includes('huawei')) {
+    return true;
+  }
+  
+  // Default: assume mobile if plan is "Made For Business"
+  return planStr.includes('made for business');
+}
+
+/**
  * Map Excel row to service_packages schema
  */
 function mapRowToServicePackage(row) {
@@ -120,6 +166,11 @@ function mapRowToServicePackage(row) {
     availableILula
   ] = row;
 
+  // Skip non-mobile deals
+  if (!isMobileDeal(pricePlan, oemDevice)) {
+    return null;
+  }
+
   // Parse dates
   const startDate = parseExcelDate(promoStartDate);
   const endDate = parseExcelDate(promoEndDate);
@@ -132,6 +183,9 @@ function mapRowToServicePackage(row) {
   const totalDataGB = parseDataAmount(totalData);
   const totalMins = parseMinutes(totalMinutes);
   const totalSms = parseSMS(smsBundle);
+
+  // Determine service type (5G or LTE)
+  const serviceType = determineServiceType(oemDevice, pricePlan);
 
   // Construct product name
   const devicePart = oemDevice !== 'Use Your Own' ? ` + ${oemDevice}` : '';
@@ -196,7 +250,7 @@ function mapRowToServicePackage(row) {
     description: description,
     slug: generateSlug(productName),
     sku: dealId,
-    service_type: '5g', // MTN mobile deals
+    service_type: serviceType, // '5g' or 'lte' based on device
     product_category: 'business', // B2B deals
     customer_type: 'business',
     base_price_zar: monthlyPrice,
@@ -241,6 +295,7 @@ async function importMTNDeals(filePath, options = {}) {
   console.log('\n🔍 Parsing deals...');
   const products = [];
   const errors = [];
+  let skippedNonMobile = 0;
 
   for (let i = 1; i < sheetData.length; i++) {
     const row = sheetData[i];
@@ -248,13 +303,21 @@ async function importMTNDeals(filePath, options = {}) {
 
     try {
       const product = mapRowToServicePackage(row);
+      if (product === null) {
+        // Non-mobile deal, skip
+        skippedNonMobile++;
+        continue;
+      }
       products.push(product);
     } catch (error) {
       errors.push({ row: i + 1, error: error.message });
     }
   }
 
-  console.log(`   ✅ Parsed: ${products.length} deals`);
+  console.log(`   ✅ Parsed: ${products.length} mobile deals (LTE/5G)`);
+  if (skippedNonMobile > 0) {
+    console.log(`   ⏭️  Skipped: ${skippedNonMobile} non-mobile deals`);
+  }
   if (errors.length > 0) {
     console.log(`   ⚠️  Errors: ${errors.length}`);
     errors.slice(0, 5).forEach(err => {
