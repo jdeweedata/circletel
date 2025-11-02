@@ -266,7 +266,10 @@ export function PackageDetailSidebar({
                 );
               })}
             </div>
-            <p className="text-xs text-gray-500 italic">*Terms and conditions apply</p>
+            <div className="text-xs text-gray-500 space-y-1">
+              <p className="italic">*Terms and conditions apply</p>
+              <p className="text-gray-600">Router remains MTN property and must be returned on cancellation. Network locked.</p>
+            </div>
           </div>
         )}
 
