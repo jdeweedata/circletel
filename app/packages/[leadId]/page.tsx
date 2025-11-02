@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { extractBenefits, extractAdditionalInfo } from '@/lib/products/feature-formatter';
 
 interface Package {
   id: string;
@@ -572,33 +573,10 @@ function PackagesContent() {
                     downloadSpeed={selectedPackage.speed_down}
                     uploadSpeed={selectedPackage.speed_up}
                     providerName={selectedPackage.provider?.name || selectedPackage.service_type}
-                    benefits={
-                      // Map package features to benefits - take features that look like benefits (contain "free", "included", etc.)
-                      selectedPackage.features
-                        ?.filter(f => 
-                          f.toLowerCase().includes('free') || 
-                          f.toLowerCase().includes('included') ||
-                          f.toLowerCase().includes('router') ||
-                          f.toLowerCase().includes('installation') ||
-                          f.toLowerCase().includes('insured')
-                        )
-                        .slice(0, 4) // Limit to 4 benefits
-                        .map(feature => ({ text: feature })) || []
-                    }
+                    benefits={extractBenefits(selectedPackage.features || [])}
                     additionalInfo={{
                       title: 'What else you should know:',
-                      items: [
-                        // Include remaining features as additional info
-                        ...selectedPackage.features
-                          ?.filter(f => 
-                            !f.toLowerCase().includes('free') && 
-                            !f.toLowerCase().includes('included') &&
-                            !f.toLowerCase().includes('router') &&
-                            !f.toLowerCase().includes('insured')
-                          )
-                          .slice(0, 6) // Limit to 6 items
-                          .map(feature => ({ text: feature })) || [],
-                      ] as (string | AdditionalInfoItem)[],
+                      items: extractAdditionalInfo(selectedPackage.features || []) as (string | AdditionalInfoItem)[],
                     }}
                     recommended={filteredPackages.indexOf(selectedPackage) === 0}
                     onOrderClick={handleContinue}
@@ -681,33 +659,10 @@ function PackagesContent() {
           downloadSpeed={selectedPackage.speed_down}
           uploadSpeed={selectedPackage.speed_up}
           providerName={selectedPackage.provider?.name || selectedPackage.service_type}
-          benefits={
-            // Map package features to benefits - take features that look like benefits (contain "free", "included", etc.)
-            selectedPackage.features
-              ?.filter(f => 
-                f.toLowerCase().includes('free') || 
-                f.toLowerCase().includes('included') ||
-                f.toLowerCase().includes('router') ||
-                f.toLowerCase().includes('installation') ||
-                f.toLowerCase().includes('insured')
-              )
-              .slice(0, 4) // Limit to 4 benefits
-              .map(feature => ({ text: feature })) || []
-          }
+          benefits={extractBenefits(selectedPackage.features || [])}
           additionalInfo={{
             title: 'What else you should know:',
-            items: [
-              // Include remaining features as additional info
-              ...selectedPackage.features
-                ?.filter(f => 
-                  !f.toLowerCase().includes('free') && 
-                  !f.toLowerCase().includes('included') &&
-                  !f.toLowerCase().includes('router') &&
-                  !f.toLowerCase().includes('insured')
-                )
-                .slice(0, 6) // Limit to 6 items
-                .map(feature => ({ text: feature })) || [],
-            ] as (string | AdditionalInfoItem)[],
+            items: extractAdditionalInfo(selectedPackage.features || []) as (string | AdditionalInfoItem)[],
           }}
           recommended={filteredPackages.indexOf(selectedPackage) === 0}
           onOrderClick={handleContinue}
