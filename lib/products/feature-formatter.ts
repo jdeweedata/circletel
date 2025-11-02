@@ -24,17 +24,17 @@ const FEATURE_MAPPINGS: Record<string, string> = {
   'gaming ready - pro': 'Gaming ready (Pro level)',
   'gaming ready': 'Gaming ready',
   
-  // Installation & Setup
-  'free installation': 'Free installation',
-  'free setup': 'Free setup',
+  // Installation & Setup - Highlight FREE value
+  'free installation': 'FREE Installation - worth up to R1,699*',
+  'free setup': 'FREE Setup - worth up to R1,699*',
   'installation time': 'Installation time:',
   'month-to-month': 'Month-to-month contract',
   
-  // Router & Equipment
-  'router bundle available': 'Router bundle available',
-  'free router': 'Free router',
-  'free-to-use router': 'Free-to-use router',
-  'fully insured': 'Fully insured router',
+  // Router & Equipment - Emphasize FREE TO USE
+  'router bundle available': 'FREE TO USE Router included*',
+  'free router': 'FREE TO USE Router*',
+  'free-to-use router': 'FREE TO USE Router - yours to keep*',
+  'fully insured': '', // Remove fully insured
   
   // Contract & Fees
   'once-off': 'One-time',
@@ -46,6 +46,14 @@ const FEATURE_MAPPINGS: Record<string, string> = {
  * Convert technical feature to customer-friendly text
  */
 export function formatFeature(feature: string): FormattedFeature {
+  // Handle null/undefined/empty features
+  if (!feature || typeof feature !== 'string') {
+    return {
+      text: '',
+      category: 'technical',
+    };
+  }
+
   let formattedText = feature;
   let category: FormattedFeature['category'] = 'technical';
   
@@ -81,7 +89,12 @@ export function formatFeature(feature: string): FormattedFeature {
  * Format all features in an array
  */
 export function formatFeatures(features: string[]): FormattedFeature[] {
-  return features.map(formatFeature);
+  if (!features || !Array.isArray(features)) {
+    return [];
+  }
+  return features
+    .filter(f => f && typeof f === 'string') // Filter out null/undefined
+    .map(formatFeature);
 }
 
 /**
@@ -90,7 +103,7 @@ export function formatFeatures(features: string[]): FormattedFeature[] {
  */
 export function extractBenefits(features: string[]): FormattedFeature[] {
   return formatFeatures(features)
-    .filter(f => f.category === 'benefit')
+    .filter(f => f.category === 'benefit' && f.text.trim() !== '') // Exclude empty features
     .slice(0, 4); // Limit to top 4 benefits
 }
 
@@ -103,7 +116,7 @@ export function extractAdditionalInfo(features: string[]): FormattedFeature[] {
   const benefitTexts = extractBenefits(features).map(b => b.text);
   
   return formatted
-    .filter(f => !benefitTexts.includes(f.text)) // Exclude benefits
+    .filter(f => !benefitTexts.includes(f.text) && f.text.trim() !== '') // Exclude benefits and empty features
     .slice(0, 6); // Limit to 6 items
 }
 

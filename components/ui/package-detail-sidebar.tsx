@@ -246,7 +246,7 @@ export function PackageDetailSidebar({
             <h3 className="text-pink-600 font-semibold text-sm mb-3 uppercase tracking-wide">
               What you get for free:
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-2 mb-3">
               {benefits.map((benefit, index) => {
                 const benefitText = typeof benefit === 'string' ? benefit : benefit.text;
                 const hasTooltip = typeof benefit === 'object' && benefit.tooltipTitle && benefit.tooltipDescription;
@@ -266,6 +266,7 @@ export function PackageDetailSidebar({
                 );
               })}
             </div>
+            <p className="text-xs text-gray-500 italic">*Terms and conditions apply</p>
           </div>
         )}
 
