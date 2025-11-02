@@ -13,6 +13,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "type-check:memory": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit",
+    "statusline:update": "powershell -File .claude/update-ts-cache.ps1",
     "memory:check": "powershell -File scripts/check-memory.ps1",
     "memory:detail": "powershell -File scripts/check-memory-detailed.ps1",
     "workflow:start": "powershell -File scripts/workflow-morning.ps1",

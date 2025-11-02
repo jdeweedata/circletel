@@ -219,6 +219,53 @@ export class NetcashPaymentService {
   isConfigured(): boolean {
     return !!this.merchantId;
   }
+
+  /**
+   * Initiate payment for invoice
+   * Fetches invoice details and generates payment form data
+   *
+   * @param invoiceId - UUID of the invoice
+   * @returns Payment URL and transaction reference
+   */
+  async initiatePaymentForInvoice(invoiceId: string): Promise<{
+    paymentUrl: string;
+    transactionReference: string;
+    formData: NetcashPaymentFormData;
+  }> {
+    // Import createClient dynamically to avoid circular dependencies
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+
+    // Fetch invoice details
+    const { data: invoice, error } = await supabase
+      .from('invoices')
+      .select('*, customer:customers(*)')
+      .eq('id', invoiceId)
+      .single();
+
+    if (error || !invoice) {
+      throw new Error(`Invoice not found: ${invoiceId}`);
+    }
+
+    // Generate payment form data
+    const formData = this.generatePaymentFormData({
+      orderId: invoice.id,
+      orderNumber: invoice.invoice_number,
+      customerName: invoice.customer.company_name || invoice.customer.name || 'Customer',
+      customerEmail: invoice.customer.email,
+      amount: invoice.total_amount, // Already in Rands, will be converted to cents
+      description: `Invoice ${invoice.invoice_number}`
+    });
+
+    // Generate payment URL
+    const paymentUrl = this.generatePaymentUrl(formData);
+
+    return {
+      paymentUrl,
+      transactionReference: formData.m5,
+      formData
+    };
+  }
 }
 
 // Export singleton instance
