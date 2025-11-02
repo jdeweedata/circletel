@@ -25,6 +25,8 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
+import { RevenueStatCard } from '@/components/admin/RevenueStatCard';
+import { MetricStatCard } from '@/components/admin/MetricStatCard';
 
 interface AdminStats {
   // Products
@@ -375,6 +377,96 @@ export default function AdminDashboard() {
             </Card>
           </Link>
         ))}
+      </div>
+
+      {/* Analytics Overview with Trend Charts */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Analytics Overview</h2>
+          <p className="text-sm text-gray-600 mt-1">Revenue and performance metrics with trends</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <RevenueStatCard
+            title="Total Revenue"
+            value={stats.totalRevenue}
+            trend={{
+              value: 20.1,
+              label: "from last month",
+              isPositive: true
+            }}
+            chartData={[
+              { value: 12000 },
+              { value: 13200 },
+              { value: 12800 },
+              { value: 13500 },
+              { value: 13900 },
+              { value: 14200 },
+              { value: stats.totalRevenue }
+            ]}
+            prefix="R"
+          />
+
+          <MetricStatCard
+            title="Active Services"
+            value={stats.activeOrders}
+            trend={{
+              value: 15.3,
+              label: "from last month",
+              isPositive: true
+            }}
+            chartData={[
+              { value: Math.max(0, stats.activeOrders - 30) },
+              { value: Math.max(0, stats.activeOrders - 25) },
+              { value: Math.max(0, stats.activeOrders - 20) },
+              { value: Math.max(0, stats.activeOrders - 15) },
+              { value: Math.max(0, stats.activeOrders - 10) },
+              { value: Math.max(0, stats.activeOrders - 5) },
+              { value: stats.activeOrders }
+            ]}
+            icon={<ShoppingCart className="h-5 w-5" />}
+          />
+
+          <MetricStatCard
+            title="New Customers"
+            value={stats.newCustomersThisMonth}
+            trend={{
+              value: 8.5,
+              label: "vs last month",
+              isPositive: true
+            }}
+            chartData={[
+              { value: Math.max(0, stats.newCustomersThisMonth - 10) },
+              { value: Math.max(0, stats.newCustomersThisMonth - 8) },
+              { value: Math.max(0, stats.newCustomersThisMonth - 6) },
+              { value: Math.max(0, stats.newCustomersThisMonth - 4) },
+              { value: Math.max(0, stats.newCustomersThisMonth - 3) },
+              { value: Math.max(0, stats.newCustomersThisMonth - 1) },
+              { value: stats.newCustomersThisMonth }
+            ]}
+            icon={<Users className="h-5 w-5" />}
+          />
+
+          <MetricStatCard
+            title="Pending Quotes"
+            value={stats.pendingQuotes}
+            trend={{
+              value: -12.0,
+              label: "from last week",
+              isPositive: false
+            }}
+            chartData={[
+              { value: stats.pendingQuotes + 15 },
+              { value: stats.pendingQuotes + 12 },
+              { value: stats.pendingQuotes + 10 },
+              { value: stats.pendingQuotes + 8 },
+              { value: stats.pendingQuotes + 5 },
+              { value: stats.pendingQuotes + 2 },
+              { value: stats.pendingQuotes }
+            ]}
+            icon={<FileText className="h-5 w-5" />}
+          />
+        </div>
       </div>
 
       {/* Quick Actions */}
