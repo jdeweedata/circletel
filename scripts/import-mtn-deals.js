@@ -93,7 +93,9 @@ function determineServiceType(device, plan) {
 }
 
 /**
- * Check if this is a mobile/wireless deal (not fibre or other service)
+ * Check if this is a valid mobile/wireless deal to import
+ * Excludes: fibre deals, handsets, routers/CPE devices
+ * Includes: SIM-only plans (Use Your Own)
  */
 function isMobileDeal(plan, device) {
   const planStr = String(plan || '').toLowerCase();
@@ -103,23 +105,38 @@ function isMobileDeal(plan, device) {
   if (planStr.includes('fibre') || planStr.includes('fiber')) {
     return false;
   }
-  
-  // Include if it's a mobile plan (Made For Business, etc.)
-  if (planStr.includes('made for business') || 
-      planStr.includes('mobile') ||
-      planStr.includes('data+') ||
-      deviceStr !== 'use your own' ||
-      deviceStr.includes('phone') ||
+
+  // ✅ ONLY IMPORT SIM-ONLY PLANS
+  // Exclude handsets (phones, tablets)
+  if (deviceStr.includes('phone') ||
       deviceStr.includes('galaxy') ||
       deviceStr.includes('iphone') ||
       deviceStr.includes('oppo') ||
       deviceStr.includes('vivo') ||
-      deviceStr.includes('huawei')) {
+      deviceStr.includes('huawei') ||
+      deviceStr.includes('xiaomi') ||
+      deviceStr.includes('nokia') ||
+      deviceStr.includes('sony') ||
+      deviceStr.includes('lg')) {
+    return false;
+  }
+
+  // Exclude routers/CPE devices
+  if (deviceStr.includes('router') ||
+      deviceStr.includes('cpe') ||
+      deviceStr.includes('modem') ||
+      deviceStr.includes('tozed') ||
+      deviceStr.includes('momo point of sale')) {
+    return false;
+  }
+  
+  // Only include SIM-only plans (Use Your Own device)
+  if (device === 'Use Your Own' && planStr.includes('made for business')) {
     return true;
   }
   
-  // Default: assume mobile if plan is "Made For Business"
-  return planStr.includes('made for business');
+  // Default: exclude everything else
+  return false;
 }
 
 /**

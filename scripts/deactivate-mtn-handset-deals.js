@@ -36,19 +36,29 @@ async function deactivateHandsetDeals(options = {}) {
     // 2. Separate products by device type
     const simOnlyProducts = [];
     const handsetProducts = [];
+    const routerProducts = [];
 
     allProducts.forEach(product => {
-      const device = product.metadata?.oemDevice;
+      const device = product.metadata?.oemDevice || '';
+      const deviceLower = String(device).toLowerCase();
       
       if (device === 'Use Your Own') {
+        // Pure SIM-only plans
         simOnlyProducts.push(product);
+      } else if (deviceLower.includes('router') || 
+                 deviceLower.includes('cpe') ||
+                 deviceLower.includes('modem')) {
+        // Router/CPE devices (should also be excluded)
+        routerProducts.push(product);
       } else {
+        // Handsets (phones, tablets, etc.)
         handsetProducts.push(product);
       }
     });
 
     console.log(`\n✅ SIM-Only products (will keep active): ${simOnlyProducts.length}`);
-    console.log(`❌ Handset products (will deactivate): ${handsetProducts.length}\n`);
+    console.log(`❌ Handset products (will deactivate): ${handsetProducts.length}`);
+    console.log(`❌ Router/CPE products (will deactivate): ${routerProducts.length}\n`);
 
     // 3. Show sample handset products to be deactivated
     console.log('📱 Sample Handset Products to Deactivate:\n');
@@ -86,17 +96,22 @@ async function deactivateHandsetDeals(options = {}) {
       return {
         simOnly: simOnlyProducts.length,
         handsets: handsetProducts.length,
+        routers: routerProducts.length,
         deactivated: 0
       };
     }
 
-    // 5. Deactivate handset products
-    console.log('🔒 Deactivating handset products...\n');
+    // 5. Combine handsets and routers for deactivation
+    const productsToDeactivate = [...handsetProducts, ...routerProducts];
+    console.log(`Total products to deactivate: ${productsToDeactivate.length} (${handsetProducts.length} handsets + ${routerProducts.length} routers)\n`);
+
+    // 6. Deactivate products (handsets + routers)
+    console.log('🔒 Deactivating products...\n');
     let deactivated = 0;
     let failed = 0;
     const failedProducts = [];
 
-    for (const product of handsetProducts) {
+    for (const product of productsToDeactivate) {
       try {
         const { error } = await supabase
           .from('service_packages')
@@ -115,7 +130,7 @@ async function deactivateHandsetDeals(options = {}) {
         } else {
           deactivated++;
           if (deactivated % 100 === 0) {
-            console.log(`   Deactivated ${deactivated}/${handsetProducts.length}...`);
+            console.log(`   Deactivated ${deactivated}/${productsToDeactivate.length}...`);
           }
         }
       } catch (err) {
@@ -140,7 +155,9 @@ async function deactivateHandsetDeals(options = {}) {
     console.log('='.repeat(60));
     console.log(`Total MTN products: ${allProducts.length}`);
     console.log(`SIM-Only kept active: ${simOnlyProducts.length}`);
-    console.log(`Handset products deactivated: ${deactivated}`);
+    console.log(`Handsets deactivated: ${handsetProducts.length}`);
+    console.log(`Routers deactivated: ${routerProducts.length}`);
+    console.log(`Total deactivated: ${deactivated}`);
     console.log(`Failed updates: ${failed}`);
     console.log('='.repeat(60));
     console.log('\n✅ Deactivated products are hidden from admin and frontend');
@@ -149,6 +166,7 @@ async function deactivateHandsetDeals(options = {}) {
     return {
       simOnly: simOnlyProducts.length,
       handsets: handsetProducts.length,
+      routers: routerProducts.length,
       deactivated: deactivated,
       failed: failed
     };
