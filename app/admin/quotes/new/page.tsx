@@ -232,9 +232,22 @@ export default function NewQuotePage() {
     const saved = localStorage.getItem('quote_templates');
     if (saved) {
       try {
-        setTemplates(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Filter out corrupted templates (missing template_data or items)
+        const validTemplates = parsed.filter((t: QuoteTemplate) => 
+          t.template_data && Array.isArray(t.template_data.items)
+        );
+        
+        if (validTemplates.length < parsed.length) {
+          console.warn(`Removed ${parsed.length - validTemplates.length} corrupted template(s)`);
+          localStorage.setItem('quote_templates', JSON.stringify(validTemplates));
+        }
+        
+        setTemplates(validTemplates);
       } catch (error) {
         console.error('Error loading templates:', error);
+        // Clear corrupted data
+        localStorage.removeItem('quote_templates');
       }
     }
   };
@@ -267,8 +280,14 @@ export default function NewQuotePage() {
   };
 
   const loadTemplate = (template: QuoteTemplate) => {
+    // Ensure template data exists and has proper structure
+    if (!template.template_data) {
+      toast.error('Template data is corrupted');
+      return;
+    }
+    
     form.reset(template.template_data);
-    setSelectedItems(template.template_data.items);
+    setSelectedItems(template.template_data.items || []);
     toast.success(`Template "${template.name}" loaded`);
   };
 
@@ -935,11 +954,11 @@ export default function NewQuotePage() {
                             <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                           )}
                           <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span>{template.template_data.items.length} services</span>
+                            <span>{template.template_data?.items?.length || 0} services</span>
                             <span>•</span>
-                            <span>{template.template_data.contract_term} months</span>
+                            <span>{template.template_data?.contract_term || '12'} months</span>
                             <span>•</span>
-                            <span>{template.template_data.customer_type?.toUpperCase()}</span>
+                            <span>{template.template_data?.customer_type?.toUpperCase() || 'SMME'}</span>
                           </div>
                         </div>
                         <div className="flex gap-2 ml-3">

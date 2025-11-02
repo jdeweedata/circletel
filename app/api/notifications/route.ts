@@ -56,6 +56,8 @@ const ListNotificationsQuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('[Notifications API] GET request received');
+    
     // Use SSR client for auth
     const supabaseSSR = await createSSRClient();
 
@@ -66,11 +68,14 @@ export async function GET(request: NextRequest) {
     } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
+      console.log('[Notifications API] Auth failed:', { authError, hasUser: !!user });
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
+
+    console.log('[Notifications API] User authenticated:', user.id);
 
     // Use service role client for querying notifications
     const supabase = await createAdminClient();
@@ -85,7 +90,10 @@ export async function GET(request: NextRequest) {
       is_dismissed: searchParams.get('is_dismissed'),
     };
 
+    console.log('[Notifications API] Query params:', queryParams);
+
     const validatedQuery = ListNotificationsQuerySchema.parse(queryParams);
+    console.log('[Notifications API] Validated query:', validatedQuery);
 
     // Build query
     let query = supabase
@@ -144,13 +152,21 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('[Notifications API] Validation error:', {
+        errors: error.errors,
+        issues: error.issues
+      });
       return NextResponse.json(
         { success: false, error: 'Invalid query parameters', details: error.errors },
         { status: 400 }
       );
     }
 
-    console.error('Error in GET /api/notifications:', error);
+    console.error('[Notifications API] Unexpected error:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
