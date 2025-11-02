@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateQuotePDF } from '@/lib/quotes/pdf-generator';
+import { generateQuotePDF } from '@/lib/quotes/pdf-generator-v2';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,50 +21,92 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Transform the quote data to match QuoteDetails interface
+    // Transform the quote data to match QuoteDetails interface (from types.ts)
     const quoteData = {
+      // Core quote fields
       id: 'preview',
       quote_number: 'PREVIEW-' + Date.now(),
+      customer_id: null,
+      lead_id: null,
+      customer_type: body.customer_type || 'smme',
+
+      // Company details
       company_name: body.company_name,
-      registration_number: body.registration_number || '',
-      vat_number: body.vat_number || '',
+      registration_number: body.registration_number || null,
+      vat_number: body.vat_number || null,
+
+      // Contact details
       contact_name: body.contact_name,
       contact_email: body.contact_email,
       contact_phone: body.contact_phone,
+
+      // Service location
       service_address: body.service_address,
+      coordinates: null,
+
+      // Quote details
+      status: 'draft' as const,
       contract_term: parseInt(body.contract_term) || 12,
-      customer_type: body.customer_type || 'smme',
-      items: body.items.map((item: any) => ({
-        id: item.package_id,
-        package_id: item.package_id,
-        package_name: item.package?.name || 'Unknown Package',
-        description: item.package?.description || '',
-        quantity: item.quantity || 1,
-        unit_price: item.package?.pricing?.monthly || 0,
-        installation_fee: item.package?.pricing?.installation || 0,
-        speed_download: item.package?.pricing?.download_speed || item.package?.speed_download || 0,
-        speed_upload: item.package?.pricing?.upload_speed || item.package?.speed_upload || 0,
-        item_type: item.item_type || 'primary'
-      })),
-      pricing: body.pricing || {
-        subtotal: 0,
-        installation: 0,
-        discount: 0,
-        discountAmount: 0,
-        afterDiscount: 0,
-        vat: 0,
-        total: 0,
-        totalMonthly: 0,
-        totalInstallation: 0
-      },
+
+      // Pricing (calculated from body.pricing)
+      subtotal_monthly: body.pricing?.totalMonthly || 0,
+      subtotal_installation: body.pricing?.totalInstallation || 0,
       custom_discount_percent: body.custom_discount_percent || 0,
-      customer_notes: body.customer_notes || '',
-      status: 'draft',
+      custom_discount_amount: body.pricing?.discountAmount || 0,
+      custom_discount_reason: null,
+      vat_amount_monthly: body.pricing?.vat || 0,
+      vat_amount_installation: 0,
+      total_monthly: body.pricing?.totalMonthly + (body.pricing?.vat || 0) || 0,
+      total_installation: body.pricing?.totalInstallation || 0,
+
+      // Notes
+      admin_notes: null,
+      customer_notes: body.customer_notes || null,
+
+      // Validity
+      valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+
+      // Workflow tracking
+      approved_by: null,
+      approved_at: null,
+      sent_at: null,
+      viewed_at: null,
+      accepted_at: null,
+      rejected_at: null,
+      expired_at: null,
+
+      // Audit
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-      created_by: 'preview',
-      created_by_name: 'Admin Preview'
+      created_by: null,
+      updated_by: null,
+
+      // Items (BusinessQuoteItem format)
+      items: body.items.map((item: any, index: number) => ({
+        id: `preview-item-${index}`,
+        quote_id: 'preview',
+        package_id: item.package_id,
+        item_type: item.item_type || 'primary',
+        quantity: item.quantity || 1,
+        monthly_price: item.package?.pricing?.monthly || item.package?.base_price_zar || 0,
+        installation_price: item.package?.pricing?.installation || item.package?.cost_price_zar || 0,
+        custom_pricing: false,
+        service_name: item.package?.name || 'Unknown Package',
+        service_type: item.package?.service_type || 'BizFibreConnect',
+        product_category: item.package?.product_category || 'connectivity',
+        speed_down: item.package?.speed_download || item.package?.pricing?.download_speed || 0,
+        speed_up: item.package?.speed_upload || item.package?.pricing?.upload_speed || 0,
+        data_cap_gb: item.package?.data_cap_gb || null,
+        notes: null,
+        display_order: index,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })),
+
+      // Additional fields for QuoteDetails
+      signature: null,
+      versions: [],
+      approved_by_admin: null
     };
 
     // Generate PDF
