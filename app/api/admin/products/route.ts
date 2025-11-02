@@ -20,14 +20,14 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const sortBy = searchParams.get('sort_by') || 'created_desc';
 
-    // Build query
+    // Build query - using service_packages as single source of truth
     let query = supabase
-      .from('products')
+      .from('service_packages')
       .select('*', { count: 'exact' });
 
     // Apply filters
     if (category) {
-      query = query.eq('category', category);
+      query = query.eq('product_category', category);
     }
 
     if (serviceType) {
@@ -35,7 +35,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (status) {
-      query = query.eq('status', status);
+      // Map status filter to service_packages fields
+      if (status === 'active') {
+        query = query.eq('active', true);
+      } else if (status === 'inactive') {
+        query = query.eq('active', false);
+      } else {
+        query = query.eq('status', status);
+      }
     }
 
     if (search) {
@@ -84,10 +91,27 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil((count || 0) / perPage);
 
+    // Map service_packages fields to match frontend expectations
+    const mappedProducts = (products || []).map(pkg => ({
+      ...pkg,
+      // Ensure frontend-compatible field names
+      category: pkg.product_category || 'connectivity',
+      service: pkg.service_type,
+      is_active: pkg.active,
+      // Ensure pricing object exists
+      pricing: pkg.pricing || {
+        monthly: pkg.base_price_zar || 0,
+        installation: pkg.cost_price_zar || 0,
+        download_speed: pkg.speed_download || 0,
+        upload_speed: pkg.speed_upload || 0
+      }
+    }));
+
     return NextResponse.json({
       success: true,
+      products: mappedProducts,
       data: {
-        products: products || [],
+        products: mappedProducts,
         total: count || 0,
         page,
         per_page: perPage,
