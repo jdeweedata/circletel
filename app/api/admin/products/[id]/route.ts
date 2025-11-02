@@ -161,6 +161,13 @@ export async function PUT(
     }
 
     // Update the product in service_packages (single source of truth)
+    console.log('[Product Update API] Updating product:', {
+      productId: id,
+      updateData,
+      userEmail,
+      userName
+    });
+
     const { data: product, error: updateError } = await supabase
       .from('service_packages')
       .update(updateData)
@@ -169,9 +176,21 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('Error updating product:', updateError);
+      console.error('[Product Update API] Database error:', {
+        error: updateError,
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        updateData
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to update product' },
+        { 
+          success: false, 
+          error: 'Failed to update product',
+          details: updateError.message,
+          code: updateError.code
+        },
         { status: 500 }
       );
     }
