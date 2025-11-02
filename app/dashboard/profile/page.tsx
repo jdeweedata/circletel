@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { User, Mail, Phone, Building2, FileText, Hash, Save, Edit2, X } from 'lucide-react';
+import { User, Mail, Phone, Building2, FileText, Hash, Save, Edit2, X, IdCard } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, customer, refreshCustomer, session } = useCustomerAuth();
@@ -149,6 +149,22 @@ export default function ProfilePage() {
           )}
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Account Number (Read-only) */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <IdCard className="h-4 w-4 text-circleTel-orange" />
+              Account Number
+            </label>
+            <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-circleTel-orange/30">
+              <p className="text-xl font-bold text-gray-900 tracking-wide">
+                {customer?.account_number || 'Not assigned'}
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Use this number when contacting support
+              </p>
+            </div>
+          </div>
+
           {/* Email (Read-only) */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
