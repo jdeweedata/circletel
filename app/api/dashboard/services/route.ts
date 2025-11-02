@@ -1,74 +1,133 @@
+/**
+ * Customer Services API - List Endpoint
+ * GET /api/dashboard/services
+ * 
+ * Returns customer's services with current usage data
+ * Task 3.3: Service Dashboard API
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
-
+/**
+ * GET /api/dashboard/services
+ * 
+ * Returns:
+ * - List of customer's services
+ * - Current billing cycle usage (if available)
+ * - Calculated percentUsed for capped services
+ */
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing Supabase credentials');
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+    const supabase = await createClient();
+    
     // Get authenticated user
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({
-        success: false,
-        error: 'Unauthorized'
-      }, { status: 401 });
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid session'
-      }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
-
-    // Get customer
-    const { data: customer, error: customerError } = await supabase
+    
+    // Get customer_id from auth_user_id
+    const { data: customer } = await supabase
       .from('customers')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
-
-    if (customerError || !customer) {
-      return NextResponse.json({
-        success: false,
-        error: 'Customer not found'
-      }, { status: 404 });
+    
+    if (!customer) {
+      return NextResponse.json(
+        { error: 'Customer not found' },
+        { status: 404 }
+      );
     }
-
-    // Fetch all services (active and inactive)
+    
+    // Fetch services
     const { data: services, error: servicesError } = await supabase
       .from('customer_services')
       .select('*')
       .eq('customer_id', customer.id)
       .order('created_at', { ascending: false });
-
+    
     if (servicesError) {
-      throw servicesError;
+      console.error('Error fetching services:', servicesError);
+      return NextResponse.json(
+        { error: 'Failed to fetch services' },
+        { status: 500 }
+      );
     }
-
+    
+    // For each service, get current billing cycle usage
+    const servicesWithUsage = await Promise.all(
+      (services || []).map(async (service) => {
+        // Get current billing cycle dates
+        const cycleStart = service.last_billing_date || service.activation_date;
+        const cycleEnd = service.next_billing_date;
+        
+        if (!cycleStart || !cycleEnd) {
+          return {
+            ...service,
+            current_usage: null
+          };
+        }
+        
+        // Get usage data for current cycle
+        const { data: usageData } = await supabase
+          .from('usage_history')
+          .select('upload_mb, download_mb, total_mb')
+          .eq('service_id', service.id)
+          .gte('date', cycleStart)
+          .lte('date', cycleEnd);
+        
+        // Calculate totals
+        const totalUsage = usageData?.reduce((sum, record) => {
+          return {
+            upload: sum.upload + (record.upload_mb || 0),
+            download: sum.download + (record.download_mb || 0),
+            total: sum.total + (record.total_mb || 0)
+          };
+        }, { upload: 0, download: 0, total: 0 });
+        
+        // Calculate percentage used (for capped services)
+        let percentUsed = null;
+        if (service.data_cap && service.data_cap !== 'Unlimited') {
+          // Parse data cap (e.g., "500GB" -> 500000 MB)
+          const capMatch = service.data_cap.match(/(\d+)\s*(GB|MB)/i);
+          if (capMatch) {
+            const capValue = parseInt(capMatch[1]);
+            const capUnit = capMatch[2].toUpperCase();
+            const capInMB = capUnit === 'GB' ? capValue * 1024 : capValue;
+            
+            if (totalUsage && capInMB > 0) {
+              percentUsed = Math.round((totalUsage.total / capInMB) * 100);
+            }
+          }
+        }
+        
+        return {
+          ...service,
+          current_usage: totalUsage || null,
+          percent_used: percentUsed,
+          billing_cycle: {
+            start: cycleStart,
+            end: cycleEnd
+          }
+        };
+      })
+    );
+    
     return NextResponse.json({
-      success: true,
-      data: services || []
+      services: servicesWithUsage
     });
-
+    
   } catch (error) {
-    console.error('Dashboard services error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch services',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
