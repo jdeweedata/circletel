@@ -39,6 +39,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { user, signOut, loading } = useCustomerAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -79,7 +80,7 @@ export default function DashboardLayout({
       <Topbar onToggleSidebar={() => setSidebarOpen((v) => !v)} displayName={displayName} email={user.email || ''} />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6 xl:gap-8">
+        <div className="flex gap-6 xl:gap-8">
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
@@ -88,8 +89,11 @@ export default function DashboardLayout({
               </div>
             </div>
           )}
-          <SidebarNav />
-          <main className="min-w-0">{children}</main>
+          <SidebarNav
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          />
+          <main className="flex-1 min-w-0">{children}</main>
         </div>
       </div>
 
