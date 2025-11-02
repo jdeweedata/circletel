@@ -116,24 +116,9 @@ export function extractAdditionalInfo(features: string[]): FormattedFeature[] {
   const formatted = formatFeatures(features);
   const benefitTexts = extractBenefits(features).map(b => b.text);
   
-  const additionalInfo = formatted
+  return formatted
     .filter(f => !benefitTexts.includes(f.text) && f.text.trim() !== '') // Exclude benefits and empty features
     .slice(0, 6); // Limit to 6 items
-
-  // Add important router disclaimer if router is mentioned
-  const hasRouter = benefitTexts.some(b => 
-    b.toLowerCase().includes('router') || 
-    b.toLowerCase().includes('equipment')
-  );
-  
-  if (hasRouter && additionalInfo.length < 6) {
-    additionalInfo.push({
-      text: 'Router must be returned to MTN upon contract cancellation or termination',
-      category: 'contract'
-    });
-  }
-  
-  return additionalInfo;
 }
 
 /**
