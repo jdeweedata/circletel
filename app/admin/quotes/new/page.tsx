@@ -40,7 +40,8 @@ import {
   Eye,
   Save,
   FolderOpen,
-  Percent
+  Percent,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { AddressAutocomplete } from '@/components/admin/quotes/AddressAutocomplete';
@@ -112,7 +113,7 @@ export default function NewQuotePage() {
   // New feature states
   const [showPDFPreview, setShowPDFPreview] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [previewPDFUrl, setPreviewPDFUrl] = useState<string | null>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
@@ -306,30 +307,42 @@ export default function NewQuotePage() {
     }
 
     setPreviewLoading(true);
-    setShowPDFPreview(true);
 
     try {
-      // Simulate PDF generation (in real implementation, call PDF generation API)
       const formData = form.getValues();
       const pricing = calculatePricing();
       
-      // Create a preview object
+      // Create preview payload
       const previewData = {
         ...formData,
         items: selectedItems,
         pricing,
       };
 
-      // For now, show a preview dialog
-      // In production, you'd call an API endpoint to generate actual PDF
-      toast.info('PDF preview feature coming soon - would generate PDF with current data');
+      // Call PDF generation API
+      const response = await fetch('/api/admin/quotes/preview-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(previewData),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to generate PDF');
+      }
+
+      // Store the PDF data URL and show preview dialog
+      setPreviewPDFUrl(result.data.pdf_url);
+      setShowPDFPreview(true);
+      toast.success('PDF preview generated successfully!');
       
-      setTimeout(() => {
-        setPreviewLoading(false);
-      }, 1000);
     } catch (error) {
       console.error('Error generating preview:', error);
-      toast.error('Failed to generate preview');
+      toast.error(error instanceof Error ? error.message : 'Failed to generate preview');
+    } finally {
       setPreviewLoading(false);
     }
   };
@@ -992,7 +1005,7 @@ export default function NewQuotePage() {
 
       {/* PDF Preview Dialog */}
       <Dialog open={showPDFPreview} onOpenChange={setShowPDFPreview}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
+        <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Quote PDF Preview</DialogTitle>
             <DialogDescription>
@@ -1000,29 +1013,50 @@ export default function NewQuotePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-gray-50 border rounded-lg p-6 min-h-[400px]">
-              <div className="text-center py-12">
-                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-600 mb-2">PDF Preview Coming Soon</p>
-                <p className="text-sm text-gray-500">
-                  Will show a live preview of the quote PDF with CircleTel branding
-                </p>
-                <div className="mt-6 text-left max-w-md mx-auto space-y-2 text-sm text-gray-600">
-                  <p><strong>Preview will include:</strong></p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>CircleTel branded header</li>
-                    <li>Company details: {form.watch('company_name')}</li>
-                    <li>Contact: {form.watch('contact_name')}</li>
-                    <li>{selectedItems.length} service(s)</li>
-                    <li>Total: R {pricing.total.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</li>
-                    <li>Contract term: {form.watch('contract_term')} months</li>
-                  </ul>
+            {previewPDFUrl ? (
+              <div className="border rounded-lg overflow-hidden bg-gray-100">
+                <iframe
+                  src={previewPDFUrl}
+                  className="w-full h-[70vh]"
+                  title="PDF Preview"
+                  style={{ border: 'none' }}
+                />
+              </div>
+            ) : (
+              <div className="bg-gray-50 border rounded-lg p-6 min-h-[400px] flex items-center justify-center">
+                <div className="text-center">
+                  <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-circleTel-orange" />
+                  <p className="text-gray-600">Generating PDF preview...</p>
                 </div>
               </div>
+            )}
+            <div className="flex gap-3">
+              {previewPDFUrl && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // Download the PDF
+                    const link = document.createElement('a');
+                    link.href = previewPDFUrl;
+                    link.download = `CircleTel-Quote-Preview-${Date.now()}.pdf`;
+                    link.click();
+                  }}
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
+                </Button>
+              )}
+              <Button 
+                onClick={() => {
+                  setShowPDFPreview(false);
+                  setPreviewPDFUrl(null);
+                }} 
+                className="flex-1"
+              >
+                Close Preview
+              </Button>
             </div>
-            <Button onClick={() => setShowPDFPreview(false)} className="w-full">
-              Close Preview
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
