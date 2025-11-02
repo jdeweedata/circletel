@@ -124,14 +124,18 @@ export async function PUT(
     } = body;
 
     // Build pricing JSONB object (trigger will auto-sync to root fields)
-    const pricingObject = body.pricing || {
-      monthly: pricing_monthly ?? base_price_zar ?? price_monthly ?? monthly_price,
-      setup: pricing_setup ?? cost_price_zar ?? price_once_off ?? setup_fee ?? 0,
-      download_speed: pricing_download_speed ?? body.speed_download ?? 0,
-      upload_speed: pricing_upload_speed ?? body.speed_upload ?? 0
-    };
-
-    updateData.pricing = pricingObject;
+    // Only update pricing if pricing-related fields are provided
+    if (body.pricing || pricing_monthly || base_price_zar || price_monthly || monthly_price || 
+        pricing_setup || cost_price_zar || price_once_off || setup_fee ||
+        pricing_download_speed || body.speed_download || pricing_upload_speed || body.speed_upload) {
+      const pricingObject = body.pricing || {
+        monthly: pricing_monthly ?? base_price_zar ?? price_monthly ?? monthly_price,
+        setup: pricing_setup ?? cost_price_zar ?? price_once_off ?? setup_fee ?? 0,
+        download_speed: pricing_download_speed ?? body.speed_download ?? 0,
+        upload_speed: pricing_upload_speed ?? body.speed_upload ?? 0
+      };
+      updateData.pricing = pricingObject;
+    }
 
     // Map form fields to service_packages schema
     if (body.category) {
