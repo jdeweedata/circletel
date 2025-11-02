@@ -10,74 +10,36 @@ export interface FormattedFeature {
 }
 
 /**
- * Feature mapping rules for customer-friendly text
+ * Feature mapping rules for customer-friendly text (no emojis)
  */
 const FEATURE_MAPPINGS: Record<string, string> = {
   // Data & Speed
-  'speeds up to': '⚡ Lightning-fast speeds of up to',
-  'total monthly data': '📊 Monthly data allowance:',
-  'priority data': '🎯 Priority high-speed data:',
-  'anytime data': '🌙 Anytime data:',
-  'bonus data': '🎁 Bonus data included:',
-  'uncapped': '♾️ Unlimited data - browse, stream & download as much as you want',
-  'unlimited': '♾️ Unlimited usage - no caps, no limits',
-  
-  // Internet & Connectivity
-  'wifi ready': '📶 WiFi ready - connect all your devices',
-  'family wifi': '👨‍👩‍👧‍👦 Perfect for family connectivity',
-  'fibre': '🌐 Ultra-reliable fibre connection',
-  'lte': '📡 Fast LTE wireless internet',
-  '5g': '🚀 Next-gen 5G speeds',
-  
-  // Streaming & Entertainment
-  'streaming': '📺 Stream your favorite shows in HD',
-  '4k video': '🎬 4K Ultra HD video streaming',
-  'hd streaming': '📺 Crystal-clear HD streaming',
-  'unlimited entertainment': '🎭 Endless entertainment options',
-  'professional streaming': '🎥 Professional-grade streaming quality',
+  'speeds up to': 'Speeds up to',
+  'total monthly data': 'Monthly data:',
+  'priority data': 'Priority data:',
+  'anytime data': 'Anytime data:',
+  'bonus data': 'Bonus data:',
   
   // Gaming
-  'gaming ready': '🎮 Optimized for online gaming',
-  'gaming ready - pro': '🎮 Pro-level gaming performance with low latency',
-  
-  // Work & Productivity
-  'work from home': '💼 Perfect for working from home',
-  'video calls': '📹 Smooth video conferencing',
-  'content creation': '🎨 Ideal for content creators',
-  'large file downloads': '📥 Download large files quickly',
-  'cloud storage': '☁️ Easy cloud backup and storage',
+  'gaming ready - pro': 'Gaming ready (Pro level)',
+  'gaming ready': 'Gaming ready',
   
   // Installation & Setup
-  'free installation': '✅ Free professional installation',
-  'free setup': '✅ Free setup - we handle everything',
-  'installation time': '⏱️ Quick installation:',
-  'month-to-month': '📅 Flexible month-to-month contract - no long-term commitment',
-  '24-month contract': '📝 24-month contract with amazing value',
-  '36-month contract': '📝 36-month contract with lowest monthly price',
+  'free installation': 'Free installation',
+  'free setup': 'Free setup',
+  'installation time': 'Installation time:',
+  'month-to-month': 'Month-to-month contract',
   
   // Router & Equipment
-  'router': '📡 Free router included',
-  'free router': '📡 FREE high-speed router',
-  'free-to-use router': '📡 Free-to-use router (yours to keep)',
-  'fully insured': '🛡️ Router fully insured - free replacement if needed',
-  'router bundle': '📦 Router bundle available',
-  
-  // Support & Service
-  '24/7 support': '💬 24/7 customer support - we\'re always here',
-  'customer support': '💬 Dedicated customer support',
-  'priority support': '⭐ Priority customer support',
-  'business sla': '🤝 Business-grade service level agreement',
-  
-  // Value & Savings
-  'best value': '💰 Best value for money',
-  'cost-effective': '💰 Cost-effective solution',
-  'promotional': '🏷️ Special promotional offer',
+  'router bundle available': 'Router bundle available',
+  'free router': 'Free router',
+  'free-to-use router': 'Free-to-use router',
+  'fully insured': 'Fully insured router',
   
   // Contract & Fees
   'once-off': 'One-time',
-  'processing fee': '📋 Setup & processing fee:',
-  'setup fee': '💵 Initial setup cost:',
-  'no setup fee': '✅ NO setup fees - get started for free',
+  'processing fee': 'Processing fee:',
+  'setup fee': 'Setup fee:',
 };
 
 /**
@@ -107,11 +69,6 @@ export function formatFeature(feature: string): FormattedFeature {
       }
       break;
     }
-  }
-  
-  // Add bullet point if not already present
-  if (!formattedText.match(/^[•●◆▪️⚡📊🎯🌙🎁♾️📶👨‍👩‍👧‍👦🌐📡🚀📺🎬🎭🎥🎮💼📹🎨📥☁️✅⏱️📅📝📡🛡️📦💬⭐🤝💰🏷️📋💵]/)) {
-    formattedText = `• ${formattedText}`;
   }
   
   return {
