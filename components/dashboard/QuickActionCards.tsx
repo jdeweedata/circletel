@@ -104,15 +104,15 @@ export interface QuickActionCardsProps {
  */
 export function QuickActionCards({ className }: QuickActionCardsProps) {
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Section Header */}
       <div>
         <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
         <p className="text-sm text-gray-600 mt-1">Common tasks and shortcuts</p>
       </div>
 
-      {/* Action Cards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Action Cards Grid - Matching Stat Card Style */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {quickActions.map((action) => {
           const Icon = action.icon;
 
@@ -120,32 +120,35 @@ export function QuickActionCards({ className }: QuickActionCardsProps) {
             <Link
               key={action.id}
               href={action.href}
-              className={cn(
-                'group relative flex flex-col items-center gap-3 p-6',
-                'bg-white border-2 border-gray-200 rounded-xl',
-                'hover:border-circleTel-orange hover:shadow-lg',
-                'transition-all duration-300 hover:scale-[1.02]',
-                'cursor-pointer'
-              )}
+              className="block group"
             >
-              {/* Icon Container */}
               <div className={cn(
-                'h-14 w-14 rounded-full flex items-center justify-center',
-                'transition-transform duration-300 group-hover:scale-110',
-                action.iconBg
+                'relative overflow-hidden border border-gray-200 bg-white',
+                'shadow-sm hover:shadow-md transition-shadow duration-200',
+                'rounded-lg p-6 h-full flex flex-col'
               )}>
-                <Icon className={cn('h-7 w-7', action.iconColor)} />
-              </div>
+                {/* Header with Icon and Title */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      'h-10 w-10 rounded-lg flex items-center justify-center',
+                      action.iconBg
+                    )}>
+                      <Icon className={cn('h-5 w-5', action.iconColor)} />
+                    </div>
+                  </div>
+                </div>
 
-              {/* Title */}
-              <div className="text-center">
-                <h3 className="font-bold text-sm text-gray-900 group-hover:text-circleTel-orange transition-colors">
-                  {action.title}
-                </h3>
+                {/* Title */}
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    {action.title}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {action.description}
+                  </p>
+                </div>
               </div>
-
-              {/* Hover Indicator (subtle bottom border) */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-circleTel-orange rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
           );
         })}
