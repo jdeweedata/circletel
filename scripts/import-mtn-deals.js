@@ -94,8 +94,8 @@ function determineServiceType(device, plan) {
 
 /**
  * Check if this is a valid mobile/wireless deal to import
- * Excludes: fibre deals, handsets, routers/CPE devices
- * Includes: SIM-only plans (Use Your Own)
+ * Excludes: fibre deals, handsets (phones)
+ * Includes: SIM-only plans (Use Your Own), CPE devices (routers)
  */
 function isMobileDeal(plan, device) {
   const planStr = String(plan || '').toLowerCase();
@@ -106,8 +106,7 @@ function isMobileDeal(plan, device) {
     return false;
   }
 
-  // ✅ ONLY IMPORT SIM-ONLY PLANS
-  // Exclude handsets (phones, tablets)
+  // ❌ EXCLUDE HANDSETS (phones, tablets)
   if (deviceStr.includes('phone') ||
       deviceStr.includes('galaxy') ||
       deviceStr.includes('iphone') ||
@@ -121,16 +120,21 @@ function isMobileDeal(plan, device) {
     return false;
   }
 
-  // Exclude routers/CPE devices
+  // ✅ INCLUDE CPE/Router devices (5G/LTE home internet)
   if (deviceStr.includes('router') ||
       deviceStr.includes('cpe') ||
       deviceStr.includes('modem') ||
-      deviceStr.includes('tozed') ||
-      deviceStr.includes('momo point of sale')) {
+      deviceStr.includes('tozed')) {
+    return true;
+  }
+
+  // ❌ EXCLUDE MoMo Point of Sale devices (not typical CPE)
+  if (deviceStr.includes('momo point of sale') || 
+      deviceStr.includes('point of sale')) {
     return false;
   }
   
-  // Only include SIM-only plans (Use Your Own device)
+  // ✅ INCLUDE SIM-only plans (Use Your Own device)
   if (device === 'Use Your Own' && planStr.includes('made for business')) {
     return true;
   }
