@@ -26,7 +26,7 @@ export function Navbar() {
               <Link href="/quotes/request">Request Quote</Link>
             </Button>
             <Button asChild className="ml-2 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white">
-              <Link href="/dashboard">Customer Login</Link>
+              <Link href="/auth/login">Customer Login</Link>
             </Button>
           </div>
 

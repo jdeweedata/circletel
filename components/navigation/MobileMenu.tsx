@@ -148,7 +148,7 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
             <Link href="/quotes/request">Request Quote</Link>
           </Button>
           <Button asChild className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90" onClick={() => setIsMenuOpen(false)}>
-            <Link href="/dashboard">Customer Login</Link>
+            <Link href="/auth/login">Customer Login</Link>
           </Button>
         </div>
       </div>
