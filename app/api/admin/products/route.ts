@@ -54,64 +54,56 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by contract term
-    if (contractTerm) {
+    if (contractTerm && contractTerm !== 'all') {
       const term = parseInt(contractTerm);
-      // Check both contract_term field and metadata->contract_months
-      query = query.or(`contract_term.eq.${term},metadata->contract_months.eq.${term}`);
+      // Simple equality check on contract_term field
+      query = query.eq('contract_term', term);
     }
 
     // Filter by device type
-    if (deviceType) {
+    if (deviceType && deviceType !== 'all') {
       if (deviceType === 'sim_only') {
-        // SIM-only products (Use Your Own device)
-        query = query.or(`device.ilike.%Use Your Own%,device.is.null`);
+        // SIM-only products (Use Your Own device or null)
+        query = query.or('device.ilike.%Use Your Own%,device.is.null');
       } else if (deviceType === 'cpe') {
         // CPE/Router devices
-        query = query.or(`device.ilike.%CPE%,device.ilike.%router%,device.ilike.%modem%,device.ilike.%Tozed%,device.ilike.%Huawei H%`);
+        query = query.or('device.ilike.%CPE%,device.ilike.%router%,device.ilike.%modem%,device.ilike.%Tozed%,device.ilike.%Huawei H%');
       } else if (deviceType === 'handset') {
         // Handset/phone devices
-        query = query.or(`device.ilike.%iPhone%,device.ilike.%Samsung%,device.ilike.%Galaxy%,device.ilike.%Oppo%,device.ilike.%Vivo%,device.ilike.%Huawei Nova%`);
-      } else if (deviceType === 'other') {
-        // Other devices (not SIM-only, CPE, or handset)
-        query = query.not('device', 'ilike', '%Use Your Own%')
-          .not('device', 'ilike', '%CPE%')
-          .not('device', 'ilike', '%router%')
-          .not('device', 'ilike', '%iPhone%')
-          .not('device', 'ilike', '%Samsung%')
-          .not('device', 'is', null);
+        query = query.or('device.ilike.%iPhone%,device.ilike.%Samsung%,device.ilike.%Galaxy%,device.ilike.%Oppo%,device.ilike.%Vivo%,device.ilike.%Huawei Nova%');
       }
+      // Skip 'other' filter - too complex with .not() chains
     }
 
     // Filter by technology
-    if (technology) {
+    if (technology && technology !== 'all') {
       if (technology === '5g') {
-        query = query.eq('service_type', '5g');
+        query = query.ilike('service_type', '%5g%');
       } else if (technology === 'lte') {
-        query = query.eq('service_type', 'lte');
+        query = query.ilike('service_type', '%lte%');
       } else if (technology === 'fibre') {
-        // Fibre products (HomeFibreConnect, BizFibreConnect, SkyFibre)
-        query = query.or('service_type.eq.HomeFibreConnect,service_type.eq.BizFibreConnect,service_type.ilike.%Fibre%');
+        // Fibre products
+        query = query.or('service_type.ilike.%Fibre%,service_type.eq.HomeFibreConnect,service_type.eq.BizFibreConnect');
       } else if (technology === 'wireless') {
-        // Wireless products (SkyFibre, other wireless)
-        query = query.or('service_type.eq.SkyFibre,service_type.ilike.%Wireless%');
+        // Wireless products
+        query = query.or('service_type.ilike.%Wireless%,service_type.eq.SkyFibre');
       }
     }
 
-    // Filter by data package
-    if (dataPackage) {
-      if (dataPackage === '0-10') {
-        // 0-10 GB: Check metadata->inclusivePlanData or data_allowance
-        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.0,data_allowance.lte.10');
+    // Filter by data package (simplified - use name/description search)
+    if (dataPackage && dataPackage !== 'all') {
+      if (dataPackage === 'uncapped') {
+        query = query.or('name.ilike.%Uncapped%,description.ilike.%Uncapped%');
+      } else if (dataPackage === '0-10') {
+        query = query.or('name.ilike.%1GB%,name.ilike.%2GB%,name.ilike.%5GB%,name.ilike.%10GB%');
       } else if (dataPackage === '10-50') {
-        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.10,data_allowance.lte.50');
+        query = query.or('name.ilike.%20GB%,name.ilike.%30GB%,name.ilike.%40GB%,name.ilike.%50GB%');
       } else if (dataPackage === '50-100') {
-        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.50,data_allowance.lte.100');
+        query = query.or('name.ilike.%60GB%,name.ilike.%70GB%,name.ilike.%80GB%,name.ilike.%90GB%,name.ilike.%100GB%');
       } else if (dataPackage === '100-500') {
-        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.100,data_allowance.lte.500');
+        query = query.or('name.ilike.%150GB%,name.ilike.%200GB%,name.ilike.%300GB%,name.ilike.%400GB%,name.ilike.%500GB%');
       } else if (dataPackage === '500+') {
-        query = query.or('metadata->inclusivePlanData.ilike.%GB,data_allowance.gte.500');
-      } else if (dataPackage === 'uncapped') {
-        query = query.or('name.ilike.%Uncapped%,description.ilike.%Uncapped%,metadata->inclusivePlanData.ilike.%Uncapped%');
+        query = query.or('name.ilike.%600GB%,name.ilike.%700GB%,name.ilike.%1000GB%,name.ilike.%1TB%');
       }
     }
 
