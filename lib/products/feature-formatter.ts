@@ -30,11 +30,11 @@ const FEATURE_MAPPINGS: Record<string, string> = {
   'installation time': 'Installation time:',
   'month-to-month': 'Month-to-month contract',
   
-  // Router & Equipment - Emphasize FREE TO USE (accurate legal terms)
-  'router bundle available': 'FREE TO USE Router (must be returned)*',
-  'free router': 'FREE TO USE Router (loaner)*',
-  'free-to-use router': 'FREE TO USE Router (loaner)*',
-  'router bundle': 'FREE TO USE Router (loaner)*',
+  // Router & Equipment - Emphasize FREE TO USE with retail value
+  'router bundle available': 'FREE TO USE Router - valued at up to R1,999*',
+  'free router': 'FREE TO USE Router - valued at up to R1,999*',
+  'free-to-use router': 'FREE TO USE Router - valued at up to R1,999*',
+  'router bundle': 'FREE TO USE Router - valued at up to R1,999*',
   'fully insured': '', // Remove fully insured
   
   // Contract & Fees
