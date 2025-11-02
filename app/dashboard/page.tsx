@@ -308,71 +308,69 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Your Service */}
-        <Card>
-          <CardHeader>
+        <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold text-gray-900">Your Service</CardTitle>
+              <h2 className="text-xl font-bold text-gray-900">Your Service</h2>
               <Link href="/dashboard/services" className="text-sm font-semibold text-circleTel-orange hover:underline">
                 View all
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="p-6">
             {hasActiveService && primaryService ? (
-              <div className="space-y-4">
-                <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-circleTel-orange/30 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
-                  {/* Status Badge with Indicator and Manage Dropdown */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse ring-4 ring-green-200" />
-                      <span className="text-sm font-bold text-green-700 uppercase tracking-wide">
-                        {primaryService.status === 'active' ? 'Connected & Billing' : primaryService.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-green-100 text-green-800 border-2 border-green-300 hover:bg-green-100 font-bold px-3 py-1">
-                        Active
-                      </Badge>
-                      <ServiceManageDropdown
-                        serviceId={primaryService.id}
-                        packageName={primaryService.package_name}
-                      />
-                    </div>
+              <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
+                {/* Status Badge with Indicator and Manage Dropdown */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2.5 w-2.5 bg-green-500 rounded-full" />
+                    <span className="text-sm font-medium text-green-700">
+                      {primaryService.status === 'active' ? 'Connected & Billing' : primaryService.status}
+                    </span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 font-medium px-2.5 py-0.5 text-xs">
+                      Active
+                    </Badge>
+                    <ServiceManageDropdown
+                      serviceId={primaryService.id}
+                      packageName={primaryService.package_name}
+                    />
+                  </div>
+                </div>
 
-                  {/* Service Name */}
-                  <div className="mb-4">
-                    <h3 className="font-extrabold text-2xl text-gray-900 mb-1">{primaryService.package_name}</h3>
-                    <p className="text-base text-gray-700 font-semibold capitalize">{primaryService.service_type}</p>
-                  </div>
+                {/* Service Name */}
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{primaryService.package_name}</h3>
+                  <p className="text-sm text-gray-600 capitalize">{primaryService.service_type}</p>
+                </div>
 
-                  {/* Speed Display with Icons */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 border border-orange-200">
-                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <ArrowUpDown className="h-5 w-5 text-blue-600 rotate-180" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Download</p>
-                        <p className="font-extrabold text-xl text-gray-900">{primaryService.speed_down} <span className="text-sm font-normal">Mbps</span></p>
-                      </div>
+                {/* Speed Display with Icons */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <ArrowUpDown className="h-5 w-5 text-blue-600 rotate-180" />
                     </div>
-                    <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 border border-orange-200">
-                      <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <ArrowUpDown className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Upload</p>
-                        <p className="font-extrabold text-xl text-gray-900">{primaryService.speed_up} <span className="text-sm font-normal">Mbps</span></p>
-                      </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Download</p>
+                      <p className="font-bold text-lg text-gray-900">{primaryService.speed_down} <span className="text-sm font-normal text-gray-600">Mbps</span></p>
                     </div>
                   </div>
-
-                  {/* Monthly Price */}
-                  <div className="flex items-center justify-between pt-4 border-t-2 border-orange-200">
-                    <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Monthly Fee</span>
-                    <span className="font-extrabold text-2xl text-circleTel-orange tabular-nums">R{primaryService.monthly_price}</span>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <ArrowUpDown className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Upload</p>
+                      <p className="font-bold text-lg text-gray-900">{primaryService.speed_up} <span className="text-sm font-normal text-gray-600">Mbps</span></p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Monthly Price */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <span className="text-sm font-medium text-gray-600">Monthly Fee</span>
+                  <span className="font-bold text-2xl text-gray-900 tabular-nums">R{primaryService.monthly_price}</span>
                 </div>
               </div>
             ) : (
@@ -384,49 +382,47 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                 </Link>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Billing Summary */}
-        <Card>
-          <CardHeader>
+        <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold text-gray-900">Billing Summary</CardTitle>
+              <h2 className="text-xl font-bold text-gray-900">Billing Summary</h2>
               <Link href="/dashboard/billing" className="text-sm font-semibold text-circleTel-orange hover:underline">
                 View invoices
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="p-6">
             {data.billing ? (
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <CreditCard className="h-6 w-6 text-circleTel-orange" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-base">{data.billing.payment_method || 'No payment method'}</p>
-                      <p className={`text-base font-semibold ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
-                        {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
-                      </p>
-                    </div>
+              <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="h-5 w-5 text-circleTel-orange" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Balance Due</p>
-                      <p className="font-extrabold text-2xl text-gray-900 mt-1 tabular-nums">R{data.billing.account_balance.toFixed(2)}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Due: {data.billing.next_billing_date ? new Date(data.billing.next_billing_date).toLocaleDateString() : 'N/A'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Invoices</p>
-                      <p className="font-extrabold text-2xl text-gray-900 mt-1 tabular-nums">{data.invoices.length}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue` : 'All paid'}
-                      </p>
-                    </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm text-gray-900">{data.billing.payment_method || 'No payment method'}</p>
+                    <p className={`text-xs font-medium ${data.billing.payment_status === 'current' ? 'text-green-600' : 'text-red-600'}`}>
+                      {data.billing.payment_status === 'current' ? 'Payment up to date' : 'Payment overdue'}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">Balance Due</p>
+                    <p className="font-bold text-xl text-gray-900 mt-1 tabular-nums">R{data.billing.account_balance.toFixed(2)}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Due: {data.billing.next_billing_date ? new Date(data.billing.next_billing_date).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">Invoices</p>
+                    <p className="font-bold text-xl text-gray-900 mt-1 tabular-nums">{data.invoices.length}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue` : 'All paid'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -436,8 +432,8 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                 <p>No billing information</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Recent Orders */}
         <Card className="lg:col-span-2">
