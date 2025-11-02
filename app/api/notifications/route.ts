@@ -45,9 +45,9 @@ const CreateNotificationSchema = z.object({
 const ListNotificationsQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional().default(50),
   offset: z.coerce.number().int().nonnegative().optional().default(0),
-  type: NotificationTypeSchema.optional(),
-  is_read: z.enum(['true', 'false']).optional(),
-  is_dismissed: z.enum(['true', 'false']).optional(),
+  type: NotificationTypeSchema.nullable().optional(),
+  is_read: z.enum(['true', 'false']).nullable().optional(),
+  is_dismissed: z.enum(['true', 'false']).nullable().optional(),
 });
 
 // ============================================================================
@@ -104,16 +104,16 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .range(validatedQuery.offset, validatedQuery.offset + validatedQuery.limit - 1);
 
-    // Apply filters
-    if (validatedQuery.type) {
+    // Apply filters (only if not null/undefined)
+    if (validatedQuery.type !== null && validatedQuery.type !== undefined) {
       query = query.eq('type', validatedQuery.type);
     }
 
-    if (validatedQuery.is_read) {
+    if (validatedQuery.is_read !== null && validatedQuery.is_read !== undefined) {
       query = query.eq('is_read', validatedQuery.is_read === 'true');
     }
 
-    if (validatedQuery.is_dismissed) {
+    if (validatedQuery.is_dismissed !== null && validatedQuery.is_dismissed !== undefined) {
       query = query.eq('is_dismissed', validatedQuery.is_dismissed === 'true');
     }
 
