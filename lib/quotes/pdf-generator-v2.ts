@@ -320,8 +320,8 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   ];
 
   features.forEach(feature => {
-    // Use unicode checkmark instead of text checkmark to avoid spacing issues
-    doc.text('\u2713  ' + feature, 18, yPos);
+    // Use proper bullet point
+    doc.text('•  ' + feature, 18, yPos);
     yPos += 5;
   });
 
