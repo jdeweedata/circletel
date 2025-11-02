@@ -114,6 +114,8 @@ export async function PUT(
     // Remove change_reason and pricing object fields from update payload
     const {
       change_reason,
+      // Frontend field names that need mapping (not direct database columns)
+      is_active, featured, category, service, customer_type,
       // Pricing object fields (handled separately)
       pricing_monthly, pricing_setup, pricing_download_speed, pricing_upload_speed,
       // Accept multiple naming conventions for backward compatibility
@@ -138,22 +140,22 @@ export async function PUT(
     }
 
     // Map form fields to service_packages schema
-    if (body.category) {
-      updateData.product_category = body.category;
+    if (category) {
+      updateData.product_category = category;
     }
-    if (body.service) {
-      updateData.service_type = body.service;
+    if (service) {
+      updateData.service_type = service;
     }
-    if (body.customer_type) {
+    if (customer_type) {
       // Map consumer/smme/enterprise to business/consumer
-      updateData.customer_type = (body.customer_type === 'smme' || body.customer_type === 'enterprise') ? 'business' : 'consumer';
+      updateData.customer_type = (customer_type === 'smme' || customer_type === 'enterprise') ? 'business' : 'consumer';
     }
-    if (body.is_active !== undefined) {
-      updateData.active = body.is_active;
-      updateData.status = body.is_active ? 'active' : 'inactive';
+    if (is_active !== undefined) {
+      updateData.active = is_active;
+      updateData.status = is_active ? 'active' : 'inactive';
     }
-    if (body.featured !== undefined) {
-      updateData.is_featured = body.featured;
+    if (featured !== undefined) {
+      updateData.is_featured = featured;
     }
 
     // Store data_limit and contract_duration in metadata JSONB
