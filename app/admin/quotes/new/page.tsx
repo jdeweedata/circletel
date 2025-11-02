@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -17,6 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, 
@@ -29,9 +36,14 @@ import {
   Loader2,
   Plus,
   X,
-  Package
+  Package,
+  Eye,
+  Save,
+  FolderOpen,
+  Percent
 } from 'lucide-react';
 import Link from 'next/link';
+import { AddressAutocomplete } from '@/components/admin/quotes/AddressAutocomplete';
 
 // Validation schema
 const quoteFormSchema = z.object({
@@ -51,10 +63,22 @@ const quoteFormSchema = z.object({
   
   // Quote Details
   contract_term: z.enum(['12', '24', '36']),
+  custom_discount_percent: z.coerce.number().min(0).max(100).optional(),
   customer_notes: z.string().optional(),
   
   // Items will be added separately
 });
+
+// Quote template interface
+interface QuoteTemplate {
+  id: string;
+  name: string;
+  description: string;
+  template_data: Partial<QuoteFormValues> & {
+    items: QuoteItem[];
+  };
+  created_at: string;
+}
 
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
 
@@ -78,25 +102,63 @@ interface QuoteItem {
 
 export default function NewQuotePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [packages, setPackages] = useState<ServicePackage[]>([]);
   const [loadingPackages, setLoadingPackages] = useState(true);
   const [selectedItems, setSelectedItems] = useState<QuoteItem[]>([]);
   const [showPackageSelector, setShowPackageSelector] = useState(false);
+  
+  // New feature states
+  const [showPDFPreview, setShowPDFPreview] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
+  const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
       customer_type: 'smme',
       contract_term: '12',
-      quantity: 1,
+      custom_discount_percent: 0,
     },
   });
 
   // Fetch available packages
   useEffect(() => {
     fetchPackages();
+    loadTemplates();
   }, []);
+
+  // Pre-fill from lead if lead_id is provided
+  useEffect(() => {
+    const leadId = searchParams.get('lead_id');
+    if (leadId) {
+      prefillFromLead(leadId);
+    }
+  }, [searchParams]);
+
+  const prefillFromLead = async (leadId: string) => {
+    try {
+      const response = await fetch(`/api/admin/coverage-leads/${leadId}`);
+      const data = await response.json();
+      
+      if (data.success && data.lead) {
+        const lead = data.lead;
+        form.setValue('company_name', lead.company_name || '');
+        form.setValue('contact_name', `${lead.first_name || ''} ${lead.last_name || ''}`.trim());
+        form.setValue('contact_email', lead.email || '');
+        form.setValue('contact_phone', lead.phone || '');
+        form.setValue('service_address', lead.address || '');
+        toast.success('Pre-filled from coverage lead');
+      }
+    } catch (error) {
+      console.error('Error fetching lead:', error);
+    }
+  };
 
   const fetchPackages = async () => {
     try {
@@ -144,17 +206,113 @@ export default function NewQuotePage() {
       (sum, item) => sum + (item.package.pricing.installation * item.quantity),
       0
     );
-    const vat = (subtotalMonthly + subtotalInstallation) * 0.15;
-    const total = subtotalMonthly + subtotalInstallation + vat;
+    
+    // Apply custom discount
+    const discountPercent = form.watch('custom_discount_percent') || 0;
+    const discountAmount = (subtotalMonthly + subtotalInstallation) * (discountPercent / 100);
+    const afterDiscount = (subtotalMonthly + subtotalInstallation) - discountAmount;
+    const vat = afterDiscount * 0.15;
+    const total = afterDiscount + vat;
 
     return {
       subtotalMonthly,
       subtotalInstallation,
+      discountPercent,
+      discountAmount,
+      afterDiscount,
       vat,
       totalMonthly: subtotalMonthly,
       totalInstallation: subtotalInstallation,
       total,
     };
+  };
+
+  // Template functions
+  const loadTemplates = () => {
+    const saved = localStorage.getItem('quote_templates');
+    if (saved) {
+      try {
+        setTemplates(JSON.parse(saved));
+      } catch (error) {
+        console.error('Error loading templates:', error);
+      }
+    }
+  };
+
+  const saveTemplate = () => {
+    if (!templateName.trim()) {
+      toast.error('Please enter a template name');
+      return;
+    }
+
+    const template: QuoteTemplate = {
+      id: Date.now().toString(),
+      name: templateName,
+      description: templateDescription,
+      template_data: {
+        ...form.getValues(),
+        items: selectedItems,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    const updated = [...templates, template];
+    setTemplates(updated);
+    localStorage.setItem('quote_templates', JSON.stringify(updated));
+    
+    setTemplateName('');
+    setTemplateDescription('');
+    setShowTemplateDialog(false);
+    toast.success('Template saved successfully!');
+  };
+
+  const loadTemplate = (template: QuoteTemplate) => {
+    form.reset(template.template_data);
+    setSelectedItems(template.template_data.items);
+    toast.success(`Template "${template.name}" loaded`);
+  };
+
+  const deleteTemplate = (templateId: string) => {
+    const updated = templates.filter(t => t.id !== templateId);
+    setTemplates(updated);
+    localStorage.setItem('quote_templates', JSON.stringify(updated));
+    toast.success('Template deleted');
+  };
+
+  // PDF Preview function
+  const generatePDFPreview = async () => {
+    if (selectedItems.length === 0) {
+      toast.error('Please add at least one service to preview');
+      return;
+    }
+
+    setPreviewLoading(true);
+    setShowPDFPreview(true);
+
+    try {
+      // Simulate PDF generation (in real implementation, call PDF generation API)
+      const formData = form.getValues();
+      const pricing = calculatePricing();
+      
+      // Create a preview object
+      const previewData = {
+        ...formData,
+        items: selectedItems,
+        pricing,
+      };
+
+      // For now, show a preview dialog
+      // In production, you'd call an API endpoint to generate actual PDF
+      toast.info('PDF preview feature coming soon - would generate PDF with current data');
+      
+      setTimeout(() => {
+        setPreviewLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast.error('Failed to generate preview');
+      setPreviewLoading(false);
+    }
   };
 
   const onSubmit = async (data: QuoteFormValues) => {
@@ -376,7 +534,7 @@ export default function NewQuotePage() {
               </CardContent>
             </Card>
 
-            {/* Service Address */}
+            {/* Service Address with Autocomplete */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -388,11 +546,17 @@ export default function NewQuotePage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="service_address">Address *</Label>
-                  <Textarea
-                    id="service_address"
-                    {...form.register('service_address')}
-                    placeholder="e.g., Welmoed Estate, Stellenbosch"
-                    rows={3}
+                  <Controller
+                    name="service_address"
+                    control={form.control}
+                    render={({ field }) => (
+                      <AddressAutocomplete
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Start typing address... (e.g., Welmoed Estate, Stellenbosch)"
+                        className="w-full"
+                      />
+                    )}
                   />
                   {form.formState.errors.service_address && (
                     <p className="text-sm text-red-600">{form.formState.errors.service_address.message}</p>
@@ -522,6 +686,43 @@ export default function NewQuotePage() {
               </CardContent>
             </Card>
 
+            {/* Discount Field */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Percent className="w-5 h-5 text-circleTel-orange" />
+                  Custom Discount
+                </CardTitle>
+                <CardDescription>Apply a discount percentage (optional)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="custom_discount_percent">Discount Percentage</Label>
+                  <div className="relative">
+                    <Input
+                      id="custom_discount_percent"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      {...form.register('custom_discount_percent')}
+                      placeholder="e.g., 10 for 10% off"
+                      className="pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">%</span>
+                  </div>
+                  {form.formState.errors.custom_discount_percent && (
+                    <p className="text-sm text-red-600">{form.formState.errors.custom_discount_percent.message}</p>
+                  )}
+                  {pricing.discountAmount > 0 && (
+                    <p className="text-sm text-green-600 font-medium">
+                      Discount: R {pricing.discountAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Notes */}
             <Card>
               <CardHeader>
@@ -559,6 +760,12 @@ export default function NewQuotePage() {
                       <span className="text-gray-600">Installation Fee</span>
                       <span className="font-medium">R {pricing.subtotalInstallation.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
+                    {pricing.discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span className="font-medium">Discount ({pricing.discountPercent}%)</span>
+                        <span className="font-medium">- R {pricing.discountAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">VAT (15%)</span>
                       <span className="font-medium">R {pricing.vat.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -582,6 +789,58 @@ export default function NewQuotePage() {
                   </div>
 
                   <div className="space-y-2 pt-4">
+                    {/* Template Actions */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowTemplateDialog(true)}
+                        disabled={selectedItems.length === 0}
+                      >
+                        <Save className="w-3 h-3 mr-1" />
+                        Save Template
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (templates.length === 0) {
+                            toast.info('No templates saved yet');
+                          } else {
+                            // Show templates in dialog
+                            setShowTemplateDialog(true);
+                          }
+                        }}
+                      >
+                        <FolderOpen className="w-3 h-3 mr-1" />
+                        Load ({templates.length})
+                      </Button>
+                    </div>
+
+                    {/* PDF Preview Button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={generatePDFPreview}
+                      disabled={selectedItems.length === 0 || previewLoading}
+                      className="w-full"
+                    >
+                      {previewLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4 mr-2" />
+                          Preview PDF
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Create Quote Button */}
                     <Button
                       type="submit"
                       disabled={isSubmitting || selectedItems.length === 0}
@@ -615,6 +874,139 @@ export default function NewQuotePage() {
           </div>
         </div>
       </form>
+
+      {/* Template Dialog */}
+      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Quote Templates</DialogTitle>
+            <DialogDescription>
+              Save common quote configurations for faster creation
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Save New Template Section */}
+            {selectedItems.length > 0 && (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <h3 className="font-semibold mb-3">Save Current Quote as Template</h3>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="template_name">Template Name *</Label>
+                    <Input
+                      id="template_name"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      placeholder="e.g., Standard SMME Package"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="template_description">Description (optional)</Label>
+                    <Input
+                      id="template_description"
+                      value={templateDescription}
+                      onChange={(e) => setTemplateDescription(e.target.value)}
+                      placeholder="e.g., Standard fibre package for small businesses"
+                    />
+                  </div>
+                  <Button onClick={saveTemplate} className="w-full">
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Template
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Saved Templates List */}
+            <div>
+              <h3 className="font-semibold mb-3">Saved Templates ({templates.length})</h3>
+              {templates.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">
+                  No templates saved yet. Create a quote and save it as a template for reuse.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {templates.map((template) => (
+                    <div key={template.id} className="border rounded-lg p-3 hover:border-circleTel-orange transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{template.name}</h4>
+                          {template.description && (
+                            <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                            <span>{template.template_data.items.length} services</span>
+                            <span>•</span>
+                            <span>{template.template_data.contract_term} months</span>
+                            <span>•</span>
+                            <span>{template.template_data.customer_type?.toUpperCase()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              loadTemplate(template);
+                              setShowTemplateDialog(false);
+                            }}
+                          >
+                            Load
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteTemplate(template.id)}
+                          >
+                            <X className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={showPDFPreview} onOpenChange={setShowPDFPreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Quote PDF Preview</DialogTitle>
+            <DialogDescription>
+              Preview how the quote will appear when sent to customer
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-gray-50 border rounded-lg p-6 min-h-[400px]">
+              <div className="text-center py-12">
+                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-600 mb-2">PDF Preview Coming Soon</p>
+                <p className="text-sm text-gray-500">
+                  Will show a live preview of the quote PDF with CircleTel branding
+                </p>
+                <div className="mt-6 text-left max-w-md mx-auto space-y-2 text-sm text-gray-600">
+                  <p><strong>Preview will include:</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>CircleTel branded header</li>
+                    <li>Company details: {form.watch('company_name')}</li>
+                    <li>Contact: {form.watch('contact_name')}</li>
+                    <li>{selectedItems.length} service(s)</li>
+                    <li>Total: R {pricing.total.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</li>
+                    <li>Contract term: {form.watch('contract_term')} months</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <Button onClick={() => setShowPDFPreview(false)} className="w-full">
+              Close Preview
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
