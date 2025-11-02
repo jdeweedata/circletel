@@ -18,6 +18,7 @@ interface DashboardData {
     lastName: string;
     phone: string;
     customerSince: string;
+    accountNumber: string;
   };
   services: Array<{
     id: string;
@@ -209,8 +210,8 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">My Dashboard</h1>
         <p className="text-base lg:text-lg text-gray-600 mt-2">
           Welcome back, <span className="font-bold text-circleTel-orange">{firstName || displayName}</span>!
-          {data.customer.id && (
-            <span className="text-sm text-gray-500 ml-2">(#{data.customer.id.substring(0, 12)})</span>
+          {data.customer.accountNumber && (
+            <span className="text-sm font-semibold text-gray-700 ml-2">Account: {data.customer.accountNumber}</span>
           )}
         </p>
       </div>

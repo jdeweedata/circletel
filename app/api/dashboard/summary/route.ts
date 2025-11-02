@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
           lastName: customer.last_name,
           phone: customer.phone,
           customerSince: customer.created_at,
+          accountNumber: customer.account_number,
         },
         services: services || [],
         billing: billing || null,
