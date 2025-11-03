@@ -1,0 +1,113 @@
+# Agent-OS Implementers Configuration
+# Defines specialized agents for implementing different task types
+
+implementers:
+  - id: database-engineer
+    name: Database Engineer
+    description: Specializes in database migrations, schema design, RLS policies, triggers, and indexes
+    capabilities:
+      - Database schema design
+      - SQL migrations (PostgreSQL/Supabase)
+      - Row Level Security (RLS) policies
+      - Database triggers and functions
+      - Foreign key constraints and indexes
+      - Database testing (schema validation, constraint testing)
+    tech_stack:
+      - PostgreSQL
+      - Supabase
+      - SQL
+    verified_by: backend-verifier
+    output_location: "agent-os/specs/{spec-id}/implementation/database/"
+
+  - id: backend-engineer
+    name: Backend Engineer
+    description: Specializes in business logic, service layers, external API integrations, and backend workflows
+    capabilities:
+      - Service layer implementation
+      - External API client development
+      - Webhook handling and signature verification
+      - Data transformation and validation
+      - Integration with third-party services
+      - TypeScript service patterns
+    tech_stack:
+      - TypeScript
+      - Node.js
+      - Axios (HTTP clients)
+      - Crypto (signature verification)
+    verified_by: backend-verifier
+    output_location: "agent-os/specs/{spec-id}/implementation/backend/"
+
+  - id: api-engineer
+    name: API Engineer
+    description: Specializes in Next.js API routes, request/response handling, authentication, and API testing
+    capabilities:
+      - Next.js 15 API route implementation (async params pattern)
+      - Request validation and error handling
+      - API authentication and authorization
+      - Webhook endpoint development
+      - RESTful API design
+      - API response typing
+    tech_stack:
+      - Next.js 15 App Router
+      - TypeScript
+      - Supabase client
+    verified_by: backend-verifier
+    output_location: "agent-os/specs/{spec-id}/implementation/api/"
+
+  - id: frontend-engineer
+    name: Frontend Engineer
+    description: Specializes in React components, pages, forms, UI/UX implementation, and responsive design
+    capabilities:
+      - React 18 component development
+      - Next.js 15 pages (app router)
+      - shadcn/ui component integration
+      - Form handling and validation
+      - State management (hooks, context)
+      - Responsive design (mobile-first)
+      - CircleTel brand styling
+    tech_stack:
+      - React 18
+      - Next.js 15
+      - TypeScript
+      - Tailwind CSS
+      - shadcn/ui
+    verified_by: frontend-verifier
+    output_location: "agent-os/specs/{spec-id}/implementation/frontend/"
+
+  - id: testing-engineer
+    name: Testing Engineer
+    description: Specializes in E2E tests, integration tests, test strategy, and quality assurance
+    capabilities:
+      - Playwright E2E test development
+      - Integration test strategy
+      - Test coverage analysis
+      - Mock data generation
+      - Test scenario design
+      - Regression testing
+    tech_stack:
+      - Playwright
+      - Jest
+      - TypeScript
+    verified_by: implementation-verifier
+    output_location: "agent-os/specs/{spec-id}/implementation/testing/"
+
+# Testing Limits (CRITICAL - enforced across all implementers)
+testing_policy:
+  description: "Strict limits on test writing to prevent over-engineering"
+  rules:
+    - "Each task group: Write ONLY 2-8 focused tests maximum"
+    - "Testing-engineer: Write maximum 10 additional strategic tests"
+    - "Total tests per spec: Target 45-62 tests (not 100+)"
+    - "Run ONLY tests related to current task group, NOT entire suite"
+    - "Focus on critical paths, not edge cases during initial implementation"
+  enforcement: "All implementers must follow these limits. Verification will check test counts."
+
+# Code Reuse Policy (CRITICAL - enforced across all implementers)
+reuse_policy:
+  description: "Aggressive code reuse to maximize efficiency"
+  rules:
+    - "Check spec Section 7 'Reusable Components' before writing new code"
+    - "Extend existing code rather than duplicating logic"
+    - "Document reuse opportunities in implementation reports"
+    - "New components must justify why existing code cannot be extended"
+  enforcement: "Verification will flag unnecessary new code"
