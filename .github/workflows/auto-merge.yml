@@ -7,6 +7,12 @@ on:
   check_suite:
     types: [completed]
 
+# Grant permissions to merge PRs
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
