@@ -379,12 +379,12 @@ export function AdminProductCard({
         {/* Action Buttons */}
         <div className="flex gap-2">
           {onToggleStatus && (
-            <div className="flex items-center justify-between flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors">
-              <div className="flex flex-col">
+            <div className="flex items-center justify-between flex-1 px-4 py-3.5 border border-gray-200 rounded-lg bg-white hover:bg-gray-50/50 transition-all duration-200">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-gray-900">
                   {product.is_active ? 'Active' : 'Inactive'}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 leading-tight">
                   {product.is_active ? 'Visible to customers' : 'Hidden from customers'}
                 </span>
               </div>
@@ -401,7 +401,10 @@ export function AdminProductCard({
                   }
                 }}
                 className={cn(
-                  "data-[state=checked]:bg-orange-500",
+                  "data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-200",
+                  "[&>span]:ring-2 [&>span]:ring-offset-0",
+                  "[&>span]:data-[state=unchecked]:ring-gray-400",
+                  "[&>span]:data-[state=checked]:ring-white",
                   !hasEditPermission && "opacity-50 cursor-not-allowed"
                 )}
               />
