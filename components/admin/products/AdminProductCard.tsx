@@ -377,39 +377,33 @@ export function AdminProductCard({
         {/* Action Buttons */}
         <div className="flex gap-2">
           {onToggleStatus && (
-            <Button
-              variant={product.is_active ? "default" : "secondary"}
-              size="sm"
-              className={cn(
-                "flex-1",
-                product.is_active
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-gray-300 hover:bg-gray-400 text-gray-700"
-              )}
-              disabled={!hasEditPermission}
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('[AdminProductCard] Status button clicked for:', product.id, 'current status:', product.is_active, 'hasEditPermission:', hasEditPermission);
-                if (hasEditPermission) {
-                  onToggleStatus(product);
-                } else {
-                  alert('You do not have permission to edit products');
-                }
-              }}
-              title={!hasEditPermission ? 'You do not have edit permission' : `Click to ${product.is_active ? 'deactivate' : 'activate'}`}
-            >
-              {product.is_active ? (
-                <>
-                  <ToggleRight className="h-4 w-4 mr-2" />
-                  Active
-                </>
-              ) : (
-                <>
-                  <ToggleLeft className="h-4 w-4 mr-2" />
-                  Inactive
-                </>
-              )}
-            </Button>
+            <div className="flex items-center justify-between flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors">
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-gray-900">
+                  {product.is_active ? 'Active' : 'Inactive'}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {product.is_active ? 'Visible to customers' : 'Hidden from customers'}
+                </span>
+              </div>
+              <Switch
+                checked={product.is_active}
+                disabled={!hasEditPermission}
+                onCheckedChange={(checked) => {
+                  console.log('[AdminProductCard] Toggle switch clicked for:', product.id, 'new state:', checked, 'hasEditPermission:', hasEditPermission);
+                  if (hasEditPermission) {
+                    onToggleStatus(product);
+                  } else {
+                    console.warn('[AdminProductCard] Toggle blocked: No edit permission');
+                    alert('You do not have permission to edit products');
+                  }
+                }}
+                className={cn(
+                  "data-[state=checked]:bg-orange-500",
+                  !hasEditPermission && "opacity-50 cursor-not-allowed"
+                )}
+              />
+            </div>
           )}
 
           {/* More Actions Dropdown */}
