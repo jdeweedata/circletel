@@ -1,0 +1,40 @@
+name: Auto Deploy to Staging
+
+# Triggers when PR is opened or updated
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+jobs:
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to staging branch
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git push origin HEAD:staging --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 **Staging Deployment Triggered**\n\n' +
+                    'Your changes are being deployed to staging:\n' +
+                    '👉 https://circletel-staging.vercel.app\n\n' +
+                    'Vercel deployment should complete in ~2 minutes.'
+            })
