@@ -69,7 +69,8 @@ export interface AdminProductCardProps {
  * Modern card-based product display for admin panel with:
  * - Provider logo integration
  * - Status badges (Active, Featured, Popular)
- * - Quick action buttons on hover
+ * - shadcn/ui Switch toggle with label/description
+ * - Quick action buttons (View, Edit, Price)
  * - Bulk selection checkbox
  * - Drag handle for reordering
  * - Visual stats (orders, views, revenue)
@@ -82,6 +83,7 @@ export interface AdminProductCardProps {
  *   selected={isSelected}
  *   onSelect={handleSelect}
  *   onEdit={handleEdit}
+ *   onToggleStatus={handleToggle}
  *   hasEditPermission={true}
  *   showStats={true}
  *   stats={{ orders: 12, views: 345, revenue: 8988 }}
