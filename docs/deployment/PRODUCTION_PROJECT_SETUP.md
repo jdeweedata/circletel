@@ -433,14 +433,18 @@ NEXT_PUBLIC_ICASA_ENVIRONMENT=test
 
 After completing setup, verify:
 
-- [ ] Production project deploys from `master` branch
-- [ ] Staging project deploys from `staging` branch
-- [ ] All environment variables configured per environment
-- [ ] DNS records point to Vercel (no warnings)
-- [ ] HTTPS works on all domains
-- [ ] www redirects to apex (or vice versa)
-- [ ] Test deployment successful
+- [x] Production project deploys from `main` branch
+- [x] Staging project deploys from `staging` branch
+- [x] All environment variables configured per environment
+- [x] DNS records point to Vercel (no warnings)
+- [x] HTTPS works on all domains
+- [x] www redirects to apex (or vice versa)
+- [x] Vercel "Ignored Build Step" configured to "Only build production"
+- [x] GitHub Actions workflows deployed (staging, pr-checks, auto-merge)
+- [ ] GitHub Actions enabled in repository settings
+- [ ] Supabase secrets added to GitHub repository
 - [ ] Branch protection rules set on GitHub
+- [ ] Test automated deployment workflow with PR
 - [ ] Team trained on deployment workflow
 - [ ] Rollback procedure tested
 
