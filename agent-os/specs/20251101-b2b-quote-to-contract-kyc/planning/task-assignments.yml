@@ -1,0 +1,114 @@
+# Task Assignments for B2B Quote-to-Contract Workflow with KYC Compliance
+# Spec ID: 20251101-b2b-quote-to-contract-kyc
+# Created: 2025-11-01
+
+task_assignments:
+  # SPRINT 1: KYC Compliance Foundation (21 points)
+
+  - task_group: "Task Group 1: Database Layer - KYC & RICA Tables"
+    assigned_subagent: "database-engineer"
+    story_points: 3
+    dependencies: []
+
+  - task_group: "Task Group 2: Didit KYC Integration - Session Management"
+    assigned_subagent: "backend-engineer"
+    story_points: 8
+    dependencies: ["Task Group 1"]
+
+  - task_group: "Task Group 3: KYC API Routes"
+    assigned_subagent: "api-engineer"
+    story_points: 5
+    dependencies: ["Task Group 1", "Task Group 2"]
+
+  - task_group: "Task Group 4: KYC Frontend Components"
+    assigned_subagent: "frontend-engineer"
+    story_points: 5
+    dependencies: ["Task Group 1", "Task Group 2", "Task Group 3"]
+
+  # SPRINT 2: Contracts & CRM Integration (16 points)
+
+  - task_group: "Task Group 5: Database Layer - Contracts System"
+    assigned_subagent: "database-engineer"
+    story_points: 3
+    dependencies: ["Sprint 1 complete"]
+
+  - task_group: "Task Group 6: Contract Generation & PDF with KYC Badge"
+    assigned_subagent: "backend-engineer"
+    story_points: 5
+    dependencies: ["Task Group 5"]
+
+  - task_group: "Task Group 7: ZOHO Sign Integration"
+    assigned_subagent: "backend-engineer"
+    story_points: 3
+    dependencies: ["Task Group 6"]
+
+  - task_group: "Task Group 8: ZOHO CRM Sync with KYC Fields"
+    assigned_subagent: "backend-engineer"
+    story_points: 5
+    dependencies: ["Task Group 6", "Task Group 7"]
+
+  # SPRINT 3: Payments & Invoicing (13 points)
+
+  - task_group: "Task Group 9: Database Layer - Invoicing & Payments"
+    assigned_subagent: "database-engineer"
+    story_points: 3
+    dependencies: ["Sprint 2 complete"]
+
+  - task_group: "Task Group 10: Invoice Generation & NetCash Payments"
+    assigned_subagent: "backend-engineer"
+    story_points: 5
+    dependencies: ["Task Group 9"]
+
+  # SPRINT 4: RICA & Final Features (11 points)
+
+  - task_group: "Task Group 11: Database Layer - Fulfillment System"
+    assigned_subagent: "database-engineer"
+    story_points: 3
+    dependencies: ["Task Group 10"]
+
+  - task_group: "Task Group 12: RICA Paired Submission & Service Activation"
+    assigned_subagent: "backend-engineer"
+    story_points: 5
+    dependencies: ["Task Group 11", "Sprint 1 (KYC data available)"]
+
+  - task_group: "Task Group 13: Admin Compliance Queue UI"
+    assigned_subagent: "frontend-engineer"
+    story_points: 3
+    dependencies: ["Sprint 1 (KYC system)", "Sprint 3 (RICA system)"]
+
+  - task_group: "Task Group 14: Email Automation & Templates"
+    assigned_subagent: "backend-engineer"
+    story_points: 5
+    dependencies: ["Sprints 1-3 complete"]
+
+  - task_group: "Task Group 15: E2E Testing & Gap Analysis"
+    assigned_subagent: "testing-engineer"
+    story_points: 5
+    dependencies: ["All previous task groups"]
+
+# Verification Assignments (from implementers.yml verified_by field)
+verification_assignments:
+  - verifier: "backend-verifier"
+    verifies:
+      - "database-engineer"  # Task Groups 1, 5, 9, 11
+      - "backend-engineer"   # Task Groups 2, 6, 7, 8, 10, 12, 14
+      - "api-engineer"       # Task Group 3
+
+  - verifier: "frontend-verifier"
+    verifies:
+      - "frontend-engineer"  # Task Groups 4, 13
+
+  - verifier: "implementation-verifier"
+    verifies:
+      - "All implementers"   # Final E2E verification
+      - "testing-engineer"   # Task Group 15
+
+# Summary
+total_task_groups: 15
+total_story_points: 61
+implementer_breakdown:
+  database-engineer: 4  # Task Groups 1, 5, 9, 11 (12 story points)
+  backend-engineer: 7   # Task Groups 2, 6, 7, 8, 10, 12, 14 (33 story points)
+  api-engineer: 1       # Task Group 3 (5 story points)
+  frontend-engineer: 2  # Task Groups 4, 13 (8 story points)
+  testing-engineer: 1   # Task Group 15 (5 story points)

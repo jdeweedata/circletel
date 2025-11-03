@@ -1,0 +1,122 @@
+# Agent-OS Verifiers Configuration
+# Defines specialized verification agents for quality assurance
+
+verifiers:
+  - id: backend-verifier
+    name: Backend & Database Verifier
+    description: Verifies database migrations, backend services, API routes, and integration quality
+    verifies:
+      - database-engineer
+      - backend-engineer
+      - api-engineer
+    verification_scope:
+      - Database schema correctness (tables, columns, constraints, indexes)
+      - Migration apply/rollback success
+      - RLS policies enforcement
+      - Service layer logic and error handling
+      - API route implementation (async params pattern)
+      - Webhook signature verification
+      - Integration with external APIs (Didit, ZOHO, NetCash)
+      - TypeScript type safety (no `any`)
+      - Test coverage (2-8 tests per task group)
+    verification_methods:
+      - Run database migrations in test environment
+      - Execute unit tests for services
+      - Test API endpoints with valid/invalid inputs
+      - Verify webhook signature validation
+      - Check TypeScript compilation (no errors)
+      - Validate RLS policies with test queries
+    output_location: "agent-os/specs/{spec-id}/verification/backend-verification.md"
+
+  - id: frontend-verifier
+    name: Frontend Verifier
+    description: Verifies UI components, pages, styling, responsive design, and user experience
+    verifies:
+      - frontend-engineer
+    verification_scope:
+      - Component rendering correctness
+      - Props validation and TypeScript types
+      - CircleTel brand styling (#F5831F orange, proper fonts)
+      - Responsive design (mobile, tablet, desktop)
+      - Form validation and error handling
+      - State management correctness
+      - Accessibility (ARIA labels, keyboard navigation)
+      - shadcn/ui component integration
+      - Test coverage (2-8 tests per task group)
+    verification_methods:
+      - Visual inspection of components
+      - Test responsive breakpoints
+      - Verify brand color usage
+      - Run component unit tests
+      - Check TypeScript compilation
+      - Test form submission flows
+    output_location: "agent-os/specs/{spec-id}/verification/frontend-verification.md"
+
+  - id: implementation-verifier
+    name: Implementation Verifier
+    description: Performs end-to-end verification of the complete feature implementation
+    verifies:
+      - All implementers (final check)
+      - testing-engineer
+    verification_scope:
+      - End-to-end workflow functionality
+      - Cross-component integration
+      - Database → API → Frontend data flow
+      - External integration completeness (Didit, ZOHO, NetCash, RICA)
+      - Success criteria from spec Section 1
+      - User stories acceptance criteria
+      - Performance metrics (PDF generation <2s, API <500ms)
+      - Security verification (RLS, auth, webhook signatures)
+      - Test suite completeness (45-62 tests total)
+      - Documentation completeness
+    verification_methods:
+      - Run E2E tests (Playwright)
+      - Manual workflow testing (Quote → KYC → Contract → Payment → Activation)
+      - API response time measurements
+      - Database query performance checks
+      - RLS policy testing with different user roles
+      - Integration testing with external APIs (sandbox mode)
+      - Code review for security vulnerabilities
+      - Verify all tasks in tasks.md marked as complete
+    output_location: "agent-os/specs/{spec-id}/verification/final-verification.md"
+    final_report: true
+
+# Verification Standards
+verification_standards:
+  critical_checks:
+    - "TypeScript compilation: ZERO errors (npm run type-check)"
+    - "Test limits enforced: 2-8 per task group, max 10 additional"
+    - "RLS policies: All tables protected, tested with different roles"
+    - "API routes: Next.js 15 async params pattern used"
+    - "Brand styling: CircleTel orange (#F5831F) used correctly"
+    - "Code reuse: Existing code extended, not duplicated"
+    - "Security: Webhook signatures verified, no SQL injection risks"
+    - "Performance: PDF <2s, API <500ms, KYC session <3 min"
+
+  verification_scoring:
+    description: "Each verifier assigns scores in these categories"
+    categories:
+      - name: "Functional Correctness"
+        weight: 30
+        criteria: "Feature works as specified in tasks.md"
+      - name: "Code Quality"
+        weight: 20
+        criteria: "TypeScript types, no `any`, clean code"
+      - name: "Test Coverage"
+        weight: 15
+        criteria: "2-8 tests per group, critical paths covered"
+      - name: "Security"
+        weight: 15
+        criteria: "RLS policies, auth checks, input validation"
+      - name: "Performance"
+        weight: 10
+        criteria: "Meets spec performance targets"
+      - name: "Code Reuse"
+        weight: 10
+        criteria: "Existing code extended, not duplicated"
+    passing_score: 80
+
+  failure_handling:
+    - "Score <80: Return to implementer with detailed feedback"
+    - "Score 80-89: Minor issues, implementer can address quickly"
+    - "Score 90-100: Approved, proceed to next task group"
