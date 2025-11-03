@@ -169,8 +169,8 @@ export function AdminProductCard({
         )}
       </div>
 
-      {/* Quick Actions - Top Right */}
-      <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      {/* Quick Actions - Top Right - Always visible for better UX */}
+      <div className="absolute top-3 right-3 flex gap-1 z-10">
         {onView && (
           <TooltipProvider>
             <Tooltip>
@@ -178,8 +178,9 @@ export function AdminProductCard({
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md"
+                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
                   onClick={(e) => {
+                    console.log('[AdminProductCard] View clicked for:', product.id);
                     e.stopPropagation();
                     onView(product);
                   }}
@@ -191,43 +192,49 @@ export function AdminProductCard({
             </Tooltip>
           </TooltipProvider>
         )}
-        {hasEditPermission && onEdit && (
+        {onEdit && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md"
+                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
                   onClick={(e) => {
+                    console.log('[AdminProductCard] Edit clicked for:', product.id, 'hasEditPermission:', hasEditPermission);
                     e.stopPropagation();
                     onEdit(product);
                   }}
+                  disabled={!hasEditPermission}
+                  title={!hasEditPermission ? 'You do not have edit permission' : ''}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Edit Product</TooltipContent>
+              <TooltipContent>{hasEditPermission ? 'Edit Product' : 'No Edit Permission'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
-        {hasPricingPermission && onPriceEdit && (
+        {onPriceEdit && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md"
+                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
                   onClick={(e) => {
+                    console.log('[AdminProductCard] Price edit clicked for:', product.id, 'hasPricingPermission:', hasPricingPermission);
                     e.stopPropagation();
                     onPriceEdit(product);
                   }}
+                  disabled={!hasPricingPermission}
+                  title={!hasPricingPermission ? 'You do not have pricing permission' : ''}
                 >
                   <DollarSign className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Edit Price</TooltipContent>
+              <TooltipContent>{hasPricingPermission ? 'Edit Price' : 'No Pricing Permission'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
@@ -369,17 +376,25 @@ export function AdminProductCard({
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {hasEditPermission && onToggleStatus && (
+          {onToggleStatus && (
             <div className="flex items-center justify-between flex-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50">
               <span className="text-sm font-medium text-gray-700">
                 {product.is_active ? 'Active' : 'Inactive'}
               </span>
               <Switch
                 checked={product.is_active}
+                disabled={!hasEditPermission}
                 onCheckedChange={(checked) => {
-                  onToggleStatus(product);
+                  console.log('[AdminProductCard] Toggle switch clicked for:', product.id, 'new state:', checked, 'hasEditPermission:', hasEditPermission);
+                  if (hasEditPermission) {
+                    onToggleStatus(product);
+                  } else {
+                    console.warn('[AdminProductCard] Toggle blocked: No edit permission');
+                    alert('You do not have permission to edit products');
+                  }
                 }}
                 className="data-[state=checked]:bg-circleTel-orange"
+                title={!hasEditPermission ? 'You do not have edit permission' : ''}
               />
             </div>
           )}
@@ -387,7 +402,7 @@ export function AdminProductCard({
           {/* More Actions Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button variant="outline" size="sm" className={onToggleStatus ? "w-auto" : "flex-1"}>
                 More Actions
               </Button>
             </DropdownMenuTrigger>
