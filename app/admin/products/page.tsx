@@ -158,6 +158,16 @@ export default function AdminProducts() {
     fetchStats();
   }, [products]);
 
+  // Debug permissions on mount
+  useEffect(() => {
+    console.log('[Admin Products] Permissions check:', {
+      canEdit: hasPermission(PERMISSIONS.PRODUCTS.EDIT),
+      canDelete: hasPermission(PERMISSIONS.PRODUCTS.DELETE),
+      canManagePricing: hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING),
+      canCreate: hasPermission(PERMISSIONS.PRODUCTS.CREATE)
+    });
+  }, [hasPermission]);
+
   const handleSearch = (search: string) => {
     setFilters({ ...filters, search });
     setPagination({ ...pagination, page: 1 });
@@ -397,8 +407,11 @@ export default function AdminProducts() {
 
   // Individual product handlers
   const handleToggleStatus = async (product: Product) => {
+    console.log('[Admin Products] Toggle status called for product:', product.id, 'Current status:', product.is_active);
     try {
       const newStatus = !product.is_active;
+      console.log('[Admin Products] Sending request to toggle status to:', newStatus);
+
       const response = await fetch(`/api/admin/products/${product.id}`, {
         method: 'PUT',
         headers: {
@@ -413,15 +426,27 @@ export default function AdminProducts() {
       });
 
       const data = await response.json();
+      console.log('[Admin Products] Toggle response:', data);
+
       if (data.success) {
+        console.log('[Admin Products] Status toggle successful, refreshing products...');
         await fetchProducts();
         await fetchStats();
+        // Show success toast if available
+        if (window.alert) {
+          alert(`Product ${newStatus ? 'activated' : 'deactivated'} successfully`);
+        }
       } else {
-        setError(data.error || 'Failed to update product status');
+        console.error('[Admin Products] Toggle failed:', data.error);
+        const errorMsg = data.error || 'Failed to update product status';
+        setError(errorMsg);
+        alert(`Error: ${errorMsg}`);
       }
     } catch (err) {
-      console.error('Error toggling product status:', err);
-      setError('Failed to update product status');
+      console.error('[Admin Products] Error toggling product status:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update product status';
+      setError(errorMsg);
+      alert(`Error: ${errorMsg}`);
     }
   };
 
@@ -741,9 +766,18 @@ export default function AdminProducts() {
                                     product={product}
                                     selected={selectedProductIds.includes(product.id)}
                                     onSelect={handleSelectProduct}
-                                    onEdit={(p) => window.location.href = `/admin/products/${p.id}/edit`}
-                                    onView={(p) => window.location.href = `/admin/products/${p.id}`}
-                                    onToggleStatus={handleToggleStatus}
+                                    onEdit={(p) => {
+                                      console.log('[Admin Products] Edit button clicked for product:', p.id);
+                                      window.location.href = `/admin/products/${p.id}/edit`;
+                                    }}
+                                    onView={(p) => {
+                                      console.log('[Admin Products] View button clicked for product:', p.id);
+                                      window.location.href = `/admin/products/${p.id}`;
+                                    }}
+                                    onToggleStatus={(p) => {
+                                      console.log('[Admin Products] Toggle called from card for product:', p.id);
+                                      handleToggleStatus(p);
+                                    }}
                                     onDuplicate={handleDuplicate}
                                     onArchive={(p) => {
                                       setProductToDelete(p);
@@ -785,8 +819,14 @@ export default function AdminProducts() {
                 products={products}
                 selectedIds={selectedProductIds}
                 onSelect={handleSelectProduct}
-                onEdit={(p) => window.location.href = `/admin/products/${p.id}/edit`}
-                onToggleStatus={handleToggleStatus}
+                onEdit={(p) => {
+                  console.log('[Admin Products] Edit button clicked (list view) for product:', p.id);
+                  window.location.href = `/admin/products/${p.id}/edit`;
+                }}
+                onToggleStatus={(p) => {
+                  console.log('[Admin Products] Toggle called (list view) for product:', p.id);
+                  handleToggleStatus(p);
+                }}
                 onDuplicate={handleDuplicate}
                 onArchive={(p) => {
                   setProductToDelete(p);
