@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SecureSignupProgress } from '@/components/ui/secure-signup-progress';
 import { CheckCircle2, Wifi, Zap, Shield, Clock } from 'lucide-react';
+import { useOrderContext } from '@/components/order/context/OrderContext';
 
 interface Package {
   id: string;
@@ -25,6 +26,7 @@ interface Package {
 export default function OrderPackagesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { actions: orderActions } = useOrderContext();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'fibre' | 'wireless'>('fibre');
@@ -115,6 +117,48 @@ export default function OrderPackagesPage() {
     }
   }, [loading, selectedType, packages]);
 
+  // Save selected package to order context when it changes
+  useEffect(() => {
+    if (selectedPackageId && packages.length > 0) {
+      const selectedPackage = packages.find(pkg => pkg.id === selectedPackageId);
+      if (selectedPackage) {
+        orderActions.updateOrderData({
+          package: {
+            selectedPackage: {
+              id: selectedPackage.id,
+              name: selectedPackage.name,
+              description: selectedPackage.description,
+              monthlyPrice: selectedPackage.promotionalPrice || selectedPackage.price,
+              onceOffPrice: 0,
+              speed: `${selectedPackage.downloadSpeed}/${selectedPackage.uploadSpeed}`,
+              type: selectedPackage.type,
+              service_type: selectedPackage.type === 'fibre' ? 'fibre' : 'wireless',
+              speed_down: parseInt(selectedPackage.downloadSpeed.replace(/[^\d]/g, '')),
+              speed_up: parseInt(selectedPackage.uploadSpeed.replace(/[^\d]/g, '')),
+              price: selectedPackage.price,
+              promotion_price: selectedPackage.promotionalPrice,
+              features: selectedPackage.features,
+              installation_fee: 0,
+              router_included: selectedPackage.features.includes('Free router')
+            },
+            pricing: {
+              monthly: selectedPackage.promotionalPrice || selectedPackage.price,
+              onceOff: 0,
+              vatIncluded: true,
+              breakdown: [
+                {
+                  name: 'Monthly subscription',
+                  amount: selectedPackage.promotionalPrice || selectedPackage.price,
+                  type: 'monthly'
+                }
+              ]
+            }
+          }
+        });
+      }
+    }
+  }, [selectedPackageId, packages, orderActions]);
+
   const filteredPackages = packages.filter((pkg) => pkg.type === selectedType);
   const fibreCount = packages.filter((pkg) => pkg.type === 'fibre').length;
   const wirelessCount = packages.filter((pkg) => pkg.type === 'wireless').length;
@@ -125,6 +169,44 @@ export default function OrderPackagesPage() {
 
   const handleContinue = () => {
     if (selectedPackageId) {
+      // Save selected package to order context
+      const selectedPackage = packages.find(pkg => pkg.id === selectedPackageId);
+      if (selectedPackage) {
+        orderActions.updateOrderData({
+          package: {
+            selectedPackage: {
+              id: selectedPackage.id,
+              name: selectedPackage.name,
+              description: selectedPackage.description,
+              monthlyPrice: selectedPackage.promotionalPrice || selectedPackage.price,
+              onceOffPrice: 0,
+              speed: `${selectedPackage.downloadSpeed}/${selectedPackage.uploadSpeed}`,
+              type: selectedPackage.type,
+              service_type: selectedPackage.type === 'fibre' ? 'fibre' : 'wireless',
+              speed_down: parseInt(selectedPackage.downloadSpeed.replace(/[^\d]/g, '')),
+              speed_up: parseInt(selectedPackage.uploadSpeed.replace(/[^\d]/g, '')),
+              price: selectedPackage.price,
+              promotion_price: selectedPackage.promotionalPrice,
+              features: selectedPackage.features,
+              installation_fee: 0,
+              router_included: selectedPackage.features.includes('Free router')
+            },
+            pricing: {
+              monthly: selectedPackage.promotionalPrice || selectedPackage.price,
+              onceOff: 0,
+              vatIncluded: true,
+              breakdown: [
+                {
+                  name: 'Monthly subscription',
+                  amount: selectedPackage.promotionalPrice || selectedPackage.price,
+                  type: 'monthly'
+                }
+              ]
+            }
+          }
+        });
+      }
+      
       router.push(`/order/account?leadId=${leadId}&packageId=${selectedPackageId}`);
     }
   };
