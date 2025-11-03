@@ -52,6 +52,101 @@ npm run orchestrate         # Run multi-agent orchestrator
 
 **Why**: Prevents Vercel build failures by catching TypeScript errors locally.
 
+## Deployment Workflow
+
+### Branch Strategy (Simplified)
+
+CircleTel uses a **2-branch workflow** for deployments:
+
+```
+Feature Branches (development)
+    ↓
+    git push origin feature/xyz:staging
+    ↓
+Staging Environment
+    - URL: https://circletel-staging.vercel.app
+    - Auto-deploys from staging branch
+    - Testing & QA environment
+    ↓
+    Create Pull Request: feature → main
+    ↓
+Main Branch → Production
+    - URL: https://www.circletel.co.za
+    - Auto-deploys from main branch
+    - Production environment
+```
+
+### Development Workflow
+
+**1. Create Feature Branch**
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/my-new-feature
+```
+
+**2. Develop & Commit**
+```bash
+# Make changes
+git add .
+git commit -m "feat: Add new feature"
+```
+
+**3. Test in Staging FIRST**
+```bash
+# Push to staging branch for testing
+git push origin feature/my-new-feature:staging
+# → Auto-deploys to https://circletel-staging.vercel.app
+```
+
+**4. Verify in Staging**
+- Test all functionality thoroughly
+- Run E2E tests: `npm run test:e2e:staging`
+- Get stakeholder approval
+
+**5. Deploy to Production**
+```bash
+# Push feature branch to remote
+git push origin feature/my-new-feature
+
+# Create Pull Request on GitHub: feature → main
+# → Get required approvals
+# → Merge PR → Auto-deploys to production
+```
+
+### Pre-Deployment Checklist
+
+Before merging to main (production):
+
+1. ✅ Type check passes: `npm run type-check`
+2. ✅ Build succeeds: `npm run build:memory`
+3. ✅ Staging tests pass: `npm run test:e2e:staging`
+4. ✅ All functionality verified on staging
+5. ✅ Database migrations tested (if applicable)
+6. ✅ Environment variables verified
+7. ✅ Pull Request approved by required reviewers
+
+### Rollback Procedure
+
+If issues occur in production:
+
+**Method 1: Vercel Dashboard (FASTEST - <2 minutes)**
+1. Go to https://vercel.com/jdewee-livecoms-projects/circletel
+2. Click "Deployments" tab
+3. Find last working deployment
+4. Click "..." → "Promote to Production"
+
+**Method 2: Git Revert**
+```bash
+git checkout main
+git pull origin main
+git revert -m 1 <merge_commit_hash>
+git push origin main
+# → Auto-deploys to production
+```
+
+See `docs/deployment/ROLLBACK_PROCEDURE.md` for detailed instructions.
+
 ## Architecture Overview
 
 ### Multi-Layer Coverage System
@@ -815,11 +910,17 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-11-02
-**Version**: 5.1
+**Last Updated**: 2025-11-03
+**Version**: 5.2
 **Maintained By**: Development Team + Claude Code
 
-**Major Changes in v5.1**:
+**Major Changes in v5.2**:
+- Added simplified 2-branch deployment workflow (feature → staging → main/production)
+- Removed master branch requirement
+- Updated deployment documentation with modern PR-based workflow
+- Added pre-deployment checklist and rollback procedures
+
+**Previous Changes (v5.1)**:
 - Added Customer Dashboard Production Readiness spec (147 story points, 4-week timeline)
 - Updated database schema with customer dashboard tables (customer_services, customer_billing, etc.)
 - Added account number system documentation (CT-YYYY-NNNNN format)
