@@ -99,7 +99,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
             <p>West House | Devcon Park | 7</p>
             <p>Autumn Road | Rivonia | 2128</p>
             <p>PO Box 3895, 2128</p>
-            <p className="mt-1">TEL: +27 87 087 6307</p>
+            <p className="mt-1">TEL: +27 87 087 6305</p>
             <p>
               <span className="font-semibold text-[#F5831F]">EMAIL</span>
               <span>contactus@circletel.co.za</span>
@@ -348,7 +348,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
         <div className="grid grid-cols-3 gap-8 text-sm text-gray-700">
           <div>
             <h4 className="font-semibold mb-2 text-gray-900">Contact Us</h4>
-            <p className="mb-1">TEL: +27 87 087 6307</p>
+            <p className="mb-1">TEL: +27 87 087 6305</p>
             <p className="mb-1">Email: contactus@circletel.co.za</p>
             <p>Web: www.circletel.co.za</p>
           </div>
