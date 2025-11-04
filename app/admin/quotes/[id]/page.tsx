@@ -22,6 +22,7 @@ import {
   Download
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
+import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -208,12 +209,50 @@ export default function AdminQuoteDetailPage({ params }: Props) {
 
   if (!quote) return null;
 
+  // Calculate pricing dynamically if database values are 0 or missing
+  const pricing = React.useMemo(() => {
+    const hasValidPricing = quote.subtotal_monthly > 0 || quote.total_monthly > 0;
+    
+    if (hasValidPricing) {
+      // Use database values
+      return {
+        subtotal_monthly: quote.subtotal_monthly || 0,
+        vat_amount_monthly: quote.vat_amount_monthly || 0,
+        total_monthly: quote.total_monthly || 0,
+        subtotal_installation: quote.subtotal_installation || 0,
+        vat_amount_installation: quote.vat_amount_installation || 0,
+        total_installation: quote.total_installation || 0,
+      };
+    } else {
+      // Calculate from items
+      const calculated = calculatePricingBreakdown(
+        quote.items,
+        quote.contract_term,
+        quote.custom_discount_percent || 0,
+        quote.custom_discount_amount || 0
+      );
+      
+      return {
+        subtotal_monthly: calculated.subtotal_monthly,
+        vat_amount_monthly: calculated.vat_monthly,
+        total_monthly: calculated.total_monthly,
+        subtotal_installation: calculated.subtotal_installation,
+        vat_amount_installation: calculated.vat_installation,
+        total_installation: calculated.total_installation,
+      };
+    }
+  }, [quote]);
+
   const canApprove = quote.status === 'pending_approval' || quote.status === 'draft';
   const canReject = ['draft', 'pending_approval', 'sent', 'viewed'].includes(quote.status);
   const canSend = quote.status === 'approved';
 
   const handleDownloadPDF = () => {
     window.open(`/api/quotes/business/${quote.id}/pdf`, '_blank');
+  };
+
+  const handlePreview = () => {
+    window.open(`/quotes/business/${quote.id}/preview`, '_blank');
   };
 
   return (
@@ -243,6 +282,15 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         </div>
 
         <div className="flex gap-2">
+          <Button
+            onClick={handlePreview}
+            variant="outline"
+            className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Preview
+          </Button>
+
           <Button
             onClick={handleDownloadPDF}
             variant="outline"
@@ -475,31 +523,62 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             <CardHeader>
               <CardTitle>Pricing Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span>Subtotal (Monthly)</span>
-                <span className="font-medium">{formatCurrency(quote.subtotal_monthly)}</span>
+            <CardContent className="space-y-4">
+              {/* Monthly Pricing */}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase">Monthly Recurring</p>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal (Excl. VAT)</span>
+                  <span className="font-medium">{formatCurrency(pricing.subtotal_monthly)}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">VAT (15%)</span>
+                  <span className="font-medium">{formatCurrency(pricing.vat_amount_monthly)}</span>
+                </div>
+                
+                <div className="border-t-2 border-gray-200 pt-2 flex justify-between">
+                  <span className="font-bold text-gray-900">Total (Incl. VAT)</span>
+                  <span className="font-bold text-xl text-circleTel-orange">{formatCurrency(pricing.total_monthly)}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>VAT (15%)</span>
-                <span className="font-medium">{formatCurrency(quote.vat_amount_monthly)}</span>
-              </div>
-              <div className="border-t pt-3 flex justify-between text-lg font-bold">
-                <span>Total Monthly</span>
-                <span className="text-circleTel-orange">{formatCurrency(quote.total_monthly)}</span>
-              </div>
-              {quote.total_installation > 0 && (
-                <>
-                  <div className="border-t pt-3 flex justify-between">
-                    <span>Installation (Once-off)</span>
-                    <span className="font-medium">{formatCurrency(quote.total_installation)}</span>
+
+              {/* Installation Pricing */}
+              {(pricing.subtotal_installation > 0 || pricing.total_installation > 0) && (
+                <div className="space-y-2 pt-4 border-t">
+                  <p className="text-xs font-semibold text-gray-500 uppercase">Installation (Once-off)</p>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal (Excl. VAT)</span>
+                    <span className="font-medium">{formatCurrency(pricing.subtotal_installation)}</span>
                   </div>
-                </>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">VAT (15%)</span>
+                    <span className="font-medium">{formatCurrency(pricing.vat_amount_installation)}</span>
+                  </div>
+                  
+                  <div className="border-t-2 border-gray-200 pt-2 flex justify-between">
+                    <span className="font-bold text-gray-900">Total (Incl. VAT)</span>
+                    <span className="font-bold text-lg">{formatCurrency(pricing.total_installation)}</span>
+                  </div>
+                </div>
               )}
-              <div className="border-t pt-3">
-                <p className="text-sm text-circleTel-secondaryNeutral">
-                  Contract Term: <span className="font-medium">{quote.contract_term} months</span>
-                </p>
+
+              {/* Contract Info */}
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Contract Term</span>
+                  <span className="font-semibold">{quote.contract_term} months</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Total Contract Value</span>
+                  <span className="font-semibold text-green-600">
+                    {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
