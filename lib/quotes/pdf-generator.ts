@@ -7,6 +7,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { QuoteDetails } from './types';
+import { calculatePricingBreakdown } from './quote-calculator';
 
 interface PDFOptions {
   includeTerms?: boolean;
@@ -42,6 +43,37 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+
+  // Calculate pricing if database values are 0
+  const hasValidPricing = quote.subtotal_monthly > 0 || quote.total_monthly > 0;
+  
+  let pricing;
+  if (hasValidPricing) {
+    pricing = {
+      subtotal_monthly: quote.subtotal_monthly || 0,
+      vat_amount_monthly: quote.vat_amount_monthly || 0,
+      total_monthly: quote.total_monthly || 0,
+      subtotal_installation: quote.subtotal_installation || 0,
+      vat_amount_installation: quote.vat_amount_installation || 0,
+      total_installation: quote.total_installation || 0,
+    };
+  } else {
+    const calculated = calculatePricingBreakdown(
+      quote.items,
+      quote.contract_term,
+      quote.custom_discount_percent || 0,
+      quote.custom_discount_amount || 0
+    );
+    
+    pricing = {
+      subtotal_monthly: calculated.subtotal_monthly,
+      vat_amount_monthly: calculated.vat_monthly,
+      total_monthly: calculated.total_monthly,
+      subtotal_installation: calculated.subtotal_installation,
+      vat_amount_installation: calculated.vat_installation,
+      total_installation: calculated.total_installation,
+    };
+  }
 
   let yPos = 20;
 
@@ -257,13 +289,13 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text('Subtotal (Monthly):', summaryX, yPos);
-  doc.text(formatCurrency(quote.subtotal_monthly), summaryX + 60, yPos, { align: 'right' });
+  doc.text(formatCurrency(pricing.subtotal_monthly), summaryX + 60, yPos, { align: 'right' });
   yPos += 7;
 
   // Installation
-  if (quote.subtotal_installation > 0) {
+  if (pricing.subtotal_installation > 0) {
     doc.text('Installation (Once-off):', summaryX, yPos);
-    doc.text(formatCurrency(quote.subtotal_installation), summaryX + 60, yPos, { align: 'right' });
+    doc.text(formatCurrency(pricing.subtotal_installation), summaryX + 60, yPos, { align: 'right' });
     yPos += 7;
   }
 
@@ -271,12 +303,12 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
 
   // VAT
   doc.text('VAT (15%):', summaryX, yPos);
-  doc.text(formatCurrency(quote.vat_amount_monthly), summaryX + 60, yPos, { align: 'right' });
+  doc.text(formatCurrency(pricing.vat_amount_monthly), summaryX + 60, yPos, { align: 'right' });
   yPos += 7;
 
-  if (quote.vat_amount_installation > 0) {
+  if (pricing.vat_amount_installation > 0) {
     doc.text('VAT on Installation:', summaryX, yPos);
-    doc.text(formatCurrency(quote.vat_amount_installation), summaryX + 60, yPos, { align: 'right' });
+    doc.text(formatCurrency(pricing.vat_amount_installation), summaryX + 60, yPos, { align: 'right' });
     yPos += 7;
   }
 
@@ -287,13 +319,13 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   doc.setFontSize(12);
   doc.setTextColor(245, 131, 31); // Orange
   doc.text('TOTAL MONTHLY:', summaryX, yPos);
-  doc.text(formatCurrency(quote.total_monthly), summaryX + 60, yPos, { align: 'right' });
+  doc.text(formatCurrency(pricing.total_monthly), summaryX + 60, yPos, { align: 'right' });
   yPos += 8;
 
   // Total Installation
-  if (quote.total_installation > 0) {
+  if (pricing.total_installation > 0) {
     doc.text('TOTAL INSTALLATION:', summaryX, yPos);
-    doc.text(formatCurrency(quote.total_installation), summaryX + 60, yPos, { align: 'right' });
+    doc.text(formatCurrency(pricing.total_installation), summaryX + 60, yPos, { align: 'right' });
     yPos += 8;
   }
 
@@ -367,8 +399,8 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   // SIGNATURE SECTION
   // ===================================
 
-  if (options.includeSignature !== false && quote.signature) {
-    if (yPos > pageHeight - 60) {
+  if (options.includeSignature !== false) {
+    if (yPos > pageHeight - 90) {
       doc.addPage();
       yPos = 20;
     }
@@ -379,39 +411,113 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
     doc.setTextColor(31, 41, 55);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.text('CUSTOMER ACCEPTANCE', 22, yPos);
+    doc.text('CUSTOMER ACCEPTANCE & SIGNATURE', 22, yPos);
     yPos += 10;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
+    doc.setTextColor(75, 85, 99);
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Signed by:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(quote.signature.signer_name, 45, yPos);
+    const acceptanceText = [
+      'I, the undersigned, hereby confirm that I have read and understood the terms and conditions',
+      'of this quotation and accept the services as described above. I authorize CircleTel to proceed',
+      'with the installation and provisioning of services as outlined in this quote.'
+    ];
 
-    yPos += 6;
+    acceptanceText.forEach(line => {
+      doc.text(line, 20, yPos);
+      yPos += 5;
+    });
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Date:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formatDate(quote.signature.signed_at), 45, yPos);
+    yPos += 5;
 
-    yPos += 6;
+    if (quote.signature) {
+      // Quote has been signed - show signature details
+      doc.setTextColor(31, 41, 55);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Signed by:', 20, yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(quote.signature.signer_name, 45, yPos);
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('ID Number:', 20, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(quote.signature.signer_id_number, 45, yPos);
+      yPos += 6;
 
-    yPos += 10;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Date:', 20, yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(formatDate(quote.signature.signed_at), 45, yPos);
 
-    // Signature image placeholder
-    doc.setDrawColor(200, 200, 200);
-    doc.rect(20, yPos, 80, 30);
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('Digital Signature', 60, yPos + 15, { align: 'center' });
+      yPos += 6;
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('ID Number:', 20, yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(quote.signature.signer_id_number, 45, yPos);
+
+      yPos += 10;
+
+      // Signature image
+      doc.setDrawColor(34, 197, 94); // Green
+      doc.setLineWidth(1);
+      doc.rect(20, yPos, 80, 30);
+      doc.setFontSize(8);
+      doc.setTextColor(34, 197, 94);
+      doc.text('✓ DIGITALLY SIGNED', 60, yPos + 15, { align: 'center' });
+    } else {
+      // Quote not signed yet - show signature fields
+      const leftCol = 20;
+      const rightCol = pageWidth / 2 + 10;
+
+      // Full Name field
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(31, 41, 55);
+      doc.text('Full Name:', leftCol, yPos);
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.5);
+      doc.line(leftCol + 25, yPos + 1, leftCol + 85, yPos + 1);
+
+      yPos += 8;
+
+      // ID Number field
+      doc.text('ID Number:', leftCol, yPos);
+      doc.line(leftCol + 25, yPos + 1, leftCol + 85, yPos + 1);
+
+      yPos += 8;
+
+      // Date field
+      doc.text('Date:', leftCol, yPos);
+      doc.line(leftCol + 25, yPos + 1, leftCol + 85, yPos + 1);
+
+      yPos += 10;
+
+      // Signature box
+      doc.text('Signature:', leftCol, yPos);
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(1);
+      doc.rect(leftCol, yPos + 3, 80, 25);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Sign here', leftCol + 40, yPos + 18, { align: 'center' });
+      
+      yPos += 30;
+
+      // Instructions
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.setFont('helvetica', 'italic');
+      const instructions = [
+        'To accept this quote:',
+        '1. Complete the fields above',
+        '2. Sign in the designated area',
+        '3. Email the signed quote to quotes@circletel.co.za',
+        'OR visit www.circletel.co.za/quotes to accept online'
+      ];
+      
+      yPos += 5;
+      instructions.forEach(line => {
+        doc.text(line, leftCol, yPos);
+        yPos += 4;
+      });
+    }
   }
 
   // ===================================
