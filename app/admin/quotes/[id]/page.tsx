@@ -210,6 +210,9 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   if (!quote) return null;
 
   // Calculate pricing dynamically if database values are 0 or missing
+  // Serialize items array to string to avoid reference comparison issues
+  const itemsKey = quote?.items ? JSON.stringify(quote.items.map(i => ({ id: i.id, qty: i.quantity, price: i.unit_price }))) : '';
+  
   const pricing = React.useMemo(() => {
     if (!quote) {
       return {
@@ -259,7 +262,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
     quote?.subtotal_installation,
     quote?.vat_amount_installation,
     quote?.total_installation,
-    quote?.items,
+    itemsKey, // Use serialized string instead of array
     quote?.contract_term,
     quote?.custom_discount_percent,
     quote?.custom_discount_amount
