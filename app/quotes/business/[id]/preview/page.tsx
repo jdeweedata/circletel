@@ -257,26 +257,36 @@ export default function QuotePreviewPage({ params }: Props) {
               <CardContent>
                 <div className="space-y-4">
                   {quote.items.map((item, index) => (
-                    <div key={index} className="border-b last:border-0 pb-4 last:pb-0">
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={index} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-circleTel-darkNeutral">{item.product_name}</h4>
-                          {item.description && (
-                            <p className="text-sm text-circleTel-secondaryNeutral mt-1">{item.description}</p>
-                          )}
-                        </div>
-                        <Badge variant="outline" className="ml-4">
-                          Qty: {item.quantity}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm mt-2">
-                        <div>
-                          <span className="text-circleTel-secondaryNeutral">Unit Price: </span>
-                          <span className="font-medium">{formatCurrency(item.unit_price)}</span>
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-circleTel-darkNeutral">{item.service_name}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {item.item_type}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-circleTel-secondaryNeutral space-y-1">
+                            <p>Speed: {item.speed_down}Mbps ↓ / {item.speed_up}Mbps ↑</p>
+                            {item.data_cap_gb ? (
+                              <p>Data Cap: {item.data_cap_gb}GB</p>
+                            ) : (
+                              <p>Data: Unlimited</p>
+                            )}
+                            <p>Quantity: {item.quantity}</p>
+                            {item.notes && <p className="italic mt-1">Note: {item.notes}</p>}
+                          </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-circleTel-secondaryNeutral">Total: </span>
-                          <span className="font-semibold">{formatCurrency(item.unit_price * item.quantity)}</span>
+                          <p className="text-lg font-bold">
+                            {formatCurrency(item.monthly_price * item.quantity)}
+                            <span className="text-sm font-normal text-circleTel-secondaryNeutral">/mo</span>
+                          </p>
+                          {item.installation_price > 0 && (
+                            <p className="text-sm text-circleTel-secondaryNeutral mt-1">
+                              + {formatCurrency(item.installation_price)} install
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
