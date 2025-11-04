@@ -27,9 +27,14 @@ interface MTNDeal {
 export default function MTNDealsPage() {
   const [deals, setDeals] = useState<MTNDeal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [contractFilter, setContractFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name'); // name, price_low, price_high, expiry_soon, expiry_late
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalDeals, setTotalDeals] = useState(0);
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -38,24 +43,44 @@ export default function MTNDealsPage() {
   });
 
   useEffect(() => {
-    fetchDeals();
+    fetchDeals(true);
     fetchStats();
   }, []);
 
-  const fetchDeals = async () => {
-    setLoading(true);
+  const fetchDeals = async (reset = false) => {
+    if (reset) {
+      setLoading(true);
+      setOffset(0);
+      setDeals([]);
+    } else {
+      setLoadingMore(true);
+    }
+    
     try {
-      const response = await fetch('/api/products/mtn-deals');
+      const currentOffset = reset ? 0 : offset;
+      const response = await fetch(`/api/products/mtn-deals?limit=100&offset=${currentOffset}`);
       const data = await response.json();
       
       if (data.success) {
-        setDeals(data.deals);
+        if (reset) {
+          setDeals(data.deals);
+        } else {
+          setDeals(prev => [...prev, ...data.deals]);
+        }
+        setTotalDeals(data.total || 0);
+        setOffset(currentOffset + data.deals.length);
+        setHasMore(data.deals.length === 100);
       }
     } catch (error) {
       console.error('Failed to fetch deals:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+  
+  const loadMore = () => {
+    fetchDeals(false);
   };
 
   const fetchStats = async () => {
@@ -71,21 +96,40 @@ export default function MTNDealsPage() {
     }
   };
 
-  const filteredDeals = deals.filter(deal => {
-    const matchesSearch = 
-      deal.device_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      deal.price_plan?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      deal.deal_id?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesContract = contractFilter === 'all' || deal.contract_term === parseInt(contractFilter);
-    
-    const matchesPlatform = 
-      platformFilter === 'all' ||
-      (platformFilter === 'helios' && deal.available_helios) ||
-      (platformFilter === 'ilula' && deal.available_ilula);
-    
-    return matchesSearch && matchesContract && matchesPlatform;
-  });
+  const filteredAndSortedDeals = deals
+    .filter(deal => {
+      const matchesSearch = 
+        deal.device_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.price_plan?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.deal_id?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesContract = contractFilter === 'all' || deal.contract_term === parseInt(contractFilter);
+      
+      const matchesPlatform = 
+        platformFilter === 'all' ||
+        (platformFilter === 'helios' && deal.available_helios) ||
+        (platformFilter === 'ilula' && deal.available_ilula);
+      
+      return matchesSearch && matchesContract && matchesPlatform;
+    })
+    .sort((a, b) => {
+      const totalA = a.monthly_price_incl_vat + (a.device_payment_incl_vat || 0);
+      const totalB = b.monthly_price_incl_vat + (b.device_payment_incl_vat || 0);
+      
+      switch (sortBy) {
+        case 'price_low':
+          return totalA - totalB;
+        case 'price_high':
+          return totalB - totalA;
+        case 'expiry_soon':
+          return new Date(a.promo_end_date).getTime() - new Date(b.promo_end_date).getTime();
+        case 'expiry_late':
+          return new Date(b.promo_end_date).getTime() - new Date(a.promo_end_date).getTime();
+        case 'name':
+        default:
+          return (a.device_name || '').localeCompare(b.device_name || '');
+      }
+    });
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -184,7 +228,7 @@ export default function MTNDealsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
@@ -217,10 +261,43 @@ export default function MTNDealsPage() {
                 <SelectItem value="ilula">iLula Only</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name (A-Z)</SelectItem>
+                <SelectItem value="price_low">Price (Low to High)</SelectItem>
+                <SelectItem value="price_high">Price (High to Low)</SelectItem>
+                <SelectItem value="expiry_soon">Expiring Soon First</SelectItem>
+                <SelectItem value="expiry_late">Expiring Later First</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="text-sm text-circleTel-secondaryNeutral">
-            Showing {filteredDeals.length} of {deals.length} deals
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-circleTel-secondaryNeutral">
+              Showing {filteredAndSortedDeals.length} of {totalDeals.toLocaleString()} deals
+              {deals.length < totalDeals && ` (${deals.length.toLocaleString()} loaded)`}
+            </span>
+            {hasMore && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadMore}
+                disabled={loadingMore}
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load More Deals'
+                )}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -231,8 +308,9 @@ export default function MTNDealsPage() {
           <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
         </div>
       ) : (
+        <>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredDeals.map((deal) => {
+          {filteredAndSortedDeals.map((deal) => {
             const daysLeft = getDaysUntilExpiry(deal.promo_end_date);
             const isExpiring = daysLeft < 30;
 
@@ -313,9 +391,32 @@ export default function MTNDealsPage() {
             );
           })}
         </div>
+        
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-6">
+            <Button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="bg-circleTel-orange hover:bg-[#e67516]"
+            >
+              {loadingMore ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Loading more deals...
+                </>
+              ) : (
+                <>
+                  Load More ({(totalDeals - deals.length).toLocaleString()} remaining)
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+        </>
       )}
 
-      {!loading && filteredDeals.length === 0 && (
+      {!loading && filteredAndSortedDeals.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
             <Package className="w-12 h-12 mx-auto text-gray-400 mb-4" />
