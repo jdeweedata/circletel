@@ -211,6 +211,17 @@ export default function AdminQuoteDetailPage({ params }: Props) {
 
   // Calculate pricing dynamically if database values are 0 or missing
   const pricing = React.useMemo(() => {
+    if (!quote) {
+      return {
+        subtotal_monthly: 0,
+        vat_amount_monthly: 0,
+        total_monthly: 0,
+        subtotal_installation: 0,
+        vat_amount_installation: 0,
+        total_installation: 0,
+      };
+    }
+
     const hasValidPricing = quote.subtotal_monthly > 0 || quote.total_monthly > 0;
     
     if (hasValidPricing) {
@@ -241,7 +252,18 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         total_installation: calculated.total_installation,
       };
     }
-  }, [quote]);
+  }, [
+    quote?.subtotal_monthly,
+    quote?.vat_amount_monthly,
+    quote?.total_monthly,
+    quote?.subtotal_installation,
+    quote?.vat_amount_installation,
+    quote?.total_installation,
+    quote?.items,
+    quote?.contract_term,
+    quote?.custom_discount_percent,
+    quote?.custom_discount_amount
+  ]);
 
   const canApprove = quote.status === 'pending_approval' || quote.status === 'draft';
   const canReject = ['draft', 'pending_approval', 'sent', 'viewed'].includes(quote.status);
