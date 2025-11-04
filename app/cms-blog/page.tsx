@@ -23,6 +23,11 @@ export const metadata: Metadata = {
 }
 
 async function getBlogPosts(): Promise<BlogPost[]> {
+  // Skip Sanity calls during build if no project ID configured
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID === 'dummy-project-id') {
+    return []
+  }
+  
   try {
     const posts = await client.fetch(queries.posts)
     return posts?.filter((post: BlogPost) => post.isPublished) || []

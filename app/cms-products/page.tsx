@@ -37,6 +37,11 @@ export const metadata: Metadata = {
 }
 
 async function getProducts(): Promise<Product[]> {
+  // Skip Sanity calls during build if no project ID configured
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID === 'dummy-project-id') {
+    return []
+  }
+  
   try {
     const products = await client.fetch(queries.products)
     return products?.filter((product: Product) => product.isActive) || []
