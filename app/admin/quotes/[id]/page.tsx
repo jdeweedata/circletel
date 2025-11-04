@@ -19,7 +19,8 @@ import {
   Calendar,
   FileText,
   User,
-  Download
+  Download,
+  Edit
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
@@ -282,6 +283,18 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         </div>
 
         <div className="flex gap-2">
+          {/* Show Edit button if quote can be edited */}
+          {['draft', 'pending_approval', 'approved'].includes(quote.status) && (
+            <Button
+              onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)}
+              variant="outline"
+              className="border-gray-400 text-gray-700 hover:bg-gray-100"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+          )}
+
           <Button
             onClick={handlePreview}
             variant="outline"

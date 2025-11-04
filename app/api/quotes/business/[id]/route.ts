@@ -1,11 +1,17 @@
+/**
+ * API Routes: Quote Operations
+ * 
+ * GET /api/quotes/business/[id] - Get quote details
+ * PUT /api/quotes/business/[id] - Update quote
+ * DELETE /api/quotes/business/[id] - Delete quote
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import type { QuoteDetails, BusinessQuote, BusinessQuoteItem } from '@/lib/quotes/types';
+import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 
 /**
- * GET /api/quotes/business/:id
- *
- * Get quote details with items, signature, and versions
+ * GET - Fetch quote with items
  */
 export async function GET(
   request: NextRequest,
@@ -24,15 +30,12 @@ export async function GET(
 
     if (quoteError || !quote) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Quote not found'
-        },
+        { success: false, error: 'Quote not found' },
         { status: 404 }
       );
     }
 
-    // Fetch quote items
+    // Fetch items
     const { data: items, error: itemsError } = await supabase
       .from('business_quote_items')
       .select('*')
@@ -41,68 +44,29 @@ export async function GET(
 
     if (itemsError) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch quote items'
-        },
+        { success: false, error: 'Failed to fetch quote items' },
         { status: 500 }
       );
     }
 
-    // Fetch signature (if exists)
-    const { data: signature } = await supabase
-      .from('business_quote_signatures')
-      .select('*')
-      .eq('quote_id', id)
-      .single();
-
-    // Fetch version history
-    const { data: versions } = await supabase
-      .from('business_quote_versions')
-      .select('*')
-      .eq('quote_id', id)
-      .order('version_number', { ascending: false });
-
-    // Fetch approved_by admin details (if applicable)
-    let approved_by_admin = null;
-    if (quote.approved_by) {
-      const { data: admin } = await supabase
-        .from('admin_users')
-        .select('id, full_name, email')
-        .eq('id', quote.approved_by)
-        .single();
-
-      approved_by_admin = admin;
-    }
-
-    const quoteDetails: QuoteDetails = {
-      ...(quote as BusinessQuote),
-      items: (items as BusinessQuoteItem[]) || [],
-      signature: signature || null,
-      versions: versions || [],
-      approved_by_admin
-    };
-
     return NextResponse.json({
       success: true,
-      quote: quoteDetails
+      quote: {
+        ...quote,
+        items: items || []
+      }
     });
-  } catch (error) {
-    console.error('Error fetching quote:', error);
+  } catch (error: any) {
+    console.error('Get quote error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch quote'
-      },
+      { success: false, error: 'Failed to fetch quote' },
       { status: 500 }
     );
   }
 }
 
 /**
- * PUT /api/quotes/business/:id
- *
- * Update quote details
+ * PUT - Update quote
  */
 export async function PUT(
   request: NextRequest,
@@ -112,54 +76,122 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
 
-    // TODO: Get admin user from session
-    const updated_by = undefined;
+    const supabase = await createClient();
 
-    const { updateBusinessQuote, QuoteGenerationError } = await import('@/lib/quotes/quote-generator');
+    // Check if quote exists and can be edited
+    const { data: existingQuote, error: fetchError } = await supabase
+      .from('business_quotes')
+      .select('status')
+      .eq('id', id)
+      .single();
 
-    const updatedQuote = await updateBusinessQuote(id, body, updated_by);
-
-    return NextResponse.json({
-      success: true,
-      quote: updatedQuote,
-      message: 'Quote updated successfully'
-    });
-  } catch (error: any) {
-    if (error.code === 'QUOTE_NOT_FOUND') {
+    if (fetchError || !existingQuote) {
       return NextResponse.json(
-        {
-          success: false,
-          error: error.message
-        },
+        { success: false, error: 'Quote not found' },
         { status: 404 }
       );
     }
 
-    if (error.code === 'VALIDATION_ERROR' || error.code === 'QUOTE_NOT_EDITABLE') {
+    // Check if quote can be edited
+    const editableStatuses = ['draft', 'pending_approval', 'approved'];
+    if (!editableStatuses.includes(existingQuote.status)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: error.message
+        { 
+          success: false, 
+          error: `Quote cannot be edited in ${existingQuote.status} status` 
         },
         { status: 400 }
       );
     }
 
-    console.error('Error updating quote:', error);
+    // Update quote details
+    const { data: updatedQuote, error: updateError } = await supabase
+      .from('business_quotes')
+      .update({
+        company_name: body.company_name,
+        registration_number: body.registration_number,
+        vat_number: body.vat_number,
+        contact_name: body.contact_name,
+        contact_email: body.contact_email,
+        contact_phone: body.contact_phone,
+        service_address: body.service_address,
+        contract_term: body.contract_term,
+        notes: body.notes,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Update quote error:', updateError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to update quote' },
+        { status: 500 }
+      );
+    }
+
+    // Update items if provided
+    if (body.items && Array.isArray(body.items)) {
+      for (const item of body.items) {
+        const { error: itemError } = await supabase
+          .from('business_quote_items')
+          .update({
+            quantity: item.quantity,
+            monthly_price: item.monthly_price,
+            installation_price: item.installation_price,
+            notes: item.notes,
+            display_order: item.display_order
+          })
+          .eq('id', item.id);
+
+        if (itemError) {
+          console.error('Update item error:', itemError);
+        }
+      }
+    }
+
+    // Recalculate pricing
+    const { data: items } = await supabase
+      .from('business_quote_items')
+      .select('*')
+      .eq('quote_id', id);
+
+    if (items) {
+      const pricing = calculatePricingBreakdown(
+        items as any[],
+        body.contract_term || updatedQuote.contract_term
+      );
+
+      await supabase
+        .from('business_quotes')
+        .update({
+          subtotal_monthly: pricing.subtotal_monthly,
+          subtotal_installation: pricing.subtotal_installation,
+          vat_amount_monthly: pricing.vat_monthly,
+          vat_amount_installation: pricing.vat_installation,
+          total_monthly: pricing.total_monthly,
+          total_installation: pricing.total_installation
+        })
+        .eq('id', id);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Quote updated successfully',
+      quote: updatedQuote
+    });
+  } catch (error: any) {
+    console.error('Update quote error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update quote'
-      },
+      { success: false, error: 'Failed to update quote' },
       { status: 500 }
     );
   }
 }
 
 /**
- * DELETE /api/quotes/business/:id
- *
- * Delete a quote (only if in deletable status)
+ * DELETE - Delete quote
  */
 export async function DELETE(
   request: NextRequest,
@@ -167,42 +199,55 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
+    const supabase = await createClient();
 
-    const { deleteBusinessQuote, QuoteGenerationError } = await import('@/lib/quotes/quote-generator');
+    // Check if quote can be deleted
+    const { data: quote, error: fetchError } = await supabase
+      .from('business_quotes')
+      .select('status')
+      .eq('id', id)
+      .single();
 
-    await deleteBusinessQuote(id);
+    if (fetchError || !quote) {
+      return NextResponse.json(
+        { success: false, error: 'Quote not found' },
+        { status: 404 }
+      );
+    }
+
+    // Only allow deletion of draft, rejected, or expired quotes
+    const deletableStatuses = ['draft', 'rejected', 'expired'];
+    if (!deletableStatuses.includes(quote.status)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Quote cannot be deleted in ${quote.status} status` 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Delete quote (cascade will delete items)
+    const { error: deleteError } = await supabase
+      .from('business_quotes')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete quote' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Quote deleted successfully'
     });
   } catch (error: any) {
-    if (error.code === 'QUOTE_NOT_FOUND') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message
-        },
-        { status: 404 }
-      );
-    }
-
-    if (error.code === 'QUOTE_NOT_DELETABLE') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message
-        },
-        { status: 400 }
-      );
-    }
-
-    console.error('Error deleting quote:', error);
+    console.error('Delete quote error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to delete quote'
-      },
+      { success: false, error: 'Failed to delete quote' },
       { status: 500 }
     );
   }
