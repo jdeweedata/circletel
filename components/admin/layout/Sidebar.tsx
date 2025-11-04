@@ -72,6 +72,7 @@ const navigation = [
     children: [
       { name: 'All Products', href: '/admin/products', icon: List },
       { name: 'Add Product', href: '/admin/products/new', icon: Plus },
+      { name: 'MTN Deals', href: '/admin/products/mtn-deals', icon: Handshake },
       { name: 'Drafts', href: '/admin/products/drafts', icon: FileText },
       { name: 'Archived', href: '/admin/products/archived', icon: Archive }
     ]
