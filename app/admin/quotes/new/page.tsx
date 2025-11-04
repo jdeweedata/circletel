@@ -41,10 +41,12 @@ import {
   Save,
   FolderOpen,
   Percent,
-  Download
+  Download,
+  Smartphone
 } from 'lucide-react';
 import Link from 'next/link';
 import { AddressAutocomplete } from '@/components/admin/quotes/AddressAutocomplete';
+import { MTNDealSelector } from '@/components/admin/quotes/MTNDealSelector';
 
 // Validation schema
 const quoteFormSchema = z.object({
@@ -118,6 +120,10 @@ export default function NewQuotePage() {
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
+  
+  // MTN Deals feature states
+  const [showMTNDealSelector, setShowMTNDealSelector] = useState(false);
+  const [mtnDealItems, setMtnDealItems] = useState<any[]>([]);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -190,6 +196,56 @@ export default function NewQuotePage() {
 
   const removeServiceItem = (index: number) => {
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
+  };
+  
+  const handleMTNDealSelect = (deal: any) => {
+    // Create two items: one for device, one for service
+    const deviceItem: QuoteItem = {
+      package_id: `mtn-device-${deal.id}`,
+      package: {
+        id: `mtn-device-${deal.id}`,
+        name: `${deal.device_name} (Device)`,
+        speed: `${deal.contract_term}-month contract`,
+        pricing: {
+          monthly: deal.device_payment_incl_vat || 0,
+          installation: 0
+        },
+        service_type: 'device'
+      },
+      quantity: 1,
+      item_type: 'primary'
+    };
+    
+    const serviceItem: QuoteItem = {
+      package_id: `mtn-service-${deal.id}`,
+      package: {
+        id: `mtn-service-${deal.id}`,
+        name: `${deal.price_plan} (Service)`,
+        speed: deal.total_data || 'Data package',
+        pricing: {
+          monthly: deal.monthly_price_incl_vat || 0,
+          installation: 0
+        },
+        service_type: 'connectivity'
+      },
+      quantity: 1,
+      item_type: 'primary'
+    };
+    
+    // Add both items
+    setSelectedItems([...selectedItems, deviceItem, serviceItem]);
+    
+    // Store MTN deal reference
+    setMtnDealItems([...mtnDealItems, {
+      dealId: deal.id,
+      deal_id: deal.deal_id,
+      deal_name: deal.deal_name,
+      contract_term: deal.contract_term,
+      total_minutes: deal.total_minutes,
+      sms_bundle: deal.sms_bundle
+    }]);
+    
+    toast.success(`Added MTN Deal: ${deal.device_name} + ${deal.price_plan}`);
   };
 
   const updateItemQuantity = (index: number, quantity: number) => {
@@ -364,6 +420,7 @@ export default function NewQuotePage() {
           quantity: item.quantity,
           item_type: item.item_type,
         })),
+        mtn_deals: mtnDealItems.length > 0 ? mtnDealItems : undefined,
       };
 
       const response = await fetch('/api/quotes/business/create', {
@@ -705,15 +762,26 @@ export default function NewQuotePage() {
                     )}
                   </div>
                 ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowPackageSelector(true)}
-                    className="w-full"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Service
-                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowPackageSelector(true)}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Service
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowMTNDealSelector(true)}
+                      className="w-full border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
+                    >
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Add MTN Deal
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -1060,6 +1128,14 @@ export default function NewQuotePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* MTN Deal Selector Dialog */}
+      <MTNDealSelector
+        isOpen={showMTNDealSelector}
+        onClose={() => setShowMTNDealSelector(false)}
+        onSelectDeal={handleMTNDealSelect}
+        contractTerm={parseInt(form.watch('contract_term') || '24')}
+      />
     </div>
   );
 }
