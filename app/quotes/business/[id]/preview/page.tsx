@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -223,17 +224,16 @@ export default function QuotePreviewPage({ params }: Props) {
         {/* Professional Header - Matching PDF */}
         <div className="bg-white mb-8">
           {/* Official CircleTel Header */}
-          <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
+          <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-circleTel-orange">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-circleTel-orange rounded-full flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-xl">C</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-circleTel-darkNeutral">CircleTel</h1>
-                <p className="text-sm text-gray-600">
-                  Enterprise Telecommunications Solutions
-                </p>
-              </div>
+              <Image
+                src="/images/circletel-logo.png"
+                alt="CircleTel Logo"
+                width={180}
+                height={60}
+                className="h-16 w-auto"
+                priority
+              />
             </div>
             <div className="text-right text-sm text-gray-600">
               <div>Tel: +27 87 087 6305</div>

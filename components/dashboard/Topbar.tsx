@@ -24,7 +24,7 @@ export default function Topbar({ onToggleSidebar, displayName, email }: Props) {
 
         {/* Brand (compact) */}
         <div className="flex items-center gap-2 lg:hidden">
-          <Image src="/lovable-uploads/0d94be75-5c0a-44bf-95fa-777a85da966e.png" alt="CircleTel" width={24} height={24} />
+          <Image src="/images/circletel-logo.png" alt="CircleTel" width={24} height={24} />
         </div>
 
         {/* Search */}
