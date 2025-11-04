@@ -210,63 +210,38 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   if (!quote) return null;
 
   // Calculate pricing dynamically if database values are 0 or missing
-  // Serialize items array to string to avoid reference comparison issues
-  const itemsKey = quote?.items ? JSON.stringify(quote.items.map(i => ({ id: i.id, qty: i.quantity, price: i.unit_price }))) : '';
+  // Simple approach: just calculate once when quote changes
+  const hasValidPricing = quote.subtotal_monthly > 0 || quote.total_monthly > 0;
   
-  const pricing = React.useMemo(() => {
-    if (!quote) {
-      return {
-        subtotal_monthly: 0,
-        vat_amount_monthly: 0,
-        total_monthly: 0,
-        subtotal_installation: 0,
-        vat_amount_installation: 0,
-        total_installation: 0,
-      };
-    }
-
-    const hasValidPricing = quote.subtotal_monthly > 0 || quote.total_monthly > 0;
+  let pricing;
+  if (hasValidPricing) {
+    // Use database values
+    pricing = {
+      subtotal_monthly: quote.subtotal_monthly || 0,
+      vat_amount_monthly: quote.vat_amount_monthly || 0,
+      total_monthly: quote.total_monthly || 0,
+      subtotal_installation: quote.subtotal_installation || 0,
+      vat_amount_installation: quote.vat_amount_installation || 0,
+      total_installation: quote.total_installation || 0,
+    };
+  } else {
+    // Calculate from items
+    const calculated = calculatePricingBreakdown(
+      quote.items,
+      quote.contract_term,
+      quote.custom_discount_percent || 0,
+      quote.custom_discount_amount || 0
+    );
     
-    if (hasValidPricing) {
-      // Use database values
-      return {
-        subtotal_monthly: quote.subtotal_monthly || 0,
-        vat_amount_monthly: quote.vat_amount_monthly || 0,
-        total_monthly: quote.total_monthly || 0,
-        subtotal_installation: quote.subtotal_installation || 0,
-        vat_amount_installation: quote.vat_amount_installation || 0,
-        total_installation: quote.total_installation || 0,
-      };
-    } else {
-      // Calculate from items
-      const calculated = calculatePricingBreakdown(
-        quote.items,
-        quote.contract_term,
-        quote.custom_discount_percent || 0,
-        quote.custom_discount_amount || 0
-      );
-      
-      return {
-        subtotal_monthly: calculated.subtotal_monthly,
-        vat_amount_monthly: calculated.vat_monthly,
-        total_monthly: calculated.total_monthly,
-        subtotal_installation: calculated.subtotal_installation,
-        vat_amount_installation: calculated.vat_installation,
-        total_installation: calculated.total_installation,
-      };
-    }
-  }, [
-    quote?.subtotal_monthly,
-    quote?.vat_amount_monthly,
-    quote?.total_monthly,
-    quote?.subtotal_installation,
-    quote?.vat_amount_installation,
-    quote?.total_installation,
-    itemsKey, // Use serialized string instead of array
-    quote?.contract_term,
-    quote?.custom_discount_percent,
-    quote?.custom_discount_amount
-  ]);
+    pricing = {
+      subtotal_monthly: calculated.subtotal_monthly,
+      vat_amount_monthly: calculated.vat_monthly,
+      total_monthly: calculated.total_monthly,
+      subtotal_installation: calculated.subtotal_installation,
+      vat_amount_installation: calculated.vat_installation,
+      total_installation: calculated.total_installation,
+    };
+  }
 
   const canApprove = quote.status === 'pending_approval' || quote.status === 'draft';
   const canReject = ['draft', 'pending_approval', 'sent', 'viewed'].includes(quote.status);
