@@ -13,7 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw, ChevronLeft, ChevronRight, Award } from 'lucide-react'
+import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw, ChevronLeft, ChevronRight, Award, Info } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -80,6 +81,7 @@ const TIER_COLORS: Record<string, string> = {
 }
 
 export default function PartnerCommissionsPage() {
+  const router = useRouter()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [summary, setSummary] = useState<Summary>({
     total_earned: 0,
@@ -172,6 +174,15 @@ export default function PartnerCommissionsPage() {
             <p className="text-sm text-gray-600 mt-1">
               Commission Rate: {partner.commission_rate}%
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => router.push('/partners/commissions/tiers')}
+            >
+              <Info className="h-4 w-4 mr-2" />
+              View Commission Tiers
+            </Button>
           </div>
         )}
       </div>
