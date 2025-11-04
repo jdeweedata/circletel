@@ -73,41 +73,61 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
   return (
     <div className="max-w-5xl mx-auto bg-white" style={{ fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#F5831F] to-[#e67516] p-8 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Business Quote</h1>
-            <p className="text-lg opacity-90">Professional Connectivity Solutions</p>
+      <div className="bg-white px-8 py-6">
+        <div className="flex items-start justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <svg width="160" height="60" viewBox="0 0 160 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Orange outer circle */}
+              <circle cx="30" cy="30" r="24" fill="#F5831F" fillOpacity="0.9"/>
+              {/* Gray inner circle overlapping */}
+              <circle cx="30" cy="30" r="19" fill="#6B7280" fillOpacity="0.8"/>
+              {/* Small orange center */}
+              <circle cx="30" cy="30" r="8" fill="#F5831F"/>
+              {/* CircleTel Text */}
+              <text x="62" y="26" fontFamily="Arial, sans-serif" fontSize="14" fontWeight="400" fill="#F5831F">
+                Circle
+              </text>
+              <text x="62" y="40" fontFamily="Arial, sans-serif" fontSize="14" fontWeight="700" fill="#F5831F">
+                TEL
+              </text>
+            </svg>
           </div>
-          <div className="text-right">
-            <div className="text-5xl font-extrabold">CircleTel</div>
-            <p className="text-sm opacity-90 mt-1">Your Trusted Partner</p>
+          
+          {/* Company Contact Information */}
+          <div className="text-right text-sm text-gray-700" style={{ lineHeight: '1.6' }}>
+            <p>West House | Devcon Park | 7</p>
+            <p>Autumn Road | Rivonia | 2128</p>
+            <p>PO Box 3895, 2128</p>
+            <p className="mt-1">TEL: +27 87 087 6307</p>
+            <p>
+              <span className="font-semibold text-[#F5831F]">EMAIL</span>
+              <span>contactus@circletel.co.za</span>
+            </p>
+            <p>
+              <span className="font-semibold text-[#F5831F]">WEB: </span>
+              <span>www.circletel.co.za</span>
+            </p>
           </div>
         </div>
+        
+        {/* Orange separator line */}
+        <div className="mt-4 h-1 bg-[#F5831F]"></div>
       </div>
 
       {/* Quote Info Bar */}
-      <div className="bg-gray-100 px-8 py-4 border-b-4 border-[#F5831F]">
-        <div className="grid grid-cols-3 gap-4 text-sm">
+      <div className="bg-white px-8 py-6 border-b border-gray-200">
+        <div className="grid grid-cols-3 gap-6 text-sm">
           <div>
-            <p className="text-gray-600 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Quote Date
-            </p>
+            <p className="text-gray-500 text-xs mb-1">Quote Date</p>
             <p className="font-semibold text-gray-900">{today}</p>
           </div>
           <div>
-            <p className="text-gray-600 flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Valid Until
-            </p>
+            <p className="text-gray-500 text-xs mb-1">Valid Until</p>
             <p className="font-semibold text-gray-900">{validUntil}</p>
           </div>
           <div>
-            <p className="text-gray-600 flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              Contract Term
-            </p>
+            <p className="text-gray-500 text-xs mb-1">Contract Term</p>
             <p className="font-semibold text-gray-900">{formData.contract_term} Months</p>
           </div>
         </div>
@@ -324,31 +344,32 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
       </div>
 
       {/* Footer */}
-      <div className="bg-gray-900 text-white p-8">
-        <div className="grid grid-cols-3 gap-8 text-sm">
+      <div className="bg-gray-100 border-t-4 border-[#F5831F] p-8">
+        <div className="grid grid-cols-3 gap-8 text-sm text-gray-700">
           <div>
-            <h4 className="font-bold mb-3 text-[#F5831F]">Contact Us</h4>
-            <p className="mb-1">TEL: +27 87 087 6305</p>
+            <h4 className="font-semibold mb-2 text-gray-900">Contact Us</h4>
+            <p className="mb-1">TEL: +27 87 087 6307</p>
             <p className="mb-1">Email: contactus@circletel.co.za</p>
             <p>Web: www.circletel.co.za</p>
           </div>
           <div>
-            <h4 className="font-bold mb-3 text-[#F5831F]">Physical Address</h4>
+            <h4 className="font-semibold mb-2 text-gray-900">Physical Address</h4>
             <p>West House, Devcon Park</p>
             <p>7 Autumn Road, Rivonia</p>
             <p>2128, South Africa</p>
           </div>
           <div>
-            <h4 className="font-bold mb-3 text-[#F5831F]">Postal Address</h4>
+            <h4 className="font-semibold mb-2 text-gray-900">Postal Address</h4>
             <p>PO Box 3895</p>
             <p>Rivonia, 2128</p>
             <p>South Africa</p>
           </div>
         </div>
-        <Separator className="my-6 bg-gray-700" />
-        <p className="text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} CircleTel. All rights reserved. | Trusted connectivity solutions for South African businesses.
-        </p>
+        <div className="mt-6 pt-4 border-t border-gray-300">
+          <p className="text-center text-xs text-gray-600">
+            © {new Date().getFullYear()} CircleTel. All rights reserved. | Trusted connectivity solutions for South African businesses.
+          </p>
+        </div>
       </div>
     </div>
   );
