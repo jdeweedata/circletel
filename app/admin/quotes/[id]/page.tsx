@@ -8,6 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Loader2,
   CheckCircle2,
   XCircle,
@@ -20,10 +27,12 @@ import {
   FileText,
   User,
   Download,
-  Edit
+  Edit,
+  Eye
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
+import { QuotePreview } from '@/components/admin/quotes/QuotePreview';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -38,6 +47,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchQuote();
@@ -253,7 +263,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   };
 
   const handlePreview = () => {
-    window.open(`/quotes/business/${quote.id}/preview`, '_blank');
+    setShowPreview(true);
   };
 
   return (
@@ -300,7 +310,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             variant="outline"
             className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white"
           >
-            <FileText className="w-4 h-4 mr-2" />
+            <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
 
@@ -669,6 +679,92 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {/* Quote Preview Dialog */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0">
+          <DialogHeader className="p-6 pb-4 border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-blue-600" />
+              Quote Preview
+            </DialogTitle>
+            <DialogDescription>
+              This is how the quote will appear to the customer
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto">
+            <QuotePreview
+              formData={{
+                company_name: quote.company_name,
+                registration_number: quote.registration_number || '',
+                vat_number: quote.vat_number || '',
+                contact_name: quote.contact_name,
+                contact_email: quote.contact_email,
+                contact_phone: quote.contact_phone,
+                service_address: quote.service_address,
+                contract_term: quote.contract_term.toString(),
+                custom_discount_percent: quote.custom_discount_percent || 0,
+                customer_notes: quote.customer_notes || ''
+              }}
+              items={quote.items.map(item => ({
+                package: {
+                  name: item.package_name,
+                  speed: item.package_speed || '',
+                  pricing: {
+                    monthly: item.monthly_price,
+                    installation: item.installation_price || 0
+                  }
+                },
+                quantity: item.quantity,
+                item_type: item.item_type
+              }))}
+              mtnDeals={quote.metadata?.mtn_deals}
+              pricing={{
+                subtotalMonthly: pricing.subtotal_monthly,
+                subtotalInstallation: pricing.subtotal_installation,
+                discountPercent: quote.custom_discount_percent || 0,
+                discountAmount: quote.custom_discount_amount || 0,
+                afterDiscount: pricing.subtotal_monthly + pricing.subtotal_installation - (quote.custom_discount_amount || 0),
+                vat: pricing.vat_amount_monthly + pricing.vat_amount_installation,
+                total: pricing.total_monthly + pricing.total_installation,
+                totalMonthly: pricing.total_monthly,
+                totalInstallation: pricing.total_installation
+              }}
+            />
+          </div>
+
+          <div className="p-6 border-t bg-gray-50 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowPreview(false)}
+              className="flex-1"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowPreview(false);
+                handleDownloadPDF();
+              }}
+              className="flex-1 bg-circleTel-orange hover:bg-[#e67516]"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download PDF
+            </Button>
+            <Button
+              onClick={() => {
+                window.open(`/quotes/business/${quote.id}/preview`, '_blank');
+              }}
+              variant="outline"
+              className="flex-1"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Open in New Tab
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
