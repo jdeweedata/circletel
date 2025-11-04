@@ -222,63 +222,57 @@ export default function QuotePreviewPage({ params }: Props) {
       <div className="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none">
         {/* Professional Header - Matching PDF */}
         <div className="bg-white mb-8">
-          {/* Company Header */}
-          <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-circleTel-orange">
+          {/* Official CircleTel Header */}
+          <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
             <div className="flex items-center">
-              <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mr-4">
-                <span className="text-white font-bold text-2xl">C</span>
+              <div className="w-12 h-12 bg-circleTel-orange rounded-full flex items-center justify-center mr-3">
+                <span className="text-white font-bold text-xl">C</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-circleTel-darkNeutral">CircleTel</h1>
-                <p className="text-circleTel-secondaryNeutral text-sm">
+                <h1 className="text-2xl font-bold text-circleTel-darkNeutral">CircleTel</h1>
+                <p className="text-sm text-gray-600">
                   Enterprise Telecommunications Solutions
                 </p>
               </div>
             </div>
-            <div className="text-right text-sm text-circleTel-secondaryNeutral">
-              <div className="mb-1">
-                <strong>Tel:</strong> +27 87 087 6305
-              </div>
-              <div className="mb-1">
-                <strong>Email:</strong> quotes@circletel.co.za
-              </div>
-              <div>
-                <strong>Web:</strong> www.circletel.co.za
-              </div>
+            <div className="text-right text-sm text-gray-600">
+              <div>Tel: +27 87 087 6305</div>
+              <div>Email: quotes@circletel.co.za</div>
+              <div>Web: www.circletel.co.za</div>
             </div>
           </div>
 
-          {/* Quote Header */}
+          {/* Quote Header - Match Official Format */}
           <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">QUOTE</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex">
-                  <span className="font-medium w-24">Quote No:</span>
-                  <span className="text-circleTel-orange font-bold">{quote.quote_number}</span>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">QUOTE</h2>
+              <div className="space-y-1 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <span className="text-gray-600">Quote No:</span>
+                  <span className="font-medium text-circleTel-orange">{quote.quote_number}</span>
                 </div>
-                <div className="flex">
-                  <span className="font-medium w-24">Date:</span>
-                  <span>{formatDate(quote.created_at)}</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <span className="text-gray-600">Date:</span>
+                  <span className="font-medium">{formatDate(quote.created_at)}</span>
                 </div>
                 {quote.valid_until && (
-                  <div className="flex">
-                    <span className="font-medium w-24">Valid Until:</span>
-                    <span>{formatDate(quote.valid_until)}</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <span className="text-gray-600">Valid Until:</span>
+                    <span className="font-medium">{formatDate(quote.valid_until)}</span>
                   </div>
                 )}
-                <div className="flex">
-                  <span className="font-medium w-24">Status:</span>
-                  <Badge className={`${getStatusColor(quote.status)} text-white text-xs`}>
+                <div className="grid grid-cols-2 gap-4">
+                  <span className="text-gray-600">Status:</span>
+                  <Badge className={`${getStatusColor(quote.status)} text-white text-xs px-2 py-1`}>
                     {formatStatus(quote.status)}
                   </Badge>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <div className="bg-gray-50 p-4 rounded">
-                <p className="text-xs text-gray-600 mb-2">PREPARED FOR:</p>
-                <p className="font-bold text-lg text-circleTel-darkNeutral">{quote.company_name}</p>
+              <div className="bg-gray-50 p-4 rounded border">
+                <p className="text-xs text-gray-500 mb-2 uppercase">PREPARED FOR:</p>
+                <p className="font-bold text-lg text-gray-900">{quote.company_name}</p>
                 <p className="text-sm text-gray-600">{quote.contact_name}</p>
                 <p className="text-sm text-gray-600">{quote.contact_email}</p>
                 <p className="text-sm text-gray-600">{quote.contact_phone}</p>
@@ -287,124 +281,101 @@ export default function QuotePreviewPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Customer Details Section */}
+        {/* Customer Details and Service Summary - Official Layout */}
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+            <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               CUSTOMER DETAILS
             </h3>
-            <div className="space-y-2 text-sm">
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-medium">Company:</span>
-                <span className="col-span-2">{quote.company_name}</span>
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Company:</span>
+                <span className="font-medium">{quote.company_name}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-medium">Contact Person:</span>
-                <span className="col-span-2">{quote.contact_name}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Contact Person:</span>
+                <span className="font-medium">{quote.contact_name}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-medium">Email:</span>
-                <span className="col-span-2 text-circleTel-orange">{quote.contact_email}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Email:</span>
+                <span className="font-medium text-blue-600">{quote.contact_email}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-medium">Phone:</span>
-                <span className="col-span-2">{quote.contact_phone}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Phone:</span>
+                <span className="font-medium">{quote.contact_phone}</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <span className="font-medium">Service Address:</span>
-                <span className="col-span-2">{quote.service_address}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Service Address:</span>
+                <span className="font-medium">{quote.service_address}</span>
               </div>
-              {quote.registration_number && (
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">Reg Number:</span>
-                  <span className="col-span-2">{quote.registration_number}</span>
-                </div>
-              )}
-              {quote.vat_number && (
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">VAT Number:</span>
-                  <span className="col-span-2">{quote.vat_number}</span>
-                </div>
-              )}
             </div>
           </div>
           
           <div>
-            <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+            <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               SERVICE SUMMARY
             </h3>
-            <div className="bg-gray-50 p-4 rounded">
-              <div className="space-y-2 text-sm">
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">Customer Type:</span>
-                  <span className="col-span-2 capitalize">{quote.customer_type}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">Contract Term:</span>
-                  <span className="col-span-2">{quote.contract_term} months</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">Services:</span>
-                  <span className="col-span-2">{quote.items.length} package(s)</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <span className="font-medium">Monthly Total:</span>
-                  <span className="col-span-2 font-bold text-circleTel-orange">
-                    {formatCurrency(pricing.total_monthly)}
-                  </span>
-                </div>
-                {quote.prepared_by && (
-                  <div className="grid grid-cols-3 gap-2">
-                    <span className="font-medium">Prepared By:</span>
-                    <span className="col-span-2">{quote.prepared_by}</span>
-                  </div>
-                )}
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Customer Type:</span>
+                <span className="font-medium capitalize">{quote.customer_type}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Contract Term:</span>
+                <span className="font-medium">{quote.contract_term} months</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Services:</span>
+                <span className="font-medium">{quote.items.length} package(s)</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <span className="text-gray-600">Monthly Total:</span>
+                <span className="font-bold text-circleTel-orange text-base">
+                  {formatCurrency(pricing.total_monthly)}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Service Package Details Table */}
+        {/* Service Package Details Table - Official Format */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+          <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
             SERVICE PACKAGE DETAILS
           </h3>
           
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300">
+            <table className="w-full border-collapse border border-gray-300 text-sm">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-4 py-3 text-left font-medium text-sm">Service Description</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center font-medium text-sm">Qty</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center font-medium text-sm">Speed</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center font-medium text-sm">Data</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right font-medium text-sm">Monthly (Excl. VAT)</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right font-medium text-sm">Installation (Excl. VAT)</th>
+                <tr className="bg-gray-100">
+                  <th className="border border-gray-300 px-3 py-2 text-left font-medium">Service Description</th>
+                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Qty</th>
+                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Speed</th>
+                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Data</th>
+                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Monthly (Excl. VAT)</th>
+                  <th className="border border-gray-300 px-3 py-2 text-center font-medium">Installation (Excl. VAT)</th>
                 </tr>
               </thead>
               <tbody>
                 {quote.items.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="border border-gray-300 px-4 py-3">
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="border border-gray-300 px-3 py-3">
                       <div>
-                        <div className="font-medium text-circleTel-darkNeutral">{item.service_name}</div>
-                        <div className="text-xs text-gray-600 capitalize">{item.item_type}</div>
-                        {item.notes && (
-                          <div className="text-xs text-gray-500 italic mt-1">{item.notes}</div>
-                        )}
+                        <div className="font-medium text-gray-900">{item.service_name}</div>
+                        <div className="text-xs text-gray-500 capitalize italic">{item.item_type}</div>
                       </div>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-center">{item.quantity}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-center">
+                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">{item.quantity}</td>
+                    <td className="border border-gray-300 px-3 py-3 text-center">
                       {item.speed_down}↓/{item.speed_up}↑ Mbps
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-center">
+                    <td className="border border-gray-300 px-3 py-3 text-center">
                       {item.data_cap_gb ? `${item.data_cap_gb}GB` : 'Unlimited'}
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">
                       {formatCurrency(item.monthly_price * item.quantity)}
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                    <td className="border border-gray-300 px-3 py-3 text-center font-medium">
                       {formatCurrency(item.installation_price * item.quantity)}
                     </td>
                   </tr>
@@ -414,30 +385,30 @@ export default function QuotePreviewPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Pricing Breakdown */}
+        {/* Pricing Breakdown and Inclusive Benefits */}
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+            <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               PRICING BREAKDOWN
             </h3>
             
-            {/* Monthly Recurring */}
+            {/* Monthly Recurring Costs */}
             <div className="mb-6">
-              <h4 className="font-medium text-circleTel-darkNeutral mb-3 text-sm uppercase tracking-wide">
-                Monthly Recurring Costs
+              <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase">
+                MONTHLY RECURRING COSTS
               </h4>
-              <div className="bg-gray-50 p-4 space-y-2 text-sm">
+              <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Subtotal (Excl. VAT):</span>
-                  <span className="font-mono">{formatCurrency(pricing.subtotal_monthly)}</span>
+                  <span className="text-gray-600">Subtotal (Excl. VAT):</span>
+                  <span className="font-medium">{formatCurrency(pricing.subtotal_monthly)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>VAT (15%):</span>
-                  <span className="font-mono">{formatCurrency(pricing.vat_amount_monthly)}</span>
+                  <span className="text-gray-600">VAT (15%):</span>
+                  <span className="font-medium">{formatCurrency(pricing.vat_amount_monthly)}</span>
                 </div>
-                <div className="border-t border-gray-300 pt-2 flex justify-between font-bold">
-                  <span>Monthly Total (Incl. VAT):</span>
-                  <span className="font-mono text-circleTel-orange">{formatCurrency(pricing.total_monthly)}</span>
+                <div className="border-t border-gray-300 pt-2 flex justify-between font-bold text-base">
+                  <span className="text-gray-900">Monthly Total (Incl. VAT):</span>
+                  <span className="text-circleTel-orange">{formatCurrency(pricing.total_monthly)}</span>
                 </div>
               </div>
             </div>
@@ -465,19 +436,19 @@ export default function QuotePreviewPage({ params }: Props) {
               </div>
             )}
 
-            {/* Contract Summary */}
+            {/* Contract Summary - Highlighted Box Like Official Quote */}
             <div>
-              <h4 className="font-medium text-circleTel-darkNeutral mb-3 text-sm uppercase tracking-wide">
-                Contract Summary
+              <h4 className="font-bold text-gray-900 mb-3 text-base uppercase">
+                CONTRACT SUMMARY
               </h4>
-              <div className="bg-circleTel-orange bg-opacity-10 border border-circleTel-orange p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Contract Term:</span>
-                  <span className="font-bold">{quote.contract_term} months</span>
+              <div className="bg-red-50 border-2 border-red-500 p-6 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-medium">Contract Term:</span>
+                  <span className="font-bold text-lg">{quote.contract_term} months</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Total Contract Value:</span>
-                  <span className="font-bold text-lg text-circleTel-orange">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-medium">Total Contract Value:</span>
+                  <span className="font-bold text-2xl text-circleTel-orange">
                     {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
                   </span>
                 </div>
@@ -486,14 +457,14 @@ export default function QuotePreviewPage({ params }: Props) {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
+            <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               INCLUSIVE BENEFITS
             </h3>
-            <div className="space-y-3 text-sm">
+            <div className="space-y-2 text-sm">
               {generateInclusiveBenefits(quote.items).map((benefit, index) => (
                 <div key={index} className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span>{benefit}</span>
+                  <span className="text-gray-700">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -501,11 +472,11 @@ export default function QuotePreviewPage({ params }: Props) {
             {/* Additional Notes */}
             {quote.notes && (
               <div className="mt-6">
-                <h4 className="font-medium text-circleTel-darkNeutral mb-3 text-sm uppercase tracking-wide">
+                <h4 className="font-medium text-gray-900 mb-3 text-sm uppercase">
                   Additional Notes
                 </h4>
-                <div className="bg-yellow-50 border border-yellow-200 p-4 text-sm">
-                  <p className="whitespace-pre-wrap">{quote.notes}</p>
+                <div className="bg-blue-50 border border-blue-200 p-3 text-sm">
+                  <p className="text-gray-700 whitespace-pre-wrap">{quote.notes}</p>
                 </div>
               </div>
             )}
