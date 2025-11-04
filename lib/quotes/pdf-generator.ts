@@ -81,28 +81,32 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   // HEADER - CircleTel Logo & Info
   // ===================================
 
-  // CircleTel Branding
+  // Orange header bar
   doc.setFillColor(245, 131, 31); // CircleTel Orange
-  doc.rect(0, 0, pageWidth, 40, 'F');
+  doc.rect(0, 0, pageWidth, 35, 'F');
 
+  // CircleTel Logo/Branding (left side)
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
+  doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('CircleTel', 20, 25);
-
-  doc.setFontSize(10);
+  doc.text('circleTEL', 20, 18);
+  
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Business Connectivity Solutions', 20, 32);
+  doc.text('Business Connectivity Solutions', 20, 24);
 
   // Company details (right side)
-  doc.setFontSize(9);
+  doc.setFontSize(7.5);
   const headerRight = pageWidth - 20;
-  doc.text('7 Autumn Street', headerRight, 20, { align: 'right' });
-  doc.text('Rivonia, Sandton, 2128', headerRight, 25, { align: 'right' });
-  doc.text('Tel: 087 820 0000', headerRight, 30, { align: 'right' });
-  doc.text('Email: quotes@circletel.co.za', headerRight, 35, { align: 'right' });
+  
+  doc.text('West House | Devcon Park | 7', headerRight, 10, { align: 'right' });
+  doc.text('Autumn Road | Rivonia | 2128', headerRight, 14, { align: 'right' });
+  doc.text('PO Box 3895, 2128', headerRight, 18, { align: 'right' });
+  doc.text('TEL: +27 87 087 6305', headerRight, 22, { align: 'right' });
+  doc.text('EMAIL: contactus@circletel.co.za', headerRight, 26, { align: 'right' });
+  doc.text('WEB: www.circletel.co.za', headerRight, 30, { align: 'right' });
 
-  yPos = 50;
+  yPos = 45;
 
   // ===================================
   // QUOTE HEADER
@@ -525,11 +529,11 @@ export function generateQuotePDF(quote: QuoteDetails, options: PDFOptions = {}):
   // ===================================
 
   const footerY = pageHeight - 15;
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.setFont('helvetica', 'normal');
-  doc.text('CircleTel (Pty) Ltd | Reg: 2020/123456/07 | VAT: 4123456789', pageWidth / 2, footerY, { align: 'center' });
-  doc.text('www.circletel.co.za | support@circletel.co.za | 087 820 0000', pageWidth / 2, footerY + 4, { align: 'center' });
+  doc.text('CircleTel (Pty) Ltd | West House, Devcon Park, 7 Autumn Road, Rivonia, 2128 | PO Box 3895, 2128', pageWidth / 2, footerY, { align: 'center' });
+  doc.text('www.circletel.co.za | contactus@circletel.co.za | TEL: +27 87 087 6305', pageWidth / 2, footerY + 4, { align: 'center' });
 
   return doc;
 }
