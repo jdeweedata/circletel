@@ -33,7 +33,7 @@ export default function TermsPage() {
             <h1 className="text-4xl md:text-5xl font-bold">Terms and Conditions</h1>
           </div>
 
-          <p className="text-xl opacity-90 max-w-3xl">
+          <p className="text-xl opacity-90 max-w-4xl">
             Please read these terms and conditions carefully before using CircleTel services.
           </p>
 
@@ -48,8 +48,8 @@ export default function TermsPage() {
       </div>
 
       {/* Content Section */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto">
           {/* Important Notice */}
           <Alert className="mb-8 bg-blue-50 border-blue-200">
             <AlertCircle className="h-5 w-5 text-blue-600" />
@@ -60,7 +60,7 @@ export default function TermsPage() {
           </Alert>
 
           {/* Table of Contents */}
-          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 mb-8">
             <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-6">Table of Contents</h2>
             <nav className="space-y-2">
               <a href="#section-1" className="block text-circleTel-orange hover:underline">1. General Terms and Conditions</a>
@@ -76,7 +76,7 @@ export default function TermsPage() {
           </div>
 
           {/* Main Content */}
-          <div className="bg-white rounded-lg shadow-md p-8 prose prose-lg max-w-none">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 prose prose-lg max-w-none">
 
             {/* Section 1: General Terms */}
             <section id="section-1" className="mb-12 scroll-mt-20">
