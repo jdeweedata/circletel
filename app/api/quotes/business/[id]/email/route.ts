@@ -13,11 +13,11 @@ import { chromium } from 'playwright';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Use Resend sandbox in development, production email once domain is verified
+// Use Resend sandbox in development, verified domain in production
 const isDev = process.env.NODE_ENV === 'development';
 const FROM_EMAIL = isDev
   ? 'CircleTel Quotes <onboarding@resend.dev>'  // Resend sandbox for testing
-  : 'CircleTel Quotes <quotes@circletel.co.za>'; // Production (requires domain verification)
+  : 'CircleTel Quotes <quotes@notifications.circletelsa.co.za>'; // Production verified domain
 
 interface EmailRequest {
   recipientEmail: string;

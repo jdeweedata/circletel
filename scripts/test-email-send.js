@@ -16,9 +16,9 @@ async function testEmailSend() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        recipientEmail: 'test@example.com',
-        recipientName: 'Test User',
-        message: 'This is a test email'
+        recipientEmail: 'jeffrey.de.wee@circletel.co.za', // Verified email for Resend sandbox
+        recipientName: 'Jeffrey de Wee',
+        message: 'This is a test email from the CircleTel quote system'
       })
     });
 
