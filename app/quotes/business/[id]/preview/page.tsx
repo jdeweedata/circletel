@@ -773,7 +773,17 @@ export default function QuotePreviewPage({ params }: Props) {
               </div>
               <div>
                 <h4 className="font-medium mb-1">8. GOVERNING LAW</h4>
-                <p>This agreement is governed by South African law. Full terms and conditions available at www.circletel.co.za/terms</p>
+                <p>
+                  This agreement is governed by South African law. Full terms and conditions available at{' '}
+                  <a
+                    href="https://www.circletel.co.za/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-circleTel-orange hover:underline font-medium"
+                  >
+                    www.circletel.co.za/terms
+                  </a>
+                </p>
               </div>
             </div>
           </div>
