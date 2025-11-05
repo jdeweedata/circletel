@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Truck, Wifi, Router, MapPin, Home, Building2 } from 'lucide-react';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
@@ -282,9 +283,18 @@ export function HeroWithTabs() {
         </div>
 
         {/* Disclaimer */}
-        <p className="text-center text-white/60 text-sm mt-8 max-w-4xl mx-auto">
-          *Save up to R1000 if you sign up for selected SIM + Device packages. Only while stocks last. Maximum of 3 promotions per legal entity (business or individual). Offer subject to cancellation policy.
-        </p>
+        <div className="text-center mt-8 max-w-4xl mx-auto">
+          <p className="text-white/60 text-sm">
+            *Save up to R1000 if you sign up for selected SIM + Device packages. Only while stocks last. Maximum of 3 promotions per legal entity (business or individual). Offer subject to cancellation policy.
+          </p>
+          <p className="text-white/70 text-sm mt-2">
+            View our{' '}
+            <Link href="/terms" className="text-circleTel-orange hover:text-white underline transition-colors">
+              Terms & Conditions
+            </Link>
+            {' '}for full details.
+          </p>
+        </div>
       </div>
 
       <style jsx>{`
