@@ -306,7 +306,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           )}
 
           <Button
-            onClick={handlePreview}
+            onClick={() => window.open(`/quotes/business/${quote.id}/preview`, '_blank')}
             variant="outline"
             className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white"
           >

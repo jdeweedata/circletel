@@ -15,7 +15,9 @@ import {
   FileText,
   User,
   Check,
-  Printer
+  Printer,
+  Download,
+  Send
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
@@ -29,6 +31,11 @@ export default function QuotePreviewPage({ params }: Props) {
   const [loading, setLoading] = useState(true);
   const [quote, setQuote] = useState<QuoteDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   useEffect(() => {
     fetchQuote();
@@ -85,9 +92,56 @@ export default function QuotePreviewPage({ params }: Props) {
   };
 
   const formatStatus = (status: string) => {
-    return status.split('_').map(word => 
+    return status.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  };
+
+  const handleDownloadPDF = () => {
+    // Use browser's print-to-PDF to ensure exact match with preview
+    window.print();
+  };
+
+  const handleEmailQuote = async () => {
+    if (!emailRecipient || !quote) return;
+
+    setEmailSending(true);
+    try {
+      const response = await fetch(`/api/quotes/business/${quote.id}/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          recipientEmail: emailRecipient,
+          recipientName: quote.contact_name,
+          message: emailMessage || undefined
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to send email');
+      }
+
+      alert(`Quote successfully sent to ${emailRecipient}`);
+      setShowEmailDialog(false);
+      setEmailRecipient('');
+      setEmailMessage('');
+    } catch (error: any) {
+      console.error('Email error:', error);
+      alert(`Failed to send email: ${error.message}`);
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const openEmailDialog = () => {
+    if (quote) {
+      setEmailRecipient(quote.contact_email);
+      setShowEmailDialog(true);
+    }
   };
 
   // Generate dynamic benefits based on quote items
@@ -209,18 +263,105 @@ export default function QuotePreviewPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white print:bg-white">
-      {/* Print Button - Only show on screen */}
-      <div className="print:hidden fixed top-4 right-4 z-50">
-        <button
-          onClick={() => window.print()}
-          className="bg-circleTel-orange text-white px-4 py-2 rounded-lg shadow-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-        >
-          <Printer className="w-4 h-4" />
-          Print Quote
-        </button>
-      </div>
-      
       <div className="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none">
+        {/* Action Buttons - Centered above quote */}
+        <div className="print:hidden flex justify-center gap-3 mb-6">
+          <button
+            onClick={() => window.print()}
+            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2"
+          >
+            <Printer className="w-4 h-4" />
+            Print
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={downloadingPDF}
+            className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {downloadingPDF ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {downloadingPDF ? 'Downloading...' : 'Download PDF'}
+          </button>
+          <button
+            onClick={openEmailDialog}
+            className="bg-circleTel-orange text-white px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2"
+          >
+            <Send className="w-4 h-4" />
+            Email Quote
+          </button>
+        </div>
+
+      {/* Email Dialog */}
+      {showEmailDialog && (
+        <div className="print:hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Email Quote</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Recipient Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={emailRecipient}
+                  onChange={(e) => setEmailRecipient(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                  placeholder="email@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Personal Message (Optional)
+                </label>
+                <textarea
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
+                  placeholder="Add a personal message to include in the email..."
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => {
+                  setShowEmailDialog(false);
+                  setEmailRecipient('');
+                  setEmailMessage('');
+                }}
+                disabled={emailSending}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEmailQuote}
+                disabled={!emailRecipient || emailSending}
+                className="flex-1 px-4 py-2 bg-circleTel-orange text-white rounded-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {emailSending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Email
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
         {/* Professional Header - Matching PDF */}
         <div className="bg-white mb-8">
           {/* Official CircleTel Header */}
