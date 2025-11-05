@@ -283,14 +283,28 @@ export async function POST(
       throw new Error('Failed to send email');
     }
 
-    // Log email sent in database (optional - could add to audit log)
+    // Update quote status if draft
+    if (quote.status === 'draft') {
+      await supabase
+        .from('business_quotes')
+        .update({ status: 'sent' })
+        .eq('id', id);
+    }
+
+    // Track email sent event in the tracking system
     await supabase
-      .from('business_quotes')
-      .update({
-        last_sent_at: new Date().toISOString(),
-        status: quote.status === 'draft' ? 'sent' : quote.status
-      })
-      .eq('id', id);
+      .from('quote_tracking')
+      .insert({
+        quote_id: id,
+        event_type: 'email_sent',
+        viewer_email: recipientEmail,
+        viewer_name: recipientName,
+        metadata: {
+          cc_emails: ccEmails,
+          has_custom_message: !!message,
+          email_id: emailResult.data.id
+        }
+      });
 
     return NextResponse.json({
       success: true,

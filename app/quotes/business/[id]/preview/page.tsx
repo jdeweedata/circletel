@@ -809,7 +809,7 @@ export default function QuotePreviewPage({ params }: Props) {
             </div>
             
             <div>
-              <h4 className="font-medium mb-4">DIGITAL SIGNATURE</h4>
+              <h4 className="font-medium mb-4">SIGNATURE</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium mb-1">Authorized Signatory Name:</label>
@@ -838,7 +838,7 @@ export default function QuotePreviewPage({ params }: Props) {
               ACCEPT QUOTE & PROCEED TO ORDER
             </button>
             <div className="hidden print:block text-sm text-gray-600">
-              This quote requires digital acceptance. Please visit the online version to proceed.
+              This quote can be accepted digitally via the online portal or manually signed and returned.
             </div>
           </div>
         </div>
