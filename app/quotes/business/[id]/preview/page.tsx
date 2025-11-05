@@ -478,55 +478,55 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Customer Details and Service Summary - Official Layout */}
-        <div className="grid grid-cols-2 gap-8 mb-8 customer-details">
-          <div>
+        <div className="grid grid-cols-2 gap-12 mb-8 customer-details">
+          <div className="pr-6 border-r border-gray-200">
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               CUSTOMER DETAILS
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Company:</span>
-                <span className="font-medium">{quote.company_name}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Company:</span>
+                <span className="font-medium text-right">{quote.company_name}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Contact Person:</span>
-                <span className="font-medium">{quote.contact_name}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Contact Person:</span>
+                <span className="font-medium text-right">{quote.contact_name}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Email:</span>
-                <span className="font-medium text-blue-600">{quote.contact_email}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Email:</span>
+                <span className="font-medium text-blue-600 text-right break-all">{quote.contact_email}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Phone:</span>
-                <span className="font-medium">{quote.contact_phone}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Phone:</span>
+                <span className="font-medium text-right">{quote.contact_phone}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Service Address:</span>
-                <span className="font-medium">{quote.service_address}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Service Address:</span>
+                <span className="font-medium text-right">{quote.service_address}</span>
               </div>
             </div>
           </div>
-          
-          <div>
+
+          <div className="pl-6">
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               SERVICE SUMMARY
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Customer Type:</span>
-                <span className="font-medium capitalize">{quote.customer_type}</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Customer Type:</span>
+                <span className="font-medium text-right capitalize">{quote.customer_type}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Contract Term:</span>
-                <span className="font-medium">{quote.contract_term} months</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Contract Term:</span>
+                <span className="font-medium text-right">{quote.contract_term} months</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Services:</span>
-                <span className="font-medium">{quote.items.length} package(s)</span>
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Services:</span>
+                <span className="font-medium text-right">{quote.items.length} package(s)</span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <span className="text-gray-600">Monthly Total:</span>
-                <span className="font-bold text-circleTel-orange text-base">
+              <div className="flex justify-between gap-4">
+                <span className="text-gray-600 whitespace-nowrap">Monthly Total:</span>
+                <span className="font-bold text-circleTel-orange text-base text-right">
                   {formatCurrency(pricing.total_monthly)}
                 </span>
               </div>
