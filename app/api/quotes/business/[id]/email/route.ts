@@ -12,7 +12,12 @@ import { Resend } from 'resend';
 import { chromium } from 'playwright';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = 'CircleTel Quotes <quotes@circletel.co.za>';
+
+// Use Resend sandbox in development, production email once domain is verified
+const isDev = process.env.NODE_ENV === 'development';
+const FROM_EMAIL = isDev
+  ? 'CircleTel Quotes <onboarding@resend.dev>'  // Resend sandbox for testing
+  : 'CircleTel Quotes <quotes@circletel.co.za>'; // Production (requires domain verification)
 
 interface EmailRequest {
   recipientEmail: string;
@@ -56,7 +61,11 @@ export async function POST(
 
     // Generate PDF using Playwright by rendering the actual preview page
     // This ensures the PDF matches the preview page exactly
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Use localhost in development, otherwise use the configured app URL
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const baseUrl = isDevelopment
+      ? 'http://localhost:3001'  // Dev server port
+      : (process.env.NEXT_PUBLIC_APP_URL || 'https://www.circletel.co.za');
     const previewUrl = `${baseUrl}/quotes/business/${id}/preview`;
 
     let pdfBuffer: Buffer;
@@ -67,10 +76,11 @@ export async function POST(
       const page = await context.newPage();
 
       // Navigate to the preview page
-      await page.goto(previewUrl, { waitUntil: 'networkidle' });
+      // Use 'domcontentloaded' instead of 'networkidle' to avoid timeouts with tracking scripts
+      await page.goto(previewUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-      // Wait for the content to load
-      await page.waitForSelector('img[alt="CircleTel Logo"]', { timeout: 10000 });
+      // Wait for the page to render (fixed timeout is more reliable than waiting for specific elements)
+      await page.waitForTimeout(3000);
 
       // Generate PDF with proper page settings
       const pdf = await page.pdf({
@@ -279,8 +289,11 @@ export async function POST(
       ]
     });
 
-    if (!emailResult.data) {
-      throw new Error('Failed to send email');
+    console.log('Resend API result:', JSON.stringify(emailResult, null, 2));
+
+    if (!emailResult.data || emailResult.error) {
+      console.error('Resend error:', emailResult.error);
+      throw new Error(emailResult.error?.message || 'Failed to send email');
     }
 
     // Update quote status if draft
