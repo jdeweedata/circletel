@@ -480,7 +480,6 @@ export default function TermsPage() {
                   <li>Frogfoot</li>
                   <li>MetroFibre</li>
                   <li>Link Africa</li>
-                  <li>MFN (Mitchell's Fibre Network)</li>
                   <li>Evotel</li>
                 </ul>
               </div>
@@ -578,6 +577,163 @@ export default function TermsPage() {
                     <li>Proof of residence (not older than 3 months)</li>
                     <li>Service will be activated only after successful RICA registration</li>
                   </ul>
+                </div>
+              </div>
+
+              <h4 className="text-lg font-semibold text-circleTel-darkNeutral mt-8 mb-4 bg-orange-50 p-4 rounded-lg border-l-4 border-circleTel-orange">
+                6.2.5 MTN Network Services - Specific Terms
+              </h4>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
+                <p className="text-blue-900 font-semibold mb-3">
+                  CircleTel provides 5G and LTE wireless services as an authorized service provider using MTN South Africa's mobile network infrastructure.
+                </p>
+                <p className="text-blue-900">
+                  By subscribing to CircleTel's wireless services, you acknowledge and agree to the following MTN-specific terms and conditions:
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Network Infrastructure</h5>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li><strong>Network Provider:</strong> MTN South Africa (Pty) Ltd operates the underlying mobile network infrastructure</li>
+                    <li><strong>Service Relationship:</strong> CircleTel is an independent service provider; MTN is not responsible for CircleTel's billing, customer service, or contractual obligations</li>
+                    <li><strong>Network Access:</strong> Subject to MTN's network availability and coverage maps</li>
+                    <li><strong>Technology Standards:</strong> Services provided over MTN's 4G LTE, LTE-Advanced, and 5G networks</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">Coverage and Network Performance</h5>
+                  <p className="text-gray-700 mb-2">
+                    Service availability and performance depend on MTN's network coverage:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li><strong>Coverage Maps:</strong> Indicative only; actual coverage may vary based on location, terrain, and environmental factors</li>
+                    <li><strong>5G Coverage:</strong> Limited to specific metropolitan and urban areas as deployed by MTN</li>
+                    <li><strong>LTE Coverage:</strong> Nationwide coverage with varying speeds (4G, 4G+, LTE-Advanced)</li>
+                    <li><strong>Signal Quality:</strong> Affected by building materials, weather conditions, network congestion, and distance from towers</li>
+                    <li><strong>Speed Variations:</strong> Advertised speeds are maximum theoretical speeds; actual speeds vary based on network conditions</li>
+                  </ul>
+                </div>
+
+                <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-circleTel-orange">
+                  <h5 className="font-semibold text-orange-900 mb-2">MTN Fair Usage Policy</h5>
+                  <p className="text-orange-900 mb-2">
+                    CircleTel's wireless services are subject to MTN's network management policies:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-orange-900">
+                    <li><strong>Network Management:</strong> MTN may implement traffic management during peak times to ensure network quality for all users</li>
+                    <li><strong>Priority Traffic:</strong> Emergency services and critical communications receive priority access</li>
+                    <li><strong>Throttling:</strong> Excessive usage or bandwidth-intensive applications (torrenting, constant streaming) may be throttled during peak hours</li>
+                    <li><strong>Peak Hours:</strong> Typically 18:00-23:00 weekdays; network congestion may affect speeds</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Network Maintenance and Upgrades</h5>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li><strong>Scheduled Maintenance:</strong> MTN performs regular network maintenance which may cause temporary service interruptions</li>
+                    <li><strong>Notice Period:</strong> CircleTel will communicate planned MTN maintenance where possible, typically 48-72 hours advance notice</li>
+                    <li><strong>Network Upgrades:</strong> MTN continuously upgrades its network; service may be temporarily unavailable during tower upgrades</li>
+                    <li><strong>Emergency Maintenance:</strong> Unplanned maintenance for network faults may occur without prior notice</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">MTN Acceptable Use Policy Compliance</h5>
+                  <p className="text-gray-700 mb-2">
+                    In addition to CircleTel's AUP (Section 3), you must comply with MTN's network usage policies:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li><strong>Prohibited Uses:</strong> Network scanning, port scanning, or any activity that compromises MTN's network security</li>
+                    <li><strong>Commercial Reselling:</strong> Residential packages cannot be used for commercial resale of bandwidth</li>
+                    <li><strong>SIM Sharing:</strong> SIM cards must not be used in multiple devices simultaneously (excluding mobile hotspot feature)</li>
+                    <li><strong>Unauthorized Tethering:</strong> Tethering restrictions apply to certain package types as specified</li>
+                  </ul>
+                </div>
+
+                <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                  <h5 className="font-semibold text-red-900 mb-2">Service Limitations</h5>
+                  <ul className="list-disc pl-6 space-y-1 text-red-900">
+                    <li><strong>No Guaranteed Speeds:</strong> All speed specifications are "up to" maximum speeds; actual speeds depend on MTN network conditions</li>
+                    <li><strong>Coverage Gaps:</strong> Service may be unavailable in underground areas, rural areas, or areas with limited MTN coverage</li>
+                    <li><strong>Load Shedding Impact:</strong> MTN towers have limited battery backup (2-4 hours); extended power outages may affect service</li>
+                    <li><strong>International Roaming:</strong> Not included; requires separate activation and incurs additional charges</li>
+                    <li><strong>VPN Restrictions:</strong> Some VPN protocols may be blocked or throttled by MTN for network security</li>
+                  </ul>
+                </div>
+
+                <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                  <h5 className="font-semibold text-yellow-900 mb-2">MTN Network Changes and Migration</h5>
+                  <p className="text-yellow-900 mb-2">
+                    MTN reserves the right to:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-yellow-900">
+                    <li><strong>Technology Sunset:</strong> Discontinue older technologies (e.g., 3G shutdown) with advance notice</li>
+                    <li><strong>Frequency Refarming:</strong> Reallocate network frequencies for improved services</li>
+                    <li><strong>Coverage Changes:</strong> Modify coverage areas based on network optimization</li>
+                    <li><strong>Migration Requirements:</strong> Customers may be required to upgrade equipment for continued service</li>
+                  </ul>
+                  <p className="text-yellow-900 mt-2">
+                    <strong>Note:</strong> CircleTel will provide at least 90 days' notice for any mandatory technology migrations.
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">RICA and MTN SIM Compliance</h5>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li><strong>RICA Registration:</strong> Mandatory for all MTN SIM cards as per South African law</li>
+                    <li><strong>MTN SIM Ownership:</strong> SIM cards remain property of MTN South Africa</li>
+                    <li><strong>SIM Replacement:</strong> Lost or damaged SIMs: R150 replacement fee + RICA re-registration required</li>
+                    <li><strong>SIM Deactivation:</strong> Unused SIMs may be deactivated by MTN after 6 months of inactivity</li>
+                    <li><strong>Fraudulent Registration:</strong> Providing false information during RICA registration may result in criminal charges and immediate service termination</li>
+                  </ul>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                  <h5 className="font-semibold text-blue-900 mb-2">Data Usage and Billing on MTN Network</h5>
+                  <ul className="list-disc pl-6 space-y-1 text-blue-900">
+                    <li><strong>Usage Measurement:</strong> Data usage measured by MTN's billing systems; CircleTel relies on MTN data for billing accuracy</li>
+                    <li><strong>Rounding:</strong> Data sessions rounded up to nearest megabyte</li>
+                    <li><strong>Background Data:</strong> Device updates, app syncing, and background processes consume data and are billable</li>
+                    <li><strong>Usage Disputes:</strong> Refer to MTN usage logs; CircleTel cannot override MTN's usage measurements</li>
+                    <li><strong>Zero-Rating:</strong> No zero-rated services unless explicitly stated in package description</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <h5 className="font-semibold text-circleTel-darkNeutral mb-2">Customer Responsibilities</h5>
+                  <p className="text-gray-700 mb-2">
+                    When using CircleTel services over MTN's network, you agree to:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-700">
+                    <li>Use services in compliance with both CircleTel and MTN policies</li>
+                    <li>Not attempt to bypass MTN's network security measures</li>
+                    <li>Report any SIM card loss or theft immediately to prevent unauthorized use</li>
+                    <li>Maintain compatible equipment (LTE/5G capable devices)</li>
+                    <li>Accept that CircleTel cannot control MTN's network performance or availability</li>
+                    <li>Understand that MTN network outages are beyond CircleTel's control and do not constitute grounds for refund</li>
+                  </ul>
+                </div>
+
+                <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-circleTel-orange">
+                  <h5 className="font-semibold text-orange-900 mb-2">Limitation of Liability - MTN Network</h5>
+                  <p className="text-orange-900 mb-2">
+                    CircleTel is not liable for:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-orange-900">
+                    <li>MTN network outages, coverage gaps, or performance issues</li>
+                    <li>MTN network congestion or throttling</li>
+                    <li>MTN technology changes, upgrades, or migrations</li>
+                    <li>MTN's enforcement of its acceptable use policies</li>
+                    <li>MTN SIM card deactivation or replacement requirements</li>
+                    <li>Data usage discrepancies arising from MTN's measurement systems</li>
+                  </ul>
+                  <p className="text-orange-900 mt-2">
+                    <strong>Your remedy for MTN-related issues is limited to service credit as outlined in Section 7 (Liability and Indemnity).</strong>
+                  </p>
                 </div>
               </div>
 
