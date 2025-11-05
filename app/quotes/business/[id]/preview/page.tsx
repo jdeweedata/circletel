@@ -96,6 +96,61 @@ export default function QuotePreviewPage({ params }: Props) {
     fetchQuote();
   }, [resolvedParams.id]);
 
+  // Track quote views and time spent
+  useEffect(() => {
+    if (!quote) return;
+
+    // Get or create session ID
+    let sessionId = sessionStorage.getItem('quote_session_id');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem('quote_session_id', sessionId);
+    }
+
+    // Track initial view
+    fetch(`/api/quotes/business/${resolvedParams.id}/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type: 'view',
+        session_id: sessionId,
+        metadata: {
+          quote_number: quote.quote_number,
+          page_url: window.location.href
+        }
+      })
+    }).catch(err => console.error('Tracking error:', err));
+
+    // Track time spent on page
+    const startTime = Date.now();
+
+    const trackTimeSpent = () => {
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      if (timeSpent > 5) { // Only track if user spent more than 5 seconds
+        fetch(`/api/quotes/business/${resolvedParams.id}/track`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_type: 'view',
+            session_id: sessionId,
+            time_spent_seconds: timeSpent,
+            metadata: {
+              engagement_type: 'extended_view'
+            }
+          })
+        }).catch(err => console.error('Time tracking error:', err));
+      }
+    };
+
+    // Track on page unload
+    window.addEventListener('beforeunload', trackTimeSpent);
+
+    return () => {
+      window.removeEventListener('beforeunload', trackTimeSpent);
+      trackTimeSpent();
+    };
+  }, [quote, resolvedParams.id]);
+
   const fetchQuote = async () => {
     setLoading(true);
     setError(null);

@@ -28,7 +28,11 @@ import {
   User,
   Download,
   Edit,
-  Eye
+  Eye,
+  Share2,
+  Copy,
+  Check,
+  BarChart3
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
@@ -48,6 +52,10 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [sharingLoading, setSharingLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchQuote();
@@ -266,6 +274,36 @@ export default function AdminQuoteDetailPage({ params }: Props) {
     setShowPreview(true);
   };
 
+  const handleGenerateShareLink = async () => {
+    setSharingLoading(true);
+    try {
+      const response = await fetch(`/api/quotes/business/${quote.id}/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setShareUrl(data.data.share_url);
+        setShowShareDialog(true);
+      } else {
+        alert('Failed to generate share link: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('Error generating share link: ' + err.message);
+    } finally {
+      setSharingLoading(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
@@ -321,6 +359,29 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           >
             <Download className="w-4 h-4 mr-2" />
             Download PDF
+          </Button>
+
+          <Button
+            onClick={handleGenerateShareLink}
+            disabled={sharingLoading}
+            variant="outline"
+            className="border-purple-500 text-purple-600 hover:bg-purple-600 hover:text-white"
+          >
+            {sharingLoading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Share2 className="w-4 h-4 mr-2" />
+            )}
+            Share Quote
+          </Button>
+
+          <Button
+            onClick={() => router.push(`/admin/quotes/${quote.id}/analytics`)}
+            variant="outline"
+            className="border-green-500 text-green-600 hover:bg-green-600 hover:text-white"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
           </Button>
 
           {canApprove && (
@@ -761,6 +822,80 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             >
               <FileText className="w-4 h-4 mr-2" />
               Open in New Tab
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Quote Dialog */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-purple-600" />
+              Share Quote
+            </DialogTitle>
+            <DialogDescription>
+              Anyone with this link can view the quote. The link is trackable.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border">
+              <input
+                type="text"
+                value={shareUrl || ''}
+                readOnly
+                className="flex-1 bg-transparent text-sm outline-none"
+              />
+              <Button
+                size="sm"
+                onClick={handleCopyLink}
+                className="shrink-0"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-1" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-1" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="text-xs text-gray-600 space-y-1">
+              <p><strong>Tracking includes:</strong></p>
+              <ul className="list-disc list-inside ml-2 space-y-1">
+                <li>When the link is opened</li>
+                <li>How long viewers spend on the quote</li>
+                <li>Unique vs. repeat views</li>
+                <li>Viewer location and device information</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowShareDialog(false)}
+              className="flex-1"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                if (shareUrl) {
+                  window.open(`mailto:?subject=CircleTel Quote ${quote.quote_number}&body=View your quote: ${shareUrl}`, '_blank');
+                }
+              }}
+              className="flex-1 bg-purple-600 hover:bg-purple-700"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email Link
             </Button>
           </div>
         </DialogContent>
