@@ -769,9 +769,9 @@ export default function QuotePreviewPage({ params }: Props) {
                   <div className="border-b border-gray-400 h-8"></div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1">Digital Signature:</label>
+                  <label className="block text-xs font-medium mb-1">Signature:</label>
                   <div className="border-2 border-dashed border-gray-400 h-16 flex items-center justify-center text-gray-500 text-xs">
-                    Click here to sign digitally
+                    Sign Here
                   </div>
                 </div>
               </div>
