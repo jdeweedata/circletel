@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -352,7 +353,12 @@ export function Step3OrderConfirmation({
             <div className="text-sm text-blue-900">
               <p className="font-semibold mb-2">Important Information:</p>
               <ul className="space-y-1 list-disc list-inside">
-                <li>By submitting this order, you agree to our terms and conditions</li>
+                <li>
+                  By submitting this order, you agree to our{' '}
+                  <Link href="/terms" target="_blank" className="text-blue-700 hover:underline font-medium">
+                    terms and conditions
+                  </Link>
+                </li>
                 <li>You will receive a confirmation email at {customerDetails.email}</li>
                 <li>Our team will contact you within 24 hours to schedule installation</li>
                 <li>Installation is subject to site survey and technical feasibility</li>

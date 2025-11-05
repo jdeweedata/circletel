@@ -83,7 +83,7 @@ export const Footer = () => {
               <li><Link href="/resources/connectivity-guide" className="hover:text-circleTel-orange transition-colors">Connectivity Guide</Link></li>
               <li><Link href="/resources/wifi-toolkit" className="hover:text-circleTel-orange transition-colors">Wi-Fi Toolkit</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-circleTel-orange transition-colors">Terms of Service</Link></li>
+              <li><Link href="/terms" className="hover:text-circleTel-orange transition-colors">Terms & Conditions</Link></li>
             </ul>
           </div>
         </div>
