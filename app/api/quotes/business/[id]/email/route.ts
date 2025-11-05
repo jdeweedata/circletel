@@ -9,7 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-core';
+import chromiumPkg from '@sparticuz/chromium';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -69,7 +70,15 @@ export async function POST(
     const previewUrl = `${baseUrl}/quotes/business/${id}/preview`;
 
     let pdfBuffer: Buffer;
-    const browser = await chromium.launch({ headless: true });
+
+    // Use serverless-optimized Chromium in production, regular Playwright in development
+    const browser = await chromium.launch({
+      headless: true,
+      ...(isDevelopment ? {} : {
+        executablePath: await chromiumPkg.executablePath(),
+        args: chromiumPkg.args,
+      })
+    });
 
     try {
       const context = await browser.newContext();
