@@ -37,6 +37,61 @@ export default function QuotePreviewPage({ params }: Props) {
   const [emailSending, setEmailSending] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
+  // Add print-specific styles
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media print {
+        @page {
+          size: A4;
+          margin: 15mm;
+        }
+
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        /* Prevent page breaks inside these elements */
+        .quote-header,
+        .customer-details,
+        .service-summary,
+        .quote-item,
+        .pricing-breakdown,
+        .terms-section,
+        .customer-acceptance,
+        .footer-section {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        /* Add page break before major sections if needed */
+        .terms-section {
+          page-break-before: auto;
+        }
+
+        .customer-acceptance {
+          page-break-before: auto;
+        }
+
+        /* Ensure tables don't break */
+        table {
+          page-break-inside: avoid;
+        }
+
+        /* Remove margins on print container */
+        .print-container {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   useEffect(() => {
     fetchQuote();
   }, [resolvedParams.id]);
@@ -263,7 +318,7 @@ export default function QuotePreviewPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white print:bg-white">
-      <div className="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none">
+      <div className="max-w-4xl mx-auto p-8 print:p-0 print:max-w-none print-container">
         {/* Action Buttons - Centered above quote */}
         <div className="print:hidden flex justify-center gap-3 mb-6">
           <button
@@ -363,7 +418,7 @@ export default function QuotePreviewPage({ params }: Props) {
       )}
 
         {/* Professional Header - Matching PDF */}
-        <div className="bg-white mb-8">
+        <div className="bg-white mb-8 quote-header">
           {/* Official CircleTel Header */}
           <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-circleTel-orange">
             <div className="flex items-center">
@@ -423,7 +478,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Customer Details and Service Summary - Official Layout */}
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-2 gap-8 mb-8 customer-details">
           <div>
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               CUSTOMER DETAILS
@@ -527,7 +582,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Pricing Breakdown and Inclusive Benefits */}
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-2 gap-8 mb-8 pricing-breakdown">
           <div>
             <h3 className="text-base font-bold text-gray-900 mb-4 uppercase">
               PRICING BREAKDOWN
@@ -625,7 +680,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Terms and Conditions */}
-        <div className="mb-8">
+        <div className="mb-8 terms-section">
           <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-4 border-b border-gray-300 pb-2">
             TERMS AND CONDITIONS
           </h3>
@@ -670,7 +725,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Customer Acceptance Section */}
-        <div className="bg-gray-50 border-2 border-circleTel-orange p-6 mb-8">
+        <div className="bg-gray-50 border-2 border-circleTel-orange p-6 mb-8 customer-acceptance">
           <h3 className="text-lg font-bold text-circleTel-darkNeutral mb-6 text-center">
             CUSTOMER ACCEPTANCE
           </h3>
@@ -734,7 +789,7 @@ export default function QuotePreviewPage({ params }: Props) {
         </div>
 
         {/* Professional Footer */}
-        <div className="border-t-2 border-circleTel-orange pt-6 text-center">
+        <div className="border-t-2 border-circleTel-orange pt-6 text-center footer-section">
           <div className="grid grid-cols-3 gap-8 text-xs">
             <div>
               <h4 className="font-medium mb-2">HEAD OFFICE</h4>
