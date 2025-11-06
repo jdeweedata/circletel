@@ -67,9 +67,10 @@ export function formatFeature(feature: string): FormattedFeature {
         new RegExp(key, 'gi'),
         replacement
       );
-      
-      // Categorize
-      if (key.includes('free') || key.includes('insured') || key.includes('router') || key.includes('installation')) {
+
+      // Categorize - Only features with "free" or "insured" are benefits
+      // "Installation time" goes to additional info, only "free installation/setup" are benefits
+      if (key.includes('free') || key.includes('insured') || key.includes('free-to-use')) {
         category = 'benefit';
       } else if (key.includes('contract') || key.includes('month')) {
         category = 'contract';
