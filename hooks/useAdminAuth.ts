@@ -96,10 +96,11 @@ export function useAdminAuth() {
     setState(prev => ({ ...prev, isLoading: true }))
 
     try {
-      // Check for stored session
+      // Check for stored session in localStorage
       const stored = SessionStorage.getSession()
 
       if (!stored) {
+        console.log('[useAdminAuth] No session found in localStorage')
         setState({
           user: null,
           isLoading: false,
@@ -108,53 +109,21 @@ export function useAdminAuth() {
         return
       }
 
-      // Development mode - accept dev sessions without server validation
-      if (isDevelopmentMode() && DevAuthService.isValidDevSession()) {
-        console.log('[useAdminAuth] Dev session validated, user:', stored.user)
-        console.log('[useAdminAuth] User role:', stored.user?.role, 'Permissions:', stored.user?.permissions)
-        setState({
-          user: stored.user,
-          isLoading: false,
-          error: null
-        })
-        return
-      }
+      console.log('[useAdminAuth] Found session in localStorage:', {
+        email: stored.user.email,
+        role: stored.user.role,
+        hasPermissions: !!stored.user.permissions
+      })
 
-      // Production mode - validate with server
-      const validationResult = await ProdAuthService.validateSession(stored.session.access_token)
-
-      if (!validationResult.valid) {
-        // Session invalid, clear storage
-        SessionStorage.clearSession()
-        setState({
-          user: null,
-          isLoading: false,
-          error: validationResult.error ?? 'Session expired'
-        })
-        return
-      }
-
+      // In production, trust the localStorage session (it was set by the API login)
+      // The cookie-based SSR auth handles server-side validation
       setState({
-        user: validationResult.user ?? stored.user,
+        user: stored.user,
         isLoading: false,
         error: null
       })
     } catch (err) {
-      console.error('Session validation error:', err)
-
-      // In development mode, don't clear session on validation errors
-      if (isDevelopmentMode()) {
-        const user = DevAuthService.getMockUser()
-        if (user) {
-          setState({
-            user,
-            isLoading: false,
-            error: null
-          })
-          return
-        }
-      }
-
+      console.error('[useAdminAuth] Session validation error:', err)
       SessionStorage.clearSession()
       setState({
         user: null,
