@@ -22,19 +22,19 @@ export function FinalCTA() {
         {/* Main Content */}
         <div className="text-center mb-12">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-circleTel-orange/20 border border-circleTel-orange/30 text-circleTel-orange mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 mb-6 animate-pulse">
             <Zap className="h-4 w-4" />
-            <span className="text-sm font-semibold">Limited Spots Available</span>
+            <span className="text-sm font-semibold">🚀 We're Hiring Partners Now</span>
           </div>
 
           {/* Headline */}
           <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">
-            Ready to Build Your <span className="text-circleTel-orange">Recurring Revenue</span> Business?
+            Don't Miss This Opportunity — <span className="text-circleTel-orange">Apply Today</span>
           </h2>
 
           {/* Subheadline */}
           <p className="text-xl lg:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Join 200+ partners earning monthly commissions selling South Africa's best connectivity
+            We're expanding fast across South Africa. Join 200+ partners already building profitable businesses with us
           </p>
 
           {/* Quick Benefits */}
@@ -75,7 +75,7 @@ export function FinalCTA() {
                 size="lg"
                 className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-10 py-7 text-xl font-bold rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
-                Apply Now - It's Free
+                Join Now - Free Application
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
             </Link>
