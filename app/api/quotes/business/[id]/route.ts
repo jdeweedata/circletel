@@ -93,12 +93,12 @@ export async function PUT(
     }
 
     // Check if quote can be edited
-    const editableStatuses = ['draft', 'pending_approval', 'approved'];
+    const editableStatuses = ['draft', 'pending_approval', 'approved', 'sent', 'viewed'];
     if (!editableStatuses.includes(existingQuote.status)) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: `Quote cannot be edited in ${existingQuote.status} status` 
+        {
+          success: false,
+          error: `Quote cannot be edited in ${existingQuote.status} status`
         },
         { status: 400 }
       );
