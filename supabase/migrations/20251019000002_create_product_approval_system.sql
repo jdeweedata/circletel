@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS product_approval_queue (
 -- ============================================
 -- 3. Notifications Table
 -- ============================================
+-- DEPRECATED: This table creation is now handled by 20251024150316_create_notifications_system.sql
+-- and fixed by 20251106210000_fix_notifications_schema.sql
+-- Commenting out to prevent schema conflicts
+/*
 CREATE TABLE IF NOT EXISTS notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES admin_users(id) ON DELETE CASCADE,
@@ -72,6 +76,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+*/
 
 -- ============================================
 -- 4. Reminders Table
