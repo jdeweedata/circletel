@@ -18,31 +18,39 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
+            {/* Eyebrow Tag */}
+            <div className="mb-4">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Digital Service Provider</span>
+            </div>
+
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 mb-6 animate-pulse">
-              <Handshake className="h-4 w-4" />
-              <span className="text-sm font-semibold">🔥 Actively Recruiting Partners Now</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-300 mb-6">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-sm font-medium">Building Together With Partners Who Get It</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-6 leading-tight">
-              Join South Africa's Fastest Growing <span className="text-circleTel-orange">ISP Partner Network</span>
+              Partner With a Company <span className="text-circleTel-orange">That Actually Listens</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl lg:text-2xl text-gray-300 mb-8 leading-relaxed">
-              We're expanding rapidly and looking for ambitious partners to grow with us. Start earning recurring commission today!
+              We're not another ISP fighting on price. We're building digital solutions for customers who aren't getting value elsewhere—and we need partners who understand underserved markets.
             </p>
 
             {/* Key Points */}
-            <ul className="space-y-3 mb-10 text-left">
+            <ul className="space-y-4 mb-10 text-left">
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-circleTel-orange flex items-center justify-center">
                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg">Earn up to <strong>30% recurring commission</strong> — get paid every month your customers stay active</span>
+                <div>
+                  <div className="text-lg font-semibold mb-1">Products built from partner feedback</div>
+                  <div className="text-base text-gray-400">We develop what your customers actually need, not what's easiest to sell</div>
+                </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-circleTel-orange flex items-center justify-center">
@@ -50,7 +58,10 @@ export function HeroSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg"><strong>Fast-track approval</strong> — start selling within 5-7 days with full portal access</span>
+                <div>
+                  <div className="text-lg font-semibold mb-1">Blue ocean positioning by design</div>
+                  <div className="text-base text-gray-400">Serve customers frustrated by traditional providers—better fit, easier sales, loyal clients</div>
+                </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-circleTel-orange flex items-center justify-center">
@@ -58,7 +69,10 @@ export function HeroSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg"><strong>Zero upfront costs</strong> — free training, marketing materials & dedicated support</span>
+                <div>
+                  <div className="text-lg font-semibold mb-1">Your success drives our roadmap</div>
+                  <div className="text-base text-gray-400">Recurring commission up to 30% plus real influence on product direction</div>
+                </div>
               </li>
             </ul>
 
@@ -69,41 +83,41 @@ export function HeroSection() {
                   size="lg"
                   className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-6 text-lg font-semibold rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                 >
-                  Apply Now - Start Earning
+                  Join the Partner Program
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-circleTel-darkNeutral px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 w-full sm:w-auto"
-                onClick={() => {
-                  const element = document.querySelector('#commission-structure');
-                  element?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <FileText className="mr-2 h-5 w-5" />
-                See What You'll Earn
-              </Button>
+              <a href="mailto:partners@circletel.co.za">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white hover:text-circleTel-darkNeutral px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 w-full sm:w-auto"
+                >
+                  <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  Talk to Our Team
+                </Button>
+              </a>
             </div>
 
             {/* Trust Badge */}
             <div className="mt-8 pt-8 border-t border-gray-700">
-              <p className="text-sm text-gray-400 mb-3">Join 200+ active partners already earning across South Africa</p>
-              <div className="flex items-center gap-4 justify-center lg:justify-start">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-circleTel-orange">R2.5M+</div>
-                  <div className="text-xs text-gray-400">Paid in 2024</div>
+              <p className="text-xs uppercase tracking-wider text-gray-500 mb-4 font-semibold">Partners building with us, not just for us</p>
+              <div className="flex items-center gap-6 justify-center lg:justify-start">
+                <div className="text-left">
+                  <div className="text-3xl font-extrabold text-circleTel-orange">200+</div>
+                  <div className="text-sm text-gray-400 font-medium">Active Partners</div>
                 </div>
-                <div className="w-px h-10 bg-gray-700" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-circleTel-orange">98%</div>
-                  <div className="text-xs text-gray-400">Satisfaction</div>
+                <div className="w-px h-12 bg-gray-700" />
+                <div className="text-left">
+                  <div className="text-3xl font-extrabold text-circleTel-orange">98%</div>
+                  <div className="text-sm text-gray-400 font-medium">Partner Satisfaction</div>
                 </div>
-                <div className="w-px h-10 bg-gray-700" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-circleTel-orange">5-7 days</div>
-                  <div className="text-xs text-gray-400">Approval Time</div>
+                <div className="w-px h-12 bg-gray-700" />
+                <div className="text-left">
+                  <div className="text-3xl font-extrabold text-circleTel-orange">5-7 days</div>
+                  <div className="text-sm text-gray-400 font-medium">To Start Selling</div>
                 </div>
               </div>
             </div>
@@ -112,15 +126,18 @@ export function HeroSection() {
           {/* Right Column - Visual */}
           <div className="hidden lg:block">
             <div className="relative">
-              {/* Placeholder for partner image */}
-              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="aspect-[4/3] bg-gradient-to-br from-circleTel-orange/20 to-circleTel-orange/5 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-circleTel-orange/20 flex items-center justify-center">
-                      <Handshake className="h-16 w-16 text-circleTel-orange" />
+              {/* Market-Fit Focus Card */}
+              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+                <div className="p-12">
+                  <div className="text-center">
+                    <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-circleTel-orange/20 to-circleTel-orange/10 flex items-center justify-center relative">
+                      {/* Glow effect */}
+                      <div className="absolute inset-0 rounded-full bg-circleTel-orange/10 blur-2xl" />
+                      {/* Icon */}
+                      <div className="relative text-6xl">🎯</div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">Partner Portal Preview</h3>
-                    <p className="text-gray-300">Track leads, commissions & performance in real-time</p>
+                    <h3 className="text-3xl font-bold mb-4">Market-Fit Focus</h3>
+                    <p className="text-gray-400 text-lg leading-relaxed">Partner dashboard shows real customer needs—we build products that solve them together</p>
                   </div>
                 </div>
               </div>

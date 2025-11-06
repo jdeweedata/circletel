@@ -9,9 +9,9 @@ import { FAQSection } from '@/components/partner-landing/FAQSection';
 import { FinalCTA } from '@/components/partner-landing/FinalCTA';
 
 export const metadata: Metadata = {
-  title: 'Join CircleTel Partner Network | Now Hiring | Earn Up To 30% Commission',
-  description: 'We are actively recruiting partners across South Africa! Earn up to 30% recurring commission selling premium connectivity. Fast-track approval, zero upfront costs, full training included. Apply now and start earning within 7 days.',
-  keywords: 'CircleTel partner programme, ISP partner South Africa, fibre reseller, now hiring partners, telecom agent commission, earn commission selling fibre, partner recruitment',
+  title: 'Partner With CircleTel | Digital Service Provider | Build Solutions Together',
+  description: 'Partner with a DSP that actually listens. We build digital solutions for underserved markets based on real partner feedback. Join 200+ partners co-creating products that customers need. Blue ocean positioning, 30% recurring commission, real influence on our roadmap.',
+  keywords: 'CircleTel partner programme, digital service provider, DSP partner South Africa, blue ocean strategy, partner collaboration, co-create products, underserved markets, telecom partnership',
 };
 
 export default function BecomeAPartnerPage() {
