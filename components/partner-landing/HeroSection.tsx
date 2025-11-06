@@ -78,12 +78,12 @@ export function HeroSection() {
                 variant="outline"
                 className="border-2 border-white text-white hover:bg-white hover:text-circleTel-darkNeutral px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 w-full sm:w-auto"
                 onClick={() => {
-                  const element = document.getElementById('commission-calculator');
+                  const element = document.querySelector('#commission-structure');
                   element?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
                 <FileText className="mr-2 h-5 w-5" />
-                Calculate Earnings
+                View Commission Rates
               </Button>
             </div>
 

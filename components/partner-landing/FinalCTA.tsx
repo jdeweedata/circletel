@@ -84,11 +84,10 @@ export function FinalCTA() {
               variant="outline"
               className="border-2 border-white text-white hover:bg-white hover:text-circleTel-darkNeutral px-10 py-7 text-xl font-bold rounded-xl transition-all duration-300 w-full sm:w-auto"
               onClick={() => {
-                const element = document.getElementById('commission-calculator');
-                element?.scrollIntoView({ behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              Calculate Earnings
+              Back to Top
             </Button>
           </div>
         </div>
