@@ -20,6 +20,7 @@ import {
   ToggleRight,
   Star,
   TrendingUp,
+  Edit,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -32,6 +33,7 @@ export interface BulkActionsToolbarProps {
   onBulkSetCategory?: (category: string) => void;
   onBulkSetFeatured?: (featured: boolean) => void;
   onBulkSetPopular?: (popular: boolean) => void;
+  onQuickEdit?: () => void;
   hasEditPermission?: boolean;
   hasDeletePermission?: boolean;
   className?: string;
@@ -70,6 +72,7 @@ export function BulkActionsToolbar({
   onBulkSetCategory,
   onBulkSetFeatured,
   onBulkSetPopular,
+  onQuickEdit,
   hasEditPermission = false,
   hasDeletePermission = false,
   className,
@@ -151,6 +154,19 @@ export function BulkActionsToolbar({
                   <SelectItem value="bundles">Bundles</SelectItem>
                 </SelectContent>
               </Select>
+            )}
+
+            {/* Quick Edit */}
+            {hasEditPermission && onQuickEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onQuickEdit}
+                className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+              >
+                <Edit className="h-4 w-4 mr-1" />
+                Quick Edit
+              </Button>
             )}
 
             {/* Feature Flags */}

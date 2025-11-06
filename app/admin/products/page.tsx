@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Product, ProductFilters } from '@/lib/types/products';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,19 +35,29 @@ import {
   RefreshCw,
   LayoutGrid,
   List,
+  Columns3,
+  Download,
   Wifi,
   HardDrive,
   Code,
   Headphones,
   Package as PackageBundle,
+  X,
+  ChevronDown,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { AdminProductCard } from '@/components/admin/products/AdminProductCard';
-import { ProductsList } from '@/components/admin/products/ProductsList';
+import { ProductsList, ColumnVisibility } from '@/components/admin/products/ProductsList';
 import { CategorySection } from '@/components/admin/products/CategorySection';
 import { BulkActionsToolbar } from '@/components/admin/products/BulkActionsToolbar';
 import { ProductStatsWidget } from '@/components/admin/products/ProductStatsWidget';
 import { PriceEditModal } from '@/components/admin/products/PriceEditModal';
 import { AuditHistoryModal } from '@/components/admin/products/AuditHistoryModal';
+import { ActiveFiltersChips } from '@/components/admin/products/ActiveFiltersChips';
+import { FilterPresets } from '@/components/admin/products/FilterPresets';
+import { QuickEditModal } from '@/components/admin/products/QuickEditModal';
+import { ColumnCustomization } from '@/components/admin/products/ColumnCustomization';
+import { convertProductsToCSV, downloadCSV, generateCSVFilename } from '@/lib/utils/export-csv';
 
 type ViewMode = 'grid' | 'list';
 
@@ -61,6 +72,22 @@ export default function AdminProducts() {
     featured: 0,
     popular: 0
   });
+
+  // Debug logging for permissions
+  useEffect(() => {
+    const canEdit = hasPermission(PERMISSIONS.PRODUCTS.EDIT);
+    const canCreate = hasPermission(PERMISSIONS.PRODUCTS.CREATE);
+    const canDelete = hasPermission(PERMISSIONS.PRODUCTS.DELETE);
+    const canManagePricing = hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING);
+
+    console.log('[AdminProducts] Permission checks:', {
+      canEdit,
+      canCreate,
+      canDelete,
+      canManagePricing,
+      PERMISSIONS_EDIT: PERMISSIONS.PRODUCTS.EDIT
+    });
+  }, [hasPermission]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ProductFilters>({});
@@ -78,6 +105,23 @@ export default function AdminProducts() {
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [auditHistoryModalOpen, setAuditHistoryModalOpen] = useState(false);
   const [productForAudit, setProductForAudit] = useState<Product | null>(null);
+  const [quickEditModalOpen, setQuickEditModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [advancedFiltersExpanded, setAdvancedFiltersExpanded] = useState(false);
+  const [columnCustomizationOpen, setColumnCustomizationOpen] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
+    provider: true,
+    status: true,
+    featuredPopular: true,
+    description: true,
+    sku: true,
+    category: true,
+    serviceType: true,
+    speed: true,
+    contract: true,
+    updatedDate: true,
+    costPrice: true,
+  });
 
   // Load view mode preference from localStorage
   useEffect(() => {
@@ -85,12 +129,35 @@ export default function AdminProducts() {
     if (savedViewMode) {
       setViewMode(savedViewMode);
     }
+
+    // Load advanced filters expanded state
+    const savedAdvancedFilters = localStorage.getItem('admin-products-advanced-filters-expanded');
+    if (savedAdvancedFilters === 'true') {
+      setAdvancedFiltersExpanded(true);
+    }
+
+    // Load column visibility preferences
+    const savedColumnVisibility = localStorage.getItem('product-list-columns');
+    if (savedColumnVisibility) {
+      try {
+        setColumnVisibility(JSON.parse(savedColumnVisibility));
+      } catch (error) {
+        console.error('Failed to load column visibility:', error);
+      }
+    }
   }, []);
 
   // Save view mode preference
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
     localStorage.setItem('admin-products-view-mode', mode);
+  };
+
+  // Toggle advanced filters
+  const toggleAdvancedFilters = () => {
+    const newState = !advancedFiltersExpanded;
+    setAdvancedFiltersExpanded(newState);
+    localStorage.setItem('admin-products-advanced-filters-expanded', String(newState));
   };
 
   const fetchProducts = async () => {
@@ -405,6 +472,31 @@ export default function AdminProducts() {
     }
   };
 
+  const handleQuickEditSave = async (updates: Partial<Product>) => {
+    try {
+      await Promise.all(
+        selectedProductIds.map(id =>
+          fetch(`/api/admin/products/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-email': 'admin@circletel.co.za',
+              'x-user-name': 'Admin User'
+            },
+            body: JSON.stringify(updates)
+          })
+        )
+      );
+      await fetchProducts();
+      await fetchStats();
+      handleClearSelection();
+    } catch (err) {
+      console.error('Error bulk updating products:', err);
+      setError('Failed to update products');
+      throw err; // Re-throw so modal can handle error state
+    }
+  };
+
   // Individual product handlers
   const handleToggleStatus = async (product: Product) => {
     console.log('[Admin Products] Toggle status called for product:', product.id, 'Current status:', product.is_active);
@@ -519,6 +611,22 @@ export default function AdminProducts() {
     setAuditHistoryModalOpen(true);
   };
 
+  const handleExportCSV = () => {
+    if (products.length === 0) {
+      alert('No products to export');
+      return;
+    }
+
+    try {
+      const csvContent = convertProductsToCSV(products);
+      const filename = generateCSVFilename('circletel-products');
+      downloadCSV(csvContent, filename);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      alert('Failed to export CSV. Please try again.');
+    }
+  };
+
   // Drag and drop handler
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -586,21 +694,49 @@ export default function AdminProducts() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Filter Products</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            Filter Products
+            {(() => {
+              const activeCount = Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0);
+              return activeCount > 0 ? (
+                <Badge variant="default" className="bg-circleTel-orange">
+                  {activeCount} active
+                </Badge>
+              ) : null;
+            })()}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search products..."
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+          <div className="space-y-4">
+            {/* Row 1: Search (Full Width) */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by name, SKU, category, or description..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  handleSearch(e.target.value);
+                }}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-gray-100"
+                  onClick={() => {
+                    setSearchQuery('');
+                    handleSearch('');
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-            <div className="flex gap-4 flex-wrap">
+
+            {/* Row 2: Primary Filters + More Filters Button */}
+            <div className="flex gap-3 flex-wrap items-center">
               <Select onValueChange={(value) => handleFilterChange('category', value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Categories" />
@@ -628,19 +764,6 @@ export default function AdminProducts() {
                 </SelectContent>
               </Select>
 
-              <Select onValueChange={(value) => handleFilterChange('contract_term', value)}>
-                <SelectTrigger className="w-[170px]">
-                  <SelectValue placeholder="Contract Term" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Terms</SelectItem>
-                  <SelectItem value="0">Month-to-Month</SelectItem>
-                  <SelectItem value="12">12 Months</SelectItem>
-                  <SelectItem value="24">24 Months</SelectItem>
-                  <SelectItem value="36">36 Months</SelectItem>
-                </SelectContent>
-              </Select>
-
               <Select onValueChange={(value) => handleFilterChange('device_type', value)}>
                 <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Device Type" />
@@ -651,6 +774,38 @@ export default function AdminProducts() {
                   <SelectItem value="cpe">CPE/Router</SelectItem>
                   <SelectItem value="handset">Handset</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleAdvancedFilters}
+                className="ml-auto"
+              >
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                {advancedFiltersExpanded ? 'Less' : 'More'} Filters
+                {(() => {
+                  const secondaryFilterCount = [filters.contract_term, filters.technology, filters.data_package].filter(Boolean).length;
+                  return secondaryFilterCount > 0 ? ` (${secondaryFilterCount})` : '';
+                })()}
+                <ChevronDown className={`h-4 w-4 ml-2 transition-transform duration-200 ${advancedFiltersExpanded ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+
+            {/* Row 3: Secondary Filters + Sort + Clear All (Collapsible) */}
+            {advancedFiltersExpanded && (
+              <div className="flex gap-3 flex-wrap items-center animate-in slide-in-from-top-2 border-t border-gray-200 pt-3">
+              <Select onValueChange={(value) => handleFilterChange('contract_term', value)}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Contract Term" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Terms</SelectItem>
+                  <SelectItem value="0">Month-to-Month</SelectItem>
+                  <SelectItem value="12">12 Months</SelectItem>
+                  <SelectItem value="24">24 Months</SelectItem>
+                  <SelectItem value="36">36 Months</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -681,6 +836,18 @@ export default function AdminProducts() {
                   <SelectItem value="uncapped">Uncapped</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            )}
+
+            {/* Row 4: Sort By + Presets + Clear All (Always Visible) */}
+            <div className="flex gap-3 flex-wrap items-center">
+              <FilterPresets
+                currentFilters={filters}
+                onApplyPreset={(presetFilters) => {
+                  setFilters(presetFilters);
+                  setPagination({ ...pagination, page: 1 });
+                }}
+              />
 
               <Select onValueChange={(value) => handleFilterChange('sort_by', value)}>
                 <SelectTrigger className="w-[150px]">
@@ -694,10 +861,44 @@ export default function AdminProducts() {
                   <SelectItem value="price_desc">Price High-Low</SelectItem>
                 </SelectContent>
               </Select>
+
+              {(Object.keys(filters).some(key => filters[key as keyof ProductFilters]) || searchQuery) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFilters({});
+                    setSearchQuery('');
+                    setPagination({ ...pagination, page: 1 });
+                  }}
+                  className="text-circleTel-orange border-circleTel-orange hover:bg-circleTel-orange hover:text-white ml-auto"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Clear All
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Active Filter Chips */}
+      <ActiveFiltersChips
+        filters={filters}
+        searchQuery={searchQuery}
+        onRemoveFilter={(key) => {
+          handleFilterChange(key, '');
+        }}
+        onClearSearch={() => {
+          setSearchQuery('');
+          handleSearch('');
+        }}
+        onClearAll={() => {
+          setFilters({});
+          setSearchQuery('');
+          setPagination({ ...pagination, page: 1 });
+        }}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -708,16 +909,41 @@ export default function AdminProducts() {
       {/* View Tabs */}
       <Tabs value={viewMode} onValueChange={(value) => handleViewModeChange(value as ViewMode)}>
         <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="grid" className="flex items-center gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              Grid View
-            </TabsTrigger>
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              List View
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-3">
+            <TabsList>
+              <TabsTrigger value="grid" className="flex items-center gap-2">
+                <LayoutGrid className="h-4 w-4" />
+                Grid View
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                List View
+              </TabsTrigger>
+            </TabsList>
+
+            {viewMode === 'list' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setColumnCustomizationOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Columns3 className="h-4 w-4" />
+                Customize Columns
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={products.length === 0}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV ({products.length})
+            </Button>
+          </div>
 
           {selectedProductIds.length > 0 && (
             <div className="text-sm text-gray-600">
@@ -838,6 +1064,7 @@ export default function AdminProducts() {
                 hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
                 hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
                 hasCreatePermission={hasPermission(PERMISSIONS.PRODUCTS.CREATE)}
+                columnVisibility={columnVisibility}
               />
             </CardContent>
           </Card>
@@ -887,6 +1114,7 @@ export default function AdminProducts() {
         onBulkSetCategory={handleBulkSetCategory}
         onBulkSetFeatured={handleBulkSetFeatured}
         onBulkSetPopular={handleBulkSetPopular}
+        onQuickEdit={() => setQuickEditModalOpen(true)}
         hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
         hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
       />
@@ -937,6 +1165,22 @@ export default function AdminProducts() {
           }}
         />
       )}
+
+      {/* Quick Edit Modal */}
+      <QuickEditModal
+        products={products.filter(p => selectedProductIds.includes(p.id))}
+        open={quickEditModalOpen}
+        onClose={() => setQuickEditModalOpen(false)}
+        onSave={handleQuickEditSave}
+      />
+
+      {/* Column Customization Modal */}
+      <ColumnCustomization
+        open={columnCustomizationOpen}
+        onClose={() => setColumnCustomizationOpen(false)}
+        columns={columnVisibility}
+        onColumnsChange={setColumnVisibility}
+      />
     </div>
   );
 }

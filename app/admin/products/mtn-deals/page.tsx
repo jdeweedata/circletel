@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, Filter, RefreshCw, TrendingUp, Package, Smartphone } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Search, Filter, RefreshCw, TrendingUp, Package, Smartphone, Eye, EyeOff } from 'lucide-react';
 
 interface MTNDeal {
   id: string;
@@ -22,6 +23,7 @@ interface MTNDeal {
   available_ilula: boolean;
   promo_end_date: string;
   active: boolean;
+  is_visible_on_frontend: boolean;
 }
 
 export default function MTNDealsPage() {
@@ -87,12 +89,48 @@ export default function MTNDealsPage() {
     try {
       const response = await fetch('/api/products/mtn-deals/stats');
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.stats);
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  const handleToggleVisibility = async (deal: MTNDeal) => {
+    console.log('[MTN Deals] Toggle visibility called for deal:', deal.id, 'Current visibility:', deal.is_visible_on_frontend);
+    try {
+      const newVisibility = !deal.is_visible_on_frontend;
+      console.log('[MTN Deals] Sending request to toggle visibility to:', newVisibility);
+
+      const response = await fetch(`/api/products/mtn-deals/${deal.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          is_visible_on_frontend: newVisibility,
+        })
+      });
+
+      const data = await response.json();
+      console.log('[MTN Deals] Toggle response:', data);
+
+      if (data.success) {
+        console.log('[MTN Deals] Visibility toggle successful, refreshing deals...');
+        await fetchDeals(true);
+        await fetchStats();
+        alert(`Deal ${newVisibility ? 'shown' : 'hidden'} on frontend successfully`);
+      } else {
+        console.error('[MTN Deals] Toggle failed:', data.error);
+        const errorMsg = data.error || 'Failed to update deal visibility';
+        alert(`Error: ${errorMsg}`);
+      }
+    } catch (err) {
+      console.error('[MTN Deals] Error toggling deal visibility:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update deal visibility';
+      alert(`Error: ${errorMsg}`);
     }
   };
 
@@ -376,6 +414,30 @@ export default function MTNDealsPage() {
                       ⚠️ Expiring soon - {daysLeft} days remaining
                     </div>
                   )}
+
+                  {/* Frontend Visibility Toggle */}
+                  <div className="flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg bg-white hover:bg-gray-50/50 transition-all duration-200">
+                    <div className="flex items-center gap-2">
+                      {deal.is_visible_on_frontend ? (
+                        <Eye className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <EyeOff className="w-4 h-4 text-gray-400" />
+                      )}
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-gray-900">
+                          {deal.is_visible_on_frontend ? 'Visible' : 'Hidden'}
+                        </span>
+                        <span className="text-xs text-gray-500 leading-tight">
+                          {deal.is_visible_on_frontend ? 'Shown on website' : 'Hidden from website'}
+                        </span>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={deal.is_visible_on_frontend}
+                      onCheckedChange={() => handleToggleVisibility(deal)}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-200"
+                    />
+                  </div>
 
                   <Button
                     className="w-full bg-circleTel-orange hover:bg-[#e67516]"

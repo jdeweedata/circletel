@@ -30,6 +30,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+export interface ColumnVisibility {
+  provider: boolean;
+  status: boolean;
+  featuredPopular: boolean;
+  description: boolean;
+  sku: boolean;
+  category: boolean;
+  serviceType: boolean;
+  speed: boolean;
+  contract: boolean;
+  updatedDate: boolean;
+  costPrice: boolean;
+}
+
 export interface ProductsListProps {
   products: Product[];
   selectedIds?: string[];
@@ -45,6 +59,7 @@ export interface ProductsListProps {
   hasPricingPermission?: boolean;
   hasCreatePermission?: boolean;
   dragHandleProps?: any;
+  columnVisibility?: ColumnVisibility;
 }
 
 /**
@@ -69,6 +84,20 @@ export interface ProductsListProps {
  * />
  * ```
  */
+const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
+  provider: true,
+  status: true,
+  featuredPopular: true,
+  description: true,
+  sku: true,
+  category: true,
+  serviceType: true,
+  speed: true,
+  contract: true,
+  updatedDate: true,
+  costPrice: true,
+};
+
 export function ProductsList({
   products,
   selectedIds = [],
@@ -84,6 +113,7 @@ export function ProductsList({
   hasPricingPermission = false,
   hasCreatePermission = false,
   dragHandleProps,
+  columnVisibility = DEFAULT_COLUMN_VISIBILITY,
 }: ProductsListProps) {
   const formatPrice = (priceStr: string | number) => {
     const price = typeof priceStr === 'string' ? parseFloat(priceStr) : priceStr;
@@ -97,16 +127,16 @@ export function ProductsList({
 
   const getStatusBadge = (product: Product) => {
     if (!product.is_active) {
-      return <Badge variant="secondary" className="text-xs">Inactive</Badge>;
+      return <Badge className="bg-gray-200 text-gray-700 border-gray-300 text-xs">Inactive</Badge>;
     }
 
     switch (product.status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800 text-xs">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">Active</Badge>;
       case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800 text-xs">Draft</Badge>;
+        return <Badge className="bg-blue-50 text-blue-700 border-blue-300 text-xs">Draft</Badge>;
       case 'archived':
-        return <Badge className="bg-red-100 text-red-800 text-xs">Archived</Badge>;
+        return <Badge className="bg-gray-100 text-gray-600 border-gray-300 text-xs">Archived</Badge>;
       default:
         return <Badge variant="outline" className="capitalize text-xs">{product.status}</Badge>;
     }
@@ -114,7 +144,7 @@ export function ProductsList({
 
   return (
     <div className="space-y-3">
-      {products.map((product) => {
+      {products.map((product, index) => {
         const isSelected = selectedIds.includes(product.id);
         const providerCode = product.metadata?.provider_code || product.metadata?.provider || '';
         const providerName = product.metadata?.provider_name || providerCode;
@@ -123,12 +153,17 @@ export function ProductsList({
           <div
             key={product.id}
             className={cn(
-              'flex items-center gap-4 p-4 border-2 rounded-lg transition-all duration-200',
-              'hover:shadow-md hover:border-circleTel-orange/50',
-              isSelected && 'border-circleTel-orange shadow-md bg-orange-50/30',
-              !isSelected && 'border-gray-200 bg-white'
+              'relative overflow-x-auto'
             )}
           >
+            <div
+              className={cn(
+                'flex items-center gap-4 p-4 border-2 rounded-lg transition-all duration-200 min-w-[900px]',
+                'hover:shadow-md hover:border-circleTel-orange/50',
+                isSelected && 'border-circleTel-orange shadow-md bg-orange-50/30',
+                !isSelected && index % 2 === 0 ? 'border-gray-200 bg-white' : 'border-gray-200 bg-gray-50'
+              )}
+            >
             {/* Selection & Drag Handle */}
             <div className="flex items-center gap-2">
               {onSelect && (
@@ -149,23 +184,25 @@ export function ProductsList({
             </div>
 
             {/* Provider Logo / Product Icon */}
-            <div className="flex-shrink-0">
-              {providerCode ? (
-                <div className="h-12 w-12 bg-gray-50 rounded-lg flex items-center justify-center p-1">
-                  <ProviderLogo
-                    providerCode={providerCode}
-                    providerName={providerName}
-                    variant="grayscale"
-                    size="small"
-                    priority={false}
-                  />
-                </div>
-              ) : (
-                <div className="h-12 w-12 bg-circleTel-lightNeutral rounded-lg flex items-center justify-center">
-                  <Package className="h-6 w-6 text-circleTel-orange" />
-                </div>
-              )}
-            </div>
+            {columnVisibility.provider && (
+              <div className="flex-shrink-0">
+                {providerCode ? (
+                  <div className="h-12 w-12 bg-gray-50 rounded-lg flex items-center justify-center p-1">
+                    <ProviderLogo
+                      providerCode={providerCode}
+                      providerName={providerName}
+                      variant="grayscale"
+                      size="small"
+                      priority={false}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-12 w-12 bg-circleTel-lightNeutral rounded-lg flex items-center justify-center">
+                    <Package className="h-6 w-6 text-circleTel-orange" />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Product Details */}
             <div className="flex-1 min-w-0">
@@ -173,51 +210,65 @@ export function ProductsList({
                 <h3 className="font-semibold text-gray-900 text-base truncate">
                   {product.name}
                 </h3>
-                {getStatusBadge(product)}
-                {product.is_featured && (
-                  <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                {columnVisibility.status && getStatusBadge(product)}
+                {columnVisibility.featuredPopular && product.is_featured && (
+                  <Badge className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
                     <Star className="w-3 h-3 mr-1 fill-current" />
                     Featured
                   </Badge>
                 )}
-                {product.is_popular && (
-                  <Badge className="bg-green-100 text-green-800 text-xs">
+                {columnVisibility.featuredPopular && product.is_popular && (
+                  <Badge className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     Popular
                   </Badge>
                 )}
               </div>
 
-              <p className="text-sm text-gray-600 mb-2 line-clamp-1">
-                {product.description || 'No description available'}
-              </p>
+              {columnVisibility.description && (
+                <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+                  {product.description || 'No description available'}
+                </p>
+              )}
 
               <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
-                <span className="font-medium">SKU: {product.sku}</span>
-                <span>•</span>
-                <span className="capitalize">{product.category}</span>
-                {product.service_type && (
+                {columnVisibility.sku && (
                   <>
+                    <span className="font-medium">SKU: {product.sku}</span>
                     <span>•</span>
-                    <Badge variant="outline" className="text-xs">{product.service_type}</Badge>
                   </>
                 )}
-                {product.pricing?.download_speed && product.pricing?.upload_speed && (
+                {columnVisibility.category && (
                   <>
+                    <span className="capitalize">{product.category}</span>
                     <span>•</span>
+                  </>
+                )}
+                {columnVisibility.serviceType && product.service_type && (
+                  <>
+                    <Badge variant="outline" className="text-xs">{product.service_type}</Badge>
+                    <span>•</span>
+                  </>
+                )}
+                {columnVisibility.speed && product.pricing?.download_speed && product.pricing?.upload_speed && (
+                  <>
                     <span>
                       Speed: {product.pricing.download_speed}/{product.pricing.upload_speed} Mbps
                     </span>
-                  </>
-                )}
-                {product.metadata?.contract_months && (
-                  <>
                     <span>•</span>
-                    <span>Contract: {product.metadata.contract_months}mo</span>
                   </>
                 )}
-                <span>•</span>
-                <span>Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
+                {columnVisibility.contract && product.metadata?.contract_months && (
+                  <>
+                    <span>Contract: {product.metadata.contract_months}mo</span>
+                    <span>•</span>
+                  </>
+                )}
+                {columnVisibility.updatedDate && (
+                  <>
+                    <span>Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -226,21 +277,29 @@ export function ProductsList({
               <p className="font-bold text-circleTel-orange text-lg">
                 {formatPrice(product.base_price_zar)}
               </p>
-              <p className="text-xs text-gray-500">
-                Cost: {formatPrice(product.cost_price_zar)}
-              </p>
+              {columnVisibility.costPrice && (
+                <p className="text-xs text-gray-500">
+                  Cost: {formatPrice(product.cost_price_zar)}
+                </p>
+              )}
             </div>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            {/* Quick Actions - Sticky */}
+            <div className={cn(
+              "flex items-center gap-2 flex-shrink-0 sticky right-0 pl-4",
+              "shadow-[-4px_0_8px_rgba(0,0,0,0.05)]",
+              isSelected && "bg-orange-50/30",
+              !isSelected && index % 2 === 0 ? "bg-white" : "bg-gray-50"
+            )}>
               <Button
                 variant="ghost"
                 size="sm"
                 asChild
-                className="h-8 w-8 p-0"
+                className="hover:bg-circleTel-orange/10"
               >
                 <Link href={`/admin/products/${product.id}`}>
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
                 </Link>
               </Button>
 
@@ -249,10 +308,11 @@ export function ProductsList({
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="h-8 w-8 p-0"
+                  className="hover:bg-circleTel-orange/10"
                 >
                   <Link href={`/admin/products/${product.id}/edit`}>
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
                   </Link>
                 </Button>
               )}
@@ -309,6 +369,7 @@ export function ProductsList({
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+            </div>
             </div>
           </div>
         );

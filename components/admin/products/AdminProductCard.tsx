@@ -122,16 +122,16 @@ export function AdminProductCard({
 
   const getStatusBadge = () => {
     if (!product.is_active) {
-      return <Badge variant="secondary" className="text-xs">Inactive</Badge>;
+      return <Badge className="bg-gray-200 text-gray-700 border-gray-300 text-xs">Inactive</Badge>;
     }
 
     switch (product.status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800 text-xs">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">Active</Badge>;
       case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800 text-xs">Draft</Badge>;
+        return <Badge className="bg-blue-50 text-blue-700 border-blue-300 text-xs">Draft</Badge>;
       case 'archived':
-        return <Badge className="bg-red-100 text-red-800 text-xs">Archived</Badge>;
+        return <Badge className="bg-gray-100 text-gray-600 border-gray-300 text-xs">Archived</Badge>;
       default:
         return <Badge variant="outline" className="capitalize text-xs">{product.status}</Badge>;
     }
@@ -145,8 +145,8 @@ export function AdminProductCard({
     <div
       className={cn(
         'group relative w-full h-full',
-        'bg-white rounded-xl border-2 transition-all duration-300',
-        'hover:shadow-lg hover:scale-[1.02]',
+        'bg-white rounded-xl border-2 transition-all duration-300 ease-in-out',
+        'hover:shadow-xl hover:scale-[1.02]',
         selected && 'border-circleTel-orange shadow-lg ring-2 ring-circleTel-orange ring-offset-2',
         !selected && 'border-gray-200 hover:border-circleTel-orange/50',
         isDragging && 'opacity-50 rotate-2 scale-105'
@@ -276,17 +276,27 @@ export function AdminProductCard({
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {getStatusBadge()}
             {product.is_featured && (
-              <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+              <Badge className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
                 <Star className="w-3 h-3 mr-1 fill-current" />
                 Featured
               </Badge>
             )}
             {product.is_popular && (
-              <Badge className="bg-green-100 text-green-800 text-xs">
+              <Badge className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
                 <TrendingUp className="w-3 h-3 mr-1" />
                 Popular
               </Badge>
             )}
+          </div>
+        </div>
+
+        {/* Pricing - Prominent Display */}
+        <div className="text-center mb-4">
+          <div className="flex items-baseline justify-center gap-2">
+            <span className="text-3xl font-bold text-circleTel-orange">
+              {formatPrice(product.base_price_zar)}
+            </span>
+            <span className="text-sm text-gray-500">/month</span>
           </div>
         </div>
 
@@ -324,17 +334,14 @@ export function AdminProductCard({
           </div>
         )}
 
-        {/* Pricing */}
-        <div className="border-t border-gray-200 pt-4 mb-4">
-          <div className="text-center">
-            <div className="text-2xl font-extrabold text-circleTel-orange">
-              {formatPrice(product.base_price_zar)}
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Cost: {formatPrice(product.cost_price_zar)}
+        {/* Additional Pricing Details */}
+        <div className="border-t border-gray-200 pt-3 mb-4">
+          <div className="text-center space-y-1">
+            <div className="text-xs text-gray-500">
+              Cost Price: {formatPrice(product.cost_price_zar)}
             </div>
             {product.metadata?.contract_months && (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-500">
                 Contract: {product.metadata.contract_months} months
               </div>
             )}
