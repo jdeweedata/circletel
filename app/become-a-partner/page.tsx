@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { HeroSection } from '@/components/partner-landing/HeroSection';
 import { BenefitCards } from '@/components/partner-landing/BenefitCards';
 import { HowItWorks } from '@/components/partner-landing/HowItWorks';
-import { CommissionCalculator } from '@/components/partner-landing/CommissionCalculator';
 import { CommissionStructure } from '@/components/partner-landing/CommissionStructure';
 import { PartnerTestimonials } from '@/components/partner-landing/PartnerTestimonials';
 import { SuccessMetrics } from '@/components/partner-landing/SuccessMetrics';
@@ -29,9 +28,6 @@ export default function BecomeAPartnerPage() {
 
       {/* Success Metrics */}
       <SuccessMetrics />
-
-      {/* Interactive Commission Calculator (PRIORITY FEATURE) */}
-      <CommissionCalculator />
 
       {/* Commission Structure Table */}
       <CommissionStructure />
