@@ -9,9 +9,9 @@ import { FAQSection } from '@/components/partner-landing/FAQSection';
 import { FinalCTA } from '@/components/partner-landing/FinalCTA';
 
 export const metadata: Metadata = {
-  title: 'CircleTel Partner Programme | Earn Recurring Commission | Join Today',
-  description: 'Become a CircleTel partner and earn 25-30% recurring commission selling South Africa\'s best connectivity. Full training, marketing support, and dedicated account manager. Apply online in 10 minutes.',
-  keywords: 'CircleTel partner programme, ISP partner South Africa, fibre reseller, telecom agent commission, earn commission selling fibre',
+  title: 'Join CircleTel Partner Network | Now Hiring | Earn Up To 30% Commission',
+  description: 'We are actively recruiting partners across South Africa! Earn up to 30% recurring commission selling premium connectivity. Fast-track approval, zero upfront costs, full training included. Apply now and start earning within 7 days.',
+  keywords: 'CircleTel partner programme, ISP partner South Africa, fibre reseller, now hiring partners, telecom agent commission, earn commission selling fibre, partner recruitment',
 };
 
 export default function BecomeAPartnerPage() {
