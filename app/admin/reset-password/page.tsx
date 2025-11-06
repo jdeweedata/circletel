@@ -48,7 +48,7 @@ export default function AdminResetPasswordPage() {
     },
   });
 
-  // Check if we have a valid recovery token
+  // Check if we have a valid recovery token and establish session
   useEffect(() => {
     const checkToken = async () => {
       try {
@@ -57,21 +57,44 @@ export default function AdminResetPasswordPage() {
         if (!hashFragment) {
           setIsValidToken(false);
           setIsCheckingToken(false);
+          toast.error('No reset token found in URL');
           return;
         }
 
         // Supabase auth tokens come in the URL hash
         const params = new URLSearchParams(hashFragment.substring(1));
         const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
         const type = params.get('type');
 
-        if (type === 'recovery' && accessToken) {
-          setIsValidToken(true);
+        if (type === 'recovery' && accessToken && refreshToken) {
+          // Establish the session using the tokens from the URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            console.error('Error setting session:', error);
+            toast.error('Failed to establish auth session: ' + error.message);
+            setIsValidToken(false);
+          } else if (data.session) {
+            console.log('Auth session established successfully for:', data.session.user.email);
+            setIsValidToken(true);
+            toast.success('Reset link verified successfully');
+          } else {
+            console.error('No session returned');
+            toast.error('Failed to establish auth session');
+            setIsValidToken(false);
+          }
         } else {
+          console.error('Missing required tokens or invalid type:', { type, hasAccess: !!accessToken, hasRefresh: !!refreshToken });
+          toast.error('Invalid reset link');
           setIsValidToken(false);
         }
       } catch (error) {
         console.error('Error checking token:', error);
+        toast.error('Error validating reset link');
         setIsValidToken(false);
       } finally {
         setIsCheckingToken(false);
@@ -79,20 +102,36 @@ export default function AdminResetPasswordPage() {
     };
 
     checkToken();
-  }, []);
+  }, [supabase.auth]);
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     setIsSubmitting(true);
 
     try {
+      // Verify we have an active session
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !sessionData.session) {
+        console.error('No active session:', sessionError);
+        toast.error('Your session has expired. Please request a new reset link.');
+        setIsValidToken(false);
+        return;
+      }
+
+      console.log('Active session found for:', sessionData.session.user.email);
+      console.log('Attempting to update password...');
+
+      // Update the password
       const { error } = await supabase.auth.updateUser({
         password: data.password,
       });
 
       if (error) {
+        console.error('Password update error:', error);
         throw error;
       }
 
+      console.log('Password updated successfully');
       setIsSuccess(true);
       toast.success('Password reset successfully!');
 
@@ -102,7 +141,8 @@ export default function AdminResetPasswordPage() {
       }, 3000);
     } catch (error) {
       console.error('Error resetting password:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to reset password');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
