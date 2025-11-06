@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Step 1: Check if user exists in admin_users
     const { data: adminUser, error: adminError } = await supabaseAdmin
       .from('admin_users')
-      .select('id, email, full_name, is_active, role, role_template_id')
+      .select('id, email, full_name, is_active, role, role_template_id, permissions')
       .eq('email', normalizedEmail)
       .maybeSingle();
 
@@ -193,6 +193,8 @@ export async function POST(request: NextRequest) {
         full_name: adminUser.full_name,
         role: adminUser.role,
         role_template_id: adminUser.role_template_id,
+        permissions: adminUser.permissions || {},
+        is_active: adminUser.is_active,
       },
     });
 

@@ -101,6 +101,21 @@ export default function AdminLoginPage() {
         throw new Error(result.error || 'Login failed');
       }
 
+      // Save session to localStorage for useAdminAuth
+      if (result.user) {
+        const SessionStorage = await import('@/lib/auth/session-storage').then(m => m.SessionStorage);
+
+        // Create mock session data
+        const session = {
+          access_token: 'session-from-api',
+          refresh_token: 'refresh-from-api',
+          expires_at: Date.now() + (3600 * 1000), // 1 hour from now
+        };
+
+        // Save to localStorage
+        SessionStorage.saveSession(session, result.user);
+      }
+
       // Show success message
       toast.success('Welcome back!');
 
