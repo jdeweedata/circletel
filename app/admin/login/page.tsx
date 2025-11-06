@@ -97,23 +97,45 @@ export default function AdminLoginPage() {
 
       const result = await response.json();
 
+      console.log('[Login] API response received:', {
+        success: result.success,
+        hasUser: !!result.user,
+        userEmail: result.user?.email
+      });
+
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'Login failed');
       }
 
       // Save session to localStorage for useAdminAuth
       if (result.user) {
-        const SessionStorage = await import('@/lib/auth/session-storage').then(m => m.SessionStorage);
+        try {
+          const { SessionStorage } = await import('@/lib/auth/session-storage');
 
-        // Create mock session data
-        const session = {
-          access_token: 'session-from-api',
-          refresh_token: 'refresh-from-api',
-          expires_at: Date.now() + (3600 * 1000), // 1 hour from now
-        };
+          // Create session data (expires_at must be in SECONDS, not milliseconds)
+          const now = Math.floor(Date.now() / 1000); // Current time in seconds
+          const session = {
+            access_token: 'session-from-api',
+            refresh_token: 'refresh-from-api',
+            expires_at: now + 3600, // 1 hour from now (in seconds)
+            expires_in: 3600,
+          };
 
-        // Save to localStorage
-        SessionStorage.saveSession(session, result.user);
+          console.log('[Login] Saving session to localStorage:', {
+            user: result.user.email,
+            role: result.user.role,
+            expires_at: session.expires_at
+          });
+
+          // Save to localStorage
+          SessionStorage.saveSession(session, result.user);
+
+          // Verify it was saved
+          const saved = SessionStorage.getSession();
+          console.log('[Login] Session saved successfully:', !!saved);
+        } catch (error) {
+          console.error('[Login] Failed to save session to localStorage:', error);
+        }
       }
 
       // Show success message
