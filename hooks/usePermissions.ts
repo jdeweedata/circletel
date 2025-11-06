@@ -17,13 +17,21 @@ export function usePermissions() {
    */
   const hasPermission = useMemo(
     () => (permission: Permission): boolean => {
-      if (!user) return false
+      if (!user) {
+        console.warn('[usePermissions] No user found, denying permission:', permission)
+        return false
+      }
 
       // Super admin has all permissions
-      if (user.role === 'super_admin') return true
+      if (user.role === 'super_admin') {
+        console.log('[usePermissions] Super admin access granted for:', permission)
+        return true
+      }
 
       // Check permissions object
-      return user.permissions?.[permission] === true
+      const hasAccess = user.permissions?.[permission] === true
+      console.log('[usePermissions] Permission check:', permission, '-> hasAccess:', hasAccess)
+      return hasAccess
     },
     [user]
   )

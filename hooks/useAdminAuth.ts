@@ -110,6 +110,8 @@ export function useAdminAuth() {
 
       // Development mode - accept dev sessions without server validation
       if (isDevelopmentMode() && DevAuthService.isValidDevSession()) {
+        console.log('[useAdminAuth] Dev session validated, user:', stored.user)
+        console.log('[useAdminAuth] User role:', stored.user?.role, 'Permissions:', stored.user?.permissions)
         setState({
           user: stored.user,
           isLoading: false,

@@ -26,13 +26,24 @@ export const AUTH_CONFIG = {
 
   /**
    * Mock user for development mode
+   * Super admin gets all permissions automatically
    */
   MOCK_USER: {
     id: 'dev-admin-1',
     email: 'admin@circletel.co.za',
     full_name: 'Development Admin',
     role: 'super_admin' as const,
-    permissions: {},
+    permissions: {
+      // Populate with all permissions to ensure compatibility
+      'products:edit': true,
+      'products:create': true,
+      'products:delete': true,
+      'products:view': true,
+      'products:approve': true,
+      'products:publish': true,
+      'products:manage_pricing': true,
+      'products:view_costs': true,
+    },
     is_active: true,
   },
 
