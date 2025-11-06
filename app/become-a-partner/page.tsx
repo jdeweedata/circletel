@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { HeroSection } from '@/components/partner-landing/HeroSection';
 import { BenefitCards } from '@/components/partner-landing/BenefitCards';
 import { HowItWorks } from '@/components/partner-landing/HowItWorks';
+import { PartnershipModels } from '@/components/partner-landing/PartnershipModels';
 import { CommissionStructure } from '@/components/partner-landing/CommissionStructure';
 import { PartnerTestimonials } from '@/components/partner-landing/PartnerTestimonials';
 import { SuccessMetrics } from '@/components/partner-landing/SuccessMetrics';
@@ -25,6 +26,9 @@ export default function BecomeAPartnerPage() {
 
       {/* How It Works */}
       <HowItWorks />
+
+      {/* Partnership Models */}
+      <PartnershipModels />
 
       {/* Success Metrics */}
       <SuccessMetrics />
