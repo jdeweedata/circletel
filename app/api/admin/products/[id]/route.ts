@@ -102,6 +102,12 @@ export async function PUT(
     const supabase = await createClient();
     const body = await request.json();
 
+    console.log('[Product Update API] Request received:', {
+      productId: id,
+      bodyKeys: Object.keys(body),
+      bodySize: JSON.stringify(body).length
+    });
+
     // Get authenticated user from Supabase session (optional for audit logging)
     const user = await getAuthenticatedUser(request);
 
@@ -110,6 +116,12 @@ export async function PUT(
     const userName = user?.full_name || request.headers.get('x-user-name') || 'Admin User';
 
     const changeReason = body.change_reason;
+
+    console.log('[Product Update API] Auth info:', {
+      userEmail,
+      userName,
+      hasChangeReason: !!changeReason
+    });
 
     // Remove change_reason and pricing object fields from update payload
     const {
@@ -122,6 +134,11 @@ export async function PUT(
       price_monthly, price_once_off,           // From edit form (old)
       monthly_price, setup_fee,                // From PriceEditModal (old)
       base_price_zar, cost_price_zar,         // Database field names (current)
+      // Legacy fields that should not be updated directly
+      speed_download, speed_upload,
+      data_limit, contract_duration,
+      // UI-only fields
+      features,
       ...updateData
     } = body;
 
@@ -159,9 +176,20 @@ export async function PUT(
     }
 
     // Store data_limit and contract_duration in metadata JSONB
-    const metadata = body.metadata || {};
+    // First get existing metadata from the product
+    const { data: existingProduct } = await supabase
+      .from('service_packages')
+      .select('metadata')
+      .eq('id', id)
+      .single();
+
+    const metadata = { ...(existingProduct?.metadata || {}), ...(body.metadata || {}) };
     if (body.data_limit) metadata.data_limit = body.data_limit;
     if (body.contract_duration) metadata.contract_duration = body.contract_duration;
+    if (features && Array.isArray(features)) {
+      // Store features in metadata as well
+      updateData.features = features;
+    }
     if (Object.keys(metadata).length > 0) {
       updateData.metadata = metadata;
     }
@@ -169,7 +197,9 @@ export async function PUT(
     // Update the product in service_packages (single source of truth)
     console.log('[Product Update API] Updating product:', {
       productId: id,
-      updateData,
+      updateDataKeys: Object.keys(updateData),
+      hasPricing: !!updateData.pricing,
+      hasMetadata: !!updateData.metadata,
       userEmail,
       userName
     });
@@ -221,11 +251,21 @@ export async function PUT(
       // Don't fail the request if audit update fails
     }
 
+    console.log('[Product Update API] Update successful');
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
-    console.error('Error in PUT /api/admin/products/[id]:', error);
+    console.error('[Product Update API] Unexpected error:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined,
+      errorName: error instanceof Error ? error.name : typeof error
+    });
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
