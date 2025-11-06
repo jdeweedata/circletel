@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,8 +25,6 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
-import { RevenueStatCard } from '@/components/admin/RevenueStatCard';
-import { MetricStatCard } from '@/components/admin/MetricStatCard';
 
 interface AdminStats {
   // Products
@@ -132,62 +130,62 @@ export default function AdminDashboard() {
       description: 'Active monthly revenue',
       icon: DollarSign,
       color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      bgColor: 'bg-purple-100',
       href: '/admin/analytics'
     },
     {
       title: 'Pending Approvals',
-      value: stats.pendingApprovals,
+      value: stats.pendingApprovals.toString(),
       description: 'Quotes + Products awaiting review',
       icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
+      color: 'text-circleTel-orange',
+      bgColor: 'bg-orange-100',
       urgent: stats.pendingApprovals > 0,
       href: '/admin/workflow'
     },
     {
       title: 'Business Quotes',
-      value: stats.totalQuotes,
+      value: stats.totalQuotes.toString(),
       description: `${stats.pendingQuotes} pending, ${stats.acceptedQuotes} accepted`,
       icon: FileText,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      bgColor: 'bg-blue-100',
       href: '/admin/quotes'
     },
     {
       title: 'Customer Orders',
-      value: stats.totalOrders,
+      value: stats.totalOrders.toString(),
       description: `${stats.activeOrders} active, ${stats.pendingOrders} pending`,
       icon: ShoppingCart,
       color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      bgColor: 'bg-green-100',
       href: '/admin/orders'
     },
     {
       title: 'Total Customers',
-      value: stats.totalCustomers,
+      value: stats.totalCustomers.toString(),
       description: `${stats.newCustomersThisMonth} new this month`,
       icon: Users,
       color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50',
+      bgColor: 'bg-indigo-100',
       href: '/admin/customers'
     },
     {
       title: 'Coverage Leads',
-      value: stats.totalLeads,
+      value: stats.totalLeads.toString(),
       description: `${stats.newLeadsThisMonth} new this month`,
       icon: Target,
       color: 'text-cyan-600',
-      bgColor: 'bg-cyan-50',
+      bgColor: 'bg-cyan-100',
       href: '/admin/coverage'
     },
     {
       title: 'Active Products',
-      value: stats.approvedProducts,
+      value: stats.approvedProducts.toString(),
       description: `${stats.totalProducts} total products`,
       icon: Package,
       color: 'text-teal-600',
-      bgColor: 'bg-teal-50',
+      bgColor: 'bg-teal-100',
       href: '/admin/products'
     },
     {
@@ -196,7 +194,7 @@ export default function AdminDashboard() {
       description: 'From accepted quotes',
       icon: TrendingUp,
       color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
+      bgColor: 'bg-emerald-100',
       href: '/admin/quotes?status=accepted'
     }
   ];
@@ -207,7 +205,6 @@ export default function AdminDashboard() {
       description: 'Process pending quotes',
       icon: FileText,
       href: '/admin/quotes?status=pending_approval',
-      color: 'bg-blue-600 hover:bg-blue-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
       badge: stats.pendingQuotes > 0 ? stats.pendingQuotes : undefined
     },
@@ -216,7 +213,6 @@ export default function AdminDashboard() {
       description: 'View customer orders',
       icon: ShoppingCart,
       href: '/admin/orders',
-      color: 'bg-green-600 hover:bg-green-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
       badge: stats.pendingOrders > 0 ? stats.pendingOrders : undefined
     },
@@ -225,7 +221,6 @@ export default function AdminDashboard() {
       description: 'Create new offering',
       icon: Plus,
       href: '/admin/products/new',
-      color: 'bg-circleTel-orange hover:bg-circleTel-orange/90',
       permission: PERMISSIONS.PRODUCTS.CREATE
     },
     {
@@ -233,7 +228,6 @@ export default function AdminDashboard() {
       description: 'Customer accounts',
       icon: Users,
       href: '/admin/customers',
-      color: 'bg-indigo-600 hover:bg-indigo-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
@@ -241,7 +235,6 @@ export default function AdminDashboard() {
       description: 'View coverage requests',
       icon: Target,
       href: '/admin/coverage',
-      color: 'bg-cyan-600 hover:bg-cyan-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
@@ -249,7 +242,6 @@ export default function AdminDashboard() {
       description: 'Performance metrics',
       icon: BarChart3,
       href: '/admin/analytics',
-      color: 'bg-purple-600 hover:bg-purple-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
@@ -257,7 +249,6 @@ export default function AdminDashboard() {
       description: 'Email templates',
       icon: Bell,
       href: '/admin/notifications',
-      color: 'bg-yellow-600 hover:bg-yellow-700',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
@@ -265,7 +256,6 @@ export default function AdminDashboard() {
       description: 'Review pending products',
       icon: CheckCircle,
       href: '/admin/workflow',
-      color: 'bg-teal-600 hover:bg-teal-700',
       permission: PERMISSIONS.PRODUCTS.APPROVE,
       badge: stats.pendingProducts > 0 ? stats.pendingProducts : undefined
     }
@@ -291,241 +281,123 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">
-              Welcome back, {user?.full_name?.split(' ')[0]}!
-            </h1>
-            <p className="text-base lg:text-lg text-gray-600 mt-2">
-              Here&apos;s your admin dashboard overview
-              {stats.lastUpdated && (
-                <span className="text-sm text-gray-500 ml-2">
-                  • Last updated {new Date(stats.lastUpdated).toLocaleTimeString()}
-                </span>
-              )}
-            </p>
-            {error && (
-              <div className="flex items-center space-x-2 mt-2 text-red-600">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">Failed to load data: {error}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={refresh}
-              disabled={isLoading}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid - 8 Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat, index) => (
-          <Link
-            key={index}
-            href={stat.href}
-            className="block"
-          >
-            <Card
-              className={`shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 cursor-pointer hover:border-circleTel-orange ${
-                stat.urgent ? 'border-orange-300 ring-2 ring-orange-200' : ''
-              }`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                      {stat.title}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <p
-                        className="text-3xl lg:text-4xl font-extrabold tabular-nums"
-                        style={{
-                          color: stat.color.replace('text-', '#')
-                            .replace('purple-600', '#9333ea')
-                            .replace('orange-600', '#ea580c')
-                            .replace('blue-600', '#2563eb')
-                            .replace('green-600', '#16a34a')
-                            .replace('indigo-600', '#4f46e5')
-                            .replace('cyan-600', '#0891b2')
-                            .replace('teal-600', '#0d9488')
-                            .replace('emerald-600', '#059669')
-                        }}
-                      >
-                        {stat.value}
-                      </p>
-                      {stat.urgent && (
-                        <Badge variant="destructive" className="text-xs">
-                          ACTION NEEDED
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
-                  </div>
-                  <stat.icon className={`h-12 w-12 ${stat.color} opacity-20 flex-shrink-0`} />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
-      {/* Analytics Overview with Trend Charts */}
-      <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Analytics Overview</h2>
-          <p className="text-sm text-gray-600 mt-1">Revenue and performance metrics with trends</p>
+          <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
+            Admin Dashboard
+          </h1>
+          <p className="text-circleTel-secondaryNeutral mt-2">
+            Welcome back, {user?.full_name?.split(' ')[0]}! Here&apos;s your overview
+          </p>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={refresh}
+          disabled={isLoading}
+          className="flex items-center space-x-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <RevenueStatCard
-            title="Total Revenue"
-            value={stats.totalRevenue}
-            trend={{
-              value: 20.1,
-              label: "from last month",
-              isPositive: true
-            }}
-            chartData={[
-              { value: 12000 },
-              { value: 13200 },
-              { value: 12800 },
-              { value: 13500 },
-              { value: 13900 },
-              { value: 14200 },
-              { value: stats.totalRevenue }
-            ]}
-            prefix="R"
-          />
-
-          <MetricStatCard
-            title="Active Services"
-            value={stats.activeOrders}
-            trend={{
-              value: 15.3,
-              label: "from last month",
-              isPositive: true
-            }}
-            chartData={[
-              { value: Math.max(0, stats.activeOrders - 30) },
-              { value: Math.max(0, stats.activeOrders - 25) },
-              { value: Math.max(0, stats.activeOrders - 20) },
-              { value: Math.max(0, stats.activeOrders - 15) },
-              { value: Math.max(0, stats.activeOrders - 10) },
-              { value: Math.max(0, stats.activeOrders - 5) },
-              { value: stats.activeOrders }
-            ]}
-            icon={<ShoppingCart className="h-5 w-5" />}
-          />
-
-          <MetricStatCard
-            title="New Customers"
-            value={stats.newCustomersThisMonth}
-            trend={{
-              value: 8.5,
-              label: "vs last month",
-              isPositive: true
-            }}
-            chartData={[
-              { value: Math.max(0, stats.newCustomersThisMonth - 10) },
-              { value: Math.max(0, stats.newCustomersThisMonth - 8) },
-              { value: Math.max(0, stats.newCustomersThisMonth - 6) },
-              { value: Math.max(0, stats.newCustomersThisMonth - 4) },
-              { value: Math.max(0, stats.newCustomersThisMonth - 3) },
-              { value: Math.max(0, stats.newCustomersThisMonth - 1) },
-              { value: stats.newCustomersThisMonth }
-            ]}
-            icon={<Users className="h-5 w-5" />}
-          />
-
-          <MetricStatCard
-            title="Pending Quotes"
-            value={stats.pendingQuotes}
-            trend={{
-              value: -12.0,
-              label: "from last week",
-              isPositive: false
-            }}
-            chartData={[
-              { value: stats.pendingQuotes + 15 },
-              { value: stats.pendingQuotes + 12 },
-              { value: stats.pendingQuotes + 10 },
-              { value: stats.pendingQuotes + 8 },
-              { value: stats.pendingQuotes + 5 },
-              { value: stats.pendingQuotes + 2 },
-              { value: stats.pendingQuotes }
-            ]}
-            icon={<FileText className="h-5 w-5" />}
-          />
+      {error && (
+        <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm">Failed to load data: {error}</span>
         </div>
+      )}
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Link key={stat.title} href={stat.href}>
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </CardTitle>
+                  <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                    <Icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <div className="text-3xl font-bold text-circleTel-darkNeutral">
+                      {stat.value}
+                    </div>
+                    {stat.urgent && (
+                      <Badge variant="destructive" className="text-xs">
+                        URGENT
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
-      <div className="space-y-3">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-          <p className="text-sm text-gray-600 mt-1">Common administrative tasks</p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, index) => (
+      <div>
+        <h2 className="text-xl font-semibold text-circleTel-darkNeutral mb-4">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {quickActions.map((action) => (
             <PermissionGate
-              key={index}
+              key={action.title}
               permissions={[action.permission]}
               fallback={
-                <div className="relative">
-                  <div className="group relative flex flex-col items-center gap-3 p-6 bg-white border-2 border-gray-200 rounded-xl opacity-50 cursor-not-allowed">
-                    <div className="h-14 w-14 rounded-full flex items-center justify-center bg-gray-100">
-                      <action.icon className="h-7 w-7 text-gray-400" />
+                <Card className="opacity-50 cursor-not-allowed">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <action.icon className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <CardTitle className="text-base text-gray-400">
+                            {action.title}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {action.description}
+                          </CardDescription>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <h3 className="font-bold text-sm text-gray-600">{action.title}</h3>
-                    </div>
-                  </div>
-                </div>
+                  </CardHeader>
+                </Card>
               }
             >
-              <Link
-                href={action.href}
-                className="group relative flex flex-col items-center gap-3 p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-circleTel-orange hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-              >
-                {/* Icon Container */}
-                <div className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${action.color.replace('bg-', 'bg-').replace(' hover:bg-', '/10 group-hover:bg-')}`}>
-                  <action.icon className={`h-7 w-7 ${
-                    action.color.includes('orange') ? 'text-circleTel-orange' :
-                    action.color.includes('green') ? 'text-green-600' :
-                    action.color.includes('blue') ? 'text-blue-600' :
-                    action.color.includes('purple') ? 'text-purple-600' :
-                    action.color.includes('indigo') ? 'text-indigo-600' :
-                    action.color.includes('cyan') ? 'text-cyan-600' :
-                    action.color.includes('yellow') ? 'text-yellow-600' :
-                    'text-teal-600'
-                  }`} />
-                </div>
-
-                {/* Title */}
-                <div className="text-center">
-                  <h3 className="font-bold text-sm text-gray-900 group-hover:text-circleTel-orange transition-colors">
-                    {action.title}
-                  </h3>
-                  {action.badge && (
-                    <Badge variant="destructive" className="mt-1 text-xs">
-                      {action.badge}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Hover Indicator */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-circleTel-orange rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Link href={action.href}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <action.icon className="h-5 w-5 text-circleTel-orange" />
+                        <div>
+                          <CardTitle className="text-base">
+                            {action.title}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {action.description}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      {action.badge && (
+                        <Badge variant="destructive" className="text-xs">
+                          {action.badge}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
               </Link>
             </PermissionGate>
           ))}
