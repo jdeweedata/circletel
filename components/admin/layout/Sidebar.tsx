@@ -161,6 +161,16 @@ const navigation = [
       { name: 'Analytics', href: '/admin/billing/analytics', icon: TrendingUp },
       { name: 'Transactions', href: '/admin/billing/transactions', icon: DollarSign }
     ]
+  },
+  {
+    name: 'Payments',
+    icon: DollarSign,
+    children: [
+      { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: Activity },
+      { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
+      { name: 'Webhooks', href: '/admin/payments/webhooks', icon: Zap },
+      { name: 'Settings', href: '/admin/payments/settings', icon: Settings }
+    ]
   }
 ];
 

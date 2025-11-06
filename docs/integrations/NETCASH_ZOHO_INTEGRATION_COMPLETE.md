@@ -301,6 +301,148 @@ if (capabilities?.recurring_payments) {
 
 ---
 
+## 🏥 Phase 3.5: Health Monitoring (Complete ✅)
+
+**Date**: November 6, 2025
+**Status**: Production Ready
+
+### **What Was Built:**
+
+Real-time health monitoring system for all payment providers with admin dashboard and API endpoint.
+
+#### **1. Health Check API Endpoint** (`/api/payments/health`)
+
+**Features**:
+- ✅ Check all providers or specific provider
+- ✅ Detailed mode with capabilities
+- ✅ Response time tracking
+- ✅ Configuration validation
+- ✅ CORS support for cross-origin requests
+- ✅ RESTful JSON responses
+
+**Example Usage**:
+```bash
+# Check all providers
+curl http://localhost:3000/api/payments/health
+
+# Check specific provider with details
+curl http://localhost:3000/api/payments/health?provider=netcash&detailed=true
+```
+
+**Response Format**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-11-06T01:50:00.000Z",
+  "response_time_ms": 145,
+  "providers": [
+    {
+      "provider": "netcash",
+      "healthy": true,
+      "configured": true,
+      "available": true,
+      "response_time_ms": 150,
+      "capabilities": { ... }
+    }
+  ],
+  "summary": {
+    "total_providers": 4,
+    "healthy_providers": 1,
+    "unhealthy_providers": 3
+  }
+}
+```
+
+#### **2. Admin Monitoring Dashboard** (`/admin/payments/monitoring`)
+
+**Features**:
+- ✅ Real-time visual health status
+- ✅ Auto-refresh (10s, 30s, 1min, 5min intervals)
+- ✅ Provider capability display
+- ✅ Response time metrics
+- ✅ Color-coded status badges (Green/Yellow/Red)
+- ✅ Configuration warnings
+- ✅ Responsive design for mobile/tablet
+
+**Access**: Navigate to Admin → Payments → Provider Monitoring
+
+#### **3. Comprehensive Testing** (50+ tests)
+
+**Test Coverage**:
+- ✅ All providers health check
+- ✅ Specific provider queries
+- ✅ Detailed mode with capabilities
+- ✅ Error handling scenarios
+- ✅ CORS headers validation
+- ✅ Response format verification
+- ✅ Mixed provider states
+
+**Run Tests**:
+```bash
+npm run test:payment -- health-endpoint.test.ts
+```
+
+### **Files Created:**
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| `app/api/payments/health/route.ts` | 145 | Health check API endpoint |
+| `app/admin/payments/monitoring/page.tsx` | 650 | Admin monitoring dashboard |
+| `__tests__/lib/payments/health-endpoint.test.ts` | 520 | Comprehensive unit tests |
+| `docs/integrations/PAYMENT_HEALTH_MONITORING.md` | 800+ | Complete documentation |
+
+**Admin Sidebar Updated**: Added "Payments" section with Provider Monitoring link
+
+### **Monitoring Capabilities:**
+
+**Overall System Status**:
+- 🟢 **Healthy**: All providers operational
+- 🟡 **Degraded**: Some providers down
+- 🔴 **Unhealthy**: All providers down
+
+**Per-Provider Metrics**:
+- Configuration status
+- Availability status
+- Response time (ms)
+- Supported capabilities
+- Payment method support
+- Currency support
+
+### **Integration Examples:**
+
+**Slack Alerting**:
+```typescript
+const response = await fetch('/api/payments/health');
+const healthData = await response.json();
+
+if (healthData.status === 'unhealthy') {
+  await sendSlackAlert('#ops-critical', 'All payment providers offline!');
+}
+```
+
+**Automatic Failover**:
+```typescript
+const getHealthyProvider = async () => {
+  const response = await fetch('/api/payments/health');
+  const healthData = await response.json();
+  return healthData.providers.find(p => p.healthy)?.provider;
+};
+```
+
+### **Documentation:**
+
+**Complete Guide**: `docs/integrations/PAYMENT_HEALTH_MONITORING.md`
+
+**Includes**:
+- API reference with all parameters
+- Dashboard user guide
+- Integration examples (Slack, PagerDuty, Prometheus, Grafana)
+- Monitoring best practices
+- Troubleshooting guide
+- Security considerations
+
+---
+
 ## 🔮 Phase 2: ZOHO Billing Integration (Ready to Implement)
 
 ### **What's Already Prepared:**
