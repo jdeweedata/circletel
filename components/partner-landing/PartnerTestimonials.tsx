@@ -4,33 +4,27 @@ import { Quote, Star } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Thabo Mokoena',
-    role: 'Gold Partner',
-    location: 'Johannesburg',
+    name: 'Thabo M.',
+    role: 'Market Development Partner',
+    location: 'Soweto',
     image: null, // Placeholder
-    quote: 'CircleTel\'s partner programme transformed my business. The recurring commission model means I earn consistently every month, and the portal makes tracking everything so easy.',
-    earnings: 'R28,000/month',
-    customers: 120,
+    quote: 'I told them customers in townships needed better prepaid options. They built it. Now I sell 15-20 connections per month because the product actually fits the market.',
     rating: 5,
   },
   {
-    name: 'Sarah van der Berg',
-    role: 'Platinum Partner',
+    name: 'Sarah N.',
+    role: 'Integration Partner',
     location: 'Cape Town',
     image: null,
-    quote: 'The training and support are exceptional. My account manager helped me close my first 50 customers in just 3 months. The commission tiers really motivate you to grow.',
-    earnings: 'R45,000/month',
-    customers: 180,
+    quote: 'We integrated their API with our property management system. Now landlords can offer pre-configured WiFi in rental units. Revenue share works for both of us.',
     rating: 5,
   },
   {
-    name: 'Ahmed Patel',
-    role: 'Silver Partner',
-    location: 'Durban',
+    name: 'Johan V.',
+    role: 'Channel Partner',
+    location: 'Pretoria',
     image: null,
-    quote: 'I love that CircleTel handles all the technical support and installations. I focus on sales, and they handle the rest. It\'s a perfect partnership.',
-    earnings: 'R15,500/month',
-    customers: 65,
+    quote: 'They asked what my corporate clients were frustrated with. Three months later, we had a solution I could actually sell without competing on price. Game changer.',
     rating: 5,
   },
 ];
@@ -42,10 +36,10 @@ export function PartnerTestimonials() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
-            Partner Success Stories
+            Partners Who Shape What We Build
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
-            Hear from partners who are building successful businesses with CircleTel
+            Real stories from partners who saw market gaps and helped us fill them
           </p>
         </div>
 
@@ -69,29 +63,9 @@ export function PartnerTestimonials() {
               </div>
 
               {/* Quote */}
-              <blockquote className="text-circleTel-secondaryNeutral leading-relaxed mb-6 relative z-10">
+              <blockquote className="text-circleTel-secondaryNeutral leading-relaxed mb-6 relative z-10 text-lg">
                 "{testimonial.quote}"
               </blockquote>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-6 py-4 border-t border-b border-gray-200">
-                <div>
-                  <div className="text-2xl font-bold text-circleTel-orange">
-                    {testimonial.earnings}
-                  </div>
-                  <div className="text-xs text-circleTel-secondaryNeutral">
-                    Monthly Earnings
-                  </div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-circleTel-darkNeutral">
-                    {testimonial.customers}
-                  </div>
-                  <div className="text-xs text-circleTel-secondaryNeutral">
-                    Active Customers
-                  </div>
-                </div>
-              </div>
 
               {/* Author */}
               <div className="flex items-center gap-4">
@@ -116,16 +90,16 @@ export function PartnerTestimonials() {
         {/* Bottom CTA */}
         <div className="mt-12 text-center bg-gradient-to-r from-circleTel-orange to-orange-600 rounded-2xl p-8 text-white shadow-xl">
           <h3 className="text-2xl font-bold mb-3">
-            Ready to Write Your Success Story?
+            Got Market Insights We Should Hear?
           </h3>
           <p className="text-lg mb-6 text-white/90">
-            Join hundreds of partners earning recurring commission with CircleTel
+            Join partners who are helping us build solutions that actually solve customer problems
           </p>
           <a
             href="/partner/onboarding"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white text-circleTel-orange rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
-            Apply Now
+            Start the Conversation
             <svg className="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

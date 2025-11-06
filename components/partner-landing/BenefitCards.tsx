@@ -1,43 +1,41 @@
 'use client';
 
-import { DollarSign, BarChart3, GraduationCap, Megaphone, UserCheck, TrendingUp } from 'lucide-react';
-
 const benefits = [
   {
-    icon: DollarSign,
-    title: 'High Commission Rates',
-    description: 'Earn up to 30% recurring revenue on every sale. Get paid monthly as long as your customers stay active — build genuine passive income.',
-    color: 'from-green-500 to-emerald-600',
-  },
-  {
-    icon: BarChart3,
-    title: 'Real-Time Partner Portal',
-    description: 'Track every lead, deal, and commission payment in real-time. Full visibility into your sales pipeline and earnings history.',
+    icon: '👂',
+    title: 'We Listen First, Build Second',
+    description: 'Your market insights drive our product roadmap. We develop solutions for the customers you know aren\'t being served well by traditional providers.',
     color: 'from-blue-500 to-indigo-600',
   },
   {
-    icon: GraduationCap,
-    title: 'Fast-Track Onboarding',
-    description: 'Get approved in 5-7 days with comprehensive training included. We will get you selling quickly with full product knowledge and sales support.',
+    icon: '🌊',
+    title: 'Blue Ocean Positioning',
+    description: 'Stop competing on price and speed. We target customers frustrated by commodity ISPs—better fit means easier sales and loyal clients.',
+    color: 'from-cyan-500 to-blue-600',
+  },
+  {
+    icon: '🤝',
+    title: 'True Partnership Model',
+    description: 'Up to 30% recurring commission plus real influence on product direction. Your success directly shapes our business strategy.',
     color: 'from-purple-500 to-pink-600',
   },
   {
-    icon: Megaphone,
-    title: 'Marketing Made Easy',
-    description: 'Access professional brochures, email templates, social graphics, and co-branded materials. We provide everything you need to close deals.',
-    color: 'from-orange-500 to-red-600',
-  },
-  {
-    icon: UserCheck,
-    title: 'Personal Account Manager',
-    description: 'Every partner gets a dedicated account manager for strategic support, monthly performance reviews, and priority technical assistance.',
-    color: 'from-teal-500 to-cyan-600',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Build Passive Income',
-    description: 'Create a sustainable business with predictable monthly cash flow. Our top partners earn R45,000+ per month in recurring commissions.',
+    icon: '💡',
+    title: 'Product-Market Fit Focus',
+    description: 'We obsess over whether solutions actually solve customer problems—not just whether they\'re easy to sell.',
     color: 'from-yellow-500 to-orange-600',
+  },
+  {
+    icon: '📊',
+    title: 'Transparent Performance',
+    description: 'Real-time portal showing what\'s working, what\'s not, and customer feedback that informs our next build.',
+    color: 'from-green-500 to-emerald-600',
+  },
+  {
+    icon: '🚀',
+    title: 'Fast-Track Enablement',
+    description: '5-7 days to full partner access with training, materials, and dedicated support—no upfront costs.',
+    color: 'from-orange-500 to-red-600',
   },
 ];
 
@@ -48,17 +46,16 @@ export function BenefitCards() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
-            Why Join Our Partner Network?
+            Why Partner With CircleTel?
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
-            We're actively recruiting motivated partners. Here's what makes CircleTel the best opportunity in South Africa's ISP market
+            We are building a different kind of digital services company—one where partners help shape what we build and how we serve customers.
           </p>
         </div>
 
         {/* Benefits Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
             return (
               <div
                 key={index}
@@ -70,7 +67,7 @@ export function BenefitCards() {
                 {/* Icon */}
                 <div className="relative">
                   <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${benefit.color} mb-6 shadow-lg`}>
-                    <Icon className="h-8 w-8 text-white" />
+                    <div className="text-4xl">{benefit.icon}</div>
                   </div>
 
                   {/* Title */}

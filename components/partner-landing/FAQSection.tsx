@@ -5,44 +5,28 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'How much can I earn as a CircleTel partner?',
-    answer: 'Your earnings depend on your sales volume and the packages you sell. Commission rates range from 1.43% to 4.13% based on monthly package values. Our active partners earn an average of R18,500/month, with top performers earning over R45,000/month in recurring commission.',
+    question: 'How is this different from typical ISP partnerships?',
+    answer: 'Traditional ISPs give you a catalog and expect you to sell. We ask what your customers need first, then build solutions together. Your market insights directly shape our product roadmap. Think product co-creation, not just commission sales.',
   },
   {
-    question: 'When and how do I receive commission payments?',
-    answer: 'Commission is paid monthly, typically within 7 business days after month-end. Payments are made via EFT directly to your registered bank account. You can track all pending and paid commissions in real-time through your partner portal.',
+    question: 'Do I need to sell specific products?',
+    answer: 'No quota or product mandates. We want you selling solutions that actually fit your customers. If you tell us a product does not work for your market, we will work with you to build something that does. Blue ocean strategy means better fit equals easier sales.',
   },
   {
-    question: 'What documents do I need to apply?',
-    answer: 'Requirements vary by business type. Sole proprietors need 5 documents (ID, proof of address, banking details), while companies need 11 documents including CIPC registration, directors info, and tax documents. The full checklist is provided during the online application.',
+    question: 'What if customers I talk to do not fit current offerings?',
+    answer: 'Perfect—that is exactly what we want to hear. Document the gap in your partner dashboard. We review partner feedback quarterly and prioritize builds based on demand signals from the field. Many of our best products came from partner insights.',
   },
   {
-    question: 'How long does the approval process take?',
-    answer: 'Typical approval takes 5-7 business days. This includes document verification, FICA compliance checks, and system setup. Once approved, you\'ll receive your unique partner number and immediate access to the partner portal.',
+    question: 'How do you decide which partner suggestions to build?',
+    answer: 'We look at frequency of requests, market size, and whether it serves an underserved segment. If 3+ partners flag the same customer problem, it goes to our product team for feasibility analysis. Quarterly roadmap sessions include partner voting on priorities.',
   },
   {
-    question: 'Do I need technical knowledge to be a partner?',
-    answer: 'No technical expertise required. CircleTel handles all installations, technical support, and customer service. Your role is to generate leads and close sales. We provide comprehensive training on products, pricing, and the sales process.',
+    question: 'What is the time commitment?',
+    answer: '5-7 days for approval and onboarding. After that, it is flexible—sell as much or as little as you want. Most successful partners spend 2-3 hours per week on sales and 30 minutes per month giving product feedback. No minimums, just collaboration.',
   },
   {
-    question: 'Can I see package availability for specific addresses?',
-    answer: 'Yes! Your partner portal includes a real-time coverage checker integrated with MTN WMS, Vumatel, DFA, and other providers. Simply enter an address to see all available packages, pricing, and installation timelines.',
-  },
-  {
-    question: 'What marketing support do you provide?',
-    answer: 'Partners receive downloadable brochures, email templates, social media graphics, and co-branded materials. We also provide sample sales scripts, objection handling guides, and monthly webinars covering best practices and new products.',
-  },
-  {
-    question: 'Is there a minimum sales requirement?',
-    answer: 'No monthly minimum. We understand that sales fluctuate, especially when starting. However, partners with zero sales for 6 consecutive months may be reviewed. Our account managers work with you to develop strategies for consistent growth.',
-  },
-  {
-    question: 'Can I partner if I already work with other ISPs?',
-    answer: 'Absolutely! Most of our partners represent multiple ISPs. Our partner agreement is non-exclusive, allowing you to offer CircleTel alongside other providers. Many partners find our commission structure and portal features superior.',
-  },
-  {
-    question: 'How do I track my leads and customers?',
-    answer: 'Your partner portal provides real-time visibility into all leads, quotes, pending orders, active customers, and commission history. You can also set up automated email notifications for status changes and payment updates.',
+    question: 'Do you work with partners outside major metros?',
+    answer: 'Absolutely! We specifically want partners in underserved areas where traditional ISPs do not focus. Your local market knowledge is exactly what helps us identify blue ocean opportunities. If you know a customer segment being ignored, we want to talk.',
   },
 ];
 
@@ -63,10 +47,10 @@ export function FAQSection() {
             <span className="text-sm font-semibold">Have Questions?</span>
           </div>
           <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
-            Frequently Asked Questions
+            Common Questions
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral">
-            Everything you need to know about the CircleTel Partner Programme
+            Understanding how partnership and product co-creation works
           </p>
         </div>
 
@@ -109,10 +93,10 @@ export function FAQSection() {
         {/* Bottom Help Text */}
         <div className="mt-12 text-center p-8 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200">
           <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">
-            Still Have Questions?
+            Want to Discuss Your Market?
           </h3>
           <p className="text-circleTel-secondaryNeutral mb-6">
-            Our partner success team is here to help you get started
+            Talk to our team about customer segments you think we should serve
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -131,7 +115,7 @@ export function FAQSection() {
               <svg className="mr-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              Call Us
+              Schedule a Call
             </a>
           </div>
         </div>
