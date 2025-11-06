@@ -48,6 +48,11 @@ export default function AdminLayout({
 
         // Set user from API response
         setUser(result.user);
+
+        // If user just logged in and is on /admin root, redirect to dashboard
+        if (pathname === '/admin') {
+          window.location.href = '/admin/dashboard';
+        }
       } catch (error) {
         console.error('Error loading user:', error);
         if (isMounted) {
@@ -66,7 +71,7 @@ export default function AdminLayout({
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute, supabase]); // Added supabase back since we only use it for signOut
+  }, [isPublicRoute, supabase, pathname]); // Added pathname
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {

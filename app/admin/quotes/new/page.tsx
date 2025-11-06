@@ -41,10 +41,13 @@ import {
   Save,
   FolderOpen,
   Percent,
-  Download
+  Download,
+  Smartphone
 } from 'lucide-react';
 import Link from 'next/link';
 import { AddressAutocomplete } from '@/components/admin/quotes/AddressAutocomplete';
+import { MTNDealSelector } from '@/components/admin/quotes/MTNDealSelector';
+import { QuotePreview } from '@/components/admin/quotes/QuotePreview';
 
 // Validation schema
 const quoteFormSchema = z.object({
@@ -118,6 +121,13 @@ export default function NewQuotePage() {
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
+  
+  // MTN Deals feature states
+  const [showMTNDealSelector, setShowMTNDealSelector] = useState(false);
+  const [mtnDealItems, setMtnDealItems] = useState<any[]>([]);
+  
+  // Quote Preview feature states
+  const [showQuotePreview, setShowQuotePreview] = useState(false);
 
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
@@ -190,6 +200,56 @@ export default function NewQuotePage() {
 
   const removeServiceItem = (index: number) => {
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
+  };
+  
+  const handleMTNDealSelect = (deal: any) => {
+    // Create two items: one for device, one for service
+    const deviceItem: QuoteItem = {
+      package_id: `mtn-device-${deal.id}`,
+      package: {
+        id: `mtn-device-${deal.id}`,
+        name: `${deal.device_name} (Device)`,
+        speed: `${deal.contract_term}-month contract`,
+        pricing: {
+          monthly: deal.device_payment_incl_vat || 0,
+          installation: 0
+        },
+        service_type: 'device'
+      },
+      quantity: 1,
+      item_type: 'primary'
+    };
+    
+    const serviceItem: QuoteItem = {
+      package_id: `mtn-service-${deal.id}`,
+      package: {
+        id: `mtn-service-${deal.id}`,
+        name: `${deal.price_plan} (Service)`,
+        speed: deal.total_data || 'Data package',
+        pricing: {
+          monthly: deal.monthly_price_incl_vat || 0,
+          installation: 0
+        },
+        service_type: 'connectivity'
+      },
+      quantity: 1,
+      item_type: 'primary'
+    };
+    
+    // Add both items
+    setSelectedItems([...selectedItems, deviceItem, serviceItem]);
+    
+    // Store MTN deal reference
+    setMtnDealItems([...mtnDealItems, {
+      dealId: deal.id,
+      deal_id: deal.deal_id,
+      deal_name: deal.deal_name,
+      contract_term: deal.contract_term,
+      total_minutes: deal.total_minutes,
+      sms_bundle: deal.sms_bundle
+    }]);
+    
+    toast.success(`Added MTN Deal: ${deal.device_name} + ${deal.price_plan}`);
   };
 
   const updateItemQuantity = (index: number, quantity: number) => {
@@ -364,6 +424,7 @@ export default function NewQuotePage() {
           quantity: item.quantity,
           item_type: item.item_type,
         })),
+        mtn_deals: mtnDealItems.length > 0 ? mtnDealItems : undefined,
       };
 
       const response = await fetch('/api/quotes/business/create', {
@@ -705,15 +766,26 @@ export default function NewQuotePage() {
                     )}
                   </div>
                 ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowPackageSelector(true)}
-                    className="w-full"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Service
-                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowPackageSelector(true)}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Service
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowMTNDealSelector(true)}
+                      className="w-full border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
+                    >
+                      <Smartphone className="w-4 h-4 mr-2" />
+                      Add MTN Deal
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -851,26 +923,38 @@ export default function NewQuotePage() {
                       </Button>
                     </div>
 
-                    {/* PDF Preview Button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generatePDFPreview}
-                      disabled={selectedItems.length === 0 || previewLoading}
-                      className="w-full"
-                    >
-                      {previewLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Preview PDF
-                        </>
-                      )}
-                    </Button>
+                    {/* Preview Buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowQuotePreview(true)}
+                        disabled={selectedItems.length === 0}
+                        className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={generatePDFPreview}
+                        disabled={selectedItems.length === 0 || previewLoading}
+                        className="w-full"
+                      >
+                        {previewLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            PDF...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4 mr-2" />
+                            PDF
+                          </>
+                        )}
+                      </Button>
+                    </div>
 
                     {/* Create Quote Button */}
                     <Button
@@ -1057,6 +1141,58 @@ export default function NewQuotePage() {
                 Close Preview
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* MTN Deal Selector Dialog */}
+      <MTNDealSelector
+        isOpen={showMTNDealSelector}
+        onClose={() => setShowMTNDealSelector(false)}
+        onSelectDeal={handleMTNDealSelect}
+        contractTerm={parseInt(form.watch('contract_term') || '24')}
+      />
+
+      {/* Quote Preview Dialog */}
+      <Dialog open={showQuotePreview} onOpenChange={setShowQuotePreview}>
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0">
+          <DialogHeader className="p-6 pb-4 border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-blue-600" />
+              Quote Preview
+            </DialogTitle>
+            <DialogDescription>
+              This is how the quote will appear to the customer
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto">
+            <QuotePreview
+              formData={form.getValues()}
+              items={selectedItems}
+              mtnDeals={mtnDealItems}
+              pricing={pricing}
+            />
+          </div>
+
+          <div className="p-6 border-t bg-gray-50 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowQuotePreview(false)}
+              className="flex-1"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowQuotePreview(false);
+                generatePDFPreview();
+              }}
+              className="flex-1 bg-circleTel-orange hover:bg-[#e67516]"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Generate PDF
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

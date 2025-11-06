@@ -261,6 +261,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
           description="Connected and billing"
           icon={<Wifi className="h-5 w-5" />}
+          href="/dashboard/services"
         />
 
         <ModernStatCard
@@ -274,6 +275,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           subtitle={data.stats.pendingOrders > 0 ? `${data.stats.pendingOrders} pending` : "All orders completed"}
           description={data.stats.pendingOrders > 0 ? "Some orders need attention" : "Order history"}
           icon={<Package className="h-5 w-5" />}
+          href="/dashboard/orders"
         />
 
         <ModernStatCard
@@ -287,6 +289,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           subtitle={data.stats.accountBalance === 0 ? "No balance due" : data.stats.accountBalance > 0 ? "Payment due" : "Credit available"}
           description={data.stats.accountBalance > 0 ? "Please make payment" : "Account in good standing"}
           icon={<CreditCard className="h-5 w-5" />}
+          href="/dashboard/billing"
         />
 
         <ModernStatCard
@@ -300,6 +303,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "All payments current"}
           description={data.stats.overdueInvoices > 0 ? "Payment required" : "Good payment history"}
           icon={<Clock className="h-5 w-5" />}
+          href="/dashboard/billing"
         />
       </div>
 

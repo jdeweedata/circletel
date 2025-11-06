@@ -15,7 +15,6 @@ import {
   Button,
   Hr,
   Img,
-  Code,
 } from '@react-email/components';
 
 interface ServiceActivatedEmailProps {
@@ -117,12 +116,12 @@ export default function ServiceActivatedEmail({
               
               <Section style={credentialItem}>
                 <Text style={credentialLabel}>Username:</Text>
-                <Code style={credentialCode}>{username}</Code>
+                <Text style={credentialCode}>{username}</Text>
               </Section>
 
               <Section style={credentialItem}>
                 <Text style={credentialLabel}>Temporary Password:</Text>
-                <Code style={credentialCode}>{temporaryPassword}</Code>
+                <Text style={credentialCode}>{temporaryPassword}</Text>
               </Section>
 
               <Section style={warningBox}>

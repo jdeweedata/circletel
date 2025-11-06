@@ -23,31 +23,31 @@ interface NavItem {
 const navigation: NavItem[] = [
   {
     name: 'Dashboard',
-    href: '/partners',
+    href: '/partner/dashboard',
     icon: Home,
     description: 'Overview and key metrics',
   },
   {
     name: 'Leads',
-    href: '/partners/leads',
+    href: '/partner/leads',
     icon: Users,
     description: 'Manage your assigned leads',
   },
   {
     name: 'Commissions',
-    href: '/partners/commissions',
+    href: '/partner/commissions',
     icon: DollarSign,
     description: 'Track your earnings',
   },
   {
     name: 'Resources',
-    href: '/partners/resources',
+    href: '/partner/resources',
     icon: FolderOpen,
     description: 'Marketing materials',
   },
   {
     name: 'Profile',
-    href: '/partners/profile',
+    href: '/partner/profile',
     icon: User,
     description: 'Update your information',
   },
@@ -81,7 +81,7 @@ export function PartnerNav() {
           const Icon = item.icon
           const isActive =
             pathname === item.href ||
-            (item.href !== '/partners' && pathname.startsWith(item.href))
+            (item.href !== '/partner/dashboard' && pathname.startsWith(item.href))
 
           return (
             <Link

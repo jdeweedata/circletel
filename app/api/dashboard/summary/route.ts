@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession } from '@/lib/supabase/server';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
 
 /**
@@ -23,14 +23,17 @@ import { PaymentMethodService } from '@/lib/billing/payment-method-service';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Get authenticated user
+    const supabase = await createClientWithSession();
+
+    // Get authenticated user from session
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { 
+          success: false,
+          error: 'Unauthorized' 
+        },
         { status: 401 }
       );
     }
@@ -61,29 +64,40 @@ export async function GET(request: NextRequest) {
       
       if (createError || !newCustomer) {
         return NextResponse.json(
-          { error: 'Failed to create customer record', details: createError?.message },
+          { 
+            success: false,
+            error: 'Failed to create customer record', 
+            details: createError?.message 
+          },
           { status: 500 }
         );
       }
       
       // Return minimal summary for new customer
       return NextResponse.json({
-        customer: {
-          id: newCustomer.id,
-          name: `${newCustomer.first_name} ${newCustomer.last_name}`.trim(),
-          email: newCustomer.email,
-          phone: newCustomer.phone,
-          account_number: newCustomer.account_number,
-          account_status: newCustomer.account_status,
-          customer_since: newCustomer.created_at
-        },
-        services: { total: 0, active: 0, pending: 0, suspended: 0, list: [] },
-        billing: { account_balance: 0, credit_limit: 0, next_billing_date: null, monthly_recurring: 0, preferred_billing_date: 1 },
-        invoices: { recent: [], unpaid_count: 0, overdue_count: 0, total_unpaid: 0, total_overdue: 0 },
-        transactions: { recent: [] },
-        orders: { recent: [], total: 0 },
-        stats: { active_services: 0, pending_orders: 0, overdue_invoices: 0, account_balance: 0, monthly_recurring: 0 },
-        alerts: [{ type: 'info', message: 'Complete your profile to get started!' }]
+        success: true,
+        data: {
+          customer: {
+            id: newCustomer.id,
+            firstName: newCustomer.first_name,
+            lastName: newCustomer.last_name,
+            email: newCustomer.email,
+            phone: newCustomer.phone,
+            accountNumber: newCustomer.account_number || '',
+            customerSince: newCustomer.created_at
+          },
+          services: [],
+          billing: null,
+          orders: [],
+          invoices: [],
+          stats: {
+            activeServices: 0,
+            totalOrders: 0,
+            pendingOrders: 0,
+            overdueInvoices: 0,
+            accountBalance: 0
+          }
+        }
       });
     }
     
@@ -165,100 +179,80 @@ export async function GET(request: NextRequest) {
     // Calculate monthly recurring
     const monthlyRecurring = activeServices.reduce((sum, s) => sum + (s.monthly_price || 0), 0);
     
-    // Build summary response
+    // Build summary response matching DashboardData interface
     const summary = {
-      // Customer info
       customer: {
         id: customer.id,
-        name: `${customer.first_name} ${customer.last_name}`,
         email: customer.email,
+        firstName: customer.first_name,
+        lastName: customer.last_name,
         phone: customer.phone,
-        account_number: customer.account_number,
-        account_status: customer.account_status,
-        customer_since: customer.created_at
+        customerSince: customer.created_at,
+        accountNumber: customer.account_number || ''
       },
       
-      // Services overview
-      services: {
-        total: services.length,
-        active: activeServices.length,
-        pending: pendingServices.length,
-        suspended: suspendedServices.length,
-        list: services.map(s => ({
-          id: s.id,
-          package_name: s.package_name,
-          service_type: s.service_type,
-          status: s.status,
-          monthly_price: s.monthly_price,
-          next_billing_date: s.next_billing_date,
-          installation_address: s.installation_address
-        }))
-      },
+      services: services.map(s => ({
+        id: s.id,
+        package_name: s.package_name,
+        service_type: s.service_type,
+        status: s.status,
+        monthly_price: s.monthly_price,
+        installation_address: s.installation_address,
+        speed_down: s.speed_down || 0,
+        speed_up: s.speed_up || 0
+      })),
       
-      // Billing overview
-      billing: {
-        account_balance: billing?.account_balance || 0,
-        credit_limit: billing?.credit_limit || 0,
-        next_billing_date: nextBillingDate,
-        monthly_recurring: monthlyRecurring,
-        primary_payment_method: primaryPaymentMethod,
-        auto_pay_enabled: billing?.auto_pay_enabled || false,
-        preferred_billing_date: billing?.preferred_billing_date || 1
-      },
+      billing: billing ? {
+        account_balance: billing.account_balance || 0,
+        payment_method: primaryPaymentMethod?.payment_type || 'Not set',
+        payment_status: (billing.account_balance || 0) > 0 ? 'overdue' : 'current',
+        next_billing_date: nextBillingDate || '',
+        days_overdue: overdueInvoices.length > 0 ? 
+          Math.max(...overdueInvoices.map(inv => {
+            const dueDate = new Date(inv.due_date);
+            const now = new Date();
+            return Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+          })) : 0
+      } : null,
       
-      // Invoices overview
-      invoices: {
-        recent: invoices,
-        unpaid_count: unpaidInvoices.length,
-        overdue_count: overdueInvoices.length,
-        total_unpaid: totalUnpaid,
-        total_overdue: totalOverdue
-      },
+      orders: orders.map(o => ({
+        id: o.id,
+        order_number: o.order_number,
+        status: o.status,
+        total_amount: o.total_paid || 0,
+        created_at: o.created_at
+      })),
       
-      // Transactions overview
-      transactions: {
-        recent: transactions
-      },
+      invoices: invoices.map(inv => ({
+        id: inv.id,
+        invoice_number: inv.invoice_number,
+        invoice_date: inv.invoice_date,
+        total_amount: inv.total_amount,
+        amount_due: inv.amount_due,
+        status: inv.status
+      })),
       
-      // Orders overview
-      orders: {
-        recent: orders,
-        total: orders.length
-      },
-      
-      // Quick stats
       stats: {
-        active_services: activeServices.length,
-        pending_orders: orders.filter(o => o.status === 'pending').length,
-        overdue_invoices: overdueInvoices.length,
-        account_balance: billing?.account_balance || 0,
-        monthly_recurring: monthlyRecurring
-      },
-      
-      // Alerts/Warnings
-      alerts: [
-        ...(overdueInvoices.length > 0 ? [{
-          type: 'warning',
-          message: `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''}`,
-          amount: totalOverdue
-        }] : []),
-        ...(suspendedServices.length > 0 ? [{
-          type: 'info',
-          message: `${suspendedServices.length} service${suspendedServices.length > 1 ? 's are' : ' is'} currently suspended`
-        }] : []),
-        ...((billing?.account_balance || 0) < 0 ? [{
-          type: 'info',
-          message: `You have a credit balance of R${Math.abs(billing?.account_balance || 0).toFixed(2)}`
-        }] : [])
-      ]
+        activeServices: activeServices.length,
+        totalOrders: orders.length,
+        pendingOrders: orders.filter(o => o.status === 'pending').length,
+        overdueInvoices: overdueInvoices.length,
+        accountBalance: billing?.account_balance || 0
+      }
     };
     
-    return NextResponse.json(summary);
+    return NextResponse.json({
+      success: true,
+      data: summary
+    });
     
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        success: false,
+        error: 'Internal server error' 
+      },
       { status: 500 }
     );
   }

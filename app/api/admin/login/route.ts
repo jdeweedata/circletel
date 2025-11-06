@@ -127,7 +127,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 4: Log successful login
+    // Step 4: Log successful login with detailed session info
+    const loginMetadata = {
+      email: normalizedEmail,
+      role: adminUser.role,
+      role_template_id: adminUser.role_template_id,
+      full_name: adminUser.full_name,
+      session_id: authData.session?.access_token?.substring(0, 20) + '...', // Partial token for tracking
+      expires_at: authData.session?.expires_at,
+      login_timestamp: new Date().toISOString(),
+      user_agent_details: {
+        raw: userAgent,
+        // Parse basic user agent info
+        browser: userAgent.includes('Chrome') ? 'Chrome' : 
+                 userAgent.includes('Firefox') ? 'Firefox' : 
+                 userAgent.includes('Safari') ? 'Safari' : 'Other',
+        os: userAgent.includes('Windows') ? 'Windows' : 
+            userAgent.includes('Mac') ? 'MacOS' : 
+            userAgent.includes('Linux') ? 'Linux' : 'Other',
+        device: userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'
+      },
+      ip_info: {
+        address: ipAddress,
+        is_local: ipAddress === 'unknown' || ipAddress.startsWith('192.168.') || ipAddress.startsWith('10.') || ipAddress === '::1' || ipAddress === '127.0.0.1'
+      }
+    };
+
     await supabaseAdmin.from('admin_audit_logs').insert({
       user_id: authData.user.id,
       user_email: normalizedEmail,
@@ -136,17 +161,28 @@ export async function POST(request: NextRequest) {
       action_category: 'authentication',
       ip_address: ipAddress,
       user_agent: userAgent,
-      metadata: {
-        email: normalizedEmail,
-        role: adminUser.role,
-        role_template_id: adminUser.role_template_id,
-        full_name: adminUser.full_name,
-      },
+      metadata: loginMetadata,
       status: 'success',
       severity: 'low',
     });
 
-    console.log(`Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
+    // Also log to admin_activity_log for historical tracking
+    await supabaseAdmin.from('admin_activity_log').insert({
+      admin_user_id: adminUser.id,
+      action: 'admin_login',
+      resource_type: 'authentication',
+      resource_id: authData.session?.access_token?.substring(0, 10),
+      details: {
+        timestamp: new Date().toISOString(),
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        session_expires: authData.session?.expires_at
+      },
+      ip_address: ipAddress,
+      user_agent: userAgent
+    });
+
+    console.log(`✅ Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
 
     // Create success response and set all cookies captured from Supabase SSR client
     const successResponse = NextResponse.json({

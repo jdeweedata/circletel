@@ -1,6 +1,8 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ModernStatCardProps {
   title: string;
@@ -13,6 +15,7 @@ interface ModernStatCardProps {
   subtitle?: string;
   description?: string;
   icon?: React.ReactNode;
+  href?: string;
 }
 
 export function ModernStatCard({
@@ -22,6 +25,7 @@ export function ModernStatCard({
   subtitle,
   description,
   icon,
+  href,
 }: ModernStatCardProps) {
   const getTrendIcon = () => {
     if (!trend) return null;
@@ -43,8 +47,11 @@ export function ModernStatCard({
     return trend.isPositive ? 'text-green-600' : 'text-red-600';
   };
 
-  return (
-    <Card className="relative overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+  const cardContent = (
+    <Card className={cn(
+      "relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200",
+      href && "cursor-pointer hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30"
+    )}>
       <div className="p-6">
         {/* Header with title and trend */}
         <div className="flex items-start justify-between mb-4">
@@ -85,4 +92,14 @@ export function ModernStatCard({
       </div>
     </Card>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

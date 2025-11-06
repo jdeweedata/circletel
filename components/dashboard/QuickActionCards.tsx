@@ -124,8 +124,9 @@ export function QuickActionCards({ className }: QuickActionCardsProps) {
             >
               <div className={cn(
                 'relative overflow-hidden border border-gray-200 bg-white',
-                'shadow-sm hover:shadow-md transition-shadow duration-200',
-                'rounded-lg p-6 h-full flex flex-col'
+                'shadow-sm hover:shadow-lg transition-all duration-200',
+                'rounded-lg p-6 h-full flex flex-col',
+                'cursor-pointer hover:scale-[1.02] hover:border-circleTel-orange/30'
               )}>
                 {/* Header with Icon and Title */}
                 <div className="flex items-start justify-between mb-4">

@@ -41,7 +41,7 @@ export default function SidebarNav({ collapsed = false, onToggleCollapse }: Side
   return (
     <aside
       className={cn(
-        "hidden lg:flex shrink-0 border-r bg-white transition-all duration-300 ease-in-out",
+        "hidden lg:flex shrink-0 border-r bg-white transition-all duration-300 ease-in-out z-40",
         collapsed ? "w-[80px]" : "w-[280px]"
       )}
     >
@@ -96,7 +96,7 @@ export default function SidebarNav({ collapsed = false, onToggleCollapse }: Side
                     <TooltipTrigger asChild>
                       {linkContent}
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="font-medium">
+                    <TooltipContent side="right" className="font-medium z-50">
                       {item.label}
                     </TooltipContent>
                   </Tooltip>

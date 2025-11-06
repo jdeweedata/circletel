@@ -3,6 +3,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom animation delays for cloud hosting */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+
+/* Custom border utilities */
+.border-3 {
+  border-width: 3px;
+}
+
 @layer base {
   :root {
     --background: oklch(1.0000 0 0);
