@@ -120,7 +120,31 @@ export async function GET(request: NextRequest) {
     const { data: notifications, error: fetchError, count } = await query;
 
     if (fetchError) {
-      console.error('Error fetching notifications:', fetchError);
+      console.error('[Notifications API] Error fetching notifications:', {
+        error: fetchError,
+        code: fetchError.code,
+        message: fetchError.message,
+        details: fetchError.details,
+        hint: fetchError.hint
+      });
+
+      // If table doesn't exist (42P01), return empty array instead of error
+      // This allows the app to function even if notifications migration isn't applied
+      if (fetchError.code === '42P01') {
+        console.warn('[Notifications API] Notifications table does not exist. Returning empty array.');
+        return NextResponse.json({
+          success: true,
+          data: [],
+          pagination: {
+            total: 0,
+            limit: validatedQuery.limit,
+            offset: validatedQuery.offset,
+            unread_count: 0,
+          },
+          warning: 'Notifications system not initialized'
+        });
+      }
+
       return NextResponse.json(
         { success: false, error: 'Failed to fetch notifications' },
         { status: 500 }
@@ -137,7 +161,11 @@ export async function GET(request: NextRequest) {
       .is('deleted_at', null);
 
     if (countError) {
-      console.error('Error counting unread notifications:', countError);
+      console.error('[Notifications API] Error counting unread notifications:', {
+        error: countError,
+        code: countError.code
+      });
+      // Don't fail the request, just set unread count to 0
     }
 
     return NextResponse.json({

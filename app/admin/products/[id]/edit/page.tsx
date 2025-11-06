@@ -162,7 +162,11 @@ export default function EditProductPage() {
 
       const response = await fetch(`/api/admin/products/${params.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': 'admin@circletel.co.za',
+          'x-user-name': 'Admin User',
+        },
         body: JSON.stringify(syncedData),
       });
 
