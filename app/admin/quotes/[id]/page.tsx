@@ -332,7 +332,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
 
         <div className="flex gap-2">
           {/* Show Edit button if quote can be edited */}
-          {['draft', 'pending_approval', 'approved'].includes(quote.status) && (
+          {['draft', 'pending_approval', 'approved', 'sent', 'viewed'].includes(quote.status) && (
             <Button
               onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)}
               variant="outline"
@@ -350,15 +350,6 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           >
             <Eye className="w-4 h-4 mr-2" />
             Preview
-          </Button>
-
-          <Button
-            onClick={handleDownloadPDF}
-            variant="outline"
-            className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Download PDF
           </Button>
 
           <Button
