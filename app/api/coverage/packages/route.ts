@@ -216,6 +216,15 @@ export async function GET(request: NextRequest) {
       // coverage_leads.customer_type is ENUM with values: 'consumer', 'smme', 'enterprise'
       const packageCustomerType = coverageType === 'business' ? 'business' : 'consumer';
 
+      console.log('[Packages API] Querying packages with:', {
+        packageCustomerType,
+        productCategories,
+        usingMappings: !!(mappings && mappings.length > 0),
+        query: mappings && mappings.length > 0
+          ? `product_category.in.(${productCategories.join(',')})`
+          : `service_type.in.(${productCategories.join(',')})`
+      });
+
       const { data: packages, error: packagesError } = await supabase
         .from('service_packages')
         .select('*')
@@ -227,6 +236,12 @@ export async function GET(request: NextRequest) {
         .eq('customer_type', packageCustomerType)
         .eq('active', true)
         .order('price', { ascending: true });
+
+      console.log('[Packages API] Query result:', {
+        packagesFound: packages?.length || 0,
+        packageNames: packages?.map((p: any) => p.name).slice(0, 5) || [],
+        error: packagesError?.message
+      });
 
       if (!packagesError && packages) {
         // Fetch provider data for packages with compatible_providers
