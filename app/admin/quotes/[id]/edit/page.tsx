@@ -178,15 +178,15 @@ export default function EditQuotePage({ params }: Props) {
   }
 
   // Check if quote can be edited
-  const canEdit = ['draft', 'pending_approval', 'approved'].includes(quote.status);
-  
+  const canEdit = ['draft', 'pending_approval', 'approved', 'sent', 'viewed'].includes(quote.status);
+
   if (!canEdit) {
     return (
       <div className="p-8">
         <Alert variant="destructive">
           <AlertDescription>
             This quote cannot be edited in its current status ({quote.status}).
-            Only draft, pending_approval, and approved quotes can be edited.
+            Only draft, pending_approval, approved, sent, and viewed quotes can be edited.
           </AlertDescription>
         </Alert>
         <Button onClick={handleCancel} className="mt-4">
