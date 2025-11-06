@@ -19,19 +19,19 @@ export function HeroSection() {
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-circleTel-orange/20 border border-circleTel-orange/30 text-circleTel-orange mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 mb-6 animate-pulse">
               <Handshake className="h-4 w-4" />
-              <span className="text-sm font-semibold">Join Our Partner Network</span>
+              <span className="text-sm font-semibold">🔥 Actively Recruiting Partners Now</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-6 leading-tight">
-              Become a CircleTel <span className="text-circleTel-orange">Partner</span>
+              Join South Africa's Fastest Growing <span className="text-circleTel-orange">ISP Partner Network</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-xl lg:text-2xl text-gray-300 mb-8 leading-relaxed">
-              Earn recurring commission selling South Africa's best connectivity
+              We're expanding rapidly and looking for ambitious partners to grow with us. Start earning recurring commission today!
             </p>
 
             {/* Key Points */}
@@ -42,7 +42,7 @@ export function HeroSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg">Earn <strong>25-30% recurring commission</strong> on every sale</span>
+                <span className="text-lg">Earn up to <strong>30% recurring commission</strong> — get paid every month your customers stay active</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-circleTel-orange flex items-center justify-center">
@@ -50,7 +50,7 @@ export function HeroSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg">Real-time <strong>partner portal</strong> to track leads and earnings</span>
+                <span className="text-lg"><strong>Fast-track approval</strong> — start selling within 5-7 days with full portal access</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-circleTel-orange flex items-center justify-center">
@@ -58,7 +58,7 @@ export function HeroSection() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-lg">Comprehensive <strong>training & marketing support</strong></span>
+                <span className="text-lg"><strong>Zero upfront costs</strong> — free training, marketing materials & dedicated support</span>
               </li>
             </ul>
 
@@ -69,7 +69,7 @@ export function HeroSection() {
                   size="lg"
                   className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white px-8 py-6 text-lg font-semibold rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                 >
-                  Apply Now
+                  Apply Now - Start Earning
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -83,13 +83,13 @@ export function HeroSection() {
                 }}
               >
                 <FileText className="mr-2 h-5 w-5" />
-                View Commission Rates
+                See What You'll Earn
               </Button>
             </div>
 
             {/* Trust Badge */}
             <div className="mt-8 pt-8 border-t border-gray-700">
-              <p className="text-sm text-gray-400 mb-3">Trusted by 200+ partners across South Africa</p>
+              <p className="text-sm text-gray-400 mb-3">Join 200+ active partners already earning across South Africa</p>
               <div className="flex items-center gap-4 justify-center lg:justify-start">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-circleTel-orange">R2.5M+</div>

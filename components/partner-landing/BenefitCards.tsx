@@ -5,38 +5,38 @@ import { DollarSign, BarChart3, GraduationCap, Megaphone, UserCheck, TrendingUp 
 const benefits = [
   {
     icon: DollarSign,
-    title: 'Tiered Commissions',
-    description: '25-30% recurring revenue on MTN packages, 20% margin on BizFibre. Earn every month for the lifetime of each customer.',
+    title: 'High Commission Rates',
+    description: 'Earn up to 30% recurring revenue on every sale. Get paid monthly as long as your customers stay active — build genuine passive income.',
     color: 'from-green-500 to-emerald-600',
   },
   {
     icon: BarChart3,
-    title: 'Partner Portal',
-    description: 'Track leads, commissions, and performance in real-time with our advanced partner dashboard. Full visibility into your pipeline.',
+    title: 'Real-Time Partner Portal',
+    description: 'Track every lead, deal, and commission payment in real-time. Full visibility into your sales pipeline and earnings history.',
     color: 'from-blue-500 to-indigo-600',
   },
   {
     icon: GraduationCap,
-    title: 'Full Training',
-    description: 'Product training, sales techniques, and portal onboarding. Plus ongoing webinars and resources to help you succeed.',
+    title: 'Fast-Track Onboarding',
+    description: 'Get approved in 5-7 days with comprehensive training included. We will get you selling quickly with full product knowledge and sales support.',
     color: 'from-purple-500 to-pink-600',
   },
   {
     icon: Megaphone,
-    title: 'Marketing Support',
-    description: 'Downloadable brochures, email templates, social graphics, and co-branded materials. Everything you need to promote.',
+    title: 'Marketing Made Easy',
+    description: 'Access professional brochures, email templates, social graphics, and co-branded materials. We provide everything you need to close deals.',
     color: 'from-orange-500 to-red-600',
   },
   {
     icon: UserCheck,
-    title: 'Dedicated Manager',
-    description: 'Personal account manager for your success. Get strategic support, monthly reviews, and priority technical assistance.',
+    title: 'Personal Account Manager',
+    description: 'Every partner gets a dedicated account manager for strategic support, monthly performance reviews, and priority technical assistance.',
     color: 'from-teal-500 to-cyan-600',
   },
   {
     icon: TrendingUp,
-    title: 'Recurring Revenue',
-    description: 'Build passive income with monthly commission payments. Create a sustainable business with predictable cash flow.',
+    title: 'Build Passive Income',
+    description: 'Create a sustainable business with predictable monthly cash flow. Our top partners earn R45,000+ per month in recurring commissions.',
     color: 'from-yellow-500 to-orange-600',
   },
 ];
@@ -48,10 +48,10 @@ export function BenefitCards() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
-            Why Partner with CircleTel?
+            Why Join Our Partner Network?
           </h2>
           <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
-            Join South Africa's innovative ISP and unlock powerful benefits designed for your success
+            We're actively recruiting motivated partners. Here's what makes CircleTel the best opportunity in South Africa's ISP market
           </p>
         </div>
 
