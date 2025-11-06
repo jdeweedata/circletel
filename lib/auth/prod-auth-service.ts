@@ -98,7 +98,7 @@ export class ProdAuthService {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        method: 'POST',
+        method: 'GET',
       })
 
       if (error) {
