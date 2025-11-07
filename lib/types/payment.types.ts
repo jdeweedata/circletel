@@ -428,4 +428,190 @@ export interface ProviderHealthCheckResult {
 
   /** Check timestamp */
   checked_at: Date;
+
+  /** Whether provider is configured */
+  configured?: boolean;
+
+  /** Whether provider is available */
+  available?: boolean;
+}
+
+// ============================================================================
+// Webhook Logs
+// ============================================================================
+
+/**
+ * Webhook log record (payment_webhook_logs table)
+ */
+export interface WebhookLog {
+  /** Unique identifier */
+  id: string;
+
+  /** Webhook identifier */
+  webhook_id: string;
+
+  /** Payment provider */
+  provider: PaymentProviderType;
+
+  /** Event type */
+  event_type: string;
+
+  /** HTTP method */
+  http_method: string;
+
+  /** Request headers */
+  headers: Record<string, any>;
+
+  /** Query parameters */
+  query_params?: Record<string, any> | null;
+
+  /** Raw request body */
+  body: string;
+
+  /** Parsed request body */
+  body_parsed: Record<string, any> | null;
+
+  /** Webhook signature */
+  signature?: string | null;
+
+  /** Whether signature was verified */
+  signature_verified: boolean;
+
+  /** Signature algorithm used */
+  signature_algorithm?: string | null;
+
+  /** Processing status */
+  status: 'received' | 'processing' | 'processed' | 'failed' | 'retrying';
+
+  /** Processing started timestamp */
+  processing_started_at?: string | null;
+
+  /** Processing completed timestamp */
+  processing_completed_at?: string | null;
+
+  /** Processing duration in milliseconds */
+  processing_duration_ms?: number | null;
+
+  /** Related transaction ID */
+  transaction_id?: string | null;
+
+  /** Order/invoice reference */
+  reference?: string | null;
+
+  /** Whether processing was successful */
+  success?: boolean | null;
+
+  /** Error message */
+  error_message?: string | null;
+
+  /** Error stack trace */
+  error_stack?: string | null;
+
+  /** Actions taken during processing */
+  actions_taken?: string[] | null;
+
+  /** Response status code */
+  response_status_code?: number | null;
+
+  /** Response body */
+  response_body?: Record<string, any> | null;
+
+  /** Number of retry attempts */
+  retry_count: number;
+
+  /** Maximum number of retries */
+  max_retries: number;
+
+  /** Last retry timestamp */
+  last_retry_at?: string | null;
+
+  /** Next retry timestamp */
+  next_retry_at?: string | null;
+
+  /** Source IP address */
+  source_ip?: string | null;
+
+  /** User agent */
+  user_agent?: string | null;
+
+  /** Additional metadata */
+  metadata?: Record<string, any>;
+
+  /** When webhook was received */
+  received_at: string;
+
+  /** Created timestamp */
+  created_at: string;
+
+  /** Updated timestamp */
+  updated_at: string;
+}
+
+// ============================================================================
+// Payment Provider Settings
+// ============================================================================
+
+/**
+ * Payment provider settings (payment_provider_settings table)
+ */
+export interface PaymentProviderSettings {
+  /** Unique identifier */
+  id: string;
+
+  /** Payment provider */
+  provider: PaymentProviderType;
+
+  /** Whether provider is enabled */
+  enabled: boolean;
+
+  /** Provider priority (higher = tried first) */
+  priority: number;
+
+  /** Encrypted provider credentials */
+  credentials?: Record<string, any> | null;
+
+  /** Provider-specific settings */
+  settings?: Record<string, any> | null;
+
+  /** Capabilities override */
+  capabilities_override?: Record<string, any> | null;
+
+  /** Minimum transaction amount */
+  min_amount?: number | null;
+
+  /** Maximum transaction amount */
+  max_amount?: number | null;
+
+  /** Daily transaction limit */
+  daily_limit?: number | null;
+
+  /** Whether in test mode */
+  test_mode: boolean;
+
+  /** Test credentials */
+  test_credentials?: Record<string, any> | null;
+
+  /** Webhook URL */
+  webhook_url?: string | null;
+
+  /** Webhook secret (encrypted) */
+  webhook_secret?: string | null;
+
+  /** Subscribed webhook events */
+  webhook_events?: string[] | null;
+
+  /** Additional metadata */
+  metadata?: Record<string, any>;
+
+  /** Created timestamp */
+  created_at: string;
+
+  /** Updated timestamp */
+  updated_at: string;
+
+  /** Created by user ID */
+  created_by?: string | null;
+
+  /** Updated by user ID */
+  updated_by?: string | null;
 }
