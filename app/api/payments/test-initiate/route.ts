@@ -89,9 +89,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate full payment URL with query parameters (GET method)
+    // This ensures all form data is sent to NetCash
+    let finalPaymentUrl = paymentResult.paymentUrl;
+    if (paymentResult.formData && provider.name === 'netcash') {
+      const params = new URLSearchParams(paymentResult.formData as Record<string, string>);
+      finalPaymentUrl = `${paymentResult.paymentUrl}?${params.toString()}`;
+    }
+
     console.log('[Test Payment] Success:', {
       transactionId: paymentResult.transactionId,
-      paymentUrl: paymentResult.paymentUrl
+      paymentUrl: finalPaymentUrl,
+      hasFormData: !!paymentResult.formData
     });
 
     // Create payment transaction record
@@ -117,10 +126,10 @@ export async function POST(request: NextRequest) {
       // Continue anyway - payment can still work
     }
 
-    // Return payment information
+    // Return payment information with full URL including form data
     return NextResponse.json({
       success: true,
-      payment_url: paymentResult.paymentUrl,
+      payment_url: finalPaymentUrl,
       transaction_id: paymentResult.transactionId,
       amount: amount,
       currency: currency,
