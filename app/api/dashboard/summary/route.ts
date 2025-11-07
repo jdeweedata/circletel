@@ -7,12 +7,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
 
 /**
  * GET /api/dashboard/summary
- * 
+ *
  * Returns:
  * - Customer details (account_number, account_status)
  * - Services list with current status
@@ -23,16 +24,45 @@ import { PaymentMethodService } from '@/lib/billing/payment-method-service';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
+    // Try cookie-based authentication first
+    let supabase = await createClientWithSession();
+    let { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    // Get authenticated user from session
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    // If cookie auth fails, try Authorization header
+    if (authError || !user) {
+      const authHeader = request.headers.get('authorization');
+
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+
+        // Create a Supabase client with the provided token
+        supabase = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          {
+            global: {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            },
+            auth: {
+              persistSession: false
+            }
+          }
+        );
+
+        // Try to get user with the token
+        const result = await supabase.auth.getUser();
+        user = result.data.user;
+        authError = result.error;
+      }
+    }
+
     if (authError || !user) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: 'Unauthorized' 
+          error: 'Unauthorized'
         },
         { status: 401 }
       );
