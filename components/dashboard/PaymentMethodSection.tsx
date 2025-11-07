@@ -40,16 +40,20 @@ export function PaymentMethodSection({
     setIsProcessing(true);
 
     try {
-      // Initiate R1.00 validation charge
-      const response = await fetch('/api/payment/netcash/initiate', {
+      // Initiate R1.00 validation charge using test-initiate endpoint
+      const response = await fetch('/api/payments/test-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: 1.00, // R1.00 validation charge
-          customerEmail: '', // Will be filled from user session
-          customerName: '', // Will be filled from user session
-          paymentReference: `VALIDATION-${Date.now()}`,
-          isValidation: true,
+          currency: 'ZAR',
+          reference: `PAYMENT-METHOD-VALIDATION-${Date.now()}`,
+          customer_email: '', // Will be auto-filled by API from session
+          metadata: {
+            type: 'payment_method_validation',
+            validation_amount: 1.00,
+            timestamp: new Date().toISOString()
+          }
         }),
       });
 
@@ -58,13 +62,17 @@ export function PaymentMethodSection({
         throw new Error(errorData.error || 'Failed to initiate payment validation');
       }
 
-      const { paymentUrl } = await response.json();
+      const data = await response.json();
+
+      if (!data.success || !data.payment_url) {
+        throw new Error(data.error || 'Failed to generate payment URL');
+      }
 
       toast.success('Redirecting to secure payment...');
 
       // Redirect to NetCash payment page
       setTimeout(() => {
-        window.location.href = paymentUrl;
+        window.location.href = data.payment_url;
       }, 1000);
 
     } catch (error) {
