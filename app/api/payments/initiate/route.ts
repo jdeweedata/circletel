@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
-import { netcashService } from '@/lib/payments/netcash-service';
+import { createClient } from '@/lib/supabase/server';
+import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 
 /**
  * POST /api/payments/initiate
- * Initiate a payment for an order
+ *
+ * Initiate a payment for a consumer order.
+ * Uses the provider abstraction layer for multi-gateway support.
+ *
+ * @param request - NextRequest with orderId in body
+ * @returns Payment initiation result with payment URL
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { orderId } = body;
 
+    // Validate request
     if (!orderId) {
       return NextResponse.json(
         { success: false, error: 'Missing required field: orderId' },
@@ -18,8 +24,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if Netcash is configured
-    if (!netcashService.isConfigured()) {
+    // Get payment provider (uses factory pattern)
+    const provider = getPaymentProvider(); // Defaults to NetCash
+
+    // Check if provider is configured
+    if (!provider.isConfigured()) {
       return NextResponse.json(
         {
           success: false,
@@ -73,39 +82,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate payment form data
-    const paymentFormData = netcashService.generatePaymentFormData({
-      orderId: order.id,
-      orderNumber: order.order_number,
-      customerName: `${order.first_name} ${order.last_name}`,
-      customerEmail: order.email,
+    // Initiate payment via provider abstraction
+    const paymentResult = await provider.initiate({
       amount: totalAmount,
+      currency: 'ZAR',
+      reference: order.order_number,
       description: `CircleTel Order ${order.order_number} - ${order.package_name}`,
+      customerEmail: order.email,
+      customerName: `${order.first_name} ${order.last_name}`,
+      customerPhone: order.phone,
+      returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancelled`,
+      notifyUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/webhook`,
+      metadata: {
+        order_id: order.id,
+        package_name: order.package_name,
+        package_price: packagePrice,
+        installation_fee: installationFee
+      }
     });
 
-    // Generate payment URL
-    const paymentUrl = netcashService.generatePaymentUrl(paymentFormData);
+    // Check if payment initiation was successful
+    if (!paymentResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: paymentResult.error || 'Failed to initiate payment'
+        },
+        { status: 500 }
+      );
+    }
 
     // Create payment transaction record
     const { data: transaction, error: transactionError } = await supabase
       .from('payment_transactions')
       .insert({
+        transaction_id: paymentResult.transactionId,
         order_id: order.id,
-        order_type: 'consumer',
-        order_number: order.order_number,
         amount: totalAmount,
         currency: 'ZAR',
-        payment_provider: 'netcash',
-        provider_reference: paymentFormData.m5, // Transaction reference
+        provider: provider.name,
         status: 'pending',
-        payment_method: null,
-        customer_email: order.email,
-        customer_name: `${order.first_name} ${order.last_name}`,
-        metadata: {
-          package_name: order.package_name,
-          package_price: packagePrice,
-          installation_fee: installationFee,
-        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -115,24 +134,27 @@ export async function POST(request: NextRequest) {
       // Continue anyway - payment can still work even if we don't track it perfectly
     }
 
+    // Return payment information
     return NextResponse.json({
       success: true,
-      paymentUrl,
-      transactionId: transaction?.id,
+      paymentUrl: paymentResult.paymentUrl,
+      formData: paymentResult.formData,
+      transactionId: paymentResult.transactionId,
       amount: totalAmount,
+      provider: provider.name,
       order: {
         id: order.id,
         order_number: order.order_number,
-        package_name: order.package_name,
+        package_name: order.package_name
       },
-      message: 'Payment initiated successfully',
+      message: 'Payment initiated successfully'
     });
   } catch (error) {
     console.error('Payment initiation error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to initiate payment',
+        error: error instanceof Error ? error.message : 'Failed to initiate payment'
       },
       { status: 500 }
     );
