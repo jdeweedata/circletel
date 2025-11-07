@@ -45,7 +45,7 @@ export default function PaymentTestPage() {
     setWebhookStatus(null);
 
     try {
-      const response = await fetch('/api/payments/initiate', {
+      const response = await fetch('/api/payments/test-initiate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export default function PaymentTestPage() {
       if (response.ok && data.success) {
         setResult({
           success: true,
-          message: 'Payment initiated successfully!',
+          message: data.message || 'Payment initiated successfully!',
           paymentUrl: data.payment_url,
           transactionId: data.transaction_id
         });
@@ -79,7 +79,7 @@ export default function PaymentTestPage() {
       } else {
         setResult({
           success: false,
-          message: data.message || 'Failed to initiate payment'
+          message: data.error || data.message || 'Failed to initiate payment'
         });
       }
     } catch (error) {
