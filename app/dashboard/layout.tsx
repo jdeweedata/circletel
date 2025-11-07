@@ -85,7 +85,7 @@ export default function DashboardLayout({
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
               <div className="fixed top-14 bottom-0 left-0 w-72 bg-white shadow-xl overflow-y-auto">
-                <SidebarNav />
+                <SidebarNav mobile={true} />
               </div>
             </div>
           )}

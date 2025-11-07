@@ -33,37 +33,41 @@ const items = [
 interface SidebarNavProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  mobile?: boolean;
 }
 
-export default function SidebarNav({ collapsed = false, onToggleCollapse }: SidebarNavProps) {
+export default function SidebarNav({ collapsed = false, onToggleCollapse, mobile = false }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
     <aside
       className={cn(
-        "hidden lg:flex shrink-0 border-r bg-white transition-all duration-300 ease-in-out z-40",
-        collapsed ? "w-[80px]" : "w-[280px]"
+        "shrink-0 bg-white transition-all duration-300 ease-in-out z-40",
+        !mobile && "hidden lg:flex border-r",
+        mobile ? "w-full" : collapsed ? "w-[80px]" : "w-[280px]"
       )}
     >
-      <div className="flex h-screen sticky top-0 flex-col gap-2 p-4 w-full">
-        {/* Toggle Button */}
-        <div className={cn(
-          "flex items-center justify-end py-2",
-          collapsed ? "px-0" : "px-3"
-        )}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleCollapse}
-            className="h-8 w-8 hover:bg-gray-100"
-          >
-            {collapsed ? (
-              <ChevronRight className="h-5 w-5 text-gray-600" />
-            ) : (
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
-            )}
-          </Button>
-        </div>
+      <div className={cn("flex flex-col gap-2 p-4 w-full", mobile ? "h-full" : "h-screen sticky top-0")}>
+        {/* Toggle Button - Only show on desktop */}
+        {!mobile && (
+          <div className={cn(
+            "flex items-center justify-end py-2",
+            collapsed ? "px-0" : "px-3"
+          )}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapse}
+              className="h-8 w-8 hover:bg-gray-100"
+            >
+              {collapsed ? (
+                <ChevronRight className="h-5 w-5 text-gray-600" />
+              ) : (
+                <ChevronLeft className="h-5 w-5 text-gray-600" />
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
