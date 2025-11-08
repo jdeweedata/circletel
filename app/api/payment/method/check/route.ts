@@ -1,29 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Check if customer has a verified payment method
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unauthorized'
-        },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    let user: any = null;
+    
+    if (token) {
+      // Use token from Authorization header
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+      
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+      
+      if (tokenError || !tokenUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = tokenUser;
+    } else {
+      // Fall back to cookies
+      const supabase = await createClientWithSession();
+      const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !cookieUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = cookieUser;
     }
+
+    // Use service role client for database query
+    const supabaseService = await createClient();
 
     // Check if customer has any completed payment validations
     // A completed validation charge indicates they have a verified payment method
-    const { data: validations, error: validationError } = await supabase
+    const { data: validations, error: validationError } = await supabaseService
       .from('consumer_orders')
       .select('id, payment_status')
       .eq('email', user.email)

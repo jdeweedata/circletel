@@ -1,28 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientWithSession } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Get pending orders for the authenticated customer
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClientWithSession();
-
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unauthorized'
-        },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    let user: any = null;
+    
+    if (token) {
+      // Use token from Authorization header
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+      
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+      
+      if (tokenError || !tokenUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = tokenUser;
+    } else {
+      // Fall back to cookies
+      const supabase = await createClientWithSession();
+      const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !cookieUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = cookieUser;
     }
 
+    // Use service role client for database query
+    const supabaseService = await createClient();
+
     // Fetch pending orders for this customer (status: 'pending' with payment_status: 'pending')
-    const { data: orders, error: ordersError } = await supabase
+    const { data: orders, error: ordersError } = await supabaseService
       .from('consumer_orders')
       .select('id, order_number, package_name, package_price, installation_address, created_at, status, payment_status')
       .eq('email', user.email)
