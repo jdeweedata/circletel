@@ -89,13 +89,23 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record directly (no extra API call to getUser())
+          // Fetch customer record with 10-second timeout for database query
           try {
-            const { data: customerData, error: customerError } = await supabase
+            const customerQuery = supabase
               .from('customers')
               .select('*')
               .eq('auth_user_id', currentSession.user.id)
               .maybeSingle();
+
+            const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer database query timed out after 10 seconds');
+                resolve({ data: null, error: { message: 'Query timeout' } });
+              }, 10000);
+            });
+
+            const result = await Promise.race([customerQuery, timeoutPromise]);
+            const { data: customerData, error: customerError } = result as any;
 
             if (customerError) {
               console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
@@ -106,7 +116,6 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             }
           } catch (customerError) {
             console.error('[CustomerAuthProvider] Failed to fetch customer during init:', customerError);
-            // Set customer to null but don't fail the entire auth initialization
             setCustomer(null);
           }
         } else {
@@ -140,15 +149,25 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         setUser(currentSession?.user || null);
 
         if (currentSession?.user) {
-          // Fetch customer record directly (no extra API call to getUser())
+          // Fetch customer record with 10-second timeout for database query
           try {
             console.log('[CustomerAuthProvider] Fetching customer record...');
 
-            const { data: customerData, error: customerError } = await supabase
+            const customerQuery = supabase
               .from('customers')
               .select('*')
               .eq('auth_user_id', currentSession.user.id)
               .maybeSingle();
+
+            const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer database query timed out after 10 seconds');
+                resolve({ data: null, error: { message: 'Query timeout' } });
+              }, 10000);
+            });
+
+            const result = await Promise.race([customerQuery, timeoutPromise]);
+            const { data: customerData, error: customerError } = result as any;
 
             if (customerError) {
               console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
@@ -181,11 +200,22 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
     try {
       const supabase = createClient();
-      const { data: customerData, error } = await supabase
+
+      const customerQuery = supabase
         .from('customers')
         .select('*')
         .eq('auth_user_id', user.id)
         .maybeSingle();
+
+      const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
+        setTimeout(() => {
+          console.warn('[CustomerAuthProvider] Refresh customer query timed out after 10 seconds');
+          resolve({ data: null, error: { message: 'Query timeout' } });
+        }, 10000);
+      });
+
+      const result = await Promise.race([customerQuery, timeoutPromise]);
+      const { data: customerData, error } = result as any;
 
       if (error) {
         console.error('[CustomerAuthProvider] Refresh customer error:', error);
