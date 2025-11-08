@@ -26,7 +26,7 @@ export async function GET() {
       supabase.from('business_quotes').select('status, total_monthly, created_at'),
 
       // Orders
-      supabase.from('consumer_orders').select('status, total_amount, created_at'),
+      supabase.from('consumer_orders').select('status, total_paid, created_at'),
 
       // Customers
       supabase.from('customers').select('id, created_at'),
@@ -70,7 +70,7 @@ export async function GET() {
     // Calculate order revenue
     const orderRevenue = orders
       .filter((o: any) => o.status === 'active')
-      .reduce((sum: number, o: any) => sum + (parseFloat(o.total_amount) || 0), 0);
+      .reduce((sum: number, o: any) => sum + (parseFloat(o.total_paid) || 0), 0);
 
     // Customers stats
     const customers = customersResult.data || [];
