@@ -91,6 +91,12 @@ export default function DashboardPage() {
         return;
       }
 
+      // Wait for customer record to load (ensures session is synced to cookies)
+      if (!customer) {
+        console.log('[Dashboard] Customer not loaded yet, waiting for session sync...');
+        return;
+      }
+
       fetchInProgress.current = true;
 
       try {
@@ -131,7 +137,7 @@ export default function DashboardPage() {
     }
 
     fetchDashboardData();
-  }, [authLoading, session?.access_token]);
+  }, [authLoading, session?.access_token, customer]);
 
   if (loading) {
     return (
