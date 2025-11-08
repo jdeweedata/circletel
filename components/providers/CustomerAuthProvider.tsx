@@ -81,12 +81,12 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       try {
         console.log('[CustomerAuthProvider] Initializing auth...');
 
-        // Add timeout protection for session fetch (increased to 10 seconds)
+        // Add timeout protection for session fetch (increased to 30 seconds)
         const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
           setTimeout(() => {
-            console.warn('[CustomerAuthProvider] Session fetch timed out after 10 seconds');
+            console.warn('[CustomerAuthProvider] Session fetch timed out after 30 seconds');
             resolve({ data: { session: null } });
-          }, 10000);
+          }, 30000);
         });
 
         const sessionPromise = supabase.auth.getSession();
@@ -104,9 +104,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           try {
             const customerTimeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
               setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 10 seconds');
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 30 seconds');
                 resolve({ customer: null, error: 'Timeout' });
-              }, 10000);
+              }, 30000);
             });
 
             const customerPromise = CustomerAuthService.getCustomer();
@@ -160,9 +160,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             // Add timeout to prevent hanging indefinitely
             const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
               setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 10 seconds');
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 30 seconds');
                 resolve({ customer: null, error: 'Timeout' });
-              }, 10000);
+              }, 30000);
             });
 
             const customerPromise = CustomerAuthService.getCustomer();
