@@ -74,7 +74,7 @@ export interface NotificationResult {
 
 export class EmailNotificationService {
   private static apiKey = process.env.RESEND_API_KEY;
-  private static fromEmail = 'noreply@circletel.co.za';
+  private static fromEmail = 'noreply@notifications.circletelsa.co.za'; // Verified Resend domain
   private static fromName = 'CircleTel';
 
   /**
