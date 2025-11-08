@@ -54,18 +54,46 @@ const ListNotificationsQuerySchema = z.object({
 // GET /api/notifications
 // ============================================================================
 
+// Vercel configuration: Ensure function stays alive longer than our timeout
+export const runtime = 'nodejs';
+export const maxDuration = 10; // Allow up to 10 seconds
+
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Notifications API] ⏱️ GET request started');
+
   try {
-    console.log('[Notifications API] GET request received');
-    
     // Use SSR client for auth
     const supabaseSSR = await createSSRClient();
+    console.log('[Notifications API] ⏱️ SSR client created:', Date.now() - startTime, 'ms');
 
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
+    // Auth check with timeout protection
+    const GET_USER_TIMEOUT = 5000; // 5 second timeout
+    const getUserPromise = supabaseSSR.auth.getUser();
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Get user timeout - Supabase Auth service may be experiencing issues'));
+      }, GET_USER_TIMEOUT);
+    });
+
+    let user, authError;
+    try {
+      const result = await Promise.race([getUserPromise, timeoutPromise]);
+      user = result.data.user;
+      authError = result.error;
+      console.log('[Notifications API] ⏱️ Auth check completed:', Date.now() - startTime, 'ms');
+    } catch (timeoutError) {
+      console.error('[Notifications API] ❌ Auth timeout:', Date.now() - startTime, 'ms');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authentication service is currently slow. Please refresh the page.',
+          technical_error: 'AUTH_TIMEOUT'
+        },
+        { status: 503 }
+      );
+    }
 
     if (authError || !user) {
       console.log('[Notifications API] Auth failed:', { authError, hasUser: !!user });
@@ -75,7 +103,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('[Notifications API] User authenticated:', user.id);
+    console.log('[Notifications API] ✅ User authenticated:', user.id);
 
     // Use service role client for querying notifications
     const supabase = await createAdminClient();
@@ -90,10 +118,8 @@ export async function GET(request: NextRequest) {
       is_dismissed: searchParams.get('is_dismissed'),
     };
 
-    console.log('[Notifications API] Query params:', queryParams);
-
     const validatedQuery = ListNotificationsQuerySchema.parse(queryParams);
-    console.log('[Notifications API] Validated query:', validatedQuery);
+    console.log('[Notifications API] ⏱️ Query validated:', Date.now() - startTime, 'ms');
 
     // Build query
     let query = supabase
@@ -168,6 +194,9 @@ export async function GET(request: NextRequest) {
       // Don't fail the request, just set unread count to 0
     }
 
+    console.log('[Notifications API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
+    console.log(`✅ Notifications fetched: ${notifications?.length || 0} notifications, ${unreadCount || 0} unread`);
+
     return NextResponse.json({
       success: true,
       data: notifications,
@@ -207,15 +236,39 @@ export async function GET(request: NextRequest) {
 // ============================================================================
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Notifications API] ⏱️ POST request started');
+
   try {
     // Use SSR client for auth
     const supabaseSSR = await createSSRClient();
 
-    // Auth check (service role for system notifications)
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSSR.auth.getUser();
+    // Auth check with timeout protection
+    const GET_USER_TIMEOUT = 5000; // 5 second timeout
+    const getUserPromise = supabaseSSR.auth.getUser();
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Get user timeout'));
+      }, GET_USER_TIMEOUT);
+    });
+
+    let user, authError;
+    try {
+      const result = await Promise.race([getUserPromise, timeoutPromise]);
+      user = result.data.user;
+      authError = result.error;
+    } catch (timeoutError) {
+      console.error('[Notifications API] ❌ POST auth timeout:', Date.now() - startTime, 'ms');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authentication service timeout',
+          technical_error: 'AUTH_TIMEOUT'
+        },
+        { status: 503 }
+      );
+    }
 
     if (authError || !user) {
       return NextResponse.json(
