@@ -35,7 +35,7 @@ export interface NetCashFormData {
   m2: string;              // PCI Vault key
   p2: string;              // Transaction reference
   p3: string;              // Description
-  p4: string;              // Amount in cents
+  p4: string;              // Amount in Rands (2 decimal places, e.g., "1.00" for R1.00)
   Budget: string;          // Budget facility ('Y'/'N')
   CustomerEmailAddress?: string;
   CustomerTelephoneNumber?: string;
@@ -50,7 +50,7 @@ export interface NetCashFormData {
 export interface NetCashCallback {
   TransactionAccepted?: string;     // 'true' or 'false'
   Complete?: string;                // 'true' or 'false'
-  Amount?: string;                  // Amount in cents
+  Amount?: string;                  // Amount in Rands (2 decimal places)
   Reference?: string;               // Transaction reference
   Reason?: string;                  // Approval/decline reason
   TransactionDate?: string;         // Transaction timestamp
@@ -145,8 +145,9 @@ export class NetCashProvider extends BasePaymentProvider {
       // Generate unique transaction reference
       const transactionId = this.generateTransactionReference(params.reference);
 
-      // Convert amount to cents (NetCash expects integer cents)
-      const amountInCents = this.randsToCents(params.amount);
+      // Format amount in Rands with 2 decimal places (NetCash expects Rands, not cents)
+      // Example: 1.00 for R1.00, 799.00 for R799.00
+      const amountInRands = params.amount.toFixed(2);
 
       // Build NetCash form data
       const formData: NetCashFormData = {
@@ -154,7 +155,7 @@ export class NetCashProvider extends BasePaymentProvider {
         m2: this.pciVaultKey,                             // PCI Vault key
         p2: transactionId,                                // Transaction reference
         p3: params.description || 'Payment',              // Description
-        p4: amountInCents.toString(),                     // Amount in cents
+        p4: amountInRands,                                // Amount in Rands (e.g., "1.00" for R1.00)
         Budget: 'N',                                      // Budget facility (No)
         CustomerEmailAddress: params.customerEmail,
         CustomerTelephoneNumber: params.customerPhone || '',
@@ -206,8 +207,8 @@ export class NetCashProvider extends BasePaymentProvider {
 
       // Extract transaction details
       const transactionId = data.Reference || data.m4 || '';
-      const amountInCents = parseInt(data.Amount || '0', 10);
-      const amount = this.centsToRands(amountInCents);
+      // NetCash sends amount in Rands with 2 decimal places (e.g., "1.00" for R1.00)
+      const amount = parseFloat(data.Amount || '0');
       const reference = data.Reference || '';
 
       // Determine payment status
