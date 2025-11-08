@@ -26,7 +26,6 @@ import {
   Download
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { createClient } from '@/lib/supabase/client';
 
 interface Order {
   id: string;
@@ -113,7 +112,6 @@ export default function AdminOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClient();
   const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   useEffect(() => {
@@ -132,20 +130,20 @@ export default function AdminOrderDetailPage() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('consumer_orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
+      // Use API endpoint to bypass RLS
+      const response = await fetch(`/api/admin/orders/${orderId}`);
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to fetch order');
+      }
 
-      if (!data) {
+      if (!result.data) {
         setError('Order not found');
         return;
       }
 
-      setOrder(data);
+      setOrder(result.data);
     } catch (err) {
       console.error('Error fetching order:', err);
       setError(err instanceof Error ? err.message : 'Failed to load order');
