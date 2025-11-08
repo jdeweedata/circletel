@@ -1,7 +1,7 @@
 /**
  * Customer Services API - List Endpoint
  * GET /api/dashboard/services
- * 
+ *
  * Returns customer's services with current usage data
  * Task 3.3: Service Dashboard API
  */
@@ -9,17 +9,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// Vercel configuration: Allow longer execution for services with usage data
+export const runtime = 'nodejs';
+export const maxDuration = 20; // Allow up to 20 seconds for complex usage calculations
+
 /**
  * GET /api/dashboard/services
- * 
+ *
  * Returns:
  * - List of customer's services
  * - Current billing cycle usage (if available)
  * - Calculated percentUsed for capped services
  */
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Customer Services API] ⏱️ Request started');
+
   try {
     const supabase = await createClient();
+    console.log('[Customer Services API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
     
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -45,13 +53,37 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Fetch services
-    const { data: services, error: servicesError } = await supabase
+    // Fetch services with timeout protection
+    const QUERY_TIMEOUT = 15000; // 15 second timeout
+    const servicesQueryPromise = supabase
       .from('customer_services')
       .select('*')
       .eq('customer_id', customer.id)
       .order('created_at', { ascending: false });
-    
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Customer services query timeout - Database may be experiencing issues'));
+      }, QUERY_TIMEOUT);
+    });
+
+    let services, servicesError;
+    try {
+      const result = await Promise.race([servicesQueryPromise, timeoutPromise]);
+      services = result.data;
+      servicesError = result.error;
+      console.log('[Customer Services API] ⏱️ Services query completed:', Date.now() - startTime, 'ms', `(${services?.length || 0} services)`);
+    } catch (timeoutError) {
+      console.error('[Customer Services API] ❌ Services query timeout:', Date.now() - startTime, 'ms');
+      return NextResponse.json(
+        {
+          error: 'Services query is taking too long. Please try again.',
+          technical_error: 'QUERY_TIMEOUT'
+        },
+        { status: 503 }
+      );
+    }
+
     if (servicesError) {
       console.error('Error fetching services:', servicesError);
       return NextResponse.json(
@@ -59,8 +91,8 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-    
-    // For each service, get current billing cycle usage
+
+    // For each service, get current billing cycle usage (with timeout protection)
     const servicesWithUsage = await Promise.all(
       (services || []).map(async (service) => {
         // Get current billing cycle dates
