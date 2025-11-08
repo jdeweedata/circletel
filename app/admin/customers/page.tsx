@@ -14,9 +14,6 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Search, UserPlus, Mail, Phone, Building, User, Calendar } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-
-const supabase = createClient();
 
 interface Customer {
   id: string;
@@ -63,15 +60,15 @@ export default function CustomersPage() {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const response = await fetch('/api/admin/customers');
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to fetch customers');
+      }
 
-      setCustomers(data || []);
-      setFilteredCustomers(data || []);
+      setCustomers(result.data || []);
+      setFilteredCustomers(result.data || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
     } finally {
