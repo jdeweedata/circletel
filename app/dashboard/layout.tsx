@@ -7,6 +7,7 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Button } from '@/components/ui/button';
 import SidebarNav from '@/components/dashboard/SidebarNav';
 import Topbar from '@/components/dashboard/Topbar';
+import { DashboardErrorBoundary } from '@/components/dashboard/ErrorBoundary';
 import {
   Home,
   Package,
@@ -93,7 +94,11 @@ export default function DashboardLayout({
             collapsed={sidebarCollapsed}
             onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
           />
-          <main className="flex-1 min-w-0">{children}</main>
+          <main className="flex-1 min-w-0">
+            <DashboardErrorBoundary>
+              {children}
+            </DashboardErrorBoundary>
+          </main>
         </div>
       </div>
 

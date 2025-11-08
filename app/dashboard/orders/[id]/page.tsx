@@ -49,87 +49,45 @@ export default function OrderDetailPage() {
       setLoading(true);
       setError(null);
 
-      // TODO: Replace with actual API call
-      // For now, using mock data with tracking events
-      const mockOrder: OrderWithTracking = {
-        id: orderId,
-        order_number: 'ORD-20251028-0001',
-        order_type: 'fiber',
-        status: 'confirmed',
-        payment_status: 'paid',
-        fulfillment_status: 'installation_scheduled',
-        customer_name: 'Jeffrey De Wee',
-        customer_email: 'jeffrey.de.wee@circletel.co.za',
-        customer_phone: '+27 82 123 4567',
-        installation_address: '123 Main Street, Cape Town, Western Cape, 8001',
-        package_name: 'SkyFibre 100Mbps',
-        service_type: 'fiber',
-        speed_down: 100,
-        speed_up: 50,
-        base_price: 799.00,
-        total_amount: 799.00,
-        site_survey_scheduled_date: '2025-10-29T10:00:00Z',
-        site_survey_completed_date: '2025-10-29T11:30:00Z',
-        site_survey_status: 'passed',
-        installation_scheduled_date: '2025-11-05T14:00:00Z',
-        installation_technician: 'John Smith',
-        expected_completion_date: '2025-11-05T18:00:00Z',
-        created_at: '2025-10-28T09:00:00Z',
-        updated_at: '2025-10-29T12:00:00Z',
-        tracking_events: [
-          {
-            id: '1',
-            order_id: orderId,
-            event_type: 'order_confirmed',
-            event_status: 'completed',
-            event_title: 'Order Confirmed',
-            event_description: 'Your order has been confirmed and payment received.',
-            completed_date: '2025-10-28T09:00:00Z',
-            created_at: '2025-10-28T09:00:00Z',
-            updated_at: '2025-10-28T09:00:00Z',
-            visible_to_customer: true,
-          },
-          {
-            id: '2',
-            order_id: orderId,
-            event_type: 'site_survey_scheduled',
-            event_status: 'completed',
-            event_title: 'Site Survey Scheduled',
-            event_description: 'Site survey scheduled for October 29, 2025 at 10:00 AM',
-            scheduled_date: '2025-10-29T10:00:00Z',
-            completed_date: '2025-10-28T10:00:00Z',
-            created_at: '2025-10-28T10:00:00Z',
-            updated_at: '2025-10-28T10:00:00Z',
-            visible_to_customer: true,
-          },
-          {
-            id: '3',
-            order_id: orderId,
-            event_type: 'site_survey_completed',
-            event_status: 'completed',
-            event_title: 'Site Survey Completed',
-            event_description: 'Site survey passed. Installation can proceed.',
-            completed_date: '2025-10-29T11:30:00Z',
-            created_at: '2025-10-29T11:30:00Z',
-            updated_at: '2025-10-29T11:30:00Z',
-            visible_to_customer: true,
-          },
-          {
-            id: '4',
-            order_id: orderId,
-            event_type: 'installation_scheduled',
-            event_status: 'pending',
-            event_title: 'Installation Scheduled',
-            event_description: 'Installation scheduled for November 5, 2025 at 2:00 PM. Technician: John Smith',
-            scheduled_date: '2025-11-05T14:00:00Z',
-            created_at: '2025-10-29T12:00:00Z',
-            updated_at: '2025-10-29T12:00:00Z',
-            visible_to_customer: true,
-          },
-        ],
-      };
+      if (!user?.session) {
+        console.error('No user session found');
+        setError('Please log in to view order details');
+        setLoading(false);
+        return;
+      }
 
-      setOrder(mockOrder);
+      const response = await fetch(`/api/dashboard/orders/${orderId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.session.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Order not found');
+        } else {
+          setError(`Failed to fetch order: ${response.statusText}`);
+        }
+        setLoading(false);
+        return;
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Transform API data to OrderWithTracking format
+        const orderData: OrderWithTracking = {
+          ...result.data,
+          // Ensure required fields have defaults if missing
+          order_type: result.data.order_type || 'fiber',
+          fulfillment_status: result.data.fulfillment_status || 'pending',
+          tracking_events: result.data.tracking_events || [],
+        };
+        setOrder(orderData);
+      } else {
+        console.error('Invalid response format:', result);
+        setError(result.error || 'Failed to load order details');
+      }
     } catch (err) {
       console.error('Error fetching order details:', err);
       setError('Failed to load order details. Please try again.');

@@ -67,75 +67,34 @@ export default function OrdersPage() {
     try {
       setLoading(true);
 
-      // TODO: Replace with actual API call to fetch customer orders
-      // For now, using mock data
-      const mockOrders: Order[] = [
-        {
-          id: '1',
-          order_number: 'ORD-20251027-0001',
-          status: 'completed',
-          payment_status: 'paid',
-          total_amount: 549.00,
-          package_name: 'Fibre 100Mbps',
-          package_speed: '100/50 Mbps',
-          installation_address: '123 Main Street, Cape Town, Western Cape',
-          created_at: '2025-10-27T10:30:00Z',
-          updated_at: '2025-10-27T14:30:00Z',
-        },
-        {
-          id: '2',
-          order_number: 'ORD-20251025-0045',
-          status: 'pending',
-          payment_status: 'pending',
-          total_amount: 799.00,
-          package_name: 'Fibre 200Mbps Premium',
-          package_speed: '200/100 Mbps',
-          installation_address: '456 Oak Avenue, Johannesburg, Gauteng',
-          created_at: '2025-10-25T09:15:00Z',
-          updated_at: '2025-10-25T09:15:00Z',
-        },
-        {
-          id: '3',
-          order_number: 'ORD-20251020-0123',
-          status: 'processing',
-          payment_status: 'paid',
-          total_amount: 399.00,
-          package_name: 'Fibre 50Mbps',
-          package_speed: '50/25 Mbps',
-          installation_address: '789 Beach Road, Durban, KwaZulu-Natal',
-          created_at: '2025-10-20T15:45:00Z',
-          updated_at: '2025-10-22T11:20:00Z',
-        },
-        {
-          id: '4',
-          order_number: 'ORD-20251018-0089',
-          status: 'cancelled',
-          payment_status: 'refunded',
-          total_amount: 999.00,
-          package_name: 'Fibre 500Mbps Ultra',
-          package_speed: '500/250 Mbps',
-          installation_address: '321 Mountain View, Pretoria, Gauteng',
-          created_at: '2025-10-18T08:00:00Z',
-          updated_at: '2025-10-19T16:30:00Z',
-        },
-        {
-          id: '5',
-          order_number: 'ORD-20251015-0234',
-          status: 'completed',
-          payment_status: 'paid',
-          total_amount: 649.00,
-          package_name: 'Fibre 150Mbps',
-          package_speed: '150/75 Mbps',
-          installation_address: '567 Lake Drive, Port Elizabeth, Eastern Cape',
-          created_at: '2025-10-15T12:20:00Z',
-          updated_at: '2025-10-16T10:45:00Z',
-        },
-      ];
+      if (!user?.session) {
+        console.error('No user session found');
+        setLoading(false);
+        return;
+      }
 
-      setOrders(mockOrders);
-      setLoading(false);
+      const response = await fetch('/api/dashboard/orders', {
+        headers: {
+          'Authorization': `Bearer ${user.session.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch orders: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        setOrders(result.data);
+      } else {
+        console.error('Invalid response format:', result);
+        setOrders([]);
+      }
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setOrders([]);
+    } finally {
       setLoading(false);
     }
   };
