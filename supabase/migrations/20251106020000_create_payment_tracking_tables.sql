@@ -276,7 +276,7 @@ CREATE POLICY admin_view_payment_transactions ON payment_transactions
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -287,7 +287,7 @@ CREATE POLICY admin_insert_payment_transactions ON payment_transactions
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -298,7 +298,7 @@ CREATE POLICY admin_update_payment_transactions ON payment_transactions
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -309,7 +309,7 @@ CREATE POLICY admin_view_webhook_logs ON payment_webhook_logs
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -325,7 +325,7 @@ CREATE POLICY admin_update_webhook_logs ON payment_webhook_logs
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -336,7 +336,7 @@ CREATE POLICY admin_view_provider_settings ON payment_provider_settings
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -348,7 +348,7 @@ CREATE POLICY super_admin_modify_provider_settings ON payment_provider_settings
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
       AND admin_users.role = 'super_admin'
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
