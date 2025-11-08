@@ -63,7 +63,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { user, session, customer } = useCustomerAuth();
+  const { user, session, customer, loading: authLoading } = useCustomerAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +78,14 @@ export default function DashboardPage() {
         return;
       }
 
+      // Wait for auth initialization to complete
+      if (authLoading) {
+        console.log('[Dashboard] Auth still loading, waiting...');
+        return;
+      }
+
       if (!session?.access_token) {
-        console.log('No session token available');
+        console.log('[Dashboard] No session token available');
         setError('Please log in to view your dashboard');
         setLoading(false);
         return;
@@ -125,7 +131,7 @@ export default function DashboardPage() {
     }
 
     fetchDashboardData();
-  }, [session?.access_token]);
+  }, [authLoading, session?.access_token]);
 
   if (loading) {
     return (
