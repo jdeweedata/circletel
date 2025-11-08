@@ -89,19 +89,21 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record with 60-second timeout
+          // Fetch customer record directly (no extra API call to getUser())
           try {
-            const customerPromise = CustomerAuthService.getCustomer();
-            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 60 seconds');
-                resolve({ customer: null, error: 'Timeout' });
-              }, 60000);
-            });
+            const { data: customerData, error: customerError } = await supabase
+              .from('customers')
+              .select('*')
+              .eq('auth_user_id', currentSession.user.id)
+              .maybeSingle();
 
-            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
-            console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
-            setCustomer(customerData);
+            if (customerError) {
+              console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
+              setCustomer(null);
+            } else {
+              console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
+              setCustomer(customerData);
+            }
           } catch (customerError) {
             console.error('[CustomerAuthProvider] Failed to fetch customer during init:', customerError);
             // Set customer to null but don't fail the entire auth initialization
@@ -138,21 +140,23 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         setUser(currentSession?.user || null);
 
         if (currentSession?.user) {
-          // Fetch customer record when user signs in with 60-second timeout
+          // Fetch customer record directly (no extra API call to getUser())
           try {
             console.log('[CustomerAuthProvider] Fetching customer record...');
 
-            const customerPromise = CustomerAuthService.getCustomer();
-            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 60 seconds');
-                resolve({ customer: null, error: 'Timeout' });
-              }, 60000);
-            });
+            const { data: customerData, error: customerError } = await supabase
+              .from('customers')
+              .select('*')
+              .eq('auth_user_id', currentSession.user.id)
+              .maybeSingle();
 
-            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
-            console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
-            setCustomer(customerData);
+            if (customerError) {
+              console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
+              setCustomer(null);
+            } else {
+              console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
+              setCustomer(customerData);
+            }
           } catch (error) {
             console.error('[CustomerAuthProvider] Failed to fetch customer:', error);
             setCustomer(null);
@@ -175,8 +179,24 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const refreshCustomer = async () => {
     if (!user) return;
 
-    const { customer: customerData } = await CustomerAuthService.getCustomer();
-    setCustomer(customerData);
+    try {
+      const supabase = createClient();
+      const { data: customerData, error } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('[CustomerAuthProvider] Refresh customer error:', error);
+        setCustomer(null);
+      } else {
+        setCustomer(customerData);
+      }
+    } catch (error) {
+      console.error('[CustomerAuthProvider] Failed to refresh customer:', error);
+      setCustomer(null);
+    }
   };
 
   // Check if email is verified
