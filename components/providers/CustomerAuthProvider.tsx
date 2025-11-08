@@ -81,40 +81,17 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       try {
         console.log('[CustomerAuthProvider] Initializing auth...');
 
-        // Add timeout protection for session fetch (increased to 30 seconds)
-        const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
-          setTimeout(() => {
-            console.warn('[CustomerAuthProvider] Session fetch timed out after 30 seconds');
-            resolve({ data: { session: null } });
-          }, 30000);
-        });
-
-        const sessionPromise = supabase.auth.getSession();
-        const { data: { session: currentSession } } = await Promise.race([
-          sessionPromise,
-          sessionTimeoutPromise
-        ]) as any;
+        // Get session directly without timeout - Supabase handles this internally
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
 
         if (currentSession) {
           console.log('[CustomerAuthProvider] Session found, setting user state...');
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record with timeout protection
+          // Fetch customer record
           try {
-            const customerTimeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 30 seconds');
-                resolve({ customer: null, error: 'Timeout' });
-              }, 30000);
-            });
-
-            const customerPromise = CustomerAuthService.getCustomer();
-            const { customer: customerData } = await Promise.race([
-              customerPromise,
-              customerTimeoutPromise
-            ]);
-
+            const { customer: customerData } = await CustomerAuthService.getCustomer();
             console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
             setCustomer(customerData);
           } catch (customerError) {
@@ -156,18 +133,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           // Fetch customer record when user signs in
           try {
             console.log('[CustomerAuthProvider] Fetching customer record...');
-
-            // Add timeout to prevent hanging indefinitely
-            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer fetch timed out after 30 seconds');
-                resolve({ customer: null, error: 'Timeout' });
-              }, 30000);
-            });
-
-            const customerPromise = CustomerAuthService.getCustomer();
-            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
-
+            const { customer: customerData } = await CustomerAuthService.getCustomer();
             console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
             setCustomer(customerData);
           } catch (error) {
