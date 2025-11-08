@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,13 +24,22 @@ export default function PaymentMethodPage() {
   const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fetchInProgress = useRef(false);
 
   useEffect(() => {
     async function fetchPaymentData() {
+      // Prevent multiple simultaneous fetches
+      if (fetchInProgress.current) {
+        console.log('[PaymentMethod] Fetch already in progress, skipping duplicate call');
+        return;
+      }
+
       if (!session?.access_token) {
         setLoading(false);
         return;
       }
+
+      fetchInProgress.current = true;
 
       try {
         // Fetch pending orders
@@ -61,11 +70,12 @@ export default function PaymentMethodPage() {
         console.error('Error fetching payment data:', error);
       } finally {
         setLoading(false);
+        fetchInProgress.current = false;
       }
     }
 
     fetchPaymentData();
-  }, [session]);
+  }, [session?.access_token]);
 
   if (loading) {
     return (
