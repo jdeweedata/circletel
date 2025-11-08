@@ -47,7 +47,7 @@ CREATE POLICY "Admin users can view ZOHO tokens"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -57,7 +57,7 @@ CREATE POLICY "Admin users can insert ZOHO tokens"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -67,7 +67,7 @@ CREATE POLICY "Admin users can update ZOHO tokens"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -104,7 +104,7 @@ CREATE POLICY "Admin users can view ZOHO sync logs"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -118,7 +118,7 @@ CREATE POLICY "Admin users can update ZOHO sync logs"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -168,7 +168,7 @@ CREATE POLICY "Admin users can view ZOHO mappings"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
@@ -186,7 +186,7 @@ CREATE POLICY "Admin users can delete ZOHO mappings"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 

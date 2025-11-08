@@ -88,14 +88,14 @@ CREATE POLICY "Admins can view and update leads"
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.auth_user_id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.auth_user_id = auth.uid()
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
