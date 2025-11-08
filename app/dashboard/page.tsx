@@ -100,24 +100,10 @@ export default function DashboardPage() {
         if (result.success) {
           setData(result.data);
           setError(null);
+          // Use pending orders count from summary API instead of separate fetch
+          setPendingOrders(result.data?.stats?.pendingOrders || 0);
         } else {
           setError(result.error || 'Failed to load dashboard');
-        }
-
-        // Fetch pending orders count
-        try {
-          const pendingResponse = await fetch('/api/orders/pending', {
-            headers: {
-              'Authorization': `Bearer ${session.access_token}`
-            }
-          });
-
-          if (pendingResponse.ok) {
-            const pendingData = await pendingResponse.json();
-            setPendingOrders(pendingData.orders?.length || 0);
-          }
-        } catch (pendingError) {
-          console.error('Error fetching pending orders:', pendingError);
         }
 
       } catch (err) {
