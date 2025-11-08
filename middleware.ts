@@ -47,33 +47,17 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session and get current user with timeout
-  let user = null;
-  let error = null;
-  
-  try {
-    const AUTH_TIMEOUT = 5000; // 5 seconds timeout
-    
-    const authPromise = supabase.auth.getUser();
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Auth timeout in middleware')), AUTH_TIMEOUT);
-    });
-    
-    const result = await Promise.race([authPromise, timeoutPromise]) as any;
-    user = result.data?.user || null;
-    error = result.error || null;
-  } catch (timeoutError: any) {
-    console.error('[Middleware] Auth timeout:', timeoutError.message);
-    error = timeoutError;
-    // Continue with user = null, will redirect to login
-  }
+  // Get session from cookies (fast - no API call needed)
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  const user = session?.user || null;
 
-  console.log('[Middleware] Session refresh result:', {
+  console.log('[Middleware] Session check:', {
     pathname,
+    hasSession: !!session,
     hasUser: !!user,
     userId: user?.id,
     userEmail: user?.email,
-    error: error?.message
+    error: sessionError?.message
   });
 
   // Public admin routes

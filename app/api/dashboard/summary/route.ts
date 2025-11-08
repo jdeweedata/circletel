@@ -35,12 +35,20 @@ export async function GET(request: NextRequest) {
     const sessionClient = await createClientWithSession();
     const { data: { session }, error: authError } = await sessionClient.auth.getSession();
 
+    console.log('[Dashboard Summary API] Session check:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      error: authError?.message,
+      userId: session?.user?.id
+    });
+
     if (authError || !session?.user) {
-      console.log('[Dashboard Summary API] ❌ Auth failed:', authError?.message);
+      console.log('[Dashboard Summary API] ❌ Auth failed - session not found in cookies');
+      console.log('[Dashboard Summary API] User may need to logout and login again to sync session');
       return NextResponse.json(
         {
           success: false,
-          error: 'Unauthorized'
+          error: 'Unauthorized - Please logout and login again'
         },
         { status: 401 }
       );
