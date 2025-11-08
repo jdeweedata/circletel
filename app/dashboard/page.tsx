@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,15 +68,24 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingOrders, setPendingOrders] = useState<number>(0);
+  const fetchInProgress = useRef(false);
 
   useEffect(() => {
     async function fetchDashboardData() {
+      // Prevent multiple simultaneous fetches
+      if (fetchInProgress.current) {
+        console.log('[Dashboard] Fetch already in progress, skipping duplicate call');
+        return;
+      }
+
       if (!session?.access_token) {
         console.log('No session token available');
         setError('Please log in to view your dashboard');
         setLoading(false);
         return;
       }
+
+      fetchInProgress.current = true;
 
       try {
         console.log('Fetching dashboard data...');
@@ -100,24 +109,10 @@ export default function DashboardPage() {
         if (result.success) {
           setData(result.data);
           setError(null);
+          // Use pending orders count from summary API instead of separate fetch
+          setPendingOrders(result.data?.stats?.pendingOrders || 0);
         } else {
           setError(result.error || 'Failed to load dashboard');
-        }
-
-        // Fetch pending orders count
-        try {
-          const pendingResponse = await fetch('/api/orders/pending', {
-            headers: {
-              'Authorization': `Bearer ${session.access_token}`
-            }
-          });
-
-          if (pendingResponse.ok) {
-            const pendingData = await pendingResponse.json();
-            setPendingOrders(pendingData.orders?.length || 0);
-          }
-        } catch (pendingError) {
-          console.error('Error fetching pending orders:', pendingError);
         }
 
       } catch (err) {
@@ -125,11 +120,12 @@ export default function DashboardPage() {
         setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
       } finally {
         setLoading(false);
+        fetchInProgress.current = false;
       }
     }
 
     fetchDashboardData();
-  }, [session]);
+  }, [session?.access_token]);
 
   if (loading) {
     return (
