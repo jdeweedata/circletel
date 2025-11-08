@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
 
 export async function POST(request: NextRequest) {
@@ -127,7 +128,25 @@ export async function POST(request: NextRequest) {
         console.error('Email send error:', error);
       });
 
-    // TODO: Send notification to admin (optional)
+    // Send admin notifications (async, don't block response)
+    AdminNotificationService.notifyNewOrder(order as ConsumerOrder)
+      .then((adminResults) => {
+        if (adminResults.sales.success) {
+          console.log(`[AdminNotifications] Sales team notified (MessageID: ${adminResults.sales.message_id})`);
+        } else {
+          console.error('[AdminNotifications] Failed to notify sales team:', adminResults.sales.error);
+        }
+
+        if (adminResults.serviceDelivery.success) {
+          console.log(`[AdminNotifications] Service delivery team notified (MessageID: ${adminResults.serviceDelivery.message_id})`);
+        } else {
+          console.error('[AdminNotifications] Failed to notify service delivery team:', adminResults.serviceDelivery.error);
+        }
+      })
+      .catch((error) => {
+        console.error('[AdminNotifications] Error sending admin notifications:', error);
+      });
+
     // TODO: Sync to Zoho CRM (optional)
 
     return NextResponse.json({
