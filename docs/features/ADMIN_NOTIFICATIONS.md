@@ -105,6 +105,7 @@ Add to `.env.local`:
 
 ```env
 # Admin Notification Configuration
+# NOTE: Admin emails are sent from devadmin@notifications.circletelsa.co.za
 
 # Sales Team Email (receives new order notifications)
 SALES_TEAM_EMAIL=sales@circletel.co.za
@@ -124,6 +125,15 @@ ADMIN_CC_EMAILS=admin@circletel.co.za,operations@circletel.co.za
 # Email Service (Resend API)
 RESEND_API_KEY=your_resend_api_key_here
 ```
+
+### Sender Email
+
+All admin notifications are sent from:
+- **Sender:** `CircleTel Admin <devadmin@notifications.circletelsa.co.za>`
+- **Domain:** `notifications.circletelsa.co.za` (verified in Resend)
+
+Customer notifications use a different sender:
+- **Sender:** `CircleTel <noreply@notifications.circletelsa.co.za>`
 
 ---
 

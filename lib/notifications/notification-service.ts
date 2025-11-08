@@ -23,6 +23,7 @@ export interface EmailNotificationInput {
   data: Record<string, any>;
   cc?: string[];
   bcc?: string[];
+  from?: string; // Optional custom sender email
 }
 
 export interface SmsNotificationInput {
@@ -99,7 +100,7 @@ export class EmailNotificationService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: `${this.fromName} <${this.fromEmail}>`,
+          from: input.from || `${this.fromName} <${this.fromEmail}>`,
           to: input.to,
           subject: input.subject,
           html,

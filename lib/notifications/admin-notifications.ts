@@ -21,6 +21,9 @@ export class AdminNotificationService {
     ccEmails: process.env.ADMIN_CC_EMAILS ? process.env.ADMIN_CC_EMAILS.split(',') : [],
   };
 
+  // Admin notification sender email (using verified Resend domain)
+  private static adminSenderEmail = 'CircleTel Admin <devadmin@notifications.circletelsa.co.za>';
+
   /**
    * Send new order notification to sales and service delivery teams
    */
@@ -94,6 +97,7 @@ export class AdminNotificationService {
 
     // Send to sales team
     const salesResult = await EmailNotificationService.send({
+      from: this.adminSenderEmail,
       to: this.config.salesTeamEmail!,
       cc: this.config.ccEmails,
       subject: `🔔 New Order: ${order.order_number} - ${order.first_name} ${order.last_name}`,
@@ -103,6 +107,7 @@ export class AdminNotificationService {
 
     // Send to service delivery team
     const serviceDeliveryResult = await EmailNotificationService.send({
+      from: this.adminSenderEmail,
       to: this.config.serviceDeliveryEmail!,
       cc: this.config.ccEmails,
       subject: `📦 New Installation Required: ${order.order_number}`,
@@ -146,6 +151,7 @@ export class AdminNotificationService {
     };
 
     return await EmailNotificationService.send({
+      from: this.adminSenderEmail,
       to: this.config.managementEmail!,
       cc: [this.config.salesTeamEmail!, this.config.serviceDeliveryEmail!, ...this.config.ccEmails],
       subject: `🚨 URGENT ORDER: ${order.order_number} - ${reason}`,
@@ -166,6 +172,7 @@ export class AdminNotificationService {
     const accountingEmail = process.env.ACCOUNTING_EMAIL || this.config.managementEmail!;
 
     return await EmailNotificationService.send({
+      from: this.adminSenderEmail,
       to: accountingEmail,
       cc: [this.config.salesTeamEmail!, ...this.config.ccEmails],
       subject: `💰 Payment Received: ${order.order_number} - R${paymentAmount.toFixed(2)}`,
@@ -192,6 +199,7 @@ export class AdminNotificationService {
     technicianName?: string
   ): Promise<NotificationResult> {
     return await EmailNotificationService.send({
+      from: this.adminSenderEmail,
       to: this.config.serviceDeliveryEmail!,
       subject: `📅 Installation Scheduled: ${order.order_number} - ${installationDate}`,
       template: 'admin_installation_scheduled',
