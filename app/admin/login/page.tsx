@@ -151,7 +151,7 @@ export default function AdminLoginPage() {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Redirect to admin dashboard
-      window.location.href = '/admin';
+      window.location.href = '/admin/dashboard';
     } catch (error) {
       console.error('Error signing in:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sign in. Please try again.';
