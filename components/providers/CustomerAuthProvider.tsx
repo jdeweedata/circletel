@@ -89,9 +89,17 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record
+          // Fetch customer record with 60-second timeout
           try {
-            const { customer: customerData } = await CustomerAuthService.getCustomer();
+            const customerPromise = CustomerAuthService.getCustomer();
+            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 60 seconds');
+                resolve({ customer: null, error: 'Timeout' });
+              }, 60000);
+            });
+
+            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
             console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
             setCustomer(customerData);
           } catch (customerError) {
@@ -130,10 +138,19 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         setUser(currentSession?.user || null);
 
         if (currentSession?.user) {
-          // Fetch customer record when user signs in
+          // Fetch customer record when user signs in with 60-second timeout
           try {
             console.log('[CustomerAuthProvider] Fetching customer record...');
-            const { customer: customerData } = await CustomerAuthService.getCustomer();
+
+            const customerPromise = CustomerAuthService.getCustomer();
+            const timeoutPromise = new Promise<{ customer: null; error: string }>((resolve) => {
+              setTimeout(() => {
+                console.warn('[CustomerAuthProvider] Customer fetch timed out after 60 seconds');
+                resolve({ customer: null, error: 'Timeout' });
+              }, 60000);
+            });
+
+            const { customer: customerData } = await Promise.race([customerPromise, timeoutPromise]);
             console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
             setCustomer(customerData);
           } catch (error) {
