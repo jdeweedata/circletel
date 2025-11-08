@@ -109,12 +109,56 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Authenticate with Supabase Auth using SSR client
     // This will automatically set the session cookies in the response
+    // Add timeout wrapper to fail fast if Supabase Auth is slow
     console.log('[Login API] ⏱️ Starting Supabase Auth...');
-    const { data: authData, error: authError } = await supabaseSSR.auth.signInWithPassword({
+    
+    const AUTH_TIMEOUT = 10000; // 10 second timeout
+    const authPromise = supabaseSSR.auth.signInWithPassword({
       email: normalizedEmail,
       password: password,
     });
-    console.log('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
+    
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Authentication timeout - Supabase Auth service may be experiencing issues'));
+      }, AUTH_TIMEOUT);
+    });
+    
+    let authData, authError;
+    try {
+      const result = await Promise.race([authPromise, timeoutPromise]);
+      authData = result.data;
+      authError = result.error;
+      console.log('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
+    } catch (timeoutError) {
+      console.error('[Login API] ❌ Supabase Auth timeout:', Date.now() - startTime, 'ms');
+      
+      // Log timeout issue
+      await supabaseAdmin.from('admin_audit_logs').insert({
+        user_email: normalizedEmail,
+        admin_user_id: adminUser.id,
+        action: 'login_failed_auth_timeout',
+        action_category: 'authentication',
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        metadata: { 
+          error: timeoutError instanceof Error ? timeoutError.message : 'Unknown timeout error',
+          timeout_ms: AUTH_TIMEOUT,
+          elapsed_ms: Date.now() - startTime
+        },
+        status: 'failure',
+        severity: 'critical',
+      });
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Authentication service is currently slow. Please try again in a few moments.',
+          technical_error: 'AUTH_TIMEOUT'
+        },
+        { status: 503 } // Service Unavailable
+      );
+    }
 
     if (authError || !authData.user) {
       await supabaseAdmin.from('admin_audit_logs').insert({

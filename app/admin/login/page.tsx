@@ -100,10 +100,16 @@ export default function AdminLoginPage() {
       console.log('[Login] API response received:', {
         success: result.success,
         hasUser: !!result.user,
-        userEmail: result.user?.email
+        userEmail: result.user?.email,
+        status: response.status,
+        technicalError: result.technical_error
       });
 
       if (!response.ok || !result.success) {
+        // Check for auth timeout error
+        if (result.technical_error === 'AUTH_TIMEOUT') {
+          throw new Error(result.error || 'Authentication service timeout. Please wait a moment and try again.');
+        }
         throw new Error(result.error || 'Login failed');
       }
 
@@ -148,7 +154,14 @@ export default function AdminLoginPage() {
       window.location.href = '/admin';
     } catch (error) {
       console.error('Error signing in:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to sign in. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in. Please try again.';
+      
+      // Show longer duration for timeout errors
+      const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('slow');
+      toast.error(errorMessage, {
+        duration: isTimeout ? 8000 : 5000, // Longer duration for timeout errors
+        description: isTimeout ? 'The authentication service is experiencing delays. You may need to wait a few minutes.' : undefined
+      });
     } finally {
       setIsSubmitting(false);
     }
