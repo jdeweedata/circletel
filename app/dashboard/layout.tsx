@@ -109,7 +109,7 @@ export default function DashboardLayout({
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-circleTel-secondaryNeutral">
             <p>© 2025 CircleTel. All rights reserved.</p>
             <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-circleTel-orange transition-colors">
+              <Link href="/privacy-policy" className="hover:text-circleTel-orange transition-colors">
                 Privacy Policy
               </Link>
               <Link href="/terms" className="hover:text-circleTel-orange transition-colors">

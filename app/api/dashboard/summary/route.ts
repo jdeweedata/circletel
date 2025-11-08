@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
 
       billing: billing ? {
         account_balance: billing.account_balance || 0,
-        payment_method: primaryPaymentMethod?.payment_type || 'Not set',
+        payment_method: primaryPaymentMethod?.method_type || 'Not set',
         payment_status: (billing.account_balance || 0) > 0 ? 'overdue' : 'current',
         next_billing_date: nextBillingDate || '',
         days_overdue: overdueInvoices.length > 0 ?
