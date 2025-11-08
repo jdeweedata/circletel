@@ -17,10 +17,21 @@ export default function AdminRootPage() {
     // Clear any existing admin session and redirect to login
     const forceReauth = async () => {
       try {
-        // Sign out any existing session
-        const { createClient } = await import('@/lib/supabase/client');
-        const supabase = createClient();
-        await supabase.auth.signOut();
+        // Add timeout to prevent hanging on slow Supabase Auth
+        const SIGNOUT_TIMEOUT = 3000; // 3 seconds
+        
+        const signoutPromise = (async () => {
+          const { createClient } = await import('@/lib/supabase/client');
+          const supabase = createClient();
+          await supabase.auth.signOut();
+        })();
+        
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Signout timeout')), SIGNOUT_TIMEOUT);
+        });
+        
+        // Race between signout and timeout
+        await Promise.race([signoutPromise, timeoutPromise]);
 
         // Add a small delay to ensure signout completes
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -28,8 +39,9 @@ export default function AdminRootPage() {
         // Redirect to admin login with signout flag
         router.replace('/admin/login?signout=true');
       } catch (error) {
-        console.error('Error during forced re-auth:', error);
-        // Still redirect to login even if signout fails
+        console.error('Error during forced re-auth (continuing anyway):', error);
+        // Still redirect to login even if signout fails or times out
+        // This ensures users aren't stuck on infinite loading
         router.replace('/admin/login?signout=true');
       }
     };

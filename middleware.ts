@@ -47,8 +47,26 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session and get current user
-  const { data: { user }, error } = await supabase.auth.getUser();
+  // Refresh session and get current user with timeout
+  let user = null;
+  let error = null;
+  
+  try {
+    const AUTH_TIMEOUT = 5000; // 5 seconds timeout
+    
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Auth timeout in middleware')), AUTH_TIMEOUT);
+    });
+    
+    const result = await Promise.race([authPromise, timeoutPromise]) as any;
+    user = result.data?.user || null;
+    error = result.error || null;
+  } catch (timeoutError: any) {
+    console.error('[Middleware] Auth timeout:', timeoutError.message);
+    error = timeoutError;
+    // Continue with user = null, will redirect to login
+  }
 
   console.log('[Middleware] Session refresh result:', {
     pathname,
