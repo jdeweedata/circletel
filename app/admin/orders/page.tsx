@@ -27,7 +27,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { createClient } from '@/lib/supabase/client';
 
 interface Order {
   id: string;
@@ -70,8 +69,6 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
 
-  const supabase = createClient();
-
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -84,14 +81,15 @@ export default function AdminOrdersPage() {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from('consumer_orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use API endpoint to bypass RLS
+      const response = await fetch('/api/admin/orders');
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to fetch orders');
+      }
 
-      const ordersData = (data || []) as Order[];
+      const ordersData = (result.data || []) as Order[];
       setOrders(ordersData);
 
       // Calculate stats
