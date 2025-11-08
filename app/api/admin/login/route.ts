@@ -7,6 +7,9 @@ import { createServerClient } from '@supabase/ssr';
  */
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Login API] ⏱️ Request started');
+
   // Store cookies that will be set by Supabase SSR client
   const cookiesToSet: Array<{ name: string; value: string; options?: any }> = [];
 
@@ -21,6 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    console.log('[Login API] ⏱️ Request parsed:', Date.now() - startTime, 'ms');
 
     // Get IP address and user agent
     const ipAddress =
@@ -55,6 +59,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Service role client for admin_users check (bypasses RLS)
     const supabaseAdmin = await createClient();
+    console.log('[Login API] ⏱️ Supabase clients created:', Date.now() - startTime, 'ms');
 
     // Step 1: Check if user exists in admin_users
     const { data: adminUser, error: adminError } = await supabaseAdmin
@@ -62,6 +67,7 @@ export async function POST(request: NextRequest) {
       .select('id, email, full_name, is_active, role, role_template_id, permissions')
       .eq('email', normalizedEmail)
       .maybeSingle();
+    console.log('[Login API] ⏱️ Admin user lookup completed:', Date.now() - startTime, 'ms');
 
     if (adminError || !adminUser) {
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -103,10 +109,12 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Authenticate with Supabase Auth using SSR client
     // This will automatically set the session cookies in the response
+    console.log('[Login API] ⏱️ Starting Supabase Auth...');
     const { data: authData, error: authError } = await supabaseSSR.auth.signInWithPassword({
       email: normalizedEmail,
       password: password,
     });
+    console.log('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
 
     if (authError || !authData.user) {
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -153,33 +161,43 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    await supabaseAdmin.from('admin_audit_logs').insert({
-      user_id: authData.user.id,
-      user_email: normalizedEmail,
-      admin_user_id: adminUser.id,
-      action: 'login_success',
-      action_category: 'authentication',
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      metadata: loginMetadata,
-      status: 'success',
-      severity: 'low',
-    });
+    console.log('[Login API] ⏱️ Writing audit logs asynchronously...');
 
-    // Also log to admin_activity_log for historical tracking
-    await supabaseAdmin.from('admin_activity_log').insert({
-      admin_user_id: adminUser.id,
-      action: 'admin_login',
-      resource_type: 'authentication',
-      resource_id: authData.session?.access_token?.substring(0, 10),
-      details: {
-        timestamp: new Date().toISOString(),
+    // Write audit logs asynchronously (fire-and-forget) to avoid blocking the response
+    // This prevents slow database writes from timing out the login
+    Promise.all([
+      supabaseAdmin.from('admin_audit_logs').insert({
+        user_id: authData.user.id,
+        user_email: normalizedEmail,
+        admin_user_id: adminUser.id,
+        action: 'login_success',
+        action_category: 'authentication',
         ip_address: ipAddress,
         user_agent: userAgent,
-        session_expires: authData.session?.expires_at
-      },
-      ip_address: ipAddress,
-      user_agent: userAgent
+        metadata: loginMetadata,
+        status: 'success',
+        severity: 'low',
+      }),
+      supabaseAdmin.from('admin_activity_log').insert({
+        admin_user_id: adminUser.id,
+        action: 'admin_login',
+        resource_type: 'authentication',
+        resource_id: authData.session?.access_token?.substring(0, 10),
+        details: {
+          timestamp: new Date().toISOString(),
+          ip_address: ipAddress,
+          user_agent: userAgent,
+          session_expires: authData.session?.expires_at
+        },
+        ip_address: ipAddress,
+        user_agent: userAgent
+      })
+    ]).then(([auditResult, activityResult]) => {
+      console.log('[Login API] ⏱️ Audit logs completed (async):', Date.now() - startTime, 'ms');
+      if (auditResult.error) console.error('[Login API] Audit log error:', auditResult.error);
+      if (activityResult.error) console.error('[Login API] Activity log error:', activityResult.error);
+    }).catch(error => {
+      console.error('[Login API] Audit logging failed (non-blocking):', error);
     });
 
     console.log(`✅ Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
@@ -204,6 +222,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('[Login API] Final response cookie count:', cookiesToSet.length);
+    console.log('[Login API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
 
     return successResponse;
   } catch (error) {
