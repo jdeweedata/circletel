@@ -1,7 +1,7 @@
 /**
  * Dashboard Summary API
  * GET /api/dashboard/summary
- * 
+ *
  * Returns comprehensive dashboard summary aggregating all customer data
  * Task 3.7: Dashboard Summary API
  */
@@ -10,6 +10,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
+
+// Vercel configuration: Allow longer execution for comprehensive dashboard queries
+export const runtime = 'nodejs';
+export const maxDuration = 20; // Allow up to 20 seconds for multiple table queries
 
 /**
  * GET /api/dashboard/summary
@@ -23,6 +27,9 @@ import { PaymentMethodService } from '@/lib/billing/payment-method-service';
  * - Stats (active services, orders, overdue invoices)
  */
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Dashboard Summary API] ⏱️ Request started');
+
   try {
     // Try cookie-based authentication first
     let supabase = await createClientWithSession();
@@ -67,13 +74,17 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
+    console.log('[Dashboard Summary API] ⏱️ Supabase client authenticated:', Date.now() - startTime, 'ms');
+
     // Get customer details
     const { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('id, first_name, last_name, email, phone, account_number, account_status, created_at')
       .eq('auth_user_id', user.id)
       .single();
+
+    console.log('[Dashboard Summary API] ⏱️ Customer fetched:', Date.now() - startTime, 'ms');
     
     // If customer record doesn't exist, create a basic one from auth user data
     if (customerError || !customer) {
@@ -131,28 +142,23 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    // Parallel queries for better performance
-    const [
-      servicesResult,
-      billingResult,
-      ordersResult,
-      invoicesResult,
-      transactionsResult
-    ] = await Promise.all([
+    // Parallel queries for better performance with timeout protection
+    const QUERY_TIMEOUT = 15000; // 15 second timeout for all parallel queries
+    const parallelQueriesPromise = Promise.all([
       // Get all services
       supabase
         .from('customer_services')
         .select('*')
         .eq('customer_id', customer.id)
         .order('created_at', { ascending: false }),
-      
+
       // Get billing info
       supabase
         .from('customer_billing')
         .select('*')
         .eq('customer_id', customer.id)
         .single(),
-      
+
       // Get recent orders
       supabase
         .from('consumer_orders')
@@ -160,7 +166,7 @@ export async function GET(request: NextRequest) {
         .eq('customer_id', customer.id)
         .order('created_at', { ascending: false })
         .limit(5),
-      
+
       // Get recent invoices
       supabase
         .from('customer_invoices')
@@ -168,7 +174,7 @@ export async function GET(request: NextRequest) {
         .eq('customer_id', customer.id)
         .order('invoice_date', { ascending: false })
         .limit(5),
-      
+
       // Get recent transactions
       supabase
         .from('payment_transactions')
@@ -177,6 +183,29 @@ export async function GET(request: NextRequest) {
         .order('transaction_date', { ascending: false })
         .limit(5)
     ]);
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Dashboard summary queries timeout - Database may be experiencing issues'));
+      }, QUERY_TIMEOUT);
+    });
+
+    let servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult;
+    try {
+      const results = await Promise.race([parallelQueriesPromise, timeoutPromise]);
+      [servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult] = results;
+      console.log('[Dashboard Summary API] ⏱️ All queries completed:', Date.now() - startTime, 'ms');
+    } catch (timeoutError) {
+      console.error('[Dashboard Summary API] ❌ Queries timeout:', Date.now() - startTime, 'ms');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Dashboard summary queries are taking too long. Please try again.',
+          technical_error: 'QUERY_TIMEOUT'
+        },
+        { status: 503 }
+      );
+    }
     
     const services = servicesResult.data || [];
     const billing = billingResult.data;
@@ -220,7 +249,7 @@ export async function GET(request: NextRequest) {
         customerSince: customer.created_at,
         accountNumber: customer.account_number || ''
       },
-      
+
       services: services.map(s => ({
         id: s.id,
         package_name: s.package_name,
@@ -231,20 +260,20 @@ export async function GET(request: NextRequest) {
         speed_down: s.speed_down || 0,
         speed_up: s.speed_up || 0
       })),
-      
+
       billing: billing ? {
         account_balance: billing.account_balance || 0,
         payment_method: primaryPaymentMethod?.payment_type || 'Not set',
         payment_status: (billing.account_balance || 0) > 0 ? 'overdue' : 'current',
         next_billing_date: nextBillingDate || '',
-        days_overdue: overdueInvoices.length > 0 ? 
+        days_overdue: overdueInvoices.length > 0 ?
           Math.max(...overdueInvoices.map(inv => {
             const dueDate = new Date(inv.due_date);
             const now = new Date();
             return Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
           })) : 0
       } : null,
-      
+
       orders: orders.map(o => ({
         id: o.id,
         order_number: o.order_number,
@@ -252,7 +281,7 @@ export async function GET(request: NextRequest) {
         total_amount: o.total_paid || 0,
         created_at: o.created_at
       })),
-      
+
       invoices: invoices.map(inv => ({
         id: inv.id,
         invoice_number: inv.invoice_number,
@@ -261,7 +290,7 @@ export async function GET(request: NextRequest) {
         amount_due: inv.amount_due,
         status: inv.status
       })),
-      
+
       stats: {
         activeServices: activeServices.length,
         totalOrders: orders.length,
@@ -270,7 +299,9 @@ export async function GET(request: NextRequest) {
         accountBalance: billing?.account_balance || 0
       }
     };
-    
+
+    console.log('[Dashboard Summary API] ✅ Summary built successfully:', Date.now() - startTime, 'ms', `(${services.length} services, ${orders.length} orders, ${invoices.length} invoices)`);
+
     return NextResponse.json({
       success: true,
       data: summary
