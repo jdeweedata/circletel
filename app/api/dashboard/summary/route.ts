@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
         .from('payment_transactions')
         .select('*')
         .eq('customer_id', customer.id)
-        .order('transaction_date', { ascending: false })
+        .order('initiated_at', { ascending: false })
         .limit(5)
     ]);
 
