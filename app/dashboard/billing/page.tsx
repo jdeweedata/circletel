@@ -81,8 +81,8 @@ export default function BillingPage() {
   useEffect(() => {
     async function fetchBillingData() {
       if (!session?.access_token) {
-        // Use mock data for demo
-        setData(getMockBillingData());
+        console.error('No session found');
+        setError('Please log in to view billing information');
         setLoading(false);
         return;
       }
@@ -95,22 +95,23 @@ export default function BillingPage() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch billing data');
+          throw new Error(`Failed to fetch billing data: ${response.statusText}`);
         }
 
         const result = await response.json();
 
-        if (result.success) {
+        if (result.success && result.data) {
           setData(result.data);
           setError(null);
         } else {
-          // Fallback to mock data
-          setData(getMockBillingData());
+          console.error('Invalid response format:', result);
+          setError(result.error || 'Failed to load billing information');
+          setData(null);
         }
       } catch (err) {
         console.error('Billing error:', err);
-        // Use mock data on error
-        setData(getMockBillingData());
+        setError(err instanceof Error ? err.message : 'Failed to load billing information');
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -127,11 +128,12 @@ export default function BillingPage() {
     );
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <AlertCircle className="h-12 w-12 text-red-500" />
-        <p className="text-lg text-gray-600">Failed to load billing information</p>
+        <p className="text-lg font-semibold text-gray-900">Unable to load billing information</p>
+        {error && <p className="text-sm text-gray-600">{error}</p>}
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
     );
@@ -461,102 +463,4 @@ export default function BillingPage() {
       </Tabs>
     </div>
   );
-}
-
-// Mock data for demonstration
-function getMockBillingData(): BillingData {
-  return {
-    billing_summary: {
-      current_balance: 799.00,
-      total_paid_ytd: 9588.00,
-      next_billing_date: '2025-11-27',
-      average_monthly: 799.00
-    },
-    invoices: [
-      {
-        id: '1',
-        invoice_number: 'INV-2025-001',
-        invoice_date: '2025-10-01',
-        due_date: '2025-10-15',
-        total_amount: 799.00,
-        amount_due: 799.00,
-        amount_paid: 0,
-        status: 'pending',
-        description: 'Fibre 100Mbps - October 2025',
-        service_period_start: '2025-10-01',
-        service_period_end: '2025-10-31'
-      },
-      {
-        id: '2',
-        invoice_number: 'INV-2025-002',
-        invoice_date: '2025-09-01',
-        due_date: '2025-09-15',
-        total_amount: 799.00,
-        amount_due: 0,
-        amount_paid: 799.00,
-        status: 'paid',
-        description: 'Fibre 100Mbps - September 2025',
-        service_period_start: '2025-09-01',
-        service_period_end: '2025-09-30'
-      },
-      {
-        id: '3',
-        invoice_number: 'INV-2025-003',
-        invoice_date: '2025-08-01',
-        due_date: '2025-08-15',
-        total_amount: 799.00,
-        amount_due: 0,
-        amount_paid: 799.00,
-        status: 'paid',
-        description: 'Fibre 100Mbps - August 2025',
-        service_period_start: '2025-08-01',
-        service_period_end: '2025-08-31'
-      }
-    ],
-    payments: [
-      {
-        id: '1',
-        payment_date: '2025-09-10',
-        amount: 799.00,
-        payment_method: 'Credit Card (Visa)',
-        transaction_id: 'TXN-2025-09-0001',
-        status: 'successful',
-        invoice_id: '2'
-      },
-      {
-        id: '2',
-        payment_date: '2025-08-10',
-        amount: 799.00,
-        payment_method: 'Credit Card (Visa)',
-        transaction_id: 'TXN-2025-08-0001',
-        status: 'successful',
-        invoice_id: '3'
-      },
-      {
-        id: '3',
-        payment_date: '2025-07-10',
-        amount: 799.00,
-        payment_method: 'EFT Transfer',
-        transaction_id: 'TXN-2025-07-0001',
-        status: 'successful'
-      }
-    ],
-    payment_methods: [
-      {
-        id: '1',
-        type: 'credit_card',
-        last_four: '4242',
-        expiry_date: '12/2026',
-        is_primary: true,
-        card_brand: 'Visa'
-      },
-      {
-        id: '2',
-        type: 'bank_account',
-        last_four: '1234',
-        is_primary: false,
-        bank_name: 'Standard Bank'
-      }
-    ]
-  };
 }

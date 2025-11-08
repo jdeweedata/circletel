@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     
     if (!customer) {
       return NextResponse.json(
-        { error: 'Customer not found' },
+        { success: false, error: 'Customer not found' },
         { status: 404 }
       );
     }
@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
       console.error('[Customer Services API] ❌ Services query timeout:', Date.now() - startTime, 'ms');
       return NextResponse.json(
         {
+          success: false,
           error: 'Services query is taking too long. Please try again.',
           technical_error: 'QUERY_TIMEOUT'
         },
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
     if (servicesError) {
       console.error('Error fetching services:', servicesError);
       return NextResponse.json(
-        { error: 'Failed to fetch services' },
+        { success: false, error: 'Failed to fetch services' },
         { status: 500 }
       );
     }
@@ -152,13 +153,14 @@ export async function GET(request: NextRequest) {
     );
     
     return NextResponse.json({
-      services: servicesWithUsage
+      success: true,
+      data: servicesWithUsage
     });
     
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
