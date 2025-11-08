@@ -124,6 +124,10 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           }
         } else {
           console.log('[CustomerAuthProvider] No session found');
+          // Clear auth state when no session exists
+          setSession(null);
+          setUser(null);
+          setCustomer(null);
         }
       } catch (error) {
         console.error('[CustomerAuthProvider] Failed to initialize auth:', error);
