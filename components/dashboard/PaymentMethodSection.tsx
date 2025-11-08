@@ -120,20 +120,7 @@ export function PaymentMethodSection({
 
       {/* Payment Method Card */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-circleTel-orange" />
-                Payment Method
-              </CardTitle>
-              <CardDescription className="mt-1">
-                Manage your payment method for automatic billing
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           {hasPaymentMethod ? (
             // Existing Payment Method
             <div className="border border-green-200 bg-green-50 rounded-lg p-4">
@@ -154,95 +141,101 @@ export function PaymentMethodSection({
           ) : (
             // No Payment Method - Show Add Option
             <div className="space-y-4">
-              {/* Info Banner */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              {/* Info Banner - Enhanced with Security Badge */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-blue-900 mb-1">
+                  <Shield className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-blue-900 mb-2">
                       Secure Payment Method Validation
                     </p>
-                    <p className="text-xs text-blue-700">
+                    <p className="text-sm text-blue-700 leading-relaxed">
                       We'll charge <strong>R1.00</strong> to verify your payment method.
                       This amount will be <strong>credited to your account</strong> and can be used towards your service.
                     </p>
+                    {/* NetCash Security Badge - Prominent Placement */}
+                    <div className="mt-3 inline-flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-md">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Secured by NetCash</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Add Payment Button */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-circleTel-orange transition-colors">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
-                  <CreditCard className="w-6 h-6 text-gray-400" />
+              {/* Add Payment Button - Enhanced Empty State */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-circleTel-orange hover:bg-orange-50/30 transition-all duration-300">
+                {/* Enhanced Empty State Icon with Gradient */}
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-full mb-4 shadow-lg">
+                  <div className="relative">
+                    <CreditCard className="w-9 h-9 text-white" />
+                    <Shield className="w-5 h-5 text-white absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5" />
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">No Payment Method Added</h3>
-                <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
+                <h3 className="font-bold text-gray-900 text-lg mb-2">No Payment Method Added</h3>
+                <p className="text-sm text-gray-600 mb-5 max-w-md mx-auto leading-relaxed">
                   Add a payment method to enable automatic billing and complete your pending orders.
                 </p>
                 <Button
                   onClick={handleAddPaymentMethod}
                   disabled={isProcessing}
-                  className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                  className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-base px-6 py-6 h-auto shadow-md hover:shadow-lg transition-all"
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Processing...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-5 h-5 mr-2" />
                       Add Payment Method
                     </>
                   )}
                 </Button>
+                {/* CTA Secondary Text */}
+                <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-2">
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Takes only 2 minutes • Bank-level security</span>
+                </p>
               </div>
 
-              {/* Payment Methods Accepted */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs text-gray-600 font-semibold mb-3">We Accept:</p>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="relative h-6 w-auto">
+              {/* Payment Methods Accepted - Enhanced Spacing */}
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                <p className="text-sm text-gray-700 font-semibold mb-4">We Accept:</p>
+                {/* Card Payment Methods */}
+                <div className="flex items-center gap-6 flex-wrap justify-center mb-4">
+                  <div className="relative h-8 w-auto">
                     <Image
                       src="/images/payment-logos/logo_mastercard-h.png"
                       alt="Mastercard"
-                      width={40}
-                      height={24}
+                      width={50}
+                      height={32}
                       className="object-contain"
                     />
                   </div>
-                  <div className="relative h-5 w-auto">
+                  <div className="relative h-7 w-auto">
                     <Image
                       src="/images/payment-logos/verified-by-visa.png"
                       alt="Visa"
-                      width={32}
-                      height={20}
+                      width={45}
+                      height={28}
                       className="object-contain"
                     />
                   </div>
-                  <div className="relative h-5 w-auto">
+                  <div className="relative h-7 w-auto">
                     <Image
                       src="/images/payment-logos/3d-secure.png"
                       alt="3D Secure"
-                      width={32}
-                      height={20}
+                      width={45}
+                      height={28}
                       className="object-contain"
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
-                  <span className="text-xs text-gray-600 font-semibold">Secured by</span>
-                  <div className="relative h-5 w-auto">
-                    <Image
-                      src="/images/payment-logos/logo_netcash-43.png"
-                      alt="NetCash"
-                      width={60}
-                      height={20}
-                      className="object-contain"
-                    />
-                  </div>
-                  <Lock className="h-3 w-3 text-gray-500" />
-                </div>
+                {/* Additional Payment Methods Text */}
+                <p className="text-xs text-gray-600 text-center leading-relaxed">
+                  Instant EFT • Capitec Pay • Scan to Pay • Retail Payments
+                </p>
               </div>
             </div>
           )}

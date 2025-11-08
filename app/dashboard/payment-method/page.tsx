@@ -107,22 +107,32 @@ export default function PaymentMethodPage() {
           hasPaymentMethod={hasPaymentMethod}
         />
 
-        {/* Help Section */}
-        <Card className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        {/* Help Section - Enhanced with Icons and Hover States */}
+        <Card className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200 shadow-sm">
           <CardContent className="p-6">
             <div className="text-center">
-              <p className="text-sm text-gray-700 mb-3">
-                Need help with payment or have questions?
+              <p className="text-sm font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
+                💬 Need help with payment or have questions?
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button variant="outline" asChild>
-                  <a href="tel:0877772473">
+                <Button
+                  variant="outline"
+                  asChild
+                  className="hover:bg-circleTel-orange hover:text-white hover:border-circleTel-orange transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                >
+                  <a href="tel:0877772473" className="flex items-center gap-2">
+                    <span className="text-lg">📞</span>
                     <span className="font-semibold">087 777 2473</span>
                   </a>
                 </Button>
-                <Button variant="outline" asChild>
-                  <a href="mailto:support@circletel.co.za">
-                    support@circletel.co.za
+                <Button
+                  variant="outline"
+                  asChild
+                  className="hover:bg-circleTel-orange hover:text-white hover:border-circleTel-orange transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                >
+                  <a href="mailto:support@circletel.co.za" className="flex items-center gap-2">
+                    <span className="text-lg">✉️</span>
+                    <span>support@circletel.co.za</span>
                   </a>
                 </Button>
               </div>
