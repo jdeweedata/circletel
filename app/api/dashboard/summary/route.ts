@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
   console.log('[Dashboard Summary API] ⏱️ Request started');
 
   try {
-    // Get authenticated user using session-based client
+    // Get authenticated user session from cookies (fast - no API call)
     const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { data: { session }, error: authError } = await sessionClient.auth.getSession();
 
-    if (authError || !user) {
+    if (authError || !session?.user) {
       console.log('[Dashboard Summary API] ❌ Auth failed:', authError?.message);
       return NextResponse.json(
         {
@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const user = session.user;
 
     console.log('[Dashboard Summary API] ⏱️ User authenticated:', Date.now() - startTime, 'ms', `(user_id: ${user.id})`);
 
