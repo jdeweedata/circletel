@@ -6,6 +6,10 @@ import { createServerClient } from '@supabase/ssr';
  * Admin Login API with Audit Logging and Proper Cookie Management
  */
 
+// Vercel configuration: Ensure function stays alive longer than our 10s timeout
+export const runtime = 'nodejs';
+export const maxDuration = 15; // Allow up to 15 seconds (our timeout is 10s)
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   console.log('[Login API] ⏱️ Request started');
