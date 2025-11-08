@@ -142,18 +142,18 @@ LIMIT 5;
 
 ## Deployment
 
-This fix should be deployed to production immediately as it's a critical blocking issue preventing admin access.
+✅ **DEPLOYED** - Code changes and RLS policies have been applied to production.
 
-**Deployment Command**:
-```bash
-git add app/api/admin/login/route.ts scripts/test-login-performance.js docs/fixes/ADMIN_LOGIN_TIMEOUT_FIX.md
-git commit -m "fix: Admin login timeout - make audit logging asynchronous"
-git push origin main
-```
+**Deployment History**:
+- 2025-11-08: Async audit logging deployed via Vercel
+- 2025-11-08: RLS INSERT policies applied via Supabase Dashboard
+- 2025-11-08: Verified policies exist in production database
+
+⚠️ **Current Status**: Login still timing out due to Supabase Auth service performance degradation (separate from this fix). See `docs/fixes/ADMIN_LOGIN_RLS_POLICY_FIX.md` for details.
 
 ---
 
-**Fixed**: 2025-11-08
+**Fixed**: 2025-11-08 (Code deployed, awaiting Supabase Auth recovery)
 **Author**: Claude Code
 **Severity**: Critical
-**Impact**: All admin users unable to log in
+**Impact**: All admin users unable to log in (blocked by Supabase platform issue)
