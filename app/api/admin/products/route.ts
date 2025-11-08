@@ -6,9 +6,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// Vercel configuration: Allow longer execution for product queries
+export const runtime = 'nodejs';
+export const maxDuration = 15; // Allow up to 15 seconds for product queries with filters
+
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  console.log('[Products API] ⏱️ Request started');
+
   try {
     const supabase = await createClient();
+    console.log('[Products API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
@@ -136,7 +144,34 @@ export async function GET(request: NextRequest) {
     const end = start + perPage - 1;
     query = query.range(start, end);
 
-    const { data: products, error, count } = await query;
+    // Execute query with timeout protection
+    const QUERY_TIMEOUT = 12000; // 12 second timeout for product query
+    const queryPromise = query;
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Product query timeout - Database may be experiencing issues'));
+      }, QUERY_TIMEOUT);
+    });
+
+    let products, error, count;
+    try {
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      products = result.data;
+      error = result.error;
+      count = result.count;
+      console.log('[Products API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${count} total products)`);
+    } catch (timeoutError) {
+      console.error('[Products API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Product database query is taking too long. Please try again or use filters to narrow your search.',
+          technical_error: 'QUERY_TIMEOUT'
+        },
+        { status: 503 }
+      );
+    }
 
     if (error) {
       console.error('Error fetching products:', error);
