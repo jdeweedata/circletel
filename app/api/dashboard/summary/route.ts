@@ -31,30 +31,57 @@ export async function GET(request: NextRequest) {
   console.log('[Dashboard Summary API] ⏱️ Request started');
 
   try {
-    // Get authenticated user session from cookies (fast - no API call)
-    const sessionClient = await createClientWithSession();
-    const { data: { session }, error: authError } = await sessionClient.auth.getSession();
-
-    console.log('[Dashboard Summary API] Session check:', {
-      hasSession: !!session,
-      hasUser: !!session?.user,
-      error: authError?.message,
-      userId: session?.user?.id
-    });
-
-    if (authError || !session?.user) {
-      console.log('[Dashboard Summary API] ❌ Auth failed - session not found in cookies');
-      console.log('[Dashboard Summary API] User may need to logout and login again to sync session');
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Unauthorized - Please logout and login again'
-        },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    let user: any = null;
+    
+    if (token) {
+      // Use token from Authorization header
+      console.log('[Dashboard Summary API] Using token from Authorization header');
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
-    }
+      
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+      
+      if (tokenError || !tokenUser) {
+        console.log('[Dashboard Summary API] ❌ Invalid token:', tokenError?.message);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = tokenUser;
+      console.log('[Dashboard Summary API] ✅ Token validated for user:', user.id);
+    } else {
+      // Fall back to cookies (for SSR/middleware scenarios)
+      console.log('[Dashboard Summary API] No Authorization header, checking cookies');
+      const sessionClient = await createClientWithSession();
+      const { data: { session }, error: authError } = await sessionClient.auth.getSession();
 
-    const user = session.user;
+      if (authError || !session?.user) {
+        console.log('[Dashboard Summary API] ❌ No session in cookies');
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'No session found. Please login again.'
+          },
+          { status: 401 }
+        );
+      }
+      
+      user = session.user;
+      console.log('[Dashboard Summary API] ✅ Session from cookies for user:', user.id);
+    }
 
     console.log('[Dashboard Summary API] ⏱️ User authenticated:', Date.now() - startTime, 'ms', `(user_id: ${user.id})`);
 
