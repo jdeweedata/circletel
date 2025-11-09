@@ -295,6 +295,72 @@ UI follows shadcn/ui patterns with CircleTel customizations:
 - `EnhancedPackageCard.tsx` - Detail view (full features)
 - `PackageDetailSidebar.tsx` - Side panel with benefits
 
+### Authentication & Data Retrieval Architecture
+
+CircleTel uses a **three-context authentication system** that separates consumer customer, partner, and admin flows for security and scalability.
+
+**Consumer Customer Flow**:
+- **Sign Up**: `supabase.auth.signUp()` → Service role creates customer record (bypasses RLS)
+- **Sign In**: Token-based sessions in httpOnly cookies
+- **Data Retrieval**: Authorization header with access token → RLS-protected queries
+- **Security**: RLS policies ensure customers only see their own data
+
+**Partner Flow**:
+- **Registration**: `/partners/onboarding` → Service role creates partner record → Document upload
+- **Compliance**: 13 FICA/CIPC documents to Supabase Storage (private bucket)
+- **Sign In**: Token-based sessions in httpOnly cookies (same as customer)
+- **Data Retrieval**: Authorization header → RLS queries for partner data (leads, commissions, documents)
+- **Security**: RLS policies isolate partner data, admin oversight for compliance approval
+
+**Admin Backend Flow**:
+- **Login**: Validates credentials → RBAC check → Dual storage (cookies + localStorage)
+- **Session**: Middleware validates cookies, redirects unauthenticated users
+- **Data Retrieval**: Service role queries bypass RLS → RBAC filtering per role
+- **Security**: 100+ granular permissions, comprehensive audit logging
+
+**Three Supabase Client Patterns**:
+1. `createClient()` with **anon key** → Client-side, RLS enforced (customers & partners)
+2. `createClientWithSession()` → Server-side, reads cookies for session
+3. `createClient()` with **service role** → Server-side admin, RLS bypassed
+
+**Key Security Features**:
+- httpOnly cookies prevent XSS attacks
+- Token auto-refresh handled transparently
+- RBAC with 17 role templates and 100+ permissions
+- Audit logging for all admin actions
+- Timeout protection on all API queries
+
+**Critical Pattern - Auth Provider Page Exclusions**:
+```typescript
+// CustomerAuthProvider must skip admin/partner pages
+const isAdminPage = pathname?.startsWith('/admin')
+const isPartnerPage = pathname?.startsWith('/partners')
+
+if (isAdminPage || isPartnerPage) {
+  setLoading(false)
+  return // Don't initialize customer auth
+}
+```
+
+**Authorization Header Pattern** (Fix for 401 errors):
+```typescript
+// Client: Send token in Authorization header
+fetch('/api/dashboard/summary', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+
+// Server: Check BOTH header and cookies
+const authHeader = request.headers.get('authorization')
+if (authHeader?.startsWith('Bearer ')) {
+  const user = await supabase.auth.getUser(authHeader.split(' ')[1])
+} else {
+  // Fallback to cookies
+  const session = await createClientWithSession()
+}
+```
+
+**Detailed Documentation**: See `docs/architecture/AUTHENTICATION_SYSTEM.md`
+
 ## TypeScript Patterns
 
 ### Next.js 15 API Routes (REQUIRED)
@@ -910,11 +976,27 @@ If you see "JavaScript heap out of memory", always use `:memory` variants.
 
 ---
 
-**Last Updated**: 2025-11-03
-**Version**: 5.2
+**Last Updated**: 2025-11-09
+**Version**: 5.4
 **Maintained By**: Development Team + Claude Code
 
-**Major Changes in v5.2**:
+**Major Changes in v5.4**:
+- Updated authentication system to **three-context architecture** (customer/partner/admin)
+- Added comprehensive Partner Auth Flow documentation
+- Updated `docs/architecture/AUTHENTICATION_SYSTEM.md` with partner registration, compliance, and data retrieval
+- Added partner journey examples and practical code patterns
+- Documented 13 FICA/CIPC compliance document categories
+- Added partner-specific RLS policies and storage integration
+
+**Previous Changes (v5.3)**:
+- Added comprehensive Authentication & Data Retrieval Architecture section
+- Created detailed authentication system documentation
+- Documented consumer customer vs admin auth flow separation
+- Added Authorization header pattern (fixes 401 errors)
+- Documented critical auth provider page exclusion pattern
+- Added three Supabase client pattern reference
+
+**Previous Changes (v5.2)**:
 - Added simplified 2-branch deployment workflow (feature → staging → main/production)
 - Removed master branch requirement
 - Updated deployment documentation with modern PR-based workflow
@@ -1038,3 +1120,79 @@ All skills auto-load when relevant keywords are mentioned. Manual invocation: `/
 7. **supabase-fetch** - Database queries
 
 **Full documentation**: `.claude/skills/README.md`
+- ⛬  ✅ ROOT CAUSE FIXED! Deployed to Production (Commit: `ac642e8`)
+
+   🔍 What Was Wrong
+
+   The dashboard page was sending authentication in the Authorization header, but the API was only checking cookies. This mismatch
+   caused the 401 errors.
+
+   Client Side (Dashboard Page):
+
+   javascript
+     fetch('/api/dashboard/summary', {
+       headers: {
+         'Authorization': `Bearer ${session.access_token}`  // ✅ Sends token
+       }
+     })
+
+   Server Side (API - Before Fix):
+
+   javascript
+     // ❌ Only checked cookies, ignored Authorization header
+     const sessionClient = await createClientWithSession();
+     const { data: { session } } = await sessionClient.auth.getSession();
+
+   ✨ The Fix
+
+   API Now Checks BOTH Authentication Methods:
+
+   1. Authorization Header First (for client-side fetch)
+     •  Validates Bearer token using supabase.auth.getUser(token)
+     •  This is what the dashboard sends ✅
+
+   2. Cookies as Fallback (for SSR/middleware)
+     •  Uses createClientWithSession()
+     •  Maintains backward compatibility
+
+   📦 Deployment Status
+
+   Commits Deployed:
+   •  114071e - Middleware + privacy link fixes
+   •  ac642e8 - Authorization header fix (the critical one)
+
+   Vercel Building: https://vercel.com/jdewee-livecoms-projects/circletel
+
+   🧪 Testing After Deployment (3-5 min)
+
+   Once Vercel shows "Deployment Ready":
+
+   1. Clear Browser Cache & Cookies:
+
+     Chrome: Ctrl+Shift+Delete → Last hour → Clear data
+
+   2. Test Login & Dashboard:
+
+     URL: https://www.circletel.co.za/auth/login
+     User: jeffrey.de.wee@circletel.co.za
+     Password: a35kK4qCc3sVfj2!
+
+   3. Expected Results:
+   •  ✅ Login successful
+   •  ✅ Dashboard loads with data
+   •  ✅ No 401 errors in console
+   •  ✅ See services, billing, orders
+
+   4. Check Console for Success Logs:
+
+     ✅ [Dashboard Summary API] Using token from Authorization header
+     ✅ [Dashboard Summary API] ✅ Token validated for user: [user-id]
+     ✅ Dashboard data received: Object
+
+   🎯 Why This Will Work
+
+   Before: API ignored the token the client was sending
+   After: API validates the token the client sends
+
+   The dashboard was already doing the right thing - we just made the API listen!
+- Always use available skills in .claude
