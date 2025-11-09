@@ -638,25 +638,113 @@ For complete Codemap usage guide, see:
 
 ### Authentication Architecture
 
-#### Admin Authentication
-- Supabase Auth with custom `admin_users` table
-- RBAC system with 17 role templates, 100+ permissions
-- Protected routes redirect to `/admin/login`
-- Session management via `useAdminAuth` hook
-- Development mode: `admin@circletel.co.za` / `admin123`
+CircleTel's authentication and data retrieval system uses a robust, multi-context structure that separates consumer customer and admin flows, leveraging Supabase's Auth, Row Level Security (RLS), and Role-Based Access Control (RBAC) for high security and scalable user management.
 
-#### Customer Authentication (NEW - 2025-10-24)
-- WebAfrica-inspired signup at `/order/account`
-- Login at `/auth/login`
-- Password reset flow: `/auth/forgot-password` → `/auth/reset-password`
-- Email verification via Supabase (automatic emails)
-- Database triggers sync auth.users ↔ customers table
-- Service role pattern for privileged operations
+#### Consumer Customer Auth Flow
 
-**Key Files**:
-- `lib/auth/customer-auth-service.ts` - Centralized auth logic
-- `components/providers/CustomerAuthProvider.tsx` - Auth context
+**Sign Up:**  
+Customers initiate sign-up on the browser, triggering `CustomerAuthService.signUp()` which calls `supabase.auth.signUp()`. Supabase creates an `auth.users` record and sends a verification email. Since RLS policies require an authenticated UID (not available until sign-up finishes), a backend API (`/api/auth/create-customer`) with the Supabase service role key inserts the customer record into the `customers` table. The service role bypasses RLS and supports retry logic to handle timing conflicts.
+
+**Sign In:**  
+On sign-in, the client uses `supabase.auth.signInWithPassword()` with the anon key, which validates credentials and returns a session/token. This session is stored securely in cookies. The client looks up the customer record via `auth_user_id`, then loads user, session, and customer state into context providers for consistent UI/state access throughout the app.
+
+**Session Handling:**  
+Session tokens are held in httpOnly, secure cookies. Supabase auto-refreshes access tokens and handles expiry transparently. The context provider (e.g., `CustomerAuthProvider`) loads these on each app load, providing seamless access control.
+
+**Data Retrieval:**  
+Customer requests (like fetching dashboard data) pass the access token in the HTTP Authorization header (`Authorization: Bearer <token>`). The API validates it using `supabase.auth.getUser(token)`, retrieves the customer's ID, and fetches related tables (`customer_services`, `customer_billing`) using RLS-protected queries. Only the authenticated customer's data is returned. APIs support both Authorization header (for client-side fetch) and cookie-based auth (for SSR scenarios) as fallback.
+
+#### Admin Backend Auth Flow
+
+**Login:**  
+Admin login starts by validating credentials against the `admin_users` table (checking role, is_active status, and granular permissions). Only then does Supabase Auth perform sign-in, setting session cookies and storing login details in localStorage. Two Supabase clients are used: one for SSR cookie management, and another with the service role key for unrestricted table access and RBAC checks.
+
+**Session Handling:**  
+Admin sessions leverage both cookies (for secure SSR context) and localStorage (for client-side role/permission management). Middleware intercepts admin page loads to validate sessions and redirect unauthenticated users to the login page.
+
+**Data Retrieval:**  
+Each admin API route begins with session validation and then RBAC filtering — only permitted resources are exposed according to the admin's role and permissions (`admin_users` table's permissions JSON field). Service role queries bypass RLS to fetch global data, but endpoint checks enforce RBAC for true least-privilege access.
+
+#### Integration Patterns and Security
+
+**RLS & RBAC Enforcement:**  
+All customer-facing tables use RLS policies based on `auth.uid()`, ensuring customers only see their own data. Admin tables have policies allowing only active admins access, with RBAC controlling data visibility per role.
+
+**Session Security:**  
+Tokens and sessions are handled via secure httpOnly cookies with proper expiry and refresh timers, and optionally synced to localStorage for admin workflows. Sensitive API routes use prompt session validation and early redirects for unauthorized requests.
+
+**Audit Logging and Timeout Protection:**  
+Admin logins trigger asynchronous writes to two audit tables for comprehensive action tracking. All API queries include timeout logic to prevent hanging requests and support graceful error handling if data is missing or policies are breached.
+
+#### User Journey Example
+
+| Flow       | Browser → Middleware → API Route → Supabase | Security                          |
+|------------|---------------------------------------------|------------------------------------|
+| Customer   | Validates cookies → Passes token in header  | RLS enforced, customer-scoped      |
+| Admin      | Validates cookies → Checks admin_users      | RBAC, service role, broad access   |
+
+#### Practical Code Patterns
+
+**Client-Side (Browser):**
+```typescript
+// Customer auth with anon key (RLS enforced)
+const supabase = createClient()
+await supabase.auth.signInWithPassword({ email, password })
+
+// API calls with Authorization header
+const response = await fetch('/api/dashboard/summary', {
+  headers: {
+    'Authorization': `Bearer ${session.access_token}`
+  }
+})
+```
+
+**Server-Side (API Routes):**
+```typescript
+// Check Authorization header first (for client-side fetch)
+const authHeader = request.headers.get('authorization')
+const token = authHeader?.replace('Bearer ', '')
+
+if (token) {
+  // Validate token directly
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const { data: { user } } = await supabase.auth.getUser(token)
+} else {
+  // Fall back to cookies for SSR
+  const supabase = await createClientWithSession()
+  const { data: { user } } = await supabase.auth.getUser()
+}
+
+// Use service role for database queries (bypasses RLS)
+const supabaseService = await createClient() // Uses SUPABASE_SERVICE_ROLE_KEY
+const { data } = await supabaseService.from('customers').select('*')
+```
+
+**Supabase Client Types:**
+- `createClient()` with **anon key** (client-side, RLS enforced)
+- `createClientWithSession()` (reads cookies for session-bound APIs)
+- `createClient()` with **service role key** (server-side admin, RLS bypassed)
+
+#### Key Takeaways
+
+- Customers use token-based sessions, RLS, and context providers for simple, secure UX.
+- Admins get dual storage, granular RBAC/routing, and comprehensive audit tools.
+- Separation of contexts, proper session management, and clear security patterns enable effective scaling, compliance, and troubleshooting in a multi-user SaaS environment.
+- APIs accept both Authorization headers (primary) and cookies (fallback) for maximum compatibility.
+
+**Key Files:**
+- `lib/auth/customer-auth-service.ts` - Centralized customer auth logic
+- `components/providers/CustomerAuthProvider.tsx` - Customer auth context
 - `app/api/auth/create-customer/route.ts` - Service role customer creation
+- `lib/supabase/server.ts` - Server-side Supabase client factories
+- `lib/supabase/client.ts` - Client-side Supabase client
+- `middleware.ts` - Session refresh and admin route protection
+- `hooks/useAdminAuth.ts` - Admin authentication hook with RBAC
+
+**Development Credentials:**
+- Admin: `admin@circletel.co.za` / `admin123`
+
+This pattern ensures CircleTel's Next.js app is scalable, secure, and developer-friendly across all user and admin experiences.
 
 ---
 
