@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 // Vercel configuration: Allow longer execution for services with usage data
 export const runtime = 'nodejs';
@@ -26,29 +27,79 @@ export async function GET(request: NextRequest) {
   console.log('[Customer Services API] ⏱️ Request started');
 
   try {
-    const supabase = await createClient();
-    console.log('[Customer Services API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    let user: any = null;
+
+    if (token) {
+      // Use token from Authorization header
+      console.log('[Customer Services API] Using token from Authorization header');
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+
+      if (tokenError || !tokenUser) {
+        console.log('[Customer Services API] ❌ Invalid token:', tokenError?.message);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = tokenUser;
+      console.log('[Customer Services API] ✅ Token validated for user:', user.id);
+    } else {
+      // Fall back to cookies (for SSR/middleware scenarios)
+      console.log('[Customer Services API] No Authorization header, checking cookies');
+      const sessionClient = await createClientWithSession();
+      const { data: { session }, error: authError } = await sessionClient.auth.getSession();
+
+      if (authError || !session?.user) {
+        console.log('[Customer Services API] ❌ No session in cookies');
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'No session found. Please login again.'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = session.user;
+      console.log('[Customer Services API] ✅ Session from cookies for user:', user.id);
     }
-    
-    // Get customer_id from auth_user_id
-    const { data: customer } = await supabase
+
+    console.log('[Customer Services API] ⏱️ User authenticated:', Date.now() - startTime, 'ms', `(user_id: ${user.id})`);
+
+    // Use service role client for database queries to bypass RLS
+    const supabase = await createClient();
+    console.log('[Customer Services API] ⏱️ Service role client created:', Date.now() - startTime, 'ms');
+
+    // Get customer_id from auth_user_id using service role
+    const { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
-    
-    if (!customer) {
+
+    if (customerError || !customer) {
+      console.error('[Customer Services API] ❌ Customer not found for user:', user.id, customerError?.message);
       return NextResponse.json(
-        { success: false, error: 'Customer not found' },
+        {
+          success: false,
+          error: 'Customer record not found. Please contact support.',
+          technical_error: customerError?.message
+        },
         { status: 404 }
       );
     }
