@@ -1,0 +1,8 @@
+{
+  "repositoryName": "circletel",
+  "adapter": "@slicemachine/adapter-next",
+  "libraries": ["./slices"],
+  "localSliceSimulatorURL": "http://localhost:3000/slice-simulator",
+  "framework": "next",
+  "apiEndpoint": "https://circletel.cdn.prismic.io/api/v2"
+}
