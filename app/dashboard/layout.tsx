@@ -78,7 +78,12 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Topbar onToggleSidebar={() => setSidebarOpen((v) => !v)} displayName={displayName} email={user.email || ''} />
+      <Topbar
+        onToggleSidebar={() => setSidebarOpen((v) => !v)}
+        displayName={displayName}
+        email={user.email || ''}
+        onSignOut={handleSignOut}
+      />
 
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6 xl:gap-8">
