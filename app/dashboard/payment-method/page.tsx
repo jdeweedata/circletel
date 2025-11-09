@@ -34,40 +34,72 @@ export default function PaymentMethodPage() {
         return;
       }
 
+      // Add timeout protection - don't wait forever for session
+      // If no session after mount, still show page with error state
+      const timeoutId = setTimeout(() => {
+        if (!session?.access_token && loading) {
+          console.log('[PaymentMethod] Session timeout - displaying page anyway');
+          setLoading(false);
+        }
+      }, 3000); // 3 second timeout for session availability
+
       if (!session?.access_token) {
-        setLoading(false);
-        return;
+        // Don't immediately bail - wait for timeout
+        return () => clearTimeout(timeoutId);
       }
 
+      clearTimeout(timeoutId);
       fetchInProgress.current = true;
 
       try {
-        // Fetch pending orders
+        console.log('[PaymentMethod] Fetching payment data with session token');
+
+        // Fetch pending orders with timeout protection
+        const ordersController = new AbortController();
+        const ordersTimeout = setTimeout(() => ordersController.abort(), 10000);
+
         const ordersResponse = await fetch('/api/orders/pending', {
           headers: {
             'Authorization': `Bearer ${session.access_token}`
-          }
+          },
+          signal: ordersController.signal
         });
+        clearTimeout(ordersTimeout);
 
         if (ordersResponse.ok) {
           const ordersData = await ordersResponse.json();
           setPendingOrders(ordersData.orders || []);
+          console.log('[PaymentMethod] Pending orders loaded:', ordersData.orders?.length || 0);
+        } else {
+          console.error('[PaymentMethod] Orders fetch failed:', ordersResponse.status);
         }
 
-        // Check if payment method exists
+        // Check if payment method exists with timeout protection
+        const paymentController = new AbortController();
+        const paymentTimeout = setTimeout(() => paymentController.abort(), 10000);
+
         const paymentResponse = await fetch('/api/payment/method/check', {
           headers: {
             'Authorization': `Bearer ${session.access_token}`
-          }
+          },
+          signal: paymentController.signal
         });
+        clearTimeout(paymentTimeout);
 
         if (paymentResponse.ok) {
           const paymentData = await paymentResponse.json();
           setHasPaymentMethod(paymentData.hasPaymentMethod || false);
+          console.log('[PaymentMethod] Payment method check:', paymentData.hasPaymentMethod);
+        } else {
+          console.error('[PaymentMethod] Payment check failed:', paymentResponse.status);
         }
 
       } catch (error) {
-        console.error('Error fetching payment data:', error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('[PaymentMethod] Request timeout - API took too long to respond');
+        } else {
+          console.error('[PaymentMethod] Error fetching payment data:', error);
+        }
       } finally {
         setLoading(false);
         fetchInProgress.current = false;
