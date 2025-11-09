@@ -61,11 +61,74 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Prevent duplicate fetches - use ref to track in-flight queries
+  const customerFetchInProgress = React.useRef(false);
+  const abortController = React.useRef<AbortController | null>(null);
+
   // Skip auth initialization on admin, partner, password reset and auth callback pages to prevent
   // competing Supabase client instances that clear the session
   const isAdminPage = pathname?.startsWith('/admin');
   const isPartnerPage = pathname?.startsWith('/partners');
   const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
+
+  // Shared function to fetch customer with duplicate prevention
+  const fetchCustomer = React.useCallback(async (userId: string, supabase: any): Promise<Customer | null> => {
+    // Prevent duplicate fetches
+    if (customerFetchInProgress.current) {
+      console.log('[CustomerAuthProvider] Fetch already in progress, skipping duplicate');
+      return null;
+    }
+
+    // Cancel any in-flight request
+    if (abortController.current) {
+      abortController.current.abort();
+    }
+
+    // Create new abort controller for this request
+    abortController.current = new AbortController();
+    customerFetchInProgress.current = true;
+
+    try {
+      console.log('[CustomerAuthProvider] Fetching customer record...');
+
+      // Fetch with reduced timeout (5 seconds instead of 10)
+      const customerQuery = supabase
+        .from('customers')
+        .select('*')
+        .eq('auth_user_id', userId)
+        .maybeSingle()
+        .abortSignal(abortController.current.signal);
+
+      const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
+        setTimeout(() => {
+          console.warn('[CustomerAuthProvider] Customer query timed out after 5 seconds');
+          resolve({ data: null, error: { message: 'Query timeout' } });
+        }, 5000); // Reduced from 10 to 5 seconds
+      });
+
+      const result = await Promise.race([customerQuery, timeoutPromise]);
+      const { data: customerData, error: customerError } = result as any;
+
+      if (customerError) {
+        console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
+        return null;
+      }
+
+      console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
+      return customerData;
+    } catch (error) {
+      // Ignore abort errors (they're expected when we cancel requests)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('[CustomerAuthProvider] Fetch cancelled');
+        return null;
+      }
+      console.error('[CustomerAuthProvider] Failed to fetch customer:', error);
+      return null;
+    } finally {
+      customerFetchInProgress.current = false;
+      abortController.current = null;
+    }
+  }, []);
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -89,35 +152,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           setSession(currentSession);
           setUser(currentSession.user);
 
-          // Fetch customer record with 10-second timeout for database query
-          try {
-            const customerQuery = supabase
-              .from('customers')
-              .select('*')
-              .eq('auth_user_id', currentSession.user.id)
-              .maybeSingle();
-
-            const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer database query timed out after 10 seconds');
-                resolve({ data: null, error: { message: 'Query timeout' } });
-              }, 10000);
-            });
-
-            const result = await Promise.race([customerQuery, timeoutPromise]);
-            const { data: customerData, error: customerError } = result as any;
-
-            if (customerError) {
-              console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
-              setCustomer(null);
-            } else {
-              console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
-              setCustomer(customerData);
-            }
-          } catch (customerError) {
-            console.error('[CustomerAuthProvider] Failed to fetch customer during init:', customerError);
-            setCustomer(null);
-          }
+          // Fetch customer record using shared function
+          const customerData = await fetchCustomer(currentSession.user.id, supabase);
+          setCustomer(customerData);
         } else {
           console.log('[CustomerAuthProvider] No session found');
           // Clear auth state when no session exists
@@ -149,37 +186,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         setUser(currentSession?.user || null);
 
         if (currentSession?.user) {
-          // Fetch customer record with 10-second timeout for database query
-          try {
-            console.log('[CustomerAuthProvider] Fetching customer record...');
-
-            const customerQuery = supabase
-              .from('customers')
-              .select('*')
-              .eq('auth_user_id', currentSession.user.id)
-              .maybeSingle();
-
-            const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
-              setTimeout(() => {
-                console.warn('[CustomerAuthProvider] Customer database query timed out after 10 seconds');
-                resolve({ data: null, error: { message: 'Query timeout' } });
-              }, 10000);
-            });
-
-            const result = await Promise.race([customerQuery, timeoutPromise]);
-            const { data: customerData, error: customerError } = result as any;
-
-            if (customerError) {
-              console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
-              setCustomer(null);
-            } else {
-              console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
-              setCustomer(customerData);
-            }
-          } catch (error) {
-            console.error('[CustomerAuthProvider] Failed to fetch customer:', error);
-            setCustomer(null);
-          }
+          // Fetch customer record using shared function
+          const customerData = await fetchCustomer(currentSession.user.id, supabase);
+          setCustomer(customerData);
         } else {
           // Clear customer data when user signs out
           setCustomer(null);
@@ -191,42 +200,20 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
     return () => {
       subscription.unsubscribe();
+      // Cancel any in-flight fetch on cleanup
+      if (abortController.current) {
+        abortController.current.abort();
+      }
     };
-  }, [isAdminPage, isPartnerPage, isAuthPage]);
+  }, [isAdminPage, isPartnerPage, isAuthPage, fetchCustomer]);
 
   // Refresh customer data from database
   const refreshCustomer = async () => {
     if (!user) return;
 
-    try {
-      const supabase = createClient();
-
-      const customerQuery = supabase
-        .from('customers')
-        .select('*')
-        .eq('auth_user_id', user.id)
-        .maybeSingle();
-
-      const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
-        setTimeout(() => {
-          console.warn('[CustomerAuthProvider] Refresh customer query timed out after 10 seconds');
-          resolve({ data: null, error: { message: 'Query timeout' } });
-        }, 10000);
-      });
-
-      const result = await Promise.race([customerQuery, timeoutPromise]);
-      const { data: customerData, error } = result as any;
-
-      if (error) {
-        console.error('[CustomerAuthProvider] Refresh customer error:', error);
-        setCustomer(null);
-      } else {
-        setCustomer(customerData);
-      }
-    } catch (error) {
-      console.error('[CustomerAuthProvider] Failed to refresh customer:', error);
-      setCustomer(null);
-    }
+    const supabase = createClient();
+    const customerData = await fetchCustomer(user.id, supabase);
+    setCustomer(customerData);
   };
 
   // Check if email is verified
