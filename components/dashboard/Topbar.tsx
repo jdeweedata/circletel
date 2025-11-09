@@ -1,15 +1,24 @@
 'use client';
 
-import { Menu, Search, Bell } from 'lucide-react';
+import { Menu, Search, Bell, LogOut, User, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 type Props = {
   onToggleSidebar: () => void;
   displayName: string;
   email: string;
+  onSignOut: () => void;
 };
 
-export default function Topbar({ onToggleSidebar, displayName, email }: Props) {
+export default function Topbar({ onToggleSidebar, displayName, email, onSignOut }: Props) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b">
       <div className="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-14">
@@ -45,13 +54,34 @@ export default function Topbar({ onToggleSidebar, displayName, email }: Props) {
           <button className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white hover:bg-gray-50" aria-label="Notifications">
             <Bell className="h-5 w-5 text-gray-700" />
           </button>
-          <div className="hidden sm:flex flex-col items-end leading-tight">
-            <span className="text-sm font-medium text-gray-900">{displayName}</span>
-            <span className="text-xs text-gray-500">{email}</span>
-          </div>
-          <div className="h-9 w-9 rounded-full bg-gray-200 overflow-hidden" aria-hidden>
-            <Image src="/icons/avatar-placeholder.svg" alt="" width={36} height={36} />
-          </div>
+
+          {/* User Menu Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none">
+              <div className="hidden sm:flex flex-col items-end leading-tight">
+                <span className="text-sm font-medium text-gray-900">{displayName}</span>
+                <span className="text-xs text-gray-500">{email}</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                <Image src="/icons/avatar-placeholder.svg" alt="" width={36} height={36} />
+              </div>
+              <ChevronDown className="h-4 w-4 text-gray-500 hidden sm:block" />
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
