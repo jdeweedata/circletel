@@ -65,9 +65,31 @@ next-env.d.ts
 # Temporary files
 *.tmp
 *.temp
+nul
+
 # Local Netlify folder
 .netlify
 
+# Temporary documentation (root-level summary/status files)
+/*_SUMMARY.md
+/*_STATUS.md
+/*_CHECKLIST*.md
+/.github/DEPLOYMENT_*.md
+/.github/PR_DESCRIPTION.md
+
+# Test and utility scripts (temporary)
+/scripts/check-*.js
+/scripts/test-*.js
+/scripts/verify-*.js
+/scripts/wait-for-deployment.js
+/scripts/send-notification-*.js
+/scripts/send-notification-*.bat
+
+# Duplicate/test migrations (keep only final versions)
+/supabase/migrations/*_fixed.sql
+/supabase/migrations/*_v2.sql
+/supabase/migrations/*_v3.sql
+/supabase/verify-*.sql
 
 # Documentation (generated and working files)
 # Scripts (utility and automation scripts)
