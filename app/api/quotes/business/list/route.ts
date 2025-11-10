@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/server';
  * List quotes with filtering and pagination (admin only)
  */
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
     const supabase = await createClient();
 
@@ -21,6 +23,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const sort_by = searchParams.get('sort_by') || 'created_at';
     const sort_order = searchParams.get('sort_order') || 'desc';
+
+    console.log('[Quotes API] Fetching quotes with params:', { limit, offset, status, customer_type, search });
 
     // Build query
     let query = supabase
@@ -49,42 +53,84 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error: quotesError, count } = await query;
 
     if (quotesError) {
+      console.error('[Quotes API] Error fetching quotes:', quotesError);
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to fetch quotes'
+          error: 'Failed to fetch quotes',
+          details: quotesError.message
         },
         { status: 500 }
       );
     }
 
-    // For each quote, get item count and created_by admin info
-    const quotesWithDetails = await Promise.all(
-      (quotes || []).map(async (quote) => {
-        // Get item count
-        const { count: itemCount } = await supabase
-          .from('business_quote_items')
-          .select('*', { count: 'exact', head: true })
-          .eq('quote_id', quote.id);
+    console.log(`[Quotes API] Found ${quotes?.length || 0} quotes in ${Date.now() - startTime}ms`);
 
-        // Get created_by admin details
-        let created_by_admin = null;
-        if (quote.created_by) {
-          const { data: admin } = await supabase
-            .from('admin_users')
-            .select('id, full_name, email')
-            .eq('id', quote.created_by)
-            .single();
-          created_by_admin = admin;
+    if (!quotes || quotes.length === 0) {
+      return NextResponse.json({
+        success: true,
+        quotes: [],
+        pagination: {
+          total: 0,
+          limit,
+          offset,
+          has_more: false
+        },
+        filters: {
+          status,
+          customer_type,
+          search,
+          sort_by,
+          sort_order
         }
+      });
+    }
 
-        return {
-          ...quote,
-          item_count: itemCount || 0,
-          created_by_admin
-        };
-      })
-    );
+    // OPTIMIZATION: Batch fetch item counts for all quotes in one query
+    const quoteIds = quotes.map(q => q.id);
+    console.log(`[Quotes API] Fetching item counts for ${quoteIds.length} quotes...`);
+
+    const { data: itemCounts, error: itemCountsError } = await supabase
+      .from('business_quote_items')
+      .select('quote_id')
+      .in('quote_id', quoteIds);
+
+    if (itemCountsError) {
+      console.error('[Quotes API] Error fetching item counts:', itemCountsError);
+    }
+
+    // Create a map of quote_id -> item count
+    const itemCountMap = new Map<string, number>();
+    itemCounts?.forEach(item => {
+      const count = itemCountMap.get(item.quote_id) || 0;
+      itemCountMap.set(item.quote_id, count + 1);
+    });
+
+    // OPTIMIZATION: Batch fetch admin users in one query
+    const creatorIds = [...new Set(quotes.map(q => q.created_by).filter(Boolean))];
+    console.log(`[Quotes API] Fetching ${creatorIds.length} unique admin users...`);
+
+    const { data: admins, error: adminsError } = await supabase
+      .from('admin_users')
+      .select('id, full_name, email')
+      .in('id', creatorIds);
+
+    if (adminsError) {
+      console.error('[Quotes API] Error fetching admins:', adminsError);
+    }
+
+    // Create a map of admin_id -> admin details
+    const adminMap = new Map(admins?.map(admin => [admin.id, admin]) || []);
+
+    // Combine the data
+    const quotesWithDetails = quotes.map(quote => ({
+      ...quote,
+      item_count: itemCountMap.get(quote.id) || 0,
+      created_by_admin: quote.created_by ? adminMap.get(quote.created_by) || null : null
+    }));
+
+    const totalTime = Date.now() - startTime;
+    console.log(`[Quotes API] ✅ Successfully fetched ${quotesWithDetails.length} quotes with details in ${totalTime}ms`);
 
     return NextResponse.json({
       success: true,
@@ -104,11 +150,13 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error fetching quotes:', error);
+    const totalTime = Date.now() - startTime;
+    console.error(`[Quotes API] ❌ Error after ${totalTime}ms:`, error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch quotes'
+        error: 'Failed to fetch quotes',
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

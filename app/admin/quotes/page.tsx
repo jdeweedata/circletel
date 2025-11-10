@@ -56,16 +56,37 @@ export default function AdminQuotesPage() {
       }
       params.append('limit', '50');
 
-      const response = await fetch(`/api/quotes/business/list?${params.toString()}`);
-      const data = await response.json();
+      // Add 30 second timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      if (data.success) {
-        setQuotes(data.quotes);
-        setFilteredQuotes(data.quotes);
-      } else {
-        setError(data.error || 'Failed to load quotes');
+      try {
+        const response = await fetch(`/api/quotes/business/list?${params.toString()}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setQuotes(data.quotes);
+          setFilteredQuotes(data.quotes);
+        } else {
+          setError(data.error || 'Failed to load quotes');
+        }
+      } catch (fetchErr: any) {
+        clearTimeout(timeoutId);
+        if (fetchErr.name === 'AbortError') {
+          throw new Error('Request timed out after 30 seconds. The server may be experiencing issues.');
+        }
+        throw fetchErr;
       }
     } catch (err: any) {
+      console.error('Error fetching quotes:', err);
       setError(err.message || 'Failed to load quotes');
     } finally {
       setLoading(false);
