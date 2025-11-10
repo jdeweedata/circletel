@@ -5,6 +5,10 @@
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "functions": {
+    "app/admin/quotes/[id]/page.tsx": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
     "app/api/quotes/business/list/route.ts": {
       "maxDuration": 60,
       "memory": 1024
