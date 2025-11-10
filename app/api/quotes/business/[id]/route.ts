@@ -1,14 +1,21 @@
 /**
  * API Routes: Quote Operations
- * 
- * GET /api/quotes/business/[id] - Get quote details
- * PUT /api/quotes/business/[id] - Update quote
- * DELETE /api/quotes/business/[id] - Delete quote
+ *
+ * GET /api/quotes/business/[id] - Get quote details (admin only)
+ * PUT /api/quotes/business/[id] - Update quote (admin only)
+ * DELETE /api/quotes/business/[id] - Delete quote (admin only)
+ *
+ * Required permission: quotes:read (GET), quotes:write (PUT/DELETE)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
+
+// Vercel serverless function configuration
+export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
+export const maxDuration = 60; // Max execution time in seconds
 
 /**
  * GET - Fetch quote with items
@@ -18,6 +25,20 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // ✅ SECURITY: Authenticate admin user
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { adminUser } = authResult;
+
+    // ✅ SECURITY: Check permission
+    const permissionError = requirePermission(adminUser, 'quotes:read');
+    if (permissionError) {
+      return permissionError;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
 
@@ -73,6 +94,20 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // ✅ SECURITY: Authenticate admin user
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { adminUser } = authResult;
+
+    // ✅ SECURITY: Check permission
+    const permissionError = requirePermission(adminUser, 'quotes:write');
+    if (permissionError) {
+      return permissionError;
+    }
+
     const { id } = await context.params;
     const body = await request.json();
 
@@ -198,6 +233,20 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // ✅ SECURITY: Authenticate admin user
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { adminUser } = authResult;
+
+    // ✅ SECURITY: Check permission
+    const permissionError = requirePermission(adminUser, 'quotes:write');
+    if (permissionError) {
+      return permissionError;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
 
