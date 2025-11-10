@@ -93,23 +93,13 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     try {
       console.log('[CustomerAuthProvider] Fetching customer record...');
 
-      // Fetch with reduced timeout (5 seconds instead of 10)
-      const customerQuery = supabase
+      // Fetch customer directly - Supabase SDK handles timeouts internally
+      const { data: customerData, error: customerError } = await supabase
         .from('customers')
         .select('*')
         .eq('auth_user_id', userId)
         .maybeSingle()
         .abortSignal(abortController.current.signal);
-
-      const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
-        setTimeout(() => {
-          console.warn('[CustomerAuthProvider] Customer query timed out after 5 seconds');
-          resolve({ data: null, error: { message: 'Query timeout' } });
-        }, 5000); // Reduced from 10 to 5 seconds
-      });
-
-      const result = await Promise.race([customerQuery, timeoutPromise]);
-      const { data: customerData, error: customerError } = result as any;
 
       if (customerError) {
         console.error('[CustomerAuthProvider] Customer fetch error:', customerError);
@@ -132,9 +122,6 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Get Supabase client (already a singleton in lib/supabase/client.ts)
-  const supabase = createClient();
-
   // Initialize auth state on mount
   useEffect(() => {
     // Skip initialization on admin, partner, and auth pages
@@ -143,6 +130,10 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       return;
     }
 
+    // Create Supabase client once per mount (singleton)
+    const supabase = createClient();
+    let authSubscription: { unsubscribe: () => void } | null = null;
+
     // Get initial session
     const initializeAuth = async () => {
       isInitializing.current = true;
@@ -150,7 +141,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       try {
         console.log('[CustomerAuthProvider] Initializing auth...');
 
-        // Get session directly without timeout - Supabase handles this internally
+        // Get session directly - Supabase handles timeouts internally
         const { data: { session: currentSession } } = await supabase.auth.getSession();
 
         if (currentSession) {
@@ -180,51 +171,59 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       } finally {
         // ALWAYS set loading to false, even if errors occurred
         setLoading(false);
-        isInitializing.current = false;
-        console.log('[CustomerAuthProvider] Auth initialization complete');
+        // Mark initialization as complete BEFORE subscribing to auth changes
+        // This prevents the subscription from firing for the initial session
+        setTimeout(() => {
+          isInitializing.current = false;
+          console.log('[CustomerAuthProvider] Auth initialization complete');
+        }, 100); // Small delay to ensure state updates have settled
       }
     };
 
-    initializeAuth();
+    initializeAuth().then(() => {
+      // Subscribe to auth state changes AFTER initialization completes
+      // This prevents duplicate events for the initial session
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event: AuthChangeEvent, currentSession: Session | null) => {
+          // Skip auth state changes during initialization
+          if (isInitializing.current) {
+            console.log('[CustomerAuthProvider] Skipping auth event during initialization:', event);
+            return;
+          }
 
-    // Listen for auth state changes (AFTER initial setup)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, currentSession: Session | null) => {
-        // Skip auth state changes during initialization to prevent duplicate fetches
-        if (isInitializing.current) {
-          console.log('[CustomerAuthProvider] Skipping auth event during initialization:', event);
-          return;
+          console.log('[CustomerAuthProvider] Auth state changed:', event);
+
+          const newUserId = currentSession?.user?.id || null;
+          const userChanged = currentUserId.current !== newUserId;
+
+          setSession(currentSession);
+          setUser(currentSession?.user || null);
+
+          if (currentSession?.user && userChanged) {
+            // Only fetch customer if the user actually changed
+            console.log('[CustomerAuthProvider] User changed, fetching customer...');
+            currentUserId.current = newUserId;
+            const customerData = await fetchCustomer(currentSession.user.id, supabase);
+            setCustomer(customerData);
+          } else if (!currentSession?.user) {
+            // Clear customer data when user signs out
+            console.log('[CustomerAuthProvider] User signed out, clearing customer data');
+            currentUserId.current = null;
+            setCustomer(null);
+          } else {
+            console.log('[CustomerAuthProvider] Same user, skipping customer fetch');
+          }
+
+          setLoading(false);
         }
+      );
 
-        console.log('[CustomerAuthProvider] Auth state changed:', event);
-
-        const newUserId = currentSession?.user?.id || null;
-        const userChanged = currentUserId.current !== newUserId;
-
-        setSession(currentSession);
-        setUser(currentSession?.user || null);
-
-        if (currentSession?.user && userChanged) {
-          // Only fetch customer if the user actually changed
-          console.log('[CustomerAuthProvider] User changed, fetching customer...');
-          currentUserId.current = newUserId;
-          const customerData = await fetchCustomer(currentSession.user.id, supabase);
-          setCustomer(customerData);
-        } else if (!currentSession?.user) {
-          // Clear customer data when user signs out
-          console.log('[CustomerAuthProvider] User signed out, clearing customer data');
-          currentUserId.current = null;
-          setCustomer(null);
-        } else {
-          console.log('[CustomerAuthProvider] Same user, skipping customer fetch');
-        }
-
-        setLoading(false);
-      }
-    );
+      authSubscription = subscription;
+    });
 
     return () => {
-      subscription.unsubscribe();
+      // Unsubscribe from auth changes
+      authSubscription?.unsubscribe();
       // Cancel any in-flight fetch on cleanup
       if (abortController.current) {
         abortController.current.abort();
@@ -233,13 +232,14 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   }, [isAdminPage, isPartnerPage, isAuthPage, fetchCustomer]);
 
   // Refresh customer data from database
-  const refreshCustomer = async () => {
+  const refreshCustomer = React.useCallback(async () => {
     if (!user) return;
 
+    // Reuse the singleton client
     const supabase = createClient();
     const customerData = await fetchCustomer(user.id, supabase);
     setCustomer(customerData);
-  };
+  }, [user, fetchCustomer]);
 
   // Check if email is verified
   const isEmailVerified = user?.email_confirmed_at !== null && user?.email_confirmed_at !== undefined;

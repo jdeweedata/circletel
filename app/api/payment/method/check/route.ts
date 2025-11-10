@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Check if customer has a verified payment method
@@ -10,18 +9,15 @@ export async function GET(request: NextRequest) {
     // Check Authorization header first (for client-side fetch requests)
     const authHeader = request.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
-    
+
     let user: any = null;
-    
+
     if (token) {
-      // Use token from Authorization header
-      const supabase = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      
+      // Use service role client for token validation (more efficient)
+      const supabase = await createClient();
+
       const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
-      
+
       if (tokenError || !tokenUser) {
         return NextResponse.json(
           {
@@ -32,7 +28,7 @@ export async function GET(request: NextRequest) {
           { status: 401 }
         );
       }
-      
+
       user = tokenUser;
     } else {
       // Fall back to cookies
@@ -48,7 +44,7 @@ export async function GET(request: NextRequest) {
           { status: 401 }
         );
       }
-      
+
       user = cookieUser;
     }
 
