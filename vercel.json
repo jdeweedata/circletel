@@ -5,6 +5,14 @@
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "functions": {
+    "app/api/quotes/business/list/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "app/api/quotes/business/[id]/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
     "app/api/quotes/business/[id]/email/route.ts": {
       "maxDuration": 60,
       "memory": 1024
