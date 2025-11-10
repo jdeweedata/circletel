@@ -7,39 +7,80 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
 import type { PaymentMethodType } from '@/lib/billing/types';
 
 /**
  * GET /api/dashboard/payment-methods
- * 
+ *
  * Returns list of customer's payment methods (masked details only)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    let user: any = null;
+
+    if (token) {
+      // Use token from Authorization header
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+
+      if (tokenError || !tokenUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = tokenUser;
+    } else {
+      // Fall back to cookies (for SSR/middleware scenarios)
+      const sessionClient = await createClientWithSession();
+      const { data: { session }, error: authError } = await sessionClient.auth.getSession();
+
+      if (authError || !session?.user) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'No session found. Please login again.'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = session.user;
     }
-    
+
+    // Use service role client for database queries to bypass RLS
+    const supabase = await createClient();
+
     // Get customer_id from auth_user_id
     const { data: customer } = await supabase
       .from('customers')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
-    
+
     if (!customer) {
       return NextResponse.json(
-        { error: 'Customer not found' },
+        {
+          success: false,
+          error: 'Customer not found'
+        },
         { status: 404 }
       );
     }
@@ -62,9 +103,9 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/dashboard/payment-methods
- * 
+ *
  * Add new payment method
- * 
+ *
  * Body:
  * {
  *   method_type: 'debit_order' | 'card' | 'eft',
@@ -75,7 +116,7 @@ export async function GET(request: NextRequest) {
  *     account_type: 'cheque' | 'savings',
  *     branch_code: string,
  *     account_holder: string
- *     
+ *
  *     // For card:
  *     card_number: string,
  *     card_holder: string,
@@ -88,28 +129,68 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+    // Check Authorization header first (for client-side fetch requests)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    let user: any = null;
+
+    if (token) {
+      // Use token from Authorization header
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
+
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+
+      if (tokenError || !tokenUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'Invalid or expired session token'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = tokenUser;
+    } else {
+      // Fall back to cookies (for SSR/middleware scenarios)
+      const sessionClient = await createClientWithSession();
+      const { data: { session }, error: authError } = await sessionClient.auth.getSession();
+
+      if (authError || !session?.user) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Unauthorized',
+            details: 'No session found. Please login again.'
+          },
+          { status: 401 }
+        );
+      }
+
+      user = session.user;
     }
-    
+
+    // Use service role client for database queries to bypass RLS
+    const supabase = await createClient();
+
     // Get customer_id from auth_user_id
     const { data: customer } = await supabase
       .from('customers')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
-    
+
     if (!customer) {
       return NextResponse.json(
-        { error: 'Customer not found' },
+        {
+          success: false,
+          error: 'Customer not found'
+        },
         { status: 404 }
       );
     }

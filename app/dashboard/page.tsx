@@ -92,8 +92,16 @@ export default function DashboardPage() {
       }
 
       // Wait for customer record to load (ensures session is synced to cookies)
+      // If customer is still null after auth completes, show error instead of infinite loading
       if (!customer) {
-        console.log('[Dashboard] Customer not loaded yet, waiting for session sync...');
+        // Auth is complete but no customer record found - show error
+        if (!authLoading) {
+          console.error('[Dashboard] Customer profile not found after auth completed');
+          setError('Customer profile not found. Please contact support at support@circletel.co.za');
+          setLoading(false);
+        } else {
+          console.log('[Dashboard] Customer not loaded yet, waiting for session sync...');
+        }
         return;
       }
 
