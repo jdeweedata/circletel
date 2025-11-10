@@ -64,6 +64,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   // Prevent duplicate fetches - use ref to track in-flight queries
   const customerFetchInProgress = React.useRef(false);
   const abortController = React.useRef<AbortController | null>(null);
+  const isInitializing = React.useRef(false);
+  const currentUserId = React.useRef<string | null>(null);
 
   // Skip auth initialization on admin, partner, password reset and auth callback pages to prevent
   // competing Supabase client instances that clear the session
@@ -130,6 +132,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
+  // Create Supabase client once (singleton pattern)
+  const supabase = React.useMemo(() => createClient(), []);
+
   // Initialize auth state on mount
   useEffect(() => {
     // Skip initialization on admin, partner, and auth pages
@@ -137,10 +142,11 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
       setLoading(false);
       return;
     }
-    const supabase = createClient();
 
     // Get initial session
     const initializeAuth = async () => {
+      isInitializing.current = true;
+
       try {
         console.log('[CustomerAuthProvider] Initializing auth...');
 
@@ -151,6 +157,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           console.log('[CustomerAuthProvider] Session found, setting user state...');
           setSession(currentSession);
           setUser(currentSession.user);
+          currentUserId.current = currentSession.user.id;
 
           // Fetch customer record using shared function
           const customerData = await fetchCustomer(currentSession.user.id, supabase);
@@ -161,6 +168,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
           setSession(null);
           setUser(null);
           setCustomer(null);
+          currentUserId.current = null;
         }
       } catch (error) {
         console.error('[CustomerAuthProvider] Failed to initialize auth:', error);
@@ -168,30 +176,47 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         setSession(null);
         setUser(null);
         setCustomer(null);
+        currentUserId.current = null;
       } finally {
         // ALWAYS set loading to false, even if errors occurred
         setLoading(false);
+        isInitializing.current = false;
         console.log('[CustomerAuthProvider] Auth initialization complete');
       }
     };
 
     initializeAuth();
 
-    // Listen for auth state changes
+    // Listen for auth state changes (AFTER initial setup)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, currentSession: Session | null) => {
-        console.log('Auth state changed:', event);
+        // Skip auth state changes during initialization to prevent duplicate fetches
+        if (isInitializing.current) {
+          console.log('[CustomerAuthProvider] Skipping auth event during initialization:', event);
+          return;
+        }
+
+        console.log('[CustomerAuthProvider] Auth state changed:', event);
+
+        const newUserId = currentSession?.user?.id || null;
+        const userChanged = currentUserId.current !== newUserId;
 
         setSession(currentSession);
         setUser(currentSession?.user || null);
 
-        if (currentSession?.user) {
-          // Fetch customer record using shared function
+        if (currentSession?.user && userChanged) {
+          // Only fetch customer if the user actually changed
+          console.log('[CustomerAuthProvider] User changed, fetching customer...');
+          currentUserId.current = newUserId;
           const customerData = await fetchCustomer(currentSession.user.id, supabase);
           setCustomer(customerData);
-        } else {
+        } else if (!currentSession?.user) {
           // Clear customer data when user signs out
+          console.log('[CustomerAuthProvider] User signed out, clearing customer data');
+          currentUserId.current = null;
           setCustomer(null);
+        } else {
+          console.log('[CustomerAuthProvider] Same user, skipping customer fetch');
         }
 
         setLoading(false);
