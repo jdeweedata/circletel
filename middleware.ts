@@ -99,16 +99,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    // Admin routes require authentication
     '/admin/:path*',
-    '/api/dashboard/:path*', // Include customer dashboard API routes
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api routes (except /api/dashboard which is handled above)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Customer dashboard API routes require authentication
+    '/api/dashboard/:path*',
+    // Customer dashboard pages (if they exist)
+    '/dashboard/:path*',
+    // Auth callback pages need session refresh
+    '/auth/callback',
+    '/auth/reset-password',
   ],
 };
