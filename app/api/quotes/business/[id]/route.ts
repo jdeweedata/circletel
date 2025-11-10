@@ -151,7 +151,7 @@ export async function PUT(
         contact_phone: body.contact_phone,
         service_address: body.service_address,
         contract_term: body.contract_term,
-        notes: body.notes,
+        admin_notes: body.notes,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
