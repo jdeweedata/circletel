@@ -9,6 +9,10 @@
       "maxDuration": 60,
       "memory": 1024
     },
+    "app/quotes/business/[id]/preview/page.tsx": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
     "app/api/quotes/business/list/route.ts": {
       "maxDuration": 60,
       "memory": 1024
