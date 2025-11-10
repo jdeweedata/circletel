@@ -132,8 +132,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Create Supabase client once (singleton pattern)
-  const supabase = React.useMemo(() => createClient(), []);
+  // Get Supabase client (already a singleton in lib/supabase/client.ts)
+  const supabase = createClient();
 
   // Initialize auth state on mount
   useEffect(() => {
