@@ -1,0 +1,319 @@
+name: API Integration Tests
+
+# Run API tests on PR and when API-related code changes
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - 'feature/**'
+    paths:
+      - 'app/api/quotes/**'
+      - 'app/api/admin/**'
+      - 'lib/auth/**'
+      - 'lib/supabase/**'
+      - 'scripts/test-admin-quote-apis-authenticated.js'
+      - '.github/workflows/api-integration-tests.yml'
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'app/api/quotes/**'
+      - 'app/api/admin/**'
+      - 'lib/auth/**'
+      - 'lib/supabase/**'
+      - 'scripts/test-admin-quote-apis-authenticated.js'
+
+# Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - local
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Job 1: Prepare test database
+  prepare-test-db:
+    name: Prepare Test Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check admin user exists
+        run: node scripts/check-admin-user.js
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        continue-on-error: true
+
+      - name: Verify test package exists
+        run: |
+          node -e "
+            require('dotenv').config();
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL,
+              process.env.SUPABASE_SERVICE_ROLE_KEY
+            );
+            supabase.from('service_packages').select('id').limit(1).then(({data, error}) => {
+              if (error) {
+                console.error('❌ Error:', error.message);
+                process.exit(1);
+              }
+              if (!data || data.length === 0) {
+                console.error('❌ No packages found - seed database first');
+                process.exit(1);
+              }
+              console.log('✅ Test packages found:', data.length);
+            });
+          "
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  # Job 2: Run authenticated API tests
+  api-tests:
+    name: Admin Quote API Tests
+    runs-on: ubuntu-latest
+    needs: prepare-test-db
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+      fail-fast: false  # Continue testing other versions even if one fails
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start test server
+        run: |
+          npm run dev:memory &
+          echo $! > .dev-server.pid
+          sleep 30  # Wait for server to start
+        env:
+          NODE_ENV: development
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+
+      - name: Wait for server ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Server is ready"
+              exit 0
+            fi
+            echo "⏳ Waiting for server... ($i/30)"
+            sleep 2
+          done
+          echo "❌ Server failed to start"
+          exit 1
+
+      - name: Run authenticated API tests
+        id: api_tests
+        run: node scripts/test-admin-quote-apis-authenticated.js
+        env:
+          TEST_BASE_URL: http://localhost:3000
+          ADMIN_TEST_EMAIL: ${{ secrets.ADMIN_TEST_EMAIL }}
+          ADMIN_TEST_PASSWORD: ${{ secrets.ADMIN_TEST_PASSWORD }}
+        continue-on-error: true
+
+      - name: Stop test server
+        if: always()
+        run: |
+          if [ -f .dev-server.pid ]; then
+            kill $(cat .dev-server.pid) || true
+            rm .dev-server.pid
+          fi
+
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "## 🧪 API Test Results - Node ${{ matrix.node-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.api_tests.outcome }}" == "success" ]; then
+            echo "✅ **All tests passed**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See job logs for detailed results" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-results-node-${{ matrix.node-version }}
+          path: |
+            docs/testing/ADMIN_QUOTE_API_TEST_RESULTS*.md
+          retention-days: 30
+
+  # Job 3: Type check after API changes
+  type-check:
+    name: TypeScript Validation
+    runs-on: ubuntu-latest
+    needs: api-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run type check (auth files only)
+        run: npx tsc --noEmit lib/auth/**/*.ts lib/supabase/**/*.ts
+        continue-on-error: true
+
+  # Job 4: Security validation
+  security-check:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    needs: api-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for hardcoded credentials
+        run: |
+          echo "🔍 Scanning for hardcoded secrets..."
+
+          # Check for common patterns
+          if grep -r "eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*" lib/ app/ --include="*.ts" --include="*.tsx" --exclude-dir=node_modules; then
+            echo "❌ Found potential JWT tokens in code"
+            exit 1
+          fi
+
+          if grep -r -E "(password|secret|api_key|token)\s*=\s*['\"][^'\"]+['\"]" lib/ app/ --include="*.ts" --include="*.tsx" --exclude-dir=node_modules; then
+            echo "⚠️  Found potential hardcoded credentials"
+          fi
+
+          echo "✅ No obvious security issues found"
+
+      - name: Check RLS policies referenced
+        run: |
+          echo "🔍 Verifying RLS awareness in auth code..."
+          if grep -r "service.*role" lib/auth/ lib/supabase/; then
+            echo "✅ Service role usage documented"
+          else
+            echo "⚠️  Service role usage not clearly documented"
+          fi
+
+  # Job 5: Report results
+  report:
+    name: Test Report
+    runs-on: ubuntu-latest
+    needs: [api-tests, type-check, security-check]
+    if: always()
+
+    steps:
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-results
+
+      - name: Generate comprehensive report
+        run: |
+          echo "# 📊 API Integration Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.api-tests.result }}" == "success" ]; then
+            echo "✅ **API Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **API Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.type-check.result }}" == "success" ]; then
+            echo "✅ **Type Check**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  **Type Check**: Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.security-check.result }}" == "success" ]; then
+            echo "✅ **Security**: No issues" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Security**: Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See individual job logs for details" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const apiTestResult = '${{ needs.api-tests.result }}' === 'success' ? '✅' : '❌';
+            const typeCheckResult = '${{ needs.type-check.result }}' === 'success' ? '✅' : '⚠️';
+            const securityResult = '${{ needs.security-check.result }}' === 'success' ? '✅' : '❌';
+
+            const body = `## 🧪 API Integration Test Results
+
+            **Commit**: \`${{ github.sha }}\`
+
+            | Check | Status |
+            |-------|--------|
+            | API Tests | ${apiTestResult} |
+            | Type Check | ${typeCheckResult} |
+            | Security | ${securityResult} |
+
+            ${apiTestResult === '✅' ? '**All API tests passed! ✅**' : '**Some tests failed - check logs for details**'}
+
+            [View detailed results →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

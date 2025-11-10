@@ -1,0 +1,343 @@
+###
+# CircleTel Admin Quote API Tests
+# Use with VS Code REST Client extension
+#
+# Instructions:
+# 1. Install REST Client extension in VS Code
+# 2. Update variables below with your actual values
+# 3. Click "Send Request" above each request
+###
+
+@baseUrl = http://localhost:3000
+@packageId = YOUR_PACKAGE_ID_HERE
+@quoteId = YOUR_QUOTE_ID_HERE
+
+###
+# 1. LIST ALL QUOTES (Basic)
+# GET /api/quotes
+###
+GET {{baseUrl}}/api/quotes
+Content-Type: application/json
+
+###
+# 2. LIST QUOTES WITH STATUS FILTER
+# Filter by draft status
+###
+GET {{baseUrl}}/api/quotes?status=draft
+Content-Type: application/json
+
+###
+# 3. SEARCH QUOTES
+# Search by company name, quote number, or email
+###
+GET {{baseUrl}}/api/quotes?search=test
+Content-Type: application/json
+
+###
+# 4. ADVANCED LIST WITH PAGINATION
+# GET /api/quotes/business/list
+###
+GET {{baseUrl}}/api/quotes/business/list?limit=10&offset=0
+Content-Type: application/json
+
+###
+# 5. LIST WITH SORTING
+# Sort by total_monthly descending
+###
+GET {{baseUrl}}/api/quotes/business/list?sort_by=total_monthly&sort_order=desc&limit=5
+Content-Type: application/json
+
+###
+# 6. LIST WITH MULTIPLE FILTERS
+# Filter by status AND customer_type
+###
+GET {{baseUrl}}/api/quotes/business/list?status=approved&customer_type=smme&limit=10
+Content-Type: application/json
+
+###
+# 7. CREATE NEW QUOTE
+# POST /api/quotes/business/create
+# IMPORTANT: Replace YOUR_PACKAGE_ID_HERE with actual UUID from service_packages table
+###
+POST {{baseUrl}}/api/quotes/business/create
+Content-Type: application/json
+
+{
+  "lead_id": "00000000-0000-0000-0000-000000000000",
+  "customer_type": "smme",
+  "company_name": "Test Company Ltd",
+  "registration_number": "2024/123456/07",
+  "vat_number": "4123456789",
+  "contact_name": "John Doe",
+  "contact_email": "john@testcompany.co.za",
+  "contact_phone": "+27821234567",
+  "service_address": "123 Test Street, Cape Town, 8001",
+  "coordinates": {
+    "lat": -33.9249,
+    "lng": 18.4241
+  },
+  "contract_term": 24,
+  "items": [
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "primary",
+      "quantity": 1
+    }
+  ],
+  "customer_notes": "Test quote created via REST Client"
+}
+
+###
+# 8. CREATE QUOTE - INVALID DATA (should fail)
+# Missing required fields
+###
+POST {{baseUrl}}/api/quotes/business/create
+Content-Type: application/json
+
+{
+  "customer_type": "smme",
+  "company_name": "Incomplete Company"
+}
+
+###
+# 9. CREATE QUOTE - INVALID CONTRACT TERM (should fail)
+# Contract term must be 12, 24, or 36
+###
+POST {{baseUrl}}/api/quotes/business/create
+Content-Type: application/json
+
+{
+  "customer_type": "smme",
+  "company_name": "Test Company",
+  "contact_name": "John Doe",
+  "contact_email": "john@test.com",
+  "contact_phone": "+27821234567",
+  "service_address": "123 Test St",
+  "contract_term": 18,
+  "items": []
+}
+
+###
+# 10. GET QUOTE BY ID
+# GET /api/quotes/business/[id]
+# IMPORTANT: Replace YOUR_QUOTE_ID_HERE with actual quote ID
+###
+GET {{baseUrl}}/api/quotes/business/{{quoteId}}
+Content-Type: application/json
+
+###
+# 11. GET NON-EXISTENT QUOTE (should return 404)
+###
+GET {{baseUrl}}/api/quotes/business/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+###
+# 12. GET QUOTE - INVALID UUID (should fail gracefully)
+###
+GET {{baseUrl}}/api/quotes/business/invalid-uuid-format
+Content-Type: application/json
+
+###
+# 13. UPDATE QUOTE
+# PUT /api/quotes/business/[id]
+# IMPORTANT: Replace YOUR_QUOTE_ID_HERE with actual quote ID
+###
+PUT {{baseUrl}}/api/quotes/business/{{quoteId}}
+Content-Type: application/json
+
+{
+  "company_name": "Updated Company Name Ltd",
+  "contact_phone": "+27821111111",
+  "notes": "Updated via REST Client"
+}
+
+###
+# 14. UPDATE NON-EXISTENT QUOTE (should return 404)
+###
+PUT {{baseUrl}}/api/quotes/business/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+{
+  "company_name": "Should Fail"
+}
+
+###
+# 15. APPROVE QUOTE
+# POST /api/quotes/business/[id]/approve
+# IMPORTANT: Replace YOUR_QUOTE_ID_HERE with draft or pending_approval quote ID
+###
+POST {{baseUrl}}/api/quotes/business/{{quoteId}}/approve
+Content-Type: application/json
+
+###
+# 16. APPROVE NON-EXISTENT QUOTE (should return 404)
+###
+POST {{baseUrl}}/api/quotes/business/00000000-0000-0000-0000-000000000000/approve
+Content-Type: application/json
+
+###
+# 17. REJECT QUOTE WITH REASON
+# POST /api/quotes/business/[id]/reject
+# IMPORTANT: Replace YOUR_QUOTE_ID_HERE with quote ID
+###
+POST {{baseUrl}}/api/quotes/business/{{quoteId}}/reject
+Content-Type: application/json
+
+{
+  "rejection_reason": "Pricing too high - customer requested 20% discount"
+}
+
+###
+# 18. REJECT QUOTE WITHOUT REASON
+###
+POST {{baseUrl}}/api/quotes/business/{{quoteId}}/reject
+Content-Type: application/json
+
+{}
+
+###
+# 19. GET PENDING APPROVAL QUOTES
+# GET /api/quotes/business/admin/pending
+###
+GET {{baseUrl}}/api/quotes/business/admin/pending
+Content-Type: application/json
+
+###
+# 20. GET PENDING QUOTES WITH CUSTOM PAGINATION
+###
+GET {{baseUrl}}/api/quotes/business/admin/pending?limit=5&offset=0
+Content-Type: application/json
+
+###
+# 21. GET PENDING QUOTES BY SPECIFIC STATUS
+###
+GET {{baseUrl}}/api/quotes/business/admin/pending?status=pending_approval&limit=20
+Content-Type: application/json
+
+###
+# 22. GET ANALYTICS - ALL TIME
+# GET /api/quotes/business/admin/analytics
+###
+GET {{baseUrl}}/api/quotes/business/admin/analytics
+Content-Type: application/json
+
+###
+# 23. GET ANALYTICS - DATE FILTERED (2025)
+###
+GET {{baseUrl}}/api/quotes/business/admin/analytics?start_date=2025-01-01&end_date=2025-12-31
+Content-Type: application/json
+
+###
+# 24. GET ANALYTICS - CURRENT MONTH
+###
+GET {{baseUrl}}/api/quotes/business/admin/analytics?start_date=2025-11-01&end_date=2025-11-30
+Content-Type: application/json
+
+###
+# 25. DELETE QUOTE (DRAFT ONLY)
+# DELETE /api/quotes/business/[id]
+# IMPORTANT: Only works for draft, rejected, or expired quotes
+###
+DELETE {{baseUrl}}/api/quotes/business/{{quoteId}}
+Content-Type: application/json
+
+###
+# 26. DELETE NON-EXISTENT QUOTE (should return 404)
+###
+DELETE {{baseUrl}}/api/quotes/business/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+###
+# 27. ENTERPRISE QUOTE EXAMPLE
+# Create quote for enterprise customer
+###
+POST {{baseUrl}}/api/quotes/business/create
+Content-Type: application/json
+
+{
+  "lead_id": "00000000-0000-0000-0000-000000000000",
+  "customer_type": "enterprise",
+  "company_name": "Big Corporation (Pty) Ltd",
+  "registration_number": "2020/987654/07",
+  "vat_number": "4987654321",
+  "contact_name": "Jane Smith",
+  "contact_email": "jane.smith@bigcorp.co.za",
+  "contact_phone": "+27217654321",
+  "service_address": "456 Corporate Drive, Johannesburg, 2000",
+  "coordinates": {
+    "lat": -26.2041,
+    "lng": 28.0473
+  },
+  "contract_term": 36,
+  "items": [
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "primary",
+      "quantity": 1,
+      "notes": "Primary connection for main office"
+    },
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "secondary",
+      "quantity": 1,
+      "notes": "Backup connection for redundancy"
+    }
+  ],
+  "customer_notes": "Requires dedicated fiber with 99.9% SLA"
+}
+
+###
+# 28. MULTI-SERVICE QUOTE
+# Quote with primary, secondary, and additional services
+###
+POST {{baseUrl}}/api/quotes/business/create
+Content-Type: application/json
+
+{
+  "lead_id": "00000000-0000-0000-0000-000000000000",
+  "customer_type": "smme",
+  "company_name": "Multi-Service Test Co",
+  "contact_name": "Test User",
+  "contact_email": "multi@test.co.za",
+  "contact_phone": "+27821234567",
+  "service_address": "789 Service Street, Durban, 4001",
+  "contract_term": 24,
+  "items": [
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "primary",
+      "quantity": 1,
+      "notes": "Main fibre line"
+    },
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "secondary",
+      "quantity": 1,
+      "notes": "Backup 5G connection"
+    },
+    {
+      "package_id": "{{packageId}}",
+      "item_type": "additional",
+      "quantity": 3,
+      "notes": "Additional WiFi access points"
+    }
+  ],
+  "customer_notes": "Multi-site deployment"
+}
+
+###
+# 29. GET QUOTE WITH ITEMS (verify multi-service)
+###
+GET {{baseUrl}}/api/quotes/business/{{quoteId}}
+Content-Type: application/json
+
+###
+# 30. PERFORMANCE TEST - LARGE LIST
+# Request 100 quotes to test performance
+###
+GET {{baseUrl}}/api/quotes/business/list?limit=100&offset=0
+Content-Type: application/json
+
+###
+# END OF TESTS
+###
