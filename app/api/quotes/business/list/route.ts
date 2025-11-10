@@ -1,18 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
+
+// Vercel serverless function configuration
+export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
+export const maxDuration = 60; // Max execution time in seconds
 
 /**
  * GET /api/quotes/business/list
  *
  * List quotes with filtering and pagination (admin only)
+ * Required permission: quotes:read
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const supabase = await createClient();
+    // ✅ SECURITY: Authenticate admin user
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
 
-    // TODO: Verify admin permissions
+    const { adminUser } = authResult;
+
+    // ✅ SECURITY: Check permission
+    const permissionError = requirePermission(adminUser, 'quotes:read');
+    if (permissionError) {
+      return permissionError;
+    }
+
+    const supabase = await createClient();
 
     // Get query params
     const { searchParams } = new URL(request.url);
