@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LocationButton } from './LocationButton';
+import { InteractiveCoverageMapModal } from './InteractiveCoverageMapModal';
 import type { PlaceResult, GeocodingResult } from '@/services/googleMaps';
 
 interface AddressAutocompleteProps {
@@ -22,6 +24,7 @@ interface AddressAutocompleteProps {
   placeholder?: string;
   className?: string;
   showLocationButton?: boolean;
+  showMapButton?: boolean; // NEW: Control visibility of "Can't find your address? Select on map" button
 }
 
 interface AddressSuggestion {
@@ -41,7 +44,8 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   onLocationSelect,
   placeholder = "Enter your business address",
   className,
-  showLocationButton = true
+  showLocationButton = true,
+  showMapButton = true // Default to true for backward compatibility
 }) => {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -49,6 +53,8 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [mapInitialLocation, setMapInitialLocation] = useState<{ lat: number; lng: number } | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -56,13 +62,21 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   // Initialize Google Places Autocomplete
   useEffect(() => {
     const initializeAutocomplete = async () => {
-      if (!inputRef.current) return;
+      if (!inputRef.current) {
+        console.warn('[AddressAutocomplete] Input ref not available');
+        return;
+      }
+
+      console.log('[AddressAutocomplete] Starting autocomplete initialization...');
 
       try {
         // Use the new loader with retry mechanism
         const { loadGoogleMapsService } = await import('@/lib/googleMapsLoader');
+        console.log('[AddressAutocomplete] Google Maps loader imported successfully');
+
         const googleMapsService = await loadGoogleMapsService();
-        
+        console.log('[AddressAutocomplete] Google Maps service loaded successfully');
+
         const autocomplete = await googleMapsService.initializeAutocomplete(
           inputRef.current,
           (place: PlaceResult) => {
@@ -70,11 +84,29 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           }
         );
         autocompleteRef.current = autocomplete;
+        console.log('[AddressAutocomplete] Autocomplete initialized successfully');
         setError(null); // Clear any previous errors
       } catch (error) {
-        console.error('Failed to initialize autocomplete:', error);
-        setError('Google Places unavailable - manual search enabled');
+        console.error('[AddressAutocomplete] Failed to initialize autocomplete:', error);
+
+        // Determine error type for better user messaging
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (errorMessage.includes('API key')) {
+          setError('Address autocomplete temporarily unavailable - you can still type your address manually');
+          console.error('[AddressAutocomplete] API key issue detected. Please check Google Cloud Console configuration.');
+        } else if (errorMessage.includes('domain restrictions')) {
+          setError('Address suggestions unavailable - manual entry enabled');
+          console.error('[AddressAutocomplete] Domain restriction detected. Add this domain to Google Cloud Console API key restrictions.');
+        } else if (errorMessage.includes('chunk')) {
+          setError('Loading address suggestions - please wait or type manually');
+          console.error('[AddressAutocomplete] Chunk loading error. Check network connection and build configuration.');
+        } else {
+          setError('Address suggestions unavailable - manual entry enabled');
+        }
+
         // Don't prevent the component from working - fallback to manual search
+        console.log('[AddressAutocomplete] Falling back to manual geocoding search');
       }
     };
 
@@ -288,6 +320,40 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     }, 200);
   };
 
+  // Open map modal
+  const handleOpenMapModal = () => {
+    console.log('[AddressAutocomplete] Opening map modal');
+    setShowMapModal(true);
+  };
+
+  // Handle location selection from map modal
+  const handleMapLocationSelect = (data: {
+    address: string;
+    latitude: number;
+    longitude: number;
+    province?: string;
+    suburb?: string;
+    town?: string;
+    postalCode?: string;
+  }) => {
+    console.log('[AddressAutocomplete] Location selected from map:', data);
+    setInputValue(data.address);
+    setShowSuggestions(false);
+
+    onLocationSelect({
+      address: data.address,
+      province: data.province,
+      suburb: data.suburb,
+      street: '',
+      streetNumber: '',
+      town: data.town,
+      buildingComplex: '',
+      postalCode: data.postalCode,
+      latitude: data.latitude,
+      longitude: data.longitude
+    });
+  };
+
   return (
     <div className={cn("relative w-full", className)}>
       <div className="relative">
@@ -331,6 +397,37 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           </div>
         )}
       </div>
+
+      {/* Map Selection Button */}
+      {showMapButton && (
+        <div className="mt-3">
+          <Button
+            onClick={handleOpenMapModal}
+            variant="outline"
+            className="w-full border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-all"
+            type="button"
+          >
+            <MapPin className="h-4 w-4 mr-2" />
+            Can't find your address? Select on map
+          </Button>
+        </div>
+      )}
+
+      {/* Interactive Map Modal */}
+      <InteractiveCoverageMapModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        onSearch={(address, coords) => {
+          handleMapLocationSelect({
+            address,
+            latitude: coords.lat,
+            longitude: coords.lng
+          });
+        }}
+        initialAddress={inputValue}
+        initialCoordinates={mapInitialLocation}
+        layout="horizontal"
+      />
 
       {/* Error message */}
       {error && (

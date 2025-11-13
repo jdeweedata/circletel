@@ -208,6 +208,7 @@ export function HeroWithTabs() {
                     placeholder={currentTab.placeholder}
                     className="w-full h-full text-sm sm:text-base"
                     showLocationButton={true}
+                    showMapButton={false}
                   />
                 </div>
                 <Button
@@ -258,6 +259,7 @@ export function HeroWithTabs() {
           onSearch={handleMapSearch}
           initialAddress={address}
           initialCoordinates={coordinates || undefined}
+          layout="horizontal"
         />
 
         {/* Value Props */}
