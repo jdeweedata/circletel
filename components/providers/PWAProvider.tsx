@@ -14,17 +14,17 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       setDeferredPrompt(e);
       setIsInstallable(true);
 
-      // Show install prompt after a delay
-      setTimeout(() => {
-        toast("Install CircleTel App", {
-          description: "Get the full experience with our mobile app!",
-          action: {
-            label: "Install",
-            onClick: () => installPWA(),
-          },
-          duration: 10000,
-        });
-      }, 5000);
+      // Install prompt disabled - users can install manually via browser menu
+      // setTimeout(() => {
+      //   toast("Install CircleTel App", {
+      //     description: "Get the full experience with our mobile app!",
+      //     action: {
+      //       label: "Install",
+      //       onClick: () => installPWA(),
+      //     },
+      //     duration: 10000,
+      //   });
+      // }, 5000);
     };
 
     // Listen for app installed event
