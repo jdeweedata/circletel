@@ -74,17 +74,25 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('❌ Database error:', {
+      console.error('❌ Database error creating coverage lead:', {
         message: error.message,
         details: error.details,
         hint: error.hint,
-        code: error.code
+        code: error.code,
+        leadData: {
+          customer_type: leadData.customer_type,
+          address: leadData.address,
+          has_coordinates: !!leadData.coordinates,
+          lead_source: leadData.lead_source,
+          status: leadData.status
+        }
       });
 
       return NextResponse.json(
         {
           error: 'Failed to create coverage lead',
-          details: error.message
+          details: process.env.NODE_ENV === 'development' ? error.message : 'Database error',
+          code: error.code
         },
         { status: 500 }
       );
