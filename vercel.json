@@ -28,6 +28,10 @@
     "app/api/quotes/business/[id]/email/route.ts": {
       "maxDuration": 60,
       "memory": 1024
+    },
+    "app/api/coverage/lead/route.ts": {
+      "maxDuration": 15,
+      "memory": 512
     }
   },
   "crons": [

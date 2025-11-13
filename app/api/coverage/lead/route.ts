@@ -27,7 +27,14 @@ export async function POST(request: NextRequest) {
       if (apiKey) {
         try {
           const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&region=za&components=country:ZA&key=${apiKey}`;
-          const resp = await fetch(url);
+
+          // Add timeout to prevent API hanging (5 second timeout)
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+          const resp = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
           if (resp.ok) {
             const data = await resp.json();
             if (data.status === 'OK' && data.results && data.results[0]) {
@@ -43,7 +50,10 @@ export async function POST(request: NextRequest) {
               }
             }
           }
-        } catch {}
+        } catch (error) {
+          console.log('Geocoding failed or timed out:', error instanceof Error ? error.message : 'Unknown error');
+          // Continue without coordinates - not critical for lead creation
+        }
       }
     }
 
