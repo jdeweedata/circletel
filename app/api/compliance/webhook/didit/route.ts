@@ -35,7 +35,10 @@ import type { DiditWebhookPayload } from '@/lib/integrations/didit/types';
 export async function POST(request: NextRequest) {
   try {
     // 1. Extract signature from headers
-    const signature = request.headers.get('X-Didit-Signature');
+    const signature =
+      request.headers.get('X-Didit-Signature') ||
+      request.headers.get('x-didit-signature') ||
+      request.headers.get('x-signature');
 
     if (!signature) {
       console.error('[Webhook API] Missing X-Didit-Signature header');
