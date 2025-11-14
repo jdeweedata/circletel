@@ -24,6 +24,7 @@ export default function PaymentMethodPage() {
   const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const fetchInProgress = useRef(false);
 
   useEffect(() => {
@@ -72,6 +73,9 @@ export default function PaymentMethodPage() {
           console.log('[PaymentMethod] Pending orders loaded:', ordersData.orders?.length || 0);
         } else {
           console.error('[PaymentMethod] Orders fetch failed:', ordersResponse.status);
+          if (!loadError) {
+            setLoadError('Some order information could not be loaded. You can still try to add a payment method or contact support.');
+          }
         }
 
         // Check if payment method exists with timeout protection
@@ -92,13 +96,22 @@ export default function PaymentMethodPage() {
           console.log('[PaymentMethod] Payment method check:', paymentData.hasPaymentMethod);
         } else {
           console.error('[PaymentMethod] Payment check failed:', paymentResponse.status);
+          if (!loadError) {
+            setLoadError('We could not confirm your current payment method status. You can still try to add a payment method or contact support.');
+          }
         }
 
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
           console.error('[PaymentMethod] Request timeout - API took too long to respond');
+          if (!loadError) {
+            setLoadError('Payment services took too long to respond. You can still try to add a payment method or contact support if the issue persists.');
+          }
         } else {
           console.error('[PaymentMethod] Error fetching payment data:', error);
+          if (!loadError) {
+            setLoadError('We could not load your payment information. You can still try to add a payment method or contact support.');
+          }
         }
       } finally {
         setLoading(false);
@@ -142,6 +155,13 @@ export default function PaymentMethodPage() {
             </div>
           </div>
         </div>
+
+        {loadError && (
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <p className="font-semibold">Some payment information is currently unavailable.</p>
+            <p className="mt-1">{loadError}</p>
+          </div>
+        )}
 
         {/* Payment Method Section */}
         <PaymentMethodSection

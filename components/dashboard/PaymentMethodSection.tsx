@@ -39,45 +39,51 @@ export function PaymentMethodSection({
   const handleAddPaymentMethod = async () => {
     setIsProcessing(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 45000);
+
     try {
       // Initiate R1.00 validation charge using test-initiate endpoint
       const response = await fetch('/api/payments/test-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: 1.00, // R1.00 validation charge
+          amount: 1.0, // R1.00 validation charge
           currency: 'ZAR',
           reference: `PAYMENT-METHOD-VALIDATION-${Date.now()}`,
           customer_email: '', // Will be auto-filled by API from session
           metadata: {
             type: 'payment_method_validation',
-            validation_amount: 1.00,
-            timestamp: new Date().toISOString()
-          }
+            validation_amount: 1.0,
+            timestamp: new Date().toISOString(),
+          },
         }),
+        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to initiate payment validation');
-      }
 
       const data = await response.json();
 
-      if (!data.success || !data.payment_url) {
-        throw new Error(data.error || 'Failed to generate payment URL');
+      if (!response.ok || !data.success || !data.payment_url) {
+        throw new Error(data.error || 'Failed to initiate payment validation');
       }
 
       toast.success('Redirecting to secure payment...');
 
       // Redirect to NetCash payment page
       setTimeout(() => {
-        window.location.href = data.payment_url;
+        window.location.href = data.payment_url as string;
       }, 1000);
-
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment validation error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to add payment method');
+      if (error?.name === 'AbortError') {
+        toast.error('Payment gateway took too long to respond. Please try again or contact support.');
+      } else {
+        toast.error(error instanceof Error ? error.message : 'Failed to add payment method');
+      }
+    } finally {
+      clearTimeout(timeoutId);
       setIsProcessing(false);
     }
   };

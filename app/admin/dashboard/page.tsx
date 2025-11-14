@@ -25,6 +25,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
+import type { PaymentProviderType } from '@/lib/types/payment.types';
 
 interface AdminStats {
   // Products
@@ -58,6 +59,31 @@ interface AdminStats {
   pendingApprovals: number;
 
   lastUpdated: string;
+}
+
+interface PaymentProviderHealthProvider {
+  provider: PaymentProviderType;
+  healthy: boolean;
+  configured: boolean;
+  available: boolean;
+  test_mode?: boolean;
+  priority?: number;
+}
+
+interface PaymentProviderHealthResponse {
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'error';
+  timestamp: string;
+  response_time_ms: number;
+  providers: PaymentProviderHealthProvider[];
+  summary: {
+    total_providers: number;
+    healthy_providers: number;
+    unhealthy_providers: number;
+    configured_providers: number;
+    unconfigured_providers: number;
+  };
+  error?: string;
+  message?: string;
 }
 
 function useAdminStatsRealtime() {
@@ -122,6 +148,32 @@ export default function AdminDashboard() {
   const { user } = useAdminAuth();
   const { can } = usePermissions();
   const { stats, isLoading, error, refresh } = useAdminStatsRealtime();
+  const [providerHealth, setProviderHealth] = useState<PaymentProviderHealthResponse | null>(null);
+  const [providerHealthError, setProviderHealthError] = useState<string | null>(null);
+  const [providerHealthLoading, setProviderHealthLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProviderHealth = async () => {
+      try {
+        setProviderHealthLoading(true);
+        setProviderHealthError(null);
+        const response = await fetch('/api/payments/providers?health=true');
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load payment provider health');
+        }
+        setProviderHealth(data);
+      } catch (err) {
+        setProviderHealthError(
+          err instanceof Error ? err.message : 'Failed to load payment provider health'
+        );
+      } finally {
+        setProviderHealthLoading(false);
+      }
+    };
+
+    fetchProviderHealth();
+  }, []);
 
   const statCards = [
     {
@@ -343,6 +395,95 @@ export default function AdminDashboard() {
             </Link>
           );
         })}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <Card className="lg:col-span-1 hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Payment Provider Health
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                NetCash gateway status
+              </CardDescription>
+            </div>
+            <div className="p-2 rounded-lg bg-orange-100">
+              <DollarSign className="h-5 w-5 text-circleTel-orange" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {providerHealthLoading && !providerHealth && (
+              <div className="flex items-center gap-2 text-sm text-circleTel-secondaryNeutral">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                <span>Checking payment gateway health5</span>
+              </div>
+            )}
+
+            {!providerHealthLoading && providerHealth && (
+              <>
+                {(() => {
+                  const netcash = providerHealth.providers.find((p) => p.provider === 'netcash');
+                  if (!netcash) {
+                    return (
+                      <div className="text-sm text-gray-600">
+                        NetCash provider configuration not found.
+                      </div>
+                    );
+                  }
+
+                  const statusLabel = !netcash.configured
+                    ? 'Not Configured'
+                    : netcash.healthy
+                      ? 'Healthy'
+                      : 'Unhealthy';
+
+                  const statusClasses = !netcash.configured
+                    ? 'bg-gray-100 text-gray-700'
+                    : netcash.healthy
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700';
+
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="text-2xl font-bold text-circleTel-darkNeutral">
+                          NetCash
+                        </div>
+                        <Badge variant="outline" className={statusClasses}>
+                          {statusLabel}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-circleTel-secondaryNeutral">
+                        Environment: {netcash.test_mode ? 'Test' : 'Production'}
+                      </div>
+                      <div className="text-xs text-circleTel-secondaryNeutral">
+                        Providers healthy: {providerHealth.summary.healthy_providers}/
+                        {providerHealth.summary.total_providers}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            )}
+
+            {providerHealthError && (
+              <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <span>{providerHealthError}</span>
+              </div>
+            )}
+
+            <div className="pt-2 text-xs">
+              <Link
+                href="/admin/payments/monitoring"
+                className="text-circleTel-orange hover:underline"
+              >
+                View detailed payment monitoring
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
