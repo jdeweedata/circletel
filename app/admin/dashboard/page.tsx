@@ -416,7 +416,7 @@ export default function AdminDashboard() {
             {providerHealthLoading && !providerHealth && (
               <div className="flex items-center gap-2 text-sm text-circleTel-secondaryNeutral">
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Checking payment gateway health5</span>
+                <span>Checking payment gateway health…</span>
               </div>
             )}
 
