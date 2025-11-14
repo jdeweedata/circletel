@@ -10,10 +10,13 @@ import type {
   DiditSessionRequest,
   DiditSessionResponse,
   DiditSessionStatusResponse,
+  DiditSessionStatus,
+  DiditFlowType,
 } from './types';
 
 // Didit API Configuration
-const DIDIT_API_BASE = process.env.DIDIT_API_URL || 'https://api.didit.me/v1';
+const DIDIT_API_BASE =
+  process.env.DIDIT_API_URL || 'https://verification.didit.me/v2';
 const DIDIT_API_KEY = process.env.DIDIT_API_KEY;
 
 // Validate required environment variables
@@ -28,19 +31,91 @@ if (!DIDIT_API_KEY) {
  *
  * Pre-configured with:
  * - Base URL
- * - Bearer token authentication
+ * - x-api-key header authentication
  * - 30-second timeout (prevents hanging requests)
  * - Request/response logging for debugging
  */
 export const diditClient: AxiosInstance = axios.create({
   baseURL: DIDIT_API_BASE,
   headers: {
-    'Authorization': `Bearer ${DIDIT_API_KEY}`,
+    'x-api-key': DIDIT_API_KEY,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
   timeout: 30000, // 30 seconds
 });
+
+/**
+ * Internal type representing Didit v2 create-session response
+ *
+ * Example (from live response):
+ * {
+ *   "session_id": "ef4d3476-582a-49cd-943b-5741c17b962b",
+ *   "session_number": 3,
+ *   "session_token": "d2q0Apts7zoC",
+ *   "url": "https://verify.didit.me/session/d2q0Apts7zoC",
+ *   "vendor_data": "test-company-kyb",
+ *   "metadata": null,
+ *   "status": "Not Started",
+ *   "callback": "https://www.circletel.co.za/api/compliance/webhook/didit",
+ *   "workflow_id": "849daa0b-c9f4-4669-a74c-212ceb2adcfe"
+ * }
+ */
+interface DiditV2CreateSessionResponse {
+  session_id: string;
+  session_number: number;
+  session_token: string;
+  url: string;
+  vendor_data: string;
+  metadata: unknown | null;
+  status: string;
+  callback: string;
+  workflow_id: string;
+}
+
+/**
+ * Map Didit v2 status string (e.g. "Not Started") to internal union
+ */
+function mapDiditStatus(status: string | undefined): DiditSessionStatus {
+  if (!status) return 'not_started';
+
+  const normalized = status.toLowerCase().replace(/\s+/g, '_');
+
+  switch (normalized) {
+    case 'not_started':
+      return 'not_started';
+    case 'in_progress':
+      return 'in_progress';
+    case 'completed':
+      return 'completed';
+    case 'abandoned':
+      return 'abandoned';
+    default:
+      return 'not_started';
+  }
+}
+
+/**
+ * Resolve Didit workflow_id from internal flow type using env vars
+ */
+function getWorkflowIdForFlow(flow: DiditFlowType): string {
+  const mapping: Record<DiditFlowType, string | undefined> = {
+    business_light_kyc: process.env.DIDIT_WORKFLOW_BUSINESS_LIGHT_KYC,
+    consumer_light_kyc: process.env.DIDIT_WORKFLOW_CONSUMER_LIGHT_KYC,
+    business_full_kyc: process.env.DIDIT_WORKFLOW_BUSINESS_FULL_KYC,
+  };
+
+  const workflowId = mapping[flow];
+
+  if (!workflowId) {
+    throw new Error(
+      `Didit workflow ID env var is not configured for flow: ${flow}. ` +
+        'Please set DIDIT_WORKFLOW_BUSINESS_LIGHT_KYC / DIDIT_WORKFLOW_CONSUMER_LIGHT_KYC / DIDIT_WORKFLOW_BUSINESS_FULL_KYC.'
+    );
+  }
+
+  return workflowId;
+}
 
 /**
  * Request Interceptor
@@ -152,8 +227,46 @@ export async function createSession(
   request: DiditSessionRequest
 ): Promise<DiditSessionResponse> {
   try {
-    const { data } = await diditClient.post<DiditSessionResponse>('/sessions', request);
-    return data;
+    // Map internal session request shape to Didit v2 API payload
+    const workflowId = getWorkflowIdForFlow(request.flow);
+
+    // Encode important metadata into vendor_data as JSON string so we can
+    // correlate sessions on webhook callbacks without depending on Didit
+    const vendorData = JSON.stringify({
+      quote_id: request.metadata?.quote_id,
+      user_type: request.metadata?.user_type,
+      quote_amount: request.metadata?.quote_amount,
+      context: request.metadata?.context,
+      subject_type: request.metadata?.subject_type,
+      kyb_subject_id: request.metadata?.kyb_subject_id,
+    });
+
+    const payload = {
+      workflow_id: workflowId,
+      vendor_data: vendorData,
+      callback: request.webhook_url,
+    };
+
+    const { data } = await diditClient.post<DiditV2CreateSessionResponse>(
+      '/session/',
+      payload
+    );
+
+    // Normalise v2 response into existing DiditSessionResponse shape
+    const now = new Date();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+    const normalized: DiditSessionResponse = {
+      sessionId: data.session_id,
+      status: mapDiditStatus(data.status),
+      verificationUrl: data.url,
+      // Didit v2 response does not include explicit created/expiry timestamps;
+      // approximate these so existing callers have reasonable values.
+      createdAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + sevenDaysMs).toISOString(),
+    };
+
+    return normalized;
   } catch (error) {
     console.error('[Didit] Failed to create session:', error);
     throw new Error('Failed to create Didit KYC session');

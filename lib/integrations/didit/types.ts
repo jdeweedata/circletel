@@ -63,9 +63,13 @@ export interface DiditSessionRequest {
   flow: DiditFlowType;
   features: DiditFeature[];
   metadata: {
-    quote_id: string;
+    quote_id?: string;
     user_type?: 'business' | 'consumer';
     quote_amount?: number;
+    context?: string;
+    subject_type?: 'ubo' | 'director';
+    kyb_subject_id?: string;
+    [key: string]: unknown;
   };
   redirect_url?: string; // Where to redirect customer after verification
   webhook_url?: string;  // Where Didit sends completion webhooks
@@ -165,6 +169,9 @@ export interface DiditWebhookPayload {
   event: 'verification.completed' | 'verification.failed' | 'session.abandoned' | 'session.expired';
   sessionId: string;
   timestamp: string; // ISO 8601
+
+  // Optional vendor data echoed by Didit (JSON string containing session metadata)
+  vendor_data?: string;
 
   // Present for 'verification.completed' events
   result?: {

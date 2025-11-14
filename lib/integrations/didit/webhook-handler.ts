@@ -114,6 +114,18 @@ export async function processDiditWebhook(
 
   const supabase = await createClient();
 
+  let kybSubjectId: string | undefined;
+  if (payload.vendor_data) {
+    try {
+      const vendorMeta = JSON.parse(payload.vendor_data as string);
+      if (vendorMeta && typeof vendorMeta.kyb_subject_id === 'string') {
+        kybSubjectId = vendorMeta.kyb_subject_id;
+      }
+    } catch (parseError) {
+      console.error('[Webhook Handler] Failed to parse vendor_data:', parseError);
+    }
+  }
+
   // 1. Find existing KYC session
   const { data: session, error: sessionError } = await supabase
     .from('kyc_sessions')
@@ -150,16 +162,16 @@ export async function processDiditWebhook(
   // 3. Handle event based on type
   switch (event) {
     case 'verification.completed':
-      return handleVerificationCompleted(session.id, result, data, payload);
+      return handleVerificationCompleted(session.id, result, data, payload, kybSubjectId);
 
     case 'verification.failed':
-      return handleVerificationFailed(session.id, error, payload);
+      return handleVerificationFailed(session.id, error, payload, kybSubjectId);
 
     case 'session.abandoned':
-      return handleSessionAbandoned(session.id, payload);
+      return handleSessionAbandoned(session.id, payload, kybSubjectId);
 
     case 'session.expired':
-      return handleSessionExpired(session.id, payload);
+      return handleSessionExpired(session.id, payload, kybSubjectId);
 
     default:
       console.warn(`[Webhook Handler] Unknown event type: ${event}`);
@@ -180,7 +192,8 @@ async function handleVerificationCompleted(
   sessionId: string,
   result: DiditWebhookPayload['result'],
   extractedData: ExtractedKYCData | undefined,
-  rawPayload: DiditWebhookPayload
+  rawPayload: DiditWebhookPayload,
+  kybSubjectId?: string
 ): Promise<WebhookVerificationResult> {
   const supabase = await createClient();
 
@@ -229,6 +242,24 @@ async function handleVerificationCompleted(
       valid: false,
       error: 'Failed to update KYC session',
     };
+  }
+
+  // If this session belongs to a KYB subject (UBO/director), update its status
+  if (kybSubjectId) {
+    const { error: kybUpdateError } = await supabase
+      .from('kyb_subjects')
+      .update({
+        kyc_status: verificationResult,
+        risk_tier: riskScore.risk_tier,
+      })
+      .eq('id', kybSubjectId);
+
+    if (kybUpdateError) {
+      console.error(
+        '[Webhook Handler] Failed to update KYB subject KYC fields:',
+        kybUpdateError
+      );
+    }
   }
 
   console.log(
@@ -283,7 +314,8 @@ async function handleVerificationCompleted(
 async function handleVerificationFailed(
   sessionId: string,
   error: DiditWebhookPayload['error'],
-  rawPayload: DiditWebhookPayload
+  rawPayload: DiditWebhookPayload,
+  kybSubjectId?: string
 ): Promise<WebhookVerificationResult> {
   const supabase = await createClient();
 
@@ -309,6 +341,23 @@ async function handleVerificationFailed(
     };
   }
 
+  if (kybSubjectId) {
+    const { error: kybUpdateError } = await supabase
+      .from('kyb_subjects')
+      .update({
+        kyc_status: 'declined',
+        risk_tier: 'high',
+      })
+      .eq('id', kybSubjectId);
+
+    if (kybUpdateError) {
+      console.error(
+        '[Webhook Handler] Failed to update KYB subject KYC fields (failed):',
+        kybUpdateError
+      );
+    }
+  }
+
   // TODO: Send customer email with retry instructions
   // This will be implemented in Task Group 14
 
@@ -325,7 +374,8 @@ async function handleVerificationFailed(
  */
 async function handleSessionAbandoned(
   sessionId: string,
-  rawPayload: DiditWebhookPayload
+  rawPayload: DiditWebhookPayload,
+  kybSubjectId?: string
 ): Promise<WebhookVerificationResult> {
   const supabase = await createClient();
 
@@ -348,6 +398,22 @@ async function handleSessionAbandoned(
     };
   }
 
+  if (kybSubjectId) {
+    const { error: kybUpdateError } = await supabase
+      .from('kyb_subjects')
+      .update({
+        kyc_status: 'abandoned',
+      })
+      .eq('id', kybSubjectId);
+
+    if (kybUpdateError) {
+      console.error(
+        '[Webhook Handler] Failed to update KYB subject KYC fields (abandoned):',
+        kybUpdateError
+      );
+    }
+  }
+
   // TODO: Send reminder email after 6 hours
   // This will be implemented in Task Group 14
 
@@ -364,7 +430,8 @@ async function handleSessionAbandoned(
  */
 async function handleSessionExpired(
   sessionId: string,
-  rawPayload: DiditWebhookPayload
+  rawPayload: DiditWebhookPayload,
+  kybSubjectId?: string
 ): Promise<WebhookVerificationResult> {
   const supabase = await createClient();
 
@@ -385,6 +452,22 @@ async function handleSessionExpired(
       valid: false,
       error: 'Failed to update KYC session',
     };
+  }
+
+  if (kybSubjectId) {
+    const { error: kybUpdateError } = await supabase
+      .from('kyb_subjects')
+      .update({
+        kyc_status: 'expired',
+      })
+      .eq('id', kybSubjectId);
+
+    if (kybUpdateError) {
+      console.error(
+        '[Webhook Handler] Failed to update KYB subject KYC fields (expired):',
+        kybUpdateError
+      );
+    }
   }
 
   // TODO: Send email with "Create new verification" link

@@ -21,6 +21,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, AlertCircle, MapPin, Building2, Phone, Mail, User, FileText } from 'lucide-react';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
+import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 
 type Step = 'coverage' | 'details' | 'packages' | 'review' | 'success';
 
@@ -56,6 +57,8 @@ function QuoteRequestFormContent() {
   const [error, setError] = useState<string | null>(null);
   const [agentInfo, setAgentInfo] = useState<AgentInfo | null>(null);
   const [isPublic, setIsPublic] = useState(true);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [showCoverageUnavailablePrompt, setShowCoverageUnavailablePrompt] = useState(false);
 
   // Form data
   const [address, setAddress] = useState('');
@@ -129,9 +132,11 @@ function QuoteRequestFormContent() {
           available: true,
           packages: data.packages || []
         });
+        setShowCoverageUnavailablePrompt(false);
         setStep('details');
       } else {
         setError(data.error || 'No coverage available at this address');
+        setShowCoverageUnavailablePrompt(true);
       }
     } catch (err) {
       setError('Failed to check coverage. Please try again.');
@@ -318,12 +323,37 @@ function QuoteRequestFormContent() {
                     if (location.latitude && location.longitude) {
                       setCoordinates({ lat: location.latitude, lng: location.longitude });
                     }
+                    setShowCoverageUnavailablePrompt(false);
+                    setError(null);
                   }}
                   placeholder="Enter street address, suburb, city"
                   className="w-full"
                   showLocationButton={true}
                 />
               </div>
+
+              {/* Coverage Unavailable - Suggest Map Selection */}
+              {showCoverageUnavailablePrompt && (
+                <Alert className="border-orange-200 bg-orange-50">
+                  <AlertCircle className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-800">
+                    <p className="font-semibold mb-2">Can't find coverage at this address?</p>
+                    <p className="text-sm mb-3">
+                      Try selecting your exact location on a map for more accurate results.
+                    </p>
+                    <Button
+                      onClick={() => setShowMapModal(true)}
+                      variant="outline"
+                      size="sm"
+                      className="border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Select Location on Map
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Button
                 onClick={handleCoverageCheck}
                 disabled={loading || !address.trim()}
@@ -335,6 +365,22 @@ function QuoteRequestFormContent() {
             </CardContent>
           </Card>
         )}
+
+        {/* Interactive Map Modal */}
+        <InteractiveCoverageMapModal
+          isOpen={showMapModal}
+          onClose={() => setShowMapModal(false)}
+          onSearch={(address, coords) => {
+            setAddress(address);
+            setCoordinates(coords);
+            setShowCoverageUnavailablePrompt(false);
+            setError(null);
+            setShowMapModal(false);
+          }}
+          initialAddress={address}
+          initialCoordinates={coordinates}
+          layout="horizontal"
+        />
 
         {/* Step: Customer Details */}
         {step === 'details' && (

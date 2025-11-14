@@ -1120,79 +1120,40 @@ All skills auto-load when relevant keywords are mentioned. Manual invocation: `/
 7. **supabase-fetch** - Database queries
 
 **Full documentation**: `.claude/skills/README.md`
-- ⛬  ✅ ROOT CAUSE FIXED! Deployed to Production (Commit: `ac642e8`)
 
-   🔍 What Was Wrong
+## Recent Bug Fixes (Reference)
 
-   The dashboard page was sending authentication in the Authorization header, but the API was only checking cookies. This mismatch
-   caused the 401 errors.
+### Dashboard 401 Authentication Fix (Nov 2025)
+**Fixed in**: Commit `ac642e8`
 
-   Client Side (Dashboard Page):
+**Issue**: Dashboard API returned 401 errors despite valid authentication
 
-   javascript
-     fetch('/api/dashboard/summary', {
-       headers: {
-         'Authorization': `Bearer ${session.access_token}`  // ✅ Sends token
-       }
-     })
+**Root Cause**: API only checked cookies, ignored Authorization header sent by client
 
-   Server Side (API - Before Fix):
+**Solution**: API now checks BOTH authentication methods:
+1. Authorization header first (client-side fetch with Bearer token)
+2. Cookies as fallback (SSR/middleware compatibility)
 
-   javascript
-     // ❌ Only checked cookies, ignored Authorization header
-     const sessionClient = await createClientWithSession();
-     const { data: { session } } = await sessionClient.auth.getSession();
+**Pattern**: Always check both auth methods in API routes for maximum compatibility
 
-   ✨ The Fix
+### Quote Edit Save Failure (Nov 2025)
+**Fixed in**: Commit `88b821b`
 
-   API Now Checks BOTH Authentication Methods:
+**Issue**: Quote edit form showed "Failed to update quote" error
 
-   1. Authorization Header First (for client-side fetch)
-     •  Validates Bearer token using supabase.auth.getUser(token)
-     •  This is what the dashboard sends ✅
+**Root Cause**: Database column name mismatch - API tried to update `notes` column but database has `admin_notes` and `customer_notes`
 
-   2. Cookies as Fallback (for SSR/middleware)
-     •  Uses createClientWithSession()
-     •  Maintains backward compatibility
+**Solution**: Changed API to update `admin_notes` instead of non-existent `notes` column
 
-   📦 Deployment Status
+**Pattern**: Always verify database schema matches API field names before deployment
 
-   Commits Deployed:
-   •  114071e - Middleware + privacy link fixes
-   •  ac642e8 - Authorization header fix (the critical one)
+### Quote Page Timeouts (Nov 2025)
+**Fixed in**: Commits `df9cf64`, `ae3386d`, `c6df5d4`
 
-   Vercel Building: https://vercel.com/jdewee-livecoms-projects/circletel
+**Issue**: Quote detail, preview, and edit pages timed out after 60 seconds
 
-   🧪 Testing After Deployment (3-5 min)
+**Root Cause**: Next.js page routes (not just API routes) are serverless functions in Vercel and need explicit timeout configuration in `vercel.json`
 
-   Once Vercel shows "Deployment Ready":
+**Solution**: Added all quote page routes to `vercel.json` with `maxDuration: 60` and `memory: 1024`
 
-   1. Clear Browser Cache & Cookies:
-
-     Chrome: Ctrl+Shift+Delete → Last hour → Clear data
-
-   2. Test Login & Dashboard:
-
-     URL: https://www.circletel.co.za/auth/login
-     User: jeffrey.de.wee@circletel.co.za
-     Password: a35kK4qCc3sVfj2!
-
-   3. Expected Results:
-   •  ✅ Login successful
-   •  ✅ Dashboard loads with data
-   •  ✅ No 401 errors in console
-   •  ✅ See services, billing, orders
-
-   4. Check Console for Success Logs:
-
-     ✅ [Dashboard Summary API] Using token from Authorization header
-     ✅ [Dashboard Summary API] ✅ Token validated for user: [user-id]
-     ✅ Dashboard data received: Object
-
-   🎯 Why This Will Work
-
-   Before: API ignored the token the client was sending
-   After: API validates the token the client sends
-
-   The dashboard was already doing the right thing - we just made the API listen!
-- Always use available skills in .claude
+**Pattern**: Every Next.js page route needs Vercel configuration, not just API routes

@@ -43,9 +43,11 @@ export async function createKYCSessionForQuote(
   const supabase = await createClient();
 
   // 1. Fetch quote details
+  // NOTE: The business_quotes table does not have a generic total_amount column.
+  // We use total_monthly as the primary pricing signal for KYC flow decisions.
   const { data: quote, error: quoteError } = await supabase
     .from('business_quotes')
-    .select('id, total_amount, customer_type, customer_id')
+    .select('id, total_monthly, customer_type, customer_id')
     .eq('id', quoteId)
     .single();
 
@@ -54,15 +56,19 @@ export async function createKYCSessionForQuote(
     throw new Error(`Quote not found: ${quoteId}`);
   }
 
-  // 2. Determine KYC flow type based on quote amount
-  const flowType = determineFlowType(quote.total_amount, quote.customer_type);
+  // 2. Normalise customer type for KYC purposes
+  const kycUserType: 'business' | 'consumer' =
+    quote.customer_type === 'consumer' ? 'consumer' : 'business';
+
+  // 3. Determine KYC flow type based on quote monthly total
+  const flowType = determineFlowType(quote.total_monthly, kycUserType);
   const diditFlowType = mapFlowTypeToDidit(flowType);
 
   console.log(
-    `[Session Manager] Creating ${flowType} KYC session for quote ${quoteId} (R${quote.total_amount})`
+    `[Session Manager] Creating ${flowType} KYC session for quote ${quoteId} (R${quote.total_monthly} p/m)`
   );
 
-  // 3. Build Didit session request
+  // 4. Build Didit session request
   const sessionRequest: DiditSessionRequest = {
     type: 'kyc',
     jurisdiction: 'ZA',
@@ -70,14 +76,14 @@ export async function createKYCSessionForQuote(
     features: ['id_verification', 'document_extraction', 'liveness', 'aml'],
     metadata: {
       quote_id: quoteId,
-      user_type: quote.customer_type,
-      quote_amount: quote.total_amount,
+      user_type: kycUserType,
+      quote_amount: quote.total_monthly,
     },
     redirect_url: WebhookUrls.kycCompleted(quoteId),
     webhook_url: WebhookUrls.didit(),
   };
 
-  // 4. Create session via Didit API
+  // 5. Create session via Didit API
   let diditResponse;
   try {
     diditResponse = await createSession(sessionRequest);
@@ -86,12 +92,12 @@ export async function createKYCSessionForQuote(
     throw new Error('Failed to create KYC session with Didit');
   }
 
-  // 5. Store session in database
+  // 6. Store session in database
   const { error: insertError } = await supabase.from('kyc_sessions').insert({
     quote_id: quoteId,
     didit_session_id: diditResponse.sessionId,
     flow_type: flowType,
-    user_type: quote.customer_type,
+    user_type: kycUserType,
     status: 'not_started',
     created_at: new Date().toISOString(),
   });
@@ -105,7 +111,7 @@ export async function createKYCSessionForQuote(
     `[Session Manager] KYC session created: ${diditResponse.sessionId} (${flowType})`
   );
 
-  // 6. Return session details
+  // 7. Return session details
   return {
     sessionId: diditResponse.sessionId,
     verificationUrl: diditResponse.verificationUrl,
@@ -242,4 +248,114 @@ export async function getKYCSessionStatus(quoteId: string): Promise<{
   }
 
   return session;
+}
+
+export async function createKYCSessionForKYBSubject(
+  subjectId: string,
+  expectedType?: 'ubo' | 'director'
+): Promise<KYCSessionCreationResult> {
+  const supabase = await createClient();
+
+  const { data: subject, error: subjectError } = await supabase
+    .from('kyb_subjects')
+    .select('id, quote_id, subject_type')
+    .eq('id', subjectId)
+    .single();
+
+  if (subjectError || !subject) {
+    console.error(`[Session Manager] KYB subject not found: ${subjectId}`, subjectError);
+    throw new Error(`KYB subject not found: ${subjectId}`);
+  }
+
+  if (expectedType && subject.subject_type !== expectedType) {
+    console.error(
+      `[Session Manager] KYB subject type mismatch for ${subjectId}: expected ${expectedType}, got ${subject.subject_type}`
+    );
+    throw new Error('KYB subject type mismatch');
+  }
+
+  const { data: quote, error: quoteError } = await supabase
+    .from('business_quotes')
+    .select('id, total_monthly, customer_type, customer_id')
+    .eq('id', subject.quote_id)
+    .single();
+
+  if (quoteError || !quote) {
+    console.error(
+      `[Session Manager] Quote not found for KYB subject ${subjectId}: ${subject.quote_id}`,
+      quoteError
+    );
+    throw new Error(`Quote not found for KYB subject: ${subjectId}`);
+  }
+
+  const kycUserType: 'business' | 'consumer' =
+    quote.customer_type === 'consumer' ? 'consumer' : 'business';
+
+  const flowType = determineFlowType(quote.total_monthly, kycUserType);
+  const diditFlowType = mapFlowTypeToDidit(flowType);
+
+  console.log(
+    `[Session Manager] Creating ${flowType} KYB KYC session for subject ${subjectId} on quote ${subject.quote_id}`
+  );
+
+  const sessionRequest: DiditSessionRequest = {
+    type: 'kyc',
+    jurisdiction: 'ZA',
+    flow: diditFlowType,
+    features: ['id_verification', 'document_extraction', 'liveness', 'aml'],
+    metadata: {
+      quote_id: quote.id,
+      user_type: kycUserType,
+      quote_amount: quote.total_monthly,
+      context: 'kyb_subject',
+      subject_type: subject.subject_type as 'ubo' | 'director',
+      kyb_subject_id: subject.id,
+    },
+    redirect_url: WebhookUrls.kycCompleted(quote.id),
+    webhook_url: WebhookUrls.didit(),
+  };
+
+  let diditResponse;
+  try {
+    diditResponse = await createSession(sessionRequest);
+  } catch (error) {
+    console.error('[Session Manager] Didit API error (KYB subject):', error);
+    throw new Error('Failed to create KYB KYC session with Didit');
+  }
+
+  const { error: insertError } = await supabase.from('kyc_sessions').insert({
+    quote_id: quote.id,
+    didit_session_id: diditResponse.sessionId,
+    flow_type: flowType,
+    user_type: kycUserType,
+    status: 'not_started',
+    created_at: new Date().toISOString(),
+  });
+
+  if (insertError) {
+    console.error('[Session Manager] Failed to store KYB KYC session:', insertError);
+    throw new Error('Failed to store KYB KYC session in database');
+  }
+
+  const { error: subjectUpdateError } = await supabase
+    .from('kyb_subjects')
+    .update({
+      didit_session_id: diditResponse.sessionId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', subjectId);
+
+  if (subjectUpdateError) {
+    console.error(
+      '[Session Manager] Failed to update KYB subject with session id:',
+      subjectUpdateError
+    );
+  }
+
+  return {
+    sessionId: diditResponse.sessionId,
+    verificationUrl: diditResponse.verificationUrl,
+    flowType,
+    expiresAt: diditResponse.expiresAt,
+  };
 }
