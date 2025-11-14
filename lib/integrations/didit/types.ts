@@ -166,9 +166,15 @@ export interface ExtractedKYCData {
  * Headers: { 'X-Didit-Signature': '<HMAC-SHA256-signature>' }
  */
 export interface DiditWebhookPayload {
-  event: 'verification.completed' | 'verification.failed' | 'session.abandoned' | 'session.expired';
-  sessionId: string;
-  timestamp: string; // ISO 8601
+  event?:
+    | 'verification.completed'
+    | 'verification.failed'
+    | 'session.abandoned'
+    | 'session.expired'
+    | 'status.updated'
+    | 'data.updated';
+  sessionId?: string;
+  timestamp?: string | number; // ISO 8601 or unix seconds
 
   // Optional vendor data echoed by Didit (JSON string containing session metadata)
   vendor_data?: string;

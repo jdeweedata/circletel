@@ -106,7 +106,10 @@ export function verifyDiditWebhook(payload: string, signature: string): boolean 
 export async function processDiditWebhook(
   payload: DiditWebhookPayload
 ): Promise<WebhookVerificationResult> {
-  const { event, timestamp, result, data, error } = payload;
+  const { timestamp, result, data, error } = payload;
+
+  const rawEvent = (payload as any).event || (payload as any).webhook_type;
+  const event = rawEvent as DiditWebhookPayload['event'] | undefined;
 
   const sessionId = (payload as any).sessionId || (payload as any).session_id;
 
@@ -184,6 +187,9 @@ export async function processDiditWebhook(
 
     case 'session.expired':
       return handleSessionExpired(session.id, payload, kybSubjectId);
+
+    case 'status.updated':
+      return handleStatusUpdated(session.id, payload, kybSubjectId);
 
     default:
       console.warn(`[Webhook Handler] Unknown event type: ${event}`);
@@ -311,6 +317,121 @@ async function handleVerificationCompleted(
 
   // TODO: Trigger contract generation if auto-approved (low risk)
   // This will be implemented in Task Group 6
+
+  return {
+    valid: true,
+    sessionId,
+  };
+}
+
+async function handleStatusUpdated(
+  sessionId: string,
+  rawPayload: DiditWebhookPayload,
+  kybSubjectId?: string
+): Promise<WebhookVerificationResult> {
+  const supabase = await createClient();
+
+  const diditStatusRaw = (rawPayload as any).status as string | undefined;
+  const normalizedStatus = diditStatusRaw
+    ? diditStatusRaw.toLowerCase().replace(/\s+/g, '_')
+    : undefined;
+
+  let kycStatus: 'not_started' | 'in_progress' | 'completed' | 'abandoned' =
+    'in_progress';
+  let verificationResult: 'approved' | 'declined' | 'pending_review' | null =
+    null;
+  let riskTier: 'low' | 'medium' | 'high' | null = null;
+  let completedAt: string | null = null;
+
+  switch (normalizedStatus) {
+    case 'approved':
+      kycStatus = 'completed';
+      verificationResult = 'approved';
+      riskTier = 'low';
+      completedAt = new Date().toISOString();
+      break;
+    case 'declined':
+    case 'rejected':
+      kycStatus = 'completed';
+      verificationResult = 'declined';
+      riskTier = 'high';
+      completedAt = new Date().toISOString();
+      break;
+    case 'in_review':
+      kycStatus = 'in_progress';
+      verificationResult = 'pending_review';
+      riskTier = 'medium';
+      break;
+    case 'abandoned':
+      kycStatus = 'abandoned';
+      completedAt = new Date().toISOString();
+      break;
+    case 'expired':
+    case 'kyc_expired':
+      kycStatus = 'abandoned';
+      completedAt = new Date().toISOString();
+      break;
+    default:
+      kycStatus = 'in_progress';
+      break;
+  }
+
+  const updatePayload: Record<string, unknown> = {
+    status: kycStatus,
+    webhook_received_at: new Date().toISOString(),
+    raw_webhook_payload: rawPayload,
+  };
+
+  if (verificationResult) {
+    updatePayload.verification_result = verificationResult;
+  }
+
+  if (riskTier) {
+    updatePayload.risk_tier = riskTier;
+  }
+
+  if (completedAt) {
+    updatePayload.completed_at = completedAt;
+  }
+
+  const { error: updateError } = await supabase
+    .from('kyc_sessions')
+    .update(updatePayload)
+    .eq('id', sessionId);
+
+  if (updateError) {
+    console.error('[Webhook Handler] Failed to update session (status.updated):', updateError);
+    return {
+      valid: false,
+      error: 'Failed to update KYC session from status.updated',
+    };
+  }
+
+  if (kybSubjectId && (verificationResult || riskTier)) {
+    const kybUpdate: Record<string, unknown> = {};
+
+    if (verificationResult) {
+      kybUpdate.kyc_status = verificationResult;
+    }
+
+    if (riskTier) {
+      kybUpdate.risk_tier = riskTier;
+    }
+
+    if (Object.keys(kybUpdate).length > 0) {
+      const { error: kybUpdateError } = await supabase
+        .from('kyb_subjects')
+        .update(kybUpdate)
+        .eq('id', kybSubjectId);
+
+      if (kybUpdateError) {
+        console.error(
+          '[Webhook Handler] Failed to update KYB subject KYC fields (status.updated):',
+          kybUpdateError
+        );
+      }
+    }
+  }
 
   return {
     valid: true,
