@@ -103,8 +103,19 @@ export async function createKYCSessionForQuote(
   });
 
   if (insertError) {
-    console.error('[Session Manager] Failed to store session:', insertError);
-    throw new Error('Failed to store KYC session in database');
+    if (
+      insertError.code === '23505' &&
+      typeof insertError.message === 'string' &&
+      insertError.message.includes('kyc_sessions_didit_session_id_key')
+    ) {
+      console.warn(
+        '[Session Manager] KYC session already exists for Didit session ID, continuing:',
+        diditResponse.sessionId
+      );
+    } else {
+      console.error('[Session Manager] Failed to store session:', insertError);
+      throw new Error('Failed to store KYC session in database');
+    }
   }
 
   console.log(
@@ -333,8 +344,19 @@ export async function createKYCSessionForKYBSubject(
   });
 
   if (insertError) {
-    console.error('[Session Manager] Failed to store KYB KYC session:', insertError);
-    throw new Error('Failed to store KYB KYC session in database');
+    if (
+      insertError.code === '23505' &&
+      typeof insertError.message === 'string' &&
+      insertError.message.includes('kyc_sessions_didit_session_id_key')
+    ) {
+      console.warn(
+        '[Session Manager] KYB KYC session already exists for Didit session ID, continuing:',
+        diditResponse.sessionId
+      );
+    } else {
+      console.error('[Session Manager] Failed to store KYB KYC session:', insertError);
+      throw new Error('Failed to store KYB KYC session in database');
+    }
   }
 
   const { error: subjectUpdateError } = await supabase
