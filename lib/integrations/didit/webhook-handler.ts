@@ -106,13 +106,25 @@ export function verifyDiditWebhook(payload: string, signature: string): boolean 
 export async function processDiditWebhook(
   payload: DiditWebhookPayload
 ): Promise<WebhookVerificationResult> {
-  const { event, sessionId, timestamp, result, data, error } = payload;
+  const { event, timestamp, result, data, error } = payload;
+
+  const sessionId = (payload as any).sessionId || (payload as any).session_id;
 
   console.log(
     `[Webhook Handler] Processing event: ${event} for session ${sessionId} at ${timestamp}`
   );
 
   const supabase = await createClient();
+
+  if (!sessionId) {
+    const errorMsg =
+      'Didit webhook payload missing session identifier (sessionId/session_id)';
+    console.error('[Webhook Handler]', errorMsg);
+    return {
+      valid: false,
+      error: errorMsg,
+    };
+  }
 
   let kybSubjectId: string | undefined;
   if (payload.vendor_data) {
