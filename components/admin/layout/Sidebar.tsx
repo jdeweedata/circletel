@@ -122,6 +122,12 @@ const navigation = [
     description: 'Review customer verification documents'
   },
   {
+    name: 'KYB Compliance',
+    href: '/admin/compliance/kyb',
+    icon: ShieldCheck,
+    description: 'View KYB subject KYC status and risk'
+  },
+  {
     name: 'Notifications',
     href: '/admin/notifications',
     icon: Bell,
