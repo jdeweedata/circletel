@@ -17,6 +17,7 @@ import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
  * POST handler - Initiate test payment
  */
 export async function POST(request: NextRequest) {
+  const requestStart = Date.now();
   try {
     const body = await request.json();
     const { amount, currency = 'ZAR', reference, customer_email, metadata } = body;
@@ -38,6 +39,11 @@ export async function POST(request: NextRequest) {
 
     // Get payment provider
     const provider = getPaymentProvider();
+    const providerResolvedAt = Date.now();
+    console.log('[Test Payment] Provider resolved', {
+      provider: provider.name,
+      ms_since_start: providerResolvedAt - requestStart
+    });
 
     // Check if provider is configured
     if (!provider.isConfigured()) {
@@ -61,6 +67,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
 
     // Initiate payment via provider
+    const initiateStart = Date.now();
     const paymentResult = await provider.initiate({
       amount,
       currency,
@@ -76,6 +83,13 @@ export async function POST(request: NextRequest) {
         test: true,
         test_reference: reference
       }
+    });
+    const initiateEnd = Date.now();
+    console.log('[Test Payment] Provider.initiate completed', {
+      duration_ms: initiateEnd - initiateStart,
+      total_ms: initiateEnd - requestStart,
+      provider: provider.name,
+      success: paymentResult.success
     });
 
     if (!paymentResult.success) {
@@ -105,6 +119,7 @@ export async function POST(request: NextRequest) {
 
     // Create payment transaction record
     const supabase = await createClient();
+    const dbInsertStart = Date.now();
     const { error: transactionError } = await supabase
       .from('payment_transactions')
       .insert({
@@ -120,6 +135,12 @@ export async function POST(request: NextRequest) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
+    const dbInsertEnd = Date.now();
+    console.log('[Test Payment] Transaction insert completed', {
+      duration_ms: dbInsertEnd - dbInsertStart,
+      total_ms: dbInsertEnd - requestStart,
+      hasError: !!transactionError
+    });
 
     if (transactionError) {
       console.error('[Test Payment] Transaction record error:', transactionError);
@@ -139,7 +160,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Test Payment] Error:', error);
+    console.error('[Test Payment] Error:', {
+      error,
+      total_ms: Date.now() - requestStart
+    });
     return NextResponse.json(
       {
         success: false,
