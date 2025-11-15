@@ -10,6 +10,7 @@ import {
   logPublishAudit,
 } from '@/lib/catalog/publish';
 import { syncWithRetry } from '@/lib/integrations/zoho/sync-retry-service';
+import { syncServicePackageToZohoBilling } from '@/lib/integrations/zoho/billing-sync-service';
 
 /**
  * POST /api/admin/products/[id]/publish
@@ -126,12 +127,93 @@ export async function POST(
       console.error('[publish] Zoho CRM product sync error:', zohoError);
     }
 
+    // 8. Best-effort sync to Zoho Billing (Plans and Items)
+    let zohoBillingSync = null;
+    try {
+      console.log('[publish] Starting Zoho Billing sync for service_package:', servicePackage.id);
+
+      const billingResult = await syncServicePackageToZohoBilling(servicePackage);
+
+      if (billingResult.success) {
+        // Update product_integrations table with Billing IDs
+        const supabaseAdmin = await createAdminClient();
+
+        const { error: updateError } = await supabaseAdmin
+          .from('product_integrations')
+          .update({
+            zoho_billing_plan_id: billingResult.planId,
+            zoho_billing_item_id: billingResult.installationItemId,
+            zoho_billing_hardware_item_id: billingResult.hardwareItemId || null,
+            zoho_billing_sync_status: 'ok',
+            zoho_billing_last_synced_at: new Date().toISOString(),
+            zoho_billing_last_sync_error: null,
+          })
+          .eq('service_package_id', servicePackage.id);
+
+        if (updateError) {
+          console.error('[publish] Failed to update product_integrations with Billing IDs:', updateError);
+        } else {
+          console.log('[publish] Zoho Billing sync successful:', {
+            plan_id: billingResult.planId,
+            installation_item_id: billingResult.installationItemId,
+            hardware_item_id: billingResult.hardwareItemId,
+          });
+        }
+
+        zohoBillingSync = {
+          success: true,
+          planId: billingResult.planId,
+          installationItemId: billingResult.installationItemId,
+          hardwareItemId: billingResult.hardwareItemId,
+        };
+      } else {
+        // Sync failed - update status
+        const supabaseAdmin = await createAdminClient();
+
+        await supabaseAdmin
+          .from('product_integrations')
+          .update({
+            zoho_billing_sync_status: 'failed',
+            zoho_billing_last_sync_error: billingResult.error || 'Unknown error',
+          })
+          .eq('service_package_id', servicePackage.id);
+
+        zohoBillingSync = {
+          success: false,
+          error: billingResult.error,
+        };
+      }
+    } catch (billingError: any) {
+      console.error('[publish] Zoho Billing sync error:', billingError);
+
+      // Update product_integrations with failure status
+      try {
+        const supabaseAdmin = await createAdminClient();
+
+        await supabaseAdmin
+          .from('product_integrations')
+          .update({
+            zoho_billing_sync_status: 'failed',
+            zoho_billing_last_sync_error: billingError?.message || String(billingError),
+          })
+          .eq('service_package_id', servicePackage.id);
+      } catch (dbError) {
+        console.error('[publish] Failed to update product_integrations with error:', dbError);
+      }
+
+      zohoBillingSync = {
+        success: false,
+        error: billingError?.message || String(billingError),
+      };
+    }
+
     return NextResponse.json({
       success: true,
       data: servicePackage,
       metadata: {
         wasCreated,
         zoho_crm: zohoSync,
+        zoho_billing: zohoBillingSync,
       },
     });
   } catch (error: any) {
