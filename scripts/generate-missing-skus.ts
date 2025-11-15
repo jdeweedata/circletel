@@ -21,8 +21,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 
-// Load environment variables from .env file
-config();
+// Load environment variables from .env.local (Next.js convention)
+config({ path: '.env.local' });
 
 // Parse command-line arguments
 const args = process.argv.slice(2);
