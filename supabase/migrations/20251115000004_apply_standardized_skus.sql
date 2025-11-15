@@ -67,5 +67,7 @@ SELECT
   MAX(sku) AS last_sku
 FROM service_packages
 WHERE sku LIKE '___-___-___'
-GROUP BY provider, category
-ORDER BY provider, category;
+GROUP BY
+  SUBSTRING(sku FROM 1 FOR POSITION('-' IN sku) - 1),
+  SUBSTRING(sku FROM POSITION('-' IN sku) + 1 FOR POSITION('-' IN SUBSTRING(sku FROM POSITION('-' IN sku) + 1)) - 1)
+ORDER BY 1, 2;
