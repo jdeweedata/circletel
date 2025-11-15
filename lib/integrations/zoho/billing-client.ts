@@ -7,7 +7,7 @@
  * Epic 3.2 - Zoho Billing Integration
  */
 
-import { ZohoApiClient } from '@/lib/zoho-api-client';
+import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import type {
   ZohoBillingPlan,
   CreatePlanPayload,
@@ -23,7 +23,7 @@ import type {
   ZohoBillingError,
 } from './billing-types';
 
-export class ZohoBillingClient extends ZohoApiClient {
+export class ZohoBillingClient extends ZohoAPIClient {
   private readonly organizationId: string;
 
   constructor() {
