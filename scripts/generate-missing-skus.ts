@@ -1,12 +1,21 @@
 /**
- * Auto-Generate SKUs for Service Packages
+ * Auto-Generate Standardized SKUs for Service Packages
  *
- * Generates unique SKUs for service_packages that don't have them
- * SKU format: Slugified package name in uppercase
+ * Generates unique, standardized SKUs for service_packages that don't have them
+ *
+ * SKU Format: {PROVIDER}-{CATEGORY}-{COUNTER}
+ * - PROVIDER: MTN, SKY, BIZ, HOME, WLS, GEN
+ * - CATEGORY: 5G, LTE, FBR (Fibre), WLS (Wireless), BIZ (Business), HME (Home), PKG (Generic)
+ * - COUNTER: 3-digit sequential number (001, 002, 003...)
+ *
+ * Examples:
+ *   MTN Home 5G → MTN-5G-001
+ *   SkyFibre Home Lite → SKY-FBR-001
+ *   BizFibre Connect Pro → BIZ-FBR-001
  *
  * Usage:
- *   npx tsx scripts/generate-missing-skus.ts --dry-run
- *   npx tsx scripts/generate-missing-skus.ts
+ *   npm run zoho:generate-skus:dry-run  # Preview changes
+ *   npm run zoho:generate-skus          # Apply changes
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -28,32 +37,79 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
- * Generate SKU from package name
- * Converts to uppercase, removes special chars, replaces spaces with hyphens
+ * Extract provider from package name
  */
-function generateSKUFromName(name: string): string {
-  return name
-    .toUpperCase()
-    .replace(/[^A-Z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-')          // Replace spaces with hyphens
-    .replace(/-+/g, '-')           // Remove duplicate hyphens
-    .replace(/^-|-$/g, '');        // Remove leading/trailing hyphens
+function extractProvider(name: string, provider?: string): string {
+  if (provider) return provider.toUpperCase();
+
+  const nameLower = name.toLowerCase();
+  if (nameLower.includes('mtn')) return 'MTN';
+  if (nameLower.includes('skyfibre') || nameLower.includes('sky')) return 'SKY';
+  if (nameLower.includes('bizfibre')) return 'BIZ';
+  if (nameLower.includes('homefibre')) return 'HOME';
+  if (nameLower.includes('wireless')) return 'WLS';
+
+  return 'GEN'; // Generic
 }
 
 /**
- * Ensure SKU is unique by appending a number if necessary
+ * Extract category from package name
  */
-async function ensureUniqueSKU(baseSKU: string, existingSKUs: Set<string>): Promise<string> {
-  let sku = baseSKU;
-  let counter = 1;
+function extractCategory(name: string, serviceType?: string): string {
+  const nameLower = name.toLowerCase();
 
-  // Check against existing SKUs in database and in current batch
-  while (existingSKUs.has(sku)) {
-    sku = `${baseSKU}-${counter.toString().padStart(2, '0')}`;
-    counter++;
+  // Service type priority
+  if (serviceType) {
+    const type = serviceType.toLowerCase();
+    if (type.includes('5g')) return '5G';
+    if (type.includes('lte')) return 'LTE';
+    if (type.includes('fibre')) return 'FBR';
+    if (type.includes('wireless')) return 'WLS';
   }
 
-  return sku;
+  // Fallback to name analysis
+  if (nameLower.includes('5g')) return '5G';
+  if (nameLower.includes('lte')) return 'LTE';
+  if (nameLower.includes('fibre')) return 'FBR';
+  if (nameLower.includes('wireless')) return 'WLS';
+  if (nameLower.includes('business') || nameLower.includes('biz')) return 'BIZ';
+  if (nameLower.includes('home')) return 'HME';
+
+  return 'PKG'; // Generic package
+}
+
+/**
+ * Generate standardized SKU
+ * Format: {PROVIDER}-{CATEGORY}-{COUNTER}
+ * Example: MTN-5G-001, SKY-FBR-042, BIZ-HME-015
+ */
+function generateStandardizedSKU(
+  name: string,
+  provider?: string,
+  serviceType?: string,
+  existingSKUs: Set<string> = new Set()
+): string {
+  const providerCode = extractProvider(name, provider);
+  const categoryCode = extractCategory(name, serviceType);
+
+  // Find next available counter for this provider-category combination
+  const prefix = `${providerCode}-${categoryCode}-`;
+  let counter = 1;
+
+  // Check existing SKUs to find the highest counter
+  for (const sku of existingSKUs) {
+    if (sku.startsWith(prefix)) {
+      const parts = sku.split('-');
+      if (parts.length === 3) {
+        const num = parseInt(parts[2], 10);
+        if (!isNaN(num) && num >= counter) {
+          counter = num + 1;
+        }
+      }
+    }
+  }
+
+  return `${prefix}${counter.toString().padStart(3, '0')}`;
 }
 
 /**
@@ -105,27 +161,30 @@ async function generateMissingSKUs() {
   console.log('');
 
   // 3. Generate SKUs for each package
-  const updates: Array<{ id: string; name: string; oldSKU: string | null; newSKU: string; status: string }> = [];
+  const updates: Array<{ id: string; name: string; oldSKU: string | null; newSKU: string; status: string; provider: string; serviceType: string }> = [];
 
   for (const pkg of packagesWithoutSKU) {
-    const baseSKU = generateSKUFromName(pkg.name);
-    const uniqueSKU = await ensureUniqueSKU(baseSKU, existingSKUs);
+    const newSKU = generateStandardizedSKU(pkg.name, pkg.provider, pkg.service_type, existingSKUs);
 
     // Add to existing SKUs set to prevent duplicates in this batch
-    existingSKUs.add(uniqueSKU);
+    existingSKUs.add(newSKU);
 
     updates.push({
       id: pkg.id,
       name: pkg.name,
       oldSKU: pkg.sku,
-      newSKU: uniqueSKU,
+      newSKU: newSKU,
       status: pkg.status,
+      provider: pkg.provider || 'N/A',
+      serviceType: pkg.service_type || 'N/A',
     });
 
     console.log(`📝 ${pkg.name}`);
-    console.log(`   Old SKU: ${pkg.sku || '(none)'}`);
-    console.log(`   New SKU: ${uniqueSKU}`);
-    console.log(`   Status:  ${pkg.status}`);
+    console.log(`   Provider:    ${pkg.provider || '(detected from name)'}`);
+    console.log(`   Service Type: ${pkg.service_type || '(detected from name)'}`);
+    console.log(`   Old SKU:      ${pkg.sku || '(none)'}`);
+    console.log(`   New SKU:      ${newSKU}`);
+    console.log(`   Status:       ${pkg.status}`);
     console.log('');
   }
 
