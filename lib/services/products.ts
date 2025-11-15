@@ -13,16 +13,16 @@ async function getSupabase() {
 }
 
 /**
- * @deprecated This service uses the legacy `products` table which is being phased out.
- * Use `service_packages` table instead via the publish pipeline:
- * admin_products → publish → service_packages
+ * ProductsService - Migrated to service_packages (Epic 1.6)
  *
- * See: docs/admin/PRODUCTS_TABLE_DEPRECATION.md
- * Epic 1.6 - Refactor consumer flows to rely only on service_packages
+ * This service now queries the canonical product catalogue table.
+ * For admin product management, use the publish pipeline:
+ * admin_products → publish → service_packages
  */
 export class ProductsService {
   /**
    * Get all products with filtering and pagination
+   * Migrated to service_packages - Epic 1.6
    */
   static async getProducts(
     filters: ProductFilters = {},
@@ -32,12 +32,12 @@ export class ProductsService {
     try {
       const supabase = await getSupabase();
       let query = supabase
-        .from('products')
+        .from('service_packages')
         .select('*', { count: 'exact' });
 
-      // Apply filters
+      // Apply filters (mapped to service_packages fields)
       if (filters.category) {
-        query = query.eq('category', filters.category);
+        query = query.eq('product_category', filters.category);  // service_packages uses product_category
       }
 
       if (filters.service_type) {
@@ -49,7 +49,7 @@ export class ProductsService {
       }
 
       if (filters.is_active !== undefined) {
-        query = query.eq('is_active', filters.is_active);
+        query = query.eq('active', filters.is_active);  // service_packages uses 'active'
       }
 
       if (filters.is_featured !== undefined) {
@@ -64,13 +64,13 @@ export class ProductsService {
         query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,sku.ilike.%${filters.search}%`);
       }
 
-      // Apply sorting
+      // Apply sorting (mapped to service_packages fields)
       switch (filters.sort_by) {
         case 'price_asc':
-          query = query.order('base_price_zar', { ascending: true });
+          query = query.order('price', { ascending: true });  // service_packages uses 'price'
           break;
         case 'price_desc':
-          query = query.order('base_price_zar', { ascending: false });
+          query = query.order('price', { ascending: false });
           break;
         case 'name_asc':
           query = query.order('name', { ascending: true });
@@ -82,7 +82,7 @@ export class ProductsService {
           query = query.order('updated_at', { ascending: false });
           break;
         default:
-          query = query.order('created_at', { ascending: false });
+          query = query.order('sort_order', { ascending: true, nullsLast: true });  // service_packages has sort_order
       }
 
       // Apply pagination
@@ -114,12 +114,13 @@ export class ProductsService {
 
   /**
    * Get a single product by ID
+   * Migrated to service_packages - Epic 1.6
    */
   static async getProduct(id: string): Promise<Product | null> {
     try {
       const supabase = await getSupabase();
       const { data, error } = await supabase
-        .from('products')
+        .from('service_packages')
         .select('*')
         .eq('id', id)
         .single();
@@ -138,12 +139,13 @@ export class ProductsService {
 
   /**
    * Get a product by slug
+   * Migrated to service_packages - Epic 1.6
    */
   static async getProductBySlug(slug: string): Promise<Product | null> {
     try {
       const supabase = await getSupabase();
       const { data, error } = await supabase
-        .from('products')
+        .from('service_packages')
         .select('*')
         .eq('slug', slug)
         .single();
@@ -282,13 +284,15 @@ export class ProductsService {
 
   /**
    * Toggle product active status
+   * Migrated to service_packages - Epic 1.6
    */
   static async toggleProductStatus(id: string, isActive: boolean): Promise<boolean> {
     try {
+      const supabase = await getSupabase();
       const { error } = await supabase
-        .from('products')
+        .from('service_packages')
         .update({
-          is_active: isActive,
+          active: isActive,  // service_packages uses 'active'
           status: isActive ? 'active' : 'inactive',
           updated_at: new Date().toISOString()
         })
@@ -340,6 +344,7 @@ export class ProductsService {
 
   /**
    * Get product analytics/stats
+   * Migrated to service_packages - Epic 1.6
    */
   static async getProductStats(): Promise<{
     total: number;
@@ -350,9 +355,10 @@ export class ProductsService {
     popular: number;
   }> {
     try {
+      const supabase = await getSupabase();
       const { data, error } = await supabase
-        .from('products')
-        .select('status, is_active, is_featured, is_popular');
+        .from('service_packages')
+        .select('status, active, is_featured, is_popular');  // service_packages uses 'active'
 
       if (error) {
         console.error('Error fetching product stats:', error);
@@ -361,7 +367,7 @@ export class ProductsService {
 
       const stats = {
         total: data.length,
-        active: data.filter(p => p.is_active).length,
+        active: data.filter(p => p.active || p.status === 'active').length,  // check both fields
         draft: data.filter(p => p.status === 'draft').length,
         archived: data.filter(p => p.status === 'archived').length,
         featured: data.filter(p => p.is_featured).length,
