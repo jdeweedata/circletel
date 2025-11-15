@@ -63,7 +63,8 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   private buildUrl(endpoint: string): string {
     const baseUrl = this.getBillingBaseUrl();
-    return `${baseUrl}${endpoint}?organization_id=${this.organizationId}`;
+    const separator = endpoint.includes('?') ? '&' : '?';
+    return `${baseUrl}${endpoint}${separator}organization_id=${this.organizationId}`;
   }
 
   /**
