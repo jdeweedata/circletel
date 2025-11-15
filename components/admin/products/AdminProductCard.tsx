@@ -23,7 +23,12 @@ import {
   GripVertical,
   ShoppingCart,
   Users,
-  BarChart3
+  BarChart3,
+  UploadCloud,
+  Cloud,
+  CloudOff,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -49,6 +54,8 @@ export interface AdminProductCardProps {
   onArchive?: (product: Product) => void;
   onPriceEdit?: (product: Product) => void;
   onViewAuditHistory?: (product: Product) => void;
+  onPublish?: (product: Product) => void;
+  onResync?: (product: Product) => void;
   hasEditPermission?: boolean;
   hasDeletePermission?: boolean;
   hasPricingPermission?: boolean;
@@ -60,6 +67,16 @@ export interface AdminProductCardProps {
     orders?: number;
     views?: number;
     revenue?: number;
+  };
+  integrationStatus?: {
+    zohoProductId?: string | null;
+    syncStatus?: 'ok' | 'failed' | 'pending' | null;
+    lastSyncedAt?: string | null;
+    lastSyncError?: string | null;
+    retryCount?: number;
+    nextRetryAt?: string | null;
+    lastRetryAt?: string | null;
+    errorDetails?: any;
   };
 }
 
@@ -101,6 +118,8 @@ export function AdminProductCard({
   onArchive,
   onPriceEdit,
   onViewAuditHistory,
+  onPublish,
+  onResync,
   hasEditPermission = false,
   hasDeletePermission = false,
   hasPricingPermission = false,
@@ -109,6 +128,7 @@ export function AdminProductCard({
   dragHandleProps,
   showStats = false,
   stats,
+  integrationStatus,
 }: AdminProductCardProps) {
   const formatPrice = (priceStr: string | number) => {
     const price = typeof priceStr === 'string' ? parseFloat(priceStr) : priceStr;
@@ -137,9 +157,117 @@ export function AdminProductCard({
     }
   };
 
-  // Extract provider info from product metadata
-  const providerCode = product.metadata?.provider_code || product.metadata?.provider || '';
-  const providerName = product.metadata?.provider_name || providerCode;
+  const getSyncStatusBadge = () => {
+    if (!integrationStatus) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge className="bg-gray-100 text-gray-600 border-gray-300 text-xs">
+                <CloudOff className="w-3 h-3 mr-1" />
+                Not Synced
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>Product has not been published to Zoho CRM</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    const { syncStatus, zohoProductId, lastSyncedAt, lastSyncError, retryCount, nextRetryAt } = integrationStatus;
+
+    switch (syncStatus) {
+      case 'ok':
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className="bg-green-50 text-green-700 border-green-200 text-xs cursor-help">
+                  <Cloud className="w-3 h-3 mr-1" />
+                  Synced
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="text-xs">
+                  <div className="font-semibold">Synced to Zoho CRM</div>
+                  {zohoProductId && <div className="text-gray-400">ID: {zohoProductId}</div>}
+                  {lastSyncedAt && (
+                    <div className="text-gray-400">
+                      Last synced: {new Date(lastSyncedAt).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      case 'failed':
+        const maxRetries = 5;
+        const isRetryScheduled = nextRetryAt && new Date(nextRetryAt) > new Date();
+        const hasExhaustedRetries = (retryCount ?? 0) >= maxRetries;
+
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className="bg-red-50 text-red-700 border-red-200 text-xs cursor-help">
+                  <AlertCircle className="w-3 h-3 mr-1" />
+                  Sync Failed
+                  {(retryCount ?? 0) > 0 && ` (${retryCount}/${maxRetries})`}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="text-xs max-w-xs">
+                  <div className="font-semibold text-red-700">Sync to Zoho CRM Failed</div>
+                  {lastSyncError && (
+                    <div className="text-gray-600 mt-1">{lastSyncError}</div>
+                  )}
+                  {isRetryScheduled && (
+                    <div className="text-blue-600 mt-1">
+                      ⏰ Auto-retry scheduled: {new Date(nextRetryAt!).toLocaleString()}
+                    </div>
+                  )}
+                  {hasExhaustedRetries && (
+                    <div className="text-orange-600 mt-1">
+                      ⚠️ Max retries reached. Manual re-sync required.
+                    </div>
+                  )}
+                  {onResync && !hasExhaustedRetries && (
+                    <div className="text-blue-600 mt-1">Click "Re-sync" to retry now</div>
+                  )}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      case 'pending':
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                  <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                  Syncing...
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>Sync to Zoho CRM in progress</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Extract provider info from product metadata and ensure string types
+  const providerCode = String(
+    (product.metadata?.provider_code as string | undefined) ??
+      (product.metadata?.provider as string | undefined) ??
+      ''
+  );
+  const providerName = String(
+    (product.metadata?.provider_name as string | undefined) ?? providerCode
+  );
 
   return (
     <div
@@ -251,6 +379,7 @@ export function AdminProductCard({
               <ProviderLogo
                 providerCode={providerCode}
                 providerName={providerName}
+                logoUrl=""
                 variant="grayscale"
                 size="small"
                 priority={false}
@@ -275,6 +404,7 @@ export function AdminProductCard({
           </h3>
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {getStatusBadge()}
+            {getSyncStatusBadge()}
             {product.is_featured && (
               <Badge className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
                 <Star className="w-3 h-3 mr-1 fill-current" />
@@ -442,6 +572,29 @@ export function AdminProductCard({
                 }}>
                   <History className="w-4 h-4 mr-2" />
                   View History
+                </DropdownMenuItem>
+              )}
+              {hasEditPermission && onPublish && product.source_admin_product_id && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPublish(product);
+                  }}
+                >
+                  <UploadCloud className="w-4 h-4 mr-2" />
+                  Publish to catalogue
+                </DropdownMenuItem>
+              )}
+              {hasEditPermission && onResync && integrationStatus && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onResync(product);
+                  }}
+                  className={integrationStatus.syncStatus === 'failed' ? 'text-orange-600' : ''}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Re-sync to Zoho
                 </DropdownMenuItem>
               )}
               {hasDeletePermission && onArchive && (

@@ -41,28 +41,65 @@ export class ZohoAPIClient {
     return `https://www.zoho${region}.com/${service}/api/v2`;
   }
 
-  private async refreshAccessToken(): Promise<string> {
+  private getAccountsUrl(): string {
+    const regionMap = {
+      US: 'https://accounts.zoho.com',
+      EU: 'https://accounts.zoho.eu',
+      IN: 'https://accounts.zoho.in',
+      AU: 'https://accounts.zoho.com.au',
+      CN: 'https://accounts.zoho.com.cn',
+    };
+
+    return regionMap[this.config.region || 'US'] || regionMap.US;
+  }
+
+  protected async refreshAccessToken(): Promise<string> {
     try {
-      const response = await fetch('https://accounts.zoho.com/oauth/v2/token', {
+      const accountsUrl = this.getAccountsUrl();
+
+      // Build request body - some OAuth providers require redirect_uri even for refresh
+      const params: Record<string, string> = {
+        grant_type: 'refresh_token',
+        refresh_token: this.config.refreshToken,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      };
+
+      // Add redirect_uri if available (required by some OAuth providers)
+      const redirectUri = process.env.ZOHO_REDIRECT_URI;
+      if (redirectUri) {
+        params.redirect_uri = redirectUri;
+      }
+
+      const response = await fetch(`${accountsUrl}/oauth/v2/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          refresh_token: this.config.refreshToken,
-          client_id: this.config.clientId,
-          client_secret: this.config.clientSecret,
-          grant_type: 'refresh_token',
-        }),
+        body: new URLSearchParams(params),
       });
 
       if (!response.ok) {
         throw new Error(`Token refresh failed: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
+
+      if (!data || typeof data.access_token !== 'string') {
+        const errorMessage =
+          (data && typeof data.error === 'string') || (data && typeof data.error_description === 'string')
+            ? `Zoho error: ${data.error || data.error_description}`
+            : 'Zoho token response missing access_token';
+        throw new Error(`Token refresh failed: ${errorMessage}`);
+      }
+
+      const expiresInSeconds =
+        typeof data.expires_in === 'number'
+          ? data.expires_in
+          : Number.parseInt(String(data.expires_in ?? '0'), 10) || 3600;
+
       this.accessToken = data.access_token;
-      this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+      this.tokenExpiry = Date.now() + expiresInSeconds * 1000;
 
       return this.accessToken!;
     } catch (error) {

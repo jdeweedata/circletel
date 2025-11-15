@@ -72,6 +72,7 @@ export default function AdminProducts() {
     featured: 0,
     popular: 0
   });
+  const [integrationStatus, setIntegrationStatus] = useState<Record<string, any>>({});
 
   // Debug logging for permissions
   useEffect(() => {
@@ -217,12 +218,65 @@ export default function AdminProducts() {
     }
   };
 
+  const fetchIntegrationStatus = async (productIds: string[]) => {
+    try {
+      const ids = productIds.join(',');
+      const response = await fetch(`/api/admin/products/integration-status?ids=${ids}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setIntegrationStatus(result.data);
+      } else {
+        console.error('Failed to fetch integration status:', result.error);
+      }
+    } catch (err) {
+      console.error('Error fetching integration status:', err);
+    }
+  };
+
+  const handleResync = async (product: Product) => {
+    try {
+      // Show loading state (could add a toast/notification here)
+      console.log('[Admin Products] Re-syncing product:', product.id);
+
+      // Trigger publish with force flag to re-sync to Zoho
+      const response = await fetch(`/api/admin/products/${product.id}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: true }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Refresh integration status for this product
+        await fetchIntegrationStatus([product.id]);
+
+        // Show success message (could use toast notification)
+        alert(`Product "${product.name}" re-synced successfully to Zoho CRM!`);
+      } else {
+        throw new Error(result.error || 'Failed to re-sync product');
+      }
+    } catch (err) {
+      console.error('Error re-syncing product:', err);
+      alert(`Failed to re-sync product: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
   }, [filters, pagination.page]);
 
   useEffect(() => {
     fetchStats();
+  }, [products]);
+
+  // Fetch integration status when products are loaded
+  useEffect(() => {
+    if (products.length > 0) {
+      const productIds = products.map(p => p.id);
+      fetchIntegrationStatus(productIds);
+    }
   }, [products]);
 
   // Debug permissions on mount
@@ -497,6 +551,38 @@ export default function AdminProducts() {
     }
   };
 
+  const handlePublish = async (product: Product) => {
+    try {
+      const adminProductId = product.source_admin_product_id ?? product.id;
+      const response = await fetch(`/api/admin/products/${adminProductId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        const errorMsg = data.error || data.details || 'Failed to publish product';
+        console.error('[Admin Products] Publish failed:', errorMsg);
+        setError(errorMsg);
+        alert(`Error: ${errorMsg}`);
+        return;
+      }
+
+      await fetchProducts();
+      await fetchStats();
+      alert('Product published to catalogue successfully');
+    } catch (err) {
+      console.error('[Admin Products] Error publishing product:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to publish product';
+      setError(errorMsg);
+      alert(`Error: ${errorMsg}`);
+    }
+  };
+
   // Individual product handlers
   const handleToggleStatus = async (product: Product) => {
     console.log('[Admin Products] Toggle status called for product:', product.id, 'Current status:', product.is_active);
@@ -525,8 +611,8 @@ export default function AdminProducts() {
         await fetchProducts();
         await fetchStats();
         // Show success toast if available
-        if (window.alert) {
-          alert(`Product ${newStatus ? 'activated' : 'deactivated'} successfully`);
+        if (typeof window !== 'undefined') {
+          window.alert(`Product ${newStatus ? 'activated' : 'deactivated'} successfully`);
         }
       } else {
         console.error('[Admin Products] Toggle failed:', data.error);
@@ -1011,6 +1097,9 @@ export default function AdminProducts() {
                                     }}
                                     onPriceEdit={handlePriceEdit}
                                     onViewAuditHistory={handleViewAuditHistory}
+                                    onPublish={handlePublish}
+                                    onResync={handleResync}
+                                    integrationStatus={integrationStatus[product.id]}
                                     hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
                                     hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
                                     hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
@@ -1060,6 +1149,7 @@ export default function AdminProducts() {
                 }}
                 onPriceEdit={handlePriceEdit}
                 onViewAuditHistory={handleViewAuditHistory}
+                onPublish={handlePublish}
                 hasEditPermission={hasPermission(PERMISSIONS.PRODUCTS.EDIT)}
                 hasDeletePermission={hasPermission(PERMISSIONS.PRODUCTS.DELETE)}
                 hasPricingPermission={hasPermission(PERMISSIONS.PRODUCTS.MANAGE_PRICING)}
