@@ -115,6 +115,14 @@ export class ZohoAPIClient {
     return this.accessToken;
   }
 
+  /**
+   * Get a valid access token (for use by child classes like ZohoBillingClient)
+   * @protected
+   */
+  protected async getAccessToken(): Promise<string> {
+    return this.getValidAccessToken();
+  }
+
   private async makeRequest<T = unknown>(
     service: string,
     endpoint: string,
