@@ -12,6 +12,14 @@ async function getSupabase() {
   return await createClient();
 }
 
+/**
+ * @deprecated This service uses the legacy `products` table which is being phased out.
+ * Use `service_packages` table instead via the publish pipeline:
+ * admin_products → publish → service_packages
+ *
+ * See: docs/admin/PRODUCTS_TABLE_DEPRECATION.md
+ * Epic 1.6 - Refactor consumer flows to rely only on service_packages
+ */
 export class ProductsService {
   /**
    * Get all products with filtering and pagination
