@@ -105,9 +105,15 @@ export class ProductsClientService {
 
   /**
    * Get a single product by ID (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getProduct(id: string): Promise<Product | null> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getProduct() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -128,9 +134,15 @@ export class ProductsClientService {
 
   /**
    * Get a product by slug (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getProductBySlug(slug: string): Promise<Product | null> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getProductBySlug() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -151,12 +163,18 @@ export class ProductsClientService {
 
   /**
    * Get products by category (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getProductsByCategory(
     category: string,
     limit: number = 10
   ): Promise<Product[]> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getProductsByCategory() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -179,12 +197,18 @@ export class ProductsClientService {
 
   /**
    * Get products by service type (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getProductsByServiceType(
     serviceType: string,
     limit: number = 10
   ): Promise<Product[]> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getProductsByServiceType() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -207,9 +231,15 @@ export class ProductsClientService {
 
   /**
    * Get featured products (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getFeaturedProducts(limit: number = 6): Promise<Product[]> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getFeaturedProducts() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -232,9 +262,15 @@ export class ProductsClientService {
 
   /**
    * Get popular products (client-side)
+   * @deprecated Uses legacy products table - migrate to service_packages
    */
   static async getPopularProducts(limit: number = 6): Promise<Product[]> {
     try {
+      console.warn(
+        '[DEPRECATED] ProductsClientService.getPopularProducts() uses legacy products table. ' +
+        'Migrate to service_packages. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+      );
+
       const { data, error } = await supabase
         .from('products')
         .select('*')

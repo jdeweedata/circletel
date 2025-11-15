@@ -298,6 +298,12 @@ export async function DELETE(
       );
     }
 
+    // DEPRECATION WARNING - Epic 1.6
+    console.warn(
+      '[DEPRECATED] DELETE /api/admin/products/[id] uses legacy products table. ' +
+      'Should use service_packages table instead. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+    );
+
     // Soft delete - set status to inactive instead of actually deleting
     const { data: product, error } = await supabase
       .from('products')

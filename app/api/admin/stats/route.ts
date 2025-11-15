@@ -21,6 +21,13 @@ export async function GET() {
 
     // Fetch all stats in parallel for performance with timeout protection
     const QUERY_TIMEOUT = 10000; // 10 second timeout for all queries
+
+    // DEPRECATION WARNING - Epic 1.6
+    console.warn(
+      '[DEPRECATED] Admin stats API uses legacy products table. ' +
+      'Migrate to service_packages table. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
+    );
+
     const queriesPromise = Promise.all([
       // Products
       supabase.from('products').select('pricing, status'),
