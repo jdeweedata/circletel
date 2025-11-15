@@ -22,15 +22,9 @@ export async function GET() {
     // Fetch all stats in parallel for performance with timeout protection
     const QUERY_TIMEOUT = 10000; // 10 second timeout for all queries
 
-    // DEPRECATION WARNING - Epic 1.6
-    console.warn(
-      '[DEPRECATED] Admin stats API uses legacy products table. ' +
-      'Migrate to service_packages table. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
-    );
-
     const queriesPromise = Promise.all([
-      // Products
-      supabase.from('products').select('pricing, status'),
+      // Products (migrated to service_packages - Epic 1.6)
+      supabase.from('service_packages').select('price, status, active'),
 
       // Business Quotes
       supabase.from('business_quotes').select('status, total_monthly, created_at'),
@@ -68,19 +62,18 @@ export async function GET() {
       );
     }
 
-    // Products stats
+    // Products stats (service_packages schema - Epic 1.6)
     const products = productsResult.data || [];
     const totalProducts = products.length;
-    const activeProducts = products.filter((p: any) => p.status === 'active');
+    const activeProducts = products.filter((p: any) => p.status === 'active' || p.active === true);
     const approvedProducts = activeProducts.length;
-    const pendingProducts = products.filter((p: any) => p.status === 'pending').length;
+    const pendingProducts = products.filter((p: any) => p.status === 'pending' || p.status === 'draft').length;
 
     // Calculate product revenue potential
+    // service_packages uses 'price' field (number) instead of 'pricing.monthly' (JSONB)
     const productRevenue = activeProducts.reduce((sum: number, p: any) => {
-      const price = typeof p.pricing === 'object' && p.pricing !== null
-        ? parseFloat(p.pricing.monthly?.toString() || '0')
-        : 0;
-      return sum + price;
+      const price = parseFloat(p.price?.toString() || '0');
+      return sum + (Number.isFinite(price) ? price : 0);
     }, 0);
 
     // Quotes stats

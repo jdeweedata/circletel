@@ -298,16 +298,13 @@ export async function DELETE(
       );
     }
 
-    // DEPRECATION WARNING - Epic 1.6
-    console.warn(
-      '[DEPRECATED] DELETE /api/admin/products/[id] uses legacy products table. ' +
-      'Should use service_packages table instead. See docs/admin/PRODUCTS_TABLE_DEPRECATION.md'
-    );
-
-    // Soft delete - set status to inactive instead of actually deleting
+    // Soft delete - set status to inactive (migrated to service_packages - Epic 1.6)
     const { data: product, error } = await supabase
-      .from('products')
-      .update({ status: 'inactive' })
+      .from('service_packages')
+      .update({
+        status: 'inactive',
+        active: false  // service_packages uses 'active' boolean field
+      })
       .eq('id', id)
       .select()
       .single();
@@ -320,9 +317,9 @@ export async function DELETE(
       );
     }
 
-    // Update audit log with user attribution
+    // Update audit log with user attribution (service_packages uses service_packages_audit_logs)
     await supabase
-      .from('product_audit_logs')
+      .from('service_packages_audit_logs')
       .update({
         changed_by_email: user.email,
         changed_by_name: user.full_name,
@@ -330,7 +327,7 @@ export async function DELETE(
         ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
         user_agent: request.headers.get('user-agent')
       })
-      .eq('product_id', id)
+      .eq('package_id', id)
       .order('changed_at', { ascending: false })
       .limit(1);
 
