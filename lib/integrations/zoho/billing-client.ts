@@ -124,12 +124,13 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async searchPlans(planCode: string): Promise<ZohoBillingPlan | null> {
     try {
-      const response = await this.request<ZohoBillingListResponse<ZohoBillingPlan>>(
+      const response = await this.request<any>(
         `/plans?plan_code=${encodeURIComponent(planCode)}`
       );
 
-      if (response.data?.plans && response.data.plans.length > 0) {
-        return response.data.plans[0];
+      // Response structure: { code, message, plans: [...] }
+      if (response.plans && response.plans.length > 0) {
+        return response.plans[0];
       }
 
       return null;
@@ -140,19 +141,22 @@ export class ZohoBillingClient extends ZohoAPIClient {
   }
 
   /**
-   * Get a plan by ID
+   * Get a plan by plan_code
+   * @param planCode - The plan_code (NOT plan_id) to retrieve
    */
-  async getPlan(planId: string): Promise<ZohoBillingPlan> {
+  async getPlan(planCode: string): Promise<ZohoBillingPlan> {
     try {
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingPlan>>(
-        `/plans/${planId}`
+      // Zoho Billing uses plan_code in the path, not plan_id
+      const response = await this.request<any>(
+        `/plans/${planCode}`
       );
 
-      if (!response.data) {
+      // Response structure: { code, message, plan: {...} }
+      if (!response.plan) {
         throw new Error('Plan not found');
       }
 
-      return response.data;
+      return response.plan;
     } catch (error) {
       console.error('[ZohoBillingClient] Error getting plan:', error);
       throw error;
@@ -175,18 +179,21 @@ export class ZohoBillingClient extends ZohoAPIClient {
         recurring_price: planData.recurring_price,
       });
 
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingPlan>>(
+      console.log('[ZohoBillingClient] Full plan payload:', JSON.stringify(planData, null, 2));
+
+      const response = await this.request<any>(
         '/plans',
         'POST',
         planData
       );
 
-      if (!response.data?.plan_id) {
+      // Response structure: { code, message, plan: { plan_id, ... } }
+      if (!response.plan?.plan_id) {
         throw new Error('Failed to create plan - no plan_id returned');
       }
 
-      console.log('[ZohoBillingClient] Plan created:', response.data.plan_id);
-      return response.data.plan_id;
+      console.log('[ZohoBillingClient] Plan created:', response.plan.plan_id);
+      return response.plan.plan_id;
     } catch (error) {
       console.error('[ZohoBillingClient] Error creating plan:', error);
       throw error;
@@ -195,13 +202,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
   /**
    * Update an existing plan
+   * @param planCode - The plan_code (NOT plan_id) to update
    */
-  async updatePlan(planId: string, payload: UpdatePlanPayload): Promise<void> {
+  async updatePlan(planCode: string, payload: UpdatePlanPayload): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Updating plan:', planId);
+      console.log('[ZohoBillingClient] Updating plan:', planCode);
+      console.log('[ZohoBillingClient] Update payload:', JSON.stringify(payload, null, 2));
 
-      await this.request<ZohoBillingApiResponse<ZohoBillingPlan>>(
-        `/plans/${planId}`,
+      // Zoho Billing uses plan_code in the path, not plan_id
+      await this.request<any>(
+        `/plans/${planCode}`,
         'PUT',
         payload
       );
@@ -215,10 +225,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
   /**
    * Mark a plan as inactive (soft delete)
+   * @param planCode - The plan_code to inactivate
    */
-  async inactivatePlan(planId: string): Promise<void> {
+  async inactivatePlan(planCode: string): Promise<void> {
     try {
-      await this.updatePlan(planId, { status: 'inactive' });
+      await this.updatePlan(planCode, { status: 'inactive' });
     } catch (error) {
       console.error('[ZohoBillingClient] Error inactivating plan:', error);
       throw error;
@@ -235,17 +246,21 @@ export class ZohoBillingClient extends ZohoAPIClient {
       if (existingPlan) {
         console.log('[ZohoBillingClient] Plan exists, updating:', existingPlan.plan_id);
 
-        // Extract updateable fields
+        // Zoho Billing requires plan_code, name, recurring_price, and interval for updates
         const updatePayload: UpdatePlanPayload = {
+          plan_code: payload.plan_code, // Required even though it can't change
           name: payload.name,
-          description: payload.description,
           recurring_price: payload.recurring_price,
+          interval: payload.interval,
+          interval_unit: payload.interval_unit,
+          description: payload.description,
+          billing_cycles: payload.billing_cycles,
           setup_fee: payload.setup_fee,
           status: payload.status,
-          custom_fields: payload.custom_fields,
         };
 
-        await this.updatePlan(existingPlan.plan_id, updatePayload);
+        // Use plan_code for update, not plan_id
+        await this.updatePlan(payload.plan_code, updatePayload);
         return existingPlan.plan_id;
       } else {
         console.log('[ZohoBillingClient] Plan does not exist, creating new');
@@ -400,15 +415,21 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
   /**
    * Search for a product by name
+   * Note: Zoho Billing Products API doesn't support search filters,
+   * so we list all products and filter in-memory
    */
   async searchProducts(name: string): Promise<ZohoBillingProduct | null> {
     try {
-      const response = await this.request<ZohoBillingListResponse<ZohoBillingProduct>>(
-        `/products?name=${encodeURIComponent(name)}`
-      );
+      // List all products (no search filter available)
+      const response = await this.request<any>('/products');
 
-      if (response.data?.products && response.data.products.length > 0) {
-        return response.data.products[0];
+      // Response structure: { code, message, products: [...] }
+      if (response.products && Array.isArray(response.products)) {
+        // Filter by exact name match
+        const product = response.products.find(
+          (p: ZohoBillingProduct) => p.name === name
+        );
+        return product || null;
       }
 
       return null;
@@ -423,15 +444,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async getProduct(productId: string): Promise<ZohoBillingProduct> {
     try {
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
+      const response = await this.request<any>(
         `/products/${productId}`
       );
 
-      if (!response.data) {
+      // Response structure: { code, message, product: {...} }
+      if (!response.product) {
         throw new Error('Product not found');
       }
 
-      return response.data;
+      return response.product;
     } catch (error) {
       console.error('[ZohoBillingClient] Error getting product:', error);
       throw error;
@@ -447,18 +469,21 @@ export class ZohoBillingClient extends ZohoAPIClient {
         name: payload.name,
       });
 
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
+      const response = await this.request<any>(
         '/products',
         'POST',
         payload
       );
 
-      if (!response.data?.product_id) {
-        throw new Error('Failed to create product - no product_id returned');
+      console.log('[ZohoBillingClient] Product creation response:', JSON.stringify(response, null, 2));
+
+      // Response structure: { code, message, product: { product_id, ... } }
+      if (!response.product?.product_id) {
+        throw new Error(`Failed to create product - no product_id returned. Response: ${JSON.stringify(response)}`);
       }
 
-      console.log('[ZohoBillingClient] Product created:', response.data.product_id);
-      return response.data.product_id;
+      console.log('[ZohoBillingClient] Product created:', response.product.product_id);
+      return response.product.product_id;
     } catch (error) {
       console.error('[ZohoBillingClient] Error creating product:', error);
       throw error;

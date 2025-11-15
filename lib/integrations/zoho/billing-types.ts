@@ -76,9 +76,16 @@ export interface CreatePlanPayload {
 }
 
 export interface UpdatePlanPayload {
+  // Required fields (Zoho Billing API requires these for updates)
+  plan_code?: string; // Required even though it can't be changed
   name?: string;
-  description?: string;
   recurring_price?: number;
+  interval?: number;
+  interval_unit?: 'days' | 'weeks' | 'months' | 'years';
+
+  // Optional fields
+  description?: string;
+  billing_cycles?: number;
   setup_fee?: number;
   status?: 'active' | 'inactive';
   custom_fields?: Record<string, any>;

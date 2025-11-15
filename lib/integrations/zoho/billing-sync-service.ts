@@ -65,6 +65,27 @@ export interface BillingSyncResult {
 }
 
 /**
+ * Remove null/undefined/zero values from an object
+ * Zoho Billing API doesn't accept null values in JSON
+ * Also remove 0 values for optional numeric fields
+ */
+function removeNullValues<T extends Record<string, any>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key, value]) => {
+      // Remove null/undefined
+      if (value === null || value === undefined) return false;
+
+      // Remove 0 for optional speed fields (meaningless for mobile/5G packages)
+      if ((key === 'cf_download_speed_mbps' || key === 'cf_upload_speed_mbps') && value === 0) {
+        return false;
+      }
+
+      return true;
+    })
+  ) as Partial<T>;
+}
+
+/**
  * Build Zoho Billing Product payload from CircleTel service_package
  */
 function buildProductPayload(servicePackage: ServicePackage): CreateProductPayload {
@@ -94,7 +115,10 @@ function buildZohoPlanPayload(servicePackage: ServicePackage, productId: string)
   );
 
   // Determine billing cycles (contract term)
-  const contractMonths = servicePackage.metadata?.contract_months || 0;
+  // -1 = month-to-month (runs until cancelled)
+  // N = specific contract (e.g., 12 = 12-month contract)
+  const contractMonths = servicePackage.metadata?.contract_months;
+  const billingCycles = contractMonths && contractMonths > 0 ? contractMonths : -1;
 
   return {
     plan_code: servicePackage.sku,
@@ -110,28 +134,15 @@ function buildZohoPlanPayload(servicePackage: ServicePackage, productId: string)
     // Billing Cycle
     interval: 1,
     interval_unit: 'months',
-    billing_cycles: contractMonths, // 0 = month-to-month, N = specific contract
+    billing_cycles: billingCycles, // -1 = month-to-month, N = specific contract
 
     // Status
     status: servicePackage.status === 'active' || servicePackage.active ? 'active' : 'inactive',
 
-    // Custom Fields (CircleTel-specific data)
-    custom_fields: {
-      reference_id: servicePackage.id, // Link back to CircleTel
-      cf_service_type: servicePackage.service_type,
-      cf_product_category: servicePackage.product_category,
-      cf_market_segment: servicePackage.market_segment,
-      cf_provider: servicePackage.provider,
-      cf_download_speed_mbps: servicePackage.speed_down || servicePackage.pricing?.download_speed,
-      cf_upload_speed_mbps: servicePackage.speed_up || servicePackage.pricing?.upload_speed,
-      cf_technology: servicePackage.metadata?.technology,
-      cf_data_limit: servicePackage.metadata?.data_limit,
-      cf_installation_sla_days: servicePackage.metadata?.installation_days,
-      cf_valid_from: servicePackage.valid_from,
-      cf_valid_to: servicePackage.valid_to,
-      cf_is_featured: servicePackage.is_featured,
-      cf_promo_price: servicePackage.promotion_price ? parseFloat(servicePackage.promotion_price.toString()) : undefined,
-    },
+    // Note: custom_fields removed for MVP - requires pre-defined fields in Zoho Billing
+    // Zoho Billing custom_fields are an array of {customfield_id, value} objects
+    // We would need to create custom field definitions in Zoho Billing first
+    // and then reference them by ID here
   };
 }
 
@@ -153,11 +164,11 @@ function buildInstallationItemPayload(servicePackage: ServicePackage): CreateIte
     item_type: 'service',
     unit: 'unit',
     status: servicePackage.status === 'active' || servicePackage.active ? 'active' : 'inactive',
-    custom_fields: {
+    custom_fields: removeNullValues({
       reference_id: servicePackage.id,
       cf_service_type: servicePackage.service_type,
       cf_tax_inclusive: servicePackage.metadata?.vat_inclusive || false,
-    },
+    }),
   };
 }
 
@@ -179,10 +190,10 @@ function buildHardwareItemPayload(servicePackage: ServicePackage): CreateItemPay
     item_type: 'goods', // Physical product
     unit: 'unit',
     status: servicePackage.status === 'active' || servicePackage.active ? 'active' : 'inactive',
-    custom_fields: {
+    custom_fields: removeNullValues({
       reference_id: servicePackage.id,
       cf_service_type: servicePackage.service_type,
-    },
+    }),
   };
 }
 
