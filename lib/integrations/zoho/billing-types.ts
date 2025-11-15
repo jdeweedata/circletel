@@ -63,6 +63,7 @@ export interface CreatePlanPayload {
   plan_code: string;
   name: string;
   description?: string;
+  product_id: string; // Required by Zoho Billing API
   recurring_price: number;
   interval: number;
   interval_unit: 'days' | 'weeks' | 'months' | 'years';
@@ -149,6 +150,35 @@ export interface UpdateItemPayload {
   tax_id?: string;
   status?: 'active' | 'inactive';
   custom_fields?: Record<string, any>;
+}
+
+// ============================================================================
+// Products
+// ============================================================================
+
+export interface ZohoBillingProduct {
+  product_id: string;
+  name: string;
+  description?: string;
+  email_ids?: string[];
+  redirect_url?: string;
+  status?: 'active' | 'inactive';
+  created_time?: string;
+  updated_time?: string;
+}
+
+export interface CreateProductPayload {
+  name: string;
+  description?: string;
+  email_ids?: string[];
+  redirect_url?: string;
+}
+
+export interface UpdateProductPayload {
+  name?: string;
+  description?: string;
+  email_ids?: string[];
+  redirect_url?: string;
 }
 
 // ============================================================================

@@ -15,6 +15,9 @@ import type {
   ZohoBillingItem,
   CreateItemPayload,
   UpdateItemPayload,
+  ZohoBillingProduct,
+  CreateProductPayload,
+  UpdateProductPayload,
   ZohoBillingSubscription,
   CreateSubscriptionPayload,
   ZohoBillingInvoice,
@@ -387,6 +390,128 @@ export class ZohoBillingClient extends ZohoAPIClient {
       }
     } catch (error) {
       console.error('[ZohoBillingClient] Error upserting item:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // Products API
+  // ============================================================================
+
+  /**
+   * Search for a product by name
+   */
+  async searchProducts(name: string): Promise<ZohoBillingProduct | null> {
+    try {
+      const response = await this.request<ZohoBillingListResponse<ZohoBillingProduct>>(
+        `/products?name=${encodeURIComponent(name)}`
+      );
+
+      if (response.data?.products && response.data.products.length > 0) {
+        return response.data.products[0];
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error searching products:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a product by ID
+   */
+  async getProduct(productId: string): Promise<ZohoBillingProduct> {
+    try {
+      const response = await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
+        `/products/${productId}`
+      );
+
+      if (!response.data) {
+        throw new Error('Product not found');
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error getting product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new product
+   */
+  async createProduct(payload: CreateProductPayload): Promise<string> {
+    try {
+      console.log('[ZohoBillingClient] Creating product:', {
+        name: payload.name,
+      });
+
+      const response = await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
+        '/products',
+        'POST',
+        payload
+      );
+
+      if (!response.data?.product_id) {
+        throw new Error('Failed to create product - no product_id returned');
+      }
+
+      console.log('[ZohoBillingClient] Product created:', response.data.product_id);
+      return response.data.product_id;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error creating product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing product
+   */
+  async updateProduct(productId: string, payload: UpdateProductPayload): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Updating product:', productId);
+
+      await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
+        `/products/${productId}`,
+        'PUT',
+        payload
+      );
+
+      console.log('[ZohoBillingClient] Product updated successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error updating product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create or update a product (upsert)
+   * Search by name, create if doesn't exist, update if exists
+   */
+  async upsertProduct(name: string, payload: CreateProductPayload): Promise<string> {
+    try {
+      const existingProduct = await this.searchProducts(name);
+
+      if (existingProduct) {
+        console.log('[ZohoBillingClient] Product exists, updating:', existingProduct.product_id);
+
+        // Extract updateable fields
+        const updatePayload: UpdateProductPayload = {
+          name: payload.name,
+          description: payload.description,
+          email_ids: payload.email_ids,
+          redirect_url: payload.redirect_url,
+        };
+
+        await this.updateProduct(existingProduct.product_id, updatePayload);
+        return existingProduct.product_id;
+      } else {
+        console.log('[ZohoBillingClient] Product does not exist, creating new');
+        return await this.createProduct(payload);
+      }
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error upserting product:', error);
       throw error;
     }
   }

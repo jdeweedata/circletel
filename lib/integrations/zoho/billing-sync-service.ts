@@ -11,6 +11,7 @@ import { ZohoBillingClient } from './billing-client';
 import type {
   CreatePlanPayload,
   CreateItemPayload,
+  CreateProductPayload,
 } from './billing-types';
 
 // Import ServicePackage type
@@ -56,6 +57,7 @@ interface ServicePackage {
 
 export interface BillingSyncResult {
   success: boolean;
+  productId?: string;
   planId?: string;
   installationItemId?: string;
   hardwareItemId?: string;
@@ -63,9 +65,19 @@ export interface BillingSyncResult {
 }
 
 /**
+ * Build Zoho Billing Product payload from CircleTel service_package
+ */
+function buildProductPayload(servicePackage: ServicePackage): CreateProductPayload {
+  return {
+    name: servicePackage.name,
+    description: servicePackage.description || `${servicePackage.name} - ${servicePackage.service_type || 'Service'}`,
+  };
+}
+
+/**
  * Build Zoho Billing Plan payload from CircleTel service_package
  */
-function buildZohoPlanPayload(servicePackage: ServicePackage): CreatePlanPayload {
+function buildZohoPlanPayload(servicePackage: ServicePackage, productId: string): CreatePlanPayload {
   // Parse monthly price
   const monthlyPrice = parseFloat(
     servicePackage.promotion_price?.toString() ||
@@ -88,6 +100,7 @@ function buildZohoPlanPayload(servicePackage: ServicePackage): CreatePlanPayload
     plan_code: servicePackage.sku,
     name: servicePackage.name,
     description: servicePackage.description || `${servicePackage.name} - Monthly Subscription`,
+    product_id: productId,
 
     // Pricing
     recurring_price: monthlyPrice,
@@ -189,8 +202,17 @@ export async function syncServicePackageToZohoBilling(
       name: servicePackage.name,
     });
 
-    // 1. Sync Plan (recurring monthly subscription)
-    const planPayload = buildZohoPlanPayload(servicePackage);
+    // 1. Sync Product (required for Plan creation)
+    const productPayload = buildProductPayload(servicePackage);
+    const productId = await client.upsertProduct(servicePackage.name, productPayload);
+
+    console.log('[BillingSync] Product synced:', {
+      product_id: productId,
+      name: servicePackage.name,
+    });
+
+    // 2. Sync Plan (recurring monthly subscription)
+    const planPayload = buildZohoPlanPayload(servicePackage, productId);
     const planId = await client.upsertPlan(servicePackage.sku, planPayload);
 
     console.log('[BillingSync] Plan synced:', {
@@ -199,7 +221,7 @@ export async function syncServicePackageToZohoBilling(
       recurring_price: planPayload.recurring_price,
     });
 
-    // 2. Sync Installation Item (one-time fee)
+    // 3. Sync Installation Item (one-time fee)
     const installationPayload = buildInstallationItemPayload(servicePackage);
     const installationItemId = await client.upsertItem(
       installationPayload.sku!,
@@ -212,7 +234,7 @@ export async function syncServicePackageToZohoBilling(
       rate: installationPayload.rate,
     });
 
-    // 3. Sync Hardware Item (if applicable)
+    // 4. Sync Hardware Item (if applicable)
     let hardwareItemId: string | undefined;
     const hardwarePayload = buildHardwareItemPayload(servicePackage);
 
@@ -228,6 +250,7 @@ export async function syncServicePackageToZohoBilling(
 
     return {
       success: true,
+      productId,
       planId,
       installationItemId,
       hardwareItemId,
