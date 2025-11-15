@@ -43,15 +43,15 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
   /**
    * Get Zoho Billing API base URL
-   * Different from CRM API base URL
+   * Uses zohoapis.com domain as required by Zoho API (error code 9)
    */
   protected getBillingBaseUrl(): string {
     const regionMap: Record<string, string> = {
-      US: 'https://billing.zoho.com/api/v1',
-      EU: 'https://billing.zoho.eu/api/v1',
-      IN: 'https://billing.zoho.in/api/v1',
-      AU: 'https://billing.zoho.com.au/api/v1',
-      CN: 'https://billing.zoho.com.cn/api/v1',
+      US: 'https://www.zohoapis.com/billing/v1',
+      EU: 'https://www.zohoapis.eu/billing/v1',
+      IN: 'https://www.zohoapis.in/billing/v1',
+      AU: 'https://www.zohoapis.com.au/billing/v1',
+      CN: 'https://www.zohoapis.com.cn/billing/v1',
     };
 
     const region = this.config.region || 'US';
