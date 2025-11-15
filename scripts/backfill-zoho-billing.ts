@@ -15,6 +15,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { syncServicePackageToZohoBilling, type BillingSyncResult } from '@/lib/integrations/zoho/billing-sync-service';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 // Parse command-line arguments
 const args = process.argv.slice(2);

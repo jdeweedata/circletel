@@ -19,6 +19,10 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 // Parse command-line arguments
 const args = process.argv.slice(2);
