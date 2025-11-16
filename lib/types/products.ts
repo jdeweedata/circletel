@@ -40,6 +40,14 @@ export interface Product {
   is_popular: boolean;
   metadata: ProductMetadata;
   // Additional computed/optional properties
+  // Publish pipeline & catalogue linkage
+  source_admin_product_id?: string | null;
+  valid_from?: string | null;
+  valid_to?: string | null;
+  market_segment?: string | null;
+  provider?: string | null;
+  logical_key?: string | null;
+  // Legacy and convenience fields used in various UIs
   download_speed?: number | null;
   upload_speed?: number | null;
   monthly_price?: number | string | null;

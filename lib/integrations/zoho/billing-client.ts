@@ -5,9 +5,11 @@
  * Extends ZohoApiClient to reuse OAuth token management
  *
  * Epic 3.2 - Zoho Billing Integration
+ * Epic 4.4 - Rate Limiting Protection
  */
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
+import rateLimiter from './rate-limiter';
 import type {
   ZohoBillingPlan,
   CreatePlanPayload,
@@ -83,6 +85,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
     const headers: Record<string, string> = {
       Authorization: `Zoho-oauthtoken ${accessToken}`,
+      'X-com-zoho-subscriptions-organizationid': this.organizationId,
       'Content-Type': 'application/json',
     };
 
@@ -281,12 +284,13 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async searchItems(sku: string): Promise<ZohoBillingItem | null> {
     try {
-      const response = await this.request<ZohoBillingListResponse<ZohoBillingItem>>(
+      const response = await this.request<any>(
         `/items?sku=${encodeURIComponent(sku)}`
       );
 
-      if (response.data?.items && response.data.items.length > 0) {
-        return response.data.items[0];
+      // Response structure: { code, message, items: [...] }
+      if (response.items && response.items.length > 0) {
+        return response.items[0];
       }
 
       return null;
@@ -301,15 +305,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async getItem(itemId: string): Promise<ZohoBillingItem> {
     try {
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingItem>>(
+      const response = await this.request<any>(
         `/items/${itemId}`
       );
 
-      if (!response.data) {
+      // Response structure: { code, message, item: {...} }
+      if (!response.item) {
         throw new Error('Item not found');
       }
 
-      return response.data;
+      return response.item;
     } catch (error) {
       console.error('[ZohoBillingClient] Error getting item:', error);
       throw error;
@@ -323,22 +328,23 @@ export class ZohoBillingClient extends ZohoAPIClient {
     try {
       console.log('[ZohoBillingClient] Creating item:', {
         sku: payload.sku,
-        item_name: payload.item_name,
+        name: payload.name,
         rate: payload.rate,
       });
 
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingItem>>(
+      const response = await this.request<any>(
         '/items',
         'POST',
         payload
       );
 
-      if (!response.data?.item_id) {
+      // Response structure: { code, message, item: { item_id, ... } }
+      if (!response.item?.item_id) {
         throw new Error('Failed to create item - no item_id returned');
       }
 
-      console.log('[ZohoBillingClient] Item created:', response.data.item_id);
-      return response.data.item_id;
+      console.log('[ZohoBillingClient] Item created:', response.item.item_id);
+      return response.item.item_id;
     } catch (error) {
       console.error('[ZohoBillingClient] Error creating item:', error);
       throw error;
@@ -352,7 +358,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     try {
       console.log('[ZohoBillingClient] Updating item:', itemId);
 
-      await this.request<ZohoBillingApiResponse<ZohoBillingItem>>(
+      await this.request<any>(
         `/items/${itemId}`,
         'PUT',
         payload
@@ -389,12 +395,12 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
         // Extract updateable fields
         const updatePayload: UpdateItemPayload = {
-          item_name: payload.item_name,
+          name: payload.name,
           description: payload.description,
           rate: payload.rate,
           tax_id: payload.tax_id,
           status: payload.status,
-          custom_fields: payload.custom_fields,
+          // custom_fields removed - requires pre-defined fields in Zoho Billing
         };
 
         await this.updateItem(existingItem.item_id, updatePayload);
@@ -595,19 +601,242 @@ export class ZohoBillingClient extends ZohoAPIClient {
   }
 
   // ============================================================================
-  // Invoices API (For testing/reference)
+  // Customers API
+  // ============================================================================
+
+  /**
+   * Search for a customer by email
+   * Returns first matching customer
+   */
+  async searchCustomers(email: string): Promise<any | null> {
+    try {
+      const response = await this.request<any>(
+        `/customers?email=${encodeURIComponent(email)}`
+      );
+
+      // Response structure: { code, message, customers: [...] }
+      if (response.customers && response.customers.length > 0) {
+        return response.customers[0];
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error searching customers:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a customer by ID
+   */
+  async getCustomer(customerId: string): Promise<any> {
+    try {
+      const response = await this.request<any>(
+        `/customers/${customerId}`
+      );
+
+      // Response structure: { code, message, customer: {...} }
+      if (!response.customer) {
+        throw new Error('Customer not found');
+      }
+
+      return response.customer;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error getting customer:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new customer
+   */
+  async createCustomer(payload: any): Promise<string> {
+    try {
+      console.log('[ZohoBillingClient] Creating customer:', {
+        email: payload.email,
+        display_name: payload.display_name,
+      });
+
+      const response = await this.request<any>(
+        '/customers',
+        'POST',
+        payload
+      );
+
+      // Response structure: { code, message, customer: { customer_id, ... } }
+      if (!response.customer?.customer_id) {
+        throw new Error('Failed to create customer - no customer_id returned');
+      }
+
+      console.log('[ZohoBillingClient] Customer created:', response.customer.customer_id);
+      return response.customer.customer_id;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error creating customer:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing customer
+   */
+  async updateCustomer(customerId: string, payload: any): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Updating customer:', customerId);
+
+      await this.request<any>(
+        `/customers/${customerId}`,
+        'PUT',
+        payload
+      );
+
+      console.log('[ZohoBillingClient] Customer updated successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error updating customer:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create or update a customer based on email
+   * Uses email as the unique identifier
+   */
+  async upsertCustomer(email: string, payload: any): Promise<string> {
+    try {
+      // Search for existing customer
+      const existingCustomer = await this.searchCustomers(email);
+
+      if (existingCustomer) {
+        // Update existing customer
+        console.log('[ZohoBillingClient] Customer exists, updating:', existingCustomer.customer_id);
+
+        const updatePayload: any = {
+          display_name: payload.display_name,
+          first_name: payload.first_name,
+          last_name: payload.last_name,
+          phone: payload.phone,
+          mobile: payload.mobile,
+          company_name: payload.company_name,
+          // Address fields
+          street: payload.street,
+          city: payload.city,
+          state: payload.state,
+          zip: payload.zip,
+          country: payload.country,
+        };
+
+        await this.updateCustomer(existingCustomer.customer_id, updatePayload);
+        return existingCustomer.customer_id;
+      } else {
+        // Create new customer
+        console.log('[ZohoBillingClient] Customer does not exist, creating new');
+        return await this.createCustomer(payload);
+      }
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error upserting customer:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // Subscriptions API
+  // ============================================================================
+
+  /**
+   * Create a new subscription
+   * Automatically generates first invoice
+   */
+  async createSubscription(payload: any): Promise<any> {
+    try {
+      console.log('[ZohoBillingClient] Creating subscription:', {
+        customer_id: payload.customer_id,
+        plan: payload.plan,
+      });
+
+      const response = await this.request<any>(
+        '/subscriptions',
+        'POST',
+        payload
+      );
+
+      // Response structure: { code, message, subscription: {...} }
+      if (!response.subscription) {
+        throw new Error('Failed to create subscription');
+      }
+
+      console.log('[ZohoBillingClient] Subscription created:', {
+        subscription_id: response.subscription.subscription_id,
+        subscription_number: response.subscription.subscription_number,
+        status: response.subscription.status,
+      });
+
+      return response.subscription;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error creating subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a subscription by ID
+   */
+  async getSubscription(subscriptionId: string): Promise<any> {
+    try {
+      const response = await this.request<any>(
+        `/subscriptions/${subscriptionId}`
+      );
+
+      // Response structure: { code, message, subscription: {...} }
+      if (!response.subscription) {
+        throw new Error('Subscription not found');
+      }
+
+      return response.subscription;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error getting subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel a subscription
+   */
+  async cancelSubscription(
+    subscriptionId: string,
+    cancelAtEnd: boolean = false
+  ): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Cancelling subscription:', subscriptionId, {
+        cancel_at_end: cancelAtEnd,
+      });
+
+      await this.request<any>(
+        `/subscriptions/${subscriptionId}/cancel`,
+        'POST',
+        { cancel_at_end: cancelAtEnd }
+      );
+
+      console.log('[ZohoBillingClient] Subscription cancelled successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error cancelling subscription:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // Invoices API
   // ============================================================================
 
   /**
    * Get invoices for a subscription
    */
-  async getSubscriptionInvoices(subscriptionId: string): Promise<ZohoBillingInvoice[]> {
+  async getSubscriptionInvoices(subscriptionId: string): Promise<any[]> {
     try {
-      const response = await this.request<ZohoBillingListResponse<ZohoBillingInvoice>>(
+      const response = await this.request<any>(
         `/invoices?subscription_id=${subscriptionId}`
       );
 
-      return response.data?.invoices || [];
+      // Response structure: { code, message, invoices: [...] }
+      return response.invoices || [];
     } catch (error) {
       console.error('[ZohoBillingClient] Error getting subscription invoices:', error);
       throw error;
@@ -617,19 +846,133 @@ export class ZohoBillingClient extends ZohoAPIClient {
   /**
    * Get invoice details
    */
-  async getInvoice(invoiceId: string): Promise<ZohoBillingInvoice> {
+  async getInvoice(invoiceId: string): Promise<any> {
     try {
-      const response = await this.request<ZohoBillingApiResponse<ZohoBillingInvoice>>(
+      const response = await this.request<any>(
         `/invoices/${invoiceId}`
       );
 
-      if (!response.data) {
+      // Response structure: { code, message, invoice: {...} }
+      if (!response.invoice) {
         throw new Error('Invoice not found');
       }
 
-      return response.data;
+      return response.invoice;
     } catch (error) {
       console.error('[ZohoBillingClient] Error getting invoice:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // Payments API
+  // ============================================================================
+
+  /**
+   * Record a payment for one or more invoices
+   * Automatically marks invoices as paid when full amount is received
+   */
+  async recordPayment(payload: {
+    customer_id: string;
+    payment_mode: string;
+    amount: number;
+    date?: string;
+    reference_number?: string;
+    description?: string;
+    invoices: Array<{
+      invoice_id: string;
+      amount_applied: number;
+    }>;
+  }): Promise<any> {
+    try {
+      console.log('[ZohoBillingClient] Recording payment:', {
+        customer_id: payload.customer_id,
+        amount: payload.amount,
+        payment_mode: payload.payment_mode,
+        invoices: payload.invoices.length,
+      });
+
+      const response = await this.request<any>(
+        '/payments',
+        'POST',
+        payload
+      );
+
+      // Response structure: { code, message, payment: {...} }
+      if (!response.payment) {
+        throw new Error('Failed to record payment');
+      }
+
+      console.log('[ZohoBillingClient] Payment recorded:', {
+        payment_id: response.payment.payment_id,
+        payment_number: response.payment.payment_number,
+        amount: response.payment.amount,
+      });
+
+      return response.payment;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error recording payment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get payment details
+   */
+  async getPayment(paymentId: string): Promise<any> {
+    try {
+      const response = await this.request<any>(
+        `/payments/${paymentId}`
+      );
+
+      // Response structure: { code, message, payment: {...} }
+      if (!response.payment) {
+        throw new Error('Payment not found');
+      }
+
+      return response.payment;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error getting payment:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // Plans API - Update Operations (Epic 3.6)
+  // ============================================================================
+
+  /**
+   * Update an existing plan
+   * Used for price changes - updates plan price when price change becomes effective
+   *
+   * @param planId - Zoho Billing Plan ID
+   * @param updates - Partial plan object with fields to update
+   * @returns Updated plan object
+   */
+  async updatePlan(planId: string, updates: Partial<any>): Promise<any> {
+    try {
+      console.log(`[ZohoBillingClient] Updating plan ${planId}:`, updates);
+
+      const response = await this.request<any>(
+        `/plans/${planId}`,
+        'PUT',
+        updates
+      );
+
+      // Response structure: { code, message, plan: {...} }
+      if (!response.plan) {
+        throw new Error('Failed to update plan');
+      }
+
+      console.log('[ZohoBillingClient] Plan updated successfully:', {
+        plan_id: response.plan.plan_id,
+        plan_code: response.plan.plan_code,
+        recurring_price: response.plan.recurring_price,
+      });
+
+      return response.plan;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error updating plan:', error);
       throw error;
     }
   }

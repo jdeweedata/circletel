@@ -97,7 +97,7 @@ export interface UpdatePlanPayload {
 
 export interface ZohoBillingItem {
   item_id: string;
-  item_name: string;
+  name: string; // Zoho API uses 'name' not 'item_name'
   sku?: string;
   description?: string;
   product_type?: string;
@@ -138,7 +138,7 @@ export interface ZohoBillingItem {
 }
 
 export interface CreateItemPayload {
-  item_name: string;
+  name: string; // Zoho Billing uses 'name' not 'item_name'
   sku?: string;
   description?: string;
   rate: number;
@@ -151,7 +151,7 @@ export interface CreateItemPayload {
 }
 
 export interface UpdateItemPayload {
-  item_name?: string;
+  name?: string; // Zoho Billing uses 'name' not 'item_name'
   description?: string;
   rate?: number;
   tax_id?: string;
