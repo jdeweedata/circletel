@@ -5,14 +5,26 @@
  * Creates/updates Plans (recurring monthly charges) and Items (one-time installation/hardware)
  *
  * Epic 3.3 - Extend Publish Pipeline for Billing Sync
+ * Epic 4.4 - Rate Limiting Protection (90 calls/min)
  */
 
 import { ZohoBillingClient } from './billing-client';
+import rateLimiter from './rate-limiter';
 import type {
   CreatePlanPayload,
   CreateItemPayload,
   CreateProductPayload,
 } from './billing-types';
+
+// Rate limit protection delays
+const BILLING_API_DELAY_MS = 150; // 150ms between individual API calls
+
+/**
+ * Sleep utility for rate limiting
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // Import ServicePackage type
 interface ServicePackage {
@@ -156,19 +168,14 @@ function buildInstallationItemPayload(servicePackage: ServicePackage): CreateIte
     '0'
   );
 
+  // Only include fields supported by Zoho Billing Items API:
+  // name, rate, description, sku, tax_id
+  // Note: custom_fields removed for MVP - requires pre-defined fields in Zoho Billing
   return {
-    sku: `${servicePackage.sku}-INSTALL`,
-    item_name: `${servicePackage.name} - Installation`,
-    description: 'One-time installation and activation fee',
+    name: `${servicePackage.name} - Installation`,
     rate: installationFee,
-    item_type: 'service',
-    unit: 'unit',
-    status: servicePackage.status === 'active' || servicePackage.active ? 'active' : 'inactive',
-    custom_fields: removeNullValues({
-      reference_id: servicePackage.id,
-      cf_service_type: servicePackage.service_type,
-      cf_tax_inclusive: servicePackage.metadata?.vat_inclusive || false,
-    }),
+    description: 'One-time installation and activation fee',
+    sku: `${servicePackage.sku}-INSTALL`,
   };
 }
 
@@ -182,18 +189,13 @@ function buildHardwareItemPayload(servicePackage: ServicePackage): CreateItemPay
 
   const hardware = servicePackage.metadata.hardware;
 
+  // Only include fields supported by Zoho Billing Items API
+  // Note: custom_fields removed for MVP - requires pre-defined fields in Zoho Billing
   return {
-    sku: hardware.sku || `${servicePackage.sku}-HARDWARE`,
-    item_name: hardware.model || `${servicePackage.name} - Hardware`,
-    description: `Hardware included with ${servicePackage.name}`,
+    name: hardware.model || `${servicePackage.name} - Hardware`,
     rate: hardware.cost || 0,
-    item_type: 'goods', // Physical product
-    unit: 'unit',
-    status: servicePackage.status === 'active' || servicePackage.active ? 'active' : 'inactive',
-    custom_fields: removeNullValues({
-      reference_id: servicePackage.id,
-      cf_service_type: servicePackage.service_type,
-    }),
+    description: `Hardware included with ${servicePackage.name}`,
+    sku: hardware.sku || `${servicePackage.sku}-HARDWARE`,
   };
 }
 
@@ -214,8 +216,10 @@ export async function syncServicePackageToZohoBilling(
     });
 
     // 1. Sync Product (required for Plan creation)
+    await rateLimiter.waitForSlot('billing');
     const productPayload = buildProductPayload(servicePackage);
     const productId = await client.upsertProduct(servicePackage.name, productPayload);
+    await sleep(BILLING_API_DELAY_MS);
 
     console.log('[BillingSync] Product synced:', {
       product_id: productId,
@@ -223,8 +227,10 @@ export async function syncServicePackageToZohoBilling(
     });
 
     // 2. Sync Plan (recurring monthly subscription)
+    await rateLimiter.waitForSlot('billing');
     const planPayload = buildZohoPlanPayload(servicePackage, productId);
     const planId = await client.upsertPlan(servicePackage.sku, planPayload);
+    await sleep(BILLING_API_DELAY_MS);
 
     console.log('[BillingSync] Plan synced:', {
       plan_id: planId,
@@ -233,11 +239,13 @@ export async function syncServicePackageToZohoBilling(
     });
 
     // 3. Sync Installation Item (one-time fee)
+    await rateLimiter.waitForSlot('billing');
     const installationPayload = buildInstallationItemPayload(servicePackage);
     const installationItemId = await client.upsertItem(
       installationPayload.sku!,
       installationPayload
     );
+    await sleep(BILLING_API_DELAY_MS);
 
     console.log('[BillingSync] Installation item synced:', {
       item_id: installationItemId,
@@ -250,7 +258,9 @@ export async function syncServicePackageToZohoBilling(
     const hardwarePayload = buildHardwareItemPayload(servicePackage);
 
     if (hardwarePayload) {
+      await rateLimiter.waitForSlot('billing');
       hardwareItemId = await client.upsertItem(hardwarePayload.sku!, hardwarePayload);
+      await sleep(BILLING_API_DELAY_MS);
 
       console.log('[BillingSync] Hardware item synced:', {
         item_id: hardwareItemId,

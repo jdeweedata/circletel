@@ -400,6 +400,11 @@ async function runBackfill() {
         }
       }
 
+      // Add delay to avoid rate limiting (700ms between products for 90/min compliance)
+      // With rate limiter: 90 calls/min ÷ 2-3 calls/product = ~30-45 products/min
+      // 700ms delay = 85 products/min, well within limit
+      await new Promise(resolve => setTimeout(resolve, 700));
+
       console.log();
     }
 

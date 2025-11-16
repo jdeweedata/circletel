@@ -57,19 +57,14 @@ export class ZohoAPIClient {
     try {
       const accountsUrl = this.getAccountsUrl();
 
-      // Build request body - some OAuth providers require redirect_uri even for refresh
+      // Build request body for refresh token request
+      // NOTE: redirect_uri should NOT be included in refresh requests for Zoho OAuth
       const params: Record<string, string> = {
         grant_type: 'refresh_token',
         refresh_token: this.config.refreshToken,
         client_id: this.config.clientId,
         client_secret: this.config.clientSecret,
       };
-
-      // Add redirect_uri if available (required by some OAuth providers)
-      const redirectUri = process.env.ZOHO_REDIRECT_URI;
-      if (redirectUri) {
-        params.redirect_uri = redirectUri;
-      }
 
       const response = await fetch(`${accountsUrl}/oauth/v2/token`, {
         method: 'POST',
@@ -79,11 +74,15 @@ export class ZohoAPIClient {
         body: new URLSearchParams(params),
       });
 
-      if (!response.ok) {
-        throw new Error(`Token refresh failed: ${response.status}`);
-      }
-
       const data: any = await response.json();
+
+      if (!response.ok) {
+        console.error('[ZohoAPI] Token refresh failed:', {
+          status: response.status,
+          response: data
+        });
+        throw new Error(`Token refresh failed: ${response.status} - ${JSON.stringify(data)}`);
+      }
 
       if (!data || typeof data.access_token !== 'string') {
         const errorMessage =

@@ -1,6 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { createZohoAuthService } from './auth-service';
+import rateLimiter from './rate-limiter';
 import type { Product as ServicePackage } from '@/lib/types/products';
+
+// Rate limit protection delays
+const CRM_API_DELAY_MS = 150; // 150ms between individual API calls
+
+/**
+ * Sleep utility for rate limiting
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export interface ZohoProductSyncResult {
   success: boolean;
@@ -75,9 +86,16 @@ async function upsertProductIntegrationRow(params: {
         admin_product_id: params.adminProductId,
         service_package_id: params.servicePackageId,
         zoho_crm_product_id: params.zohoProductId,
+
+        // Legacy columns (backward compatibility - will be removed in future)
         sync_status: params.status,
         last_synced_at: now,
         last_sync_error: params.error ?? null,
+
+        // New CRM-specific columns (Epic 4.4 Phase 3)
+        zoho_crm_sync_status: params.status,
+        zoho_crm_last_synced_at: now,
+        zoho_crm_last_sync_error: params.error ?? null,
       },
       {
         onConflict: 'service_package_id',
@@ -105,6 +123,7 @@ async function upsertZohoCRMProduct(
 
   if (sku) {
     try {
+      await rateLimiter.waitForSlot('crm');
       const criteria = `(Product_Code:equals:${sku})`;
       const searchResponse = await fetch(
         `${ZOHO_CRM_BASE_URL}/Products/search?criteria=${encodeURIComponent(criteria)}`,
@@ -114,6 +133,7 @@ async function upsertZohoCRMProduct(
           },
         }
       );
+      await sleep(CRM_API_DELAY_MS);
 
       if (searchResponse.ok) {
         const searchData: any = await searchResponse.json();
@@ -128,6 +148,7 @@ async function upsertZohoCRMProduct(
 
   if (existingId) {
     // Update existing Product
+    await rateLimiter.waitForSlot('crm');
     const response = await fetch(`${ZOHO_CRM_BASE_URL}/Products/${existingId}`, {
       method: 'PUT',
       headers: {
@@ -136,6 +157,7 @@ async function upsertZohoCRMProduct(
       },
       body: JSON.stringify({ data: [payload] }),
     });
+    await sleep(CRM_API_DELAY_MS);
 
     if (!response.ok) {
       throw new Error(`Zoho CRM Products update failed: ${response.status} ${response.statusText}`);
@@ -151,6 +173,7 @@ async function upsertZohoCRMProduct(
   }
 
   // Create new Product
+  await rateLimiter.waitForSlot('crm');
   const createResponse = await fetch(`${ZOHO_CRM_BASE_URL}/Products`, {
     method: 'POST',
     headers: {
@@ -159,6 +182,7 @@ async function upsertZohoCRMProduct(
     },
     body: JSON.stringify({ data: [payload] }),
   });
+  await sleep(CRM_API_DELAY_MS);
 
   if (!createResponse.ok) {
     throw new Error(`Zoho CRM Products create failed: ${createResponse.status} ${createResponse.statusText}`);

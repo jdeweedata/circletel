@@ -32,6 +32,10 @@
     "app/api/coverage/lead/route.ts": {
       "maxDuration": 15,
       "memory": 512
+    },
+    "app/api/cron/zoho-sync/route.ts": {
+      "maxDuration": 10800,
+      "memory": 1024
     }
   },
   "crons": [
@@ -41,6 +45,14 @@
     },
     {
       "path": "/api/cron/expire-deals",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/price-changes",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/zoho-sync",
       "schedule": "0 2 * * *"
     }
   ]

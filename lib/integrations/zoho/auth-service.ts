@@ -1,9 +1,11 @@
 // ZOHO Auth Service
 // Extends ZohoAPIClient to add database token storage
 // CRITICAL: Reuses existing OAuth logic from lib/zoho-api-client.ts
+// Epic 4.4: Added OAuth mutex lock and rate limit protection
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import { createClient } from '@/lib/supabase/server';
+import rateLimiter from './rate-limiter';
 import type { ZohoToken } from './types';
 
 /**
@@ -11,11 +13,19 @@ import type { ZohoToken } from './types';
  * 1. Database token storage (zoho_tokens table)
  * 2. Automatic token refresh with database persistence
  * 3. Token expiry checking
+ * 4. OAuth mutex lock to prevent concurrent refreshes
+ * 5. Rate limit protection (10 refreshes/min max)
  *
  * This service REUSES the existing OAuth refresh logic from ZohoAPIClient
  * and adds database persistence on top.
  */
 export class ZohoAuthService extends ZohoAPIClient {
+  // Mutex lock to prevent concurrent token refreshes
+  private static refreshLock: Promise<string> | null = null;
+
+  // Last rate limit error timestamp for cooldown
+  private static lastRateLimitError: number = 0;
+  private static readonly RATE_LIMIT_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
   /**
    * Get a valid access token, checking database first
    * If token is expired, refresh and store new token
@@ -61,16 +71,64 @@ export class ZohoAuthService extends ZohoAPIClient {
 
   /**
    * Refresh access token using parent class OAuth logic
-   * This method is inherited from ZohoAPIClient
+   * PROTECTED BY MUTEX LOCK to prevent concurrent refreshes
+   * PROTECTED BY RATE LIMITER to enforce 10/min limit
    */
   async refreshAccessToken(): Promise<string> {
-    console.log('[ZohoAuth] Refreshing access token via OAuth...');
+    // If there's already a refresh in progress, wait for it
+    if (ZohoAuthService.refreshLock) {
+      console.log('[ZohoAuth] Refresh already in progress, waiting...');
+      return await ZohoAuthService.refreshLock;
+    }
 
-    // Call parent class method (already implemented in ZohoAPIClient)
-    const newToken = await super.refreshAccessToken();
+    // Check if we're in cooldown period after rate limit error
+    const now = Date.now();
+    const timeSinceLastError = now - ZohoAuthService.lastRateLimitError;
+    if (timeSinceLastError < ZohoAuthService.RATE_LIMIT_COOLDOWN_MS) {
+      const remainingMs = ZohoAuthService.RATE_LIMIT_COOLDOWN_MS - timeSinceLastError;
+      const remainingMin = Math.ceil(remainingMs / 60000);
+      console.warn(`[ZohoAuth] In cooldown period after rate limit. Waiting ${remainingMin} more minutes...`);
+      await new Promise(resolve => setTimeout(resolve, remainingMs));
+    }
 
-    console.log('[ZohoAuth] Token refresh successful');
-    return newToken;
+    // Start new refresh and store the promise as lock
+    ZohoAuthService.refreshLock = this.performRefresh();
+
+    try {
+      const token = await ZohoAuthService.refreshLock;
+      return token;
+    } finally {
+      // Always release the lock
+      ZohoAuthService.refreshLock = null;
+    }
+  }
+
+  /**
+   * Perform the actual token refresh with rate limiting
+   */
+  private async performRefresh(): Promise<string> {
+    try {
+      console.log('[ZohoAuth] Refreshing access token via OAuth...');
+
+      // Wait for rate limiter slot
+      await rateLimiter.waitForSlot('oauth');
+
+      // Call parent class method (already implemented in ZohoAPIClient)
+      const newToken = await super.refreshAccessToken();
+
+      console.log('[ZohoAuth] Token refresh successful');
+      return newToken;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Check if this is a rate limit error
+      if (errorMessage.includes('400') && errorMessage.includes('too many requests')) {
+        console.error('[ZohoAuth] OAuth rate limit hit! Starting 5-minute cooldown...');
+        ZohoAuthService.lastRateLimitError = Date.now();
+      }
+
+      throw error;
+    }
   }
 
   /**
@@ -78,6 +136,11 @@ export class ZohoAuthService extends ZohoAPIClient {
    */
   private async storeToken(accessToken: string): Promise<void> {
     try {
+      if (!accessToken || !accessToken.trim()) {
+        console.error('[ZohoAuth] storeToken called with empty access token – skipping DB persist');
+        return;
+      }
+
       // ZOHO tokens expire in 1 hour (3600 seconds)
       const expiresAt = new Date(Date.now() + 3600 * 1000);
 
@@ -100,14 +163,17 @@ export class ZohoAuthService extends ZohoAPIClient {
         });
 
       if (error) {
-        console.error('[ZohoAuth] Failed to store token:', error);
-        throw error;
+        // Treat token storage failures as non-blocking so that
+        // catalogue sync can still proceed using in-memory tokens.
+        console.error('[ZohoAuth] Failed to store token (non-blocking):', error);
+        return;
       }
 
       console.log('[ZohoAuth] Token stored in database, expires at:', expiresAt.toISOString());
     } catch (error) {
-      console.error('[ZohoAuth] Error storing token:', error);
-      throw new Error(`Failed to store ZOHO token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // If the zoho_tokens table or schema cache is missing, we should not
+      // block the caller. Log and continue with the in-memory token only.
+      console.error('[ZohoAuth] Error storing token (non-blocking):', error);
     }
   }
 
