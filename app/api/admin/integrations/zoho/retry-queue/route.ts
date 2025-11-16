@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
 import { processRetryQueue } from '@/lib/integrations/zoho/sync-retry-service';
 
 export const runtime = 'nodejs';
@@ -21,9 +22,28 @@ export const maxDuration = 300; // 5 minutes for processing queue
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Create TWO clients:
+    // 1. SSR client for authentication (reads cookies)
+    const supabaseSSR = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll() {
+            // No-op for POST requests
+          },
+        },
+      }
+    );
+
+    // 2. Service role client for database queries (bypasses RLS)
+    const supabaseAdmin = await createClient();
+
+    // Check authentication using SSR client
+    const { data: { user }, error: authError } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -32,8 +52,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Optional: Check if user has admin permissions
-    // For now, any authenticated user can trigger retry queue processing
+    // Verify admin user using service role client (bypasses RLS)
+    const { data: adminUser, error: adminError } = await supabaseAdmin
+      .from('admin_users')
+      .select('id, is_active')
+      .eq('id', user.id)
+      .eq('is_active', true)
+      .single();
+
+    if (adminError || !adminUser) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
 
     console.log('[ZohoRetryQueue] Starting retry queue processing...');
 
@@ -69,11 +101,54 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Create TWO clients:
+    // 1. SSR client for authentication (reads cookies)
+    const supabaseSSR = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll() {
+            // No-op for GET requests
+          },
+        },
+      }
+    );
+
+    // 2. Service role client for database queries (bypasses RLS)
+    const supabaseAdmin = await createClient();
+
+    // Check authentication using SSR client
+    const { data: { user }, error: authError } = await supabaseSSR.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verify admin user using service role client (bypasses RLS)
+    const { data: adminUser, error: adminError } = await supabaseAdmin
+      .from('admin_users')
+      .select('id, is_active')
+      .eq('id', user.id)
+      .eq('is_active', true)
+      .single();
+
+    if (adminError || !adminUser) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
+    }
 
     // Get count of products due for retry
     const now = new Date().toISOString();
-    const { count: dueCount } = await supabase
+    const { count: dueCount } = await supabaseAdmin
       .from('product_integrations')
       .select('*', { count: 'exact', head: true })
       .eq('sync_status', 'failed')
@@ -82,13 +157,13 @@ export async function GET(request: NextRequest) {
       .lt('retry_count', 5);
 
     // Get count of all failed syncs
-    const { count: failedCount } = await supabase
+    const { count: failedCount } = await supabaseAdmin
       .from('product_integrations')
       .select('*', { count: 'exact', head: true })
       .eq('sync_status', 'failed');
 
     // Get count of max retries exhausted
-    const { count: exhaustedCount } = await supabase
+    const { count: exhaustedCount } = await supabaseAdmin
       .from('product_integrations')
       .select('*', { count: 'exact', head: true })
       .eq('sync_status', 'failed')
