@@ -34,7 +34,7 @@
       "memory": 512
     },
     "app/api/cron/zoho-sync/route.ts": {
-      "maxDuration": 10800,
+      "maxDuration": 900,
       "memory": 1024
     }
   },
