@@ -741,12 +741,12 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="w-full min-h-screen bg-[#f7f8fa] text-gray-800 p-10 space-y-12">
+      {/* PAGE HEADER */}
+      <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Catalogue Management</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight mb-1">Product Catalogue</h1>
+          <p className="text-gray-500 text-sm">
             Manage your CircleTel product offerings
           </p>
         </div>
@@ -759,12 +759,13 @@ export default function AdminProducts() {
               fetchStats();
             }}
             disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm bg-white shadow-sm hover:bg-gray-50 transition disabled:opacity-50"
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
-            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90 rounded-xl shadow-sm">
               <Link href="/admin/products/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Product
@@ -772,27 +773,52 @@ export default function AdminProducts() {
             </Button>
           </PermissionGate>
         </div>
-      </div>
+      </header>
 
-      {/* Stats Widget */}
-      <ProductStatsWidget stats={productStats} />
+      {/* STATUS SUMMARY BAR */}
+      <section className="flex flex-wrap gap-4 text-sm">
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-gray-900">{productStats.total}</span>
+          <span className="text-gray-500">Total</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-green-600">{productStats.active}</span>
+          <span className="text-gray-500">Active</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-yellow-600">{productStats.draft}</span>
+          <span className="text-gray-500">Draft</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-red-600">{productStats.archived}</span>
+          <span className="text-gray-500">Archived</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-blue-600">{productStats.featured}</span>
+          <span className="text-gray-500">Featured</span>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <span className="font-semibold text-purple-600">{productStats.popular}</span>
+          <span className="text-gray-500">Popular</span>
+        </div>
+      </section>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            Filter Products
-            {(() => {
-              const activeCount = Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0);
-              return activeCount > 0 ? (
-                <Badge variant="default" className="bg-circleTel-orange">
-                  {activeCount} active
-                </Badge>
-              ) : null;
-            })()}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* SEARCH + FILTERS */}
+      <section className="flex flex-wrap items-center justify-between gap-4 bg-white p-6 border rounded-2xl shadow-sm">
+        <div className="w-full space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              Filter Products
+              {(() => {
+                const activeCount = Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0);
+                return activeCount > 0 ? (
+                  <span className="px-2 py-1 bg-circleTel-orange text-white text-xs rounded-lg">
+                    {activeCount} active
+                  </span>
+                ) : null;
+              })()}
+            </h2>
+          </div>
           <div className="space-y-4">
             {/* Row 1: Search (Full Width) */}
             <div className="relative">
@@ -965,8 +991,8 @@ export default function AdminProducts() {
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {/* Active Filter Chips */}
       <ActiveFiltersChips
@@ -987,7 +1013,7 @@ export default function AdminProducts() {
       />
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
@@ -1012,7 +1038,7 @@ export default function AdminProducts() {
                 variant="outline"
                 size="sm"
                 onClick={() => setColumnCustomizationOpen(true)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-xl"
               >
                 <Columns3 className="h-4 w-4" />
                 Customize Columns
@@ -1024,7 +1050,7 @@ export default function AdminProducts() {
               size="sm"
               onClick={handleExportCSV}
               disabled={products.length === 0}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-xl"
             >
               <Download className="h-4 w-4" />
               Export CSV ({products.length})
@@ -1125,7 +1151,7 @@ export default function AdminProducts() {
 
         {/* List View */}
         <TabsContent value="list" className="mt-6">
-          <Card>
+          <Card className="rounded-2xl shadow-sm">
             <CardHeader>
               <CardTitle>Product Catalogue</CardTitle>
             </CardHeader>
