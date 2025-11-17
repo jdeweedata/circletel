@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { createClient as createServiceClient } from '@/lib/supabase/server';
 import { subHours, subDays, startOfDay, endOfDay } from 'date-fns';
 
 /**
@@ -38,15 +39,16 @@ export async function GET(
     const { slug } = await context.params;
 
     // =========================================================================
-    // Authentication & Authorization
+    // Authentication & Authorization (Two-Client Pattern)
     // =========================================================================
-    const supabase = await createSSRClient();
+    // 1. SSR Client - For authentication (reads cookies)
+    const supabaseSSR = await createSSRClient();
 
     // Get current user session
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,10 +56,13 @@ export async function GET(
 
     // TODO: Add RBAC permission check when implemented (integrations:view)
 
+    // 2. Service Role Client - For database queries (bypasses RLS)
+    const supabaseAdmin = await createServiceClient();
+
     // =========================================================================
     // Fetch Integration Details
     // =========================================================================
-    const { data: integration, error: integrationError } = await supabase
+    const { data: integration, error: integrationError } = await supabaseAdmin
       .from('integration_registry')
       .select(
         `
@@ -96,7 +101,7 @@ export async function GET(
     // =========================================================================
     let oauthStatus = null;
     if (integration.requires_oauth) {
-      const { data: oauthTokens } = await supabase
+      const { data: oauthTokens } = await supabaseAdmin
         .from('integration_oauth_tokens')
         .select('id, expires_at, created_at, updated_at')
         .eq('integration_slug', slug)
@@ -131,7 +136,7 @@ export async function GET(
     // =========================================================================
     const twentyFourHoursAgo = subHours(new Date(), 24).toISOString();
 
-    const { data: healthChecks24h } = await supabase
+    const { data: healthChecks24h } = await supabaseAdmin
       .from('integration_activity_log')
       .select('action_type, action_result, metadata, created_at')
       .eq('integration_slug', slug)
@@ -151,7 +156,7 @@ export async function GET(
     // Fetch 7-Day Trend Data (Daily Aggregates)
     // =========================================================================
     const sevenDaysAgo = subDays(new Date(), 7);
-    const { data: healthChecks7d } = await supabase
+    const { data: healthChecks7d } = await supabaseAdmin
       .from('integration_activity_log')
       .select('action_result, metadata, created_at')
       .eq('integration_slug', slug)
@@ -192,7 +197,7 @@ export async function GET(
     // =========================================================================
     let webhookFailures = null;
     if (integration.supports_webhooks) {
-      const { data: failedWebhooks } = await supabase
+      const { data: failedWebhooks } = await supabaseAdmin
         .from('integration_webhook_logs')
         .select('id, event_type, status_code, error_message, received_at')
         .eq('integration_slug', slug)
@@ -216,7 +221,7 @@ export async function GET(
     // =========================================================================
     // Fetch Recent Activity Logs (Last 50 Events)
     // =========================================================================
-    const { data: activityLogs } = await supabase
+    const { data: activityLogs } = await supabaseAdmin
       .from('integration_activity_log')
       .select('id, action_type, action_description, action_result, created_at')
       .eq('integration_slug', slug)

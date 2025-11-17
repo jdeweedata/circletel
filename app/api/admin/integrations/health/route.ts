@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { createClient as createServiceClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/admin/integrations/health
@@ -27,15 +28,16 @@ import { createClient as createSSRClient } from '@/integrations/supabase/server'
 export async function GET(request: NextRequest) {
   try {
     // =========================================================================
-    // Authentication & Authorization
+    // Authentication & Authorization (Two-Client Pattern)
     // =========================================================================
-    const supabase = await createSSRClient();
+    // 1. SSR Client - For authentication (reads cookies)
+    const supabaseSSR = await createSSRClient();
 
     // Get current user session
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabaseSSR.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +48,10 @@ export async function GET(request: NextRequest) {
     // =========================================================================
     // Fetch All Integrations with Health Status
     // =========================================================================
-    const { data: integrations, error: integrationsError } = await supabase
+    // 2. Service Role Client - For database queries (bypasses RLS)
+    const supabaseAdmin = await createServiceClient();
+
+    const { data: integrations, error: integrationsError } = await supabaseAdmin
       .from('integration_registry')
       .select(
         `
