@@ -15,7 +15,7 @@ import {
   AlertCircle,
   Loader2,
   MapPin,
-  Tool,
+  Wrench,
   Package,
   Star,
   MessageSquare
@@ -125,7 +125,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Tool className="h-5 w-5" />
+            <Wrench className="h-5 w-5" />
             Installation Details
           </CardTitle>
         </CardHeader>
@@ -143,7 +143,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Tool className="h-5 w-5" />
+            <Wrench className="h-5 w-5" />
             Installation Details
           </CardTitle>
         </CardHeader>
@@ -162,7 +162,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
       <Card className={className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Tool className="h-5 w-5" />
+            <Wrench className="h-5 w-5" />
             Installation Details
           </CardTitle>
         </CardHeader>
@@ -181,7 +181,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Tool className="h-5 w-5" />
+            <Wrench className="h-5 w-5" />
             Installation Details
           </CardTitle>
           {getStatusBadge(task.status)}
