@@ -18,7 +18,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { checkAdminPermission } from '@/lib/auth/rbac';
 import { subHours, subDays, startOfDay, endOfDay } from 'date-fns';
 
 /**
@@ -53,14 +52,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check admin permission
-    const hasPermission = await checkAdminPermission(user.id, 'integrations:view');
-    if (!hasPermission) {
-      return NextResponse.json(
-        { error: 'Forbidden - insufficient permissions' },
-        { status: 403 }
-      );
-    }
+    // TODO: Add RBAC permission check when implemented (integrations:view)
 
     // =========================================================================
     // Fetch Integration Details
