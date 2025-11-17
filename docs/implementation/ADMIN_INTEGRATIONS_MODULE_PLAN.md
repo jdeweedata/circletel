@@ -1154,10 +1154,10 @@ async ping(): Promise<{ success: boolean; statusCode: number }> {
 - [x] Implement email alerts for consecutive failures (3 failures = alert, max 1 per 6 hours) ✅ DEPLOYED
 
 #### Webhook Management
-- [ ] Create `GET /api/admin/integrations/webhooks` - List all webhooks with filters
-- [ ] Create `GET /api/admin/integrations/webhooks/[id]/logs` - Get webhook logs with pagination
-- [ ] Create `POST /api/admin/integrations/webhooks/[id]/replay` - Replay failed webhook
-- [ ] Create `POST /api/admin/integrations/webhooks/[id]/test` - Send test webhook payload
+- [x] Create `GET /api/admin/integrations/webhooks` - List all webhooks with filters ✅ COMPLETE
+- [x] Create `GET /api/admin/integrations/webhooks/[id]/logs` - Get webhook logs with pagination ✅ COMPLETE
+- [x] Create `POST /api/admin/integrations/webhooks/[id]/replay` - Replay failed webhook ✅ COMPLETE
+- [x] Create `POST /api/admin/integrations/webhooks/[id]/test` - Send test webhook payload ✅ COMPLETE
 - [ ] Update existing webhook handlers to log to `integration_webhook_logs` table:
   - [ ] `app/api/webhooks/didit/kyc/route.ts`
   - [ ] `app/api/webhooks/netcash/route.ts`
