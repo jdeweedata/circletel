@@ -154,7 +154,7 @@ export function PaymentMethodRegistrationModal({
     // Show success state with mandate URL
     return (
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-green-600" />
@@ -281,7 +281,7 @@ export function PaymentMethodRegistrationModal({
   // Show request form
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-white">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
