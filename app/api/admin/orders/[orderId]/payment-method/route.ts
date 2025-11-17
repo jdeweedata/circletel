@@ -94,6 +94,7 @@ export async function POST(
     const body = await request.json();
     const {
       mandateAmount,
+      paymentMethodType = 'both', // 'both', 'bank_account', or 'credit_card'
       debitFrequency = 'Monthly',
       debitDay = '01',
       notes,
@@ -106,6 +107,15 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    // Map payment method type to NetCash BankDetailType
+    let bankDetailType: 1 | 2 | undefined;
+    if (paymentMethodType === 'bank_account') {
+      bankDetailType = 1; // Bank account only
+    } else if (paymentMethodType === 'credit_card') {
+      bankDetailType = 2; // Credit card only
+    }
+    // If 'both', leave undefined so customer can choose
 
     const supabase = await createClient();
 
@@ -194,7 +204,7 @@ export async function POST(
 
     // Prepare eMandate request
     const emandateService = new NetCashEMandateService();
-    const emandateRequest = {
+    const emandateRequest: any = {
       AccountReference: accountReference,
       MandateName: `${order.first_name} ${order.last_name}`,
       MandateAmount: parseFloat(mandateAmount),
@@ -223,6 +233,11 @@ export async function POST(
       Field2: order.order_number,
       Field3: order.customer_id,
     };
+
+    // Add BankDetailType if specific payment method is requested
+    if (bankDetailType) {
+      emandateRequest.BankDetailType = bankDetailType;
+    }
 
     // Create payment method record (pending)
     const { data: paymentMethod, error: pmError } = await supabase

@@ -57,6 +57,7 @@ export function PaymentMethodRegistrationModal({
   const [mandateAmount, setMandateAmount] = useState<string>(
     order.package_price.toFixed(2)
   );
+  const [paymentMethodType, setPaymentMethodType] = useState<string>('both');
   const [debitFrequency, setDebitFrequency] = useState<string>('Monthly');
   const [debitDay, setDebitDay] = useState<string>('01');
   const [notes, setNotes] = useState<string>('');
@@ -84,6 +85,7 @@ export function PaymentMethodRegistrationModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mandateAmount: amount,
+          paymentMethodType,
           debitFrequency,
           debitDay,
           notes: notes || `Monthly subscription for R${order.package_price}/mo service`,
@@ -146,6 +148,7 @@ export function PaymentMethodRegistrationModal({
     if (!mandateUrl) {
       // Normal close
       setMandateAmount(order.package_price.toFixed(2));
+      setPaymentMethodType('both');
       setDebitFrequency('Monthly');
       setDebitDay('01');
       setNotes('');
@@ -160,6 +163,7 @@ export function PaymentMethodRegistrationModal({
 
       // Reset state
       setMandateAmount(order.package_price.toFixed(2));
+      setPaymentMethodType('both');
       setDebitFrequency('Monthly');
       setDebitDay('01');
       setNotes('');
@@ -352,6 +356,41 @@ export function PaymentMethodRegistrationModal({
               </div>
               <p className="text-xs text-gray-500">
                 Monthly recurring amount (typically matches package price)
+              </p>
+            </div>
+
+            {/* Payment Method Type */}
+            <div className="space-y-2">
+              <Label htmlFor="payment_method_type">
+                Payment Method Type <span className="text-red-500">*</span>
+              </Label>
+              <Select value={paymentMethodType} onValueChange={setPaymentMethodType}>
+                <SelectTrigger id="payment_method_type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Customer Choice</span>
+                      <span className="text-xs text-gray-500">Bank account OR Credit card (recommended)</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="bank_account">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Bank Account Only</span>
+                      <span className="text-xs text-gray-500">Debit order from bank account</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="credit_card">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Credit Card Only</span>
+                      <span className="text-xs text-gray-500">Visa or Mastercard</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                Choose which payment method(s) the customer can select
               </p>
             </div>
 
