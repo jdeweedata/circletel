@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Loader2,
   CheckCircle2,
@@ -18,13 +15,18 @@ import {
   Zap,
   TrendingUp,
   Activity,
-  Key,
+  Settings,
+  BarChart3,
+  FileText,
+  Shield,
+  ExternalLink,
+  Play,
+  Eye,
   Calendar,
   AlertCircle,
-  ExternalLink,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import Link from 'next/link';
 
 interface IntegrationDetail {
   id: string;
@@ -59,21 +61,6 @@ interface Metrics {
   totalChecks7d: number;
 }
 
-interface HealthCheck {
-  timestamp: string;
-  status: string;
-  duration: number | null;
-  issues: string[];
-}
-
-interface TrendData {
-  date: string;
-  healthy: number;
-  degraded: number;
-  down: number;
-  total: number;
-}
-
 interface ActivityLog {
   id: string;
   actionType: string;
@@ -82,6 +69,8 @@ interface ActivityLog {
   timestamp: string;
 }
 
+type TabType = 'dashboard' | 'insights' | 'configuration' | 'activity' | 'health';
+
 export default function IntegrationDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -89,11 +78,11 @@ export default function IntegrationDetailPage() {
 
   const [integration, setIntegration] = useState<IntegrationDetail | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [healthHistory24h, setHealthHistory24h] = useState<HealthCheck[]>([]);
-  const [trend7d, setTrend7d] = useState<TrendData[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (slug) {
@@ -117,8 +106,6 @@ export default function IntegrationDetailPage() {
       const data = await response.json();
       setIntegration(data.integration);
       setMetrics(data.metrics);
-      setHealthHistory24h(data.healthHistory24h || []);
-      setTrend7d(data.trend7d || []);
       setActivityLogs(data.recentActivity || []);
     } catch (err) {
       console.error('Error fetching integration details:', err);
@@ -131,32 +118,32 @@ export default function IntegrationDetailPage() {
   const getHealthIcon = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle2 className="w-6 h-6 text-green-600" />;
+        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
       case 'degraded':
-        return <AlertTriangle className="w-6 h-6 text-yellow-600" />;
+        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
       case 'down':
-        return <XCircle className="w-6 h-6 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-red-600" />;
       default:
-        return <HelpCircle className="w-6 h-6 text-gray-400" />;
+        return <HelpCircle className="w-5 h-5 text-gray-400" />;
     }
   };
 
-  const getHealthBadge = (status: string) => {
+  const getHealthColor = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <Badge className="bg-green-100 text-green-800">Healthy</Badge>;
+        return 'text-green-600';
       case 'degraded':
-        return <Badge className="bg-yellow-100 text-yellow-800">Degraded</Badge>;
+        return 'text-yellow-600';
       case 'down':
-        return <Badge className="bg-red-100 text-red-800">Down</Badge>;
+        return 'text-red-600';
       default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
+        return 'text-gray-500';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-screen bg-[#f7f8fa]">
         <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
@@ -164,426 +151,507 @@ export default function IntegrationDetailPage() {
 
   if (error || !integration) {
     return (
-      <div className="space-y-6">
-        <Button
-          variant="outline"
-          onClick={() => router.push('/admin/integrations')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Integrations
-        </Button>
-        <Card className="border-red-300">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="w-5 h-5" />
-              <p className="text-sm">{error || 'Integration not found'}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center h-screen bg-[#f7f8fa]">
+        <div className="max-w-md bg-white border rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-2 text-red-600 mb-4">
+            <AlertCircle className="w-5 h-5" />
+            <h3 className="font-semibold">Error Loading Integration</h3>
+          </div>
+          <p className="text-gray-600 mb-4">{error || 'Integration not found'}</p>
+          <Button onClick={() => router.push('/admin/integrations')} className="w-full">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Integrations
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={() => router.push('/admin/integrations')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchIntegrationDetails}
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
+    <div className="flex h-screen bg-[#f7f8fa]">
+      {/* Left Sidebar */}
+      <aside className={`bg-white border-r transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
+        <div className="p-6 border-b">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-10 w-10 rounded-lg bg-circleTel-orange/10 flex items-center justify-center">
+              <span className="text-lg font-bold text-circleTel-orange">
+                {integration.name.charAt(0)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold text-gray-900 truncate">{integration.name}</h2>
+              <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                {integration.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+        </div>
 
-      {/* Integration Header */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-            <div className="flex items-start gap-4">
-              {getHealthIcon(integration.healthStatus)}
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-circleTel-darkNeutral dark:text-white mb-2">
-                  {integration.name}
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  {integration.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {getHealthBadge(integration.healthStatus)}
-                  <Badge variant="outline">
-                    {integration.category === 'api_key' ? 'API Key' :
-                     integration.category === 'oauth' ? 'OAuth' :
-                     integration.category === 'webhook_only' ? 'Webhook Only' :
-                     integration.category}
-                  </Badge>
-                  {!integration.isActive && (
-                    <Badge variant="outline" className="text-gray-500">Disabled</Badge>
-                  )}
-                  {integration.isProductionReady && (
-                    <Badge className="bg-blue-100 text-blue-800">Production Ready</Badge>
-                  )}
+        <nav className="p-4 space-y-1">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              activeTab === 'dashboard'
+                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            Dashboard
+          </button>
+
+          <button
+            onClick={() => setActiveTab('insights')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              activeTab === 'insights'
+                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            Insights
+          </button>
+
+          <button
+            onClick={() => setActiveTab('configuration')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              activeTab === 'configuration'
+                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            Configuration
+          </button>
+
+          <button
+            onClick={() => setActiveTab('activity')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              activeTab === 'activity'
+                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            Activity Log
+          </button>
+
+          <button
+            onClick={() => setActiveTab('health')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+              activeTab === 'health'
+                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            Health Monitoring
+          </button>
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
+          <Link href="/admin/integrations">
+            <Button variant="outline" className="w-full">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Integrations
+            </Button>
+          </Link>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {activeTab === 'dashboard' && 'Dashboard'}
+                {activeTab === 'insights' && 'Insights'}
+                {activeTab === 'configuration' && 'Configuration'}
+                {activeTab === 'activity' && 'Activity Log'}
+                {activeTab === 'health' && 'Health Monitoring'}
+              </h1>
+              <p className="text-sm text-gray-500">
+                {integration.description}
+              </p>
+            </div>
+            <Button onClick={fetchIntegrationDetails} variant="outline" size="sm">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
+
+          {/* Alert Banner */}
+          {integration.consecutiveFailures >= 3 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-red-600" />
+                <div>
+                  <p className="font-semibold text-red-900">Active Alert</p>
+                  <p className="text-sm text-red-700">
+                    {integration.consecutiveFailures} consecutive failures detected
+                  </p>
                 </div>
               </div>
             </div>
-
-            {integration.documentationUrl && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(integration.documentationUrl!, '_blank')}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Documentation
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Alert Banner */}
-      {integration.consecutiveFailures >= 3 && (
-        <Card className="border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-red-800 dark:text-red-200">
-              <Zap className="w-5 h-5" />
-              <div>
-                <p className="font-semibold">Active Alert</p>
-                <p className="text-sm">{integration.consecutiveFailures} consecutive failures detected</p>
-                {integration.lastAlertSentAt && (
-                  <p className="text-xs mt-1">
-                    Last alert sent {formatDistanceToNow(new Date(integration.lastAlertSentAt), { addSuffix: true })}
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">24h Uptime</p>
-                <p className="text-2xl font-bold">
-                  {metrics?.uptime24h !== null && metrics?.uptime24h !== undefined ? `${metrics.uptime24h.toFixed(1)}%` : 'N/A'}
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">7d Uptime</p>
-                <p className="text-2xl font-bold">
-                  {metrics?.uptime7d !== null && metrics?.uptime7d !== undefined ? `${metrics.uptime7d.toFixed(1)}%` : 'N/A'}
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Response</p>
-                <p className="text-2xl font-bold">
-                  {integration.avgResponseTimeMs !== null ? `${integration.avgResponseTimeMs}ms` : 'N/A'}
-                </p>
-              </div>
-              <Zap className="w-8 h-8 text-orange-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">30d Requests</p>
-                <p className="text-2xl font-bold">
-                  {integration.totalRequests30d !== null ? integration.totalRequests30d.toLocaleString() : 'N/A'}
-                </p>
-              </div>
-              <Activity className="w-8 h-8 text-purple-400" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabbed Content */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="health">Health History</TabsTrigger>
-          <TabsTrigger value="activity">Activity Log</TabsTrigger>
-          <TabsTrigger value="config">Configuration</TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* 7-Day Trend Chart */}
-          {trend7d.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>7-Day Health Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trend7d}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="healthy" stroke="#10b981" name="Healthy" />
-                    <Line type="monotone" dataKey="degraded" stroke="#f59e0b" name="Degraded" />
-                    <Line type="monotone" dataKey="down" stroke="#ef4444" name="Down" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
           )}
 
-          {/* Additional Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Integration Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Slug:</span>
-                  <span className="font-mono">{integration.slug}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Type:</span>
-                  <span>{integration.category}</span>
-                </div>
-                {integration.baseUrl && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Base URL:</span>
-                    <span className="font-mono text-xs truncate max-w-xs">{integration.baseUrl}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Created:</span>
-                  <span>{format(new Date(integration.createdAt), 'PP')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Updated:</span>
-                  <span>{formatDistanceToNow(new Date(integration.updatedAt), { addSuffix: true })}</span>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Tab Content */}
+          {activeTab === 'dashboard' && (
+            <DashboardView integration={integration} metrics={metrics} />
+          )}
+          {activeTab === 'insights' && (
+            <InsightsView integration={integration} metrics={metrics} />
+          )}
+          {activeTab === 'configuration' && (
+            <ConfigurationView integration={integration} />
+          )}
+          {activeTab === 'activity' && (
+            <ActivityView activityLogs={activityLogs} />
+          )}
+          {activeTab === 'health' && (
+            <HealthView integration={integration} metrics={metrics} />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Health Check Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Health Checks:</span>
-                  <span>{integration.healthCheckEnabled ? 'Enabled' : 'Disabled'}</span>
-                </div>
-                {integration.healthLastCheckedAt && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Last Checked:</span>
-                    <span>{formatDistanceToNow(new Date(integration.healthLastCheckedAt), { addSuffix: true })}</span>
-                  </div>
+// Dashboard View Component
+function DashboardView({ integration, metrics }: { integration: IntegrationDetail; metrics: Metrics | null }) {
+  return (
+    <div className="space-y-8">
+      {/* Actions Section */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Run Health Check Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div className="h-32 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl mb-4 flex items-center justify-center">
+              <Play className="w-12 h-12 text-green-600" />
+            </div>
+            <h3 className="font-semibold mb-2">Run Health Check</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Manually trigger a health check to verify integration status.
+            </p>
+            <Button className="w-full bg-green-600 hover:bg-green-700">
+              <Play className="w-4 h-4 mr-2" />
+              Run Check
+            </Button>
+          </div>
+
+          {/* View Logs Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div className="h-32 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl mb-4 flex items-center justify-center">
+              <FileText className="w-12 h-12 text-blue-600" />
+            </div>
+            <h3 className="font-semibold mb-2">View Activity Logs</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Review recent integration activity and events.
+            </p>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Eye className="w-4 h-4 mr-2" />
+              View Logs
+            </Button>
+          </div>
+
+          {/* Documentation Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <div className="h-32 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl mb-4 flex items-center justify-center">
+              <ExternalLink className="w-12 h-12 text-purple-600" />
+            </div>
+            <h3 className="font-semibold mb-2">View Documentation</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Access official API documentation and guides.
+            </p>
+            <Button
+              className="w-full bg-purple-600 hover:bg-purple-700"
+              onClick={() => integration.documentationUrl && window.open(integration.documentationUrl, '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open Docs
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Status Section */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Status</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Health Score Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="w-5 h-5 text-gray-400" />
+              <h3 className="font-semibold text-gray-700">Health Score</h3>
+            </div>
+            <div className="flex items-center justify-center py-8">
+              {integration.healthStatus === 'healthy' ? (
+                <CheckCircle2 className="w-16 h-16 text-green-600" />
+              ) : integration.healthStatus === 'degraded' ? (
+                <AlertTriangle className="w-16 h-16 text-yellow-600" />
+              ) : integration.healthStatus === 'down' ? (
+                <XCircle className="w-16 h-16 text-red-600" />
+              ) : (
+                <HelpCircle className="w-16 h-16 text-gray-400" />
+              )}
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold capitalize">{integration.healthStatus}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {integration.healthLastCheckedAt
+                  ? `Checked ${formatDistanceToNow(new Date(integration.healthLastCheckedAt), { addSuffix: true })}`
+                  : 'Never checked'}
+              </p>
+            </div>
+          </div>
+
+          {/* Uptime Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-gray-400" />
+              <h3 className="font-semibold text-gray-700">24h Uptime</h3>
+            </div>
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-4xl font-bold text-gray-900">
+                  {metrics?.uptime24h !== null && metrics?.uptime24h !== undefined
+                    ? `${metrics.uptime24h.toFixed(1)}%`
+                    : 'N/A'}
+                </p>
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                {metrics?.totalChecks24h || 0} health checks in last 24 hours
+              </p>
+            </div>
+          </div>
+
+          {/* Response Time Card */}
+          <div className="bg-white border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-gray-400" />
+              <h3 className="font-semibold text-gray-700">Avg Response Time</h3>
+            </div>
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-4xl font-bold text-gray-900">
+                  {integration.avgResponseTimeMs !== null ? `${integration.avgResponseTimeMs}` : 'N/A'}
+                </p>
+                {integration.avgResponseTimeMs !== null && (
+                  <p className="text-sm text-gray-500 mt-1">milliseconds</p>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Consecutive Failures:</span>
-                  <span className={integration.consecutiveFailures >= 3 ? 'text-red-600 font-bold' : ''}>
-                    {integration.consecutiveFailures}
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Average API response time</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// Insights View Component
+function InsightsView({ integration, metrics }: { integration: IntegrationDetail; metrics: Metrics | null }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <p className="text-sm text-gray-600 mb-1">30-Day Requests</p>
+          <p className="text-3xl font-bold">{integration.totalRequests30d?.toLocaleString() || 'N/A'}</p>
+        </div>
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <p className="text-sm text-gray-600 mb-1">Failed Requests</p>
+          <p className="text-3xl font-bold text-red-600">{integration.failedRequests30d?.toLocaleString() || '0'}</p>
+        </div>
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <p className="text-sm text-gray-600 mb-1">7-Day Uptime</p>
+          <p className="text-3xl font-bold">
+            {metrics?.uptime7d !== null && metrics?.uptime7d !== undefined ? `${metrics.uptime7d.toFixed(1)}%` : 'N/A'}
+          </p>
+        </div>
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <p className="text-sm text-gray-600 mb-1">Overall Uptime</p>
+          <p className="text-3xl font-bold">
+            {integration.uptimePercentage !== null ? `${integration.uptimePercentage.toFixed(2)}%` : 'N/A'}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4">Usage Trends</h3>
+        <p className="text-sm text-gray-500">Historical usage data will be displayed here.</p>
+      </div>
+    </div>
+  );
+}
+
+// Configuration View Component
+function ConfigurationView({ integration }: { integration: IntegrationDetail }) {
+  return (
+    <div className="space-y-6">
+      <div className="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4">Integration Details</h3>
+        <dl className="space-y-3 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-gray-600">Slug:</dt>
+            <dd className="font-mono text-gray-900">{integration.slug}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-gray-600">Type:</dt>
+            <dd className="text-gray-900 capitalize">{integration.category.replace('_', ' ')}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-gray-600">Status:</dt>
+            <dd className="text-gray-900">{integration.isActive ? 'Active' : 'Inactive'}</dd>
+          </div>
+          {integration.baseUrl && (
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Base URL:</dt>
+              <dd className="font-mono text-gray-900 truncate max-w-xs">{integration.baseUrl}</dd>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <dt className="text-gray-600">Created:</dt>
+            <dd className="text-gray-900">{format(new Date(integration.createdAt), 'PP')}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4">Features</h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">OAuth Support:</span>
+            <span className="font-medium">{integration.requiresOauth ? 'Yes' : 'No'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Webhook Support:</span>
+            <span className="font-medium">{integration.supportsWebhooks ? 'Yes' : 'No'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Health Monitoring:</span>
+            <span className="font-medium">{integration.healthCheckEnabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600">Production Ready:</span>
+            <span className="font-medium">{integration.isProductionReady ? 'Yes' : 'No'}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Activity View Component
+function ActivityView({ activityLogs }: { activityLogs: ActivityLog[] }) {
+  return (
+    <div className="bg-white border rounded-xl p-6 shadow-sm">
+      <h3 className="font-semibold mb-4">Recent Activity</h3>
+      {activityLogs.length === 0 ? (
+        <p className="text-sm text-gray-500 text-center py-8">No activity logs found</p>
+      ) : (
+        <div className="space-y-3">
+          {activityLogs.map((log) => (
+            <div key={log.id} className="flex items-start gap-3 p-3 border rounded-lg">
+              {log.result === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900">{log.description}</p>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-xs text-gray-500">{log.actionType}</span>
+                  <span className="text-xs text-gray-400">
+                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">24h Health Checks:</span>
-                  <span>{metrics?.totalChecks24h || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">7d Health Checks:</span>
-                  <span>{metrics?.totalChecks7d || 0}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Health History Tab */}
-        <TabsContent value="health" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>24-Hour Health Check History</CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {healthHistory24h.length} health checks from the last 24 hours
-              </p>
-            </CardHeader>
-            <CardContent>
-              {healthHistory24h.length === 0 ? (
-                <div className="text-center py-12">
-                  <Clock className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">No health checks in the last 24 hours</p>
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {healthHistory24h.map((check, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded"
-                    >
-                      <div className="flex items-center gap-3">
-                        {check.status === 'healthy' ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        ) : check.status === 'degraded' ? (
-                          <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                        ) : (
-                          <XCircle className="w-5 h-5 text-red-600" />
-                        )}
-                        <div>
-                          <p className="text-sm font-medium capitalize">{check.status}</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {format(new Date(check.timestamp), 'PPpp')}
-                          </p>
-                        </div>
-                      </div>
-                      {check.duration && (
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {check.duration}ms
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Activity Log Tab */}
-        <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Last 50 activity events
-              </p>
-            </CardHeader>
-            <CardContent>
-              {activityLogs.length === 0 ? (
-                <div className="text-center py-12">
-                  <Activity className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">No activity logs found</p>
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {activityLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="p-3 border border-gray-200 dark:border-gray-700 rounded"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{log.description}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {log.actionType}
-                            </Badge>
-                            <span className="text-xs text-gray-600 dark:text-gray-400">
-                              {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
-                            </span>
-                          </div>
-                        </div>
-                        {log.result === 'success' ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Configuration Tab */}
-        <TabsContent value="config" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Integration Configuration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-3">Features</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">OAuth Support:</span>
-                      <span>{integration.requiresOauth ? 'Yes' : 'No'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Webhook Support:</span>
-                      <span>{integration.supportsWebhooks ? 'Yes' : 'No'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Health Monitoring:</span>
-                      <span>{integration.healthCheckEnabled ? 'Enabled' : 'Disabled'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                      <span>{integration.isActive ? 'Active' : 'Inactive'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-3">Performance</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">30d Total Requests:</span>
-                      <span>{integration.totalRequests30d?.toLocaleString() || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">30d Failed Requests:</span>
-                      <span className={integration.failedRequests30d && integration.failedRequests30d > 0 ? 'text-red-600' : ''}>
-                        {integration.failedRequests30d?.toLocaleString() || '0'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Overall Uptime:</span>
-                      <span>{integration.uptimePercentage !== null ? `${integration.uptimePercentage.toFixed(2)}%` : 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Avg Response Time:</span>
-                      <span>{integration.avgResponseTimeMs !== null ? `${integration.avgResponseTimeMs}ms` : 'N/A'}</span>
-                    </div>
-                  </div>
-                </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Health View Component
+function HealthView({ integration, metrics }: { integration: IntegrationDetail; metrics: Metrics | null }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4">Health Check Status</h3>
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Current Status:</dt>
+              <dd className="font-medium capitalize">{integration.healthStatus}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Consecutive Failures:</dt>
+              <dd className={integration.consecutiveFailures >= 3 ? 'font-bold text-red-600' : 'font-medium'}>
+                {integration.consecutiveFailures}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Last Checked:</dt>
+              <dd className="font-medium">
+                {integration.healthLastCheckedAt
+                  ? formatDistanceToNow(new Date(integration.healthLastCheckedAt), { addSuffix: true })
+                  : 'Never'}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">24h Checks:</dt>
+              <dd className="font-medium">{metrics?.totalChecks24h || 0}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">7d Checks:</dt>
+              <dd className="font-medium">{metrics?.totalChecks7d || 0}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4">Uptime Metrics</h3>
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-gray-600">24-Hour Uptime:</dt>
+              <dd className="font-medium">
+                {metrics?.uptime24h !== null && metrics?.uptime24h !== undefined
+                  ? `${metrics.uptime24h.toFixed(1)}%`
+                  : 'N/A'}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">7-Day Uptime:</dt>
+              <dd className="font-medium">
+                {metrics?.uptime7d !== null && metrics?.uptime7d !== undefined
+                  ? `${metrics.uptime7d.toFixed(1)}%`
+                  : 'N/A'}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Overall Uptime:</dt>
+              <dd className="font-medium">
+                {integration.uptimePercentage !== null ? `${integration.uptimePercentage.toFixed(2)}%` : 'N/A'}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-600">Avg Response Time:</dt>
+              <dd className="font-medium">
+                {integration.avgResponseTimeMs !== null ? `${integration.avgResponseTimeMs}ms` : 'N/A'}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 }
