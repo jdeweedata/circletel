@@ -219,7 +219,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
         </div>
 
         {/* Technician Information */}
-        {task.technician && (
+        {task.technician && task.technician.name && (
           <>
             <Separator />
             <div className="space-y-3">
@@ -227,13 +227,13 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <User className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm text-gray-900">{task.technician.name}</span>
+                  <span className="text-sm text-gray-900">{String(task.technician.name)}</span>
                 </div>
                 {task.technician.phone && (
                   <div className="flex items-center gap-3">
                     <Phone className="h-5 w-5 text-gray-400" />
                     <a href={`tel:${task.technician.phone}`} className="text-sm text-blue-600 hover:underline">
-                      {task.technician.phone}
+                      {String(task.technician.phone)}
                     </a>
                   </div>
                 )}
@@ -241,7 +241,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
                   <div className="flex items-center gap-3">
                     <Mail className="h-5 w-5 text-gray-400" />
                     <a href={`mailto:${task.technician.email}`} className="text-sm text-blue-600 hover:underline">
-                      {task.technician.email}
+                      {String(task.technician.email)}
                     </a>
                   </div>
                 )}
