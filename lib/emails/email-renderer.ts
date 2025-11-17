@@ -15,6 +15,7 @@ import ServiceActivatedEmail from '@/emails/templates/consumer/service-activated
 import KycUploadRequestEmail from '@/emails/templates/consumer/kyc-upload-request';
 import KycApprovedEmail from '@/emails/templates/consumer/kyc-approved';
 import KycRejectedEmail from '@/emails/templates/consumer/kyc-rejected';
+import PaymentMethodRegistrationEmail from '@/emails/templates/consumer/payment-method-registration';
 
 import QuoteSentEmail from '@/emails/templates/business/quote-sent';
 import QuoteApprovedEmail from '@/emails/templates/business/quote-approved';
@@ -30,6 +31,7 @@ export type EmailTemplateId =
   // Consumer Templates
   | 'order_confirmation'
   | 'payment_received'
+  | 'payment_method_registration'
   | 'installation_scheduled'
   | 'installation_reminder'
   | 'service_activated'
@@ -66,6 +68,7 @@ const TEMPLATE_REGISTRY: Record<EmailTemplateId, React.FC<any>> = {
   // Consumer Templates
   order_confirmation: OrderConfirmationEmail,
   payment_received: PaymentReceivedEmail,
+  payment_method_registration: PaymentMethodRegistrationEmail,
   installation_scheduled: InstallationScheduledEmail,
   installation_reminder: InstallationReminderEmail,
   service_activated: ServiceActivatedEmail,

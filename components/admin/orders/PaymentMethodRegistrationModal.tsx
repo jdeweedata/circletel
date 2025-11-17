@@ -100,6 +100,30 @@ export function PaymentMethodRegistrationModal({
           description: 'Customer can now sign the mandate online',
         });
 
+        // Automatically send email and SMS notification
+        try {
+          const notifyResponse = await fetch(`/api/admin/orders/${order.id}/payment-method/notify`, {
+            method: 'POST',
+          });
+
+          const notifyResult = await notifyResponse.json();
+
+          if (notifyResult.success) {
+            const sentChannels = [];
+            if (notifyResult.data.email.sent) sentChannels.push('email');
+            if (notifyResult.data.sms.sent) sentChannels.push('SMS');
+
+            if (sentChannels.length > 0) {
+              toast.success(`Notification sent via ${sentChannels.join(' and ')}`, {
+                description: 'Customer will receive the registration link',
+              });
+            }
+          }
+        } catch (notifyError) {
+          console.error('Failed to send automatic notification:', notifyError);
+          // Don't fail the whole process if notification fails
+        }
+
         // Don't close modal yet - show mandate URL for copy/share
       } else {
         setError(result.error || 'Failed to create eMandate request');

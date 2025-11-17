@@ -16,7 +16,9 @@ import {
   RefreshCw,
   Ban,
   FileText,
+  Send,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PaymentMethod {
   id: string;
@@ -64,6 +66,7 @@ export function PaymentMethodStatus({
   const [emandateRequest, setEmandateRequest] = useState<EMandateRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sendingNotification, setSendingNotification] = useState(false);
 
   useEffect(() => {
     fetchPaymentMethodStatus();
@@ -88,6 +91,45 @@ export function PaymentMethodStatus({
       setError('Failed to load payment method status');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sendReminder = async () => {
+    try {
+      setSendingNotification(true);
+
+      const response = await fetch(`/api/admin/orders/${orderId}/payment-method/notify`, {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const sentChannels = [];
+        if (result.data.email.sent) sentChannels.push('email');
+        if (result.data.sms.sent) sentChannels.push('SMS');
+
+        if (sentChannels.length > 0) {
+          toast.success(`Reminder sent via ${sentChannels.join(' and ')}`, {
+            description: 'Customer will receive the payment registration link',
+          });
+        } else {
+          toast.warning('Notification partially failed', {
+            description: 'Check console for details',
+          });
+        }
+      } else {
+        toast.error('Failed to send reminder', {
+          description: result.error || 'Please try again',
+        });
+      }
+    } catch (err) {
+      console.error('Error sending reminder:', err);
+      toast.error('Network error', {
+        description: 'Failed to send reminder notification',
+      });
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -409,6 +451,27 @@ export function PaymentMethodStatus({
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Status
           </Button>
+
+          {paymentMethod.status === 'pending' && emandateRequest && !expired && (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={sendReminder}
+              disabled={sendingNotification}
+            >
+              {sendingNotification ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Reminder
+                </>
+              )}
+            </Button>
+          )}
 
           {paymentMethod.netcash_mandate_pdf_link && paymentMethod.status === 'active' && (
             <Button
