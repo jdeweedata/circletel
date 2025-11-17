@@ -225,37 +225,37 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
                       )}
 
                       {/* Event details */}
-                      {Object.keys(event.details).length > 0 && (
+                      {event.details && typeof event.details === 'object' && Object.keys(event.details).length > 0 && (
                         <div className="mt-2 space-y-1">
                           {/* Status change details */}
-                          {event.type === 'status_change' && (
+                          {event.type === 'status_change' && event.details.toStatus && (
                             <div className="flex items-center gap-2 text-xs">
                               {event.details.fromStatus && (
                                 <>
                                   <Badge variant="outline" className="text-xs">
-                                    {event.details.fromStatus.replace(/_/g, ' ')}
+                                    {String(event.details.fromStatus).replace(/_/g, ' ')}
                                   </Badge>
                                   <span className="text-gray-400">→</span>
                                 </>
                               )}
                               <Badge variant="default" className="text-xs">
-                                {event.details.toStatus.replace(/_/g, ' ')}
+                                {String(event.details.toStatus).replace(/_/g, ' ')}
                               </Badge>
                               {event.details.changedBy && (
                                 <span className="text-gray-500 flex items-center gap-1">
                                   <User className="h-3 w-3" />
-                                  {event.details.changedBy}
+                                  {String(event.details.changedBy)}
                                 </span>
                               )}
                             </div>
                           )}
 
                           {/* Communication details */}
-                          {event.type === 'communication' && (
+                          {event.type === 'communication' && event.details.channel && (
                             <div className="text-xs text-gray-500 space-y-0.5">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">Channel:</span>
-                                <span className="capitalize">{event.details.channel}</span>
+                                <span className="capitalize">{String(event.details.channel)}</span>
                                 {event.details.status && (
                                   <Badge
                                     variant={
@@ -267,14 +267,14 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
                                     }
                                     className="text-xs"
                                   >
-                                    {event.details.status}
+                                    {String(event.details.status)}
                                   </Badge>
                                 )}
                               </div>
                               {event.details.recipient && (
                                 <div className="flex items-center gap-2">
                                   <span className="font-medium">To:</span>
-                                  <span>{event.details.recipient}</span>
+                                  <span>{String(event.details.recipient)}</span>
                                 </div>
                               )}
                             </div>
@@ -284,7 +284,7 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
                           {event.type === 'installation' && event.details.technician && (
                             <div className="text-xs text-gray-500 flex items-center gap-2">
                               <User className="h-3 w-3" />
-                              <span>Technician: {event.details.technician}</span>
+                              <span>Technician: {String(event.details.technician)}</span>
                             </div>
                           )}
                         </div>
