@@ -273,11 +273,11 @@ export function AdminProductCard({
     <div
       className={cn(
         'group relative w-full h-full',
-        'bg-white rounded-xl border-2 transition-all duration-300 ease-in-out',
-        'hover:shadow-xl hover:scale-[1.02]',
-        selected && 'border-circleTel-orange shadow-lg ring-2 ring-circleTel-orange ring-offset-2',
-        !selected && 'border-gray-200 hover:border-circleTel-orange/50',
-        isDragging && 'opacity-50 rotate-2 scale-105'
+        'bg-white rounded-2xl border transition-all duration-200 ease-in-out',
+        'shadow-sm hover:shadow-md hover:-translate-y-0.5',
+        selected && 'border-circleTel-orange shadow-md ring-2 ring-circleTel-orange ring-offset-2',
+        !selected && 'border-gray-200 hover:border-gray-300',
+        isDragging && 'opacity-50 rotate-1 scale-105'
       )}
     >
       {/* Selection Checkbox & Drag Handle - Top Left */}
@@ -292,7 +292,7 @@ export function AdminProductCard({
         {dragHandleProps && (
           <div
             {...dragHandleProps}
-            className="cursor-grab active:cursor-grabbing p-1 bg-white rounded border-2 border-gray-200 hover:border-circleTel-orange transition-colors"
+            className="cursor-grab active:cursor-grabbing p-1 bg-white rounded-lg border border-gray-200 hover:border-gray-300 shadow-sm transition-all"
           >
             <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
@@ -300,7 +300,7 @@ export function AdminProductCard({
       </div>
 
       {/* Quick Actions - Top Right - Always visible for better UX */}
-      <div className="absolute top-3 right-3 flex gap-1 z-10">
+      <div className="absolute top-3 right-3 flex gap-1.5 z-10">
         {onView && (
           <TooltipProvider>
             <Tooltip>
@@ -308,7 +308,7 @@ export function AdminProductCard({
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
+                  className="h-8 w-8 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-gray-300 rounded-lg transition-all"
                   onClick={(e) => {
                     console.log('[AdminProductCard] View clicked for:', product.id);
                     e.stopPropagation();
@@ -329,7 +329,7 @@ export function AdminProductCard({
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
+                  className="h-8 w-8 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-gray-300 rounded-lg transition-all"
                   onClick={(e) => {
                     console.log('[AdminProductCard] Edit clicked for:', product.id, 'hasEditPermission:', hasEditPermission);
                     e.stopPropagation();
@@ -352,7 +352,7 @@ export function AdminProductCard({
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-8 w-8 p-0 bg-white shadow-md hover:bg-gray-100"
+                  className="h-8 w-8 p-0 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-gray-300 rounded-lg transition-all"
                   onClick={(e) => {
                     console.log('[AdminProductCard] Price edit clicked for:', product.id, 'hasPricingPermission:', hasPricingPermission);
                     e.stopPropagation();
@@ -375,7 +375,7 @@ export function AdminProductCard({
         {/* Provider Logo */}
         {providerCode && (
           <div className="flex justify-center mb-4">
-            <div className="rounded-lg bg-gray-50 px-3 py-2">
+            <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 shadow-sm">
               <ProviderLogo
                 providerCode={providerCode}
                 providerName={providerName}
@@ -391,7 +391,7 @@ export function AdminProductCard({
         {/* Product Icon (if no provider) */}
         {!providerCode && (
           <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 bg-circleTel-lightNeutral rounded-full flex items-center justify-center">
+            <div className="h-16 w-16 bg-circleTel-orange/10 border border-circleTel-orange/20 rounded-xl flex items-center justify-center shadow-sm">
               <Package className="h-8 w-8 text-circleTel-orange" />
             </div>
           </div>
@@ -516,7 +516,7 @@ export function AdminProductCard({
         {/* Action Buttons */}
         <div className="flex gap-2">
           {onToggleStatus && (
-            <div className="flex items-center justify-between flex-1 px-4 py-3.5 border border-gray-200 rounded-lg bg-white hover:bg-gray-50/50 transition-all duration-200">
+            <div className="flex items-center justify-between flex-1 px-4 py-3.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50/50 transition-all duration-200 shadow-sm">
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-gray-900">
                   {product.is_active ? 'Active' : 'Inactive'}
@@ -551,7 +551,7 @@ export function AdminProductCard({
           {/* More Actions Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={onToggleStatus ? "w-auto" : "flex-1"}>
+              <Button variant="outline" size="sm" className={cn("rounded-xl shadow-sm", onToggleStatus ? "w-auto" : "flex-1")}>
                 More Actions
               </Button>
             </DropdownMenuTrigger>
