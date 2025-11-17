@@ -45,7 +45,9 @@ import {
   Handshake,
   UserPlus,
   LinkIcon,
-  MapPin
+  MapPin,
+  Calendar,
+  Wrench
 } from 'lucide-react';
 
 interface User {
@@ -88,9 +90,12 @@ const navigation = [
   },
   {
     name: 'Orders',
-    href: '/admin/orders',
     icon: ShoppingCart,
-    description: 'Manage customer orders'
+    children: [
+      { name: 'All Orders', href: '/admin/orders', icon: List },
+      { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar },
+      { name: 'Technicians', href: '/admin/orders/technicians', icon: Wrench }
+    ]
   },
   {
     name: 'Customers',
