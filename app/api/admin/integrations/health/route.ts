@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
         id,
         slug,
         name,
-        category,
+        integration_type,
         health_status,
-        health_last_checked_at,
+        last_health_check_at,
         consecutive_failures,
         last_alert_sent_at,
         health_check_enabled,
@@ -120,12 +120,12 @@ export async function GET(request: NextRequest) {
       }
 
       // Track most recent health check
-      if (integration.health_last_checked_at) {
+      if (integration.last_health_check_at) {
         if (
           !summary.lastCheckAt ||
-          new Date(integration.health_last_checked_at) > new Date(summary.lastCheckAt)
+          new Date(integration.last_health_check_at) > new Date(summary.lastCheckAt)
         ) {
-          summary.lastCheckAt = integration.health_last_checked_at;
+          summary.lastCheckAt = integration.last_health_check_at;
         }
       }
     }
@@ -137,9 +137,9 @@ export async function GET(request: NextRequest) {
       id: integration.id,
       slug: integration.slug,
       name: integration.name,
-      category: integration.category,
+      category: integration.integration_type, // Map integration_type to category for frontend compatibility
       healthStatus: integration.health_status,
-      healthLastCheckedAt: integration.health_last_checked_at,
+      healthLastCheckedAt: integration.last_health_check_at,
       consecutiveFailures: integration.consecutive_failures,
       lastAlertSentAt: integration.last_alert_sent_at,
       healthCheckEnabled: integration.health_check_enabled,
@@ -149,11 +149,11 @@ export async function GET(request: NextRequest) {
     }));
 
     // =========================================================================
-    // Group by Category
+    // Group by Category (integration_type)
     // =========================================================================
     const byCategory = formattedIntegrations.reduce(
       (acc, integration) => {
-        const category = integration.category;
+        const category = integration.category; // This is integration_type mapped above
         if (!acc[category]) {
           acc[category] = [];
         }

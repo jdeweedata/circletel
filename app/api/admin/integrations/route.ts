@@ -4,7 +4,7 @@
  * List all integrations with health status
  *
  * Query Parameters:
- * - category: Filter by category (payment, crm, kyc, communication, coverage, location)
+ * - category: Filter by integration type (oauth, api_key, webhook_only)
  * - health_status: Filter by health status (healthy, degraded, down, unknown)
  * - is_active: Filter by active status (true/false)
  *
@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
       .order('slug');
 
     if (category) {
-      // Note: We don't have category in the current schema, but we can infer from slug
-      // For now, skip this filter or add category column in future migration
+      // Filter by integration_type (mapped to category in API)
+      query = query.eq('integration_type', category);
     }
 
     if (healthStatus) {
