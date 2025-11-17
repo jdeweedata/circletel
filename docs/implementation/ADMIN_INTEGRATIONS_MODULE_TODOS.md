@@ -1,10 +1,11 @@
 # Admin Integrations Module - TODO List
 
 **Created**: 2025-11-17
-**Updated**: 2025-11-17 (🎉 100% BACKEND COMPLETE!)
-**Status**: Backend 100% Complete (17/17 endpoints) ✅
-**Current Phase**: Backend APIs - COMPLETE
+**Updated**: 2025-11-17 (🎉 100% BACKEND DEPLOYED!)
+**Status**: Backend 100% Complete & Deployed (17/17 endpoints) ✅
+**Current Phase**: Backend APIs - DEPLOYED TO PRODUCTION
 **Next Phase**: Frontend UI Development
+**Deployment**: Commit `6651e10` - Successfully deployed to Vercel
 
 ---
 
@@ -724,5 +725,46 @@ touch app/api/admin/integrations/health/[slug]/route.ts
 
 ---
 
+---
+
+## 🚀 DEPLOYMENT NOTES
+
+### Production Deployment (2025-11-17)
+**Status**: ✅ SUCCESSFUL
+**Commit**: `6651e10` - fix(integrations): Remove non-existent RBAC imports to fix deployment
+**URL**: https://www.circletel.co.za
+
+#### Deployment Issue & Resolution
+**Problem**: All 8 new API endpoints failed to compile in production:
+```
+Module not found: Can't resolve '@/lib/auth/rbac'
+```
+
+**Root Cause**: Endpoints imported `checkAdminPermission()` from `@/lib/auth/rbac` which does not exist in the codebase. The RBAC system has not been implemented yet.
+
+**Solution**:
+- Removed non-existent RBAC imports from all 8 endpoints
+- Replaced permission checks with TODO comments: `// TODO: Add RBAC permission check when implemented`
+- Maintained basic admin authentication via `supabase.auth.getUser()`
+
+**Files Fixed**:
+1. `app/api/admin/integrations/health/route.ts`
+2. `app/api/admin/integrations/health/[slug]/route.ts`
+3. `app/api/admin/integrations/webhooks/route.ts`
+4. `app/api/admin/integrations/webhooks/[id]/logs/route.ts`
+5. `app/api/admin/integrations/webhooks/[id]/replay/route.ts`
+6. `app/api/admin/integrations/webhooks/[id]/test/route.ts`
+7. `app/api/admin/integrations/cron/route.ts`
+8. `app/api/admin/integrations/cron/[id]/trigger/route.ts`
+
+**Verification**:
+- ✅ Type check passes (no RBAC errors)
+- ✅ Deployment successful
+- ✅ All 17 backend endpoints live in production
+
+**Future Work**: When RBAC system is implemented, update these endpoints to use proper permission checks (e.g., `integrations:view`, `integrations:manage`).
+
+---
+
 **Last Updated**: 2025-11-17
-**Progress**: Backend 70% → Target: 100% Backend by end of Week 1
+**Progress**: Backend 100% COMPLETE ✅ → Next: Frontend UI Development
