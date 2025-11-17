@@ -26,6 +26,12 @@ import {
   Download
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { WorkflowStepper, WorkflowStep } from '@/components/admin/orders/WorkflowStepper';
+import { StatusActionButtons } from '@/components/admin/orders/StatusActionButtons';
+import { CommunicationTimeline } from '@/components/admin/orders/CommunicationTimeline';
+import { InstallationSection } from '@/components/admin/orders/InstallationSection';
+import { PaymentMethodStatus } from '@/components/admin/orders/PaymentMethodStatus';
+import { PaymentMethodRegistrationModal } from '@/components/admin/orders/PaymentMethodRegistrationModal';
 
 interface Order {
   id: string;
@@ -111,6 +117,7 @@ export default function AdminOrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentMethodModal, setPaymentMethodModal] = useState(false);
 
   const orderId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -196,6 +203,54 @@ export default function AdminOrderDetailPage() {
         {config.label}
       </Badge>
     );
+  };
+
+  const getWorkflowSteps = (currentStatus: string): WorkflowStep[] => {
+    const allSteps = [
+      { id: 'pending', label: 'Order Received', description: 'Order created' },
+      { id: 'payment_method_pending', label: 'Payment Method', description: 'Register payment' },
+      { id: 'payment_method_registered', label: 'Payment Confirmed', description: 'Payment ready' },
+      { id: 'installation_scheduled', label: 'Installation Scheduled', description: 'Appointment set' },
+      { id: 'installation_in_progress', label: 'Installation', description: 'Tech on-site' },
+      { id: 'installation_completed', label: 'Completed', description: 'Installation done' },
+      { id: 'active', label: 'Active', description: 'Service live' },
+    ];
+
+    const statusOrder = [
+      'pending',
+      'payment_method_pending',
+      'payment_method_registered',
+      'installation_scheduled',
+      'installation_in_progress',
+      'installation_completed',
+      'active',
+      'suspended',
+      'cancelled',
+      'failed'
+    ];
+
+    const currentIndex = statusOrder.indexOf(currentStatus);
+
+    return allSteps.map((step, index) => {
+      const stepIndex = statusOrder.indexOf(step.id);
+      let status: 'completed' | 'current' | 'upcoming' | 'skipped' = 'upcoming';
+
+      if (currentStatus === 'cancelled' || currentStatus === 'failed') {
+        if (stepIndex < currentIndex) {
+          status = 'completed';
+        } else if (stepIndex === currentIndex) {
+          status = 'skipped';
+        } else {
+          status = 'skipped';
+        }
+      } else if (stepIndex < currentIndex) {
+        status = 'completed';
+      } else if (stepIndex === currentIndex) {
+        status = 'current';
+      }
+
+      return { ...step, status };
+    });
   };
 
   if (loading) {
@@ -316,6 +371,30 @@ export default function AdminOrderDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Workflow Stepper */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Workflow</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WorkflowStepper steps={getWorkflowSteps(order.status)} orientation="horizontal" />
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <StatusActionButtons
+            currentStatus={order.status}
+            orderId={order.id}
+            onStatusUpdate={fetchOrder}
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Customer & Address */}
@@ -572,65 +651,17 @@ export default function AdminOrderDetailPage() {
 
         {/* Right Column - Timeline & Notes */}
         <div className="space-y-6">
-          {/* Installation Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Installation Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {order.preferred_installation_date && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Preferred Date</label>
-                  <p className="text-base text-gray-900 mt-1">
-                    {new Date(order.preferred_installation_date).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-              {order.installation_scheduled_date && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Scheduled Date</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {new Date(order.installation_scheduled_date).toLocaleDateString()}
-                    {order.installation_time_slot && ` - ${order.installation_time_slot}`}
-                  </p>
-                </div>
-              )}
-              {order.installation_completed_date && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Completed Date</label>
-                  <p className="text-base text-gray-900 mt-1">
-                    {new Date(order.installation_completed_date).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-              {order.activation_date && (
-                <>
-                  <Separator />
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Activation Date</label>
-                    <p className="text-base font-semibold text-green-600 mt-1">
-                      {new Date(order.activation_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </>
-              )}
-              {order.account_number && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Account Number</label>
-                  <p className="text-base font-mono text-gray-900 mt-1">{order.account_number}</p>
-                </div>
-              )}
-              {order.connection_id && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Connection ID</label>
-                  <p className="text-base font-mono text-gray-900 mt-1">{order.connection_id}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Installation Details with Technician Info */}
+          <InstallationSection orderId={order.id} />
+
+          {/* Payment Method Status */}
+          <PaymentMethodStatus
+            orderId={order.id}
+            onRequestPaymentMethod={() => setPaymentMethodModal(true)}
+          />
+
+          {/* Order Communication Timeline */}
+          <CommunicationTimeline orderId={order.id} />
 
           {/* Order Source */}
           <Card>
@@ -720,6 +751,25 @@ export default function AdminOrderDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Payment Method Registration Modal */}
+      <PaymentMethodRegistrationModal
+        open={paymentMethodModal}
+        onClose={() => setPaymentMethodModal(false)}
+        order={{
+          id: order.id,
+          order_number: order.order_number,
+          first_name: order.first_name,
+          last_name: order.last_name,
+          email: order.email,
+          phone: order.phone,
+          package_price: order.package_price,
+        }}
+        onSuccess={() => {
+          fetchOrder(); // Refresh order data
+          setPaymentMethodModal(false);
+        }}
+      />
     </div>
   );
 }
