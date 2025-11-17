@@ -415,6 +415,14 @@ export default function AdminOrderDetailPage() {
                     {order.first_name} {order.last_name}
                   </p>
                 </div>
+                {order.account_number && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">CircleTel Account Number</label>
+                    <p className="text-base font-semibold text-circleTel-orange mt-1">
+                      {order.account_number}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <label className="text-sm font-medium text-gray-600">Email Address</label>
                   <div className="flex items-center gap-2 mt-1">
