@@ -1144,8 +1144,8 @@ async ping(): Promise<{ success: boolean; statusCode: number }> {
 ### Backend APIs (Remaining)
 
 #### Health Check System
-- [ ] Create `GET /api/admin/integrations/health` - Get health status for all integrations
-- [ ] Create `GET /api/admin/integrations/health/[slug]` - Get detailed health metrics with 24h/7d data
+- [x] Create `GET /api/admin/integrations/health` - Get health status for all integrations ✅ COMPLETE
+- [x] Create `GET /api/admin/integrations/health/[slug]` - Get detailed health metrics with 24h/7d data ✅ COMPLETE
 - [x] Create `app/api/cron/integrations-health-check/route.ts` - Automated health check cron (30 min) ✅ DEPLOYED
 - [x] Create `app/api/cron/cleanup-webhook-logs/route.ts` - Weekly webhook log cleanup cron ✅ DEPLOYED
 - [x] Add ping methods to all integration services (Zoho CRM, Zoho Sign, Didit, NetCash, etc.) ✅ COMPLETE
