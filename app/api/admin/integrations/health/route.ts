@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
         id,
         slug,
         name,
+        description,
         integration_type,
         health_status,
         last_health_check_at,
@@ -143,14 +144,18 @@ export async function GET(request: NextRequest) {
       slug: integration.slug,
       name: integration.name,
       category: integration.integration_type, // Map integration_type to category for frontend compatibility
-      healthStatus: integration.health_status,
-      healthLastCheckedAt: integration.last_health_check_at,
-      consecutiveFailures: integration.consecutive_failures,
-      lastAlertSentAt: integration.last_alert_sent_at,
-      healthCheckEnabled: integration.health_check_enabled,
-      isActive: integration.is_active,
-      hasActiveAlert: integration.consecutive_failures >= 3,
-      updatedAt: integration.updated_at,
+      description: integration.description || '',
+      health_status: integration.health_status, // snake_case for frontend compatibility
+      health_last_checked_at: integration.last_health_check_at,
+      consecutive_failures: integration.consecutive_failures,
+      last_alert_sent_at: integration.last_alert_sent_at,
+      health_check_enabled: integration.health_check_enabled,
+      is_enabled: integration.is_active, // Map is_active to is_enabled for frontend
+      is_active: integration.is_active,
+      has_oauth: integration.integration_type === 'oauth',
+      has_webhook: integration.integration_type !== 'api_key',
+      has_active_alert: integration.consecutive_failures >= 3,
+      updated_at: integration.updated_at,
     }));
 
     // =========================================================================
