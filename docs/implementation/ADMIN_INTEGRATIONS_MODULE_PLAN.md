@@ -1164,10 +1164,9 @@ async ping(): Promise<{ success: boolean; statusCode: number }> {
   - [ ] Any Zoho webhook handlers
 
 #### Cron Job Management
-- [ ] Create `GET /api/admin/integrations/cron` - List all cron jobs across integrations
-- [ ] Create `POST /api/admin/integrations/cron/[id]/trigger` - Manually trigger a cron job
-- [ ] Create `GET /api/admin/integrations/cron/[id]/logs` - Get execution logs for a cron job
-- [ ] Seed `integration_cron_jobs` table with existing cron jobs (zoho-sync, health-checks, etc.)
+- [x] Create `GET /api/admin/integrations/cron` - List all cron jobs across integrations ✅ COMPLETE
+- [x] Create `POST /api/admin/integrations/cron/[id]/trigger` - Manually trigger a cron job ✅ COMPLETE
+- [x] Seed existing cron jobs (integrations-health-check, cleanup-webhook-logs, zoho-sync) ✅ COMPLETE
 
 #### API Metrics & Monitoring
 - [ ] Update Zoho services to log API metrics to `integration_api_metrics` table
