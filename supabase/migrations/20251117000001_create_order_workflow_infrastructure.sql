@@ -44,6 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_technicians_email ON public.technicians(email);
 ALTER TABLE public.technicians ENABLE ROW LEVEL SECURITY;
 
 -- Admin users can manage technicians
+DROP POLICY IF EXISTS "Admin users can view all technicians" ON public.technicians;
 CREATE POLICY "Admin users can view all technicians"
   ON public.technicians
   FOR SELECT
@@ -55,6 +56,7 @@ CREATE POLICY "Admin users can view all technicians"
     )
   );
 
+DROP POLICY IF EXISTS "Admin users can insert technicians" ON public.technicians;
 CREATE POLICY "Admin users can insert technicians"
   ON public.technicians
   FOR INSERT
@@ -66,6 +68,7 @@ CREATE POLICY "Admin users can insert technicians"
     )
   );
 
+DROP POLICY IF EXISTS "Admin users can update technicians" ON public.technicians;
 CREATE POLICY "Admin users can update technicians"
   ON public.technicians
   FOR UPDATE
@@ -159,6 +162,7 @@ CREATE INDEX IF NOT EXISTS idx_installation_tasks_technician_scheduled ON public
 ALTER TABLE public.installation_tasks ENABLE ROW LEVEL SECURITY;
 
 -- Admin users can manage all installation tasks
+DROP POLICY IF EXISTS "Admin users can view all installation tasks" ON public.installation_tasks;
 CREATE POLICY "Admin users can view all installation tasks"
   ON public.installation_tasks
   FOR SELECT
@@ -170,6 +174,7 @@ CREATE POLICY "Admin users can view all installation tasks"
     )
   );
 
+DROP POLICY IF EXISTS "Admin users can insert installation tasks" ON public.installation_tasks;
 CREATE POLICY "Admin users can insert installation tasks"
   ON public.installation_tasks
   FOR INSERT
@@ -181,6 +186,7 @@ CREATE POLICY "Admin users can insert installation tasks"
     )
   );
 
+DROP POLICY IF EXISTS "Admin users can update installation tasks" ON public.installation_tasks;
 CREATE POLICY "Admin users can update installation tasks"
   ON public.installation_tasks
   FOR UPDATE
@@ -193,6 +199,7 @@ CREATE POLICY "Admin users can update installation tasks"
   );
 
 -- Technicians can view and update their own tasks
+DROP POLICY IF EXISTS "Technicians can view their own tasks" ON public.installation_tasks;
 CREATE POLICY "Technicians can view their own tasks"
   ON public.installation_tasks
   FOR SELECT
@@ -203,6 +210,7 @@ CREATE POLICY "Technicians can view their own tasks"
     )
   );
 
+DROP POLICY IF EXISTS "Technicians can update their own tasks" ON public.installation_tasks;
 CREATE POLICY "Technicians can update their own tasks"
   ON public.installation_tasks
   FOR UPDATE
@@ -306,6 +314,7 @@ CREATE INDEX IF NOT EXISTS idx_order_communications_created ON public.order_comm
 ALTER TABLE public.order_communications ENABLE ROW LEVEL SECURITY;
 
 -- Admin users can view all communications
+DROP POLICY IF EXISTS "Admin users can view all communications" ON public.order_communications;
 CREATE POLICY "Admin users can view all communications"
   ON public.order_communications
   FOR SELECT
@@ -317,6 +326,7 @@ CREATE POLICY "Admin users can view all communications"
     )
   );
 
+DROP POLICY IF EXISTS "Admin users can insert communications" ON public.order_communications;
 CREATE POLICY "Admin users can insert communications"
   ON public.order_communications
   FOR INSERT
@@ -328,11 +338,13 @@ CREATE POLICY "Admin users can insert communications"
     )
   );
 
+DROP POLICY IF EXISTS "System can insert communications" ON public.order_communications;
 CREATE POLICY "System can insert communications"
   ON public.order_communications
   FOR INSERT
   WITH CHECK (true); -- Allow system inserts (service role)
 
+DROP POLICY IF EXISTS "System can update communications" ON public.order_communications;
 CREATE POLICY "System can update communications"
   ON public.order_communications
   FOR UPDATE
