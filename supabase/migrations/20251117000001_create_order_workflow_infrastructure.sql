@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS public.technicians (
 );
 
 -- Indexes for technicians
-CREATE INDEX idx_technicians_active ON public.technicians(is_active) WHERE is_active = true;
-CREATE INDEX idx_technicians_email ON public.technicians(email);
+CREATE INDEX IF NOT EXISTS idx_technicians_active ON public.technicians(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_technicians_email ON public.technicians(email);
 
 -- RLS Policies for technicians
 ALTER TABLE public.technicians ENABLE ROW LEVEL SECURITY;
@@ -87,6 +87,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS trigger_update_technicians_updated_at ON public.technicians;
 CREATE TRIGGER trigger_update_technicians_updated_at
   BEFORE UPDATE ON public.technicians
   FOR EACH ROW
@@ -148,11 +149,11 @@ CREATE TABLE IF NOT EXISTS public.installation_tasks (
 );
 
 -- Indexes for installation_tasks
-CREATE INDEX idx_installation_tasks_order ON public.installation_tasks(order_id);
-CREATE INDEX idx_installation_tasks_technician ON public.installation_tasks(technician_id);
-CREATE INDEX idx_installation_tasks_scheduled_date ON public.installation_tasks(scheduled_date);
-CREATE INDEX idx_installation_tasks_status ON public.installation_tasks(status);
-CREATE INDEX idx_installation_tasks_technician_scheduled ON public.installation_tasks(technician_id, scheduled_date) WHERE status IN ('scheduled', 'in_progress');
+CREATE INDEX IF NOT EXISTS idx_installation_tasks_order ON public.installation_tasks(order_id);
+CREATE INDEX IF NOT EXISTS idx_installation_tasks_technician ON public.installation_tasks(technician_id);
+CREATE INDEX IF NOT EXISTS idx_installation_tasks_scheduled_date ON public.installation_tasks(scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_installation_tasks_status ON public.installation_tasks(status);
+CREATE INDEX IF NOT EXISTS idx_installation_tasks_technician_scheduled ON public.installation_tasks(technician_id, scheduled_date) WHERE status IN ('scheduled', 'in_progress');
 
 -- RLS Policies for installation_tasks
 ALTER TABLE public.installation_tasks ENABLE ROW LEVEL SECURITY;
@@ -235,6 +236,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS trigger_update_installation_tasks_updated_at ON public.installation_tasks;
 CREATE TRIGGER trigger_update_installation_tasks_updated_at
   BEFORE UPDATE ON public.installation_tasks
   FOR EACH ROW
@@ -294,11 +296,11 @@ CREATE TABLE IF NOT EXISTS public.order_communications (
 );
 
 -- Indexes for order_communications
-CREATE INDEX idx_order_communications_order ON public.order_communications(order_id);
-CREATE INDEX idx_order_communications_type ON public.order_communications(type);
-CREATE INDEX idx_order_communications_status ON public.order_communications(status);
-CREATE INDEX idx_order_communications_external_id ON public.order_communications(external_id) WHERE external_id IS NOT NULL;
-CREATE INDEX idx_order_communications_created ON public.order_communications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_order_communications_order ON public.order_communications(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_communications_type ON public.order_communications(type);
+CREATE INDEX IF NOT EXISTS idx_order_communications_status ON public.order_communications(status);
+CREATE INDEX IF NOT EXISTS idx_order_communications_external_id ON public.order_communications(external_id) WHERE external_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_order_communications_created ON public.order_communications(created_at DESC);
 
 -- RLS Policies for order_communications
 ALTER TABLE public.order_communications ENABLE ROW LEVEL SECURITY;
@@ -357,6 +359,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS trigger_update_order_communications_updated_at ON public.order_communications;
 CREATE TRIGGER trigger_update_order_communications_updated_at
   BEFORE UPDATE ON public.order_communications
   FOR EACH ROW
