@@ -140,6 +140,17 @@ const navigation = [
     description: 'Manage Zoho CRM, Mail, and Calendar'
   },
   {
+    name: 'Integrations',
+    icon: LinkIcon,
+    children: [
+      { name: 'Overview', href: '/admin/integrations', icon: LayoutDashboard },
+      { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: Settings },
+      { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: Zap },
+      { name: 'API Health', href: '/admin/integrations/apis', icon: Activity },
+      { name: 'Cron Jobs', href: '/admin/integrations/cron', icon: Clock }
+    ]
+  },
+  {
     name: 'CMS Management',
     href: '/admin/cms',
     icon: Globe,
