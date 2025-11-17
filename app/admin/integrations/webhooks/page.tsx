@@ -125,7 +125,9 @@ export default function WebhookMonitorPage() {
       if (filterStatus !== 'all') params.append('status', filterStatus);
       params.append('limit', '50');
 
-      const response = await fetch(`/api/admin/integrations/webhooks?${params}`);
+      const response = await fetch(`/api/admin/integrations/webhooks?${params}`, {
+        credentials: 'include', // Send cookies for authentication
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch webhook logs: ${response.statusText}`);
@@ -148,7 +150,9 @@ export default function WebhookMonitorPage() {
 
   const fetchLogDetails = async (logId: string) => {
     try {
-      const response = await fetch(`/api/admin/integrations/webhooks/${logId}/logs`);
+      const response = await fetch(`/api/admin/integrations/webhooks/${logId}/logs`, {
+        credentials: 'include', // Send cookies for authentication
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch log details');
@@ -169,6 +173,7 @@ export default function WebhookMonitorPage() {
 
       const response = await fetch(`/api/admin/integrations/webhooks/${logToReplay.id}/replay`, {
         method: 'POST',
+        credentials: 'include', // Send cookies for authentication
       });
 
       if (!response.ok) {
@@ -205,7 +210,9 @@ export default function WebhookMonitorPage() {
       }
 
       // Find a webhook for this integration
-      const webhookResponse = await fetch(`/api/admin/integrations/webhooks?integration_slug=${testIntegration}&limit=1`);
+      const webhookResponse = await fetch(`/api/admin/integrations/webhooks?integration_slug=${testIntegration}&limit=1`, {
+        credentials: 'include', // Send cookies for authentication
+      });
       const webhookData = await webhookResponse.json();
 
       if (!webhookData.logs || webhookData.logs.length === 0) {
@@ -216,6 +223,7 @@ export default function WebhookMonitorPage() {
 
       const response = await fetch(`/api/admin/integrations/webhooks/${webhookId}/test`, {
         method: 'POST',
+        credentials: 'include', // Send cookies for authentication
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           eventType: testEventType,

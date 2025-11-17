@@ -65,7 +65,9 @@ export default function OAuthManagementPage() {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch('/api/admin/integrations/oauth');
+      const response = await fetch('/api/admin/integrations/oauth', {
+        credentials: 'include', // Send cookies for authentication
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch OAuth tokens: ${response.statusText}`);
@@ -87,6 +89,7 @@ export default function OAuthManagementPage() {
 
       const response = await fetch(`/api/admin/integrations/oauth/${tokenId}/refresh`, {
         method: 'POST',
+        credentials: 'include', // Send cookies for authentication
       });
 
       if (!response.ok) {
@@ -117,6 +120,7 @@ export default function OAuthManagementPage() {
         `/api/admin/integrations/oauth/${tokenToRevoke.id}/revoke`,
         {
           method: 'POST',
+          credentials: 'include', // Send cookies for authentication
         }
       );
 

@@ -72,7 +72,9 @@ export default function IntegrationsPage() {
       setError(null);
 
       // Fetch health overview
-      const healthResponse = await fetch('/api/admin/integrations/health');
+      const healthResponse = await fetch('/api/admin/integrations/health', {
+        credentials: 'include', // Send cookies for authentication
+      });
 
       if (!healthResponse.ok) {
         throw new Error(`Failed to fetch health data: ${healthResponse.statusText}`);
