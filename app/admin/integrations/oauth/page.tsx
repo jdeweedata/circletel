@@ -83,11 +83,11 @@ export default function OAuthManagementPage() {
     }
   };
 
-  const handleRefreshToken = async (tokenId: string) => {
+  const handleRefreshToken = async (integrationSlug: string) => {
     try {
-      setRefreshingTokenId(tokenId);
+      setRefreshingTokenId(integrationSlug);
 
-      const response = await fetch(`/api/admin/integrations/oauth/${tokenId}/refresh`, {
+      const response = await fetch(`/api/admin/integrations/oauth/${integrationSlug}/refresh`, {
         method: 'POST',
         credentials: 'include', // Send cookies for authentication
       });
@@ -114,10 +114,10 @@ export default function OAuthManagementPage() {
     if (!tokenToRevoke) return;
 
     try {
-      setRevokingTokenId(tokenToRevoke.id);
+      setRevokingTokenId(tokenToRevoke.integration_slug);
 
       const response = await fetch(
-        `/api/admin/integrations/oauth/${tokenToRevoke.id}/revoke`,
+        `/api/admin/integrations/oauth/${tokenToRevoke.integration_slug}/revoke`,
         {
           method: 'POST',
           credentials: 'include', // Send cookies for authentication
@@ -311,8 +311,8 @@ export default function OAuthManagementPage() {
                 </TableHeader>
                 <TableBody>
                   {tokens.map((token) => {
-                    const isRefreshing = refreshingTokenId === token.id;
-                    const isRevoking = revokingTokenId === token.id;
+                    const isRefreshing = refreshingTokenId === token.integration_slug;
+                    const isRevoking = revokingTokenId === token.integration_slug;
 
                     return (
                       <TableRow key={token.id}>
@@ -359,7 +359,7 @@ export default function OAuthManagementPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleRefreshToken(token.id)}
+                              onClick={() => handleRefreshToken(token.integration_slug)}
                               disabled={
                                 isRefreshing ||
                                 token.token_status === 'revoked' ||

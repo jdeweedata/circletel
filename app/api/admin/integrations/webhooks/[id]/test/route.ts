@@ -23,7 +23,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSSRClient } from '@/integrations/supabase/server';
 
 /**
  * POST /api/admin/integrations/webhooks/[id]/test
@@ -55,7 +55,7 @@ export async function POST(
     // =========================================================================
     // Authentication & Authorization
     // =========================================================================
-    const supabase = await createClient();
+    const supabase = await createSSRClient();
 
     // Get current user session
     const {

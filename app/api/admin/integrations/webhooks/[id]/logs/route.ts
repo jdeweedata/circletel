@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSSRClient } from '@/integrations/supabase/server';
 
 /**
  * GET /api/admin/integrations/webhooks/[id]/logs
@@ -37,7 +37,7 @@ export async function GET(
     // =========================================================================
     // Authentication & Authorization
     // =========================================================================
-    const supabase = await createClient();
+    const supabase = await createSSRClient();
 
     // Get current user session
     const {
