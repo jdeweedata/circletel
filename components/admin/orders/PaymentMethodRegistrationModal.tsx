@@ -154,7 +154,7 @@ export function PaymentMethodRegistrationModal({
     // Show success state with mandate URL
     return (
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[600px] bg-white">
+        <DialogContent className="sm:max-w-[600px] bg-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-green-600" />
@@ -281,7 +281,7 @@ export function PaymentMethodRegistrationModal({
   // Show request form
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-white">
+      <DialogContent className="sm:max-w-[500px] bg-white max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -295,14 +295,14 @@ export function PaymentMethodRegistrationModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-3 py-4">
             {/* Customer Info */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-1">
-              <div className="text-sm">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 space-y-0.5">
+              <div className="text-xs">
                 <span className="text-gray-600">Email:</span>{' '}
                 <span className="font-medium text-gray-900">{order.email}</span>
               </div>
-              <div className="text-sm">
+              <div className="text-xs">
                 <span className="text-gray-600">Phone:</span>{' '}
                 <span className="font-medium text-gray-900">{order.phone}</span>
               </div>
@@ -381,7 +381,7 @@ export function PaymentMethodRegistrationModal({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any internal notes about this mandate..."
-                rows={3}
+                rows={2}
               />
               <p className="text-xs text-gray-500">
                 Internal notes (not visible to customer)
@@ -400,8 +400,8 @@ export function PaymentMethodRegistrationModal({
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>How it works:</strong>
-                <ol className="list-decimal list-inside mt-2 space-y-1 text-sm">
+                <strong className="text-xs">How it works:</strong>
+                <ol className="list-decimal list-inside mt-1 space-y-0.5 text-xs">
                   <li>NetCash generates a secure mandate registration link</li>
                   <li>Customer receives OTP via SMS and completes online form</li>
                   <li>Customer digitally signs the debit order mandate</li>
