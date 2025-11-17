@@ -189,67 +189,69 @@ export default function IntegrationDetailPage() {
         </div>
 
         {/* Navigation - fills remaining space */}
-        <nav className="flex-1 overflow-y-auto py-4 px-4 space-y-1">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              activeTab === 'dashboard'
-                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Activity className="w-4 h-4" />
-            Dashboard
-          </button>
+        <div className="flex-1 overflow-y-auto">
+          <nav className="p-4 space-y-1">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                activeTab === 'dashboard'
+                  ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Activity className="w-4 h-4" />
+              Dashboard
+            </button>
 
-          <button
-            onClick={() => setActiveTab('insights')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              activeTab === 'insights'
-                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            Insights
-          </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                activeTab === 'insights'
+                  ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              Insights
+            </button>
 
-          <button
-            onClick={() => setActiveTab('configuration')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              activeTab === 'configuration'
-                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            Configuration
-          </button>
+            <button
+              onClick={() => setActiveTab('configuration')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                activeTab === 'configuration'
+                  ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              Configuration
+            </button>
 
-          <button
-            onClick={() => setActiveTab('activity')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              activeTab === 'activity'
-                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            Activity Log
-          </button>
+            <button
+              onClick={() => setActiveTab('activity')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                activeTab === 'activity'
+                  ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Activity Log
+            </button>
 
-          <button
-            onClick={() => setActiveTab('health')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              activeTab === 'health'
-                ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            Health Monitoring
-          </button>
-        </nav>
+            <button
+              onClick={() => setActiveTab('health')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
+                activeTab === 'health'
+                  ? 'bg-circleTel-orange/10 text-circleTel-orange font-medium'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              Health Monitoring
+            </button>
+          </nav>
+        </div>
 
         {/* Back Button Footer */}
         <div className="p-4 border-t flex-shrink-0">
