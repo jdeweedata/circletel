@@ -30,12 +30,12 @@ This directory contains implementation plans, status reports, and completion sum
 
 **Summary**: Centralized dashboard for managing 9 third-party integrations with OAuth tokens, webhooks, API health monitoring, and automated health checks.
 
-**Overall Progress**: 73% Complete
+**Overall Progress**: 77% Complete
 
 | Component | Status | Progress | Effort Remaining |
 |-----------|--------|----------|------------------|
 | Backend APIs | ✅ Complete | 15/15 endpoints | 0h |
-| Frontend UI | 🚧 In Progress | 2/6 pages | 34h |
+| Frontend UI | 🚧 In Progress | 3/6 pages (50%) | 24h |
 | Database Schema | ✅ Complete | 7 tables | 0h |
 | Cron Jobs | ✅ Complete | 6 jobs | 0h |
 | Testing | ❌ Not Started | 0% | 28h |
@@ -51,31 +51,34 @@ This directory contains implementation plans, status reports, and completion sum
 - ✅ Automated Cron Jobs: 30-min health checks, weekly log cleanup
 - ✅ Email Alert System: 3 consecutive failures trigger alert (max 1 per 6h)
 
-**Frontend UI - 33% COMPLETE** 🚧:
+**Frontend UI - 50% COMPLETE** 🚧:
 - ✅ **Overview Dashboard** (`/admin/integrations`) - Health summary cards, integration grid, filters
 - ✅ **OAuth Management** (`/admin/integrations/oauth`) - Token table, refresh/revoke actions, expiry badges
-- 🔲 **Webhook Monitor** (`/admin/integrations/webhooks`) - Activity feed, replay, test - 10h
+- ✅ **Webhook Monitor** (`/admin/integrations/webhooks`) - Activity feed, auto-refresh, replay, test, filters
 - 🔲 **API Health Monitor** (`/admin/integrations/apis`) - Health cards, charts, rate limits - 8h
 - 🔲 **Cron Jobs** (`/admin/integrations/cron`) - Job table, manual trigger, history - 6h
 - 🔲 **Integration Detail** (`/admin/integrations/[slug]`) - Tabbed interface, all sections - 10h
 
 **Recent Completions** (2025-11-17):
 - ✅ Backend APIs: All 15 endpoints (8 endpoints added in last 48h)
-- ✅ Frontend Pages: Overview Dashboard + OAuth Management (1,178 lines of code)
+- ✅ Frontend Pages: Overview + OAuth + Webhook Monitor (1,945 lines of code)
+- ✅ Authentication Fix: Replaced service role client with SSR client (commit 98deb1a)
 - ✅ Cron Jobs: Health check (30 min) + Webhook cleanup (weekly)
 - ✅ Database: Health tracking columns (consecutive_failures, last_alert_sent_at)
 - ✅ Components: 4 reusable components (HealthSummaryCards, IntegrationCard, etc.)
 
 **Deployment**:
 - ✅ Backend: Commit `6651e10` deployed to Vercel production
-- ✅ Frontend: Commits `94dc4e3` (Overview) + `79ad9a3` (OAuth) deployed
+- ✅ Frontend: Commits `94dc4e3` (Overview) + `79ad9a3` (OAuth) + `1faab78` (Webhooks) deployed
+- ✅ Auth Fix: Commit `98deb1a` - Fixed 401 errors by using SSR client (READY FOR DEPLOY)
 - ✅ Live URLs:
   - Overview: https://www.circletel.co.za/admin/integrations
   - OAuth: https://www.circletel.co.za/admin/integrations/oauth
+  - Webhooks: https://www.circletel.co.za/admin/integrations/webhooks
 - ⚠️ RBAC: TODO placeholders added (requires separate implementation)
 
 **Timeline**:
-- **Week 1** (2025-11-18): Complete Webhook + API Health + Cron pages (24h)
+- **Week 1** (2025-11-18): ✅ Webhook Monitor complete | API Health + Cron pages remaining (14h)
 - **Week 2** (2025-11-25): Integration Detail page + E2E testing (38h)
 - **Week 3** (2025-12-02): Staging verification + Production rollout (14h)
 - **Target Completion**: 2025-12-06
