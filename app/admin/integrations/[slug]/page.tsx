@@ -170,8 +170,9 @@ export default function IntegrationDetailPage() {
   return (
     <div className="flex h-screen bg-[#f7f8fa]">
       {/* Left Sidebar */}
-      <aside className={`bg-white border-r transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col`}>
-        <div className="p-6 border-b">
+      <aside className={`bg-white border-r transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col h-screen sticky top-0`}>
+        {/* Integration Header */}
+        <div className="p-6 border-b bg-white flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-lg bg-circleTel-orange/10 flex items-center justify-center">
               <span className="text-lg font-bold text-circleTel-orange">
@@ -187,7 +188,8 @@ export default function IntegrationDetailPage() {
           </div>
         </div>
 
-        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
+        {/* Navigation - fills remaining space */}
+        <nav className="flex-1 bg-white overflow-y-auto py-4 px-4 space-y-1">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
@@ -249,7 +251,8 @@ export default function IntegrationDetailPage() {
           </button>
         </nav>
 
-        <div className="p-4 border-t bg-white">
+        {/* Back Button Footer */}
+        <div className="p-4 border-t bg-white flex-shrink-0">
           <Link href="/admin/integrations">
             <Button variant="outline" className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
