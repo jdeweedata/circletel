@@ -89,11 +89,11 @@ CREATE TABLE IF NOT EXISTS payment_methods (
 );
 
 -- Indexes
-CREATE INDEX idx_payment_methods_customer ON payment_methods(customer_id);
-CREATE INDEX idx_payment_methods_order ON payment_methods(order_id);
-CREATE INDEX idx_payment_methods_status ON payment_methods(status);
-CREATE INDEX idx_payment_methods_netcash_ref ON payment_methods(netcash_account_reference);
-CREATE INDEX idx_payment_methods_primary ON payment_methods(customer_id, is_primary) WHERE is_primary = TRUE;
+CREATE INDEX IF NOT EXISTS idx_payment_methods_customer ON payment_methods(customer_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_order ON payment_methods(order_id);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_status ON payment_methods(status);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_netcash_ref ON payment_methods(netcash_account_reference);
+CREATE INDEX IF NOT EXISTS idx_payment_methods_primary ON payment_methods(customer_id, is_primary) WHERE is_primary = TRUE;
 
 -- Comments
 COMMENT ON TABLE payment_methods IS 'Registered payment methods for customers (bank accounts and credit cards)';
@@ -173,12 +173,12 @@ CREATE TABLE IF NOT EXISTS emandate_requests (
 );
 
 -- Indexes
-CREATE INDEX idx_emandate_requests_order ON emandate_requests(order_id);
-CREATE INDEX idx_emandate_requests_customer ON emandate_requests(customer_id);
-CREATE INDEX idx_emandate_requests_status ON emandate_requests(status);
-CREATE INDEX idx_emandate_requests_payment_method ON emandate_requests(payment_method_id);
-CREATE INDEX idx_emandate_requests_netcash_ref ON emandate_requests(netcash_account_reference);
-CREATE INDEX idx_emandate_requests_created_at ON emandate_requests(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_order ON emandate_requests(order_id);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_customer ON emandate_requests(customer_id);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_status ON emandate_requests(status);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_payment_method ON emandate_requests(payment_method_id);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_netcash_ref ON emandate_requests(netcash_account_reference);
+CREATE INDEX IF NOT EXISTS idx_emandate_requests_created_at ON emandate_requests(created_at DESC);
 
 -- Comments
 COMMENT ON TABLE emandate_requests IS 'Tracks NetCash eMandate API requests and customer signature workflow';
@@ -198,6 +198,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS payment_methods_update_timestamp ON payment_methods;
 CREATE TRIGGER payment_methods_update_timestamp
   BEFORE UPDATE ON payment_methods
   FOR EACH ROW
@@ -212,6 +213,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS emandate_requests_update_timestamp ON emandate_requests;
 CREATE TRIGGER emandate_requests_update_timestamp
   BEFORE UPDATE ON emandate_requests
   FOR EACH ROW
@@ -233,6 +235,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS ensure_single_primary_payment_method ON payment_methods;
 CREATE TRIGGER ensure_single_primary_payment_method
   BEFORE INSERT OR UPDATE ON payment_methods
   FOR EACH ROW
@@ -254,6 +257,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS auto_activate_on_signature ON payment_methods;
 CREATE TRIGGER auto_activate_on_signature
   BEFORE UPDATE ON payment_methods
   FOR EACH ROW
@@ -304,6 +308,7 @@ ALTER TABLE payment_methods ENABLE ROW LEVEL SECURITY;
 ALTER TABLE emandate_requests ENABLE ROW LEVEL SECURITY;
 
 -- Admin: Full access to payment methods
+DROP POLICY IF EXISTS admin_payment_methods_all ON payment_methods;
 CREATE POLICY admin_payment_methods_all ON payment_methods
   FOR ALL
   TO authenticated
@@ -321,12 +326,14 @@ CREATE POLICY admin_payment_methods_all ON payment_methods
   );
 
 -- Service role: Full access (for API routes serving customers)
+DROP POLICY IF EXISTS service_role_payment_methods_all ON payment_methods;
 CREATE POLICY service_role_payment_methods_all ON payment_methods
   FOR ALL
   USING (auth.role() = 'service_role')
   WITH CHECK (auth.role() = 'service_role');
 
 -- Admin: Full access to emandate requests
+DROP POLICY IF EXISTS admin_emandate_requests_all ON emandate_requests;
 CREATE POLICY admin_emandate_requests_all ON emandate_requests
   FOR ALL
   TO authenticated
@@ -344,6 +351,7 @@ CREATE POLICY admin_emandate_requests_all ON emandate_requests
   );
 
 -- Service role: Full access (for API routes serving customers)
+DROP POLICY IF EXISTS service_role_emandate_requests_all ON emandate_requests;
 CREATE POLICY service_role_emandate_requests_all ON emandate_requests
   FOR ALL
   USING (auth.role() = 'service_role')
