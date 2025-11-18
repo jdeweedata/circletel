@@ -10,12 +10,12 @@ import {
   Hr,
 } from '@react-email/components';
 import * as React from 'react';
-import { CircleTelHeader } from '@/emails/components/CircleTelHeader';
-import { CircleTelFooter } from '@/emails/components/CircleTelFooter';
-import { CircleTelHero } from '@/emails/components/CircleTelHero';
-import { CircleTelTextBlock } from '@/emails/components/CircleTelTextBlock';
-import { CircleTelButton } from '@/emails/components/CircleTelButton';
-import { CircleTelInfoBox } from '@/emails/components/CircleTelInfoBox';
+import { CircleTelHeader } from '@/emails/slices/CircleTelHeader';
+import { CircleTelFooter } from '@/emails/slices/CircleTelFooter';
+import { CircleTelHero } from '@/emails/slices/CircleTelHero';
+import { CircleTelTextBlock } from '@/emails/slices/CircleTelTextBlock';
+import { CircleTelButton } from '@/emails/slices/CircleTelButton';
+import { CircleTelInfoBox } from '@/emails/slices/CircleTelInfoBox';
 
 interface InstallationReminderEmailProps {
   customerName: string;
