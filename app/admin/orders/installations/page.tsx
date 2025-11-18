@@ -35,10 +35,13 @@ import {
   Grid,
   MessageSquare,
   Send,
+  Check,
+  X,
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
 import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
+import { BulkRescheduleModal } from '@/components/admin/orders/BulkRescheduleModal';
 import { exportInstallationsToCSV } from '@/lib/utils/export';
 import { toast } from 'sonner';
 
@@ -91,6 +94,8 @@ export default function AdminInstallationsPage() {
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+  const [selectedInstallations, setSelectedInstallations] = useState<string[]>([]);
+  const [isBulkRescheduling, setIsBulkRescheduling] = useState(false);
 
   useEffect(() => {
     fetchInstallations();
@@ -334,6 +339,65 @@ export default function AdminInstallationsPage() {
     }
   };
 
+  const toggleSelectInstallation = (installationId: string) => {
+    setSelectedInstallations((prev) =>
+      prev.includes(installationId)
+        ? prev.filter((id) => id !== installationId)
+        : [...prev, installationId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedInstallations.length === filteredInstallations.length) {
+      setSelectedInstallations([]);
+    } else {
+      setSelectedInstallations(filteredInstallations.map((i) => i.id));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedInstallations([]);
+  };
+
+  const bulkReschedule = async (newDate: string, newTimeSlot: string) => {
+    if (selectedInstallations.length === 0) return;
+
+    try {
+      setIsBulkRescheduling(true);
+
+      const response = await fetch('/api/admin/orders/installations/bulk-reschedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          installationIds: selectedInstallations,
+          scheduledDate: newDate,
+          scheduledTimeSlot: newTimeSlot,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Installations rescheduled', {
+          description: `Successfully rescheduled ${result.data.updated} installation(s)`,
+        });
+        clearSelection();
+        fetchInstallations();
+      } else {
+        toast.error('Reschedule failed', {
+          description: result.error || 'Unable to reschedule installations',
+        });
+      }
+    } catch (error) {
+      console.error('Error bulk rescheduling:', error);
+      toast.error('Network error', {
+        description: 'Failed to reschedule installations',
+      });
+    } finally {
+      setIsBulkRescheduling(false);
+    }
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Not scheduled';
     try {
@@ -546,6 +610,38 @@ export default function AdminInstallationsPage() {
       </Card>
       )}
 
+      {/* Bulk Action Toolbar - Only show when items are selected */}
+      {selectedInstallations.length > 0 && view === 'list' && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedInstallations.length} installation(s) selected
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BulkRescheduleModal
+                  selectedCount={selectedInstallations.length}
+                  onReschedule={bulkReschedule}
+                  isRescheduling={isBulkRescheduling}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearSelection}
+                  className="bg-white"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear Selection
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* List View */}
       {view === 'list' && (
         <Card>
@@ -576,6 +672,17 @@ export default function AdminInstallationsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-gray-50">
+                    <th className="px-4 py-3 w-12">
+                      <input
+                        type="checkbox"
+                        checked={
+                          filteredInstallations.length > 0 &&
+                          selectedInstallations.length === filteredInstallations.length
+                        }
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 text-circleTel-orange rounded border-gray-300 focus:ring-circleTel-orange"
+                      />
+                    </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                       Order
                     </th>
@@ -602,6 +709,14 @@ export default function AdminInstallationsPage() {
                 <tbody className="divide-y divide-gray-200">
                   {filteredInstallations.map((installation) => (
                     <tr key={installation.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedInstallations.includes(installation.id)}
+                          onChange={() => toggleSelectInstallation(installation.id)}
+                          className="h-4 w-4 text-circleTel-orange rounded border-gray-300 focus:ring-circleTel-orange"
+                        />
+                      </td>
                       <td className="px-4 py-4">
                         <div>
                           <p className="font-medium text-gray-900">{installation.order_number}</p>
