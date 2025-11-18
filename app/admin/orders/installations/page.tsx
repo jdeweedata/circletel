@@ -41,6 +41,7 @@ import {
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
 import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
+import { InstallationMapView } from '@/components/admin/orders/InstallationMapView';
 import { BulkRescheduleModal } from '@/components/admin/orders/BulkRescheduleModal';
 import { exportInstallationsToCSV } from '@/lib/utils/export';
 import { toast } from 'sonner';
@@ -92,7 +93,7 @@ export default function AdminInstallationsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
-  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [view, setView] = useState<'list' | 'calendar' | 'map'>('list');
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [selectedInstallations, setSelectedInstallations] = useState<string[]>([]);
   const [isBulkRescheduling, setIsBulkRescheduling] = useState(false);
@@ -446,10 +447,19 @@ export default function AdminInstallationsPage() {
               variant={view === 'calendar' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setView('calendar')}
-              className="rounded-l-none"
+              className="rounded-none border-x"
             >
               <Calendar className="h-4 w-4 mr-2" />
               Calendar
+            </Button>
+            <Button
+              variant={view === 'map' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setView('map')}
+              className="rounded-l-none"
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Map
             </Button>
           </div>
           <Button
@@ -802,6 +812,11 @@ export default function AdminInstallationsPage() {
         <InstallationCalendar
           installations={filteredInstallations.filter(i => i.scheduled_date !== null)}
         />
+      )}
+
+      {/* Map View */}
+      {view === 'map' && (
+        <InstallationMapView installations={filteredInstallations} />
       )}
 
       {/* Last Refreshed */}
