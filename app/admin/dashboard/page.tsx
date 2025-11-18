@@ -26,6 +26,9 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import type { PaymentProviderType } from '@/lib/types/payment.types';
+import { OrdersRequiringAttentionWidget } from '@/components/admin/dashboard/OrdersRequiringAttentionWidget';
+import { TodaysInstallationsWidget } from '@/components/admin/dashboard/TodaysInstallationsWidget';
+import { OrderStatusDistributionWidget } from '@/components/admin/dashboard/OrderStatusDistributionWidget';
 
 interface AdminStats {
   // Products
@@ -397,6 +400,19 @@ export default function AdminDashboard() {
         })}
       </div>
 
+      {/* Order Management Widgets */}
+      <div>
+        <h2 className="text-xl font-semibold text-circleTel-darkNeutral mb-4">
+          Order Management
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <OrdersRequiringAttentionWidget />
+          <TodaysInstallationsWidget />
+          <OrderStatusDistributionWidget />
+        </div>
+      </div>
+
+      {/* Payment Provider Health */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <Card className="lg:col-span-1 hover:shadow-lg transition-shadow">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
