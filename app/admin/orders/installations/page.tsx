@@ -37,6 +37,8 @@ import {
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
 import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
+import { exportInstallationsToCSV } from '@/lib/utils/export';
+import { toast } from 'sonner';
 
 interface Installation {
   id: string;
@@ -351,7 +353,18 @@ export default function AdminInstallationsPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (filteredInstallations.length === 0) {
+                toast.error('No data to export');
+                return;
+              }
+              exportInstallationsToCSV(filteredInstallations);
+              toast.success(`Exported ${filteredInstallations.length} installations to CSV`);
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
