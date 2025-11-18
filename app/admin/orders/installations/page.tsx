@@ -33,6 +33,8 @@ import {
   Download,
   List,
   Grid,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
@@ -88,6 +90,7 @@ export default function AdminInstallationsPage() {
   const [dateFilter, setDateFilter] = useState('all');
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInstallations();
@@ -288,6 +291,47 @@ export default function AdminInstallationsPage() {
         {config.label}
       </Badge>
     );
+  };
+
+  const sendInstallationReminder = async (installation: Installation) => {
+    if (!installation.scheduled_date) {
+      toast.error('Cannot send reminder', {
+        description: 'No installation date scheduled',
+      });
+      return;
+    }
+
+    try {
+      setSendingReminder(installation.id);
+
+      const response = await fetch(`/api/admin/orders/${installation.order_id}/installation/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channels: ['sms', 'email'],
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const channels = result.data.sentChannels || [];
+        toast.success('Reminder sent successfully', {
+          description: `Sent via ${channels.join(' and ')} to ${installation.customer_name}`,
+        });
+      } else {
+        toast.error('Failed to send reminder', {
+          description: result.error || 'Please try again',
+        });
+      }
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+      toast.error('Network error', {
+        description: 'Failed to send reminder',
+      });
+    } finally {
+      setSendingReminder(null);
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -603,12 +647,30 @@ export default function AdminInstallationsPage() {
                         {getStatusBadge(installation.status)}
                       </td>
                       <td className="px-4 py-4">
-                        <Link href={`/admin/orders/${installation.order_id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          {/* Send Reminder Button - only for scheduled installations */}
+                          {installation.scheduled_date && ['installation_scheduled'].includes(installation.status) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => sendInstallationReminder(installation)}
+                              disabled={sendingReminder === installation.id}
+                              title="Send installation reminder via SMS and Email"
+                            >
+                              {sendingReminder === installation.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                          <Link href={`/admin/orders/${installation.order_id}`}>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}
