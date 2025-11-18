@@ -6,6 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import {
   ArrowLeft,
   BarChart3,
   Eye,
@@ -20,6 +29,8 @@ import {
   RefreshCw,
   Loader2
 } from 'lucide-react';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -72,7 +83,23 @@ export default function QuoteAnalyticsPage({ params }: Props) {
       const data = await response.json();
 
       if (data.success) {
-        setAnalytics(data.data);
+        const raw = data.data || {};
+        const normalized: AnalyticsData = {
+          quote_id: raw.quote_id ?? resolvedParams.id,
+          quote_number: raw.quote_number ?? '',
+          company_name: raw.company_name ?? '',
+          status: raw.status ?? 'draft',
+          total_views: raw.total_views ?? 0,
+          unique_views: raw.unique_views ?? 0,
+          emails_sent: raw.emails_sent ?? 0,
+          shares: raw.shares ?? 0,
+          downloads: raw.downloads ?? 0,
+          total_time_spent_seconds: raw.total_time_spent_seconds ?? 0,
+          last_viewed_at: raw.last_viewed_at ?? null,
+          tracking_events: raw.tracking_events ?? raw.tracking ?? []
+        };
+
+        setAnalytics(normalized);
         setError(null);
       } else {
         setError(data.error || 'Failed to load analytics');
@@ -185,6 +212,71 @@ export default function QuoteAnalyticsPage({ params }: Props) {
   const engagementRate = analytics.unique_views > 0
     ? ((analytics.total_views / analytics.unique_views) * 100).toFixed(1)
     : '0';
+
+  const events = analytics?.tracking_events ?? [];
+
+  // Aggregate data for charts
+  const deviceCounts: Record<string, number> = events.reduce((acc, event) => {
+    const device = getDeviceType(event.viewer_user_agent);
+    acc[device] = (acc[device] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const browserCounts: Record<string, number> = events.reduce((acc, event) => {
+    const browser = getBrowserName(event.viewer_user_agent);
+    acc[browser] = (acc[browser] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const deviceLabels = Object.keys(deviceCounts);
+  const deviceValues = Object.values(deviceCounts);
+
+  const browserLabels = Object.keys(browserCounts);
+  const browserValues = Object.values(browserCounts);
+
+  const commonBarOptions = {
+    indexAxis: 'y' as const,
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0
+        }
+      }
+    }
+  };
+
+  const deviceChartData = {
+    labels: deviceLabels,
+    datasets: [
+      {
+        label: 'Views',
+        data: deviceValues,
+        backgroundColor: '#F5831F',
+        borderRadius: 9999,
+        barThickness: 18
+      }
+    ]
+  };
+
+  const browserChartData = {
+    labels: browserLabels,
+    datasets: [
+      {
+        label: 'Views',
+        data: browserValues,
+        backgroundColor: '#2563EB',
+        borderRadius: 9999,
+        barThickness: 18
+      }
+    ]
+  };
 
   return (
     <div className="p-8 space-y-6">
@@ -330,13 +422,13 @@ export default function QuoteAnalyticsPage({ params }: Props) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {analytics.tracking_events.length === 0 ? (
+            {events.length === 0 ? (
               <p className="text-center text-circleTel-secondaryNeutral py-8">
                 No tracking events yet
               </p>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {analytics.tracking_events.slice(0, 20).map((event) => (
+                {events.slice(0, 20).map((event) => (
                   <div
                     key={event.id}
                     className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
@@ -414,7 +506,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {analytics.tracking_events.length === 0 ? (
+            {events.length === 0 ? (
               <p className="text-center text-circleTel-secondaryNeutral py-8">
                 No viewer data yet
               </p>
@@ -423,68 +515,50 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                 {/* Device Breakdown */}
                 <div>
                   <h4 className="text-sm font-medium mb-3">Device Types</h4>
-                  <div className="space-y-2">
-                    {Object.entries(
-                      analytics.tracking_events.reduce((acc, event) => {
-                        const device = getDeviceType(event.viewer_user_agent);
-                        acc[device] = (acc[device] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    ).map(([device, count]) => (
-                      <div key={device} className="flex items-center justify-between">
-                        <span className="text-sm">{device}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-circleTel-orange rounded-full h-2"
-                              style={{
-                                width: `${(count / analytics.tracking_events.length) * 100}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium w-8">{count}</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="h-40">
+                    <Bar
+                      data={deviceChartData}
+                      options={{
+                        ...commonBarOptions,
+                        plugins: {
+                          ...commonBarOptions.plugins,
+                          title: {
+                            display: false,
+                            text: 'Device Types'
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 </div>
 
                 {/* Browser Breakdown */}
                 <div>
                   <h4 className="text-sm font-medium mb-3">Browsers</h4>
-                  <div className="space-y-2">
-                    {Object.entries(
-                      analytics.tracking_events.reduce((acc, event) => {
-                        const browser = getBrowserName(event.viewer_user_agent);
-                        acc[browser] = (acc[browser] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    ).map(([browser, count]) => (
-                      <div key={browser} className="flex items-center justify-between">
-                        <span className="text-sm">{browser}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-blue-600 rounded-full h-2"
-                              style={{
-                                width: `${(count / analytics.tracking_events.length) * 100}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium w-8">{count}</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="h-40">
+                    <Bar
+                      data={browserChartData}
+                      options={{
+                        ...commonBarOptions,
+                        plugins: {
+                          ...commonBarOptions.plugins,
+                          title: {
+                            display: false,
+                            text: 'Browsers'
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 </div>
 
                 {/* Top Referrers */}
-                {analytics.tracking_events.some(e => e.referrer) && (
+                {events.some(e => e.referrer) && (
                   <div>
                     <h4 className="text-sm font-medium mb-3">Top Referrers</h4>
                     <div className="space-y-2">
                       {Object.entries(
-                        analytics.tracking_events
+                        events
                           .filter(e => e.referrer)
                           .reduce((acc, event) => {
                             const hostname = event.referrer ? new URL(event.referrer).hostname : 'Direct';
@@ -517,9 +591,9 @@ export default function QuoteAnalyticsPage({ params }: Props) {
               <p className="text-sm text-circleTel-secondaryNeutral">
                 Last viewed <strong>{new Date(analytics.last_viewed_at).toLocaleString()}</strong>
               </p>
-              <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              <div className="text-xs text-circleTel-secondaryNeutral mt-1">
                 Quote status: <Badge variant="outline">{analytics.status}</Badge>
-              </p>
+              </div>
             </div>
           </CardContent>
         </Card>

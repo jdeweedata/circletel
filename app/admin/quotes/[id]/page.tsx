@@ -8,6 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -32,7 +38,10 @@ import {
   Share2,
   Copy,
   Check,
-  BarChart3
+  BarChart3,
+  ChevronRight,
+  MoreHorizontal,
+  Plus
 } from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
@@ -307,72 +316,50 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-start gap-4">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => router.push('/admin/quotes')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Back to Quotes
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-circleTel-darkNeutral">
-              {quote.quote_number}
-            </h1>
-            <p className="text-circleTel-secondaryNeutral mt-1">
-              {quote.company_name}
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center md:gap-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-circleTel-darkNeutral">
+                Quote Details
+              </h1>
+              <p className="mt-1 text-sm md:text-base text-circleTel-secondaryNeutral">
+                {quote.quote_number}
+              </p>
+              <p className="text-circleTel-secondaryNeutral mt-1">
+                {quote.company_name}
+              </p>
+            </div>
+            <div className="mt-3 md:mt-0 flex flex-col gap-1 text-sm text-circleTel-secondaryNeutral">
+              <div className="flex flex-wrap gap-2">
+                <Badge className={`${getStatusColor(quote.status)} text-white`}>
+                  {formatStatus(quote.status)}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {quote.customer_type.toUpperCase()}
+                </Badge>
+              </div>
+              <p>Contract: {quote.contract_term} months</p>
+            </div>
           </div>
-          <Badge className={`${getStatusColor(quote.status)} text-white`}>
-            {formatStatus(quote.status)}
-          </Badge>
         </div>
 
-        <div className="flex gap-2">
-          {/* Show Edit button if quote can be edited */}
-          {['draft', 'pending_approval', 'approved', 'sent', 'viewed'].includes(quote.status) && (
-            <Button
-              onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)}
-              variant="outline"
-              className="border-gray-400 text-gray-700 hover:bg-gray-100"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          )}
-
+        <div className="flex flex-wrap gap-2 justify-end">
           <Button
-            onClick={() => window.open(`/quotes/business/${quote.id}/preview`, '_blank')}
+            onClick={() => router.push('/admin/quotes/new')}
             variant="outline"
-            className="border-blue-500 text-blue-600 hover:bg-blue-600 hover:text-white"
+            className="border-gray-300 text-gray-800 hover:bg-gray-100"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            Preview
-          </Button>
-
-          <Button
-            onClick={handleGenerateShareLink}
-            disabled={sharingLoading}
-            variant="outline"
-            className="border-purple-500 text-purple-600 hover:bg-purple-600 hover:text-white"
-          >
-            {sharingLoading ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Share2 className="w-4 h-4 mr-2" />
-            )}
-            Share Quote
-          </Button>
-
-          <Button
-            onClick={() => router.push(`/admin/quotes/${quote.id}/analytics`)}
-            variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-600 hover:text-white"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
+            <Plus className="w-4 h-4 mr-2" />
+            New Quote
           </Button>
 
           {canApprove && (
@@ -390,33 +377,115 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             </Button>
           )}
 
-          {canSend && (
-            <Button
-              onClick={handleSend}
-              disabled={actionLoading}
-              className="bg-circleTel-orange hover:bg-[#e67516]"
-            >
-              {actionLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Mail className="w-4 h-4 mr-2" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <MoreHorizontal className="w-4 h-4" />
+                <span>More actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {['draft', 'pending_approval', 'approved', 'sent', 'viewed'].includes(quote.status) && (
+                <DropdownMenuItem onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)} >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit quote
+                </DropdownMenuItem>
               )}
-              Send to Customer
-            </Button>
-          )}
-
-          {canReject && (
-            <Button
-              onClick={() => setShowRejectForm(!showRejectForm)}
-              disabled={actionLoading}
-              variant="destructive"
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              Reject Quote
-            </Button>
-          )}
+              <DropdownMenuItem
+                onClick={() => window.open(`/quotes/business/${quote.id}/preview`, '_blank')}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview quote
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  if (!actionLoading) {
+                    handleGenerateShareLink();
+                  }
+                }}
+              >
+                {sharingLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Share2 className="w-4 h-4 mr-2" />
+                )}
+                Share quote
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push(`/admin/quotes/${quote.id}/analytics`)} >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View analytics
+              </DropdownMenuItem>
+              {canSend && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!actionLoading) {
+                      handleSend();
+                    }
+                  }}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send to customer
+                </DropdownMenuItem>
+              )}
+              {canReject && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!actionLoading) {
+                      setShowRejectForm(true);
+                    }
+                  }}
+                >
+                  <XCircle className="w-4 h-4 mr-2 text-red-600" />
+                  <span className="text-red-600">Reject quote</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-circleTel-secondaryNeutral mb-1">Monthly total</p>
+              <p className="text-2xl md:text-3xl font-semibold text-circleTel-darkNeutral">
+                {formatCurrency(pricing.total_monthly)}
+              </p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-300" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-circleTel-secondaryNeutral mb-1">Contract value</p>
+              <p className="text-2xl md:text-3xl font-semibold text-circleTel-darkNeutral">
+                {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
+              </p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-300" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-circleTel-secondaryNeutral mb-1">Valid until</p>
+              <p className="text-xl md:text-2xl font-semibold text-circleTel-darkNeutral">
+                {new Date(quote.valid_until).toLocaleDateString('en-ZA', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-300" />
+          </CardContent>
+        </Card>
+      </div>
+
+      <h2 className="text-xl font-semibold text-circleTel-darkNeutral">Quote summary</h2>
 
       {/* Error Alert */}
       {error && (
@@ -475,8 +544,8 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 Company Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-circleTel-secondaryNeutral">Company Name</p>
                   <p className="font-medium">{quote.company_name}</p>
@@ -509,7 +578,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 Contact Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-circleTel-secondaryNeutral" />
                 <span>{quote.contact_name}</span>
@@ -522,7 +591,12 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-circleTel-secondaryNeutral" />
-                <span>{quote.contact_phone}</span>
+                <a
+                  href={`tel:${quote.contact_phone}`}
+                  className="text-circleTel-orange hover:underline"
+                >
+                  {quote.contact_phone}
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-circleTel-secondaryNeutral" />
@@ -820,7 +894,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
 
       {/* Share Quote Dialog */}
       <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white border border-gray-200 shadow-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="w-5 h-5 text-purple-600" />
