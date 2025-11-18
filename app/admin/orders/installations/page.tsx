@@ -31,9 +31,12 @@ import {
   Loader2,
   Filter,
   Download,
+  List,
+  Grid,
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
+import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
 
 interface Installation {
   id: string;
@@ -82,6 +85,7 @@ export default function AdminInstallationsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [view, setView] = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
     fetchInstallations();
@@ -317,6 +321,27 @@ export default function AdminInstallationsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={view === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setView('list')}
+              className="rounded-r-none"
+            >
+              <List className="h-4 w-4 mr-2" />
+              List
+            </Button>
+            <Button
+              variant={view === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setView('calendar')}
+              className="rounded-l-none"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Calendar
+            </Button>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -408,10 +433,11 @@ export default function AdminInstallationsPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Filters - Only show in list view */}
+      {view === 'list' && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -461,9 +487,11 @@ export default function AdminInstallationsPage() {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Installations Table */}
-      <Card>
+      {/* List View */}
+      {view === 'list' && (
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wrench className="h-5 w-5" />
@@ -577,6 +605,14 @@ export default function AdminInstallationsPage() {
           )}
         </CardContent>
       </Card>
+      )}
+
+      {/* Calendar View */}
+      {view === 'calendar' && (
+        <InstallationCalendar
+          installations={filteredInstallations.filter(i => i.scheduled_date !== null)}
+        />
+      )}
 
       {/* Last Refreshed */}
       <div className="text-center text-sm text-gray-500">
