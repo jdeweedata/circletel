@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     );
     const body = await request.json();
 
-    const { name, email, phone, specialties, service_area } = body;
+    const { name, email, phone, specialties, notes } = body;
 
     // Validation
     if (!name || !email || !phone) {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         specialties: specialties || [],
-        service_area: service_area || null,
+        notes: notes || null,
         is_active: true,
       })
       .select()
