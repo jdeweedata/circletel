@@ -1,53 +1,42 @@
-/**
- * Check if admin user exists in admin_users table
- */
-
 require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Missing environment variables');
-  console.log('SUPABASE_URL:', supabaseUrl ? 'SET' : 'MISSING');
-  console.log('SERVICE_KEY:', supabaseServiceKey ? 'SET' : 'MISSING');
-  process.exit(1);
-}
+(async () => {
+  console.log('\n🔍 Checking admin_users table for devadmin@circletel.co.za...\n');
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const userId = '172c9f7c-7c32-43bd-8782-278df0d4a322';
 
-async function checkAdminUser() {
-  const email = 'jeffrey.de.wee@circletel.co.za';
+  // Try different query patterns
+  console.log('Query 1: Select all fields with is_active filter');
+  const { data: data1, error: error1 } = await supabase
+    .from('admin_users')
+    .select('id, email, is_active, role')
+    .eq('id', userId)
+    .eq('is_active', true)
+    .single();
 
-  console.log(`\nChecking admin user: ${email}\n`);
+  console.log(JSON.stringify({ data: data1, error: error1 }, null, 2));
 
-  // Check in admin_users
-  const { data, error } = await supabase
+  console.log('\nQuery 2: Select without is_active filter');
+  const { data: data2, error: error2 } = await supabase
     .from('admin_users')
     .select('*')
-    .eq('email', email)
-    .maybeSingle();
+    .eq('id', userId);
 
-  if (error) {
-    console.error('❌ Error querying admin_users:', error.message);
-  } else if (!data) {
-    console.log('❌ User NOT found in admin_users table');
-    console.log('\nLet me check all admin users:');
+  console.log(JSON.stringify({ data: data2, error: error2 }, null, 2));
 
-    const { data: allAdmins } = await supabase
-      .from('admin_users')
-      .select('email, role, is_active, status')
-      .limit(10);
+  console.log('\nQuery 3: Search by email');
+  const { data: data3, error: error3 } = await supabase
+    .from('admin_users')
+    .select('*')
+    .eq('email', 'devadmin@circletel.co.za');
 
-    console.log(`Found ${allAdmins?.length || 0} admin users:`);
-    allAdmins?.forEach(admin => {
-      console.log(`  - ${admin.email} (${admin.role}, ${admin.status})`);
-    });
-  } else {
-    console.log('✅ User found in admin_users:');
-    console.log(JSON.stringify(data, null, 2));
-  }
-}
+  console.log(JSON.stringify({ data: data3, error: error3 }, null, 2));
 
-checkAdminUser().catch(console.error);
+  process.exit(0);
+})();

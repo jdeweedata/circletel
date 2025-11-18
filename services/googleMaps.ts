@@ -40,11 +40,13 @@ export class GoogleMapsService {
   async loadGoogleMaps(): Promise<typeof google> {
     // Return if already loaded
     if (this.isLoaded && window.google) {
+      console.log('[GoogleMaps] Already loaded, returning existing instance');
       return window.google;
     }
 
     // Return existing loading promise to prevent duplicate script tags
     if (this.loadingPromise) {
+      console.log('[GoogleMaps] Loading in progress, returning existing promise');
       return this.loadingPromise;
     }
 
@@ -53,31 +55,64 @@ export class GoogleMapsService {
       'script[src*="maps.googleapis.com/maps/api/js"]'
     );
     if (existingScript && window.google) {
+      console.log('[GoogleMaps] Script exists in DOM, marking as loaded');
       this.isLoaded = true;
       return window.google;
     }
 
-    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
-      throw new Error('Google Maps API key not found. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.');
+    // Get API key from environment
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+    // Enhanced error handling with detailed logging
+    if (!apiKey) {
+      const errorMsg = 'Google Maps API key not found. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable.';
+      console.error('[GoogleMaps]', errorMsg);
+      console.error('[GoogleMaps] Environment check:', {
+        hasProcessEnv: typeof process !== 'undefined',
+        hasEnv: typeof process !== 'undefined' && typeof process.env !== 'undefined',
+        envKeys: typeof process !== 'undefined' && typeof process.env !== 'undefined'
+          ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_'))
+          : []
+      });
+      throw new Error(errorMsg);
     }
+
+    // Validate API key format
+    if (apiKey === 'undefined' || apiKey === 'null' || apiKey.length < 20) {
+      const errorMsg = `Invalid Google Maps API key format: "${apiKey}". Check your environment configuration.`;
+      console.error('[GoogleMaps]', errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    console.log('[GoogleMaps] Loading Google Maps script with API key:', apiKey.substring(0, 10) + '...');
 
     // Create loading promise
     this.loadingPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&loading=async&region=ZA&language=en`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&region=ZA&language=en`;
       script.async = true;
       script.defer = true;
 
       script.onload = () => {
+        console.log('[GoogleMaps] Script loaded successfully');
         this.isLoaded = true;
         this.loadingPromise = null;
         resolve(window.google);
       };
       script.onerror = (error) => {
-        console.error('Failed to load Google Maps script:', error);
+        console.error('[GoogleMaps] Failed to load Google Maps script:', error);
+        console.error('[GoogleMaps] Script URL:', script.src);
+        console.error('[GoogleMaps] Possible causes:');
+        console.error('  1. API key has domain restrictions that block this domain');
+        console.error('  2. Places API is not enabled in Google Cloud Console');
+        console.error('  3. Billing is not enabled for this Google Cloud project');
+        console.error('  4. API key quota has been exceeded');
+        console.error('  5. Network connection issues or ad blockers');
         this.loadingPromise = null;
-        reject(new Error('Failed to load Google Maps. Please check your API key and internet connection.'));
+        reject(new Error('Failed to load Google Maps. Please check your API key configuration, domain restrictions, and ensure Places API is enabled in Google Cloud Console.'));
       };
+
+      console.log('[GoogleMaps] Appending script to document head');
       document.head.appendChild(script);
     });
 

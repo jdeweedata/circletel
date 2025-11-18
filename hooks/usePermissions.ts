@@ -24,13 +24,11 @@ export function usePermissions() {
 
       // Super admin has all permissions
       if (user.role === 'super_admin') {
-        console.log('[usePermissions] Super admin access granted for:', permission)
         return true
       }
 
       // Check permissions object
       const hasAccess = user.permissions?.[permission] === true
-      console.log('[usePermissions] Permission check:', permission, '-> hasAccess:', hasAccess)
       return hasAccess
     },
     [user]

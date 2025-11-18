@@ -22,6 +22,7 @@ import {
   Star,
   TrendingUp,
   GripVertical,
+  UploadCloud,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -54,6 +55,7 @@ export interface ProductsListProps {
   onArchive?: (product: Product) => void;
   onPriceEdit?: (product: Product) => void;
   onViewAuditHistory?: (product: Product) => void;
+  onPublish?: (product: Product) => void;
   hasEditPermission?: boolean;
   hasDeletePermission?: boolean;
   hasPricingPermission?: boolean;
@@ -108,6 +110,7 @@ export function ProductsList({
   onArchive,
   onPriceEdit,
   onViewAuditHistory,
+  onPublish,
   hasEditPermission = false,
   hasDeletePermission = false,
   hasPricingPermission = false,
@@ -350,6 +353,12 @@ export function ProductsList({
                           Activate
                         </>
                       )}
+                    </DropdownMenuItem>
+                  )}
+                  {hasEditPermission && onPublish && product.source_admin_product_id && (
+                    <DropdownMenuItem onClick={() => onPublish(product)}>
+                      <UploadCloud className="w-4 h-4 mr-2" />
+                      Publish to catalogue
                     </DropdownMenuItem>
                   )}
                   {hasCreatePermission && onDuplicate && (
