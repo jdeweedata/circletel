@@ -43,6 +43,7 @@ import { format } from 'date-fns';
 import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
 import { InstallationMapView } from '@/components/admin/orders/InstallationMapView';
 import { BulkRescheduleModal } from '@/components/admin/orders/BulkRescheduleModal';
+import { TechnicianAssignmentModal } from '@/components/admin/orders/TechnicianAssignmentModal';
 import { exportInstallationsToCSV } from '@/lib/utils/export';
 import { toast } from 'sonner';
 
@@ -97,6 +98,7 @@ export default function AdminInstallationsPage() {
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [selectedInstallations, setSelectedInstallations] = useState<string[]>([]);
   const [isBulkRescheduling, setIsBulkRescheduling] = useState(false);
+  const [schedulingInstallation, setSchedulingInstallation] = useState<Installation | null>(null);
 
   useEffect(() => {
     fetchInstallations();
@@ -297,6 +299,11 @@ export default function AdminInstallationsPage() {
         {config.label}
       </Badge>
     );
+  };
+
+  const handleScheduleSuccess = () => {
+    setSchedulingInstallation(null);
+    fetchInstallations();
   };
 
   const sendInstallationReminder = async (installation: Installation) => {
@@ -773,6 +780,19 @@ export default function AdminInstallationsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
+                          {/* Schedule Button - for pending/ready orders */}
+                          {['kyc_approved', 'payment_method_registered'].includes(installation.status) && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => setSchedulingInstallation(installation)}
+                              title="Schedule installation and assign technician"
+                              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                            >
+                              <CalendarCheck className="h-4 w-4 mr-1" />
+                              Schedule
+                            </Button>
+                          )}
                           {/* Send Reminder Button - only for scheduled installations */}
                           {installation.scheduled_date && ['installation_scheduled'].includes(installation.status) && (
                             <Button
@@ -823,6 +843,21 @@ export default function AdminInstallationsPage() {
       <div className="text-center text-sm text-gray-500">
         Last refreshed: {format(lastRefreshed, 'HH:mm:ss')}
       </div>
+
+      {/* Technician Assignment Modal */}
+      {schedulingInstallation && (
+        <TechnicianAssignmentModal
+          open={true}
+          onClose={() => setSchedulingInstallation(null)}
+          order={{
+            id: schedulingInstallation.order_id,
+            order_number: schedulingInstallation.order_number,
+            first_name: schedulingInstallation.customer_name.split(' ')[0],
+            last_name: schedulingInstallation.customer_name.split(' ').slice(1).join(' '),
+          }}
+          onSuccess={handleScheduleSuccess}
+        />
+      )}
     </div>
   );
 }
