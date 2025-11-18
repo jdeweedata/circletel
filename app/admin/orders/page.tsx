@@ -167,11 +167,18 @@ export default function AdminOrdersPageEnhanced() {
       switch (quickFilter) {
         case 'needs_payment':
           filtered = filtered.filter(order =>
-            order.status === 'pending' || order.status === 'payment_method_pending'
+            order.status === 'pending' ||
+            order.status === 'payment_method_pending' ||
+            order.status === 'installation_scheduled' ||
+            order.status === 'installation_in_progress'
           );
           break;
         case 'ready_to_schedule':
-          filtered = filtered.filter(order => order.status === 'payment_method_registered');
+          filtered = filtered.filter(order =>
+            order.status === 'pending' ||
+            order.status === 'payment_method_pending' ||
+            order.status === 'payment_method_registered'
+          );
           break;
         case 'installation_today':
           // This would need installation_scheduled_date in the Order interface

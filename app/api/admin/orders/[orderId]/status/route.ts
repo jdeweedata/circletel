@@ -6,14 +6,15 @@ export const runtime = 'nodejs';
 export const maxDuration = 15;
 
 // Helper function to get allowed next statuses
+// Updated to support flexible workflow: installation can be scheduled before payment method registration
 function getAllowedNextStatuses(currentStatus: string): string[] {
   const transitions: Record<string, string[]> = {
-    pending: ['payment_method_pending', 'cancelled'],
-    payment_method_pending: ['payment_method_registered', 'cancelled'],
+    pending: ['payment_method_pending', 'installation_scheduled', 'cancelled'],
+    payment_method_pending: ['payment_method_registered', 'installation_scheduled', 'cancelled'],
     payment_method_registered: ['installation_scheduled', 'cancelled'],
-    installation_scheduled: ['installation_in_progress', 'cancelled'],
+    installation_scheduled: ['payment_method_pending', 'payment_method_registered', 'installation_in_progress', 'cancelled'],
     installation_in_progress: ['installation_completed', 'failed', 'cancelled'],
-    installation_completed: ['active', 'failed', 'cancelled'],
+    installation_completed: ['payment_method_pending', 'payment_method_registered', 'active', 'failed', 'cancelled'],
     active: ['suspended', 'cancelled'],
     suspended: ['active', 'cancelled'],
     failed: ['installation_scheduled', 'cancelled'],

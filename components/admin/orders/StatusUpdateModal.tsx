@@ -39,21 +39,17 @@ interface StatusUpdateModalProps {
 
 const ORDER_STATUSES = [
   { value: 'pending', label: 'Pending', description: 'Order received, awaiting action' },
-  { value: 'payment', label: 'Payment', description: 'Awaiting payment confirmation' },
-  {
-    value: 'kyc_submitted',
-    label: 'KYC Submitted',
-    description: 'Customer documents submitted',
-  },
-  {
-    value: 'kyc_approved',
-    label: 'KYC Approved',
-    description: 'Documents verified and approved',
-  },
+  { value: 'payment_method_pending', label: 'Payment Method Pending', description: 'Awaiting payment method registration' },
+  { value: 'payment_method_registered', label: 'Payment Method Registered', description: 'Payment method added, ready to proceed' },
   {
     value: 'installation_scheduled',
     label: 'Installation Scheduled',
-    description: 'Installation date confirmed',
+    description: 'Installation date confirmed (payment method can be added later)',
+  },
+  {
+    value: 'installation_in_progress',
+    label: 'Installation In Progress',
+    description: 'Technician is currently installing',
   },
   {
     value: 'installation_completed',
@@ -61,6 +57,8 @@ const ORDER_STATUSES = [
     description: 'Installation finished successfully',
   },
   { value: 'active', label: 'Active', description: 'Service is live and running' },
+  { value: 'suspended', label: 'Suspended', description: 'Service temporarily suspended' },
+  { value: 'failed', label: 'Failed', description: 'Installation or activation failed' },
   { value: 'cancelled', label: 'Cancelled', description: 'Order cancelled' },
 ];
 
