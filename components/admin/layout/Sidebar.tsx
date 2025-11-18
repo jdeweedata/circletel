@@ -109,17 +109,17 @@ const navigation = [
     icon: CheckCircle,
     badge: 'pending_count'
   },
-  {
-    name: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3
-  },
-  {
-    name: 'Client Forms',
-    href: '/admin/forms',
-    icon: FileText,
-    description: 'Manage client assessment forms'
-  },
+  // {
+  //   name: 'Analytics',
+  //   href: '/admin/analytics',
+  //   icon: BarChart3
+  // },
+  // {
+  //   name: 'Client Forms',
+  //   href: '/admin/forms',
+  //   icon: FileText,
+  //   description: 'Manage client assessment forms'
+  // },
   {
     name: 'KYC Review',
     href: '/admin/kyc',
@@ -179,9 +179,9 @@ const navigation = [
       { name: 'Dashboard', href: '/admin/billing', icon: LayoutDashboard },
       { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
       { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
-      { name: 'Subscriptions', href: '/admin/billing/subscriptions', icon: List },
-      { name: 'Analytics', href: '/admin/billing/analytics', icon: TrendingUp },
-      { name: 'Transactions', href: '/admin/billing/transactions', icon: DollarSign }
+      // { name: 'Subscriptions', href: '/admin/billing/subscriptions', icon: List },
+      // { name: 'Analytics', href: '/admin/billing/analytics', icon: TrendingUp },
+      // { name: 'Transactions', href: '/admin/billing/transactions', icon: DollarSign }
     ]
   },
   {

@@ -34,7 +34,7 @@ import {
   CheckSquare,
   CreditCard,
   CalendarCheck,
-  Tool,
+  Wrench,
   Zap,
   MoreVertical,
   Edit,
@@ -302,7 +302,7 @@ export default function AdminOrdersPageEnhanced() {
       payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: CreditCard },
       payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: CheckCircle },
       installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: CalendarCheck },
-      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: Tool },
+      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: Wrench },
       installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: CheckCircle },
       active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: Zap },
       cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
@@ -557,7 +557,7 @@ export default function AdminOrdersPageEnhanced() {
               onClick={() => handleQuickFilter('in_progress')}
               className="flex items-center gap-2"
             >
-              <Tool className="h-4 w-4" />
+              <Wrench className="h-4 w-4" />
               In Progress
               {quickFilterCounts.inProgress > 0 && (
                 <Badge className="ml-1 bg-green-100 text-green-800 border-green-200">
