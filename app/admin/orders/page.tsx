@@ -32,7 +32,22 @@ import {
   ChevronRight,
   Trash2,
   CheckSquare,
+  CreditCard,
+  CalendarCheck,
+  Tool,
+  Zap,
+  MoreVertical,
+  Edit,
+  Filter,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { StatusUpdateModal } from '@/components/admin/orders/StatusUpdateModal';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface Order {
@@ -78,12 +93,17 @@ export default function AdminOrdersPageEnhanced() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
+  const [quickFilter, setQuickFilter] = useState<string | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [statusUpdateModal, setStatusUpdateModal] = useState<{
+    open: boolean;
+    order: Order | null;
+  }>({ open: false, order: null });
 
   useEffect(() => {
     fetchOrders();
@@ -91,7 +111,7 @@ export default function AdminOrdersPageEnhanced() {
 
   useEffect(() => {
     filterOrders();
-  }, [orders, searchQuery, statusFilter, paymentStatusFilter, sortField, sortDirection]);
+  }, [orders, searchQuery, statusFilter, paymentStatusFilter, quickFilter, sortField, sortDirection]);
 
   const fetchOrders = async () => {
     try {
@@ -142,14 +162,36 @@ export default function AdminOrdersPageEnhanced() {
       );
     }
 
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
-    }
+    // Quick filter (takes precedence)
+    if (quickFilter) {
+      switch (quickFilter) {
+        case 'needs_payment':
+          filtered = filtered.filter(order =>
+            order.status === 'pending' || order.status === 'payment_method_pending'
+          );
+          break;
+        case 'ready_to_schedule':
+          filtered = filtered.filter(order => order.status === 'payment_method_registered');
+          break;
+        case 'installation_today':
+          // This would need installation_scheduled_date in the Order interface
+          // For now, filter by installation_scheduled status
+          filtered = filtered.filter(order => order.status === 'installation_scheduled');
+          break;
+        case 'in_progress':
+          filtered = filtered.filter(order => order.status === 'installation_in_progress');
+          break;
+      }
+    } else {
+      // Status filter (only if no quick filter)
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(order => order.status === statusFilter);
+      }
 
-    // Payment status filter
-    if (paymentStatusFilter !== 'all') {
-      filtered = filtered.filter(order => order.payment_status === paymentStatusFilter);
+      // Payment status filter
+      if (paymentStatusFilter !== 'all') {
+        filtered = filtered.filter(order => order.payment_status === paymentStatusFilter);
+      }
     }
 
     // Sorting
@@ -257,9 +299,14 @@ export default function AdminOrdersPageEnhanced() {
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
       pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-      active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
+      payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: CreditCard },
+      payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: CheckCircle },
+      installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: CalendarCheck },
+      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: Tool },
+      installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: CheckCircle },
+      active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: Zap },
       cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
-      completed: { label: 'Completed', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: Package }
+      completed: { label: 'Completed', className: 'bg-gray-100 text-gray-800 border-gray-200', icon: Package }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -299,6 +346,32 @@ export default function AdminOrdersPageEnhanced() {
     }
     setSearchQuery('');
     setPaymentStatusFilter('all');
+    setQuickFilter(null);
+  };
+
+  const handleQuickFilter = (filter: string) => {
+    setQuickFilter(quickFilter === filter ? null : filter);
+    setStatusFilter('all');
+    setPaymentStatusFilter('all');
+    setSearchQuery('');
+  };
+
+  const getQuickFilterCounts = () => {
+    return {
+      needsPayment: orders.filter(o =>
+        o.status === 'pending' || o.status === 'payment_method_pending'
+      ).length,
+      readyToSchedule: orders.filter(o => o.status === 'payment_method_registered').length,
+      installationToday: orders.filter(o => o.status === 'installation_scheduled').length,
+      inProgress: orders.filter(o => o.status === 'installation_in_progress').length,
+    };
+  };
+
+  const quickFilterCounts = getQuickFilterCounts();
+
+  const handleQuickAction = (order: Order, action: string) => {
+    // Open status update modal with appropriate defaults
+    setStatusUpdateModal({ open: true, order });
   };
 
   const statsCards = [
@@ -423,6 +496,90 @@ export default function AdminOrdersPageEnhanced() {
         ))}
       </div>
 
+      {/* Quick Action Filters */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            Quick Filters - Orders Requiring Action
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={quickFilter === 'needs_payment' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('needs_payment')}
+              className="flex items-center gap-2"
+            >
+              <CreditCard className="h-4 w-4" />
+              Needs Payment Method
+              {quickFilterCounts.needsPayment > 0 && (
+                <Badge className="ml-1 bg-orange-100 text-orange-800 border-orange-200">
+                  {quickFilterCounts.needsPayment}
+                </Badge>
+              )}
+            </Button>
+
+            <Button
+              variant={quickFilter === 'ready_to_schedule' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('ready_to_schedule')}
+              className="flex items-center gap-2"
+            >
+              <CalendarCheck className="h-4 w-4" />
+              Ready to Schedule
+              {quickFilterCounts.readyToSchedule > 0 && (
+                <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200">
+                  {quickFilterCounts.readyToSchedule}
+                </Badge>
+              )}
+            </Button>
+
+            <Button
+              variant={quickFilter === 'installation_today' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('installation_today')}
+              className="flex items-center gap-2"
+            >
+              <Clock className="h-4 w-4" />
+              Installation Scheduled
+              {quickFilterCounts.installationToday > 0 && (
+                <Badge className="ml-1 bg-purple-100 text-purple-800 border-purple-200">
+                  {quickFilterCounts.installationToday}
+                </Badge>
+              )}
+            </Button>
+
+            <Button
+              variant={quickFilter === 'in_progress' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('in_progress')}
+              className="flex items-center gap-2"
+            >
+              <Tool className="h-4 w-4" />
+              In Progress
+              {quickFilterCounts.inProgress > 0 && (
+                <Badge className="ml-1 bg-green-100 text-green-800 border-green-200">
+                  {quickFilterCounts.inProgress}
+                </Badge>
+              )}
+            </Button>
+
+            {quickFilter && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setQuickFilter(null)}
+                className="text-gray-600"
+              >
+                Clear Filter
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
@@ -445,9 +602,13 @@ export default function AdminOrdersPageEnhanced() {
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="payment_method_pending">Payment Method Pending</SelectItem>
+                <SelectItem value="payment_method_registered">Payment Method Registered</SelectItem>
+                <SelectItem value="installation_scheduled">Installation Scheduled</SelectItem>
+                <SelectItem value="installation_in_progress">Installation In Progress</SelectItem>
+                <SelectItem value="installation_completed">Installation Completed</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
@@ -507,7 +668,7 @@ export default function AdminOrdersPageEnhanced() {
             <span>
               Showing {startIndex + 1}-{Math.min(endIndex, filteredOrders.length)} of {filteredOrders.length} orders
             </span>
-            {(searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all') && (
+            {(searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter) && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -515,6 +676,7 @@ export default function AdminOrdersPageEnhanced() {
                   setSearchQuery('');
                   setStatusFilter('all');
                   setPaymentStatusFilter('all');
+                  setQuickFilter(null);
                 }}
                 className="text-sm text-circleTel-orange hover:text-circleTel-orange/90"
               >
@@ -529,7 +691,7 @@ export default function AdminOrdersPageEnhanced() {
               <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 font-medium">No orders found</p>
               <p className="text-gray-500 text-sm mt-1">
-                {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all'
+                {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter
                   ? 'Try adjusting your filters or search terms'
                   : 'No orders have been placed yet'}
               </p>
@@ -629,12 +791,51 @@ export default function AdminOrdersPageEnhanced() {
                           </div>
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <Link href={`/admin/orders/${order.id}`}>
-                            <Button variant="outline" size="sm" className="flex items-center gap-1 ml-auto">
-                              <Eye className="h-3 w-3" />
-                              View
-                            </Button>
-                          </Link>
+                          <div className="flex items-center justify-end gap-2">
+                            <Link href={`/admin/orders/${order.id}`}>
+                              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                View
+                              </Button>
+                            </Link>
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleQuickAction(order, 'view')}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleQuickAction(order, 'status')}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Update Status
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {order.status === 'pending' && (
+                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'payment')}>
+                                    <CreditCard className="h-4 w-4 mr-2" />
+                                    Request Payment Method
+                                  </DropdownMenuItem>
+                                )}
+                                {order.status === 'payment_method_registered' && (
+                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'schedule')}>
+                                    <CalendarCheck className="h-4 w-4 mr-2" />
+                                    Schedule Installation
+                                  </DropdownMenuItem>
+                                )}
+                                {order.status === 'installation_completed' && (
+                                  <DropdownMenuItem onClick={() => handleQuickAction(order, 'activate')}>
+                                    <Zap className="h-4 w-4 mr-2" />
+                                    Activate Service
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -719,6 +920,19 @@ export default function AdminOrdersPageEnhanced() {
           )}
         </CardContent>
       </Card>
+
+      {/* Status Update Modal */}
+      {statusUpdateModal.order && (
+        <StatusUpdateModal
+          open={statusUpdateModal.open}
+          onClose={() => setStatusUpdateModal({ open: false, order: null })}
+          order={statusUpdateModal.order}
+          onSuccess={() => {
+            fetchOrders();
+            setStatusUpdateModal({ open: false, order: null });
+          }}
+        />
+      )}
     </div>
   );
 }

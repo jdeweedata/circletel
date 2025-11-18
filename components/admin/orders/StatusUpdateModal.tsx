@@ -104,17 +104,16 @@ export function StatusUpdateModal({ open, onClose, order, onSuccess }: StatusUpd
       setIsSubmitting(true);
 
       const updateData: any = {
-        orderId: order.id,
         status: newStatus,
         notes: notes || undefined,
       };
 
       // Add installation date if scheduling
       if (newStatus === 'installation_scheduled' && installationDate) {
-        updateData.installation_scheduled_date = installationDate;
+        updateData.scheduledDate = installationDate;
       }
 
-      const response = await fetch('/api/admin/orders/consumer', {
+      const response = await fetch(`/api/admin/orders/${order.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData),
