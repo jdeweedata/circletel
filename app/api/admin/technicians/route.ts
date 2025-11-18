@@ -7,17 +7,25 @@ export const maxDuration = 10;
 
 /**
  * GET /api/admin/technicians
- * Returns list of active technicians
+ * Returns list of technicians (active by default, or all if include_inactive=true)
  */
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const searchParams = request.nextUrl.searchParams;
+    const includeInactive = searchParams.get('include_inactive') === 'true';
 
-    const { data: technicians, error } = await supabase
+    let query = supabase
       .from('technicians')
       .select('*')
-      .eq('is_active', true)
       .order('name', { ascending: true });
+
+    // Filter by active status unless include_inactive is true
+    if (!includeInactive) {
+      query = query.eq('is_active', true);
+    }
+
+    const { data: technicians, error } = await query;
 
     if (error) {
       console.error('Error fetching technicians:', error);
