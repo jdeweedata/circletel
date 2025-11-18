@@ -7,9 +7,9 @@ export const maxDuration = 15;
 
 export async function GET(
   request: NextRequest,
-  context: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
-  const { orderId } = context.params;
+  const { orderId } = await context.params;
 
   if (!orderId) {
     return NextResponse.json(

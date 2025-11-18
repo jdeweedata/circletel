@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import crypto from 'crypto';
 
 export async function POST(
@@ -15,17 +16,22 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authenticate admin using shared helper (reads session cookies correctly)
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { user, adminUser } = authResult;
+
+    // Optional RBAC: require ability to read or send quotes
+    const permissionError = requirePermission(adminUser, ['quotes:read', 'quotes:write']);
+    if (permissionError) {
+      return permissionError;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
-
-    // Check if user is authenticated (admin)
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Get quote
     const { data: quote, error: quoteError } = await supabase
@@ -69,7 +75,7 @@ export async function POST(
       .insert({
         quote_id: id,
         event_type: 'shared',
-        admin_user_id: user.id,
+        admin_user_id: adminUser.id,
         metadata: {
           shared_by: user.email,
           share_method: 'link_generation'

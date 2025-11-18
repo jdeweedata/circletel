@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 
 interface TrackingRequest {
   event_type: 'view' | 'email_sent' | 'shared' | 'downloaded';
@@ -113,31 +114,34 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const { adminUser } = authResult;
+
+    const permissionError = requirePermission(adminUser, 'quotes:read');
+    if (permissionError) {
+      return permissionError;
+    }
+
     const { id } = await context.params;
     const supabase = await createClient();
 
-    // Check if user is admin
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     // Get tracking data
-    const { data: tracking, error } = await supabase
+    const { data: tracking, error: trackingError } = await supabase
       .from('quote_tracking')
       .select('*')
       .eq('quote_id', id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      throw error;
+    if (trackingError) {
+      throw trackingError;
     }
 
-    // Get analytics summary
-    const { data: analytics, error: analyticsError } = await supabase
+    // Get analytics summary from view
+    const { data: analyticsRow, error: analyticsError } = await supabase
       .from('quote_analytics')
       .select('*')
       .eq('quote_id', id)
@@ -147,11 +151,23 @@ export async function GET(
       console.error('Analytics error:', analyticsError);
     }
 
+    const analyticsData = analyticsRow || ({} as any);
+
     return NextResponse.json({
       success: true,
       data: {
-        tracking,
-        analytics
+        quote_id: analyticsData.quote_id ?? id,
+        quote_number: analyticsData.quote_number ?? '',
+        company_name: analyticsData.company_name ?? '',
+        status: analyticsData.status ?? 'draft',
+        total_views: analyticsData.total_views ?? 0,
+        unique_views: analyticsData.unique_views ?? 0,
+        emails_sent: analyticsData.emails_sent ?? 0,
+        shares: analyticsData.shares ?? 0,
+        downloads: analyticsData.downloads ?? 0,
+        total_time_spent_seconds: analyticsData.total_time_spent_seconds ?? 0,
+        last_viewed_at: analyticsData.last_viewed_at ?? null,
+        tracking_events: tracking ?? []
       }
     });
 
