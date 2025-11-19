@@ -76,8 +76,12 @@ export async function POST(
         pendingRequest = data
       }
 
-      // Create auth user
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      // Create or get existing auth user
+      let authUserId: string;
+      let authUser: any;
+
+      // First, try to create the user
+      const { data: createdUser, error: authError } = await supabase.auth.admin.createUser({
         email: pendingRequest.email,
         password: tempPassword,
         email_confirm: true,
@@ -86,12 +90,62 @@ export async function POST(
         },
       })
 
-      if (authError || !authUser?.user) {
-        console.error('Error creating auth user (dev inline approval):', authError)
+      if (authError) {
+        // Check if user already exists
+        if (authError.message?.includes('already been registered') || authError.message?.includes('User already registered')) {
+          console.log('Auth user already exists, looking up existing user...')
+
+          // Get the existing user by email
+          const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers()
+
+          if (listError) {
+            console.error('Error listing users:', listError)
+            return NextResponse.json(
+              { error: 'Failed to find existing auth user' },
+              { status: 500 }
+            )
+          }
+
+          const existingUser = existingUsers.users.find(u => u.email === pendingRequest.email)
+
+          if (!existingUser) {
+            console.error('User exists but could not be found')
+            return NextResponse.json(
+              { error: 'Auth user exists but could not be located' },
+              { status: 500 }
+            )
+          }
+
+          // Update the existing user's password
+          const { error: updateError } = await supabase.auth.admin.updateUserById(
+            existingUser.id,
+            { password: tempPassword }
+          )
+
+          if (updateError) {
+            console.error('Error updating password for existing user:', updateError)
+          }
+
+          authUserId = existingUser.id
+          authUser = { user: existingUser }
+          console.log('Using existing auth user:', authUserId)
+        } else {
+          console.error('Error creating auth user:', authError)
+          return NextResponse.json(
+            { error: authError.message || 'Failed to create auth user' },
+            { status: 500 }
+          )
+        }
+      } else if (!createdUser?.user) {
+        console.error('No user returned from createUser')
         return NextResponse.json(
-          { error: authError?.message || 'Failed to create auth user' },
+          { error: 'Failed to create auth user' },
           { status: 500 }
         )
+      } else {
+        authUserId = createdUser.user.id
+        authUser = createdUser
+        console.log('Created new auth user:', authUserId)
       }
 
       const roleTemplateId = pendingRequest.requested_role_template_id || pendingRequest.requested_role
@@ -100,7 +154,7 @@ export async function POST(
       const { data: devAdminUser, error: adminInsertError } = await supabase
         .from('admin_users')
         .insert({
-          id: authUser.user.id,
+          id: authUserId,
           email: pendingRequest.email,
           full_name: pendingRequest.full_name,
           role: roleTemplateId,
@@ -114,8 +168,12 @@ export async function POST(
 
       if (adminInsertError) {
         console.error('Error creating admin user (dev inline approval):', adminInsertError)
-        // Rollback auth user
-        await supabase.auth.admin.deleteUser(authUser.user.id)
+
+        // Only rollback if we just created the auth user (not if it already existed)
+        if (authUser && createdUser) {
+          await supabase.auth.admin.deleteUser(authUserId)
+        }
+
         return NextResponse.json(
           { error: adminInsertError.message || 'Failed to create admin user' },
           { status: 500 }
