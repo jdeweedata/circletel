@@ -8,11 +8,16 @@ import { createClient } from '@/lib/supabase/server'
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('[Admin Signup] Processing request...')
+
     const body = await request.json()
     const { email, full_name, requested_role_template_id, reason } = body
 
+    console.log('[Admin Signup] Request data:', { email, full_name, requested_role_template_id })
+
     // Validate required fields
     if (!email || !full_name || !requested_role_template_id) {
+      console.log('[Admin Signup] Validation failed: missing required fields')
       return NextResponse.json(
         {
           success: false,
@@ -25,6 +30,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
+      console.log('[Admin Signup] Validation failed: invalid email format')
       return NextResponse.json(
         {
           success: false,
@@ -34,9 +40,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('[Admin Signup] Creating Supabase client...')
     const supabase = await createClient()
+    console.log('[Admin Signup] Supabase client created successfully')
 
     // Check if email already exists in admin_users
+    console.log('[Admin Signup] Checking for existing admin...')
     const { data: existingAdmin, error: adminCheckError } = await supabase
       .from('admin_users')
       .select('id')
@@ -45,15 +54,17 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (adminCheckError && adminCheckError.code !== 'PGRST116') {
-      console.error('Error checking existing admin:', adminCheckError)
+      console.error('[Admin Signup] Error checking existing admin:', adminCheckError)
       return NextResponse.json(
         {
           success: false,
-          error: 'Database error'
+          error: 'Database error checking existing admin',
+          details: adminCheckError.message
         },
         { status: 500 }
       )
     }
+    console.log('[Admin Signup] Existing admin check complete:', { exists: !!existingAdmin })
 
     if (existingAdmin) {
       return NextResponse.json(
@@ -66,6 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if pending request already exists
+    console.log('[Admin Signup] Checking for existing pending request...')
     const { data: existingRequest, error: requestCheckError } = await supabase
       .from('pending_admin_users')
       .select('id, status')
@@ -74,15 +86,17 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (requestCheckError && requestCheckError.code !== 'PGRST116') {
-      console.error('Error checking existing request:', requestCheckError)
+      console.error('[Admin Signup] Error checking existing request:', requestCheckError)
       return NextResponse.json(
         {
           success: false,
-          error: 'Database error'
+          error: 'Database error checking pending requests',
+          details: requestCheckError.message
         },
         { status: 500 }
       )
     }
+    console.log('[Admin Signup] Pending request check complete:', { exists: !!existingRequest, status: existingRequest?.status })
 
     if (existingRequest) {
       if (existingRequest.status === 'pending') {
@@ -107,6 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create pending admin user request
+    console.log('[Admin Signup] Creating pending request...')
     const { data: pendingUser, error: insertError } = await supabase
       .from('pending_admin_users')
       .insert({
@@ -121,8 +136,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('Error creating pending user:', JSON.stringify(insertError, null, 2))
-      console.error('Insert error details:', {
+      console.error('[Admin Signup] Error creating pending user:', JSON.stringify(insertError, null, 2))
+      console.error('[Admin Signup] Insert error details:', {
         message: insertError.message,
         code: insertError.code,
         details: insertError.details,
@@ -132,11 +147,13 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Failed to submit access request',
-          details: insertError.message
+          details: insertError.message,
+          code: insertError.code
         },
         { status: 500 }
       )
     }
+    console.log('[Admin Signup] Pending request created successfully:', pendingUser.id)
 
     // TODO: Send notification email to super admins about new access request
     // This can be implemented later when email service is set up
@@ -147,11 +164,13 @@ export async function POST(request: NextRequest) {
       request_id: pendingUser.id
     })
   } catch (error) {
-    console.error('Admin signup error:', error)
+    console.error('[Admin Signup] Uncaught error:', error)
+    console.error('[Admin Signup] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )
