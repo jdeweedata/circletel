@@ -116,14 +116,19 @@ export async function POST(
             )
           }
 
-          // Update the existing user's password
+          // Update the existing user's password and confirm email
           const { error: updateError } = await supabase.auth.admin.updateUserById(
             existingUser.id,
-            { password: tempPassword }
+            {
+              password: tempPassword,
+              email_confirm: true  // Ensure email is confirmed
+            }
           )
 
           if (updateError) {
             console.error('Error updating password for existing user:', updateError)
+          } else {
+            console.log('Password updated and email confirmed for existing user')
           }
 
           authUserId = existingUser.id
