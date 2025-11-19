@@ -151,19 +151,99 @@ export async function POST(
         timestamp: new Date().toISOString(),
       })
 
-      // Send welcome email notification (best effort)
+      // Send welcome email notification directly via Resend API
       try {
-        await supabase.functions.invoke('send-admin-notification', {
-          body: {
-            type: 'approval',
-            email: pendingRequest.email,
-            full_name: pendingRequest.full_name,
-            role_name: pendingRequest.role_template?.name || roleTemplateId,
-            temporary_password: tempPassword,
-          },
-        })
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (resendApiKey) {
+          const emailHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Admin Access Approved</title>
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #F5831F 0%, #E67510 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to CircleTel Admin!</h1>
+              </div>
+
+              <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
+                <p style="font-size: 16px;">Hi <strong>${pendingRequest.full_name}</strong>,</p>
+
+                <p style="font-size: 16px;">Great news! Your request for admin access has been approved. 🎉</p>
+
+                <div style="background: #f8f9fa; border-left: 4px solid #F5831F; padding: 15px; margin: 20px 0;">
+                  <p style="margin: 0; font-size: 14px;"><strong>Role Assigned:</strong> ${pendingRequest.role_template?.name || roleTemplateId}</p>
+                </div>
+
+                <h3 style="color: #F5831F; font-size: 18px; margin-top: 25px;">Your Login Credentials</h3>
+
+                <div style="background: #fff3e0; border: 1px dashed #F5831F; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>Email:</strong> ${pendingRequest.email}</p>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>Temporary Password:</strong> <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${tempPassword}</code></p>
+                </div>
+
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0;">
+                  <p style="margin: 0; font-size: 13px; color: #856404;">
+                    <strong>⚠️ Important:</strong> Please change your password immediately after your first login for security purposes.
+                  </p>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://www.circletel.co.za/admin/login"
+                     style="display: inline-block; background: #F5831F; color: white; padding: 14px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+                    Login to Admin Panel
+                  </a>
+                </div>
+
+                <h3 style="color: #F5831F; font-size: 16px; margin-top: 25px;">Next Steps</h3>
+                <ol style="padding-left: 20px; font-size: 14px;">
+                  <li>Log in using the credentials above</li>
+                  <li>Change your password in Profile Settings</li>
+                  <li>Familiarize yourself with the admin dashboard</li>
+                  <li>Review the documentation for your role</li>
+                </ol>
+
+                <p style="font-size: 14px; margin-top: 25px;">If you have any questions or need assistance, please contact your administrator or our support team.</p>
+
+                <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 25px 0;">
+
+                <p style="font-size: 12px; color: #666; text-align: center; margin: 0;">
+                  This is an automated message from CircleTel Admin System.<br>
+                  © ${new Date().getFullYear()} CircleTel. All rights reserved.
+                </p>
+              </div>
+            </body>
+            </html>
+          `;
+
+          const emailResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${resendApiKey}`
+            },
+            body: JSON.stringify({
+              from: 'CircleTel Admin <noreply@circletel.co.za>',
+              to: [pendingRequest.email],
+              subject: '✅ Your CircleTel Admin Access Has Been Approved!',
+              html: emailHtml
+            })
+          });
+
+          if (!emailResponse.ok) {
+            const errorText = await emailResponse.text();
+            console.error('Failed to send approval email:', errorText);
+          } else {
+            console.log('Approval email sent successfully to:', pendingRequest.email);
+          }
+        } else {
+          console.warn('RESEND_API_KEY not configured, skipping email notification');
+        }
       } catch (emailError) {
-        console.error('Error sending notification email (dev inline approval):', emailError)
+        console.error('Error sending notification email:', emailError);
+        // Don't fail the approval if email fails
       }
 
       return NextResponse.json({
