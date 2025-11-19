@@ -298,12 +298,42 @@ export default function CoverageAnalyticsPage() {
 
         {/* Analytics Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="geographic">Geographic</TabsTrigger>
-            <TabsTrigger value="errors">Errors</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
+          <TabsList className="grid w-full max-w-3xl grid-cols-5 rounded-lg bg-muted p-1.5">
+            <TabsTrigger
+              value="overview"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="performance"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+            >
+              <Signal className="h-4 w-4" />
+              <span>Performance</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="geographic"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+            >
+              <MapPin className="h-4 w-4" />
+              <span>Geographic</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="errors"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <span>Errors</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="trends"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+            >
+              <Calendar className="h-4 w-4" />
+              <span>Trends</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
