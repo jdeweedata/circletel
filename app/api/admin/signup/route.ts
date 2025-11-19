@@ -1,19 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-// Create a service role client for admin operations
-const getSupabaseServiceClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * POST /api/admin/signup
@@ -48,7 +34,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabaseServiceClient()
+    const supabase = await createClient()
 
     // Check if email already exists in admin_users
     const { data: existingAdmin, error: adminCheckError } = await supabase
