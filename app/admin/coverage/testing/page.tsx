@@ -248,6 +248,7 @@ export default function CoverageTestingPage() {
   };
 
   return (
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Coverage Testing Tools</h1>
         <p className="text-muted-foreground">
@@ -482,7 +483,7 @@ export default function CoverageTestingPage() {
                         </Alert>
                       )}
 
-                      {result.data && (
+                      {result.data != null && (
                         <details className="text-sm">
                           <summary className="cursor-pointer text-muted-foreground hover:text-foreground flex items-center justify-between">
                             <span>View Response Data</span>
