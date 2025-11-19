@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Shield, CheckCircle2, Loader2 } from 'lucide-react';
 import { ROLE_TEMPLATES, DEPARTMENTS } from '@/lib/rbac/role-templates';
 
@@ -49,16 +48,47 @@ export default function AdminSignupPage() {
     setIsSubmitting(true);
 
     try {
-      const { data: result, error } = await supabase.functions.invoke('admin-signup', {
-        body: data,
+      const response = await fetch('/api/admin/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      if (error) {
-        throw new Error('Failed to submit access request');
+      const result = await response.json();
+
+      if (!response.ok) {
+        // If a pending request already exists for this email, treat it as a successful submission
+        if (
+          response.status === 409 &&
+          (result?.error === 'A pending access request already exists for this email' ||
+            result?.error?.toLowerCase().includes('pending access request'))
+        ) {
+          setSuccess(true);
+          toast.success('You already have a pending admin access request. Please wait for approval.');
+          return;
+        }
+
+        const message = result?.error || 'Failed to submit access request';
+        console.warn('Signup request failed:', {
+          status: response.status,
+          error: message,
+          result,
+        });
+        toast.error(message);
+        return;
       }
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to submit access request');
+        const message = result?.error || 'Failed to submit access request';
+        console.warn('Signup request returned unsuccessful response:', {
+          status: response.status,
+          error: message,
+          result,
+        });
+        toast.error(message);
+        return;
       }
 
       setSuccess(true);

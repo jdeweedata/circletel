@@ -9,7 +9,8 @@ const corsHeaders = {
 interface SignupRequest {
   email: string
   full_name: string
-  requested_role: 'product_manager' | 'editor' | 'viewer'
+  requested_role_template_id: string
+  requested_role?: string // Legacy field for backwards compatibility
   reason?: string
 }
 
@@ -34,7 +35,8 @@ serve(async (req) => {
       const body = await req.json() as SignupRequest
 
       // Validate required fields
-      if (!body.email || !body.full_name || !body.requested_role) {
+      const roleId = body.requested_role_template_id || body.requested_role
+      if (!body.email || !body.full_name || !roleId) {
         return new Response(
           JSON.stringify({
             success: false,
@@ -115,12 +117,14 @@ serve(async (req) => {
       }
 
       // Create pending admin user request
+      const roleId = body.requested_role_template_id || body.requested_role
       const { data: pendingUser, error: insertError } = await supabaseClient
         .from('pending_admin_users')
         .insert({
           email: body.email,
           full_name: body.full_name,
-          requested_role: body.requested_role,
+          requested_role: roleId, // Legacy field
+          requested_role_template_id: roleId,
           reason: body.reason || null,
           status: 'pending'
         })
