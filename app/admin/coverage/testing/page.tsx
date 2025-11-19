@@ -248,7 +248,6 @@ export default function CoverageTestingPage() {
   };
 
   return (
-    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Coverage Testing Tools</h1>
         <p className="text-muted-foreground">
@@ -257,10 +256,28 @@ export default function CoverageTestingPage() {
       </div>
 
       <Tabs defaultValue="manual" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="manual">Manual Testing</TabsTrigger>
-          <TabsTrigger value="automated">Test Suite</TabsTrigger>
-          <TabsTrigger value="results">Test Results</TabsTrigger>
+        <TabsList className="grid w-full max-w-md grid-cols-3 rounded-lg bg-muted p-1.5">
+          <TabsTrigger
+            value="manual"
+            className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+          >
+            <MapPin className="h-4 w-4" />
+            <span>Manual Testing</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="automated"
+            className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+          >
+            <TestTube className="h-4 w-4" />
+            <span>Test Suite</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="results"
+            className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
+          >
+            <Clipboard className="h-4 w-4" />
+            <span>Test Results</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="manual" className="space-y-6">
