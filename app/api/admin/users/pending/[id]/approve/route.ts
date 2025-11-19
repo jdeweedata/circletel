@@ -45,8 +45,8 @@ export async function POST(
       )
     }
 
-    // In development, perform approval inline instead of calling the Edge Function
-    if (process.env.NODE_ENV !== 'production') {
+    // Always perform approval inline (more reliable than Edge Function)
+    if (true) {
       const tempPassword = generateStrongPassword(16)
 
       // Prefer request payload (from the client) and fall back to DB fetch only if missing
@@ -176,36 +176,6 @@ export async function POST(
         },
       })
     }
-
-    // In production, delegate to the Edge Function
-    const { data: result, error: approvalError } = await supabase.functions.invoke('approve-admin-user', {
-      body: {
-        request_id: id,
-        reviewer_id: user.id,
-        notes,
-      },
-    })
-
-    if (approvalError) {
-      console.error('Error approving user via Edge Function:', approvalError)
-      return NextResponse.json(
-        { error: approvalError.message || 'Failed to approve user' },
-        { status: 500 }
-      )
-    }
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error || 'Failed to approve user' },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'User approved successfully',
-      data: result.data,
-    })
   } catch (error) {
     console.error('Error in POST /api/admin/users/pending/[id]/approve:', error)
     return NextResponse.json(
