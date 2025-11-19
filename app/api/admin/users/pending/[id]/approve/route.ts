@@ -276,6 +276,9 @@ export async function POST(
             </html>
           `;
 
+          // Use configured email or fallback to Resend's onboarding address for testing
+          const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
           const emailResponse = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -283,7 +286,7 @@ export async function POST(
               'Authorization': `Bearer ${resendApiKey}`
             },
             body: JSON.stringify({
-              from: 'CircleTel Admin <noreply@circletel.co.za>',
+              from: fromEmail,
               to: [pendingRequest.email],
               subject: '✅ Your CircleTel Admin Access Has Been Approved!',
               html: emailHtml
