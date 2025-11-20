@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { syncCustomerToZohoBilling } from '@/lib/integrations/zoho/customer-sync-service';
 
 /**
  * API Route: Create Customer Record (Server-side with Service Role)
@@ -85,6 +86,21 @@ export async function POST(request: NextRequest) {
         },
         { status: 500 }
       );
+    }
+
+    // Trigger async ZOHO Billing sync (background task, non-blocking)
+    if (customer?.id) {
+      syncCustomerToZohoBilling(customer.id)
+        .then((result) => {
+          if (result.success) {
+            console.log('[ZOHO Trigger] Customer synced to ZOHO Billing:', result.zoho_customer_id);
+          } else {
+            console.error('[ZOHO Trigger] Customer sync failed:', result.error);
+          }
+        })
+        .catch((error) => {
+          console.error('[ZOHO Trigger] Customer sync error:', error);
+        });
     }
 
     return NextResponse.json({

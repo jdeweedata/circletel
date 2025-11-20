@@ -8,6 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { InvoiceLineItem as BillingLineItem, InvoiceType } from '@/lib/billing/types';
+import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
 
 export interface InvoiceLineItem {
   description: string;
@@ -302,7 +303,24 @@ export async function generateCustomerInvoice(
   if (error) {
     throw new Error(`Failed to generate customer invoice: ${error.message}`);
   }
-  
+
+  // Trigger async ZOHO Billing sync (background task, non-blocking)
+  // Only sync manual invoice types (installation, pro_rata, equipment, adjustment)
+  const syncableTypes: InvoiceType[] = ['installation', 'pro_rata', 'equipment', 'adjustment'];
+  if (invoice?.id && syncableTypes.includes(invoice_type as InvoiceType)) {
+    syncInvoiceToZohoBilling(invoice.id)
+      .then((result) => {
+        if (result.success) {
+          console.log('[ZOHO Trigger] Invoice synced to ZOHO Billing:', result.zoho_invoice_id);
+        } else {
+          console.error('[ZOHO Trigger] Invoice sync failed:', result.error);
+        }
+      })
+      .catch((error) => {
+        console.error('[ZOHO Trigger] Invoice sync error:', error);
+      });
+  }
+
   return {
     invoice_id: invoice.id,
     invoice_number: invoice.invoice_number,

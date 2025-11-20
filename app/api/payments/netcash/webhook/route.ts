@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
+import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
 
 /**
  * Verify NetCash webhook signature
@@ -239,6 +240,30 @@ export async function POST(request: NextRequest) {
         });
 
       console.log('[NetCash Webhook] New transaction created:', transactionId);
+    }
+
+    // Trigger async ZOHO Billing sync for completed payments (background task, non-blocking)
+    if (paymentStatus === 'completed') {
+      // Get the payment transaction ID
+      const { data: paymentTransaction } = await supabase
+        .from('payment_transactions')
+        .select('id')
+        .eq('transaction_id', transactionId)
+        .single();
+
+      if (paymentTransaction?.id) {
+        syncPaymentToZohoBilling(paymentTransaction.id)
+          .then((result) => {
+            if (result.success) {
+              console.log('[ZOHO Trigger] Payment synced to ZOHO Billing:', result.zoho_payment_id);
+            } else {
+              console.error('[ZOHO Trigger] Payment sync failed:', result.error);
+            }
+          })
+          .catch((error) => {
+            console.error('[ZOHO Trigger] Payment sync error:', error);
+          });
+      }
     }
 
     // 10. Mark webhook as processed
