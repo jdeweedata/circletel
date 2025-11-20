@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
+import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 
 /**
  * POST /api/payments/initiate
@@ -14,7 +16,7 @@ import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { orderId } = body;
+    const { orderId, consents } = body;
 
     // Validate request
     if (!orderId) {
@@ -22,6 +24,11 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Missing required field: orderId' },
         { status: 400 }
       );
+    }
+
+    // Validate consents (optional but recommended)
+    if (!consents) {
+      console.warn('Payment initiated without consents - consider updating client to send consents');
     }
 
     // Get payment provider (uses factory pattern)
@@ -132,6 +139,27 @@ export async function POST(request: NextRequest) {
     if (transactionError) {
       console.error('Error creating payment transaction:', transactionError);
       // Continue anyway - payment can still work even if we don't track it perfectly
+    }
+
+    // Log consents if provided
+    if (consents && transaction) {
+      const consentLog = await logPaymentConsents({
+        payment_transaction_id: transaction.id,
+        order_id: order.id,
+        customer_email: order.email,
+        customer_id: order.customer_id || undefined,
+        consents: consents as PaymentConsents,
+        ip_address: extractIpAddress(request),
+        user_agent: extractUserAgent(request),
+        consent_type: 'payment'
+      });
+
+      if (!consentLog.success) {
+        console.error('Failed to log payment consents:', consentLog.error);
+        // Don't fail the payment if consent logging fails
+      } else {
+        console.log('Payment consents logged successfully:', consentLog.consent_id);
+      }
     }
 
     // Return payment information

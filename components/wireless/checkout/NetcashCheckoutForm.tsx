@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
+import {
   CreditCard, Smartphone, Building2, Calendar,
   Lock, ShieldCheck, AlertCircle, CheckCircle,
   Loader2, ChevronRight, Info, Eye, EyeOff,
@@ -14,6 +14,9 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { netcashConfig } from "@/lib/payment/netcash-config"
+import { PaymentDisclaimerCard } from "@/components/payments/PaymentDisclaimerCard"
+import { PaymentConsentCheckboxes, type PaymentConsents } from "@/components/payments/PaymentConsentCheckboxes"
+import { validateConsents } from "@/lib/constants/policy-versions"
 
 export function CheckoutForm() {
   const router = useRouter()
@@ -31,13 +34,13 @@ export function CheckoutForm() {
     expiryMonth: "",
     expiryYear: "",
     cvv: "",
-    
+
     // Bank Details (for EFT)
     bankName: "",
     accountHolder: "",
     accountNumber: "",
     branchCode: "",
-    
+
     // Billing Address
     billingAddress: "same", // same or different
     billingStreet: "",
@@ -45,14 +48,22 @@ export function CheckoutForm() {
     billingCity: "",
     billingProvince: "",
     billingPostalCode: "",
-    
+
     // Agreement
     autoRenewal: true,
     savePaymentMethod: true,
-    termsAccepted: false
+    consents: {
+      terms: false,
+      privacy: false,
+      paymentTerms: false,
+      refundPolicy: false,
+      recurringPayment: false,
+      marketing: false,
+    } as PaymentConsents,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [consentErrors, setConsentErrors] = useState<string[]>([])
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -92,6 +103,14 @@ export function CheckoutForm() {
     }
   }
 
+  const handleConsentChange = (consents: PaymentConsents) => {
+    setFormData((prev) => ({ ...prev, consents }))
+    // Clear consent errors when user makes changes
+    if (consentErrors.length > 0) {
+      setConsentErrors([])
+    }
+  }
+
   const fillTestCardDetails = () => {
     const testCard = netcashConfig.testCards.visa
     setFormData(prev => ({
@@ -122,10 +141,12 @@ export function CheckoutForm() {
       if (!formData.branchCode) newErrors.branchCode = "Branch code is required"
     }
 
-    if (!formData.termsAccepted) newErrors.termsAccepted = "You must accept the terms"
+    // Validate consents
+    const consentValidation = validateConsents(formData.consents)
+    setConsentErrors(consentValidation.errors)
 
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return Object.keys(newErrors).length === 0 && consentValidation.valid
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -584,34 +605,28 @@ export function CheckoutForm() {
               </div>
             </label>
           </div>
+        </div>
 
-          <label className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={formData.termsAccepted}
-              onChange={(e) => handleInputChange("termsAccepted", e.target.checked)}
-              className={`mt-1 rounded border-gray-300 text-orange-500 focus:ring-orange-500 ${errors.termsAccepted ? 'border-red-500' : ''}`}
-            />
-            <div>
-              <div className="text-sm text-gray-900">
-                I agree to the{" "}
-                <a href="#" className="text-orange-600 hover:underline">Terms of Service</a>,{" "}
-                <a href="#" className="text-orange-600 hover:underline">Privacy Policy</a>, and{" "}
-                <a href="https://netcash.co.za/terms" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">
-                  Netcash Payment Terms
-                </a>
-              </div>
-              {errors.termsAccepted && (
-                <p className="text-red-500 text-xs mt-1">{errors.termsAccepted}</p>
-              )}
-            </div>
-          </label>
+        {/* Payment Security Disclaimer */}
+        <div className="mb-6">
+          <PaymentDisclaimerCard variant="compact" />
+        </div>
+
+        {/* Legal Consents */}
+        <div className="mb-6">
+          <PaymentConsentCheckboxes
+            consents={formData.consents}
+            onConsentChange={handleConsentChange}
+            showRecurringPayment={formData.autoRenewal}
+            showMarketing={true}
+            errors={consentErrors}
+          />
         </div>
 
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={isProcessing || !formData.termsAccepted}
+          disabled={isProcessing}
           className="w-full py-6 text-lg font-semibold bg-orange-500 hover:bg-orange-600 text-white"
         >
           {isProcessing ? (

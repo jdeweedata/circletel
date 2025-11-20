@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PaymentDisclaimerCard } from "@/components/payments/PaymentDisclaimerCard";
+import { PaymentConsentCheckboxes, type PaymentConsents } from "@/components/payments/PaymentConsentCheckboxes";
+import { validateConsents } from "@/lib/constants/policy-versions";
 
 // Types
 interface FormData {
@@ -16,6 +19,7 @@ interface FormData {
   cvv: string;
   cardholderName: string;
   paymentMethod: "card" | "digital-wallet" | "other";
+  consents: PaymentConsents;
 }
 
 interface OrderSummaryData {
@@ -48,10 +52,10 @@ function formatExpiry(value: string): string {
   return cleaned;
 }
 
-export default function InlinePaymentForm({ 
-  orderSummary, 
-  onSubmit, 
-  isProcessing = false 
+export default function InlinePaymentForm({
+  orderSummary,
+  onSubmit,
+  isProcessing = false
 }: InlinePaymentFormProps) {
   const [formData, setFormData] = useState<FormData>({
     cardNumber: "",
@@ -60,9 +64,17 @@ export default function InlinePaymentForm({
     cvv: "",
     cardholderName: "",
     paymentMethod: "card",
+    consents: {
+      terms: false,
+      privacy: false,
+      paymentTerms: false,
+      refundPolicy: false,
+      marketing: false,
+    },
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [consentErrors, setConsentErrors] = useState<string[]>([]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     let processedValue = value;
@@ -90,6 +102,14 @@ export default function InlinePaymentForm({
     }
   };
 
+  const handleConsentChange = (consents: PaymentConsents) => {
+    setFormData((prev) => ({ ...prev, consents }));
+    // Clear consent errors when user makes changes
+    if (consentErrors.length > 0) {
+      setConsentErrors([]);
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
 
@@ -108,8 +128,12 @@ export default function InlinePaymentForm({
       }
     }
 
+    // Validate consents
+    const consentValidation = validateConsents(formData.consents);
+    setConsentErrors(consentValidation.errors);
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0 && consentValidation.valid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -369,6 +393,21 @@ export default function InlinePaymentForm({
               </div>
             </div>
 
+            {/* Payment Security Disclaimer */}
+            <div className="border-t pt-4">
+              <PaymentDisclaimerCard variant="compact" />
+            </div>
+
+            {/* Legal Consents */}
+            <div className="border-t pt-4">
+              <PaymentConsentCheckboxes
+                consents={formData.consents}
+                onConsentChange={handleConsentChange}
+                showMarketing={true}
+                errors={consentErrors}
+              />
+            </div>
+
             {/* Place Order Button */}
             <Button
               onClick={handleSubmit}
@@ -384,10 +423,6 @@ export default function InlinePaymentForm({
                 </>
               )}
             </Button>
-
-            <p className="text-xs text-muted-foreground text-center">
-              By placing your order, you agree to our terms and conditions.
-            </p>
           </CardContent>
         </Card>
       </div>

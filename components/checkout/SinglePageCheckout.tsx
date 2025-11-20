@@ -28,6 +28,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { PaymentDisclaimerCard } from '@/components/payments/PaymentDisclaimerCard';
+import { PaymentConsentCheckboxes, type PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { validateConsents } from '@/lib/constants/policy-versions';
 
 interface CheckoutSection {
   id: string;
@@ -103,11 +106,18 @@ export function SinglePageCheckout({
     accountNumber: '',
     accountType: 'cheque',
 
-    // Agreements
-    agreeTerms: false,
-    agreeDebitOrder: false,
-    agreeMarketing: false
+    // Consents
+    consents: {
+      terms: false,
+      privacy: false,
+      paymentTerms: false,
+      refundPolicy: false,
+      recurringPayment: false,
+      marketing: false,
+    } as PaymentConsents,
   });
+
+  const [consentErrors, setConsentErrors] = useState<string[]>([]);
 
   const [sections, setSections] = useState<CheckoutSection[]>([
     { id: 'personal', title: 'Personal Details', icon: User, completed: false },
@@ -142,6 +152,14 @@ export function SinglePageCheckout({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleConsentChange = (consents: PaymentConsents) => {
+    setFormData((prev) => ({ ...prev, consents }));
+    // Clear consent errors when user makes changes
+    if (consentErrors.length > 0) {
+      setConsentErrors([]);
+    }
+  };
+
   const validateSection = (sectionId: string): boolean => {
     switch (sectionId) {
       case 'personal':
@@ -160,12 +178,12 @@ export function SinglePageCheckout({
           formData.province
         );
       case 'payment':
+        const consentValidation = validateConsents(formData.consents);
         return !!(
           formData.bank &&
           formData.accountHolder &&
           formData.accountNumber &&
-          formData.agreeTerms &&
-          formData.agreeDebitOrder
+          consentValidation.valid
         );
       default:
         return false;
@@ -238,7 +256,8 @@ export function SinglePageCheckout({
             accountNumber: formData.accountNumber,
             accountType: formData.accountType
           },
-          marketing: formData.agreeMarketing
+          consents: formData.consents,
+          marketing: formData.consents.marketing
         })
       });
 
@@ -565,44 +584,20 @@ export function SinglePageCheckout({
                 </RadioGroup>
               </div>
 
-              {/* Agreements */}
-              <div className="space-y-3 pt-4 border-t">
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="agreeTerms"
-                    checked={formData.agreeTerms}
-                    onCheckedChange={(checked) => updateField('agreeTerms', checked)}
-                  />
-                  <label htmlFor="agreeTerms" className="text-sm text-gray-700 cursor-pointer">
-                    I agree to the{' '}
-                    <a href="/terms" className="text-orange-500 underline" target="_blank">
-                      Terms & Conditions
-                    </a>{' '}
-                    *
-                  </label>
-                </div>
+              {/* Payment Security Disclaimer */}
+              <div className="pt-4 border-t">
+                <PaymentDisclaimerCard variant="compact" />
+              </div>
 
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="agreeDebitOrder"
-                    checked={formData.agreeDebitOrder}
-                    onCheckedChange={(checked) => updateField('agreeDebitOrder', checked)}
-                  />
-                  <label htmlFor="agreeDebitOrder" className="text-sm text-gray-700 cursor-pointer">
-                    I authorize CircleTel to debit my account monthly *
-                  </label>
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="agreeMarketing"
-                    checked={formData.agreeMarketing}
-                    onCheckedChange={(checked) => updateField('agreeMarketing', checked)}
-                  />
-                  <label htmlFor="agreeMarketing" className="text-sm text-gray-700 cursor-pointer">
-                    Send me promotions and updates (optional)
-                  </label>
-                </div>
+              {/* Legal Consents */}
+              <div className="pt-4">
+                <PaymentConsentCheckboxes
+                  consents={formData.consents}
+                  onConsentChange={handleConsentChange}
+                  showRecurringPayment={true}
+                  showMarketing={true}
+                  errors={consentErrors}
+                />
               </div>
             </CardContent>
           </Card>

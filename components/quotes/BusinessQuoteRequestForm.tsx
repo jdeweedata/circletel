@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import type { CreateQuoteRequest, CreateQuoteItemRequest } from '@/lib/quotes/types';
+import { PaymentConsentCheckboxes, type B2BConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { validateConsents } from '@/lib/constants/policy-versions';
 
 interface BusinessQuoteRequestFormProps {
   leadId: string;
@@ -57,6 +59,19 @@ export default function BusinessQuoteRequestForm({
     }
   ]);
 
+  const [consents, setConsents] = useState<B2BConsents>({
+    terms: false,
+    privacy: false,
+    paymentTerms: false,
+    refundPolicy: false,
+    dataProcessing: false,
+    thirdPartyDisclosure: false,
+    businessVerification: false,
+    marketing: false,
+  });
+
+  const [consentErrors, setConsentErrors] = useState<string[]>([]);
+
   const addItem = () => {
     const newItemType = items.length === 0 ? 'primary' : items.length === 1 ? 'secondary' : 'additional';
     setItems([...items, {
@@ -79,6 +94,14 @@ export default function BusinessQuoteRequestForm({
     setItems(newItems);
   };
 
+  const handleConsentChange = (newConsents: B2BConsents) => {
+    setConsents(newConsents);
+    // Clear consent errors when user makes changes
+    if (consentErrors.length > 0) {
+      setConsentErrors([]);
+    }
+  };
+
   const validateForm = (): string | null => {
     if (!companyName.trim()) return 'Company name is required';
     if (!contactName.trim()) return 'Contact name is required';
@@ -99,6 +122,24 @@ export default function BusinessQuoteRequestForm({
       if (!items[i].package_id) {
         return `Please select a package for service ${i + 1}`;
       }
+    }
+
+    // Validate consents
+    const consentValidation = validateConsents(consents);
+    if (!consentValidation.valid) {
+      setConsentErrors(consentValidation.errors);
+      return 'Please accept all required legal agreements';
+    }
+
+    // B2B-specific consent validation
+    if (!consents.dataProcessing) {
+      return 'You must authorize data processing for service delivery';
+    }
+    if (!consents.thirdPartyDisclosure) {
+      return 'You must consent to sharing business information with service providers';
+    }
+    if (!consents.businessVerification) {
+      return 'You must confirm authority to bind the company to this agreement';
     }
 
     return null;
@@ -137,7 +178,10 @@ export default function BusinessQuoteRequestForm({
       const response = await fetch('/api/quotes/business/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request)
+        body: JSON.stringify({
+          ...request,
+          consents: consents
+        })
       });
 
       const data = await response.json();
@@ -391,6 +435,17 @@ export default function BusinessQuoteRequestForm({
               onChange={(e) => setCustomerNotes(e.target.value)}
               placeholder="Any additional information or requirements..."
               rows={4}
+            />
+          </div>
+
+          {/* Legal Consents - B2B Enhanced */}
+          <div className="pt-6 border-t">
+            <PaymentConsentCheckboxes
+              consents={consents}
+              onConsentChange={handleConsentChange}
+              variant="b2b"
+              showMarketing={true}
+              errors={consentErrors}
             />
           </div>
 

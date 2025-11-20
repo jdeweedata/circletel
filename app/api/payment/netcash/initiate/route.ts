@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { buildOrderDescription } from '@/lib/payments/description-builder';
+import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
+import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -9,6 +11,7 @@ interface InitiatePaymentRequest {
   customerEmail: string;
   customerName: string;
   paymentReference: string;
+  consents?: PaymentConsents;
 }
 
 /**
@@ -142,6 +145,26 @@ export async function POST(request: NextRequest) {
 
     if (auditError) {
       console.error('Failed to log payment initiation:', auditError);
+    }
+
+    // Log consents if provided
+    if (body.consents) {
+      const consentLog = await logPaymentConsents({
+        order_id: orderId,
+        customer_email: customerEmail,
+        customer_id: order.customer_id || undefined,
+        consents: body.consents,
+        ip_address: extractIpAddress(request),
+        user_agent: extractUserAgent(request),
+        consent_type: 'payment'
+      });
+
+      if (!consentLog.success) {
+        console.error('Failed to log payment consents:', consentLog.error);
+        // Don't fail the payment if consent logging fails
+      } else {
+        console.log('Payment consents logged successfully:', consentLog.consent_id);
+      }
     }
 
     console.log('[Payment Initiate] Success:', {
