@@ -23,6 +23,8 @@ import InvoiceGeneratedEmail from '@/emails/templates/business/invoice-generated
 import ContractSignedEmail from '@/emails/templates/business/contract-signed';
 import KYCVerificationCompleteEmail from '@/emails/templates/business/kyc-verification-complete';
 
+import AccessApprovalEmail from '@/emails/templates/admin/AccessApprovalEmail';
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -43,7 +45,9 @@ export type EmailTemplateId =
   | 'quote_approved'
   | 'invoice_generated'
   | 'contract_signed'
-  | 'kyc_verification_complete';
+  | 'kyc_verification_complete'
+  // Admin Templates
+  | 'admin-approval';
 
 export interface RenderEmailOptions {
   templateId: EmailTemplateId;
@@ -82,6 +86,9 @@ const TEMPLATE_REGISTRY: Record<EmailTemplateId, React.FC<any>> = {
   invoice_generated: InvoiceGeneratedEmail,
   contract_signed: ContractSignedEmail,
   kyc_verification_complete: KYCVerificationCompleteEmail,
+
+  // Admin Templates
+  'admin-approval': AccessApprovalEmail,
 };
 
 /**
@@ -92,6 +99,7 @@ const TEMPLATE_SUBJECTS: Record<EmailTemplateId, string> = {
   // Consumer Templates
   order_confirmation: 'Order Confirmed: {{orderNumber}}',
   payment_received: 'Payment Received: {{paymentAmount}}',
+  payment_method_registration: 'Payment Method Registration',
   installation_scheduled: 'Installation Scheduled: {{installationDate}}',
   installation_reminder: 'Installation Reminder: Tomorrow at {{installationTime}}',
   service_activated: 'Welcome to CircleTel - Service Activated',
@@ -105,6 +113,9 @@ const TEMPLATE_SUBJECTS: Record<EmailTemplateId, string> = {
   invoice_generated: 'Invoice {{invoiceNumber}} - Amount Due: {{totalAmount}}',
   contract_signed: 'Contract Signed: {{contractNumber}}',
   kyc_verification_complete: 'KYC Verification Complete',
+
+  // Admin Templates
+  'admin-approval': '✅ Your CircleTel Admin Access Has Been Approved!',
 };
 
 // =============================================================================
