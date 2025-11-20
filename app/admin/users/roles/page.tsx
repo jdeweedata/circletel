@@ -74,27 +74,26 @@ export default function RolesManagementPage() {
     try {
       setLoading(true);
       setError(null);
+
+      // Use API route instead of direct Supabase query to bypass RLS issues
+      const response = await fetch('/api/admin/roles?is_active=true');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch roles');
+      }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error || 'Failed to load roles');
+      }
+
+      // Fetch user counts using Supabase (this query should work with RLS)
       const supabase = createClient();
-
-      // Fetch role templates
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('role_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('level', { ascending: true })
-        .order('name', { ascending: true });
-
-      if (rolesError) throw rolesError;
-
-      // Fetch user counts for each role
-      const { data: userCounts, error: countsError } = await supabase
+      const { data: userCounts } = await supabase
         .from('admin_users')
         .select('role_template_id')
         .eq('is_active', true);
-
-      if (countsError) {
-        console.error('Error fetching user counts:', countsError);
-      }
 
       // Map user counts to roles
       const countMap = new Map<string, number>();
@@ -103,10 +102,10 @@ export default function RolesManagementPage() {
         countMap.set(user.role_template_id, count + 1);
       });
 
-      const rolesWithCounts = rolesData?.map((role) => ({
+      const rolesWithCounts = result.data.map((role: any) => ({
         ...role,
         user_count: countMap.get(role.id) || 0
-      })) || [];
+      }));
 
       setRoles(rolesWithCounts);
     } catch (err) {
