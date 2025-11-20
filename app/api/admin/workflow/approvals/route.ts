@@ -22,27 +22,7 @@ export async function GET(request: NextRequest) {
     // Fetch approval queue items with related data
     const { data: approvals, error } = await supabase
       .from('product_approval_queue')
-      .select(`
-        *,
-        import:product_imports(
-          id,
-          source_file,
-          product_category,
-          import_date
-        ),
-        assigned_user:admin_users!product_approval_queue_assigned_to_fkey(
-          id,
-          first_name,
-          last_name,
-          email
-        ),
-        reviewed_user:admin_users!product_approval_queue_reviewed_by_fkey(
-          id,
-          first_name,
-          last_name,
-          email
-        )
-      `)
+      .select('*')
       .in('status', ['pending', 'needs_review'])
       .order('priority', { ascending: false })
       .order('created_at', { ascending: true });
@@ -55,9 +35,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Fetch related user and import data separately to avoid FK issues
+    const userIds = new Set<string>();
+    const importIds = new Set<string>();
+
+    approvals?.forEach(approval => {
+      if (approval.assigned_to) userIds.add(approval.assigned_to);
+      if (approval.reviewed_by) userIds.add(approval.reviewed_by);
+      if (approval.import_id) importIds.add(approval.import_id);
+    });
+
+    // Fetch users
+    const { data: users } = await supabase
+      .from('admin_users')
+      .select('id, first_name, last_name, email')
+      .in('id', Array.from(userIds));
+
+    // Fetch imports
+    const { data: imports } = await supabase
+      .from('product_imports')
+      .select('id, source_file, product_category, import_date')
+      .in('id', Array.from(importIds));
+
+    const usersMap = new Map(users?.map(u => [u.id, u]) || []);
+    const importsMap = new Map(imports?.map(i => [i.id, i]) || []);
+
     // Transform the data to match the frontend interface
     const transformedApprovals = approvals?.map(approval => {
       const productData = approval.product_data as any;
+      const assignedUser = approval.assigned_to ? usersMap.get(approval.assigned_to) : null;
+      const importData = approval.import_id ? importsMap.get(approval.import_id) : null;
 
       // Extract changes from product_data
       const changes: { field: string; old_value: string | null; new_value: string }[] = [];
@@ -80,15 +87,15 @@ export async function GET(request: NextRequest) {
         title: approval.product_name,
         description: productData?.description || 'Product pending approval',
         submitted_by: {
-          name: approval.assigned_user
-            ? `${approval.assigned_user.first_name} ${approval.assigned_user.last_name}`
+          name: assignedUser
+            ? `${assignedUser.first_name} ${assignedUser.last_name}`
             : 'System',
-          email: approval.assigned_user?.email || '',
+          email: assignedUser?.email || '',
           role: 'Product Manager'
         },
         submitted_at: approval.created_at,
         priority: approval.priority as 'low' | 'medium' | 'high' | 'urgent',
-        category: approval.import?.product_category || 'General',
+        category: importData?.product_category || 'General',
         changes,
         estimated_impact: {
           revenue: productData?.estimated_revenue || 'Not specified',
