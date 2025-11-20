@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -62,97 +62,41 @@ interface PendingApproval {
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
 }
 
-// Mock data for demonstration
-const mockApprovals: PendingApproval[] = [
-  {
-    id: '1',
-    type: 'product_create',
-    title: 'BizFibre Connect Ultra',
-    description: 'New high-speed fibre product for enterprise customers with 1Gbps symmetric speeds',
-    submitted_by: {
-      name: 'John Smith',
-      email: 'john.smith@circletel.co.za',
-      role: 'Product Manager'
-    },
-    submitted_at: '2024-01-15T14:30:00Z',
-    priority: 'high',
-    category: 'Business Fibre',
-    changes: [
-      { field: 'product_name', old_value: null, new_value: 'BizFibre Connect Ultra' },
-      { field: 'speed_down', old_value: null, new_value: '1000 Mbps' },
-      { field: 'speed_up', old_value: null, new_value: '1000 Mbps' },
-      { field: 'monthly_price', old_value: null, new_value: 'R4,999' },
-      { field: 'target_market', old_value: null, new_value: 'Enterprise' }
-    ],
-    estimated_impact: {
-      revenue: 'R500K monthly',
-      users_affected: 50,
-      go_live_date: '2024-02-01'
-    },
-    requires_review_from: ['super_admin', 'product_manager'],
-    status: 'pending'
-  },
-  {
-    id: '2',
-    type: 'pricing_change',
-    title: 'SkyFibre SMB Professional - Promotional Pricing',
-    description: 'Temporary 50% discount for Q1 2024 to boost adoption',
-    submitted_by: {
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@circletel.co.za',
-      role: 'Marketing Manager'
-    },
-    submitted_at: '2024-01-15T10:15:00Z',
-    priority: 'urgent',
-    category: 'Fixed Wireless Business',
-    changes: [
-      { field: 'monthly_price', old_value: 'R2,499', new_value: 'R1,249' },
-      { field: 'promotion_end_date', old_value: null, new_value: '2024-03-31' },
-      { field: 'terms_conditions', old_value: 'Standard', new_value: 'Promotional - 24 month contract required' }
-    ],
-    estimated_impact: {
-      revenue: 'R200K impact',
-      users_affected: 150,
-      go_live_date: '2024-01-20'
-    },
-    requires_review_from: ['super_admin'],
-    status: 'under_review'
-  },
-  {
-    id: '3',
-    type: 'product_update',
-    title: 'SkyFibre Residential - Speed Upgrade',
-    description: 'Increase default speeds from 20/10 to 50/25 Mbps at same price',
-    submitted_by: {
-      name: 'Mike Wilson',
-      email: 'mike.wilson@circletel.co.za',
-      role: 'Technical Manager'
-    },
-    submitted_at: '2024-01-14T16:45:00Z',
-    priority: 'medium',
-    category: 'Fixed Wireless Residential',
-    changes: [
-      { field: 'speed_down', old_value: '20 Mbps', new_value: '50 Mbps' },
-      { field: 'speed_up', old_value: '10 Mbps', new_value: '25 Mbps' },
-      { field: 'marketing_description', old_value: 'Fast home internet', new_value: 'Ultra-fast home internet with 50Mbps speeds' }
-    ],
-    estimated_impact: {
-      revenue: 'Neutral',
-      users_affected: 500,
-      go_live_date: '2024-02-15'
-    },
-    requires_review_from: ['product_manager'],
-    status: 'pending'
-  }
-];
+// Types for approval data will be fetched from API
 
 export default function ApprovalWorkflow() {
-  const [approvals, setApprovals] = useState<PendingApproval[]>(mockApprovals);
+  const [approvals, setApprovals] = useState<PendingApproval[]>([]);
   const [selectedApproval, setSelectedApproval] = useState<PendingApproval | null>(null);
   const [reviewComment, setReviewComment] = useState('');
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject'>('approve');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch approvals from API
+  useEffect(() => {
+    fetchApprovals();
+  }, []);
+
+  const fetchApprovals = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch('/api/admin/workflow/approvals');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch approvals');
+      }
+
+      const data = await response.json();
+      setApprovals(data.approvals || []);
+    } catch (err) {
+      console.error('Error fetching approvals:', err);
+      setError('Failed to load approvals. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -184,32 +128,68 @@ export default function ApprovalWorkflow() {
     }
   };
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!selectedApproval) return;
 
-    setApprovals(prev => prev.map(approval =>
-      approval.id === selectedApproval.id
-        ? { ...approval, status: 'approved' as const }
-        : approval
-    ));
+    try {
+      const response = await fetch('/api/admin/workflow/approvals', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          approvalId: selectedApproval.id,
+          action: 'approve',
+          comment: reviewComment
+        })
+      });
 
-    setIsReviewDialogOpen(false);
-    setSelectedApproval(null);
-    setReviewComment('');
+      if (!response.ok) {
+        throw new Error('Failed to approve');
+      }
+
+      // Remove the approved item from the list
+      setApprovals(prev => prev.filter(approval => approval.id !== selectedApproval.id));
+
+      setIsReviewDialogOpen(false);
+      setSelectedApproval(null);
+      setReviewComment('');
+    } catch (err) {
+      console.error('Error approving:', err);
+      setError('Failed to approve. Please try again.');
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!selectedApproval) return;
 
-    setApprovals(prev => prev.map(approval =>
-      approval.id === selectedApproval.id
-        ? { ...approval, status: 'rejected' as const }
-        : approval
-    ));
+    try {
+      const response = await fetch('/api/admin/workflow/approvals', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          approvalId: selectedApproval.id,
+          action: 'reject',
+          comment: reviewComment
+        })
+      });
 
-    setIsReviewDialogOpen(false);
-    setSelectedApproval(null);
-    setReviewComment('');
+      if (!response.ok) {
+        throw new Error('Failed to reject');
+      }
+
+      // Remove the rejected item from the list
+      setApprovals(prev => prev.filter(approval => approval.id !== selectedApproval.id));
+
+      setIsReviewDialogOpen(false);
+      setSelectedApproval(null);
+      setReviewComment('');
+    } catch (err) {
+      console.error('Error rejecting:', err);
+      setError('Failed to reject. Please try again.');
+    }
   };
 
   const openReviewDialog = (approval: PendingApproval, action: 'approve' | 'reject') => {
@@ -219,11 +199,14 @@ export default function ApprovalWorkflow() {
   };
 
   const refresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    fetchApprovals();
   };
 
   const pendingApprovals = approvals.filter(a => a.status === 'pending' || a.status === 'under_review');
+
+  // Calculate stats from real data
+  const urgentCount = pendingApprovals.filter(a => a.priority === 'urgent').length;
+  const totalUsersAffected = pendingApprovals.reduce((sum, a) => sum + a.estimated_impact.users_affected, 0);
 
   return (
     <div className="space-y-6">
@@ -268,7 +251,7 @@ export default function ApprovalWorkflow() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {pendingApprovals.filter(a => a.priority === 'urgent').length}
+              {urgentCount}
             </div>
             <p className="text-xs text-muted-foreground">
               Require immediate attention
@@ -282,7 +265,9 @@ export default function ApprovalWorkflow() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R700K</div>
+            <div className="text-2xl font-bold">
+              {pendingApprovals.length > 0 ? 'Varies' : 'N/A'}
+            </div>
             <p className="text-xs text-muted-foreground">
               Estimated monthly impact
             </p>
@@ -295,7 +280,7 @@ export default function ApprovalWorkflow() {
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">700</div>
+            <div className="text-2xl font-bold">{totalUsersAffected}</div>
             <p className="text-xs text-muted-foreground">
               Across all pending changes
             </p>
@@ -303,11 +288,28 @@ export default function ApprovalWorkflow() {
         </Card>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       {/* Pending Approvals List */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Pending Approvals</h2>
 
-        {pendingApprovals.length === 0 ? (
+        {isLoading ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-spin" />
+                <h3 className="text-lg font-medium">Loading approvals...</h3>
+              </div>
+            </CardContent>
+          </Card>
+        ) : pendingApprovals.length === 0 ? (
           <Card>
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
