@@ -20,7 +20,7 @@ export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
   return (
     <Link href="/" className="flex items-center flex-shrink-0">
       <Image
-        src="/images/circletel-logo.png"
+        src="/images/circletel-enclosed-logo.png"
         alt="CircleTel Logo"
         className={getLogoClasses()}
         width={500}

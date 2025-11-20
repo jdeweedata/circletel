@@ -107,7 +107,7 @@ function OrderTrackingContent() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="CircleTel" className="h-8 w-auto" />
+              <img src="/images/circletel-enclosed-logo.png" alt="CircleTel" className="h-8 w-auto" />
               <span className="text-xl font-bold text-circleTel-darkNeutral">CircleTel</span>
             </Link>
             <nav className="hidden md:flex items-center space-x-6">

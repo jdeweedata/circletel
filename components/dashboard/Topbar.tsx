@@ -33,7 +33,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
 
         {/* Brand (compact) */}
         <div className="flex items-center gap-2 lg:hidden">
-          <Image src="/images/circletel-logo.png" alt="CircleTel" width={24} height={24} />
+          <Image src="/images/circletel-enclosed-logo.png" alt="CircleTel" width={24} height={24} />
         </div>
 
         {/* Search */}

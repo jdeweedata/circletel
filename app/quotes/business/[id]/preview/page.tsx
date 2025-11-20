@@ -478,7 +478,7 @@ export default function QuotePreviewPage({ params }: Props) {
           <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-circleTel-orange">
             <div className="flex items-center">
               <Image
-                src="/images/circletel-logo.png"
+                src="/images/circletel-enclosed-logo.png"
                 alt="CircleTel Logo"
                 width={270}
                 height={90}
