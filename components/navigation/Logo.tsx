@@ -13,8 +13,8 @@ export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
       // Footer: slightly larger for better visibility
       return `h-20 sm:h-24 md:h-28 w-auto ${className}`;
     }
-    // Navbar: matches circletel.co.za (120px on desktop, responsive on mobile)
-    return `h-16 sm:h-20 md:h-24 lg:h-[120px] w-auto ${className}`;
+    // Navbar: Larger logo for better visibility on desktop
+    return `h-20 sm:h-24 md:h-32 lg:h-44 xl:h-52 w-auto ${className}`;
   };
 
   return (
