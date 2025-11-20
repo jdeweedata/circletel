@@ -14,7 +14,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from './billing-client';
 import { syncCustomerToZohoBilling } from './customer-sync-service';
-import { logZohoSync } from './sync-service';
+import { logZohoSync } from './billing-sync-logger';
 
 export interface InvoiceSyncResult {
   success: boolean;

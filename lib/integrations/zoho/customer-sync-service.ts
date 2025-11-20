@@ -9,7 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from './billing-client';
-import { logZohoSync } from './sync-service';
+import { logZohoSync } from './billing-sync-logger';
 
 export interface CustomerSyncResult {
   success: boolean;
