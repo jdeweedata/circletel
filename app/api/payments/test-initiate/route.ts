@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+import { buildPaymentMethodDescription } from '@/lib/payments/description-builder';
 
 /**
  * POST handler - Initiate test payment
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       amount,
       currency,
       reference,
-      description: `CircleTel Test Payment - ${reference}`,
+      description: buildPaymentMethodDescription(),
       customerEmail: customer_email || 'test@circletel.co.za',
       customerName: 'Test Customer',
       returnUrl: `${baseUrl}/test/payment?status=success`,

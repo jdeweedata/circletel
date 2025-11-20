@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { buildInvoiceDescription } from './description-builder';
 
 /**
  * Netcash Payment Service
@@ -247,6 +248,11 @@ export class NetcashPaymentService {
       throw new Error(`Invoice not found: ${invoiceId}`);
     }
 
+    // Build customer-friendly description for bank statement
+    const description = buildInvoiceDescription({
+      invoice_number: invoice.invoice_number
+    });
+
     // Generate payment form data
     const formData = this.generatePaymentFormData({
       orderId: invoice.id,
@@ -254,7 +260,7 @@ export class NetcashPaymentService {
       customerName: invoice.customer.company_name || invoice.customer.name || 'Customer',
       customerEmail: invoice.customer.email,
       amount: invoice.total_amount, // Already in Rands, will be converted to cents
-      description: `Invoice ${invoice.invoice_number}`
+      description
     });
 
     // Generate payment URL

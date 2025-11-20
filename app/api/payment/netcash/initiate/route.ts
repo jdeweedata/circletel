@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+import { buildOrderDescription } from '@/lib/payments/description-builder';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify order exists
+    // Verify order exists and get full order details
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
       .select('*')
@@ -47,46 +49,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get environment variables
-    const serviceKey = process.env.NEXT_PUBLIC_NETCASH_SERVICE_KEY;
-    const merchantId = process.env.NETCASH_MERCHANT_ID;
-    const paymentUrl = process.env.NETCASH_PAYMENT_URL;
-    const successUrl = process.env.NEXT_PUBLIC_PAYMENT_SUCCESS_URL;
-    const cancelUrl = process.env.NEXT_PUBLIC_PAYMENT_CANCEL_URL;
+    // Get payment provider
+    const provider = getPaymentProvider();
 
-    if (!serviceKey || !merchantId || !paymentUrl || !successUrl || !cancelUrl) {
-      console.error('Missing Netcash environment variables');
+    // Check if provider is configured
+    if (!provider.isConfigured()) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Payment gateway configuration error'
+          error: 'Payment gateway not configured. Check NETCASH_SERVICE_KEY environment variable.'
         },
         { status: 500 }
       );
     }
 
-    // Convert amount to cents (Netcash requires amount in cents)
-    const amountInCents = Math.round(amount * 100);
+    // Get base URL for return/cancel URLs
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
+    const successUrl = process.env.NEXT_PUBLIC_PAYMENT_SUCCESS_URL || `${baseUrl}/payment/success`;
+    const cancelUrl = process.env.NEXT_PUBLIC_PAYMENT_CANCEL_URL || `${baseUrl}/payment/cancelled`;
 
-    // Construct Netcash payment URL with query parameters
-    const netcashParams = new URLSearchParams({
-      ServiceKey: serviceKey,
-      MerchantReference: paymentReference,
-      Amount: amountInCents.toString(),
-      CustomerEmail: customerEmail,
-      CustomerName: customerName,
-      OrderId: orderId,
-      ReturnUrl: successUrl,
-      CancelUrl: cancelUrl,
-      NotifyUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/netcash/webhook`,
-      Currency: 'ZAR',
-      PaymentMethod: 'CC', // Credit Card
-      Extra1: orderId, // Pass order ID for reference
-      Extra2: paymentReference,
-      Extra3: customerEmail
+    // Build customer-friendly description for bank statement
+    const description = buildOrderDescription({
+      account_number: order.account_number,
+      order_number: order.order_number,
+      package_name: order.package_name,
+      city: order.city,
+      suburb: order.suburb,
     });
 
-    const fullPaymentUrl = `${paymentUrl}?${netcashParams.toString()}`;
+    console.log('[Payment Initiate] Building payment with description:', description);
+
+    // Initiate payment via provider
+    const paymentResult = await provider.initiate({
+      amount,
+      currency: 'ZAR',
+      reference: paymentReference,
+      description,
+      customerEmail,
+      customerName,
+      returnUrl: successUrl,
+      cancelUrl,
+      notifyUrl: `${baseUrl}/api/payment/netcash/webhook`,
+      metadata: {
+        order_id: orderId,
+        order_number: order.order_number,
+        package_name: order.package_name,
+      }
+    });
+
+    if (!paymentResult.success) {
+      console.error('[Payment Initiate] Failed:', paymentResult.error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: paymentResult.error || 'Failed to initiate payment'
+        },
+        { status: 500 }
+      );
+    }
+
+    // Generate full payment URL with query parameters (GET method)
+    let fullPaymentUrl = paymentResult.paymentUrl;
+    if (paymentResult.formData && provider.name === 'netcash') {
+      const params = new URLSearchParams(paymentResult.formData as Record<string, string>);
+      fullPaymentUrl = `${paymentResult.paymentUrl}?${params.toString()}`;
+    }
 
     // Update order status to processing
     const { error: updateError } = await supabase
@@ -117,18 +144,22 @@ export async function POST(request: NextRequest) {
       console.error('Failed to log payment initiation:', auditError);
     }
 
-    console.log('Payment initiated:', {
+    console.log('[Payment Initiate] Success:', {
       orderId,
       paymentReference,
-      amount: amountInCents,
-      customerEmail
+      amount,
+      customerEmail,
+      description,
+      transactionId: paymentResult.transactionId
     });
 
     return NextResponse.json({
       success: true,
       paymentUrl: fullPaymentUrl,
       paymentReference,
+      transactionId: paymentResult.transactionId,
       orderId,
+      description,
       message: 'Payment URL generated successfully'
     });
 

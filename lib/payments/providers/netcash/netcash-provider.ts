@@ -21,6 +21,7 @@ import type {
   PaymentStatus,
   PaymentProviderCapabilities
 } from '@/lib/types/payment.types';
+import { validateDescription, truncateDescription } from '@/lib/payments/description-builder';
 
 // ============================================================================
 // NetCash-Specific Types
@@ -149,12 +150,27 @@ export class NetCashProvider extends BasePaymentProvider {
       // Example: 1.00 for R1.00, 799.00 for R799.00
       const amountInRands = params.amount.toFixed(2);
 
+      // Validate and truncate description to 35 characters for bank statement compatibility
+      const rawDescription = params.description || 'Payment';
+      const validation = validateDescription(rawDescription);
+      const description = validation.valid
+        ? rawDescription
+        : truncateDescription(rawDescription, 35);
+
+      if (!validation.valid) {
+        this.log('warn', 'Description validation warning', {
+          description: rawDescription,
+          errors: validation.errors,
+          truncated: description
+        });
+      }
+
       // Build NetCash form data
       const formData: NetCashFormData = {
         m1: this.serviceKey,                              // Service key
         m2: this.pciVaultKey,                             // PCI Vault key
         p2: transactionId,                                // Transaction reference
-        p3: params.description || 'Payment',              // Description
+        p3: description,                                  // Description (validated & truncated)
         p4: amountInRands,                                // Amount in Rands (e.g., "1.00" for R1.00)
         Budget: 'N',                                      // Budget facility (No)
         CustomerEmailAddress: params.customerEmail,
