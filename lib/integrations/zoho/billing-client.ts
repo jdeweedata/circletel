@@ -990,6 +990,63 @@ export class ZohoBillingClient extends ZohoAPIClient {
     }
   }
 
+  /**
+   * Delete a payment
+   */
+  async deletePayment(paymentId: string): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Deleting payment:', paymentId);
+
+      await this.request<any>(
+        `/payments/${paymentId}`,
+        'DELETE'
+      );
+
+      console.log('[ZohoBillingClient] Payment deleted successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error deleting payment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete an invoice
+   */
+  async deleteInvoice(invoiceId: string): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Deleting invoice:', invoiceId);
+
+      await this.request<any>(
+        `/invoices/${invoiceId}`,
+        'DELETE'
+      );
+
+      console.log('[ZohoBillingClient] Invoice deleted successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error deleting invoice:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a customer (only if no associated subscriptions/invoices)
+   */
+  async deleteCustomer(customerId: string): Promise<void> {
+    try {
+      console.log('[ZohoBillingClient] Deleting customer:', customerId);
+
+      await this.request<any>(
+        `/customers/${customerId}`,
+        'DELETE'
+      );
+
+      console.log('[ZohoBillingClient] Customer deleted successfully');
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error deleting customer:', error);
+      throw error;
+    }
+  }
+
   // ============================================================================
   // Plans API - Update Operations (Epic 3.6)
   // ============================================================================
