@@ -39,31 +39,40 @@ const batchSize = batchSizeArg ? parseInt(batchSizeArg.split('=')[1]) : 10;
 
 interface Payment {
   id: string;
-  transaction_reference: string | null;
+  reference: string | null;
   payment_method: string;
   amount: number;
   status: string;
+  customer_id: string;
+  customer_email: string;
   zoho_payment_id: string | null;
-  customer: {
-    email: string;
-    account_number: string;
-    zoho_billing_customer_id: string | null;
-    account_type: string;
-  };
 }
 
-async function syncPayment(payment: Payment, index: number, total: number) {
-  console.log(`\n[${index + 1}/${total}] Processing payment: ${payment.transaction_reference || payment.id.substring(0, 8)}`);
-  console.log(`  Customer: ${payment.customer.email}`);
+interface Customer {
+  id: string;
+  email: string;
+  account_number: string;
+  zoho_billing_customer_id: string | null;
+  account_type: string;
+}
+
+async function syncPayment(payment: Payment, customer: Customer | undefined, index: number, total: number) {
+  console.log(`\n[${index + 1}/${total}] Processing payment: ${payment.reference || payment.id.substring(0, 8)}`);
+  console.log(`  Customer: ${payment.customer_email}`);
   console.log(`  Method: ${payment.payment_method}`);
   console.log(`  Amount: R${payment.amount}`);
 
-  if (payment.customer.account_type === 'internal_test') {
+  if (!customer) {
+    console.log(`  ⚠️  Skipped: Customer not found`);
+    return { success: false, error: 'Customer not found' };
+  }
+
+  if (customer.account_type === 'internal_test') {
     console.log(`  ⏭️  Skipped: Internal test account`);
     return { success: true, error: 'Internal test account - skipped' };
   }
 
-  if (!payment.customer.zoho_billing_customer_id) {
+  if (!customer.zoho_billing_customer_id) {
     console.log(`  ⚠️  Skipped: Customer not synced to ZOHO`);
     return { success: false, error: 'Customer not synced' };
   }
@@ -101,20 +110,17 @@ async function main() {
     .from('payment_transactions')
     .select(`
       id,
-      transaction_reference,
+      reference,
       payment_method,
       amount,
       status,
-      zoho_payment_id,
-      customer:customers!inner(
-        email,
-        account_number,
-        zoho_billing_customer_id,
-        account_type
-      )
+      customer_id,
+      customer_email,
+      zoho_payment_id
     `)
     .eq('status', 'completed')
-    .order('processed_at', { ascending: true });
+    .not('customer_id', 'is', null)
+    .order('completed_at', { ascending: true });
 
   if (fetchError) {
     console.error('❌ Error fetching payments:', fetchError);
@@ -126,8 +132,29 @@ async function main() {
     return;
   }
 
+  // Fetch customers separately
+  console.log('\n📊 Fetching customers...');
+  const customerIds = [...new Set(payments.map(p => p.customer_id))];
+  const { data: customers, error: custError } = await supabase
+    .from('customers')
+    .select('id, email, account_number, zoho_billing_customer_id, account_type')
+    .in('id', customerIds);
+
+  if (custError) {
+    console.error('❌ Error fetching customers:', custError);
+    process.exit(1);
+  }
+
+  // Create customer map
+  const customerMap = new Map<string, Customer>();
+  customers?.forEach(c => customerMap.set(c.id, c));
+
+  // Filter production payments
   const productionPayments = payments.filter(
-    pmt => pmt.customer && pmt.customer.account_type !== 'internal_test'
+    pmt => {
+      const customer = customerMap.get(pmt.customer_id);
+      return customer && customer.account_type !== 'internal_test';
+    }
   );
 
   const needingSync = productionPayments.filter(pmt => !pmt.zoho_payment_id);
@@ -156,7 +183,8 @@ async function main() {
 
   for (let i = 0; i < needingSync.length; i++) {
     const payment = needingSync[i];
-    const result = await syncPayment(payment, i, needingSync.length);
+    const customer = customerMap.get(payment.customer_id);
+    const result = await syncPayment(payment, customer, i, needingSync.length);
 
     if (result.success) {
       if (result.dry_run || result.error?.includes('skipped')) {

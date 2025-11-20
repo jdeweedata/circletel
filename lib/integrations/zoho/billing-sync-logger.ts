@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 export interface SyncLogParams {
   entity_type: 'customer' | 'subscription' | 'invoice' | 'payment';
   entity_id: string;
-  zoho_entity_type: 'Contact' | 'Subscription' | 'Invoice' | 'Payment';
+  zoho_entity_type: 'Contacts' | 'Subscription' | 'Invoice' | 'Payment';
   zoho_entity_id: string | null;
   status: 'success' | 'failed' | 'retrying' | 'pending';
   attempt_number: number;

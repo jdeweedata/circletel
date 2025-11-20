@@ -116,7 +116,7 @@ export async function syncCustomerToZohoBilling(
     await logZohoSync({
       entity_type: 'customer',
       entity_id: customer_id,
-      zoho_entity_type: 'Contact',
+      zoho_entity_type: 'Contacts',
       zoho_entity_id: zoho_customer_id,
       status: 'success',
       attempt_number: 1,
@@ -147,7 +147,7 @@ export async function syncCustomerToZohoBilling(
     await logZohoSync({
       entity_type: 'customer',
       entity_id: customer_id,
-      zoho_entity_type: 'Contact',
+      zoho_entity_type: 'Contacts',
       zoho_entity_id: null,
       status: 'failed',
       attempt_number: 1,

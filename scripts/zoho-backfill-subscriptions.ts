@@ -45,7 +45,7 @@ const batchSize = batchSizeArg ? parseInt(batchSizeArg.split('=')[1]) : 5;
 interface CustomerService {
   id: string;
   customer_id: string;
-  service_package_id: string;
+  package_id: string;
   status: string;
   activation_date: string | null;
   monthly_price: number | null;
@@ -57,7 +57,7 @@ interface CustomerService {
     account_type: string;
   };
   package: {
-    product_name: string;
+    name: string;
   };
 }
 
@@ -72,7 +72,7 @@ interface SyncResult {
  * Sync service to ZOHO Billing Subscription
  */
 async function syncService(service: CustomerService, index: number, total: number): Promise<SyncResult> {
-  console.log(`\n[${index + 1}/${total}] Processing service: ${service.package.product_name}`);
+  console.log(`\n[${index + 1}/${total}] Processing service: ${service.package.name}`);
   console.log(`  Customer: ${service.customer.email} (${service.customer.account_number})`);
   console.log(`  Status: ${service.status}`);
   console.log(`  Monthly Price: R${service.monthly_price || 0}`);
@@ -145,7 +145,7 @@ async function processInBatches(services: CustomerService[]) {
       } else {
         results.failed++;
         results.errors.push({
-          service: service.package.product_name,
+          service: service.package.name,
           customer: service.customer.email,
           error: result.error || 'Unknown error'
         });
@@ -185,7 +185,7 @@ async function main() {
     .select(`
       id,
       customer_id,
-      service_package_id,
+      package_id,
       status,
       activation_date,
       monthly_price,
@@ -197,7 +197,7 @@ async function main() {
         account_type
       ),
       package:service_packages!inner(
-        product_name
+        name
       )
     `)
     .eq('status', 'active')
