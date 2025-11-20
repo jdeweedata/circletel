@@ -106,8 +106,7 @@ const navigation = [
   {
     name: 'Approvals',
     href: '/admin/workflow',
-    icon: CheckCircle,
-    badge: 'pending_count'
+    icon: CheckCircle
   },
   // {
   //   name: 'Analytics',
