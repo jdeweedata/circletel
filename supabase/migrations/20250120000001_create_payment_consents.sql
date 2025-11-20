@@ -88,7 +88,7 @@ CREATE POLICY "Admin users can view all consents" ON payment_consents
     EXISTS (
       SELECT 1 FROM admin_users
       WHERE admin_users.email = auth.jwt() ->> 'email'
-      AND admin_users.status = 'active'
+      AND admin_users.is_active = true
     )
   );
 
