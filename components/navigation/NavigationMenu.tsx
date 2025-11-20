@@ -68,22 +68,6 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
   return (
     <NavigationMenu className={cn("hidden md:flex", className)}>
       <NavigationMenuList>
-        {/* Home */}
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link
-              href="/"
-              className={cn(
-                navigationMenuTriggerStyle(),
-                'text-base md:text-lg lg:text-xl',
-                isActive('/') && 'bg-accent text-accent-foreground'
-              )}
-            >
-              Home
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-
         {/* Managed IT */}
         <NavigationMenuItem>
           <NavigationMenuTrigger

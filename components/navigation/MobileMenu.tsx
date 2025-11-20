@@ -58,14 +58,6 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
       <div className="flex flex-col gap-2">
         {/* Single links */}
         <Link
-          href="/"
-          className={`py-2.5 px-3 font-medium rounded-md text-base md:text-lg lg:text-xl ${isActive('/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Home
-        </Link>
-
-        <Link
           href="/services"
           className={`py-2.5 px-3 font-medium rounded-md text-base md:text-lg lg:text-xl ${isActive('/services') && !currentPath.includes('/services/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
           onClick={() => setIsMenuOpen(false)}
