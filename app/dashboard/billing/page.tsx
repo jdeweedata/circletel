@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
 import {
   Loader2,
   CreditCard,
@@ -140,76 +141,67 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-orange-50 to-white p-6 rounded-xl border-2 border-orange-100">
-        <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">Billing & Payments</h1>
-        <p className="text-base lg:text-lg text-gray-600 mt-2">
+    <div className="space-y-8">
+      {/* Page Header - Matching main dashboard style */}
+      <div className="mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Billing & Payments</h1>
+        <p className="text-sm text-gray-500 mt-1">
           Manage your invoices, payments, and payment methods
         </p>
       </div>
 
-      {/* Billing Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Current Balance</p>
-                <p className="text-3xl lg:text-4xl font-extrabold text-circleTel-orange mt-2 tabular-nums">
-                  R{data.billing_summary.current_balance.toFixed(2)}
-                </p>
-              </div>
-              <Wallet className="h-12 w-12 text-circleTel-orange opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Billing Summary Cards - Using ModernStatCard like main dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ModernStatCard
+          title="Current Balance"
+          value={`R${data.billing_summary.current_balance.toFixed(2)}`}
+          trend={{
+            value: data.billing_summary.current_balance === 0 ? 0 : data.billing_summary.current_balance > 0 ? -10 : 10,
+            isPositive: data.billing_summary.current_balance <= 0,
+            label: "vs last month"
+          }}
+          subtitle={data.billing_summary.current_balance === 0 ? "No balance due" : data.billing_summary.current_balance > 0 ? "Payment due" : "Credit available"}
+          description={data.billing_summary.current_balance > 0 ? "Please make payment" : "Account in good standing"}
+          icon={<Wallet className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Paid This Year</p>
-                <p className="text-3xl lg:text-4xl font-extrabold text-green-600 mt-2 tabular-nums">
-                  R{data.billing_summary.total_paid_ytd.toFixed(2)}
-                </p>
-              </div>
-              <DollarSign className="h-12 w-12 text-green-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Paid This Year"
+          value={`R${data.billing_summary.total_paid_ytd.toFixed(2)}`}
+          trend={{
+            value: data.billing_summary.total_paid_ytd > 0 ? 5 : 0,
+            isPositive: true,
+            label: "vs last year"
+          }}
+          subtitle="Year-to-date payments"
+          description="Total payments in current year"
+          icon={<DollarSign className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Next Billing</p>
-                <p className="text-lg font-extrabold text-gray-900 mt-2">
-                  {new Date(data.billing_summary.next_billing_date).toLocaleDateString('en-ZA', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
-              <Calendar className="h-12 w-12 text-blue-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Next Billing"
+          value={new Date(data.billing_summary.next_billing_date).toLocaleDateString('en-ZA', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })}
+          subtitle={`${Math.ceil((new Date(data.billing_summary.next_billing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days away`}
+          description="Next scheduled billing date"
+          icon={<Calendar className="h-5 w-5" />}
+        />
 
-        <Card className="shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Avg. Monthly</p>
-                <p className="text-3xl lg:text-4xl font-extrabold text-gray-900 mt-2 tabular-nums">
-                  R{data.billing_summary.average_monthly.toFixed(2)}
-                </p>
-              </div>
-              <TrendingUp className="h-12 w-12 text-purple-500 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
+        <ModernStatCard
+          title="Avg. Monthly"
+          value={`R${data.billing_summary.average_monthly.toFixed(2)}`}
+          trend={{
+            value: 0,
+            isPositive: true,
+            label: "historical average"
+          }}
+          subtitle="Average monthly payment"
+          description="Based on payment history"
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
       </div>
 
       {/* Main Content Tabs */}
@@ -231,28 +223,28 @@ export default function BillingPage() {
 
         {/* Invoices Tab */}
         <TabsContent value="invoices" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">Invoices</CardTitle>
-              <CardDescription>View and download your invoices</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Invoices</h2>
+              <p className="text-sm text-gray-600 mt-1">View and download your invoices</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-3">
                 {data.invoices.length > 0 ? (
                   data.invoices.map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="p-4 border-2 rounded-xl hover:shadow-lg transition-all duration-300 hover:border-circleTel-orange"
+                      className="p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all"
                     >
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         {/* Left side - Invoice info */}
                         <div className="flex items-start gap-4 flex-1">
-                          <div className="h-14 w-14 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <FileText className="h-7 w-7 text-circleTel-orange" />
+                          <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <FileText className="h-6 w-6 text-gray-600" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="font-bold text-lg text-gray-900">{invoice.invoice_number}</p>
+                              <p className="font-bold text-base">{invoice.invoice_number}</p>
                               <Badge variant={
                                 invoice.status === 'paid' ? 'default' :
                                 invoice.status === 'overdue' ? 'destructive' :
@@ -265,14 +257,8 @@ export default function BillingPage() {
                               {invoice.description || 'Monthly service fee'}
                             </p>
                             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                Issued: {new Date(invoice.invoice_date).toLocaleDateString('en-ZA')}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                Due: {new Date(invoice.due_date).toLocaleDateString('en-ZA')}
-                              </span>
+                              <span>Issued: {new Date(invoice.invoice_date).toLocaleDateString('en-ZA')}</span>
+                              <span>Due: {new Date(invoice.due_date).toLocaleDateString('en-ZA')}</span>
                             </div>
                           </div>
                         </div>
@@ -280,8 +266,8 @@ export default function BillingPage() {
                         {/* Right side - Amount and actions */}
                         <div className="flex items-center gap-4 lg:flex-shrink-0">
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Amount Due</p>
-                            <p className="text-3xl font-extrabold text-circleTel-orange tabular-nums">
+                            <p className="text-sm font-medium text-gray-600">Amount Due</p>
+                            <p className="font-extrabold text-lg tabular-nums text-gray-900">
                               R{invoice.amount_due.toFixed(2)}
                             </p>
                             {invoice.amount_paid > 0 && (
@@ -305,34 +291,34 @@ export default function BillingPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <FileText className="h-16 w-16 mx-auto mb-3 opacity-20" />
-                    <p className="text-lg font-semibold">No invoices yet</p>
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <p>No invoices yet</p>
                     <p className="text-sm mt-1">Your invoices will appear here once generated</p>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Payment History Tab */}
         <TabsContent value="payments" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">Payment History</CardTitle>
-              <CardDescription>View all your past payments and transactions</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Payment History</h2>
+              <p className="text-sm text-gray-600 mt-1">View all your past payments and transactions</p>
+            </div>
+            <div className="p-6">
               <div className="space-y-3">
                 {data.payments.length > 0 ? (
                   data.payments.map((payment) => (
                     <div
                       key={payment.id}
-                      className="flex items-center justify-between p-4 border-2 rounded-xl hover:shadow-lg transition-all duration-300 hover:border-circleTel-orange"
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
                           payment.status === 'successful' ? 'bg-green-100' :
                           payment.status === 'pending' ? 'bg-yellow-100' :
                           'bg-red-100'
@@ -346,28 +332,24 @@ export default function BillingPage() {
                           )}
                         </div>
                         <div>
-                          <p className="font-bold text-base text-gray-900">
+                          <p className="font-bold text-base">
                             {payment.payment_method}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            {new Date(payment.payment_date).toLocaleDateString('en-ZA', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
+                          <p className="text-base text-gray-600">
+                            {new Date(payment.payment_date).toLocaleDateString('en-ZA')}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500">
                             Ref: {payment.transaction_id}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-extrabold text-xl text-gray-900 tabular-nums">
+                        <p className="font-extrabold text-lg tabular-nums">
                           R{payment.amount.toFixed(2)}
                         </p>
                         <Badge
                           variant={payment.status === 'successful' ? 'default' : 'secondary'}
-                          className="mt-2 text-xs font-semibold"
+                          className="mt-1 text-xs font-semibold"
                         >
                           {payment.status}
                         </Badge>
@@ -375,39 +357,39 @@ export default function BillingPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <Receipt className="h-16 w-16 mx-auto mb-3 opacity-20" />
-                    <p className="text-lg font-semibold">No payment history</p>
+                  <div className="text-center py-8 text-gray-500">
+                    <Receipt className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <p>No payment history</p>
                     <p className="text-sm mt-1">Your payment transactions will appear here</p>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Payment Methods Tab */}
         <TabsContent value="methods" className="mt-6">
-          <Card>
-            <CardHeader>
+          <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl font-bold">Payment Methods</CardTitle>
-                  <CardDescription>Manage your saved payment methods</CardDescription>
+                  <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
+                  <p className="text-sm text-gray-600 mt-1">Manage your saved payment methods</p>
                 </div>
                 <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
                   <Plus className="h-4 w-4" />
                   Add New
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {data.payment_methods.length > 0 ? (
                   data.payment_methods.map((method) => (
                     <div
                       key={method.id}
-                      className="relative p-6 border-2 rounded-xl hover:shadow-lg transition-all duration-300 hover:border-circleTel-orange bg-gradient-to-br from-gray-50 to-white"
+                      className="relative p-6 border rounded-lg hover:shadow-md transition-all bg-white"
                     >
                       {method.is_primary && (
                         <Badge className="absolute top-3 right-3 bg-circleTel-orange text-white border-0">
@@ -415,14 +397,14 @@ export default function BillingPage() {
                         </Badge>
                       )}
                       <div className="flex items-start gap-4">
-                        <div className="h-14 w-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <CreditCard className="h-7 w-7 text-blue-600" />
+                        <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CreditCard className="h-6 w-6 text-gray-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-lg text-gray-900 capitalize mb-1">
+                          <p className="font-bold text-base text-gray-900 capitalize mb-1">
                             {method.card_brand || method.bank_name || method.type.replace('_', ' ')}
                           </p>
-                          <p className="text-2xl font-mono font-bold text-gray-700 mb-2">
+                          <p className="text-xl font-mono font-bold text-gray-700 mb-2">
                             •••• •••• •••• {method.last_four}
                           </p>
                           {method.expiry_date && (
@@ -446,9 +428,9 @@ export default function BillingPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-2 text-center py-12 text-gray-500">
-                    <CreditCard className="h-16 w-16 mx-auto mb-3 opacity-20" />
-                    <p className="text-lg font-semibold">No payment methods saved</p>
+                  <div className="col-span-2 text-center py-8 text-gray-500">
+                    <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <p>No payment methods saved</p>
                     <p className="text-sm mt-1 mb-4">Add a payment method for faster checkout</p>
                     <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
                       <Plus className="h-4 w-4" />
@@ -457,8 +439,8 @@ export default function BillingPage() {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
