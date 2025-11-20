@@ -18,6 +18,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { BillingService } from '@/lib/billing/billing-service';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
+import { syncSubscriptionToZohoBilling } from '@/lib/integrations/zoho/subscription-sync-service';
 
 /**
  * Service activation parameters
@@ -163,7 +164,21 @@ export class ServiceManager {
       if (updateError || !updatedService) {
         throw new Error(`Failed to update service: ${updateError?.message || 'Unknown error'}`);
       }
-      
+
+      // Trigger async ZOHO Billing subscription sync (background task, non-blocking)
+      // This creates a ZOHO Subscription for recurring monthly billing
+      syncSubscriptionToZohoBilling(service_id)
+        .then((result) => {
+          if (result.success) {
+            console.log('[ZOHO Trigger] Subscription synced to ZOHO Billing:', result.zoho_subscription_id);
+          } else {
+            console.error('[ZOHO Trigger] Subscription sync failed:', result.error);
+          }
+        })
+        .catch((error) => {
+          console.error('[ZOHO Trigger] Subscription sync error:', error);
+        });
+
       // 5. Generate pro-rata invoice
       const lineItems = buildInvoiceLineItems(
         'pro_rata',
