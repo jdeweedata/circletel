@@ -156,7 +156,16 @@ export default function QuotePreviewPage({ params }: Props) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/quotes/business/${resolvedParams.id}`);
+      // Check if this is a shared/public access (via query parameter)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isShared = urlParams.get('shared') === 'true';
+
+      // Use public endpoint for shared access, admin endpoint otherwise
+      const endpoint = isShared
+        ? `/api/quotes/business/${resolvedParams.id}/public`
+        : `/api/quotes/business/${resolvedParams.id}`;
+
+      const response = await fetch(endpoint);
       const data = await response.json();
 
       if (data.success) {

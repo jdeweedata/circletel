@@ -48,8 +48,8 @@ export default function ShareableQuotePage({ params }: Props) {
           sessionStorage.setItem('quote_session_id', crypto.randomUUID());
         }
 
-        // Redirect to the quote preview page
-        router.push(`/quotes/business/${quoteId}/preview`);
+        // Redirect to the quote preview page with shared=true query parameter
+        router.push(`/quotes/business/${quoteId}/preview?shared=true`);
 
       } catch (err: any) {
         console.error('Error resolving share link:', err);
