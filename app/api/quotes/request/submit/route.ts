@@ -131,58 +131,93 @@ export async function POST(request: NextRequest) {
     const total_monthly = subtotal_monthly + vat_amount_monthly;
     const total_installation = subtotal_installation + vat_amount_installation;
 
-    // Generate quote number
-    const year = new Date().getFullYear();
-    const { count } = await supabase
-      .from('business_quotes')
-      .select('*', { count: 'exact', head: true })
-      .like('quote_number', `BQ-${year}-%`);
-
-    const quoteNumber = `BQ-${year}-${String((count || 0) + 1).padStart(3, '0')}`;
-
     // Set validity period (30 days)
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + 30);
 
-    // Create business quote
-    const { data: quote, error: quoteError } = await supabase
-      .from('business_quotes')
-      .insert({
-        quote_number: quoteNumber,
-        lead_id: body.coverage_lead_id || null,
-        agent_id: agent_id,
-        customer_type: body.customer_type,
-        company_name: body.company_name,
-        registration_number: body.registration_number || null,
-        vat_number: body.vat_number || null,
-        contact_name: body.contact_name,
-        contact_email: body.contact_email,
-        contact_phone: body.contact_phone,
-        service_address: body.service_address,
-        coordinates: body.coordinates || null,
-        status: agent_id ? 'pending_approval' : 'draft', // Auto-submit if from agent
-        contract_term: body.contract_term,
-        subtotal_monthly,
-        subtotal_installation,
-        custom_discount_percent: 0,
-        custom_discount_amount: 0,
-        vat_amount_monthly,
-        vat_amount_installation,
-        total_monthly,
-        total_installation,
-        customer_notes: body.customer_notes || null,
-        admin_notes: body.agent_notes || null,
-        valid_until: validUntil.toISOString()
-      })
-      .select()
-      .single();
+    // Retry logic to handle race conditions with quote number generation
+    let quote = null;
+    let retryCount = 0;
+    const maxRetries = 5;
 
-    if (quoteError || !quote) {
-      console.error('Error creating quote:', quoteError);
+    while (retryCount < maxRetries && !quote) {
+      try {
+        // Generate quote number
+        const year = new Date().getFullYear();
+        const { count } = await supabase
+          .from('business_quotes')
+          .select('*', { count: 'exact', head: true })
+          .like('quote_number', `BQ-${year}-%`);
+
+        const quoteNumber = `BQ-${year}-${String((count || 0) + 1).padStart(3, '0')}`;
+
+        // Try to create business quote
+        const { data, error: insertError } = await supabase
+          .from('business_quotes')
+          .insert({
+            quote_number: quoteNumber,
+            lead_id: body.coverage_lead_id || null,
+            agent_id: agent_id,
+            customer_type: body.customer_type,
+            company_name: body.company_name,
+            registration_number: body.registration_number || null,
+            vat_number: body.vat_number || null,
+            contact_name: body.contact_name,
+            contact_email: body.contact_email,
+            contact_phone: body.contact_phone,
+            service_address: body.service_address,
+            coordinates: body.coordinates || null,
+            status: agent_id ? 'pending_approval' : 'draft', // Auto-submit if from agent
+            contract_term: body.contract_term,
+            subtotal_monthly,
+            subtotal_installation,
+            custom_discount_percent: 0,
+            custom_discount_amount: 0,
+            vat_amount_monthly,
+            vat_amount_installation,
+            total_monthly,
+            total_installation,
+            customer_notes: body.customer_notes || null,
+            admin_notes: body.agent_notes || null,
+            valid_until: validUntil.toISOString()
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          // Check if it's a duplicate key error (code 23505 for PostgreSQL unique violation)
+          if (insertError.code === '23505' && insertError.message.includes('quote_number')) {
+            console.log(`Quote number collision detected, retry ${retryCount + 1}/${maxRetries}`);
+            retryCount++;
+            // Wait a small random time before retrying
+            await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
+            continue;
+          } else {
+            // Other error, throw it
+            throw insertError;
+          }
+        }
+
+        // Success!
+        quote = data;
+      } catch (error) {
+        console.error('Error creating quote:', error);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to create quote'
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (!quote) {
+      console.error('Failed to create quote after maximum retries');
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to create quote'
+          error: 'Failed to create quote - please try again'
         },
         { status: 500 }
       );
