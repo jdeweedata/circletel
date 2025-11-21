@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +16,7 @@ export async function GET(
   try {
     const { token } = await context.params;
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Find quote by share token
     const { data: quote, error } = await supabase
