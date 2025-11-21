@@ -142,14 +142,26 @@ export async function POST(request: NextRequest) {
 
     while (retryCount < maxRetries && !quote) {
       try {
-        // Generate quote number
+        // Generate quote number by finding the maximum existing number
         const year = new Date().getFullYear();
-        const { count } = await supabase
+        const { data: existingQuotes } = await supabase
           .from('business_quotes')
-          .select('*', { count: 'exact', head: true })
-          .like('quote_number', `BQ-${year}-%`);
+          .select('quote_number')
+          .like('quote_number', `BQ-${year}-%`)
+          .order('quote_number', { ascending: false })
+          .limit(1);
 
-        const quoteNumber = `BQ-${year}-${String((count || 0) + 1).padStart(3, '0')}`;
+        // Extract the number from the latest quote (e.g., "BQ-2025-017" -> 17)
+        let nextNumber = 1;
+        if (existingQuotes && existingQuotes.length > 0) {
+          const latestQuoteNumber = existingQuotes[0].quote_number;
+          const match = latestQuoteNumber.match(/BQ-\d{4}-(\d{3})/);
+          if (match) {
+            nextNumber = parseInt(match[1], 10) + 1;
+          }
+        }
+
+        const quoteNumber = `BQ-${year}-${String(nextNumber).padStart(3, '0')}`;
 
         // Try to create business quote
         const { data, error: insertError } = await supabase
