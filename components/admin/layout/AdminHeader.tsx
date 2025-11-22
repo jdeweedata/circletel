@@ -80,11 +80,6 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
     return { title: 'Approval Workflow', description: 'Review and approve pending items' };
   }
 
-  // Analytics
-  if (pathname.startsWith('/admin/analytics')) {
-    return { title: 'Analytics Dashboard', description: 'View platform statistics and insights' };
-  }
-
   // Forms
   if (pathname.startsWith('/admin/forms')) {
     return { title: 'Client Forms', description: 'Manage client assessment forms' };

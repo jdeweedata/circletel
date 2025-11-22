@@ -12,6 +12,8 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { StatusUpdateModal } from './StatusUpdateModal';
+import { InstallationCompletionModal } from './InstallationCompletionModal';
+import { OrderActivationModal } from './OrderActivationModal';
 
 interface StatusAction {
   status: string;
@@ -25,6 +27,8 @@ interface StatusAction {
 interface StatusActionButtonsProps {
   currentStatus: string;
   orderId: string;
+  orderNumber?: string;
+  packagePrice?: number;
   onStatusUpdate: () => void;
 }
 
@@ -104,7 +108,8 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       label: 'Complete Installation',
       icon: CheckCircle,
       variant: 'default',
-      description: 'Mark installation as completed',
+      description: 'Mark installation as completed with document upload',
+      requiresInput: true, // Will use custom modal
     },
     {
       status: 'failed',
@@ -127,9 +132,10 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'active',
       label: 'Activate Service',
-      icon: CheckCircle,
+      icon: PlayCircle,
       variant: 'default',
-      description: 'Activate the customer service',
+      description: 'Activate service and start billing',
+      requiresInput: true, // Will use custom modal
     },
     {
       status: 'failed',
@@ -198,14 +204,30 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
 export function StatusActionButtons({
   currentStatus,
   orderId,
+  orderNumber = '',
+  packagePrice = 0,
   onStatusUpdate,
 }: StatusActionButtonsProps) {
   const [selectedAction, setSelectedAction] = useState<StatusAction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
   const actions = STATUS_ACTIONS[currentStatus] || [];
 
   const handleActionClick = (action: StatusAction) => {
+    // Use custom modals for specific actions
+    if (action.status === 'installation_completed') {
+      setIsCompletionModalOpen(true);
+      return;
+    }
+
+    if (action.status === 'active') {
+      setIsActivationModalOpen(true);
+      return;
+    }
+
+    // Use standard modal for other actions
     setSelectedAction(action);
     setIsModalOpen(true);
   };
@@ -256,6 +278,23 @@ export function StatusActionButtons({
           onSuccess={handleStatusUpdated}
         />
       )}
+
+      <InstallationCompletionModal
+        open={isCompletionModalOpen}
+        onClose={() => setIsCompletionModalOpen(false)}
+        orderId={orderId}
+        orderNumber={orderNumber}
+        onSuccess={handleStatusUpdated}
+      />
+
+      <OrderActivationModal
+        open={isActivationModalOpen}
+        onClose={() => setIsActivationModalOpen(false)}
+        orderId={orderId}
+        orderNumber={orderNumber}
+        packagePrice={packagePrice}
+        onSuccess={handleStatusUpdated}
+      />
     </>
   );
 }

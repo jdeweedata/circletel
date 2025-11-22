@@ -391,6 +391,8 @@ export default function AdminOrderDetailPage() {
           <StatusActionButtons
             currentStatus={order.status}
             orderId={order.id}
+            orderNumber={order.order_number}
+            packagePrice={order.package_price}
             onStatusUpdate={fetchOrder}
           />
         </CardContent>

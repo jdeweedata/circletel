@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
+import { updateOrderFromPayment } from '@/lib/orders/payment-order-updater';
 
 /**
  * Verify NetCash webhook signature
@@ -242,7 +243,7 @@ export async function POST(request: NextRequest) {
       console.log('[NetCash Webhook] New transaction created:', transactionId);
     }
 
-    // Trigger async ZOHO Billing sync for completed payments (background task, non-blocking)
+    // Process completed payments
     if (paymentStatus === 'completed') {
       // Get the payment transaction ID
       const { data: paymentTransaction } = await supabase
@@ -252,6 +253,24 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (paymentTransaction?.id) {
+        // 1. Update associated order (if any)
+        console.log('[Payment Processing] Updating order for reference:', reference);
+        updateOrderFromPayment(reference, paymentTransaction.id, amount)
+          .then((orderResult) => {
+            if (orderResult.success) {
+              console.log('[Order Update] Order updated successfully:', {
+                order_number: orderResult.order_number,
+                status_change: `${orderResult.old_status} → ${orderResult.new_status}`
+              });
+            } else {
+              console.log('[Order Update] No order update needed:', orderResult.error);
+            }
+          })
+          .catch((error) => {
+            console.error('[Order Update] Error updating order:', error);
+          });
+
+        // 2. Sync to ZOHO Billing (async, non-blocking)
         syncPaymentToZohoBilling(paymentTransaction.id)
           .then((result) => {
             if (result.success) {
@@ -263,6 +282,9 @@ export async function POST(request: NextRequest) {
           .catch((error) => {
             console.error('[ZOHO Trigger] Payment sync error:', error);
           });
+
+        // TODO: 3. Send customer notification
+        // TODO: 4. Update admin dashboard real-time notifications
       }
     }
 
