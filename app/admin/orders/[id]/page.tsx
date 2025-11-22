@@ -353,7 +353,14 @@ export default function AdminOrderDetailPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Payment Status</p>
-                <div className="mt-2">{getPaymentBadge(order.payment_status)}</div>
+                <div className="mt-2 space-y-1">
+                  {getPaymentBadge(order.payment_status)}
+                  {order.payment_method && (
+                    <p className="text-sm text-gray-500 capitalize">
+                      {order.payment_method.replace(/_/g, ' ')}
+                    </p>
+                  )}
+                </div>
               </div>
               <CreditCard className="h-8 w-8 text-gray-400" />
             </div>
