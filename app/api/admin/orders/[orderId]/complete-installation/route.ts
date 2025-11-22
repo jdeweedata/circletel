@@ -26,15 +26,9 @@ export async function POST(
     const file = formData.get('document') as File | null;
     const notes = formData.get('notes') as string | null;
 
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'Installation document is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file type
-    const allowedTypes = [
+    // Validate file type if provided
+    if (file) {
+      const allowedTypes = [
       'application/pdf',
       'image/jpeg',
       'image/jpg',
@@ -53,12 +47,12 @@ export async function POST(
       );
     }
 
-    // Validate file size (20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      return NextResponse.json(
-        { success: false, error: 'File size must be less than 20MB' },
-        { status: 400 }
-      );
+      if (file.size > 20 * 1024 * 1024) {
+        return NextResponse.json(
+          { success: false, error: 'File size must be less than 20MB' },
+          { status: 400 }
+        );
+      }
     }
 
     const supabase = createClient(
@@ -98,47 +92,57 @@ export async function POST(
       );
     }
 
+    let filePath = null;
+    let publicUrl = null;
+
     // Upload document to storage
-    const timestamp = Date.now();
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${order.order_number}_${timestamp}.${fileExt}`;
-    const filePath = `${orderId}/${fileName}`;
+    if (file) {
+      const timestamp = Date.now();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${order.order_number}_${timestamp}.${fileExt}`;
+      filePath = `${orderId}/${fileName}`;
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
+      const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('installation-documents')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('installation-documents')
+        .upload(filePath, fileBuffer, {
+          contentType: file.type,
+          upsert: false,
+        });
 
-    if (uploadError) {
-      console.error('Error uploading document:', uploadError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to upload installation document',
-          details: uploadError.message
-        },
-        { status: 500 }
-      );
+      if (uploadError) {
+        console.error('Error uploading document:', uploadError);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to upload installation document',
+            details: uploadError.message
+          },
+          { status: 500 }
+        );
+      }
+
+      // Get public URL for the document
+      const { data: urlData } = supabase.storage
+        .from('installation-documents')
+        .getPublicUrl(filePath);
+      
+      publicUrl = urlData.publicUrl;
     }
-
-    // Get public URL for the document
-    const { data: urlData } = supabase.storage
-      .from('installation-documents')
-      .getPublicUrl(filePath);
 
     // Update order status to installation_completed
     const updateData: any = {
       status: 'installation_completed',
       installation_completed_at: new Date().toISOString(),
-      installation_document_url: filePath,
-      installation_document_name: file.name,
-      installation_document_uploaded_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+
+    if (filePath && file) {
+      updateData.installation_document_url = filePath;
+      updateData.installation_document_name = file.name;
+      updateData.installation_document_uploaded_at = new Date().toISOString();
+    }
 
     if (notes) {
       updateData.technician_notes = notes;
@@ -154,9 +158,11 @@ export async function POST(
     if (updateError) {
       console.error('Error updating order:', updateError);
       // Try to delete the uploaded file
-      await supabase.storage
-        .from('installation-documents')
-        .remove([filePath]);
+      if (filePath) {
+        await supabase.storage
+          .from('installation-documents')
+          .remove([filePath]);
+      }
 
       return NextResponse.json(
         {
@@ -176,7 +182,7 @@ export async function POST(
         entity_id: orderId,
         old_status: order.status,
         new_status: 'installation_completed',
-        change_reason: notes || 'Installation completed with documentation',
+        change_reason: notes || (file ? 'Installation completed with documentation' : 'Installation completed (pending documentation)'),
         changed_by: null, // TODO: Get from auth session
         automated: false,
         customer_notified: false,
@@ -193,7 +199,7 @@ export async function POST(
       success: true,
       data: updatedOrder,
       message: 'Installation completed successfully',
-      documentUrl: urlData.publicUrl,
+      documentUrl: publicUrl,
     });
   } catch (error: any) {
     console.error('Error completing installation:', error);

@@ -70,16 +70,19 @@ export function InstallationCompletionModal({
     e.preventDefault();
     setError('');
 
-    if (!selectedFile) {
+    /* Optional file upload */
+    /* if (!selectedFile) {
       setError('Please select an installation document to upload');
       return;
-    }
+    } */
 
     try {
       setIsSubmitting(true);
 
       const formData = new FormData();
-      formData.append('document', selectedFile);
+      if (selectedFile) {
+        formData.append('document', selectedFile);
+      }
       if (notes) {
         formData.append('notes', notes);
       }
@@ -151,13 +154,13 @@ export function InstallationCompletionModal({
             {/* Installation Document Upload */}
             <div className="space-y-3">
               <Label htmlFor="document" className="text-base font-semibold">
-                Installation Proof Document <span className="text-red-500">*</span>
+                Installation Proof Document <span className="text-gray-400 font-normal">(Optional)</span>
               </Label>
               <p className="text-sm text-gray-600">
                 Upload physical installation proof: equipment photos, installation photos, signed technician forms, etc.
               </p>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-                <strong>Note:</strong> Do NOT upload payment confirmations here. NetCash payments are automatically processed via webhooks.
+                <strong>Note:</strong> You can upload this later if not available immediately.
               </div>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-circleTel-orange transition-colors">
@@ -168,7 +171,6 @@ export function InstallationCompletionModal({
                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   onChange={handleFileSelect}
                   className="hidden"
-                  required
                 />
 
                 {!selectedFile ? (
@@ -252,7 +254,7 @@ export function InstallationCompletionModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !selectedFile}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
