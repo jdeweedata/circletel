@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Loader2, XCircle, Settings, Activity, FileText, ExternalLink } from 'lucide-react';
+import { RefreshCw, Loader2, XCircle, Settings, Activity, FileText, ExternalLink, Key, Webhook, BarChart3, Cog } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Integration {
   id: string;
@@ -56,6 +57,7 @@ export default function IntegrationsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [healthFilter, setHealthFilter] = useState<string>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetchData();
@@ -179,10 +181,37 @@ export default function IntegrationsPage() {
         </Button>
       </header>
 
-      {/* STATUS SUMMARY BAR */}
-      {healthSummary && (
-        <section className="flex flex-wrap gap-4 text-sm">
-          <StatusPill label="Total" value={healthSummary.total.toString()} />
+      {/* TABBED NAVIGATION */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full max-w-3xl grid-cols-5 bg-white shadow-sm p-1">
+          <TabsTrigger value="all" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
+            <Activity className="h-4 w-4 mr-2" />
+            All Integrations
+          </TabsTrigger>
+          <TabsTrigger value="health" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Health Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="keys" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
+            <Key className="h-4 w-4 mr-2" />
+            API Keys
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
+            <Webhook className="h-4 w-4 mr-2" />
+            Webhooks
+          </TabsTrigger>
+          <TabsTrigger value="config" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
+            <Cog className="h-4 w-4 mr-2" />
+            Configuration
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ALL INTEGRATIONS TAB */}
+        <TabsContent value="all" className="space-y-6">
+          {/* STATUS SUMMARY BAR */}
+          {healthSummary && (
+            <section className="flex flex-wrap gap-4 text-sm">
+              <StatusPill label="Total" value={healthSummary.total.toString()} />
           <StatusPill
             label="Healthy"
             value={healthSummary.healthy.toString()}
@@ -287,6 +316,317 @@ export default function IntegrationsPage() {
           </section>
         ))
       )}
+        </TabsContent>
+
+        {/* HEALTH DASHBOARD TAB */}
+        <TabsContent value="health" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-circleTel-orange" />
+                Integration Health Dashboard
+              </CardTitle>
+              <CardDescription>
+                Visual monitoring and health trends for all integrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Health Summary Grid */}
+              {healthSummary && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="border-green-200 bg-green-50">
+                    <CardContent className="p-4 text-center">
+                      <div className="text-3xl font-bold text-green-600">{healthSummary.healthy}</div>
+                      <div className="text-sm text-muted-foreground">Healthy</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-yellow-200 bg-yellow-50">
+                    <CardContent className="p-4 text-center">
+                      <div className="text-3xl font-bold text-yellow-600">{healthSummary.degraded}</div>
+                      <div className="text-sm text-muted-foreground">Degraded</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-red-200 bg-red-50">
+                    <CardContent className="p-4 text-center">
+                      <div className="text-3xl font-bold text-red-600">{healthSummary.down}</div>
+                      <div className="text-sm text-muted-foreground">Down</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-gray-200 bg-gray-50">
+                    <CardContent className="p-4 text-center">
+                      <div className="text-3xl font-bold text-gray-600">{healthSummary.unknown}</div>
+                      <div className="text-sm text-muted-foreground">Unknown</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Health by Category */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Health by Category</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(groupedIntegrations).map(([groupName, groupIntegrations]) => {
+                      const healthCount = {
+                        healthy: groupIntegrations.filter(i => i.health_status === 'healthy').length,
+                        total: groupIntegrations.length
+                      };
+                      const percentage = (healthCount.healthy / healthCount.total) * 100;
+
+                      return (
+                        <div key={groupName} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium">{groupName}</span>
+                            <span className="text-muted-foreground">{healthCount.healthy}/{healthCount.total}</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-green-500 transition-all"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Failures */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Integrations Requiring Attention</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {integrations.filter(i => i.consecutive_failures >= 3 || i.health_status === 'down').length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Activity className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                      <p>All integrations are healthy!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {integrations
+                        .filter(i => i.consecutive_failures >= 3 || i.health_status === 'down')
+                        .map(integration => (
+                          <div key={integration.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <XCircle className="h-4 w-4 text-red-600" />
+                              <div>
+                                <p className="font-medium text-sm">{integration.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {integration.consecutive_failures} consecutive failures
+                                </p>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/admin/integrations/${integration.slug}`}>
+                                View Details
+                              </Link>
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* API KEYS & SECRETS TAB */}
+        <TabsContent value="keys" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="h-5 w-5 text-circleTel-orange" />
+                API Keys & Credentials
+              </CardTitle>
+              <CardDescription>
+                Manage API keys, OAuth credentials, and authentication secrets
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {integrations
+                  .filter(i => i.category === 'api_key' || i.category === 'oauth')
+                  .map(integration => (
+                    <Card key={integration.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20 flex items-center justify-center">
+                              <span className="text-lg font-bold text-circleTel-orange">
+                                {integration.name.charAt(0)}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium">{integration.name}</p>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {integration.category === 'api_key' ? 'API Key' : 'OAuth'}
+                                </Badge>
+                                {integration.is_enabled ? (
+                                  <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50 text-xs">
+                                    ● Active
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="text-xs">Disabled</Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              <Settings className="h-4 w-4 mr-1" />
+                              Configure
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* WEBHOOK LOGS TAB */}
+        <TabsContent value="webhooks" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Webhook className="h-5 w-5 text-circleTel-orange" />
+                Webhook Events & Logs
+              </CardTitle>
+              <CardDescription>
+                Recent webhook deliveries and event history
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {integrations.filter(i => i.has_webhook).length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Webhook className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p className="font-medium mb-1">No webhook integrations configured</p>
+                    <p className="text-sm">Configure webhooks in the integration settings to see events here</p>
+                  </div>
+                ) : (
+                  integrations
+                    .filter(i => i.has_webhook)
+                    .map(integration => (
+                      <Card key={integration.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20 flex items-center justify-center">
+                                <Webhook className="h-5 w-5 text-circleTel-orange" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{integration.name}</p>
+                                <p className="text-xs text-muted-foreground">Webhook endpoint active</p>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/admin/integrations/${integration.slug}?tab=webhooks`}>
+                                View Logs
+                              </Link>
+                            </Button>
+                          </div>
+                          <div className="bg-muted/50 rounded-lg p-3 text-xs font-mono">
+                            <p className="text-muted-foreground mb-1">Last event received:</p>
+                            <p className="text-foreground">Coming soon - webhook event tracking</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* CONFIGURATION TAB */}
+        <TabsContent value="config" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cog className="h-5 w-5 text-circleTel-orange" />
+                Global Configuration
+              </CardTitle>
+              <CardDescription>
+                System-wide integration settings and preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Health Check Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Health Check Settings</CardTitle>
+                  <CardDescription>Configure automatic health monitoring</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Automatic Health Checks</p>
+                      <p className="text-xs text-muted-foreground">Run health checks every 5 minutes</p>
+                    </div>
+                    <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">
+                      Enabled
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Alert Threshold</p>
+                      <p className="text-xs text-muted-foreground">Alert after 3 consecutive failures</p>
+                    </div>
+                    <Button variant="outline" size="sm">Edit</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Notification Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Notification Settings</CardTitle>
+                  <CardDescription>Configure alerts for integration failures</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Email Notifications</p>
+                      <p className="text-xs text-muted-foreground">Send alerts to admin@circletel.co.za</p>
+                    </div>
+                    <Button variant="outline" size="sm">Configure</Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Slack Integration</p>
+                      <p className="text-xs text-muted-foreground">Not configured</p>
+                    </div>
+                    <Button variant="outline" size="sm">Setup</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Rate Limiting */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Rate Limiting</CardTitle>
+                  <CardDescription>Manage API rate limits and quotas</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Cog className="h-8 w-8 mx-auto mb-2" />
+                    <p className="text-sm">Rate limiting configuration coming soon</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
