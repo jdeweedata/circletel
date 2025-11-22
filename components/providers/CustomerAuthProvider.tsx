@@ -69,6 +69,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
   // Skip auth initialization on admin, partner, password reset and auth callback pages to prevent
   // competing Supabase client instances that clear the session
+  // Also skip on studio subdomain (for Sanity CMS)
+  const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.');
   const isAdminPage = pathname?.startsWith('/admin');
   const isPartnerPage = pathname?.startsWith('/partners');
   const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
@@ -124,8 +126,8 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
 
   // Initialize auth state on mount
   useEffect(() => {
-    // Skip initialization on admin, partner, and auth pages
-    if (isAdminPage || isPartnerPage || isAuthPage) {
+    // Skip initialization on admin, partner, auth pages, and studio subdomain
+    if (isAdminPage || isPartnerPage || isAuthPage || isStudioSubdomain) {
       setLoading(false);
       return;
     }
@@ -229,7 +231,7 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         abortController.current.abort();
       }
     };
-  }, [isAdminPage, isPartnerPage, isAuthPage, fetchCustomer]);
+  }, [isAdminPage, isPartnerPage, isAuthPage, isStudioSubdomain, fetchCustomer]);
 
   // Refresh customer data from database
   const refreshCustomer = React.useCallback(async () => {
