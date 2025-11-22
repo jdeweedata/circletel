@@ -489,9 +489,9 @@ export default function QuotePreviewPage({ params }: Props) {
               <Image
                 src="/images/circletel-enclosed-logo.png"
                 alt="CircleTel Logo"
-                width={270}
-                height={90}
-                className="h-24 w-auto"
+                width={360}
+                height={120}
+                className="h-32 w-auto"
                 priority
               />
             </div>
