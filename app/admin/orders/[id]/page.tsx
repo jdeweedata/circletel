@@ -373,12 +373,12 @@ export default function AdminOrderDetailPage() {
     <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50">
       <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+          <div className="flex items-center gap-4">
             {/* Back Button */}
             <Link
               href="/admin/orders"
-              className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
               title="Back to Orders"
             >
               <ArrowLeft size={24} />
@@ -392,7 +392,7 @@ export default function AdminOrderDetailPage() {
                 </h2>
                 {getStatusBadge(order.status)}
               </div>
-              <span className="text-sm text-gray-500 mt-1 block">
+              <span className="text-sm text-gray-500 block">
                 Created {new Date(order.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -405,7 +405,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 justify-end">
+          <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
             <StatusActionButtons
               currentStatus={order.status}
               orderId={order.id}
