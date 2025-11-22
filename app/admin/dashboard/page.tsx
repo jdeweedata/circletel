@@ -186,7 +186,7 @@ export default function AdminDashboard() {
       icon: DollarSign,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
-      href: '/admin/analytics'
+      href: '/admin/billing'
     },
     {
       title: 'Pending Approvals',
@@ -290,13 +290,6 @@ export default function AdminDashboard() {
       description: 'View coverage requests',
       icon: Target,
       href: '/admin/coverage',
-      permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
-    },
-    {
-      title: 'Analytics',
-      description: 'Performance metrics',
-      icon: BarChart3,
-      href: '/admin/analytics',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
