@@ -10,11 +10,11 @@ interface LogoProps {
 export function Logo({ variant = 'navbar', className = '' }: LogoProps) {
   const getLogoClasses = () => {
     if (variant === 'footer') {
-      // Footer: slightly larger for better visibility
-      return `h-20 sm:h-24 md:h-28 w-auto ${className}`;
+      // Footer: larger for better visibility
+      return `h-24 sm:h-28 md:h-32 lg:h-36 w-auto ${className}`;
     }
-    // Navbar: Standardized size for better proportion
-    return `h-9 sm:h-10 md:h-12 lg:h-14 w-auto ${className}`;
+    // Navbar: Significantly increased size for better brand presence
+    return `h-20 sm:h-24 md:h-28 lg:h-32 w-auto ${className}`;
   };
 
   return (
