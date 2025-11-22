@@ -9,11 +9,13 @@ import {
   CheckCircle,
   XCircle,
   PauseCircle,
-  AlertTriangle
+  AlertTriangle,
+  Upload
 } from 'lucide-react';
 import { StatusUpdateModal } from './StatusUpdateModal';
 import { InstallationCompletionModal } from './InstallationCompletionModal';
 import { OrderActivationModal } from './OrderActivationModal';
+import { InstallationDocumentUploadModal } from './InstallationDocumentUploadModal';
 
 interface StatusAction {
   status: string;
@@ -138,6 +140,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       requiresInput: true, // Will use custom modal
     },
     {
+      status: 'upload_document',
+      label: 'Upload Document',
+      icon: Upload,
+      variant: 'outline',
+      description: 'Upload or update installation proof',
+      requiresInput: true,
+    },
+    {
       status: 'failed',
       label: 'Mark as Failed',
       icon: AlertTriangle,
@@ -153,6 +163,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       icon: PauseCircle,
       variant: 'secondary',
       description: 'Temporarily suspend the service',
+      requiresInput: true,
+    },
+    {
+      status: 'upload_document',
+      label: 'Upload Document',
+      icon: Upload,
+      variant: 'outline',
+      description: 'Upload or update installation proof',
       requiresInput: true,
     },
     {
@@ -212,6 +230,7 @@ export function StatusActionButtons({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const actions = STATUS_ACTIONS[currentStatus] || [];
 
@@ -224,6 +243,11 @@ export function StatusActionButtons({
 
     if (action.status === 'active') {
       setIsActivationModalOpen(true);
+      return;
+    }
+
+    if (action.status === 'upload_document') {
+      setIsUploadModalOpen(true);
       return;
     }
 
@@ -293,6 +317,14 @@ export function StatusActionButtons({
         orderId={orderId}
         orderNumber={orderNumber}
         packagePrice={packagePrice}
+        onSuccess={handleStatusUpdated}
+      />
+
+      <InstallationDocumentUploadModal
+        open={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        orderId={orderId}
+        orderNumber={orderNumber}
         onSuccess={handleStatusUpdated}
       />
     </>
