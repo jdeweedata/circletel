@@ -373,7 +373,7 @@ export default function AdminOrderDetailPage() {
     <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50">
       <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+        <div className="flex flex-col gap-6">
           <div className="flex items-start gap-4">
             {/* Back Button */}
             <Link
@@ -401,29 +401,29 @@ export default function AdminOrderDetailPage() {
                   minute: '2-digit'
                 })}
               </span>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 pt-1">
-            <StatusActionButtons
-              currentStatus={order.status}
-              orderId={order.id}
-              orderNumber={order.order_number}
-              packagePrice={order.package_price}
-              firstName={order.first_name}
-              lastName={order.last_name}
-              onStatusUpdate={fetchOrder}
-            />
-            <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
-            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
-              <Printer size={16} />
-              <span className="hidden lg:inline">Print</span>
-            </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
-              <Download size={16} />
-              <span className="hidden lg:inline">Export</span>
-            </Button>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                <StatusActionButtons
+                  currentStatus={order.status}
+                  orderId={order.id}
+                  orderNumber={order.order_number}
+                  packagePrice={order.package_price}
+                  firstName={order.first_name}
+                  lastName={order.last_name}
+                  onStatusUpdate={fetchOrder}
+                />
+                <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
+                <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
+                  <Printer size={16} />
+                  <span className="hidden lg:inline">Print</span>
+                </Button>
+                <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
+                  <Download size={16} />
+                  <span className="hidden lg:inline">Export</span>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
