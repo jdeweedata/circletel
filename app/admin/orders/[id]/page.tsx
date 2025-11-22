@@ -373,61 +373,61 @@ export default function AdminOrderDetailPage() {
     <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50">
       <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Back Button */}
-        <Link
-          href="/admin/orders"
-          className="flex items-center gap-3 text-gray-600 hover:text-indigo-600 cursor-pointer transition-colors group"
-        >
-          <div className="p-1 rounded-full group-hover:bg-indigo-50 transition-colors">
-            <ArrowLeft size={20} />
-          </div>
-          <span className="font-medium">Back to Orders</span>
-        </Link>
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            {/* Back Button */}
+            <Link
+              href="/admin/orders"
+              className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              title="Back to Orders"
+            >
+              <ArrowLeft size={24} />
+            </Link>
 
-        {/* Order ID and Status */}
-        <div className="flex flex-col items-center md:items-start">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Order #{order.order_number}
-            </h2>
-            {getStatusBadge(order.status)}
+            {/* Order ID and Status */}
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Order #{order.order_number}
+                </h2>
+                {getStatusBadge(order.status)}
+              </div>
+              <span className="text-sm text-gray-500 mt-1 block">
+                Created {new Date(order.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </span>
+            </div>
           </div>
-          <span className="text-sm text-gray-500 mt-1">
-            Created {new Date(order.created_at).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </span>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3 justify-end">
+            <StatusActionButtons
+              currentStatus={order.status}
+              orderId={order.id}
+              orderNumber={order.order_number}
+              packagePrice={order.package_price}
+              firstName={order.first_name}
+              lastName={order.last_name}
+              onStatusUpdate={fetchOrder}
+            />
+            <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
+            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
+              <Printer size={16} />
+              <span className="hidden lg:inline">Print</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
+              <Download size={16} />
+              <span className="hidden lg:inline">Export</span>
+            </Button>
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-4 justify-end">
-          <StatusActionButtons
-            currentStatus={order.status}
-            orderId={order.id}
-            orderNumber={order.order_number}
-            packagePrice={order.package_price}
-            firstName={order.first_name}
-            lastName={order.last_name}
-            onStatusUpdate={fetchOrder}
-          />
-          <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
-          <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
-            <Printer size={16} />
-            <span className="hidden lg:inline">Print</span>
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
-            <Download size={16} />
-            <span className="hidden lg:inline">Export</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Workflow Stepper */}
+        {/* Workflow Stepper */}
       <Card className="shadow-sm overflow-hidden">
         <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
       </Card>
