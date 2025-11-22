@@ -25,10 +25,10 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import type { PaymentProviderType } from '@/lib/types/payment.types';
-// Re-enabling widgets one by one to find the problematic component
-import { OrdersRequiringAttentionWidget } from '@/components/admin/dashboard/OrdersRequiringAttentionWidget';
-// import { TodaysInstallationsWidget } from '@/components/admin/dashboard/TodaysInstallationsWidget';
-// import { OrderStatusDistributionWidget } from '@/components/admin/dashboard/OrderStatusDistributionWidget';
+// OrdersRequiringAttentionWidget causes infinite loading - skipping
+// import { OrdersRequiringAttentionWidget } from '@/components/admin/dashboard/OrdersRequiringAttentionWidget';
+import { TodaysInstallationsWidget } from '@/components/admin/dashboard/TodaysInstallationsWidget';
+import { OrderStatusDistributionWidget } from '@/components/admin/dashboard/OrderStatusDistributionWidget';
 
 interface AdminStats {
   // Products
@@ -393,15 +393,15 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      {/* Order Management Widgets - Testing one by one */}
+      {/* Order Management Widgets - Testing other two widgets */}
       <div>
         <h2 className="text-xl font-semibold text-circleTel-darkNeutral mb-4">
           Order Management
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <OrdersRequiringAttentionWidget />
-          {/* <TodaysInstallationsWidget /> */}
-          {/* <OrderStatusDistributionWidget /> */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* OrdersRequiringAttentionWidget causes infinite loading */}
+          <TodaysInstallationsWidget />
+          <OrderStatusDistributionWidget />
         </div>
       </div>
 
