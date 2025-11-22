@@ -35,7 +35,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
     };
 
     // Register service worker
-    if ('serviceWorker' in navigator) {
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
@@ -60,6 +60,14 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
           });
         } catch (error) {
           console.log('SW registration failed: ', error);
+        }
+      });
+    } else if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // In development, unregister any existing service workers
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+          registration.unregister();
+          console.log('Unregistered existing service worker in dev mode');
         }
       });
     }
