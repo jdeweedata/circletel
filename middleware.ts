@@ -7,9 +7,14 @@ export async function middleware(request: NextRequest) {
   
   // SUBDOMAIN ROUTING: studio.circletel.co.za -> /admin/cms
   // This allows the studio subdomain to serve the CMS content
+  // IMPORTANT: Skip rewrite for API routes, static files, and CMS routes
   const isStudioSubdomain = hostname.startsWith('studio.');
-  
-  if (isStudioSubdomain && !url.pathname.startsWith('/admin/cms')) {
+
+  if (isStudioSubdomain &&
+      !url.pathname.startsWith('/admin/cms') &&
+      !url.pathname.startsWith('/api/') &&
+      !url.pathname.startsWith('/_next/') &&
+      !url.pathname.startsWith('/static/')) {
     console.log(`[Middleware] Rewriting subdomain ${hostname} to /admin/cms${url.pathname}`);
     url.pathname = `/admin/cms${url.pathname === '/' ? '' : url.pathname}`;
     return NextResponse.rewrite(url);
