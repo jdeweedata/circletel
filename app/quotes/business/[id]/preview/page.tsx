@@ -484,7 +484,7 @@ export default function QuotePreviewPage({ params }: Props) {
         {/* Professional Header - Matching PDF */}
         <div className="bg-white mb-8 quote-header">
           {/* Official CircleTel Header */}
-          <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-circleTel-orange">
+          <div className="flex justify-between items-center mb-4 pb-2 border-b-4 border-circleTel-orange">
             <div className="flex items-center">
               <Image
                 src="/images/circletel-enclosed-logo.png"
