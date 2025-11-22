@@ -50,6 +50,9 @@ import {
 import { PriceEditModal } from '@/components/admin/products/PriceEditModal';
 import { AuditHistoryModal } from '@/components/admin/products/AuditHistoryModal';
 
+import { ProductLifecycleStepper } from '@/components/admin/products/ProductLifecycleStepper';
+import { ProductLifecycleActions } from '@/components/admin/products/ProductLifecycleActions';
+
 export default function ProductDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -90,11 +93,20 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handleToggleStatus = async () => {
+  const handleStatusChange = async (newStatus: string, isActive: boolean) => {
     if (!product) return;
 
     try {
-      const newStatus = !product.is_active;
+      // Map UI status to API/DB status logic
+      // 'publish' action -> status: active, is_active: true
+      // 'deactivate' action -> status: active, is_active: false
+      // 'reactivate' action -> status: active, is_active: true
+      // 'restore' action -> status: draft, is_active: false (or true? usually false for draft)
+      
+      // The component passes generic status strings, we need to map them or accept them
+      // The component passes (newStatus, isActive).
+      // If newStatus is 'active' and isActive is true -> Activate
+      
       const response = await fetch(`/api/admin/products/${product.id}`, {
         method: 'PUT',
         headers: {
@@ -103,8 +115,9 @@ export default function ProductDetailPage() {
           'x-user-name': 'Admin User'
         },
         body: JSON.stringify({
-          is_active: newStatus,
-          change_reason: `Status ${newStatus ? 'activated' : 'deactivated'} by admin from detail page`
+          status: newStatus === 'draft' ? 'draft' : product.status, // Only change status enum if moving to/from draft/archived
+          is_active: isActive,
+          change_reason: `Lifecycle status change to ${newStatus} (Active: ${isActive}) by admin`
         })
       });
 
@@ -113,10 +126,12 @@ export default function ProductDetailPage() {
         await fetchProduct();
       } else {
         setError(data.error || 'Failed to update product status');
+        alert(`Error: ${data.error}`);
       }
     } catch (err) {
-      console.error('Error toggling product status:', err);
+      console.error('Error updating product status:', err);
       setError('Failed to update product status');
+      alert('Failed to update product status');
     }
   };
 
@@ -176,17 +191,17 @@ export default function ProductDetailPage() {
   const getStatusBadge = () => {
     if (!product) return null;
 
-    if (!product.is_active) {
-      return <Badge variant="secondary" className="text-sm">Inactive</Badge>;
+    if (!product.is_active && product.status === 'active') {
+      return <Badge variant="secondary" className="text-sm bg-gray-100 text-gray-800 border-gray-200">Inactive</Badge>;
     }
 
     switch (product.status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800 text-sm">Active</Badge>;
+        return <Badge className="bg-green-100 text-green-800 text-sm border-green-200">Active</Badge>;
       case 'draft':
-        return <Badge className="bg-gray-100 text-gray-800 text-sm">Draft</Badge>;
+        return <Badge className="bg-yellow-50 text-yellow-800 text-sm border-yellow-200">Draft</Badge>;
       case 'archived':
-        return <Badge className="bg-red-100 text-red-800 text-sm">Archived</Badge>;
+        return <Badge className="bg-red-50 text-red-800 text-sm border-red-200">Archived</Badge>;
       default:
         return <Badge variant="outline" className="capitalize text-sm">{product.status}</Badge>;
     }
@@ -206,12 +221,14 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" asChild>
-          <Link href="/admin/products">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Products
-          </Link>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" asChild>
+            <Link href="/admin/products">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Products
+            </Link>
+          </Button>
+        </div>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-12">
@@ -232,147 +249,136 @@ export default function ProductDetailPage() {
   const providerName = product.metadata?.provider_name || providerCode;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild>
-            <Link href="/admin/products">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+    <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50/50">
+      <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-start gap-4">
+            {/* Back Button */}
+            <Link
+              href="/admin/products"
+              className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              title="Back to Products"
+            >
+              <ArrowLeft size={24} />
             </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-gray-600 mt-1">SKU: {product.sku}</p>
+
+            {/* Product ID and Status */}
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {product.name}
+                </h1>
+                {getStatusBadge()}
+              </div>
+              <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                SKU: <span className="font-mono text-gray-700">{product.sku}</span>
+                <span className="text-gray-300">|</span>
+                Created {new Date(product.created_at).toLocaleDateString('en-ZA', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="mt-4">
+                <ProductLifecycleActions
+                  product={product}
+                  onStatusChange={handleStatusChange}
+                  onEdit={() => router.push(`/admin/products/${product.id}/edit`)}
+                  onArchive={() => setDeleteDialogOpen(true)}
+                  onViewHistory={() => setAuditHistoryModalOpen(true)}
+                />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.MANAGE_PRICING]}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPriceEditModalOpen(true)}
-            >
-              <DollarSign className="mr-2 h-4 w-4" />
-              Edit Price
-            </Button>
-          </PermissionGate>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAuditHistoryModalOpen(true)}
-          >
-            <History className="mr-2 h-4 w-4" />
-            History
-          </Button>
-          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleToggleStatus}
-            >
-              {product.is_active ? (
-                <>
-                  <ToggleLeft className="mr-2 h-4 w-4" />
-                  Deactivate
-                </>
-              ) : (
-                <>
-                  <ToggleRight className="mr-2 h-4 w-4" />
-                  Activate
-                </>
-              )}
-            </Button>
-          </PermissionGate>
-          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
-            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
-              <Link href={`/admin/products/${product.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Product
-              </Link>
-            </Button>
-          </PermissionGate>
-          <PermissionGate permissions={[PERMISSIONS.PRODUCTS.DELETE]}>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Archive className="mr-2 h-4 w-4" />
-              Archive
-            </Button>
-          </PermissionGate>
+
+        {/* Lifecycle Stepper */}
+        <Card className="shadow-sm overflow-hidden border-gray-200">
+          <div className="p-6">
+            <ProductLifecycleStepper product={product} />
+          </div>
+        </Card>
+
+        {/* Status Cards Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="shadow-sm border-gray-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <div className="mt-2">{getStatusBadge()}</div>
+                </div>
+                {product.is_active ? (
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="p-2 bg-gray-100 rounded-full">
+                    <XCircle className="h-5 w-5 text-gray-400" />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-gray-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Category</p>
+                  <p className="text-lg font-bold text-gray-900 capitalize mt-1">{product.category}</p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Package className="h-5 w-5 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {product.is_featured && (
+            <Card className="shadow-sm border-yellow-200 bg-yellow-50/50">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-yellow-800">Featured</p>
+                    <p className="text-lg font-bold text-yellow-900 mt-1">Yes</p>
+                  </div>
+                  <div className="p-2 bg-yellow-100 rounded-full">
+                    <Star className="h-5 w-5 text-yellow-600 fill-current" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {product.is_popular && (
+            <Card className="shadow-sm border-green-200 bg-green-50/50">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-800">Popular</p>
+                    <p className="text-lg font-bold text-green-900 mt-1">Yes</p>
+                  </div>
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      </div>
 
-      {/* Status Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Status</p>
-                <div className="mt-2">{getStatusBadge()}</div>
-              </div>
-              {product.is_active ? (
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              ) : (
-                <XCircle className="h-8 w-8 text-gray-400" />
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Category</p>
-                <p className="text-xl font-bold text-gray-900 capitalize mt-1">{product.category}</p>
-              </div>
-              <Package className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {product.is_featured && (
-          <Card className="border-yellow-200 bg-yellow-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-yellow-800">Featured</p>
-                  <p className="text-xl font-bold text-yellow-900 mt-1">Yes</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-600 fill-current" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {product.is_popular && (
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-800">Popular</p>
-                  <p className="text-xl font-bold text-green-900 mt-1">Yes</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="pricing">Pricing & Costs</TabsTrigger>
-          <TabsTrigger value="technical">Technical Details</TabsTrigger>
-          <TabsTrigger value="metadata">Metadata</TabsTrigger>
-        </TabsList>
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4">
+            <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Overview</TabsTrigger>
+            <TabsTrigger value="pricing" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Pricing & Costs</TabsTrigger>
+            <TabsTrigger value="technical" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Technical Details</TabsTrigger>
+            <TabsTrigger value="metadata" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Metadata</TabsTrigger>
+          </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
@@ -657,6 +663,7 @@ export default function ProductDetailPage() {
           onClose={() => setAuditHistoryModalOpen(false)}
         />
       )}
-    </div>
+      </div>
+    </main>
   );
 }
