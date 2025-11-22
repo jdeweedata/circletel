@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter, Space_Mono } from "next/font/google";
+import { Poppins, Space_Mono } from "next/font/google";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -75,9 +75,10 @@ export const viewport = {
   themeColor: '#F5831F',
 };
 
-const inter = Inter({ 
+const poppins = Poppins({ 
   subsets: ["latin"], 
-  variable: "--font-inter",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
   display: 'swap',
 });
 
@@ -94,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceMono.variable} font-sans`}>
+    <html lang="en" className={`${poppins.variable} ${spaceMono.variable} font-sans`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />

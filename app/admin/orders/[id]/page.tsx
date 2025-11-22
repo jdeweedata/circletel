@@ -405,7 +405,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 justify-end">
+          <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 justify-end">
             <StatusActionButtons
               currentStatus={order.status}
               orderId={order.id}
@@ -416,11 +416,11 @@ export default function AdminOrderDetailPage() {
               onStatusUpdate={fetchOrder}
             />
             <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
-            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
+            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
               <Printer size={16} />
               <span className="hidden lg:inline">Print</span>
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
+            <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
               <Download size={16} />
               <span className="hidden lg:inline">Export</span>
             </Button>
