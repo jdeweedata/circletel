@@ -1,313 +1,321 @@
-/**
- * Admin Order Activation API Route
- * POST /api/admin/orders/[orderId]/activate
- *
- * Activates a consumer order:
- * 1. Validates order status (must be payment_verified or kyc_approved)
- * 2. Generates account number and temporary password
- * 3. Creates Zoho CRM contact, Books customer/invoice, Billing subscription
- * 4. Sends activation email with account details
- * 5. Updates order status to 'active'
- */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { ZohoActivationService } from '@/lib/integrations/zoho/zoho-activation-service';
-import { EmailNotificationService } from '@/lib/notifications/notification-service';
-import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
+export const runtime = 'nodejs';
+export const maxDuration = 30;
+
+/**
+ * Calculate pro-rata billing amount
+ * Billing cycles: 1st, 5th, 15th, 25th of month
+ */
+function calculateProRataBilling(
+  monthlyPrice: number,
+  activationDate: Date
+): {
+  prorataAmount: number;
+  prorataDays: number;
+  nextBillingDate: Date;
+  billingCycleDay: number;
+} {
+  const day = activationDate.getDate();
+  let billingCycleDay: number;
+  let nextBillingDate: Date;
+
+  // Determine which billing cycle day to use
+  if (day <= 1) {
+    billingCycleDay = 1;
+    nextBillingDate = new Date(activationDate.getFullYear(), activationDate.getMonth() + 1, 1);
+  } else if (day <= 5) {
+    billingCycleDay = 5;
+    nextBillingDate = new Date(activationDate.getFullYear(), activationDate.getMonth() + 1, 5);
+  } else if (day <= 15) {
+    billingCycleDay = 15;
+    nextBillingDate = new Date(activationDate.getFullYear(), activationDate.getMonth() + 1, 15);
+  } else if (day <= 25) {
+    billingCycleDay = 25;
+    nextBillingDate = new Date(activationDate.getFullYear(), activationDate.getMonth() + 1, 25);
+  } else {
+    // After 25th, go to 1st of next month
+    billingCycleDay = 1;
+    nextBillingDate = new Date(activationDate.getFullYear(), activationDate.getMonth() + 1, 1);
+  }
+
+  // Calculate pro-rata days
+  const prorataDays = Math.ceil(
+    (nextBillingDate.getTime() - activationDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // Get days in month for calculation
+  const daysInMonth = new Date(
+    activationDate.getFullYear(),
+    activationDate.getMonth() + 1,
+    0
+  ).getDate();
+
+  // Calculate pro-rata amount
+  const dailyRate = monthlyPrice / daysInMonth;
+  const prorataAmount = Math.round(dailyRate * prorataDays * 100) / 100;
+
+  return {
+    prorataAmount,
+    prorataDays,
+    nextBillingDate,
+    billingCycleDay,
+  };
+}
+
+/**
+ * POST /api/admin/orders/[orderId]/activate
+ * Activates an order and sets up billing
+ */
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
-  try {
-    const { orderId } = await context.params;
-    const supabase = await createClient();
+  const { orderId } = await context.params;
 
-    // Validate orderId
-    if (!orderId) {
-      return NextResponse.json(
-        { success: false, error: 'Order ID is required' },
-        { status: 400 }
-      );
-    }
+  if (!orderId) {
+    return NextResponse.json(
+      { success: false, error: 'Order ID is required' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { accountNumber, connectionId, notes, billing_start_date } = body;
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
 
     // Get order details
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: fetchError } = await supabase
       .from('consumer_orders')
       .select('*')
       .eq('id', orderId)
       .single();
 
-    if (orderError || !order) {
+    if (fetchError || !order) {
+      console.error('Error fetching order:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
       );
     }
 
-    // Validate order status - must be ready for activation
-    const validStatuses = ['payment_verified', 'kyc_approved', 'installation_scheduled', 'installation_completed'];
-    if (!validStatuses.includes(order.status)) {
+    // Validate current status
+    if (order.status !== 'installation_completed') {
       return NextResponse.json(
         {
           success: false,
-          error: `Cannot activate order with status: ${order.status}. Order must be in one of: ${validStatuses.join(', ')}`,
+          error: `Cannot activate order from status: ${order.status}. Order must be in "installation_completed" status.`
         },
         { status: 400 }
       );
     }
 
-    // Check if already activated
-    if (order.status === 'active') {
+    // Check if installation document was uploaded
+    if (!order.installation_document_url) {
       return NextResponse.json(
-        { success: false, error: 'Order is already activated' },
+        {
+          success: false,
+          error: 'Installation document must be uploaded before activation. Please complete the installation first.'
+        },
         { status: 400 }
       );
     }
 
-    // Generate account number if not exists
-    let accountNumber = order.account_number;
-    if (!accountNumber) {
-      accountNumber = generateAccountNumber();
-    }
+    // Check if customer has an active and verified payment method
+    const { data: paymentMethods, error: pmError } = await supabase
+      .from('customer_payment_methods')
+      .select('id, method_type, mandate_status, is_active, encrypted_details')
+      .eq('customer_id', order.customer_id)
+      .eq('is_active', true)
+      .order('is_primary', { ascending: false })
+      .limit(1);
 
-    // Generate temporary password
-    const temporaryPassword = generateTemporaryPassword();
-    const hashedPassword = await hashPassword(temporaryPassword);
-
-    // Get service start date (today or specified)
-    const serviceStartDate = new Date().toISOString().split('T')[0];
-
-    // Initialize Zoho activation service
-    const zohoService = new ZohoActivationService();
-
-    // Activate service in Zoho (CRM, Books, Billing)
-    const zohoResult = await zohoService.activateService({
-      orderId: order.id,
-      orderNumber: order.order_number,
-      customerName: `${order.first_name} ${order.last_name}`,
-      email: order.email,
-      phone: order.phone,
-      address: order.installation_address,
-      city: order.installation_city || 'Johannesburg',
-      postalCode: order.installation_postal_code || '2000',
-
-      packageName: order.package_name,
-      monthlyPrice: order.package_price,
-      installationFee: order.installation_fee || 0,
-      routerFee: order.router_fee || 0,
-
-      accountNumber,
-      serviceStartDate,
-    });
-
-    // Update order in database
-    const updateData: any = {
-      status: 'active',
-      account_number: accountNumber,
-      service_start_date: serviceStartDate,
-      activated_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Add Zoho IDs if available
-    if (zohoResult.crmContactId) {
-      updateData.zoho_crm_contact_id = zohoResult.crmContactId;
-    }
-    if (zohoResult.booksCustomerId) {
-      updateData.zoho_books_customer_id = zohoResult.booksCustomerId;
-    }
-    if (zohoResult.booksInvoiceId) {
-      updateData.zoho_books_invoice_id = zohoResult.booksInvoiceId;
-    }
-    if (zohoResult.billingSubscriptionId) {
-      updateData.zoho_billing_subscription_id = zohoResult.billingSubscriptionId;
-    }
-
-    const { error: updateError } = await supabase
-      .from('consumer_orders')
-      .update(updateData)
-      .eq('id', orderId);
-
-    if (updateError) {
-      console.error('Failed to update order:', updateError);
+    if (pmError) {
+      console.error('Error fetching payment methods:', pmError);
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to update order status',
-          details: updateError.message,
+          error: 'Failed to verify payment method'
         },
         { status: 500 }
       );
     }
 
-    // Send activation email
-    const emailResult = await EmailNotificationService.sendServiceActivation({
-      email: order.email,
-      customer_name: `${order.first_name} ${order.last_name}`,
-      order_number: order.order_number,
-      account_number: accountNumber,
-      package_name: order.package_name,
-      package_speed: order.package_speed,
-      monthly_price: order.package_price,
-      service_start_date: serviceStartDate,
-      temporary_password: temporaryPassword,
-      installation_fee: order.installation_fee || 0,
-      router_fee: order.router_fee || 0,
-      invoice_number: zohoResult.invoiceNumber,
-      invoice_total: zohoResult.invoiceTotal,
-    });
-
-    // Log activation
-    await supabase.from('order_status_history').insert({
-      order_id: orderId,
-      order_type: 'consumer',
-      status: 'active',
-      notes: `Service activated. Account: ${accountNumber}. Zoho: ${zohoResult.success ? 'integrated' : 'partial/failed'}. Email: ${emailResult.success ? 'sent' : 'failed'}`,
-      created_at: new Date().toISOString(),
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Service activated successfully',
-      data: {
-        orderId: order.id,
-        orderNumber: order.order_number,
-        accountNumber,
-        serviceStartDate,
-        zohoIntegration: {
-          success: zohoResult.success,
-          partialSuccess: zohoResult.partialSuccess,
-          crmContactId: zohoResult.crmContactId,
-          booksCustomerId: zohoResult.booksCustomerId,
-          booksInvoiceId: zohoResult.booksInvoiceId,
-          billingSubscriptionId: zohoResult.billingSubscriptionId,
-          invoiceNumber: zohoResult.invoiceNumber,
-          errors: zohoResult.errors,
-        },
-        emailSent: emailResult.success,
-        emailError: emailResult.error,
-      },
-    });
-  } catch (error: any) {
-    console.error('Service activation error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Internal server error during activation',
-        details: error.message,
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * Generate unique account number
- * Format: CT-YYYYMMDD-XXXXX (e.g., CT-20251022-AB123)
- */
-function generateAccountNumber(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  // Generate 5-character alphanumeric code
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluding confusing chars (0, O, 1, I)
-  let code = '';
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  return `CT-${year}${month}${day}-${code}`;
-}
-
-/**
- * Generate secure temporary password
- * Format: 12 characters with uppercase, lowercase, numbers, and special chars
- */
-function generateTemporaryPassword(): string {
-  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lowercase = 'abcdefghjkmnpqrstuvwxyz';
-  const numbers = '23456789';
-  const special = '@#$%&*';
-
-  // Ensure at least one of each character type
-  let password = '';
-  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-  password += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  password += special.charAt(Math.floor(Math.random() * special.length));
-
-  // Fill remaining 8 characters
-  const allChars = uppercase + lowercase + numbers + special;
-  for (let i = 0; i < 8; i++) {
-    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
-  }
-
-  // Shuffle the password
-  return password
-    .split('')
-    .sort(() => Math.random() - 0.5)
-    .join('');
-}
-
-/**
- * Hash password for storage
- * Uses crypto.pbkdf2 for security
- */
-async function hashPassword(password: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const salt = crypto.randomBytes(16).toString('hex');
-    crypto.pbkdf2(password, salt, 100000, 64, 'sha512', (err, derivedKey) => {
-      if (err) reject(err);
-      resolve(salt + ':' + derivedKey.toString('hex'));
-    });
-  });
-}
-
-/**
- * GET endpoint - Get activation status
- */
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ orderId: string }> }
-) {
-  try {
-    const { orderId } = await context.params;
-    const supabase = await createClient();
-
-    const { data: order, error } = await supabase
-      .from('consumer_orders')
-      .select('id, order_number, status, account_number, service_start_date, activated_at, zoho_crm_contact_id, zoho_books_customer_id, zoho_billing_subscription_id')
-      .eq('id', orderId)
-      .single();
-
-    if (error || !order) {
+    if (!paymentMethods || paymentMethods.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Order not found' },
-        { status: 404 }
+        {
+          success: false,
+          error: 'No active payment method found. Customer must register a payment method before activation.'
+        },
+        { status: 400 }
       );
     }
 
+    const paymentMethod = paymentMethods[0];
+
+    // Check if payment method is verified (debit orders must have active mandate)
+    const isVerified = paymentMethod.encrypted_details?.verified === true ||
+                      paymentMethod.encrypted_details?.verified === 'true';
+
+    if (paymentMethod.method_type === 'debit_order' && paymentMethod.mandate_status !== 'active') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Debit order mandate is not active. Customer must complete mandate verification before activation.'
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!isVerified) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Payment method is not verified. Please verify the payment method before activation.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Calculate billing details
+    const activationDate = new Date();
+    let billing: any;
+    let billingStartDate: Date;
+
+    // Check if custom billing start date is provided
+    if (billing_start_date) {
+      billingStartDate = new Date(billing_start_date);
+
+      // Validate billing start date is in the future
+      if (billingStartDate <= activationDate) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Billing start date must be in the future'
+          },
+          { status: 400 }
+        );
+      }
+
+      // For future billing start date, no pro-rata charge
+      const billingCycleDay = billingStartDate.getDate();
+      billing = {
+        prorataAmount: 0, // No charge until billing starts
+        prorataDays: 0,
+        nextBillingDate: billingStartDate,
+        billingCycleDay: billingCycleDay,
+      };
+    } else {
+      // Standard pro-rata billing from activation date
+      billing = calculateProRataBilling(
+        parseFloat(order.package_price),
+        activationDate
+      );
+    }
+
+    // Update order to active status with billing details
+    const updateData: any = {
+      status: 'active',
+      activation_date: activationDate.toISOString().split('T')[0], // Date only
+      billing_active: true,
+      billing_activated_at: activationDate.toISOString(),
+      billing_start_date: billing_start_date || activationDate.toISOString().split('T')[0],
+      next_billing_date: billing.nextBillingDate.toISOString().split('T')[0],
+      billing_cycle_day: billing.billingCycleDay,
+      prorata_amount: billing.prorataAmount,
+      prorata_days: billing.prorataDays,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (accountNumber) {
+      updateData.account_number = accountNumber;
+    }
+
+    if (connectionId) {
+      updateData.connection_id = connectionId;
+    }
+
+    if (notes) {
+      updateData.internal_notes = notes;
+    }
+
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from('consumer_orders')
+      .update(updateData)
+      .eq('id', orderId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error activating order:', updateError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to activate order',
+          details: updateError.message
+        },
+        { status: 500 }
+      );
+    }
+
+    // Log status change
+    const { error: historyError } = await supabase
+      .from('order_status_history')
+      .insert({
+        entity_type: 'consumer_order',
+        entity_id: orderId,
+        old_status: order.status,
+        new_status: 'active',
+        change_reason: notes || 'Service activated and billing started',
+        changed_by: null, // TODO: Get from auth session
+        automated: false,
+        customer_notified: false,
+        status_changed_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      });
+
+    if (historyError) {
+      console.error('Error logging status history:', historyError);
+      // Don't fail the request if history logging fails
+    }
+
+    // TODO: Create first pro-rata invoice
+    // TODO: Send activation notification to customer
+    // TODO: Schedule first billing on next_billing_date
+
     return NextResponse.json({
       success: true,
-      data: {
-        orderId: order.id,
-        orderNumber: order.order_number,
-        status: order.status,
-        isActive: order.status === 'active',
-        accountNumber: order.account_number,
-        serviceStartDate: order.service_start_date,
-        activatedAt: order.activated_at,
-        zohoIntegrated: !!(order.zoho_crm_contact_id || order.zoho_books_customer_id || order.zoho_billing_subscription_id),
+      data: updatedOrder,
+      message: 'Order activated successfully',
+      billing: {
+        activationDate: activationDate.toISOString().split('T')[0],
+        prorataAmount: billing.prorataAmount,
+        prorataDays: billing.prorataDays,
+        nextBillingDate: billing.nextBillingDate.toISOString().split('T')[0],
+        billingCycleDay: billing.billingCycleDay,
+        monthlyAmount: parseFloat(order.package_price),
       },
     });
   } catch (error: any) {
-    console.error('Get activation status error:', error);
+    console.error('Error activating order:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error.message,
+      },
       { status: 500 }
     );
   }
