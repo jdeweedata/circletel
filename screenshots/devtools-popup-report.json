@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-11-22T15:09:29.088Z",
+  "totalPages": 2,
+  "popupCount": 1,
+  "windowOpenCalls": [],
+  "serviceWorkers": [
+    {
+      "scope": "https://www.circletel.co.za/",
+      "installing": true,
+      "waiting": false
+    }
+  ],
+  "suspiciousScripts": [],
+  "iframes": [],
+  "consoleMessages": [
+    {
+      "type": "log",
+      "text": "[useAdminAuth] No session found in localStorage",
+      "timestamp": "2025-11-22T15:09:12.342Z"
+    },
+    {
+      "type": "verbose",
+      "text": "[DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o",
+      "timestamp": "2025-11-22T15:09:12.442Z"
+    },
+    {
+      "type": "log",
+      "text": "[Login] API response received: {success: true, hasUser: true, userEmail: devadmin@circletel.co.za, status: 200, technicalError: undefined}",
+      "timestamp": "2025-11-22T15:09:18.436Z"
+    },
+    {
+      "type": "log",
+      "text": "[Login] Saving session to localStorage: {user: devadmin@circletel.co.za, role: super_admin, expires_at: 1763827758}",
+      "timestamp": "2025-11-22T15:09:18.437Z"
+    },
+    {
+      "type": "log",
+      "text": "[Login] Session saved successfully: true",
+      "timestamp": "2025-11-22T15:09:18.438Z"
+    },
+    {
+      "type": "log",
+      "text": "SW registered:  ServiceWorkerRegistration",
+      "timestamp": "2025-11-22T15:09:19.191Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:19.488Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:19.488Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.071Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.080Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.081Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.088Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.090Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.090Z"
+    },
+    {
+      "type": "log",
+      "text": "[useAdminAuth] Found session in localStorage: {email: devadmin@circletel.co.za, role: super_admin, hasPermissions: true}",
+      "timestamp": "2025-11-22T15:09:20.091Z"
+    }
+  ]
+}

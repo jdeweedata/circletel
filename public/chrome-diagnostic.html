@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome DevTools Issue Diagnostic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #F5831F;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #F5831F;
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 24px;
+        }
+
+        .result {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .result-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-value {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        button {
+            background: #F5831F;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #d66f1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 131, 31, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .instructions h3 {
+            color: #0c5460;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions ol, .instructions ul {
+            margin-left: 20px;
+            color: #0c5460;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .instructions code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert h3 {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .alert-danger h3 {
+            color: #721c24;
+        }
+
+        ul.checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        ul.checklist li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        ul.checklist li:before {
+            content: "▪";
+            color: #F5831F;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .copy-btn {
+            background: #6c757d;
+            font-size: 12px;
+            padding: 6px 12px;
+            margin-top: 8px;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Chrome DevTools Issue Diagnostic</h1>
+        <p class="subtitle">Comprehensive Chrome browser diagnostic for multiple DevTools windows issue</p>
+
+        <div class="alert alert-danger">
+            <h3>🚨 Issue Confirmed</h3>
+            <p><strong>Playwright tests confirm: Your application code is NOT causing the DevTools windows to open.</strong></p>
+            <p>The issue is specific to your Chrome browser profile, settings, or extensions.</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🔧</span> Browser Information</h2>
+            <div id="browserInfo"></div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🧩</span> Extension Detection</h2>
+            <div id="extensionInfo"></div>
+            <div class="instructions">
+                <h3>How to Check Extensions:</h3>
+                <ol>
+                    <li>Open <code>chrome://extensions</code> in a new tab</li>
+                    <li>Look for any debugging or developer extensions:
+                        <ul>
+                            <li>React Developer Tools</li>
+                            <li>Vue.js devtools</li>
+                            <li>Redux DevTools</li>
+                            <li>Any automation tools (Selenium, Puppeteer, etc.)</li>
+                            <li>Screen recording tools</li>
+                            <li>Testing tools</li>
+                        </ul>
+                    </li>
+                    <li>Disable ALL extensions temporarily</li>
+                    <li>Reload the admin dashboard and check if issue persists</li>
+                    <li>If fixed, re-enable extensions one by one to find the culprit</li>
+                </ol>
+                <button onclick="openExtensions()" style="margin-top: 10px;">Open Extensions Page</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">⚙️</span> DevTools Settings Check</h2>
+            <div class="instructions">
+                <h3>Check These DevTools Settings:</h3>
+                <ol>
+                    <li><strong>Open DevTools</strong> (F12) on this page</li>
+                    <li>Click the <strong>⚙️ Settings</strong> icon (gear icon, top right)</li>
+                    <li>In the <strong>Preferences</strong> section, make sure these are UNCHECKED:
+                        <ul>
+                            <li>☐ Auto-open DevTools for popups</li>
+                            <li>☐ Disable cache (while DevTools is open) - Only if you want</li>
+                        </ul>
+                    </li>
+                    <li>In the <strong>Sources</strong> panel preferences:
+                        <ul>
+                            <li>☐ Pause on caught exceptions</li>
+                            <li>☐ Pause on uncaught exceptions</li>
+                        </ul>
+                    </li>
+                    <li>Check <strong>Application > Service Workers</strong>:
+                        <ul>
+                            <li>☐ Update on reload</li>
+                            <li>☐ Bypass for network (unless needed)</li>
+                        </ul>
+                    </li>
+                    <li>Close ALL DevTools windows</li>
+                    <li>Hard refresh the page: <code>Ctrl + Shift + R</code></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🚩</span> Chrome Flags Check</h2>
+            <div class="instructions">
+                <h3>Check Chrome Experimental Features:</h3>
+                <ol>
+                    <li>Open <code>chrome://flags</code> in a new tab</li>
+                    <li>Search for: <code>devtools</code></li>
+                    <li>Make sure no devtools-related flags are enabled</li>
+                    <li>Recommended: Set all devtools flags to <strong>Default</strong></li>
+                    <li>If you see "Enable DevTools Experiments" - set to Default or Disabled</li>
+                    <li>Restart Chrome after making changes</li>
+                </ol>
+                <button onclick="openFlags()">Open Chrome Flags</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">👤</span> Chrome Profile Check</h2>
+            <div id="profileInfo"></div>
+            <div class="instructions">
+                <h3>Test with New Profile:</h3>
+                <ol>
+                    <li>Open <code>chrome://settings/manageProfile</code></li>
+                    <li>Click <strong>"Add"</strong> to create a new profile</li>
+                    <li>Give it a name like "Test Profile"</li>
+                    <li>Open CircleTel admin dashboard in the new profile</li>
+                    <li>Check if the DevTools issue occurs</li>
+                </ol>
+                <button onclick="openProfileSettings()">Open Profile Settings</button>
+
+                <div class="alert" style="margin-top: 15px;">
+                    <h3>✅ If issue is FIXED in new profile:</h3>
+                    <p>Your original profile has corruption or problematic settings. You should:</p>
+                    <ul class="checklist">
+                        <li>Export bookmarks from old profile</li>
+                        <li>Use the new profile going forward</li>
+                        <li>Or try resetting Chrome settings in old profile</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">⌨️</span> Keyboard Shortcut Check</h2>
+            <div class="instructions">
+                <h3>Test Your Keyboard:</h3>
+                <ol>
+                    <li>Click in this text box and press F12 key:</li>
+                    <textarea id="keyTest" rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 4px; margin: 10px 0;"></textarea>
+                    <li>If it types "F12" repeatedly without you holding it, your F12 key is stuck</li>
+                    <li>Try using an external keyboard to test</li>
+                    <li>Check if any macro/hotkey software is running (AutoHotkey, etc.)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🔄</span> Reset Chrome Settings</h2>
+            <div class="instructions alert-danger">
+                <h3>⚠️ Last Resort - Reset Chrome:</h3>
+                <p><strong>Warning:</strong> This will reset all Chrome settings to defaults. Extensions will be disabled but not deleted.</p>
+                <ol>
+                    <li>Backup important data (bookmarks, passwords)</li>
+                    <li>Open <code>chrome://settings/reset</code></li>
+                    <li>Click <strong>"Restore settings to their original defaults"</strong></li>
+                    <li>Click <strong>"Reset settings"</strong></li>
+                    <li>Restart Chrome</li>
+                    <li>Test the admin dashboard</li>
+                </ol>
+                <button onclick="openResetSettings()" style="background: #dc3545;">Open Reset Settings</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">📋</span> Quick Action Checklist</h2>
+            <ul class="checklist">
+                <li>Disable all Chrome extensions</li>
+                <li>Check DevTools Settings (F12 > ⚙️)</li>
+                <li>Uncheck "Auto-open DevTools for popups"</li>
+                <li>Clear site data for circletel.co.za</li>
+                <li>Test in Incognito mode (Ctrl + Shift + N)</li>
+                <li>Test in new Chrome profile</li>
+                <li>Check chrome://flags for devtools flags</li>
+                <li>Test with external keyboard</li>
+                <li>Check for macro/hotkey software</li>
+                <li>As last resort: Reset Chrome settings</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="runAllChecks()">🔍 Run All Checks</button>
+            <button onclick="openExtensions()">Open Extensions</button>
+            <button onclick="openFlags()">Open Flags</button>
+            <button onclick="openProfileSettings()">Profile Settings</button>
+        </div>
+    </div>
+
+    <script>
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browserInfo = {
+                name: 'Unknown',
+                version: 'Unknown',
+                isChrome: false,
+                isBrave: false,
+                isEdge: false
+            };
+
+            if (ua.includes('Edg/')) {
+                browserInfo.name = 'Microsoft Edge';
+                browserInfo.version = ua.match(/Edg\/([\d.]+)/)[1];
+                browserInfo.isEdge = true;
+            } else if (ua.includes('Chrome/') && !ua.includes('Edg/')) {
+                browserInfo.name = 'Google Chrome';
+                browserInfo.version = ua.match(/Chrome\/([\d.]+)/)[1];
+                browserInfo.isChrome = true;
+
+                // Check for Brave
+                if (navigator.brave && navigator.brave.isBrave) {
+                    browserInfo.name = 'Brave Browser';
+                    browserInfo.isBrave = true;
+                }
+            }
+
+            return browserInfo;
+        }
+
+        function displayBrowserInfo() {
+            const browser = detectBrowser();
+            const container = document.getElementById('browserInfo');
+
+            let html = `
+                <div class="result">
+                    <div class="result-header">Browser: ${browser.name} ${browser.version}</div>
+                    <div class="result-value">
+                        User Agent: ${navigator.userAgent}
+                    </div>
+                </div>
+                <div class="result">
+                    <div class="result-header">Platform: ${navigator.platform}</div>
+                    <div class="result-value">
+                        Language: ${navigator.language}<br>
+                        Cookies Enabled: ${navigator.cookieEnabled}<br>
+                        Online: ${navigator.onLine}
+                    </div>
+                </div>
+            `;
+
+            if (!browser.isChrome && !browser.isEdge && !browser.isBrave) {
+                html += `
+                    <div class="alert alert-danger" style="margin-top: 10px;">
+                        <h3>⚠️ Warning</h3>
+                        <p>This diagnostic is designed for Chrome-based browsers. You appear to be using ${browser.name}.</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function displayExtensionInfo() {
+            const container = document.getElementById('extensionInfo');
+
+            // We can't directly access installed extensions for security reasons,
+            // but we can provide detection guidance
+            container.innerHTML = `
+                <div class="result">
+                    <div class="result-header">
+                        Extension Detection
+                        <span class="status status-warning">Manual Check Required</span>
+                    </div>
+                    <div class="result-value">
+                        For security reasons, websites cannot detect installed extensions.
+                        Please manually check chrome://extensions
+                    </div>
+                </div>
+                <div class="result">
+                    <div class="result-header">Common Culprits</div>
+                    <ul style="margin: 10px 0; color: #666;">
+                        <li>React Developer Tools</li>
+                        <li>Vue.js devtools</li>
+                        <li>Redux DevTools</li>
+                        <li>Augury (Angular DevTools)</li>
+                        <li>Selenium IDE</li>
+                        <li>Screen recording extensions</li>
+                        <li>Automation tools</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function displayProfileInfo() {
+            const container = document.getElementById('profileInfo');
+
+            container.innerHTML = `
+                <div class="result">
+                    <div class="result-header">Profile Status</div>
+                    <div class="result-value">
+                        Service Worker Support: ${('serviceWorker' in navigator) ? '✅ Yes' : '❌ No'}<br>
+                        Storage Type: ${typeof(Storage) !== "undefined" ? '✅ LocalStorage Available' : '❌ Not Available'}<br>
+                        IndexedDB: ${typeof(indexedDB) !== "undefined" ? '✅ Available' : '❌ Not Available'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openExtensions() {
+            window.open('chrome://extensions', '_blank');
+        }
+
+        function openFlags() {
+            window.open('chrome://flags', '_blank');
+        }
+
+        function openProfileSettings() {
+            window.open('chrome://settings/manageProfile', '_blank');
+        }
+
+        function openResetSettings() {
+            if (confirm('⚠️ This will reset all Chrome settings. Are you sure?')) {
+                window.open('chrome://settings/reset', '_blank');
+            }
+        }
+
+        function runAllChecks() {
+            displayBrowserInfo();
+            displayExtensionInfo();
+            displayProfileInfo();
+
+            alert('✅ All checks completed!\n\nPlease review the results above and follow the instructions in each section.');
+        }
+
+        // Monitor F12 key presses
+        let f12PressCount = 0;
+        let f12Timer = null;
+
+        document.getElementById('keyTest').addEventListener('keydown', (e) => {
+            if (e.key === 'F12') {
+                e.preventDefault();
+                f12PressCount++;
+
+                clearTimeout(f12Timer);
+                f12Timer = setTimeout(() => {
+                    if (f12PressCount > 3) {
+                        alert('🚨 WARNING: F12 key pressed ' + f12PressCount + ' times rapidly!\n\nThis might indicate a stuck key or keyboard macro.');
+                    }
+                    f12PressCount = 0;
+                }, 1000);
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            displayBrowserInfo();
+            displayExtensionInfo();
+            displayProfileInfo();
+        });
+    </script>
+</body>
+</html>
