@@ -10,22 +10,22 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Only prevent default if we are showing a custom UI (currently disabled)
-      // e.preventDefault();
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
 
-      // Install prompt disabled - users can install manually via browser menu
-      // setTimeout(() => {
-      //   toast("Install CircleTel App", {
-      //     description: "Get the full experience with our mobile app!",
-      //     action: {
-      //       label: "Install",
-      //       onClick: () => installPWA(),
-      //     },
-      //     duration: 10000,
-      //   });
-      // }, 5000);
+      // Show custom install prompt
+      setTimeout(() => {
+        toast("Install CircleTel App", {
+          description: "Get the full experience with our mobile app!",
+          action: {
+            label: "Install",
+            onClick: () => installPWA(),
+          },
+          duration: 10000,
+        });
+      }, 3000);
     };
 
     // Listen for app installed event

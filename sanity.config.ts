@@ -23,10 +23,10 @@ export default defineConfig({
   plugins: [
     presentationTool({
       previewUrl: {
-        initial: process.env.SANITY_STUDIO_PREVIEW_ORIGIN || 'http://localhost:3000',
         preview: "/",
         previewMode: {
           enable: "/api/draft-mode/enable",
+          disable: "/api/draft-mode/disable",
         },
       },
     }),
