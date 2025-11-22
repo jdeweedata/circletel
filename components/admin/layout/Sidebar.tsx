@@ -159,7 +159,7 @@ const navigation = [
     name: 'CMS Management',
     href: '/admin/cms',
     icon: Globe,
-    description: 'Manage Strapi content'
+    description: 'Manage Website Content'
   },
   {
     name: 'Coverage',

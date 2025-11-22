@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Management API Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #F5831F;
+            border-bottom: 3px solid #F5831F;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #F5831F;
+        }
+        button {
+            background: #F5831F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #d96f15;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-pass { background: #28a745; color: white; }
+        .badge-fail { background: #dc3545; color: white; }
+        .badge-pending { background: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Integration Management API Tests</h1>
+
+        <p class="warning">
+            ⚠️ <strong>Prerequisites</strong>: You must be logged in as an admin user before running these tests.
+            <br>If not logged in, <a href="/admin" target="_blank">click here to login</a>.
+        </p>
+
+        <div class="test-section">
+            <h3>Test 1: List All Integrations</h3>
+            <button onclick="testListIntegrations()">Run Test</button>
+            <span id="test1-status"></span>
+            <div id="test1-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Get Integration Details (Zoho CRM)</h3>
+            <button onclick="testGetIntegrationDetail()">Run Test</button>
+            <span id="test2-status"></span>
+            <div id="test2-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Trigger Health Check (Zoho CRM)</h3>
+            <button onclick="testHealthCheck()">Run Test</button>
+            <span id="test3-status"></span>
+            <div id="test3-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 4: List OAuth Tokens</h3>
+            <button onclick="testListOAuthTokens()">Run Test</button>
+            <span id="test4-status"></span>
+            <div id="test4-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 5: Refresh OAuth Token (Zoho CRM)</h3>
+            <p class="warning">⚠️ This will actually refresh your Zoho OAuth token!</p>
+            <button onclick="testRefreshOAuthToken()">Run Test</button>
+            <span id="test5-status"></span>
+            <div id="test5-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Run All Tests</h3>
+            <button onclick="runAllTests()" style="background: #1E4B85;">Run All Tests</button>
+        </div>
+
+        <div id="summary" style="margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 4px; display: none;">
+            <h3>📊 Test Summary</h3>
+            <p>Total: <span id="total-tests">0</span> | Passed: <span id="passed-tests" class="success">0</span> | Failed: <span id="failed-tests" class="error">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        let testsRun = 0;
+        let testsPassed = 0;
+        let testsFailed = 0;
+
+        function updateStatus(testNum, success) {
+            const statusEl = document.getElementById(`test${testNum}-status`);
+            if (success) {
+                statusEl.innerHTML = '<span class="status-badge badge-pass">✓ PASS</span>';
+                testsPassed++;
+            } else {
+                statusEl.innerHTML = '<span class="status-badge badge-fail">✗ FAIL</span>';
+                testsFailed++;
+            }
+            testsRun++;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            document.getElementById('summary').style.display = 'block';
+            document.getElementById('total-tests').textContent = testsRun;
+            document.getElementById('passed-tests').textContent = testsPassed;
+            document.getElementById('failed-tests').textContent = testsFailed;
+        }
+
+        function displayResult(testNum, data, isError = false) {
+            const resultEl = document.getElementById(`test${testNum}-result`);
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = `<pre class="${isError ? 'error' : 'success'}">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testListIntegrations() {
+            try {
+                const response = await fetch('/api/admin/integrations', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus(1, true);
+                    displayResult(1, {
+                        status: response.status,
+                        totalIntegrations: data.integrations.length,
+                        summary: data.summary,
+                        integrations: data.integrations.map(i => ({
+                            slug: i.slug,
+                            name: i.name,
+                            type: i.integration_type,
+                            health: i.health_status
+                        }))
+                    });
+                    console.log('✅ Test 1 PASSED:', data);
+                } else {
+                    updateStatus(1, false);
+                    displayResult(1, { status: response.status, error: data.error }, true);
+                    console.error('❌ Test 1 FAILED:', data);
+                }
+            } catch (error) {
+                updateStatus(1, false);
+                displayResult(1, { error: error.message }, true);
+                console.error('❌ Test 1 ERROR:', error);
+            }
+        }
+
+        async function testGetIntegrationDetail() {
+            try {
+                const response = await fetch('/api/admin/integrations/zoho-crm', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus(2, true);
+                    displayResult(2, {
+                        status: response.status,
+                        integration: data.integration,
+                        oauthTokens: data.oauthTokens,
+                        recentMetrics: data.recentMetrics
+                    });
+                    console.log('✅ Test 2 PASSED:', data);
+                } else {
+                    updateStatus(2, false);
+                    displayResult(2, { status: response.status, error: data.error }, true);
+                    console.error('❌ Test 2 FAILED:', data);
+                }
+            } catch (error) {
+                updateStatus(2, false);
+                displayResult(2, { error: error.message }, true);
+                console.error('❌ Test 2 ERROR:', error);
+            }
+        }
+
+        async function testHealthCheck() {
+            try {
+                const response = await fetch('/api/admin/integrations/zoho-crm/health', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    updateStatus(3, true);
+                    displayResult(3, {
+                        status: response.status,
+                        result: data.result
+                    });
+                    console.log('✅ Test 3 PASSED:', data);
+                } else {
+                    updateStatus(3, false);
+                    displayResult(3, { status: response.status, error: data.error || 'Health check failed' }, true);
+                    console.error('❌ Test 3 FAILED:', data);
+                }
+            } catch (error) {
+                updateStatus(3, false);
+                displayResult(3, { error: error.message }, true);
+                console.error('❌ Test 3 ERROR:', error);
+            }
+        }
+
+        async function testListOAuthTokens() {
+            try {
+                const response = await fetch('/api/admin/integrations/oauth/tokens', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus(4, true);
+                    displayResult(4, {
+                        status: response.status,
+                        summary: data.summary,
+                        tokens: data.tokens.map(t => ({
+                            integration: t.integrationSlug,
+                            status: t.status,
+                            expiresIn: t.expiresIn,
+                            scopes: t.scopes?.length || 0
+                        }))
+                    });
+                    console.log('✅ Test 4 PASSED:', data);
+                } else {
+                    updateStatus(4, false);
+                    displayResult(4, { status: response.status, error: data.error }, true);
+                    console.error('❌ Test 4 FAILED:', data);
+                }
+            } catch (error) {
+                updateStatus(4, false);
+                displayResult(4, { error: error.message }, true);
+                console.error('❌ Test 4 ERROR:', error);
+            }
+        }
+
+        async function testRefreshOAuthToken() {
+            if (!confirm('This will refresh your Zoho CRM OAuth token. Continue?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/integrations/oauth/zoho-crm/refresh', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    updateStatus(5, true);
+                    displayResult(5, {
+                        status: response.status,
+                        success: data.success,
+                        expiresAt: data.expiresAt,
+                        message: data.message
+                    });
+                    console.log('✅ Test 5 PASSED:', data);
+                } else {
+                    updateStatus(5, false);
+                    displayResult(5, { status: response.status, error: data.error || data.message }, true);
+                    console.error('❌ Test 5 FAILED:', data);
+                }
+            } catch (error) {
+                updateStatus(5, false);
+                displayResult(5, { error: error.message }, true);
+                console.error('❌ Test 5 ERROR:', error);
+            }
+        }
+
+        async function runAllTests() {
+            testsRun = 0;
+            testsPassed = 0;
+            testsFailed = 0;
+
+            console.log('🧪 Running all tests...');
+
+            await testListIntegrations();
+            await new Promise(r => setTimeout(r, 500));
+
+            await testGetIntegrationDetail();
+            await new Promise(r => setTimeout(r, 500));
+
+            await testHealthCheck();
+            await new Promise(r => setTimeout(r, 500));
+
+            await testListOAuthTokens();
+
+            console.log(`\n📊 Tests Complete: ${testsPassed}/${testsRun} passed`);
+
+            if (testsPassed === testsRun) {
+                alert('🎉 All tests passed!');
+            } else {
+                alert(`⚠️ ${testsFailed} test(s) failed. Check console for details.`);
+            }
+        }
+    </script>
+</body>
+</html>

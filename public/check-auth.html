@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Authentication Check</h1>
+    <div id="result"></div>
+
+    <script>
+        const supabaseUrl = 'https://agyjovdugmtopasyvlng.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFneWpvdmR1Z210b3Bhc3l2bG5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk1OTMyMDgsImV4cCI6MjA0NTE2OTIwOH0.N1BwcxrILl_B1lPv9z3XPxCwjC8m2fvDxJXwh0Y4_oY';
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        async function checkAuth() {
+            const result = document.getElementById('result');
+
+            // Check session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+            if (sessionError) {
+                result.innerHTML = `<p style="color: red;">Session Error: ${sessionError.message}</p>`;
+                return;
+            }
+
+            if (!session) {
+                result.innerHTML = `
+                    <p style="color: red;">❌ Not logged in</p>
+                    <p>Please <a href="/admin">login as admin</a> first.</p>
+                `;
+                return;
+            }
+
+            // Check user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            if (userError || !user) {
+                result.innerHTML = `<p style="color: red;">User Error: ${userError?.message || 'No user'}</p>`;
+                return;
+            }
+
+            // Check if admin
+            const { data: adminUser, error: adminError } = await supabase
+                .from('admin_users')
+                .select('id, email, is_active')
+                .eq('id', user.id)
+                .single();
+
+            result.innerHTML = `
+                <h3 style="color: green;">✅ Authenticated</h3>
+                <p><strong>User ID:</strong> ${user.id}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Is Admin:</strong> ${adminUser ? 'Yes' : 'No'}</p>
+                <p><strong>Admin Active:</strong> ${adminUser?.is_active ? 'Yes' : 'No'}</p>
+                <p><strong>Access Token:</strong> ${session.access_token.slice(0, 20)}...</p>
+                <hr>
+                <p>You can now run the API tests!</p>
+                <a href="/test-integration-apis.html">Go to API Tests</a>
+            `;
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>

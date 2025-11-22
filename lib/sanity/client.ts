@@ -1,18 +1,42 @@
-import { createClient } from '@sanity/client'
+import { createClient, type QueryParams } from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
 
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '7iqq2t7l'
+export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+export const apiVersion = '2024-01-01'
+
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'dummy-project-id',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: '2024-01-01',
+  projectId,
+  dataset,
+  apiVersion,
   useCdn: process.env.NODE_ENV === 'production',
-  token: process.env.SANITY_API_TOKEN,
+  perspective: 'published',
+  stega: {
+    studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL || 'http://localhost:3000/admin/cms',
+  },
 })
 
 const builder = imageUrlBuilder(client)
 
 export function urlFor(source: any) {
   return builder.image(source)
+}
+
+export async function sanityFetch<const QueryString extends string>({
+  query,
+  params = {},
+  tags,
+}: {
+  query: QueryString
+  params?: QueryParams
+  tags?: string[]
+}) {
+  return client.fetch(query, params, {
+    next: {
+      revalidate: process.env.NODE_ENV === 'development' ? 30 : 3600,
+      tags,
+    },
+  })
 }
 
 // GROQ queries for different content types
@@ -56,6 +80,7 @@ export const queries = {
     },
     features,
     specifications,
+    image,
     isActive,
     isFeatured,
     _createdAt
@@ -76,6 +101,8 @@ export const queries = {
     },
     features,
     specifications,
+    image,
+    gallery,
     isActive,
     isFeatured,
     _createdAt
