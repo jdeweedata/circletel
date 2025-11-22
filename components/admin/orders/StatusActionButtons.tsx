@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   CreditCard,
   Calendar,
@@ -31,6 +32,8 @@ interface StatusActionButtonsProps {
   orderId: string;
   orderNumber?: string;
   packagePrice?: number;
+  firstName?: string;
+  lastName?: string;
   onStatusUpdate: () => void;
 }
 
@@ -96,6 +99,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       description: 'Mark installation as started',
     },
     {
+      status: 'installation_scheduled',
+      label: 'Reschedule',
+      icon: Calendar,
+      variant: 'secondary',
+      description: 'Reschedule installation date',
+      requiresInput: true,
+    },
+    {
       status: 'cancelled',
       label: 'Cancel Order',
       icon: XCircle,
@@ -112,6 +123,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
       variant: 'default',
       description: 'Mark installation as completed with document upload',
       requiresInput: true, // Will use custom modal
+    },
+    {
+      status: 'installation_scheduled',
+      label: 'Reschedule',
+      icon: Calendar,
+      variant: 'secondary',
+      description: 'Client unavailable - Reschedule',
+      requiresInput: true,
     },
     {
       status: 'failed',
@@ -224,6 +243,8 @@ export function StatusActionButtons({
   orderId,
   orderNumber = '',
   packagePrice = 0,
+  firstName = '',
+  lastName = '',
   onStatusUpdate,
 }: StatusActionButtonsProps) {
   const [selectedAction, setSelectedAction] = useState<StatusAction | null>(null);
@@ -272,16 +293,26 @@ export function StatusActionButtons({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
             <Button
               key={action.status}
-              variant={action.variant}
+              variant={action.variant === 'destructive' ? 'outline' : action.variant} // Override variant prop for custom styling
               size="sm"
               onClick={() => handleActionClick(action)}
-              className="flex items-center gap-2"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 h-9 text-sm font-medium rounded-md transition-all duration-200 shadow-sm border",
+                // Primary Actions (Orange)
+                action.variant === 'default' && "bg-[#F5831F] hover:bg-[#d97219] text-white border-[#F5831F] hover:border-[#d97219] shadow-md hover:shadow-lg",
+                // Destructive Actions (Red Outline)
+                action.variant === 'destructive' && "bg-white text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 hover:shadow-md",
+                // Outline Actions (Gray)
+                action.variant === 'outline' && "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400",
+                // Secondary Actions (Gray Fill)
+                action.variant === 'secondary' && "bg-gray-100 text-gray-900 border-transparent hover:bg-gray-200 hover:text-gray-950"
+              )}
             >
               <Icon className="h-4 w-4" />
               {action.label}
@@ -294,11 +325,13 @@ export function StatusActionButtons({
         <StatusUpdateModal
           open={isModalOpen}
           onClose={handleModalClose}
-          orderId={orderId}
-          currentStatus={currentStatus}
-          newStatus={selectedAction.status}
-          actionLabel={selectedAction.label}
-          requiresInput={selectedAction.requiresInput || false}
+          order={{
+            id: orderId,
+            order_number: orderNumber,
+            first_name: firstName,
+            last_name: lastName,
+            status: currentStatus,
+          }}
           onSuccess={handleStatusUpdated}
         />
       )}

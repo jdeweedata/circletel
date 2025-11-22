@@ -403,19 +403,22 @@ export default function AdminOrderDetailPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <StatusActionButtons
             currentStatus={order.status}
             orderId={order.id}
             orderNumber={order.order_number}
             packagePrice={order.package_price}
+            firstName={order.first_name}
+            lastName={order.last_name}
             onStatusUpdate={fetchOrder}
           />
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <div className="h-8 w-px bg-gray-200 mx-1 hidden md:block" />
+          <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
             <Printer size={16} />
             <span className="hidden md:inline">Print</span>
           </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
             <Download size={16} />
             <span className="hidden md:inline">Export</span>
           </Button>
