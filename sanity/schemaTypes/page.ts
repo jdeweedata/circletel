@@ -50,6 +50,18 @@ export const page = defineType({
         },
         {
           type: 'promotionSection',
+        },
+        {
+          type: 'hero',
+        },
+        {
+          type: 'features',
+        },
+        {
+          type: 'callToAction',
+        },
+        {
+          type: 'faq',
         }
       ],
     }),

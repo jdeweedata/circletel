@@ -12,7 +12,11 @@ export const client = createClient({
   useCdn: process.env.NODE_ENV === 'production',
   perspective: 'published',
   stega: {
-    studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL || 'http://localhost:3000/admin/cms',
+    studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL || (
+      process.env.NODE_ENV === 'production' 
+        ? 'https://studio.circletel.co.za' 
+        : 'http://localhost:3000/admin/cms'
+    ),
   },
 })
 

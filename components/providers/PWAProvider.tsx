@@ -10,7 +10,8 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
+      // Only prevent default if we are showing a custom UI (currently disabled)
+      // e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
 

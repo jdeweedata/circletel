@@ -4,6 +4,10 @@ import { post } from './post'
 import { author } from './author'
 import { category } from './category'
 import { promotionCard, promotionSection } from './promotion'
+import { hero } from './hero'
+import { features } from './features'
+import { callToAction } from './callToAction'
+import { faq } from './faq'
 
 export const schemaTypes = [
   page,
@@ -13,4 +17,8 @@ export const schemaTypes = [
   category,
   promotionCard,
   promotionSection,
+  hero,
+  features,
+  callToAction,
+  faq,
 ]
