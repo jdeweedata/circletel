@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -284,8 +285,14 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
       <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
         {isOpen && (
           <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-circleTel-orange rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CT</span>
+            <div className="h-8 w-8 flex items-center justify-center">
+              <Image
+                src="/images/circletel-enclosed-logo.png"
+                alt="CircleTel Logo"
+                width={32}
+                height={32}
+                className="h-full w-full object-contain"
+              />
             </div>
             <span className="font-semibold text-gray-900">Admin Panel</span>
           </div>
@@ -377,11 +384,6 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                     <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
                     {isOpen && (
                       <span className="flex-1">{item.name}</span>
-                    )}
-                    {isOpen && item.badge && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        3
-                      </span>
                     )}
                   </Link>
                 </TooltipTrigger>
