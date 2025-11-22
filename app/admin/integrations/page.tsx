@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Loader2, XCircle } from 'lucide-react';
+import { RefreshCw, Loader2, XCircle, Settings, Activity, FileText, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Integration {
   id: string;
@@ -116,53 +119,64 @@ export default function IntegrationsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa]">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
-          <p className="text-gray-600">Loading integrations...</p>
-        </div>
+        <Card className="shadow-lg">
+          <CardContent className="p-12 text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading integrations...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa]">
-        <div className="max-w-md bg-white border rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 text-red-600 mb-4">
-            <XCircle className="h-5 w-5" />
-            <h3 className="font-semibold">Error Loading Integrations</h3>
-          </div>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={handleRefresh}
-            className="w-full border rounded-xl py-2 text-sm font-medium hover:bg-gray-50 transition"
-          >
-            <RefreshCw className="h-4 w-4 inline mr-2" />
-            Try Again
-          </button>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa] p-4">
+        <Card className="max-w-md shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2 text-destructive">
+              <XCircle className="h-5 w-5" />
+              <CardTitle>Error Loading Integrations</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              className="w-full"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#f7f8fa] text-gray-800 p-10 space-y-12">
+    <div className="w-full min-h-screen bg-[#f7f8fa] text-gray-800 p-6 md:p-10 space-y-8">
       {/* PAGE HEADER */}
-      <header className="mb-6 flex items-center justify-between">
+      <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Integrations</h1>
-          <p className="text-gray-500 text-sm">
-            Monitor and manage all third-party integrations connected to CircleTel.
+          <h1 className="text-3xl font-bold tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            Integrations
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Monitor and manage all third-party integrations connected to CircleTel
           </p>
         </div>
-        <button
+        <Button
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm bg-white shadow-sm hover:bg-gray-50 transition disabled:opacity-50"
+          variant="outline"
+          size="default"
+          className="shadow-sm"
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
-        </button>
+        </Button>
       </header>
 
       {/* STATUS SUMMARY BAR */}
@@ -198,59 +212,73 @@ export default function IntegrationsPage() {
       )}
 
       {/* SEARCH + FILTERS */}
-      <section className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 border rounded-2xl shadow-sm">
-        <div className="flex items-center flex-1 gap-3">
-          <div className="flex items-center bg-gray-100 border rounded-xl px-3 py-2 w-full max-w-md">
-            <span className="text-gray-500 mr-2">🔍</span>
-            <input
-              placeholder="Search integrations…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent focus:outline-none w-full text-sm"
-            />
+      <Card className="shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div className="flex items-center flex-1 gap-3">
+              <div className="flex items-center bg-muted border rounded-xl px-3 py-2 w-full max-w-md focus-within:ring-2 focus-within:ring-circleTel-orange transition-all">
+                <span className="text-muted-foreground mr-2">🔍</span>
+                <input
+                  placeholder="Search integrations…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-transparent focus:outline-none w-full text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="border px-3 py-2 rounded-xl text-sm bg-background shadow-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange transition-all"
+              >
+                <option value="all">All Categories</option>
+                <option value="api_key">API Key</option>
+                <option value="oauth">OAuth</option>
+                <option value="webhook_only">Webhook Only</option>
+              </select>
+
+              <select
+                value={healthFilter}
+                onChange={(e) => setHealthFilter(e.target.value)}
+                className="border px-3 py-2 rounded-xl text-sm bg-background shadow-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange transition-all"
+              >
+                <option value="all">All Status</option>
+                <option value="healthy">Healthy</option>
+                <option value="degraded">Degraded</option>
+                <option value="down">Down</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border px-3 py-2 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
-          >
-            <option value="all">All Categories</option>
-            <option value="api_key">API Key</option>
-            <option value="oauth">OAuth</option>
-            <option value="webhook_only">Webhook Only</option>
-          </select>
-
-          <select
-            value={healthFilter}
-            onChange={(e) => setHealthFilter(e.target.value)}
-            className="border px-3 py-2 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-circleTel-orange"
-          >
-            <option value="all">All Status</option>
-            <option value="healthy">Healthy</option>
-            <option value="degraded">Degraded</option>
-            <option value="down">Down</option>
-            <option value="unknown">Unknown</option>
-          </select>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* GROUPED INTEGRATIONS */}
       {Object.keys(groupedIntegrations).length === 0 ? (
-        <div className="bg-white border rounded-2xl p-12 text-center shadow-sm">
-          <p className="text-gray-500">No integrations found matching your filters.</p>
-        </div>
+        <Card className="shadow-sm">
+          <CardContent className="p-12 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                <Activity className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground font-medium">No integrations found matching your filters</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         Object.entries(groupedIntegrations).map(([groupName, groupIntegrations]) => (
           <section key={groupName} className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-              <span>{groupName}</span>
-              <span className="text-[11px] uppercase tracking-wide text-gray-400">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-foreground">
+                {groupName}
+              </h2>
+              <Badge variant="secondary" className="text-xs">
                 {groupIntegrations.length} {groupIntegrations.length === 1 ? 'integration' : 'integrations'}
-              </span>
-            </h2>
+              </Badge>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {groupIntegrations.map((integration) => (
                 <IntegrationCard key={integration.id} integration={integration} />
@@ -274,26 +302,39 @@ function StatusPill({
   color?: string;
 }) {
   return (
-    <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-      <span className={`font-semibold ${color}`}>{value}</span>
-      <span className="text-gray-500">{label}</span>
-    </div>
+    <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="flex items-center gap-2 p-4">
+        <span className={`text-2xl font-bold ${color}`}>{value}</span>
+        <span className="text-sm text-muted-foreground">{label}</span>
+      </CardContent>
+    </Card>
   );
 }
 
 // Integration Card Component
 function IntegrationCard({ integration }: { integration: Integration }) {
-  const statusColorMap = {
-    healthy: 'text-green-600',
-    degraded: 'text-yellow-600',
-    down: 'text-red-600',
-    unknown: 'text-gray-500',
+  const statusConfig = {
+    healthy: {
+      variant: 'default' as const,
+      className: 'bg-green-50 text-green-700 border-green-200 hover:bg-green-50',
+      icon: '●'
+    },
+    degraded: {
+      variant: 'secondary' as const,
+      className: 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50',
+      icon: '●'
+    },
+    down: {
+      variant: 'destructive' as const,
+      className: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-50',
+      icon: '●'
+    },
+    unknown: {
+      variant: 'outline' as const,
+      className: 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-50',
+      icon: '●'
+    },
   };
-
-  const badges = [];
-  if (integration.category === 'api_key') badges.push('API Key');
-  if (integration.category === 'oauth') badges.push('OAuth');
-  if (integration.has_webhook) badges.push('Webhook');
 
   const formatLastChecked = (timestamp: string | null) => {
     if (!timestamp) return 'Never';
@@ -308,86 +349,105 @@ function IntegrationCard({ integration }: { integration: Integration }) {
     return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
-  // Get logo path based on integration slug
-  const getLogoPath = (slug: string) => {
-    // Map of integration slugs to logo file names
-    const logoMap: Record<string, string> = {
-      'clickatell-sms': 'clickatell.svg',
-      'resend-email': 'resend.svg',
-      'didit-kyc': 'didit-kyc.svg',
-      'google-maps-platform': 'google-maps.svg',
-      'mtn-coverage-api': 'mtn.svg',
-      'netcash-pay-now': 'netcash.svg',
-      'zoho-crm': 'zoho.svg',
-      'zoho-billing': 'zoho.svg',
-      'zoho-sign': 'zoho.svg',
-    };
-
-    return `/integrations/${logoMap[slug] || 'default.svg'}`;
-  };
+  const status = statusConfig[integration.health_status];
 
   return (
-    <div className="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-            {/* Fallback to first letter if logo doesn't exist */}
-            <div className="h-7 w-7 flex items-center justify-center text-lg font-bold text-circleTel-orange">
-              {integration.name.charAt(0)}
+    <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 flex flex-col h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20 flex items-center justify-center">
+              <span className="text-xl font-bold text-circleTel-orange">
+                {integration.name.charAt(0)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-base mb-1 truncate">{integration.name}</CardTitle>
+              <CardDescription className="text-xs">
+                {integration.category === 'api_key' ? 'API Integration' :
+                 integration.category === 'oauth' ? 'OAuth Integration' :
+                 'Webhook Integration'}
+              </CardDescription>
             </div>
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-semibold text-gray-900 leading-snug">{integration.name}</h3>
-            </div>
-            <p className="text-[11px] uppercase tracking-wide text-gray-400">
-              {integration.category === 'api_key' ? 'API Integration' :
-               integration.category === 'oauth' ? 'OAuth Integration' :
-               'Webhook Integration'}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">{integration.description}</p>
-          </div>
+          <Badge className={status.className}>
+            {status.icon} {integration.health_status.charAt(0).toUpperCase() + integration.health_status.slice(1)}
+          </Badge>
         </div>
-        <span className={`text-xs font-medium whitespace-nowrap ${statusColorMap[integration.health_status]}`}>
-          ● {integration.health_status.charAt(0).toUpperCase() + integration.health_status.slice(1)}
-        </span>
-      </div>
 
-      {/* Alert Banner */}
-      {integration.consecutive_failures >= 3 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-xs text-red-800">
-          ⚠️ {integration.consecutive_failures} consecutive failures
-        </div>
-      )}
-
-      <div className="flex flex-wrap gap-2 text-xs">
-        {badges.map((badge) => (
-          <span
-            key={badge}
-            className="px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-gray-600"
-          >
-            {badge}
-          </span>
-        ))}
-        {!integration.is_enabled && (
-          <span className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-gray-500">
-            Disabled
-          </span>
+        {integration.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {integration.description}
+          </p>
         )}
-      </div>
+      </CardHeader>
 
-      <div className="mt-1 text-xs text-gray-500 flex items-center justify-between">
-        <span>Last checked: {formatLastChecked(integration.health_last_checked_at)}</span>
-        <button className="text-[11px] text-gray-500 hover:text-gray-700 underline underline-offset-2">
-          Run health check
-        </button>
-      </div>
+      <CardContent className="pb-3 flex-1">
+        {/* Alert Banner */}
+        {integration.consecutive_failures >= 3 && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2 text-xs text-destructive mb-3 flex items-center gap-2">
+            <XCircle className="h-3 w-3" />
+            <span className="font-medium">{integration.consecutive_failures} consecutive failures</span>
+          </div>
+        )}
 
-      <Link href={`/admin/integrations/${integration.slug}`} className="mt-3 w-full">
-        <button className="w-full text-center border rounded-xl py-2 text-sm font-medium hover:bg-gray-50 transition">
-          View Integration →
-        </button>
-      </Link>
-    </div>
+        {/* Badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {integration.category === 'api_key' && (
+            <Badge variant="outline" className="text-xs">
+              <FileText className="h-3 w-3 mr-1" />
+              API Key
+            </Badge>
+          )}
+          {integration.category === 'oauth' && (
+            <Badge variant="outline" className="text-xs">
+              <ExternalLink className="h-3 w-3 mr-1" />
+              OAuth
+            </Badge>
+          )}
+          {integration.has_webhook && (
+            <Badge variant="outline" className="text-xs">
+              <Activity className="h-3 w-3 mr-1" />
+              Webhook
+            </Badge>
+          )}
+          {!integration.is_enabled && (
+            <Badge variant="secondary" className="text-xs">
+              Disabled
+            </Badge>
+          )}
+        </div>
+
+        {/* Last Checked */}
+        <div className="text-xs text-muted-foreground flex items-center justify-between">
+          <span className="flex items-center gap-1">
+            <Activity className="h-3 w-3" />
+            Last checked: {formatLastChecked(integration.health_last_checked_at)}
+          </span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="pt-3 flex gap-2">
+        <Button variant="outline" size="sm" className="flex-1" asChild>
+          <Link href={`/admin/integrations/${integration.slug}`}>
+            <Settings className="h-4 w-4 mr-1" />
+            Configure
+          </Link>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-circleTel-orange border-circleTel-orange hover:bg-circleTel-orange hover:text-white"
+          onClick={(e) => {
+            e.preventDefault();
+            // TODO: Implement health check
+            console.log('Running health check for', integration.slug);
+          }}
+        >
+          <Activity className="h-4 w-4 mr-1" />
+          Test
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
