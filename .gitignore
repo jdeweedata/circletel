@@ -66,6 +66,11 @@ next-env.d.ts
 *.tmp
 *.temp
 nul
+temp-*
+temp_*
+test-*.json
+test-*.bat
+*.OLD-INCORRECT
 
 # Local Netlify folder
 .netlify

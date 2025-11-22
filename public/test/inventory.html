@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory - Earnest Workspace</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-bg: #f8f9fc;
+      --sidebar-active: #e3e6ef;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border: #e2e8f0;
+      --bg: #ffffff;
+      --purple: #805ad5;
+      --green: #48bb78;
+      --pink: #f687b3;
+      --yellow: #fad643;
+      --blue: #4299e1;
+    }
+    body, html { margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#edf2f7; height:100%; }
+    .container { display:flex; height:100vh; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .workspace-header {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .workspace-header select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 14px;
+    }
+    .nav-item {
+      padding: 10px 20px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+    .nav-item i { width:20px; text-align:center; }
+    .nav-item.active, .nav-item:hover {
+      background: var(--sidebar-active);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    .nav-item.active { background:#e2e8f0; }
+
+    /* Main content */
+    .main {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background:#f7fafc;
+    }
+    .header {
+      padding:20px;
+      background:white;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .header h1 { margin:0; font-size:20px; }
+    .search-box {
+      position:relative;
+      width:320px;
+    }
+    .search-box input {
+      width:100%;
+      padding:10px 12px 10px 36px;
+      border:1px solid var(--border);
+      border-radius:6px;
+    }
+    .search-box i {
+      position:absolute;
+      left:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:#a0aec0;
+    }
+    .user-avatar img { width:36px; height:36px; border-radius:50%; }
+
+    /* Content area */
+    .content {
+      flex:1;
+      padding:30px;
+      overflow:auto;
+    }
+    .toolbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:20px;
+    }
+    .actions button {
+      margin-left:8px;
+      padding:8px 16px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+    .btn-export { background:#718096; color:white; }
+    .btn-filter { background:#e2e8f0; }
+    .btn-add {
+      background:#2d3748;
+      color:white;
+      font-weight:500;
+    }
+
+    /* Table */
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 1px 3px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding:12px 16px;
+      text-align:left;
+      border-bottom:1px solid var(--border);
+    }
+    th {
+      background:#f7fafc;
+      font-weight:600;
+      color:var(--text-primary);
+      font-size:13px;
+    }
+    tr:hover { background:#f8fffe; }
+    .category {
+      padding:4px 10px;
+      border-radius:20px;
+      font-size:11px;
+      font-weight:600;
+      color:white;
+    }
+    .cat-modem { background:#48bb78; }
+    .cat-router { background:#805ad5; }
+    .cat-power { background:#fad643; color:#333; }
+    .cat-box { background:#f687b3; }
+    .cat-settop { background:#9f7aea; }
+
+    /* Floating recent activity */
+    .activity-panel {
+      position:absolute;
+      right:30px;
+      top:120px;
+      width:300px;
+      background:white;
+      border-radius:8px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.1);
+      overflow:hidden;
+    }
+    .activity-header {
+      padding:12px 16px;
+      background:#f7fafc;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .activity-item {
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .activity-item:last-child { border:none; }
+    .time { color:#a0aec0; font-size:11px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="workspace-header">
+        <select>
+          <option>Workspace - Earnest</option>
+        </select>
+      </div>
+      <nav>
+        <div class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+        <div class="nav-item"><i class="fas fa-users"></i> Accounts</div>
+        <div class="nav-item"><i class="fas fa-box"></i> Fulfillment</div>
+        <div class="nav-item active"><i class="fas fa-warehouse"></i> Inventory</div>
+        <div class="nav-item"><i class="fas fa-exchange-alt"></i> Move Inventory</div>
+        <div class="nav-item"><i class="fas fa-cog"></i> Settings</div>
+        <div class="nav-item"><i class="fas fa-exclamation-triangle"></i> Issues</div>
+        <div class="nav-item"><i class="fas fa-users-cog"></i> Management</div>
+      </nav>
+    </aside>
+
+    <!-- Main area -->
+    <div class="main">
+      <header class="header">
+        <h1>Inventory</h1>
+        <div style="display:flex; align-items:center; gap:20px;">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Type to search">
+          </div>
+          <div class="user-avatar">
+            <img src="https://i.pravatar.cc/36" alt="User">
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="toolbar">
+          <div></div>
+          <div class="actions">
+            <button class="btn-export"><i class="fas fa-download"></i> Export</button>
+            <button class="btn-filter"><i class="fas fa-sliders-h"></i> Filter</button>
+            <button class="btn-add"><i class="fas fa-plus"></i> Add Items</button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Manufacturer</th>
+              <th>Model</th>
+              <th>Category</th>
+              <th>Available</th>
+              <th>Returned</th>
+              <th>Assigned</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TP-Link</td>
+              <td>TP 2000</td>
+              <td><span class="category cat-modem">Modem</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>1,200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Netgear</td>
+              <td>NG 2200</td>
+              <td><span class="category cat-power">Power Adapter</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Linksys</td>
+              <td>Link T 4000</td>
+              <td><span class="category cat-router">Router</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>ASUS</td>
+              <td>ASUSTP4000</td>
+              <td><span class="category cat-box">Box</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>1,200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>D-Link</td>
+              <td>DLnk42030</td>
+              <td><span class="category cat-router">Router</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Arris</td>
+              <td>ArrisT4020</td>
+              <td><span class="category cat-modem">Modem</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Hitron</td>
+              <td>CDA-333</td>
+              <td><span class="category cat-modem">Modem</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>1,200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Cisco</td>
+              <td>CDA-343</td>
+              <td><span class="category cat-modem">Modem</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Ubiquiti</td>
+              <td>ABRG-SLK1</td>
+              <td><span class="category cat-settop">Set Top Box</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>Zyxel</td>
+              <td>ZTS4001</td>
+              <td><span class="category cat-router">Router</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>1,200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>SmartRG</td>
+              <td>SR412ac</td>
+              <td><span class="category cat-router">Router</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+            <tr>
+              <td>SmartRG</td>
+              <td>SR555ac</td>
+              <td><span class="category cat-router">Router</span></td>
+              <td>2,000</td>
+              <td>0</td>
+              <td>200</td>
+              <td>3,000</td>
+              <td>• • •</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Floating recent activity panel -->
+    <div class="activity-panel">
+      <div class="activity-header">
+        <div><strong>Recent Activity</strong></div>
+        <button class="btn-filter" style="padding:4px 8px; font-size:12px;">Filter</button>
+      </div>
+      <div class="activity-item">
+        <div>Created at</div>
+        <div class="time">2 minutes ago</div>
+      </div>
+      <div class="activity-item">
+        <div>Charlotte Chang · Washington, EN · Purolator - Express · Not started</div>
+        <div class="time">2 hours ago</div>
+      </div>
+      <div class="activity-item">
+        <div>Charlotte Johnson · Washington, EN · Purolator - Express · Not started</div>
+        <div class="time">2 hours ago</div>
+      </div>
+      <div class="activity-item">
+        <div>… (more entries)</div>
+        <div class="time">an hour ago</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -279,7 +279,12 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ### Admin Orders Management (COMPLETE)
 ✅ Orders list (`/admin/orders`) - Stats, search, filters, export
-✅ Order detail (`/admin/orders/[id]`) - 8 sections, responsive layout
+✅ Order detail (`/admin/orders/[id]`) - Tabbed workflow interface with 4 sections:
+  - **Overview**: Customer, Package, Source, Metadata
+  - **Installation & Service**: Technician, Schedule, Address, Documents
+  - **Financials**: Payment details, Method status, Billing address
+  - **History & Notes**: Communication timeline, Internal/Technician notes
+✅ Persistent header with Status/Actions and Workflow Stepper across all tabs
 
 ### Partner Portal (COMPLETE)
 ✅ Registration + 13 FICA/CIPC document upload
@@ -298,7 +303,12 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ---
 
-**Version**: 5.5 | **Updated**: 2025-11-16 | **Team**: Development + Claude Code
+**Version**: 5.6 | **Updated**: 2025-11-22 | **Team**: Development + Claude Code
+
+**Major Changes in v5.6**:
+- Admin Order Details page refactored to tabbed workflow interface
+- Improved UX with focused sections (Overview, Installation/Service, Financials, History/Notes)
+- Persistent header and workflow stepper for continuous status visibility
 
 **Major Changes in v5.5**:
 - Optimized CLAUDE.md from ~50k to <20k tokens
