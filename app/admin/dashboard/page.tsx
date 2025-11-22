@@ -18,8 +18,7 @@ import {
   RefreshCw,
   AlertCircle,
   Target,
-  Bell,
-  BarChart3
+  Bell
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
