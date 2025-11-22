@@ -108,6 +108,10 @@ interface Order {
   // Timestamps
   created_at: string;
   updated_at: string;
+
+  // Enriched Data from API
+  payment_method_active?: boolean;
+  payment_method_mandate_status?: string;
 }
 
 export default function AdminOrderDetailPage() {
@@ -354,7 +358,15 @@ export default function AdminOrderDetailPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Payment Status</p>
                 <div className="mt-2 space-y-1">
-                  {getPaymentBadge(order.payment_status)}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {getPaymentBadge(order.payment_status)}
+                    {order.payment_method_active && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        Mandate Active
+                      </Badge>
+                    )}
+                  </div>
                   {order.payment_method && (
                     <p className="text-sm text-gray-500 capitalize">
                       {order.payment_method.replace(/_/g, ' ')}

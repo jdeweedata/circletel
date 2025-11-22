@@ -45,9 +45,26 @@ export async function GET(
       );
     }
 
+    // Fetch active payment method status for this customer
+    const { data: paymentMethod } = await supabase
+      .from('customer_payment_methods')
+      .select('mandate_status, is_active')
+      .eq('customer_id', order.customer_id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Enrich order data with payment method status
+    const enrichedOrder = {
+      ...order,
+      payment_method_active: !!paymentMethod,
+      payment_method_mandate_status: paymentMethod?.mandate_status || (paymentMethod ? 'active' : null)
+    };
+
     return NextResponse.json({
       success: true,
-      data: order,
+      data: enrichedOrder,
     });
   } catch (error: any) {
     console.error('Admin single order fetch error:', error);
