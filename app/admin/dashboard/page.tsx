@@ -25,8 +25,8 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import type { PaymentProviderType } from '@/lib/types/payment.types';
-// Temporarily disabled for debugging
-// import { OrdersRequiringAttentionWidget } from '@/components/admin/dashboard/OrdersRequiringAttentionWidget';
+// Re-enabling widgets one by one to find the problematic component
+import { OrdersRequiringAttentionWidget } from '@/components/admin/dashboard/OrdersRequiringAttentionWidget';
 // import { TodaysInstallationsWidget } from '@/components/admin/dashboard/TodaysInstallationsWidget';
 // import { OrderStatusDistributionWidget } from '@/components/admin/dashboard/OrderStatusDistributionWidget';
 
@@ -393,17 +393,17 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      {/* Order Management Widgets - Temporarily disabled for debugging */}
-      {/* <div>
+      {/* Order Management Widgets - Testing one by one */}
+      <div>
         <h2 className="text-xl font-semibold text-circleTel-darkNeutral mb-4">
           Order Management
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <OrdersRequiringAttentionWidget />
-          <TodaysInstallationsWidget />
-          <OrderStatusDistributionWidget />
+          {/* <TodaysInstallationsWidget /> */}
+          {/* <OrderStatusDistributionWidget /> */}
         </div>
-      </div> */}
+      </div>
 
       {/* Payment Provider Health */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
