@@ -2,6 +2,19 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  const url = request.nextUrl;
+  const hostname = request.headers.get('host') || '';
+  
+  // SUBDOMAIN ROUTING: studio.circletel.co.za -> /admin/cms
+  // This allows the studio subdomain to serve the CMS content
+  const isStudioSubdomain = hostname.startsWith('studio.');
+  
+  if (isStudioSubdomain && !url.pathname.startsWith('/admin/cms')) {
+    console.log(`[Middleware] Rewriting subdomain ${hostname} to /admin/cms${url.pathname}`);
+    url.pathname = `/admin/cms${url.pathname === '/' ? '' : url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
   // IMPORTANT: Initial response uses headers only, not full request
   // Cookies will be added via setAll() callback
   let response = NextResponse.next({
@@ -11,6 +24,11 @@ export async function middleware(request: NextRequest) {
   });
 
   const pathname = request.nextUrl.pathname;
+
+  // Skip Supabase auth check for CMS routes (handled by Sanity or public)
+  if (pathname.startsWith('/admin/cms')) {
+    return response;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -99,14 +117,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Admin routes require authentication
-    '/admin/:path*',
-    // Customer dashboard API routes require authentication
-    '/api/dashboard/:path*',
-    // Customer dashboard pages (if they exist)
-    '/dashboard/:path*',
-    // Auth callback pages need session refresh
-    '/auth/callback',
-    '/auth/reset-password',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder content
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

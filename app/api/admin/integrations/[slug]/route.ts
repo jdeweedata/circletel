@@ -166,6 +166,7 @@ export async function GET(
       oauthTokens,
       webhooks: webhooks || [],
       recentMetrics: metricsCalculated,
+      dailyMetrics: metrics || [],
       cronJobs: cronJobs || [],
       activityLogs: activityLogs || [],
     });

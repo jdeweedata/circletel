@@ -9,12 +9,16 @@ import {schemaTypes} from './sanity/schemaTypes'
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '7iqq2t7l'
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 
+// Determine basePath based on hostname (client-side)
+const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.')
+const basePath = isStudioSubdomain ? '/' : '/admin/cms'
+
 export default defineConfig({
   name: 'circletel-cms',
   title: 'CircleTel CMS',
   projectId,
   dataset,
-  basePath: '/admin/cms',
+  basePath,
 
   plugins: [
     presentationTool({
