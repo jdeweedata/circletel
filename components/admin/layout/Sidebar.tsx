@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { RandSign } from '@/components/ui/icons/rand-sign';
 import {
   Tooltip,
   TooltipContent,
@@ -31,7 +32,6 @@ import {
   CreditCard,
   Receipt,
   UserCheck,
-  DollarSign,
   TrendingUp,
   Radio,
   Map,
@@ -186,7 +186,7 @@ const navigation = [
   },
   {
     name: 'Payments',
-    icon: DollarSign,
+    icon: RandSign,
     children: [
       { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: Activity },
       { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
