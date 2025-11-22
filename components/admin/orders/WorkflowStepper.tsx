@@ -1,132 +1,86 @@
 'use client';
 
-import { Check, Circle, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Check, Circle, LucideIcon } from 'lucide-react';
 
 export interface WorkflowStep {
-  id: string;
+  id: number;
   label: string;
-  description: string;
-  status: 'completed' | 'current' | 'upcoming' | 'skipped';
+  subLabel?: string;
+  status: 'completed' | 'active' | 'pending';
+  icon?: LucideIcon;
+  date?: string;
 }
 
 interface WorkflowStepperProps {
   steps: WorkflowStep[];
-  orientation?: 'horizontal' | 'vertical';
-  className?: string;
+  currentStatus: string;
+  onStepClick?: (stepId: number) => void;
 }
 
-export function WorkflowStepper({
-  steps,
-  orientation = 'horizontal',
-  className
-}: WorkflowStepperProps) {
+export function WorkflowStepper({ steps, currentStatus, onStepClick }: WorkflowStepperProps) {
   return (
-    <div className={cn(
-      'w-full',
-      orientation === 'horizontal' ? 'overflow-x-auto' : '',
-      className
-    )}>
-      <div className={cn(
-        'flex',
-        orientation === 'horizontal'
-          ? 'flex-row items-start justify-between min-w-max'
-          : 'flex-col space-y-4'
-      )}>
+    <div className="w-full py-6 overflow-x-auto bg-white">
+      <div className="flex items-start justify-between min-w-[700px] px-4 md:px-6">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1;
           const isCompleted = step.status === 'completed';
-          const isCurrent = step.status === 'current';
-          const isSkipped = step.status === 'skipped';
+          const isActive = step.status === 'active';
+          const isPending = step.status === 'pending';
+
+          const Icon = step.icon || Circle;
 
           return (
             <div
               key={step.id}
-              className={cn(
-                'flex',
-                orientation === 'horizontal'
-                  ? 'flex-col items-center flex-1'
-                  : 'flex-row items-start gap-4'
-              )}
+              className={`relative flex flex-col items-center flex-1 group ${
+                onStepClick ? 'cursor-pointer' : ''
+              }`}
+              onClick={() => onStepClick && onStepClick(step.id)}
             >
-              {/* Step Indicator */}
-              <div className={cn(
-                'flex items-center',
-                orientation === 'horizontal' ? 'flex-col' : 'flex-row gap-4 flex-1'
-              )}>
-                {/* Icon */}
-                <div className="relative">
-                  <div
-                    className={cn(
-                      'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all',
-                      isCompleted && 'bg-green-100 border-green-600',
-                      isCurrent && 'bg-blue-100 border-blue-600',
-                      isSkipped && 'bg-gray-100 border-gray-400',
-                      !isCompleted && !isCurrent && !isSkipped && 'bg-white border-gray-300'
-                    )}
-                  >
-                    {isCompleted ? (
-                      <Check className="h-5 w-5 text-green-600" />
-                    ) : isCurrent ? (
-                      <Circle className="h-5 w-5 text-blue-600 fill-current" />
-                    ) : isSkipped ? (
-                      <AlertCircle className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <span className="text-sm font-semibold text-gray-400">
-                        {index + 1}
-                      </span>
-                    )}
+              {/* Animated Connector Line */}
+              {!isLast && (
+                <div className="absolute top-6 left-[50%] right-[-50%] h-[3px] -z-0">
+                  <div className={`h-full w-full transition-all duration-500 ease-in-out ${
+                    isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                  }`}></div>
+                </div>
+              )}
+
+              {/* Icon Circle with Scale Effect */}
+              <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center border-2
+                transition-all duration-300 shadow-sm
+                ${isCompleted ? 'bg-white border-green-500 text-green-500' : ''}
+                ${isActive ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg scale-110' : ''}
+                ${isPending ? 'bg-gray-50 border-gray-200 text-gray-300' : ''}
+                group-hover:shadow-md
+              `}>
+                <Icon size={isActive ? 22 : 20} strokeWidth={isActive ? 2.5 : 2} />
+
+                {/* Completion Badge */}
+                {isCompleted && (
+                  <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                    <Check size={12} className="text-white" strokeWidth={3} />
                   </div>
+                )}
+              </div>
 
-                  {/* Connector Line */}
-                  {!isLast && (
-                    <div
-                      className={cn(
-                        'absolute',
-                        orientation === 'horizontal'
-                          ? 'top-5 left-full w-full h-0.5 -translate-y-1/2'
-                          : 'top-10 left-5 w-0.5 h-full -translate-x-1/2',
-                        isCompleted ? 'bg-green-600' : 'bg-gray-300'
-                      )}
-                      style={
-                        orientation === 'horizontal'
-                          ? { width: '100%', marginLeft: '0.625rem' }
-                          : { height: 'calc(100% - 2.5rem)', marginTop: '0.625rem' }
-                      }
-                    />
-                  )}
-                </div>
-
-                {/* Step Content */}
-                <div
-                  className={cn(
-                    'text-center',
-                    orientation === 'horizontal' ? 'mt-2 px-2' : 'flex-1'
-                  )}
-                >
-                  <p
-                    className={cn(
-                      'text-sm font-semibold',
-                      isCompleted && 'text-green-700',
-                      isCurrent && 'text-blue-700',
-                      isSkipped && 'text-gray-500',
-                      !isCompleted && !isCurrent && !isSkipped && 'text-gray-500'
-                    )}
-                  >
-                    {step.label}
+              {/* Labels */}
+              <div className="mt-4 text-center px-1">
+                <p className={`text-xs font-bold uppercase tracking-wide mb-1 transition-colors duration-300
+                  ${isActive ? 'text-indigo-600' : (isCompleted ? 'text-gray-700' : 'text-gray-500')}
+                `}>
+                  {step.label}
+                </p>
+                {step.subLabel && (
+                  <p className="text-[11px] text-gray-500 font-medium leading-tight max-w-[110px] mx-auto">
+                    {step.subLabel}
                   </p>
-                  <p
-                    className={cn(
-                      'text-xs mt-1',
-                      isCompleted && 'text-green-600',
-                      isCurrent && 'text-blue-600',
-                      isSkipped && 'text-gray-400',
-                      !isCompleted && !isCurrent && !isSkipped && 'text-gray-400'
-                    )}
-                  >
-                    {step.description}
-                  </p>
-                </div>
+                )}
+                {step.date && (
+                  <div className="mt-1 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-[10px] font-medium text-gray-500">
+                    {step.date}
+                  </div>
+                )}
               </div>
             </div>
           );

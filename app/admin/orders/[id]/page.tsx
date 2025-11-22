@@ -23,7 +23,12 @@ import {
   AlertCircle,
   Edit,
   Printer,
-  Download
+  Download,
+  Inbox,
+  Banknote,
+  Wrench,
+  CheckSquare,
+  Wifi
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { WorkflowStepper, WorkflowStep } from '@/components/admin/orders/WorkflowStepper';
@@ -169,29 +174,21 @@ export default function AdminOrderDetailPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; variant: any; icon: any; color: string }> = {
-      pending: { label: 'Pending', variant: 'secondary', icon: Clock, color: 'text-yellow-600' },
-      payment_pending: { label: 'Payment Pending', variant: 'secondary', icon: CreditCard, color: 'text-orange-600' },
-      payment_received: { label: 'Payment Received', variant: 'default', icon: CheckCircle, color: 'text-green-600' },
-      kyc_pending: { label: 'KYC Pending', variant: 'secondary', icon: FileText, color: 'text-blue-600' },
-      kyc_approved: { label: 'KYC Approved', variant: 'default', icon: CheckCircle, color: 'text-green-600' },
-      kyc_rejected: { label: 'KYC Rejected', variant: 'destructive', icon: XCircle, color: 'text-red-600' },
-      installation_scheduled: { label: 'Installation Scheduled', variant: 'default', icon: Calendar, color: 'text-blue-600' },
-      installation_in_progress: { label: 'Installation In Progress', variant: 'default', icon: Package, color: 'text-purple-600' },
-      installation_completed: { label: 'Installation Completed', variant: 'default', icon: CheckCircle, color: 'text-green-600' },
-      active: { label: 'Active', variant: 'default', icon: CheckCircle, color: 'text-green-600' },
-      on_hold: { label: 'On Hold', variant: 'secondary', icon: AlertCircle, color: 'text-yellow-600' },
-      cancelled: { label: 'Cancelled', variant: 'destructive', icon: XCircle, color: 'text-red-600' },
-      failed: { label: 'Failed', variant: 'destructive', icon: XCircle, color: 'text-red-600' }
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    const Icon = config.icon;
-
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
-        <Icon className="h-3 w-3" />
-        {config.label}
+      <Badge className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+        status === 'active' || status === 'Service Active'
+          ? 'bg-green-100 text-green-700 border-green-200'
+          : status.includes('Progress') || status.includes('Installation')
+          ? 'bg-blue-50 text-blue-700 border-blue-200'
+          : status === 'completed' || status === 'Installation Complete' || status === 'installation_completed'
+          ? 'bg-green-100 text-green-700 border-green-200'
+          : status === 'pending' || status === 'Payment Pending'
+          ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+          : status === 'cancelled' || status === 'Failed'
+          ? 'bg-red-50 text-red-700 border-red-200'
+          : 'bg-gray-100 text-gray-700 border-gray-200'
+      }`}>
+        {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
       </Badge>
     );
   };
@@ -215,51 +212,111 @@ export default function AdminOrderDetailPage() {
   };
 
   const getWorkflowSteps = (currentStatus: string): WorkflowStep[] => {
-    const allSteps = [
-      { id: 'pending', label: 'Order Received', description: 'Order created' },
-      { id: 'payment_method_pending', label: 'Payment Method', description: 'Register payment' },
-      { id: 'payment_method_registered', label: 'Payment Confirmed', description: 'Payment ready' },
-      { id: 'installation_scheduled', label: 'Installation Scheduled', description: 'Appointment set' },
-      { id: 'installation_in_progress', label: 'Installation', description: 'Tech on-site' },
-      { id: 'installation_completed', label: 'Completed', description: 'Installation done' },
-      { id: 'active', label: 'Active', description: 'Service live' },
+    // Helper function to determine step status
+    const getStepStatus = (orderStatus: string, stepName: string): 'completed' | 'active' | 'pending' => {
+      const statusMap: Record<string, number> = {
+        'pending': 1,
+        'payment_method_pending': 2,
+        'payment_method_registered': 3,
+        'installation_scheduled': 4,
+        'installation_in_progress': 5,
+        'installation_completed': 6,
+        'active': 7,
+        'suspended': 7, // Treat as active phase
+        'cancelled': 0, // Special case
+        'failed': 0 // Special case
+      };
+
+      const stepIds: Record<string, number> = {
+        'Order Received': 1,
+        'Payment Method': 2,
+        'Payment Confirmed': 3,
+        'Scheduled': 4,
+        'Installation': 5,
+        'Completion': 6,
+        'Active': 7,
+      };
+
+      const currentStepId = statusMap[orderStatus] || 1;
+      const thisStepId = stepIds[stepName] || 1;
+
+      if (currentStepId === 0) return 'pending'; // Cancelled/Failed
+      if (thisStepId < currentStepId) return 'completed';
+      if (thisStepId === currentStepId) return 'active';
+      return 'pending';
+    };
+
+    // Helper function to format date
+    const formatShortDate = (dateString: string): string => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    if (!order) return [];
+
+    return [
+      {
+        id: 1,
+        label: "Order Received",
+        subLabel: "Order created",
+        status: order.status === 'pending' ? 'active' : 'completed',
+        icon: Inbox,
+        date: order.created_at ? formatShortDate(order.created_at) : undefined
+      },
+      {
+        id: 2,
+        label: "Payment Method",
+        subLabel: "Method registered",
+        status: getStepStatus(order.status, 'Payment Method'),
+        icon: CreditCard,
+        date: order.payment_date ? formatShortDate(order.payment_date) : undefined // Approximation
+      },
+      {
+        id: 3,
+        label: "Payment Confirmed",
+        subLabel: "Deposit received",
+        status: getStepStatus(order.status, 'Payment Confirmed'),
+        icon: Banknote,
+        date: order.payment_date ? formatShortDate(order.payment_date) : undefined
+      },
+      {
+        id: 4,
+        label: "Scheduled",
+        subLabel: "Install booked",
+        status: getStepStatus(order.status, 'Scheduled'),
+        icon: Calendar,
+        date: order.installation_scheduled_date ? formatShortDate(order.installation_scheduled_date) : undefined
+      },
+      {
+        id: 5,
+        label: "Installation",
+        subLabel: "Tech on-site",
+        status: getStepStatus(order.status, 'Installation'),
+        icon: Wrench,
+        date: order.installation_scheduled_date ? formatShortDate(order.installation_scheduled_date) : undefined
+      },
+      {
+        id: 6,
+        label: "Completion",
+        subLabel: "Work finished",
+        status: getStepStatus(order.status, 'Completion'),
+        icon: CheckSquare,
+        date: order.installation_completed_date ? formatShortDate(order.installation_completed_date) : undefined
+      },
+      {
+        id: 7,
+        label: "Active",
+        subLabel: "Service live",
+        status: getStepStatus(order.status, 'Active'),
+        icon: Wifi,
+        date: order.activation_date ? formatShortDate(order.activation_date) : undefined
+      },
     ];
-
-    const statusOrder = [
-      'pending',
-      'payment_method_pending',
-      'payment_method_registered',
-      'installation_scheduled',
-      'installation_in_progress',
-      'installation_completed',
-      'active',
-      'suspended',
-      'cancelled',
-      'failed'
-    ];
-
-    const currentIndex = statusOrder.indexOf(currentStatus);
-
-    return allSteps.map((step, index) => {
-      const stepIndex = statusOrder.indexOf(step.id);
-      let status: 'completed' | 'current' | 'upcoming' | 'skipped' = 'upcoming';
-
-      if (currentStatus === 'cancelled' || currentStatus === 'failed') {
-        if (stepIndex < currentIndex) {
-          status = 'completed';
-        } else if (stepIndex === currentIndex) {
-          status = 'skipped';
-        } else {
-          status = 'skipped';
-        }
-      } else if (stepIndex < currentIndex) {
-        status = 'completed';
-      } else if (stepIndex === currentIndex) {
-        status = 'current';
-      }
-
-      return { ...step, status };
-    });
   };
 
   if (loading) {
@@ -311,107 +368,42 @@ export default function AdminOrderDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/orders">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Orders
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Order #{order.order_number}</h1>
-            <p className="text-gray-600 mt-1">
-              Created {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}
-            </p>
+    <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50">
+      <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
+        {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Back Button */}
+        <Link
+          href="/admin/orders"
+          className="flex items-center gap-3 text-gray-600 hover:text-indigo-600 cursor-pointer transition-colors group"
+        >
+          <div className="p-1 rounded-full group-hover:bg-indigo-50 transition-colors">
+            <ArrowLeft size={20} />
           </div>
+          <span className="font-medium">Back to Orders</span>
+        </Link>
+
+        {/* Order ID and Status */}
+        <div className="flex flex-col items-center md:items-start">
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Order #{order.order_number}
+            </h2>
+            {getStatusBadge(order.status)}
+          </div>
+          <span className="text-sm text-gray-500 mt-1">
+            Created {new Date(order.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </span>
         </div>
+
+        {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Order
-          </Button>
-          <Button variant="outline" size="sm">
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Order Status</p>
-                <div className="mt-2">{getStatusBadge(order.status)}</div>
-              </div>
-              <Package className="h-8 w-8 text-gray-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Payment Status</p>
-                <div className="mt-2 space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {getPaymentBadge(order.payment_status)}
-                    {order.payment_method_active && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Mandate Active
-                      </Badge>
-                    )}
-                  </div>
-                  {order.payment_method && (
-                    <p className="text-sm text-gray-500 capitalize">
-                      {order.payment_method.replace(/_/g, ' ')}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <CreditCard className="h-8 w-8 text-gray-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-2xl font-bold mt-2">R{parseFloat(order.package_price as any).toFixed(2)}</p>
-              </div>
-              <FileText className="h-8 w-8 text-gray-400" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Workflow Stepper */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Workflow</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <WorkflowStepper steps={getWorkflowSteps(order.status)} orientation="horizontal" />
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
           <StatusActionButtons
             currentStatus={order.status}
             orderId={order.id}
@@ -419,21 +411,36 @@ export default function AdminOrderDetailPage() {
             packagePrice={order.package_price}
             onStatusUpdate={fetchOrder}
           />
-        </CardContent>
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Printer size={16} />
+            <span className="hidden md:inline">Print</span>
+          </Button>
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Download size={16} />
+            <span className="hidden md:inline">Export</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Workflow Stepper */}
+      <Card className="shadow-sm overflow-hidden">
+        <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column - Customer & Address */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
           {/* Customer Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Customer Information
-              </CardTitle>
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <User size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Customer Information
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Full Name</label>
@@ -497,15 +504,65 @@ export default function AdminOrderDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Installation Address */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Installation Address
-              </CardTitle>
+          {/* Package Details */}
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <Package size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Package Details
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Package Name</label>
+                  <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Speed</label>
+                  <p className="text-base text-gray-900 mt-1">{order.package_speed}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Monthly Price</label>
+                  <p className="text-base font-semibold text-gray-900 mt-1">
+                    R{parseFloat(order.package_price as any).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Installation Fee</label>
+                  <p className="text-base text-gray-900 mt-1">
+                    R{parseFloat(order.installation_fee as any).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Router Included</label>
+                  <p className="text-base text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
+                </div>
+                {order.router_rental_fee && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Router Rental Fee</label>
+                    <p className="text-base text-gray-900 mt-1">
+                      R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Installation Address */}
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <MapPin size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Installation Address
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Street Address</label>
                 <p className="text-base text-gray-900 mt-1">{order.installation_address}</p>
@@ -550,14 +607,16 @@ export default function AdminOrderDetailPage() {
 
           {/* Billing Address (if different) */}
           {!order.billing_same_as_installation && order.billing_address && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Billing Address
-                </CardTitle>
+            <Card className="shadow-sm">
+              <CardHeader className="px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <FileText size={20} className="text-gray-700" />
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Billing Address
+                  </CardTitle>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Street Address</label>
                   <p className="text-base text-gray-900 mt-1">{order.billing_address}</p>
@@ -591,62 +650,21 @@ export default function AdminOrderDetailPage() {
               </CardContent>
             </Card>
           )}
+        </div>
 
-          {/* Package Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Package Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Package Name</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Speed</label>
-                  <p className="text-base text-gray-900 mt-1">{order.package_speed}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Monthly Price</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    R{parseFloat(order.package_price as any).toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Installation Fee</label>
-                  <p className="text-base text-gray-900 mt-1">
-                    R{parseFloat(order.installation_fee as any).toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Router Included</label>
-                  <p className="text-base text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
-                </div>
-                {order.router_rental_fee && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Router Rental Fee</label>
-                    <p className="text-base text-gray-900 mt-1">
-                      R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
+        {/* Right Column - Timeline & Notes */}
+        <div className="space-y-6">
           {/* Payment Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment Information
-              </CardTitle>
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <CreditCard size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Payment Information
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Payment Method</label>
@@ -681,23 +699,22 @@ export default function AdminOrderDetailPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Right Column - Timeline & Notes */}
-        <div className="space-y-6">
           {/* Installation Details with Technician Info */}
-          <InstallationSection orderId={order.id} />
+          <InstallationSection orderId={order.id} className="shadow-sm" />
 
           {/* Installation Documentation */}
           {order.installation_document_url && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Installation Documentation
-                </CardTitle>
+            <Card className="shadow-sm">
+              <CardHeader className="px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <FileText size={20} className="text-gray-700" />
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Installation Documentation
+                  </CardTitle>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
                   <div className="flex items-center gap-3">
                     <div className="bg-white p-2 rounded border">
@@ -712,12 +729,12 @@ export default function AdminOrderDetailPage() {
                       </p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
-                      const url = order.installation_document_url?.startsWith('http') 
-                        ? order.installation_document_url 
+                      const url = order.installation_document_url?.startsWith('http')
+                        ? order.installation_document_url
                         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/installation-documents/${order.installation_document_url}`;
                       window.open(url, '_blank');
                     }}
@@ -740,14 +757,16 @@ export default function AdminOrderDetailPage() {
           <CommunicationTimeline orderId={order.id} />
 
           {/* Order Source */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Order Source
-              </CardTitle>
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <FileText size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Order Source
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Lead Source</label>
                 <p className="text-base text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
@@ -775,14 +794,16 @@ export default function AdminOrderDetailPage() {
 
           {/* Notes */}
           {(order.technician_notes || order.internal_notes) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Notes
-                </CardTitle>
+            <Card className="shadow-sm">
+              <CardHeader className="px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <FileText size={20} className="text-gray-700" />
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    Notes
+                  </CardTitle>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 {order.technician_notes && (
                   <div>
                     <label className="text-sm font-medium text-gray-600">Technician Notes</label>
@@ -803,25 +824,23 @@ export default function AdminOrderDetailPage() {
           )}
 
           {/* Timestamps */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Timestamps
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-600">Created At</label>
-                <p className="text-base text-gray-900 mt-1">
-                  {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}
-                </p>
+          <Card className="shadow-sm">
+            <CardHeader className="px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <Clock size={20} className="text-gray-700" />
+                <CardTitle className="text-lg font-semibold text-gray-800">
+                  Timestamps
+                </CardTitle>
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Last Updated</label>
-                <p className="text-base text-gray-900 mt-1">
-                  {new Date(order.updated_at).toLocaleDateString()} at {new Date(order.updated_at).toLocaleTimeString()}
-                </p>
+            </CardHeader>
+            <CardContent className="p-6 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Created</span>
+                <span className="text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Last Updated</span>
+                <span className="text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
               </div>
             </CardContent>
           </Card>
@@ -847,5 +866,6 @@ export default function AdminOrderDetailPage() {
         }}
       />
     </div>
+    </main>
   );
 }
