@@ -1,5 +1,6 @@
 'use client';
 
+// Forced update to trigger recompilation
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -431,425 +432,462 @@ export default function AdminOrderDetailPage() {
         <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Customer & Address */}
-        <div className="space-y-6">
-          {/* Customer Information */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <User size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Customer Information
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Full Name</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {order.first_name} {order.last_name}
-                  </p>
-                </div>
-                {order.account_number && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">CircleTel Account Number</label>
-                    <p className="text-base font-semibold text-circleTel-orange mt-1">
-                      {order.account_number}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Email Address</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Mail className="h-4 w-4 text-gray-400" />
-                    <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline">
-                      {order.email}
-                    </a>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Phone Number</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Phone className="h-4 w-4 text-gray-400" />
-                    <a href={`tel:${order.phone}`} className="text-base text-blue-600 hover:underline">
-                      {order.phone}
-                    </a>
-                  </div>
-                </div>
-                {order.alternate_phone && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Alternate Phone</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <a href={`tel:${order.alternate_phone}`} className="text-base text-blue-600 hover:underline">
-                        {order.alternate_phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <Separator />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Contact Preference</label>
-                  <p className="text-base text-gray-900 mt-1 capitalize">{order.contact_preference}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Marketing Opt-in</label>
-                  <p className="text-base text-gray-900 mt-1">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">WhatsApp Opt-in</label>
-                  <p className="text-base text-gray-900 mt-1">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Tabs Interface */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto flex-wrap justify-start w-full md:w-auto">
+          <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Overview</TabsTrigger>
+          <TabsTrigger value="installation" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Installation & Service</TabsTrigger>
+          <TabsTrigger value="financials" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Financials</TabsTrigger>
+          <TabsTrigger value="history" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">History & Notes</TabsTrigger>
+        </TabsList>
 
-          {/* Package Details */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <Package size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Package Details
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Package Name</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Speed</label>
-                  <p className="text-base text-gray-900 mt-1">{order.package_speed}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Monthly Price</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    R{parseFloat(order.package_price as any).toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Installation Fee</label>
-                  <p className="text-base text-gray-900 mt-1">
-                    R{parseFloat(order.installation_fee as any).toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Router Included</label>
-                  <p className="text-base text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
-                </div>
-                {order.router_rental_fee && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Router Rental Fee</label>
-                    <p className="text-base text-gray-900 mt-1">
-                      R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Installation Address */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <MapPin size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Installation Address
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">Street Address</label>
-                <p className="text-base text-gray-900 mt-1">{order.installation_address}</p>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {order.suburb && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Suburb</label>
-                    <p className="text-base text-gray-900 mt-1">{order.suburb}</p>
-                  </div>
-                )}
-                {order.city && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">City</label>
-                    <p className="text-base text-gray-900 mt-1">{order.city}</p>
-                  </div>
-                )}
-                {order.province && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Province</label>
-                    <p className="text-base text-gray-900 mt-1">{order.province}</p>
-                  </div>
-                )}
-                {order.postal_code && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Postal Code</label>
-                    <p className="text-base text-gray-900 mt-1">{order.postal_code}</p>
-                  </div>
-                )}
-              </div>
-              {order.special_instructions && (
-                <>
-                  <Separator />
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Special Instructions</label>
-                    <p className="text-base text-gray-900 mt-1">{order.special_instructions}</p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Billing Address (if different) */}
-          {!order.billing_same_as_installation && order.billing_address && (
-            <Card className="shadow-sm">
-              <CardHeader className="px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <FileText size={20} className="text-gray-700" />
-                  <CardTitle className="text-lg font-semibold text-gray-800">
-                    Billing Address
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Street Address</label>
-                  <p className="text-base text-gray-900 mt-1">{order.billing_address}</p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {order.billing_suburb && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Suburb</label>
-                      <p className="text-base text-gray-900 mt-1">{order.billing_suburb}</p>
-                    </div>
-                  )}
-                  {order.billing_city && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">City</label>
-                      <p className="text-base text-gray-900 mt-1">{order.billing_city}</p>
-                    </div>
-                  )}
-                  {order.billing_province && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Province</label>
-                      <p className="text-base text-gray-900 mt-1">{order.billing_province}</p>
-                    </div>
-                  )}
-                  {order.billing_postal_code && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Postal Code</label>
-                      <p className="text-base text-gray-900 mt-1">{order.billing_postal_code}</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Column - Timeline & Notes */}
-        <div className="space-y-6">
-          {/* Payment Information */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <CreditCard size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Payment Information
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Payment Method</label>
-                  <p className="text-base text-gray-900 mt-1 capitalize">
-                    {order.payment_method || 'Not specified'}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Payment Status</label>
-                  <div className="mt-1">{getPaymentBadge(order.payment_status)}</div>
-                </div>
-                {order.payment_reference && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Payment Reference</label>
-                    <p className="text-base text-gray-900 mt-1">{order.payment_reference}</p>
-                  </div>
-                )}
-                {order.payment_date && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Payment Date</label>
-                    <p className="text-base text-gray-900 mt-1">
-                      {new Date(order.payment_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Total Paid</label>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    R{parseFloat(order.total_paid as any).toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Installation Details with Technician Info */}
-          <InstallationSection orderId={order.id} className="shadow-sm" />
-
-          {/* Installation Documentation */}
-          {order.installation_document_url && (
-            <Card className="shadow-sm">
-              <CardHeader className="px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <FileText size={20} className="text-gray-700" />
-                  <CardTitle className="text-lg font-semibold text-gray-800">
-                    Installation Documentation
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+        {/* OVERVIEW TAB */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column: Customer & Package */}
+            <div className="space-y-6">
+              {/* Customer Information */}
+              <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="bg-white p-2 rounded border">
-                      <FileText className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="font-medium text-sm truncate max-w-[150px] sm:max-w-[200px]" title={order.installation_document_name}>
-                        {order.installation_document_name || 'Installation Proof'}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Uploaded {order.installation_completed_at ? new Date(order.installation_completed_at).toLocaleDateString() : ''}
-                      </p>
-                    </div>
+                    <User size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Customer Information
+                    </CardTitle>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const url = order.installation_document_url?.startsWith('http')
-                        ? order.installation_document_url
-                        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/installation-documents/${order.installation_document_url}`;
-                      window.open(url, '_blank');
-                    }}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Payment Method Status */}
-          <PaymentMethodStatus
-            orderId={order.id}
-            onRequestPaymentMethod={() => setPaymentMethodModal(true)}
-          />
-
-          {/* Order Communication Timeline */}
-          <CommunicationTimeline orderId={order.id} />
-
-          {/* Order Source */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <FileText size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Order Source
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">Lead Source</label>
-                <p className="text-base text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
-              </div>
-              {order.source_campaign && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Campaign</label>
-                  <p className="text-base text-gray-900 mt-1">{order.source_campaign}</p>
-                </div>
-              )}
-              {order.referral_code && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Referral Code</label>
-                  <p className="text-base font-mono text-gray-900 mt-1">{order.referral_code}</p>
-                </div>
-              )}
-              {order.referred_by && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Referred By</label>
-                  <p className="text-base text-gray-900 mt-1">{order.referred_by}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Notes */}
-          {(order.technician_notes || order.internal_notes) && (
-            <Card className="shadow-sm">
-              <CardHeader className="px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <FileText size={20} className="text-gray-700" />
-                  <CardTitle className="text-lg font-semibold text-gray-800">
-                    Notes
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                {order.technician_notes && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Technician Notes</label>
-                    <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.technician_notes}</p>
-                  </div>
-                )}
-                {order.internal_notes && (
-                  <>
-                    {order.technician_notes && <Separator />}
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Internal Notes</label>
-                      <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.internal_notes}</p>
+                      <label className="text-sm font-medium text-gray-600">Full Name</label>
+                      <p className="text-base font-semibold text-gray-900 mt-1">
+                        {order.first_name} {order.last_name}
+                      </p>
                     </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                    {order.account_number && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">CircleTel Account Number</label>
+                        <p className="text-base font-semibold text-circleTel-orange mt-1">
+                          {order.account_number}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Email Address</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Mail className="h-4 w-4 text-gray-400" />
+                        <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline">
+                          {order.email}
+                        </a>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Phone Number</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <a href={`tel:${order.phone}`} className="text-base text-blue-600 hover:underline">
+                          {order.phone}
+                        </a>
+                      </div>
+                    </div>
+                    {order.alternate_phone && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Alternate Phone</label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Phone className="h-4 w-4 text-gray-400" />
+                          <a href={`tel:${order.alternate_phone}`} className="text-base text-blue-600 hover:underline">
+                            {order.alternate_phone}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Contact Preference</label>
+                      <p className="text-base text-gray-900 mt-1 capitalize">{order.contact_preference}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Marketing Opt-in</label>
+                      <p className="text-base text-gray-900 mt-1">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">WhatsApp Opt-in</label>
+                      <p className="text-base text-gray-900 mt-1">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Timestamps */}
-          <Card className="shadow-sm">
-            <CardHeader className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <Clock size={20} className="text-gray-700" />
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  Timestamps
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Created</span>
-                <span className="text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Last Updated</span>
-                <span className="text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              {/* Package Details */}
+              <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <Package size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Package Details
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Package Name</label>
+                      <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Speed</label>
+                      <p className="text-base text-gray-900 mt-1">{order.package_speed}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Monthly Price</label>
+                      <p className="text-base font-semibold text-gray-900 mt-1">
+                        R{parseFloat(order.package_price as any).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Installation Fee</label>
+                      <p className="text-base text-gray-900 mt-1">
+                        R{parseFloat(order.installation_fee as any).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Router Included</label>
+                      <p className="text-base text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
+                    </div>
+                    {order.router_rental_fee && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Router Rental Fee</label>
+                        <p className="text-base text-gray-900 mt-1">
+                          R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column: Order Source & Timestamps */}
+            <div className="space-y-6">
+              {/* Order Source */}
+              <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Order Source
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Lead Source</label>
+                    <p className="text-base text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
+                  </div>
+                  {order.source_campaign && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Campaign</label>
+                      <p className="text-base text-gray-900 mt-1">{order.source_campaign}</p>
+                    </div>
+                  )}
+                  {order.referral_code && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Referral Code</label>
+                      <p className="text-base font-mono text-gray-900 mt-1">{order.referral_code}</p>
+                    </div>
+                  )}
+                  {order.referred_by && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Referred By</label>
+                      <p className="text-base text-gray-900 mt-1">{order.referred_by}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Timestamps */}
+              <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <Clock size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Timestamps
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Created</span>
+                    <span className="text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Last Updated</span>
+                    <span className="text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* INSTALLATION TAB */}
+        <TabsContent value="installation" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+               {/* Installation Section */}
+               <InstallationSection orderId={order.id} className="shadow-sm" />
+            </div>
+            <div className="space-y-6">
+               {/* Installation Address */}
+               <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <MapPin size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Installation Address
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Street Address</label>
+                    <p className="text-base text-gray-900 mt-1">{order.installation_address}</p>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {order.suburb && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Suburb</label>
+                        <p className="text-base text-gray-900 mt-1">{order.suburb}</p>
+                      </div>
+                    )}
+                    {order.city && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">City</label>
+                        <p className="text-base text-gray-900 mt-1">{order.city}</p>
+                      </div>
+                    )}
+                    {order.province && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Province</label>
+                        <p className="text-base text-gray-900 mt-1">{order.province}</p>
+                      </div>
+                    )}
+                    {order.postal_code && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Postal Code</label>
+                        <p className="text-base text-gray-900 mt-1">{order.postal_code}</p>
+                      </div>
+                    )}
+                  </div>
+                  {order.special_instructions && (
+                    <>
+                      <Separator />
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Special Instructions</label>
+                        <p className="text-base text-gray-900 mt-1">{order.special_instructions}</p>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+               {/* Installation Documentation */}
+               {order.installation_document_url && (
+                <Card className="shadow-sm">
+                  <CardHeader className="px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <FileText size={20} className="text-gray-700" />
+                      <CardTitle className="text-lg font-semibold text-gray-800">
+                        Installation Documentation
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-white p-2 rounded border">
+                          <FileText className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="font-medium text-sm truncate max-w-[150px] sm:max-w-[200px]" title={order.installation_document_name}>
+                            {order.installation_document_name || 'Installation Proof'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Uploaded {order.installation_completed_at ? new Date(order.installation_completed_at).toLocaleDateString() : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const url = order.installation_document_url?.startsWith('http')
+                            ? order.installation_document_url
+                            : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/installation-documents/${order.installation_document_url}`;
+                          window.open(url, '_blank');
+                        }}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* FINANCIALS TAB */}
+        <TabsContent value="financials" className="space-y-6">
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <div className="space-y-6">
+               {/* Payment Information */}
+               <Card className="shadow-sm">
+                <CardHeader className="px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <CreditCard size={20} className="text-gray-700" />
+                    <CardTitle className="text-lg font-semibold text-gray-800">
+                      Payment Information
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Payment Method</label>
+                      <p className="text-base text-gray-900 mt-1 capitalize">
+                        {order.payment_method || 'Not specified'}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Payment Status</label>
+                      <div className="mt-1">{getPaymentBadge(order.payment_status)}</div>
+                    </div>
+                    {order.payment_reference && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Payment Reference</label>
+                        <p className="text-base text-gray-900 mt-1">{order.payment_reference}</p>
+                      </div>
+                    )}
+                    {order.payment_date && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Payment Date</label>
+                        <p className="text-base text-gray-900 mt-1">
+                          {new Date(order.payment_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Total Paid</label>
+                      <p className="text-base font-semibold text-gray-900 mt-1">
+                        R{parseFloat(order.total_paid as any).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+               {/* Payment Method Status */}
+               <PaymentMethodStatus
+                orderId={order.id}
+                onRequestPaymentMethod={() => setPaymentMethodModal(true)}
+              />
+             </div>
+             <div className="space-y-6">
+               {/* Billing Address */}
+               {!order.billing_same_as_installation && order.billing_address && (
+                <Card className="shadow-sm">
+                  <CardHeader className="px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <FileText size={20} className="text-gray-700" />
+                      <CardTitle className="text-lg font-semibold text-gray-800">
+                        Billing Address
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Street Address</label>
+                      <p className="text-base text-gray-900 mt-1">{order.billing_address}</p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {order.billing_suburb && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Suburb</label>
+                          <p className="text-base text-gray-900 mt-1">{order.billing_suburb}</p>
+                        </div>
+                      )}
+                      {order.billing_city && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">City</label>
+                          <p className="text-base text-gray-900 mt-1">{order.billing_city}</p>
+                        </div>
+                      )}
+                      {order.billing_province && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Province</label>
+                          <p className="text-base text-gray-900 mt-1">{order.billing_province}</p>
+                        </div>
+                      )}
+                      {order.billing_postal_code && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Postal Code</label>
+                          <p className="text-base text-gray-900 mt-1">{order.billing_postal_code}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+             </div>
+           </div>
+        </TabsContent>
+
+        {/* HISTORY TAB */}
+        <TabsContent value="history" className="space-y-6">
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <div className="space-y-6">
+               {/* Communication Timeline */}
+               <CommunicationTimeline orderId={order.id} />
+             </div>
+             <div className="space-y-6">
+               {/* Notes */}
+               {(order.technician_notes || order.internal_notes) && (
+                <Card className="shadow-sm">
+                  <CardHeader className="px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <FileText size={20} className="text-gray-700" />
+                      <CardTitle className="text-lg font-semibold text-gray-800">
+                        Notes
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    {order.technician_notes && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Technician Notes</label>
+                        <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.technician_notes}</p>
+                      </div>
+                    )}
+                    {order.internal_notes && (
+                      <>
+                        {order.technician_notes && <Separator />}
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Internal Notes</label>
+                          <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.internal_notes}</p>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+             </div>
+           </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Payment Method Registration Modal */}
       <PaymentMethodRegistrationModal
