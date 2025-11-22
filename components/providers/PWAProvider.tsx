@@ -34,12 +34,40 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       toast.success("CircleTel App installed successfully!");
     };
 
-    // EMERGENCY FIX: Unregister Service Worker in ALL environments to stop the loop
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    // Register service worker
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('SW registered: ', registration);
+
+          // Listen for updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  toast("App Update Available", {
+                    description: "A new version is available. Refresh to update.",
+                    action: {
+                      label: "Refresh",
+                      onClick: () => window.location.reload(),
+                    },
+                  });
+                }
+              });
+            }
+          });
+        } catch (error) {
+          console.log('SW registration failed: ', error);
+        }
+      });
+    } else if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // In development, unregister any existing service workers
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (let registration of registrations) {
           registration.unregister();
-          console.log('Force unregistered service worker to resolve loop issue');
+          console.log('Unregistered existing service worker in dev mode');
         }
       });
     }
