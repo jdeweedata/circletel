@@ -19,7 +19,7 @@ export default function AdminLayout({
   const supabase = createClient();
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
+  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password', '/admin/cms'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
 
   // Fetch admin user from API (server-side validates session from cookies)
