@@ -405,7 +405,7 @@ export default function AdminOrderDetailPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4 justify-end">
           <StatusActionButtons
             currentStatus={order.status}
             orderId={order.id}
@@ -415,14 +415,14 @@ export default function AdminOrderDetailPage() {
             lastName={order.last_name}
             onStatusUpdate={fetchOrder}
           />
-          <div className="h-8 w-px bg-gray-200 mx-1 hidden md:block" />
+          <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
           <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
             <Printer size={16} />
-            <span className="hidden md:inline">Print</span>
+            <span className="hidden lg:inline">Print</span>
           </Button>
           <Button variant="outline" size="sm" className="flex items-center gap-2 h-9">
             <Download size={16} />
-            <span className="hidden md:inline">Export</span>
+            <span className="hidden lg:inline">Export</span>
           </Button>
         </div>
       </div>
@@ -434,7 +434,7 @@ export default function AdminOrderDetailPage() {
 
       {/* Tabs Interface */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto flex-wrap justify-start w-full md:w-auto">
+        <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Overview</TabsTrigger>
           <TabsTrigger value="installation" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Installation & Service</TabsTrigger>
           <TabsTrigger value="financials" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Financials</TabsTrigger>
