@@ -112,6 +112,11 @@ interface Order {
   // Enriched Data from API
   payment_method_active?: boolean;
   payment_method_mandate_status?: string;
+  
+  // Installation Documentation
+  installation_document_url?: string;
+  installation_document_name?: string;
+  installation_completed_at?: string;
 }
 
 export default function AdminOrderDetailPage() {
@@ -682,6 +687,48 @@ export default function AdminOrderDetailPage() {
         <div className="space-y-6">
           {/* Installation Details with Technician Info */}
           <InstallationSection orderId={order.id} />
+
+          {/* Installation Documentation */}
+          {order.installation_document_url && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Installation Documentation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded border">
+                      <FileText className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="font-medium text-sm truncate max-w-[150px] sm:max-w-[200px]" title={order.installation_document_name}>
+                        {order.installation_document_name || 'Installation Proof'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Uploaded {order.installation_completed_at ? new Date(order.installation_completed_at).toLocaleDateString() : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      const url = order.installation_document_url?.startsWith('http') 
+                        ? order.installation_document_url 
+                        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/installation-documents/${order.installation_document_url}`;
+                      window.open(url, '_blank');
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Payment Method Status */}
           <PaymentMethodStatus
