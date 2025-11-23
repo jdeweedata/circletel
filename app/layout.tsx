@@ -89,12 +89,7 @@ const spaceMono = Space_Mono({
   display: 'swap',
 });
 
-import { VisualEditing } from "next-sanity/visual-editing";
-import { draftMode } from "next/headers";
-import { SanityLive } from "@/lib/sanity/live";
-import { DisableDraftMode } from "@/components/sanity/DisableDraftMode";
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -125,13 +120,6 @@ export default async function RootLayout({
                       <Sonner />
                       {children}
                       <Analytics />
-                      <SanityLive />
-                      {(await draftMode()).isEnabled && (
-                        <>
-                          <VisualEditing />
-                          <DisableDraftMode />
-                        </>
-                      )}
                     </OrderContextProvider>
                   </CustomerAuthProvider>
                 </GoogleMapsProvider>
