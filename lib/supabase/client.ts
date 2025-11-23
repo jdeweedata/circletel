@@ -23,7 +23,8 @@ function getSupabaseClient() {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false
+      detectSessionInUrl: false,
+      storageKey: 'sb-agyjovdugmtopasyvlng-auth-token', // Use consistent storage key
     },
     global: {
       headers: {
