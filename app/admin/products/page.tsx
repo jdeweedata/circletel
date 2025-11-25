@@ -45,6 +45,10 @@ import {
   X,
   ChevronDown,
   SlidersHorizontal,
+  Copy,
+  AlertTriangle,
+  TrendingDown,
+  Archive,
 } from 'lucide-react';
 import { AdminProductCard } from '@/components/admin/products/AdminProductCard';
 import { ProductsList, ColumnVisibility } from '@/components/admin/products/ProductsList';
@@ -60,6 +64,7 @@ import { ColumnCustomization } from '@/components/admin/products/ColumnCustomiza
 import { convertProductsToCSV, downloadCSV, generateCSVFilename } from '@/lib/utils/export-csv';
 
 type ViewMode = 'grid' | 'list';
+type ManagementTab = 'all' | 'duplicates' | 'low-margin' | 'inactive';
 
 export default function AdminProducts() {
   const { hasPermission } = usePermissions();
@@ -110,6 +115,7 @@ export default function AdminProducts() {
   const [searchQuery, setSearchQuery] = useState('');
   const [advancedFiltersExpanded, setAdvancedFiltersExpanded] = useState(false);
   const [columnCustomizationOpen, setColumnCustomizationOpen] = useState(false);
+  const [managementTab, setManagementTab] = useState<ManagementTab>('all');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     provider: true,
     status: true,
@@ -311,6 +317,111 @@ export default function AdminProducts() {
     });
     return groups;
   }, [products]);
+
+  // Detect duplicate products (similar names or same SKU)
+  const duplicateProducts = useMemo(() => {
+    const duplicates: { product: Product; matches: Product[]; reason: string }[] = [];
+    const seen = new Map<string, Product[]>();
+    
+    // Group by normalized name (lowercase, trimmed, remove common suffixes)
+    products.forEach(product => {
+      const normalizedName = product.name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+(package|plan|bundle|deal)$/i, '')
+        .replace(/\s+/g, ' ');
+      
+      if (!seen.has(normalizedName)) {
+        seen.set(normalizedName, []);
+      }
+      seen.get(normalizedName)!.push(product);
+    });
+
+    // Find name duplicates
+    seen.forEach((prods, name) => {
+      if (prods.length > 1) {
+        prods.forEach(product => {
+          const matches = prods.filter(p => p.id !== product.id);
+          if (!duplicates.find(d => d.product.id === product.id)) {
+            duplicates.push({ product, matches, reason: 'Similar name' });
+          }
+        });
+      }
+    });
+
+    // Check for SKU duplicates
+    const skuMap = new Map<string, Product[]>();
+    products.forEach(product => {
+      if (product.sku) {
+        const sku = product.sku.toLowerCase().trim();
+        if (!skuMap.has(sku)) {
+          skuMap.set(sku, []);
+        }
+        skuMap.get(sku)!.push(product);
+      }
+    });
+
+    skuMap.forEach((prods, sku) => {
+      if (prods.length > 1) {
+        prods.forEach(product => {
+          const existing = duplicates.find(d => d.product.id === product.id);
+          if (existing) {
+            existing.reason = 'Same SKU & Similar name';
+          } else {
+            const matches = prods.filter(p => p.id !== product.id);
+            duplicates.push({ product, matches, reason: 'Same SKU' });
+          }
+        });
+      }
+    });
+
+    return duplicates;
+  }, [products]);
+
+  // Low margin products (margin < 10%)
+  const lowMarginProducts = useMemo(() => {
+    return products.filter(product => {
+      const price = product.base_price_zar || product.pricing?.monthly || 0;
+      const cost = product.cost_price_zar || 0;
+      if (price <= 0 || cost <= 0) return false;
+      const margin = ((price - cost) / price) * 100;
+      return margin < 10 && margin >= 0;
+    });
+  }, [products]);
+
+  // Inactive/Archived products
+  const inactiveProducts = useMemo(() => {
+    return products.filter(product => 
+      !product.is_active || product.status === 'archived' || product.status === 'inactive'
+    );
+  }, [products]);
+
+  // Filtered products based on management tab
+  const filteredProducts = useMemo(() => {
+    switch (managementTab) {
+      case 'duplicates':
+        return duplicateProducts.map(d => d.product);
+      case 'low-margin':
+        return lowMarginProducts;
+      case 'inactive':
+        return inactiveProducts;
+      default:
+        return products;
+    }
+  }, [managementTab, products, duplicateProducts, lowMarginProducts, inactiveProducts]);
+
+  // Group filtered products by category
+  const filteredProductsByCategory = useMemo(() => {
+    const groups: Record<string, Product[]> = {};
+    filteredProducts.forEach(product => {
+      const category = product.category || 'uncategorized';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(product);
+    });
+    return groups;
+  }, [filteredProducts]);
 
   const categoryConfig = {
     connectivity: {
@@ -698,14 +809,15 @@ export default function AdminProducts() {
   };
 
   const handleExportCSV = () => {
-    if (products.length === 0) {
+    if (filteredProducts.length === 0) {
       alert('No products to export');
       return;
     }
 
     try {
-      const csvContent = convertProductsToCSV(products);
-      const filename = generateCSVFilename('circletel-products');
+      const csvContent = convertProductsToCSV(filteredProducts);
+      const tabSuffix = managementTab !== 'all' ? `-${managementTab}` : '';
+      const filename = generateCSVFilename(`circletel-products${tabSuffix}`);
       downloadCSV(csvContent, filename);
     } catch (error) {
       console.error('Error exporting CSV:', error);
@@ -776,9 +888,15 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* STATS CARDS */}
+      {/* STATS CARDS - Clickable to filter */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`hover:shadow-lg transition-all cursor-pointer ${!filters.status ? 'ring-2 ring-circleTel-orange ring-offset-2' : ''}`}
+          onClick={() => {
+            setFilters({});
+            setManagementTab('all');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Total Products
@@ -792,12 +910,18 @@ export default function AdminProducts() {
               {productStats.total}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              All products
+              Click to show all
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`hover:shadow-lg transition-all cursor-pointer ${filters.status === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}`}
+          onClick={() => {
+            handleFilterChange('status', 'active');
+            setManagementTab('all');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Active
@@ -807,16 +931,22 @@ export default function AdminProducts() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-green-600">
               {productStats.active}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              Live products
+              Click to filter
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`hover:shadow-lg transition-all cursor-pointer ${filters.status === 'draft' ? 'ring-2 ring-yellow-500 ring-offset-2' : ''}`}
+          onClick={() => {
+            handleFilterChange('status', 'draft');
+            setManagementTab('all');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Draft
@@ -826,16 +956,22 @@ export default function AdminProducts() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-yellow-600">
               {productStats.draft}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              Not published
+              Click to filter
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className={`hover:shadow-lg transition-all cursor-pointer ${filters.status === 'archived' ? 'ring-2 ring-red-500 ring-offset-2' : ''}`}
+          onClick={() => {
+            handleFilterChange('status', 'archived');
+            setManagementTab('inactive');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Archived
@@ -845,49 +981,61 @@ export default function AdminProducts() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+            <div className="text-3xl font-bold text-red-600">
               {productStats.archived}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              Discontinued
+              Click to filter
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className="hover:shadow-lg transition-all cursor-pointer"
+          onClick={() => {
+            setManagementTab('duplicates');
+            setFilters({});
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Featured
+              Duplicates
             </CardTitle>
-            <div className="p-2 rounded-lg bg-blue-100">
-              <Headphones className="h-5 w-5 text-blue-600" />
+            <div className={`p-2 rounded-lg ${duplicateProducts.length > 0 ? 'bg-amber-100' : 'bg-green-100'}`}>
+              <Copy className={`h-5 w-5 ${duplicateProducts.length > 0 ? 'text-amber-600' : 'text-green-600'}`} />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
-              {productStats.featured}
+            <div className={`text-3xl font-bold ${duplicateProducts.length > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+              {duplicateProducts.length}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              Highlighted
+              {duplicateProducts.length > 0 ? 'Click to review' : 'No duplicates'}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card 
+          className="hover:shadow-lg transition-all cursor-pointer"
+          onClick={() => {
+            setManagementTab('low-margin');
+            setFilters({});
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Popular
+              Low Margin
             </CardTitle>
-            <div className="p-2 rounded-lg bg-purple-100">
-              <PackageBundle className="h-5 w-5 text-purple-600" />
+            <div className={`p-2 rounded-lg ${lowMarginProducts.length > 0 ? 'bg-red-100' : 'bg-green-100'}`}>
+              <TrendingDown className={`h-5 w-5 ${lowMarginProducts.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-circleTel-darkNeutral">
-              {productStats.popular}
+            <div className={`text-3xl font-bold ${lowMarginProducts.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {lowMarginProducts.length}
             </div>
             <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              Top sellers
+              {lowMarginProducts.length > 0 ? 'Click to review' : 'All healthy'}
             </p>
           </CardContent>
         </Card>
@@ -1113,6 +1261,106 @@ export default function AdminProducts() {
         </div>
       )}
 
+      {/* Management Tabs */}
+      <Card className="border-2 border-gray-100">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium text-gray-600 mr-2">View:</span>
+            <Button
+              variant={managementTab === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setManagementTab('all')}
+              className={managementTab === 'all' ? 'bg-circleTel-orange hover:bg-circleTel-orange/90' : ''}
+            >
+              <PackageBundle className="h-4 w-4 mr-1.5" />
+              All Products
+              <Badge variant="secondary" className="ml-2 bg-gray-100">{products.length}</Badge>
+            </Button>
+            <Button
+              variant={managementTab === 'duplicates' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setManagementTab('duplicates')}
+              className={`${managementTab === 'duplicates' ? 'bg-amber-500 hover:bg-amber-600' : ''} ${duplicateProducts.length > 0 ? 'border-amber-300' : ''}`}
+            >
+              <Copy className="h-4 w-4 mr-1.5" />
+              Duplicates
+              {duplicateProducts.length > 0 ? (
+                <Badge variant="destructive" className="ml-2 bg-amber-500">{duplicateProducts.length}</Badge>
+              ) : (
+                <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700">0</Badge>
+              )}
+            </Button>
+            <Button
+              variant={managementTab === 'low-margin' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setManagementTab('low-margin')}
+              className={`${managementTab === 'low-margin' ? 'bg-red-500 hover:bg-red-600' : ''} ${lowMarginProducts.length > 0 ? 'border-red-300' : ''}`}
+            >
+              <TrendingDown className="h-4 w-4 mr-1.5" />
+              Low Margin
+              {lowMarginProducts.length > 0 ? (
+                <Badge variant="destructive" className="ml-2">{lowMarginProducts.length}</Badge>
+              ) : (
+                <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700">0</Badge>
+              )}
+            </Button>
+            <Button
+              variant={managementTab === 'inactive' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setManagementTab('inactive')}
+              className={managementTab === 'inactive' ? 'bg-gray-500 hover:bg-gray-600' : ''}
+            >
+              <Archive className="h-4 w-4 mr-1.5" />
+              Inactive
+              <Badge variant="secondary" className="ml-2">{inactiveProducts.length}</Badge>
+            </Button>
+          </div>
+          
+          {/* Context message for special tabs */}
+          {managementTab === 'duplicates' && duplicateProducts.length > 0 && (
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  {duplicateProducts.length} potential duplicate{duplicateProducts.length !== 1 ? 's' : ''} detected
+                </p>
+                <p className="text-xs text-amber-600 mt-1">
+                  Products with similar names or matching SKUs. Review and merge or archive duplicates to keep your catalogue clean.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {managementTab === 'low-margin' && lowMarginProducts.length > 0 && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <TrendingDown className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-red-800">
+                  {lowMarginProducts.length} product{lowMarginProducts.length !== 1 ? 's' : ''} with margin below 10%
+                </p>
+                <p className="text-xs text-red-600 mt-1">
+                  Consider reviewing pricing or costs for these products to improve profitability.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {managementTab === 'inactive' && inactiveProducts.length > 0 && (
+            <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-start gap-2">
+              <Archive className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  {inactiveProducts.length} inactive or archived product{inactiveProducts.length !== 1 ? 's' : ''}
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  These products are not visible to customers. Reactivate or permanently delete as needed.
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* View Tabs */}
       <Tabs value={viewMode} onValueChange={(value) => handleViewModeChange(value as ViewMode)}>
         <div className="flex items-center justify-between">
@@ -1144,11 +1392,11 @@ export default function AdminProducts() {
               variant="outline"
               size="sm"
               onClick={handleExportCSV}
-              disabled={products.length === 0}
+              disabled={filteredProducts.length === 0}
               className="flex items-center gap-2 rounded-xl"
             >
               <Download className="h-4 w-4" />
-              Export CSV ({products.length})
+              Export CSV ({filteredProducts.length})
             </Button>
           </div>
 
@@ -1163,7 +1411,7 @@ export default function AdminProducts() {
         <TabsContent value="grid" className="mt-6">
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="space-y-6">
-              {Object.entries(productsByCategory).map(([category, categoryProducts]) => {
+              {Object.entries(filteredProductsByCategory).map(([category, categoryProducts]) => {
                 const config = categoryConfig[category as keyof typeof categoryConfig] || {
                   label: category,
                   description: '',
@@ -1248,11 +1496,16 @@ export default function AdminProducts() {
         <TabsContent value="list" className="mt-6">
           <Card className="rounded-2xl shadow-sm">
             <CardHeader>
-              <CardTitle>Product Catalogue</CardTitle>
+              <CardTitle>
+                {managementTab === 'all' && 'Product Catalogue'}
+                {managementTab === 'duplicates' && 'Duplicate Products'}
+                {managementTab === 'low-margin' && 'Low Margin Products'}
+                {managementTab === 'inactive' && 'Inactive Products'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ProductsList
-                products={products}
+                products={filteredProducts}
                 selectedIds={selectedProductIds}
                 onSelect={handleSelectProduct}
                 onEdit={(p) => {
@@ -1282,38 +1535,97 @@ export default function AdminProducts() {
         </TabsContent>
       </Tabs>
 
-      {/* Pagination */}
-      {pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            Showing {((pagination.page - 1) * pagination.per_page) + 1} to{' '}
-            {Math.min(pagination.page * pagination.per_page, pagination.total)} of{' '}
-            {pagination.total} products
-          </div>
+      {/* Pagination - Always visible */}
+      <Card className="border border-gray-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            {/* Left: Product count info */}
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">{filteredProducts.length}</span>
+                {managementTab !== 'all' && (
+                  <span> of {products.length}</span>
+                )}
+                {' '}product{filteredProducts.length !== 1 ? 's' : ''}
+                {managementTab !== 'all' && (
+                  <Badge variant="outline" className="ml-2 text-xs">
+                    {managementTab === 'duplicates' && 'Duplicates'}
+                    {managementTab === 'low-margin' && 'Low Margin'}
+                    {managementTab === 'inactive' && 'Inactive'}
+                  </Badge>
+                )}
+              </div>
+            </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagination.page <= 1}
-              onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-            >
-              Previous
-            </Button>
-            <span className="px-3 py-2 text-sm text-gray-500">
-              Page {pagination.page} of {pagination.total_pages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagination.page >= pagination.total_pages}
-              onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-            >
-              Next
-            </Button>
+            {/* Center: Page size selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Show:</span>
+              <Select 
+                value={pagination.per_page.toString()} 
+                onValueChange={(value) => {
+                  setPagination({ ...pagination, per_page: parseInt(value), page: 1 });
+                }}
+              >
+                <SelectTrigger className="w-[80px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="200">200</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-gray-500">per page</span>
+            </div>
+
+            {/* Right: Pagination controls */}
+            {pagination.total_pages > 1 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page <= 1}
+                  onClick={() => setPagination({ ...pagination, page: 1 })}
+                  className="hidden sm:flex"
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page <= 1}
+                  onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1 px-2">
+                  <span className="text-sm font-medium">{pagination.page}</span>
+                  <span className="text-sm text-gray-400">/</span>
+                  <span className="text-sm text-gray-500">{pagination.total_pages}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page >= pagination.total_pages}
+                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+                >
+                  Next
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page >= pagination.total_pages}
+                  onClick={() => setPagination({ ...pagination, page: pagination.total_pages })}
+                  className="hidden sm:flex"
+                >
+                  Last
+                </Button>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        </CardContent>
+      </Card>
 
       {/* Bulk Actions Toolbar */}
       <BulkActionsToolbar
