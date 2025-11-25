@@ -80,19 +80,19 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Managed IT
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {managedITItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                        isActive(item.href) ? 'bg-accent' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                        isActive(item.href) ? 'bg-gray-100' : ''
                       )}
                     >
-                      <div className="text-sm font-medium leading-none">{item.name}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
                     </Link>
@@ -114,19 +114,19 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Connectivity
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               <li>
                 <NavigationMenuLink asChild>
                   <Link
                     href="/connectivity"
                     className={cn(
-                      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                      isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent' : ''
+                      "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                      isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-gray-100' : ''
                     )}
                   >
-                    <div className="text-sm font-medium leading-none">Wi-Fi as a Service</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Enterprise-grade Wi-Fi connectivity solutions
+                    <div className="text-sm font-semibold text-circleTel-darkNeutral">Connectivity Overview</div>
+                    <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
+                      Explore all our connectivity solutions
                     </p>
                   </Link>
                 </NavigationMenuLink>
@@ -137,12 +137,12 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                        isActive(item.href) ? 'bg-accent' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                        isActive(item.href) ? 'bg-gray-100' : ''
                       )}
                     >
-                      <div className="text-sm font-medium leading-none">{item.name}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
                     </Link>
@@ -164,19 +164,19 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Cloud & Hosting
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {cloudHostingItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                        isActive(item.href) ? 'bg-accent' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                        isActive(item.href) ? 'bg-gray-100' : ''
                       )}
                     >
-                      <div className="text-sm font-medium leading-none">{item.name}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
                     </Link>
@@ -198,19 +198,19 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Resources
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {resourcesItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                        isActive(item.href) ? 'bg-accent' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                        isActive(item.href) ? 'bg-gray-100' : ''
                       )}
                     >
-                      <div className="text-sm font-medium leading-none">{item.name}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
                     </Link>
@@ -232,19 +232,19 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Partners
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[280px] gap-1 p-2">
               {partnerItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
-                        isActive(item.href) ? 'bg-accent' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
+                        isActive(item.href) ? 'bg-gray-100' : ''
                       )}
                     >
-                      <div className="text-sm font-medium leading-none">{item.name}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
                     </Link>

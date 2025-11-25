@@ -13,6 +13,7 @@ import {
 import {
   managedITItems,
   connectivityItems,
+  cloudHostingItems,
   resourcesItems,
   partnerItems
 } from './NavigationData';
@@ -41,8 +42,12 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
       openSections.push('managed-it');
     }
 
-    if (currentPath.includes('/connectivity/')) {
+    if (currentPath.includes('/connectivity/') || currentPath === '/connectivity') {
       openSections.push('connectivity');
+    }
+
+    if (currentPath.includes('/cloud/') || currentPath === '/cloud') {
+      openSections.push('cloud-hosting');
     }
 
     if (currentPath.includes('/resources/') || currentPath === '/resources') {
@@ -103,9 +108,29 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
                   className={`py-2 px-3 rounded-md text-sm ${isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Wi-Fi as a Service
+                  Connectivity Overview
                 </Link>
                 {connectivityItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="cloud-hosting" className="border-0">
+            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
+              Cloud & Hosting
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col space-y-1 pl-4">
+                {cloudHostingItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
