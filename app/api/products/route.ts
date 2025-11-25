@@ -1,38 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/integrations/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/products
- * Get all active products (approved packages)
+ * Fetch products with optional filtering by service type
+ *
+ * Query params:
+ * - service_type: Filter by service type (5G, Fibre, LTE, etc.)
+ * - category: Filter by product_category
+ * - featured: Only featured products (true/false)
+ * - limit: Max number of results
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
-
+    const serviceType = searchParams.get('service_type');
     const category = searchParams.get('category');
-    const minSpeed = searchParams.get('minSpeed');
-    const maxPrice = searchParams.get('maxPrice');
+    const featured = searchParams.get('featured');
+    const limit = searchParams.get('limit');
+
+    const supabase = await createClient();
 
     let query = supabase
       .from('service_packages')
       .select('*')
-      .eq('is_active', true)
+      .eq('active', true)
+      .order('sort_order', { ascending: true })
       .order('price', { ascending: true });
 
-    // Filter by category if provided
+    // Apply filters
+    if (serviceType) {
+      query = query.ilike('service_type', `%${serviceType}%`);
+    }
+
     if (category) {
-      query = query.eq('category', category);
+      query = query.eq('product_category', category);
     }
 
-    // Filter by minimum speed if provided
-    if (minSpeed) {
-      query = query.gte('speed', minSpeed);
+    if (featured === 'true') {
+      query = query.eq('is_featured', true);
     }
 
-    // Filter by maximum price if provided
-    if (maxPrice) {
-      query = query.lte('price', parseInt(maxPrice));
+    if (limit) {
+      query = query.limit(parseInt(limit, 10));
     }
 
     const { data: products, error } = await query;
@@ -40,21 +50,31 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error('Error fetching products:', error);
       return NextResponse.json(
-        { success: false, error: error.message },
+        { error: 'Failed to fetch products' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      products,
-      total_count: products?.length || 0
+    // Parse metadata for each product
+    const processedProducts = (products || []).map((product) => {
+      if (typeof product.metadata === 'string') {
+        try {
+          product.metadata = JSON.parse(product.metadata);
+        } catch {
+          product.metadata = {};
+        }
+      }
+      return product;
     });
 
-  } catch (error: any) {
-    console.error('Error in GET /api/products:', error);
+    return NextResponse.json({
+      products: processedProducts,
+      count: processedProducts.length,
+    });
+  } catch (error) {
+    console.error('Error in products API:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
