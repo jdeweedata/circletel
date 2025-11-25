@@ -381,8 +381,8 @@ export default function AdminProducts() {
   // Low margin products (margin < 10%)
   const lowMarginProducts = useMemo(() => {
     return products.filter(product => {
-      const price = product.base_price_zar || product.pricing?.monthly || 0;
-      const cost = product.cost_price_zar || 0;
+      const price = Number(product.base_price_zar) || product.pricing?.monthly || 0;
+      const cost = Number(product.cost_price_zar) || 0;
       if (price <= 0 || cost <= 0) return false;
       const margin = ((price - cost) / price) * 100;
       return margin < 10 && margin >= 0;
