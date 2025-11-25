@@ -1,49 +1,50 @@
-import { Metadata } from 'next';
-import { HeroSection } from '@/components/partner-landing/HeroSection';
+'use client';
+
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { PartnerHero } from '@/components/partner-landing/PartnerHero';
+import { WhatIsSection } from '@/components/partner-landing/WhatIsSection';
 import { BenefitCards } from '@/components/partner-landing/BenefitCards';
 import { HowItWorks } from '@/components/partner-landing/HowItWorks';
-import { PartnershipModels } from '@/components/partner-landing/PartnershipModels';
-import { CommissionStructure } from '@/components/partner-landing/CommissionStructure';
-import { PartnerTestimonials } from '@/components/partner-landing/PartnerTestimonials';
-import { SuccessMetrics } from '@/components/partner-landing/SuccessMetrics';
+import { Leaderboard } from '@/components/partner-landing/Leaderboard';
+import { CommissionCalculator } from '@/components/partner-landing/CommissionCalculator';
 import { FAQSection } from '@/components/partner-landing/FAQSection';
 import { FinalCTA } from '@/components/partner-landing/FinalCTA';
-
-export const metadata: Metadata = {
-  title: 'Partner With CircleTel | Digital Service Provider | Build Solutions Together',
-  description: 'Partner with a DSP that actually listens. We build digital solutions for underserved markets based on real partner feedback. Join 200+ partners co-creating products that customers need. Blue ocean positioning, 30% recurring commission, real influence on our roadmap.',
-  keywords: 'CircleTel partner programme, digital service provider, DSP partner South Africa, blue ocean strategy, partner collaboration, co-create products, underserved markets, telecom partnership',
-};
+import { PartnerTestimonials } from '@/components/partner-landing/PartnerTestimonials';
 
 export default function BecomeAPartnerPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <HeroSection />
+      <Navbar />
+      <main>
+        {/* Hero Section - Matching home page style */}
+        <PartnerHero />
 
-      {/* Key Benefits */}
-      <BenefitCards />
+        {/* What is the Programme */}
+        <WhatIsSection />
 
-      {/* How It Works */}
-      <HowItWorks />
+        {/* Benefits of Joining - Card style matching home */}
+        <BenefitCards />
 
-      {/* Partnership Models */}
-      <PartnershipModels />
+        {/* How It Works */}
+        <HowItWorks />
 
-      {/* Success Metrics */}
-      <SuccessMetrics />
+        {/* Commission Calculator */}
+        <CommissionCalculator />
 
-      {/* Commission Structure Table */}
-      <CommissionStructure />
+        {/* 2025 Leaderboard */}
+        <Leaderboard />
 
-      {/* Partner Testimonials */}
-      <PartnerTestimonials />
+        {/* Partner Testimonials */}
+        <PartnerTestimonials />
 
-      {/* FAQ Section */}
-      <FAQSection />
+        {/* FAQ Section */}
+        <FAQSection />
 
-      {/* Final CTA */}
-      <FinalCTA />
+        {/* Ready to Join CTA */}
+        <FinalCTA />
+      </main>
+      <Footer />
     </div>
   );
 }

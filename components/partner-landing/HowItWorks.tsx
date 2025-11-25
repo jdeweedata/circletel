@@ -1,110 +1,94 @@
 'use client';
 
+import Link from 'next/link';
+import { Link2, Share2, Banknote, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
 const steps = [
   {
-    number: '1',
-    icon: '🎯',
-    title: 'Share Your Market',
-    description: 'Tell us what customers need',
-    detail: 'Tell us about the customers your competitors are missing. We design solutions that fit what you are seeing in the field.',
+    number: 1,
+    icon: Link2,
+    title: 'Get your unique link',
+    description: 'Sign up and get your personal referral link that tracks every customer you bring in.',
   },
   {
-    number: '2',
-    icon: '✅',
-    title: 'Get Approved',
-    description: '5-7 day review process',
-    detail: 'Training materials, partner portal access, and dedicated support manager.',
+    number: 2,
+    icon: Share2,
+    title: 'Share it everywhere',
+    description: 'WhatsApp, Facebook, in person—the more people who click, the more you earn.',
   },
   {
-    number: '3',
-    icon: '💼',
-    title: 'Sell Solutions',
-    description: 'Dashboard shows real customer needs',
-    detail: 'Use our dashboard to show real coverage, pricing, and customer needs. Your feedback directly shapes what we build next.',
-  },
-  {
-    number: '4',
-    icon: '🚀',
-    title: 'Build Together',
-    description: 'Up to 30% recurring commission',
-    detail: 'Monthly commissions up to 30%. Quarterly roadmap sessions where your input drives product decisions.',
+    number: 3,
+    icon: Banknote,
+    title: 'Earn monthly commission',
+    description: 'Get paid every month for as long as your referrals stay connected. Passive income, sorted.',
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="py-16 bg-gradient-to-br from-circleTel-darkNeutral via-purple-900 to-circleTel-darkNeutral text-white relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
-            How Partnership Works
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
+            How It Works
           </h2>
-          <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
-            From market insights to product development—you are part of the process
+          <p className="text-white/80 max-w-2xl mx-auto">
+            Three simple steps to start earning
           </p>
         </div>
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Connecting Line (Desktop) */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-circleTel-orange via-circleTel-orange to-circleTel-orange transform -translate-y-1/2" style={{ width: 'calc(100% - 8rem)', marginLeft: '4rem' }} />
-
-          {/* Steps Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
-            {steps.map((step, index) => {
-              return (
-                <div key={index} className="relative">
-                  {/* Mobile Connector */}
-                  {index < steps.length - 1 && (
-                    <div className="lg:hidden absolute left-8 top-20 bottom-0 w-1 bg-circleTel-orange/30 -mb-8" />
-                  )}
-
-                  {/* Step Card */}
-                  <div className="relative bg-white rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-gray-100 hover:border-circleTel-orange/30">
-                    {/* Step Number Circle */}
-                    <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-circleTel-orange to-orange-600 text-white font-bold text-2xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300 z-10">
-                      {step.number}
-                    </div>
-
-                    {/* Icon */}
-                    <div className="mb-4">
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-circleTel-orange/10 group-hover:bg-circleTel-orange/20 transition-colors duration-300">
-                        <div className="text-3xl">{step.icon}</div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-2">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm font-semibold text-circleTel-orange mb-3">
-                      {step.description}
-                    </p>
-                    <p className="text-sm text-circleTel-secondaryNeutral leading-relaxed">
-                      {step.detail}
-                    </p>
-                  </div>
+        {/* Steps Grid */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={index}
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/20 transition-all duration-300"
+              >
+                {/* Step Number */}
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-circleTel-orange text-white font-bold text-xl mb-4">
+                  {step.number}
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Icon */}
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-400 flex items-center justify-center">
+                  <Icon className="h-8 w-8 text-gray-900" />
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl font-bold mb-3">
+                  {step.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-        {/* CTA Below Timeline */}
-        <div className="text-center mt-12">
-          <p className="text-circleTel-secondaryNeutral mb-6">
-            Join 200+ partners co-creating solutions with CircleTel
-          </p>
-          <a
-            href="/partner/onboarding"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-circleTel-orange rounded-lg shadow-lg hover:bg-circleTel-orange/90 hover:shadow-xl transition-all duration-300 hover:scale-105"
-          >
-            Begin Partnership Journey
-            <svg className="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </a>
+        {/* CTA */}
+        <div className="text-center">
+          <Link href="/partner/onboarding">
+            <Button
+              size="lg"
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-bold px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Start earning today
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

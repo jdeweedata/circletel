@@ -53,9 +53,19 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       if (hasShownPromptRef.current) {
         return;
       }
+
+      // Only show install prompt on mobile devices (not desktop)
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768);
+      
+      if (!isMobile) {
+        console.log('PWA: Skipping install prompt on desktop');
+        return;
+      }
+
       hasShownPromptRef.current = true;
 
-      // Show custom install prompt after a delay
+      // Show custom install prompt after a delay (mobile only)
       setTimeout(() => {
         toast("Install CircleTel App", {
           description: "Get the full experience with our mobile app!",

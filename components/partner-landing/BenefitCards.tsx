@@ -1,84 +1,99 @@
 'use client';
 
+import { Banknote, Wifi, Smartphone, Users, Headphones, Zap } from 'lucide-react';
+
 const benefits = [
   {
-    icon: '👂',
-    title: 'We Listen First, Build Second',
-    description: 'Your market insights drive our product roadmap. We develop solutions for the customers you know aren\'t being served well by traditional providers.',
-    color: 'from-blue-500 to-indigo-600',
+    icon: Banknote,
+    title: 'High Commissions',
+    stat: '30%',
+    description: 'recurring commission on every customer you refer.',
   },
   {
-    icon: '🌊',
-    title: 'Blue Ocean Positioning',
-    description: 'Stop competing on price and speed. We target customers frustrated by commodity ISPs—better fit means easier sales and loyal clients.',
-    color: 'from-cyan-500 to-blue-600',
+    icon: Wifi,
+    title: 'Full Product Range',
+    stat: 'Fibre • LTE • 5G',
+    description: 'home, business, and rural connectivity solutions.',
   },
   {
-    icon: '🤝',
-    title: 'True Partnership Model',
-    description: 'Up to 30% recurring commission plus real influence on product direction. Your success directly shapes our business strategy.',
-    color: 'from-purple-500 to-pink-600',
+    icon: Smartphone,
+    title: 'Work From Anywhere',
+    stat: '100%',
+    description: 'remote. Share links via WhatsApp, social media, or in person.',
   },
   {
-    icon: '💡',
-    title: 'Product-Market Fit Focus',
-    description: 'We obsess over whether solutions actually solve customer problems—not just whether they\'re easy to sell.',
-    color: 'from-yellow-500 to-orange-600',
+    icon: Users,
+    title: 'Dedicated Support',
+    stat: '1-on-1',
+    description: 'partner manager to help you close deals faster.',
   },
   {
-    icon: '📊',
-    title: 'Transparent Performance',
-    description: 'Real-time portal showing what\'s working, what\'s not, and customer feedback that informs our next build.',
-    color: 'from-green-500 to-emerald-600',
+    icon: Headphones,
+    title: 'Local Support',
+    stat: '24/7',
+    description: 'South African support team. No overseas call centres.',
   },
   {
-    icon: '🚀',
-    title: 'Fast-Track Enablement',
-    description: '5-7 days to full partner access with training, materials, and dedicated support—no upfront costs.',
-    color: 'from-orange-500 to-red-600',
+    icon: Zap,
+    title: 'Fast Onboarding',
+    stat: '5 min',
+    description: 'to sign up and get your unique referral link.',
   },
 ];
 
 export function BenefitCards() {
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 bg-circleTel-lightNeutral">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-circleTel-darkNeutral mb-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">
             Why Partner With CircleTel?
           </h2>
-          <p className="text-xl text-circleTel-secondaryNeutral max-w-3xl mx-auto">
-            We are building a different kind of digital services company—one where partners help shape what we build and how we serve customers.
+          <p className="text-circleTel-secondaryNeutral max-w-2xl mx-auto">
+            Everything you need to start earning from day one.
           </p>
         </div>
 
-        {/* Benefits Grid */}
+        {/* Benefits Grid - Matching home page card style */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => {
+            const Icon = benefit.icon;
             return (
               <div
                 key={index}
-                className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+                className="bg-white rounded-lg shadow-lg p-6 relative transition-all duration-300 hover:shadow-xl"
               >
-                {/* Gradient Background on Hover */}
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${benefit.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                {/* Circular accent in top right */}
+                <div className="absolute -top-4 -right-4 bg-circleTel-lightNeutral rounded-full h-12 w-12 flex items-center justify-center border-4 border-white">
+                  <span className="text-circleTel-orange font-bold">{index + 1}</span>
+                </div>
 
                 {/* Icon */}
-                <div className="relative">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${benefit.color} mb-6 shadow-lg`}>
-                    <div className="text-4xl">{benefit.icon}</div>
-                  </div>
+                <div className="w-14 h-14 rounded-full bg-circleTel-orange bg-opacity-10 flex items-center justify-center mb-4">
+                  <Icon className="h-7 w-7 text-circleTel-orange" />
+                </div>
 
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">
-                    {benefit.title}
-                  </h3>
+                {/* Title */}
+                <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-3">
+                  {benefit.title}
+                </h3>
 
-                  {/* Description */}
-                  <p className="text-circleTel-secondaryNeutral leading-relaxed">
-                    {benefit.description}
-                  </p>
+                {/* Stat */}
+                <div className="text-3xl font-bold text-circleTel-orange mb-3">
+                  {benefit.stat}
+                </div>
+
+                {/* Description */}
+                <p className="text-circleTel-secondaryNeutral">
+                  {benefit.description}
+                </p>
+
+                {/* Network-themed decoration */}
+                <div className="absolute bottom-0 right-0 w-16 h-16 opacity-10">
+                  <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-circleTel-orange rounded-full"></div>
+                  <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-circleTel-orange rounded-full"></div>
+                  <div className="absolute top-3/4 left-3/4 w-2 h-2 bg-circleTel-orange rounded-full"></div>
                 </div>
               </div>
             );
