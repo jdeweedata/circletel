@@ -196,7 +196,12 @@
       "Bash(npm run slicemachine:*)",
       "Bash(netstat:*)",
       "Bash(if exist .gitmodulesstrapi-cms rd /s /q .gitmodulesstrapi-cms)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(find:*)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_hover",
+      "mcp__supabase__list_migrations"
     ],
     "deny": [],
     "ask": []

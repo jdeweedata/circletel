@@ -342,7 +342,13 @@ function PageSettings() {
 
   if (!currentPage) return null;
 
-  const seoMetadata = (currentPage.seo_metadata || {}) as SEOMetadata;
+  // Safely extract SEO metadata with proper defaults
+  const seoMetadata: SEOMetadata = {
+    title: '',
+    description: '',
+    keywords: [],
+    ...(currentPage.seo_metadata as SEOMetadata || {}),
+  };
 
   return (
     <div className="space-y-6">
@@ -411,11 +417,11 @@ function PageSettings() {
 
         <TextInput
           label="Keywords"
-          value={seoMetadata.keywords?.join(', ') || ''}
+          value={Array.isArray(seoMetadata.keywords) ? seoMetadata.keywords.join(', ') : ''}
           onChange={(value) =>
             setPageField('seo_metadata', {
               ...seoMetadata,
-              keywords: value.split(',').map((k) => k.trim()),
+              keywords: value ? value.split(',').map((k) => k.trim()).filter(Boolean) : [],
             })
           }
           placeholder="keyword1, keyword2, keyword3"

@@ -178,7 +178,7 @@ export default function PartnerCommissionsPage() {
               variant="outline"
               size="sm"
               className="mt-2"
-              onClick={() => router.push('/partners/commissions/tiers')}
+              onClick={() => router.push('/partner/commissions/tiers')}
             >
               <Info className="h-4 w-4 mr-2" />
               View Commission Tiers

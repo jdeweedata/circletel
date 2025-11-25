@@ -71,13 +71,16 @@ export const PERMISSIONS = {
     EXPORT_FINANCIAL_DATA: 'finance:export_financial_data',
   },
 
-  // Content Management
+  // Content Management (Page Builder CMS)
   CMS: {
     VIEW: 'cms:view',
     CREATE: 'cms:create',
     EDIT: 'cms:edit',
     PUBLISH: 'cms:publish',
     DELETE: 'cms:delete',
+    MANAGE_TEMPLATES: 'cms:manage_templates',
+    USE_AI: 'cms:use_ai',
+    MANAGE_MEDIA: 'cms:manage_media',
   },
 
   // Marketing & Campaigns

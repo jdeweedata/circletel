@@ -1,0 +1,19 @@
+{
+  "id": "image_with_caption",
+  "type": "SharedSlice",
+  "name": "ImageWithCaption",
+  "description": "Image with optional caption",
+  "variations": [{
+    "id": "default",
+    "name": "Default",
+    "docURL": "...",
+    "version": "initial",
+    "description": "Default image with caption",
+    "imageUrl": "",
+    "primary": {
+      "image": {"type": "Image", "config": {"label": "Image", "constraint": {}, "thumbnails": []}},
+      "caption": {"type": "Text", "config": {"label": "Caption (optional)", "placeholder": "Image description or credit"}}
+    },
+    "items": {}
+  }]
+}

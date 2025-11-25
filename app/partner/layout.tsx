@@ -13,7 +13,7 @@ export default function PartnersLayout({
   const pathname = usePathname()
 
   // Public routes that don't require authentication
-  const isPublicRoute = pathname?.startsWith('/partner/onboarding')
+  const isPublicRoute = pathname?.startsWith('/partner/onboarding') || pathname === '/partner/login'
 
   // If it's a public onboarding route, render without auth
   if (isPublicRoute) {

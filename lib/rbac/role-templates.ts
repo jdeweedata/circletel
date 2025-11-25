@@ -528,6 +528,45 @@ export const ROLE_TEMPLATES: Record<string, RoleTemplate> = {
     ],
   },
 
+  CONTENT_MANAGER: {
+    id: 'content_manager',
+    name: 'Content Manager',
+    description: 'Full CMS access including templates, AI generation, and publishing',
+    department: 'Marketing',
+    level: 'management',
+    color: 'indigo',
+    icon: 'Layout',
+    permissions: [
+      PERMISSIONS.DASHBOARD.VIEW,
+      PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
+      ...Object.values(PERMISSIONS.CMS),
+      ...Object.values(PERMISSIONS.MARKETING),
+      PERMISSIONS.PRODUCTS.VIEW,
+      PERMISSIONS.PRODUCTS.EDIT,
+      PERMISSIONS.CUSTOMERS.VIEW,
+    ],
+  },
+
+  BLOG_WRITER: {
+    id: 'blog_writer',
+    name: 'Blog Writer',
+    description: 'Creates and edits blog content, no publishing rights',
+    department: 'Marketing',
+    level: 'staff',
+    color: 'teal',
+    icon: 'PenTool',
+    permissions: [
+      PERMISSIONS.DASHBOARD.VIEW,
+      PERMISSIONS.CMS.VIEW,
+      PERMISSIONS.CMS.CREATE,
+      PERMISSIONS.CMS.EDIT,
+      PERMISSIONS.CMS.USE_AI,
+      PERMISSIONS.CMS.MANAGE_MEDIA,
+      PERMISSIONS.MARKETING.VIEW,
+      PERMISSIONS.PRODUCTS.VIEW,
+    ],
+  },
+
   // ============================================
   // SUPPORT & CUSTOMER SERVICE ROLES
   // ============================================

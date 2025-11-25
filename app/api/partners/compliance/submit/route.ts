@@ -5,6 +5,7 @@ import {
   DocumentCategory,
   isComplianceComplete,
 } from '@/lib/partners/compliance-requirements';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     // Get partner record
     const { data: partner, error: partnerError } = await supabase
       .from('partners')
-      .select('id, business_type, compliance_status, status')
+      .select('id, business_type, compliance_status, status, business_name, contact_person, email, partner_number')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -91,8 +92,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send email notification to admin for review
-    // TODO: Send confirmation email to partner
+    // Get document names for the notification
+    const documentNames = uploadedCategories.map(cat =>
+      cat.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    );
+
+    // Send confirmation email to partner
+    try {
+      await EmailNotificationService.sendPartnerComplianceSubmitted({
+        email: partner.email,
+        contact_person: partner.contact_person,
+        business_name: partner.business_name,
+        partner_number: partner.partner_number || undefined,
+        documents_submitted: documentNames,
+      });
+    } catch (emailError) {
+      console.error('Failed to send partner compliance email:', emailError);
+      // Don't fail the submission if email fails
+    }
+
+    // Send notification to admin for review
+    try {
+      await EmailNotificationService.sendAdminPartnerComplianceReview({
+        partner_id: partner.id,
+        business_name: partner.business_name,
+        partner_number: partner.partner_number || undefined,
+        contact_person: partner.contact_person,
+        documents_submitted: documentNames,
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin compliance notification:', emailError);
+      // Don't fail the submission if email fails
+    }
 
     return NextResponse.json(
       {

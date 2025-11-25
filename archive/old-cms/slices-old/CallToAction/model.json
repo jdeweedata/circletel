@@ -1,0 +1,21 @@
+{
+  "id": "call_to_action",
+  "type": "SharedSlice",
+  "name": "CallToAction",
+  "description": "CTA banner with gradient background",
+  "variations": [{
+    "id": "default",
+    "name": "Default",
+    "docURL": "...",
+    "version": "initial",
+    "description": "Default CTA banner",
+    "imageUrl": "",
+    "primary": {
+      "heading": {"type": "Text", "config": {"label": "Heading", "placeholder": "Ready to Get Connected?"}},
+      "description": {"type": "Text", "config": {"label": "Description", "placeholder": "Join thousands of satisfied customers today"}},
+      "cta_text": {"type": "Text", "config": {"label": "CTA Text", "placeholder": "Get Started"}},
+      "cta_link": {"type": "Link", "config": {"label": "CTA Link", "placeholder": "/order", "select": null}}
+    },
+    "items": {}
+  }]
+}

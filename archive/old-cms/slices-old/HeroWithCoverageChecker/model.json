@@ -1,0 +1,69 @@
+{
+  "id": "hero_with_coverage_checker",
+  "type": "SharedSlice",
+  "name": "HeroWithCoverageChecker",
+  "description": "Hero section with integrated coverage checker (residential/business tabs)",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Default variation",
+      "imageUrl": "",
+      "primary": {
+        "heading": {
+          "type": "Text",
+          "config": {
+            "label": "Heading",
+            "placeholder": "Connectivity that fits your budget"
+          }
+        },
+        "subheading": {
+          "type": "Text",
+          "config": {
+            "label": "Subheading",
+            "placeholder": "Check coverage at your address"
+          }
+        },
+        "background_image": {
+          "type": "Image",
+          "config": {
+            "label": "Background Image",
+            "constraint": {
+              "width": 1920,
+              "height": 800
+            },
+            "thumbnails": []
+          }
+        },
+        "cta_text": {
+          "type": "Text",
+          "config": {
+            "label": "CTA Button Text",
+            "placeholder": "Check Coverage"
+          }
+        },
+        "show_residential_tab": {
+          "type": "Boolean",
+          "config": {
+            "label": "Show Residential Tab",
+            "default_value": true,
+            "placeholder_false": "Hidden",
+            "placeholder_true": "Visible"
+          }
+        },
+        "show_business_tab": {
+          "type": "Boolean",
+          "config": {
+            "label": "Show Business Tab",
+            "default_value": true,
+            "placeholder_false": "Hidden",
+            "placeholder_true": "Visible"
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}

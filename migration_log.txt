@@ -1,0 +1,642 @@
+supabase : Connecting to remote database...
+At line:1 char:158
++ ... roduct_catalogue.sql.skipped"; echo y | supabase db push 2>&1 | Out-F ...
++                                             ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Connecting to remote database...:String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Skipping migration 20241228_add_sample_products.sql.skipped... (file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration 20251016000001_create_product_catalogue.sql.skipped... (file name must 
+match pattern "<timestamp>_name.sql")
+Skipping migration APPLY_20251116000001.md... (file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration CLEANUP_SUMMARY.md... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration FIX_get_sync_candidates_function.sql... (file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration README.md... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration README_NOTIFICATIONS_FIX.md... (file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration README_UPDATE_ADMIN_EMAIL.md... (file name must match pattern 
+"<timestamp>_name.sql")
+Skipping migration archive... (file name must match pattern "<timestamp>_name.sql")
+Do you want to push these migrations to the remote database?
+ ??? 20241228_create_products_tables.sql
+ ??? 20241229000001_create_products_real_circletel_data.sql
+ ??? 20250101000001_create_coverage_system_tables.sql
+ ??? 20250120000001_create_payment_consents.sql
+ ??? 20250120000001_fix_skyfibre_pricing.sql
+ ??? 20250120000002_add_account_type_to_customers.sql
+ ??? 20250120000002_populate_service_type_mapping.sql
+ ??? 20250120000010_add_zoho_billing_fields_to_customers.sql
+ ??? 20250120000011_add_zoho_billing_fields_to_customer_services.sql
+ ??? 20250120000012_add_zoho_billing_fields_to_customer_invoices.sql
+ ??? 20250120000013_add_zoho_billing_fields_to_payment_transactions.sql
+ ??? 20250125_update_bizfibre_packages.sql
+ ??? 20250130000001_create_product_audit_logs.sql
+ ??? 20250131000001_create_admin_users.sql
+ ??? 20250131000002_create_service_type_mapping.sql
+ ??? 20250131000003_add_mtn_5g_lte_packages.sql
+ ??? 20250201000001_create_orders_table.sql
+ ??? 20250201000002_add_payment_columns_to_orders.sql
+ ??? 20250201000003_create_pending_admin_users.sql
+ ??? 20250201000004_add_test_admin_account.sql
+ ??? 20250201000005_create_rbac_system.sql
+ ??? 20250923_create_unjani_contract_audits.sql
+ ??? 20250928000001_create_cjf_001_tables.sql
+ ??? 20250929000002_create_coverage_maps_table.sql
+ ??? 20251004000001_add_phase1_tracking_to_coverage_leads.sql
+ ??? 20251005000001_add_customer_type_to_packages.sql
+ ??? 20251005000002_create_fttb_providers_system.sql
+ ??? 20251005000003_add_sme_skyfibre_packages.sql
+ ??? 20251005000004_fix_product_category_mapping.sql
+ ??? 20251005000005_fix_consumer_package_visibility.sql
+ ??? 20251005000006_create_service_packages_audit_log.sql
+ ??? 20251013000001_add_dynamic_pricing_system.sql
+ ??? 20251015000001_update_skyfibre_to_tarana_specifications.sql
+ ??? 20251018000002_add_provider_health_monitoring.sql
+ ??? 20251019000001_enhance_provider_management_system.sql
+ ??? 20251019000002_add_missing_service_mappings_and_products.sql
+ ??? 20251019000002_create_product_approval_system.sql
+ ??? 20251019000003_create_customer_journey_system.sql
+ ??? 20251019000003_part1_enums_and_types.sql
+ ??? 20251020000001_create_payment_transactions.sql
+ ??? 20251020120000_add_mtn_wholesale_mappings.sql
+ ??? 20251021000001_fix_health_metrics_function.sql
+ ??? 20251021000002_create_multi_provider_architecture.sql
+ ??? 20251021000003_fix_provider_code_migration.sql
+ ??? 20251021000004_fix_duplicate_providers.sql
+ ??? 20251021000005_multi_provider_final.sql
+ ??? 20251021000006_cleanup_and_migrate.sql
+ ??? 20251021000007_add_mtn_products.sql
+ ??? 20251021000008_add_correct_products.sql
+ ??? 20251021000010_add_products_final.sql
+ ??? 20251022000001_enable_dfa_provider.sql
+ ??? 20251022000002_cleanup_duplicate_providers.sql
+ ??? 20251022000003_create_kyc_documents_table.sql
+ ??? 20251022000004_add_kyc_documents_rls_policies.sql
+ ??? 20251022000005_add_activation_and_zoho_fields.sql
+ ??? 20251022000005_create_payment_webhooks_and_config.sql
+ ??? 20251022000010_add_account_type_to_customers.sql
+ ??? 20251023000001_add_location_type_field.sql
+ ??? 20251023000002_add_kyc_verification_to_orders.sql
+ ??? 20251023000002_add_supabase_auth_to_customers.sql
+ ??? 20251023000003_fix_customers_rls_infinite_recursion.sql
+ ??? 20251024000001_add_customer_insert_policy.sql
+ ??? 20251024000003_fix_email_verification_trigger.sql
+ ??? 20251024150316_create_notifications_system.sql
+ ??? 20251024160000_create_no_coverage_leads.sql
+ ??? 20251024170000_add_provider_logos.sql
+ ??? 20251024191600_create_order_drafts.sql
+ ??? 20251025000001_create_coverage_analytics.sql
+ ??? 20251025000002_create_analytics_functions.sql
+ ??? 20251025000003_create_customer_dashboard_schema.sql
+ ??? 20251025000004_add_business_fields_to_customers.sql
+ ??? 20251027000001_create_partners_system.sql
+ ??? 20251027100001_rename_kyc_to_compliance.sql
+ ??? 20251027100002_fix_compliance_migration.sql
+ ??? 20251028000001_create_business_quotes_schema.sql
+ ??? 20251028000001_create_order_tracking_system.sql
+ ??? 20251028143000_create_sales_agents.sql
+ ??? 20251028160000_add_quote_notifications.sql
+ ??? 20251030193000_enhance_service_packages.sql
+ ??? 20251030200000_fix_admin_users_rls_infinite_recursion.sql
+ ??? 20251031000001_add_executive_manager_roles.sql
+ ??? 20251031000002_add_service_delivery_roles.sql
+ ??? 20251031000003_create_admin_audit_logs.sql
+ ??? 20251101000001_create_kyc_system.sql
+ ??? 20251101000001_enable_rls_all_tables_CORRECTED.sql
+ ??? 20251101000002_drop_insecure_policies.sql
+ ??? 20251101000003_fix_kyc_documents_security.sql
+ ??? 20251101120000_add_payment_webhooks_idempotency.sql
+ ??? 20251102000001_create_contracts_system.sql
+ ??? 20251102120000_customer_dashboard_schema_enhancement.sql
+ ??? 20251102121000_customer_dashboard_backfill_orders.sql
+ ??? 20251102122000_customer_services_and_billing_tables.sql
+ ??? 20251102123000_customer_invoices_and_payments.sql
+ ??? 20251102124000_audit_and_tracking_tables.sql
+ ??? 20251102200000_add_customer_friendly_features.sql
+ ??? 20251103000001_create_zoho_sync_system.sql
+ ??? 20251104000001_create_invoicing_system.sql
+ ??? 20251104000001_create_partner_commissions.sql
+ ??? 20251104000002_add_tiered_commission_structure.sql
+ ??? 20251104000003_add_product_commission_models.sql
+ ??? 20251104105023_create_mtn_business_deals.sql
+ ??? 20251105000001_create_fulfillment_system.sql
+ ??? 20251105000001_create_quote_tracking.sql
+ ??? 20251106000000_update_development_admin_email.sql
+ ??? 20251106020000_create_payment_tracking_tables.sql
+ ??? 20251106203151_add_mtn_deals_visibility_toggle.sql
+ ??? 20251106210000_fix_notifications_schema.sql
+ ??? 20251106220000_fix_skyfibre_home_customer_type.sql
+ ??? 20251106230000_fix_skyfibre_product_category.sql
+ ??? 20251107010000_create_payment_tracking_tables_fixed.sql
+ ??? 20251107010000_deactivate_duplicate_skyfibre_starter.sql
+ ??? 20251107020000_create_payment_tracking_tables_v2.sql
+ ??? 20251107030000_create_payment_tracking_tables_v3.sql
+ ??? 20251108060000_create_email_templates_system.sql
+ ??? 20251108060000_create_email_templates_system_fixed.sql
+ ??? 20251108070000_create_notification_tracking.sql
+ ??? 20251108070000_create_notification_tracking_fixed.sql
+ ??? 20251108080000_update_order_workflow_prorata_billing.sql
+ ??? 20251108090000_add_admin_activity_log_insert_policy.sql
+ ??? 20251108090000_create_compliance_documents_table.sql
+ ??? 20251108213010_test_migration_creation.sql
+ ??? 20251110000001_add_consumer_orders_performance_indexes.sql
+ ??? 20251115000001_create_product_integrations.sql
+ ??? 20251115000002_add_sync_retry_fields.sql
+ ??? 20251115000003_add_zoho_billing_fields.sql
+ ??? 20251115000004_apply_standardized_skus.sql
+ ??? 20251116000001_create_price_changes.sql
+ ??? 20251116000001_enhance_product_integrations_tracking.sql
+ ??? 20251116120000_create_integration_management_system.sql
+ ??? 20251116120001_migrate_zoho_tokens_to_integration_oauth.sql
+ ??? 20251117000001_add_health_check_tracking.sql
+ ??? 20251117000001_create_order_workflow_infrastructure.sql
+ ??? 20251117000002_create_payment_methods.sql
+ ??? 20251117000003_add_payment_method_statuses.sql
+ ??? 20251119000001_fix_pending_admin_users_role_constraint.sql
+ ??? 20251120000001_fix_admin_users_rls_recursion.sql
+ ??? 20251120000001_remove_admin_users_role_constraint.sql
+ ??? 20251120000014_add_internal_test_account_type.sql
+ ??? 20251122000001_add_installation_document_fields.sql
+ ??? 20251122000002_add_billing_columns_to_consumer_orders.sql
+ ??? 20251123000000_create_cms_tables.sql
+ ??? 20251215000001_create_admin_product_catalogue.sql
+ ??? 20251230000001_create_otp_verifications.sql
+ ??? 20251230000002_create_customers_and_orders.sql
+ ??? 20251230000003_add_payment_method_query_index.sql
+ ??? 20251230000004_add_quote_user_tracking.sql
+ ??? 20251231000001_add_service_packages_publish_fields.sql
+
+ [Y/n] y
+NOTICE (42P06): schema "supabase_migrations" already exists, skipping
+NOTICE (42P07): relation "schema_migrations" already exists, skipping
+NOTICE (42701): column "statements" of relation "schema_migrations" already exists, skipping
+NOTICE (42701): column "name" of relation "schema_migrations" already exists, skipping
+Applying migration 20241228_create_products_tables.sql...
+NOTICE (42P07): relation "products" already exists, skipping
+NOTICE (42701): column "bundle_components" of relation "products" already exists, skipping
+NOTICE (42701): column "features" of relation "products" already exists, skipping
+NOTICE (42701): column "is_featured" of relation "products" already exists, skipping
+NOTICE (42701): column "is_popular" of relation "products" already exists, skipping
+NOTICE (42P07): relation "idx_products_category" already exists, skipping
+NOTICE (42P07): relation "idx_products_service_type" already exists, skipping
+NOTICE (42P07): relation "idx_products_status" already exists, skipping
+NOTICE (42P07): relation "idx_products_slug" already exists, skipping
+NOTICE (42P07): relation "idx_products_featured" already exists, skipping
+NOTICE (42P07): relation "idx_products_popular" already exists, skipping
+NOTICE (00000): trigger "update_promotions_updated_at" for relation "promotions" does not 
+exist, skipping
+ERROR: null value in column "sku" of relation "products" violates not-null constraint 
+(SQLSTATE 23502)                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+      
+Failing row contains (f8c2c581-42d2-4382-82c0-9b545fc965b7, SkyFibre 50, null, connectivity, 
+Reliable wireless broadband with 50Mbps download speed. Perfect ..., null, null, t, 
+2025-11-23 12:22:49.298947+02, 2025-11-23 12:22:49.298947+02, skyfibre-50, SkyFibre, 
+["Wireless technology", "Quick installation", "No cable required..., null, {}, active, f, t, 
+{}, Wireless broadband - 50Mbps, [], {}, 0.00, {}, 599.00, 1499.00, 50, 25, 1, t, ZAR, {}, 
+12, null, null, null).
+At statement: 40                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+-- Insert sample products data                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+INSERT INTO products (name, slug, category, service_type, description, short_description,     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  monthly_price, setup_fee, download_speed, upload_speed, features, is_featured, is_popular, 
+sort_order)                                                                                   
+                                                                                              
+                                                                                              
+                                                                                             
+VALUES                                                                                        
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  -- Connectivity Products                                                                    
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('SkyFibre 50', 'skyfibre-50', 'connectivity', 'SkyFibre',                                  
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Reliable wireless broadband with 50Mbps download speed. Perfect for small offices and 
+remote workers.',                                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+  
+   'Wireless broadband - 50Mbps',                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   599.00, 1499.00, 50, 25,                                                                   
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["Wireless technology", "Quick installation", "No cable required", "Unlimited data", 
+"24/7 support"]',                                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+   
+   false, true, 1),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('SkyFibre 100', 'skyfibre-100', 'connectivity', 'SkyFibre',                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'High-speed wireless broadband with 100Mbps download speed. Ideal for growing 
+businesses.',                                                                                 
+                                                                                              
+                                                                                              
+                                                                                              
+           
+   'Wireless broadband - 100Mbps',                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   899.00, 1499.00, 100, 50,                                                                  
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["Wireless technology", "Quick installation", "No cable required", "Unlimited data", 
+"24/7 support", "Priority support"]',                                                         
+                                                                                              
+                                                                                              
+                                                                                              
+   
+   true, true, 2),                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('HomeFibre 100', 'homefibre-100', 'connectivity', 'HomeFibreConnect',                      
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Premium fibre connection for residential and home offices. Ultra-reliable with 100Mbps 
+speeds.',                                                                                     
+                                                                                              
+                                                                                              
+                                                                                              
+ 
+   'Fibre to the home - 100Mbps',                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   799.00, 1999.00, 100, 100,                                                                 
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["True fibre connection", "Symmetrical speeds", "Ultra-low latency", "Unlimited data", 
+"Free router included"]',                                                                     
+                                                                                              
+                                                                                              
+                                                                                              
+ 
+   true, false, 3),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('HomeFibre 200', 'homefibre-200', 'connectivity', 'HomeFibreConnect',                      
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Premium fibre connection with blazing fast 200Mbps speeds. Perfect for power users.',     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Fibre to the home - 200Mbps',                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   1099.00, 1999.00, 200, 200,                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["True fibre connection", "Symmetrical speeds", "Ultra-low latency", "Unlimited data", 
+"Premium router included", "Priority support"]',                                              
+                                                                                              
+                                                                                              
+                                                                                              
+ 
+   false, false, 4),                                                                          
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('BizFibre 200', 'bizfibre-200', 'connectivity', 'BizFibreConnect',                         
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Enterprise-grade fibre for businesses. Guaranteed uptime with SLA.',                      
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Business fibre - 200Mbps',                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   2499.00, 2999.00, 200, 200,                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["99.9% uptime SLA", "Dedicated support", "Symmetrical speeds", "Static IP included", 
+"Unlimited data", "Same-day support"]',                                                       
+                                                                                              
+                                                                                              
+                                                                                              
+  
+   true, true, 5),                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('BizFibre 500', 'bizfibre-500', 'connectivity', 'BizFibreConnect',                         
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Premium business fibre with 500Mbps speeds. For businesses that need the best.',          
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Business fibre - 500Mbps',                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   4999.00, 2999.00, 500, 500,                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["99.9% uptime SLA", "Dedicated account manager", "Symmetrical speeds", "Multiple static 
+IPs", "Unlimited data", "4-hour response time"]',                                             
+                                                                                              
+                                                                                              
+                                                                                             
+   false, false, 6),                                                                          
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  -- IT Services Products                                                                     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('Basic IT Support', 'basic-it-support', 'it_services', 'IT_Support',                       
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Essential IT support for small businesses. Remote assistance and basic maintenance.',     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Remote IT support package',                                                               
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   1299.00, 0.00, null, null,                                                                 
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["Remote desktop support", "Email support", "Basic security monitoring", "Monthly health 
+check", "Business hours support"]',                                                           
+                                                                                              
+                                                                                              
+                                                                                             
+   false, true, 7),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('Pro IT Support', 'pro-it-support', 'it_services', 'IT_Support',                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Comprehensive IT support with proactive monitoring and priority response.',               
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Advanced IT support package',                                                             
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   2999.00, 999.00, null, null,                                                               
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["24/7 monitoring", "Proactive maintenance", "Priority support", "Quarterly reviews", 
+"Security updates", "Backup management"]',                                                    
+                                                                                              
+                                                                                              
+                                                                                              
+  
+   true, false, 8),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('Microsoft 365 Business', 'microsoft-365-business', 'it_services', 'Cloud_Services',       
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Complete Microsoft 365 suite for businesses. Email, Office apps, and cloud storage.',     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Microsoft 365 for business',                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   399.00, 0.00, null, null,                                                                  
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["Outlook email", "Word, Excel, PowerPoint", "1TB OneDrive storage", "Teams 
+collaboration", "Mobile apps", "Web versions"]',                                              
+                                                                                              
+                                                                                              
+                                                                                              
+            
+   false, true, 9),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  -- Bundle Products                                                                          
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('CircleComplete Starter', 'circle-complete-starter', 'bundle', null,                       
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Perfect bundle for small businesses. Combines connectivity and IT support.',              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Connectivity + IT bundle for SMEs',                                                       
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   1799.00, 999.00, 50, 25,                                                                   
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["SkyFibre 50 connectivity", "Basic IT Support", "Microsoft 365", "Save R398/month", 
+"Single bill", "One support number"]',                                                        
+                                                                                              
+                                                                                              
+                                                                                              
+   
+   true, true, 10),                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+  ('CircleComplete Business', 'circle-complete-business', 'bundle', null,                     
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   'Comprehensive solution for growing businesses. Premium connectivity with full IT 
+support.',                                                                                    
+                                                                                              
+                                                                                              
+                                                                                              
+       
+   'Premium business bundle',                                                                 
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   3999.00, 1999.00, 200, 200,                                                                
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+   '["BizFibre 200 connectivity", "Pro IT Support", "Microsoft 365", "Cloud backup", "Save 
+R998/month", "Dedicated account manager"]',                                                   
+                                                                                              
+                                                                                              
+                                                                                              
+ 
+   true, false, 11)                                                                           
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+ON CONFLICT (slug) DO NOTHING                                                                 
+                                                                                              
+                                                                                              
+                                                                                              
+                                                                                            
+Try rerunning the command with --debug to troubleshoot the error.

@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 export function PWAProvider({ children }: { children: React.ReactNode }) {
   // Use ref to avoid closure issues - the prompt event needs to persist
   const deferredPromptRef = useRef<any>(null);
+  // Track if we've already shown the install prompt to prevent spam
+  const hasShownPromptRef = useRef(false);
 
   useEffect(() => {
     // Install function that uses the ref (avoids stale closure)
@@ -46,6 +48,12 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       // Store the event in ref (not state) to avoid closure issues
       deferredPromptRef.current = e;
       console.log('PWA: beforeinstallprompt event captured');
+
+      // Only show the toast once per session to prevent spam
+      if (hasShownPromptRef.current) {
+        return;
+      }
+      hasShownPromptRef.current = true;
 
       // Show custom install prompt after a delay
       setTimeout(() => {

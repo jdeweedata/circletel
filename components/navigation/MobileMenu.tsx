@@ -13,7 +13,8 @@ import {
 import {
   managedITItems,
   connectivityItems,
-  resourcesItems
+  resourcesItems,
+  partnerItems
 } from './NavigationData';
 
 interface MobileMenuProps {
@@ -46,6 +47,10 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
 
     if (currentPath.includes('/resources/') || currentPath === '/resources') {
       openSections.push('resources');
+    }
+
+    if (currentPath.includes('/partner') || currentPath === '/become-a-partner') {
+      openSections.push('partners');
     }
 
     return openSections;
@@ -121,6 +126,26 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
             <AccordionContent>
               <div className="flex flex-col space-y-1 pl-4">
                 {resourcesItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`py-2 px-3 rounded-md text-sm ${isActive(item.href) ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="partners" className="border-0">
+            <AccordionTrigger className="py-2.5 px-3 font-medium hover:bg-muted/50 hover:no-underline rounded-md text-base md:text-lg lg:text-xl">
+              Partners
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col space-y-1 pl-4">
+                {partnerItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}

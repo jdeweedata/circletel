@@ -20,7 +20,8 @@ import {
   managedITItems,
   connectivityItems,
   cloudHostingItems,
-  resourcesItems
+  resourcesItems,
+  partnerItems
 } from './NavigationData';
 
 // ListItem component for dropdown content
@@ -199,6 +200,40 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {resourcesItems.map((item) => (
+                <li key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-base md:text-lg lg:text-xl",
+                        isActive(item.href) ? 'bg-accent' : ''
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.name}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+              ))}
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+
+        {/* Partners */}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger
+            className={cn(
+              (isActive('/partner') || isActive('/become-a-partner')) && 'bg-accent text-accent-foreground',
+              'text-base md:text-lg lg:text-xl'
+            )}
+          >
+            Partners
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {partnerItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
                     <Link

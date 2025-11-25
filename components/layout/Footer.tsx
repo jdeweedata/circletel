@@ -81,7 +81,8 @@ export const Footer = () => {
               <li><Link href="/resources/it-health" className="hover:text-circleTel-orange transition-colors">IT Assessment</Link></li>
               <li><Link href="/resources/power-backup" className="hover:text-circleTel-orange transition-colors">Power Backup</Link></li>
               <li><Link href="/resources/connectivity-guide" className="hover:text-circleTel-orange transition-colors">Connectivity Guide</Link></li>
-              <li><Link href="/resources/wifi-toolkit" className="hover:text-circleTel-orange transition-colors">Wi-Fi Toolkit</Link></li>
+              <li><Link href="/become-a-partner" className="hover:text-circleTel-orange transition-colors">Become a Partner</Link></li>
+              <li><Link href="/partner/login" className="hover:text-circleTel-orange transition-colors">Partner Login</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-circleTel-orange transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-circleTel-orange transition-colors">Terms & Conditions</Link></li>
             </ul>

@@ -340,7 +340,7 @@ export default function PartnerLeadsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.location.href = `/partners/leads/${lead.id}`}
+                            onClick={() => window.location.href = `/partner/leads/${lead.id}`}
                           >
                             View
                           </Button>

@@ -53,7 +53,14 @@ export type EmailTemplate =
   | 'admin_new_order_service_delivery'
   | 'admin_urgent_order'
   | 'admin_payment_received'
-  | 'admin_installation_scheduled';
+  | 'admin_installation_scheduled'
+  // Partner templates
+  | 'partner_registration_welcome'
+  | 'partner_compliance_submitted'
+  | 'partner_approved'
+  | 'partner_rejected'
+  | 'admin_partner_registration_alert'
+  | 'admin_partner_compliance_review';
 
 export type SmsTemplate =
   | 'order_confirmation'
@@ -304,6 +311,127 @@ export class EmailNotificationService {
         order_number: orderNumber,
         rejection_reason: rejectionReason,
       },
+    });
+  }
+
+  // ==========================================================================
+  // PARTNER NOTIFICATION METHODS
+  // ==========================================================================
+
+  /**
+   * Send welcome email to new partner registration
+   */
+  static async sendPartnerWelcome(data: {
+    email: string;
+    contact_person: string;
+    business_name: string;
+    business_type: string;
+  }): Promise<NotificationResult> {
+    return this.send({
+      to: data.email,
+      subject: `Welcome to CircleTel Partner Program - ${data.business_name}`,
+      template: 'partner_registration_welcome',
+      data,
+    });
+  }
+
+  /**
+   * Send notification when compliance documents are submitted
+   */
+  static async sendPartnerComplianceSubmitted(data: {
+    email: string;
+    contact_person: string;
+    business_name: string;
+    partner_number?: string;
+    documents_submitted?: string[];
+  }): Promise<NotificationResult> {
+    return this.send({
+      to: data.email,
+      subject: `Compliance Documents Received - ${data.business_name}`,
+      template: 'partner_compliance_submitted',
+      data,
+    });
+  }
+
+  /**
+   * Send approval notification to partner
+   */
+  static async sendPartnerApproval(data: {
+    email: string;
+    contact_person: string;
+    business_name: string;
+    partner_number: string;
+    tier: string;
+    commission_rate: number;
+  }): Promise<NotificationResult> {
+    return this.send({
+      to: data.email,
+      subject: `🎉 Congratulations! Your Partner Application is Approved - ${data.partner_number}`,
+      template: 'partner_approved',
+      data,
+    });
+  }
+
+  /**
+   * Send rejection notification to partner
+   */
+  static async sendPartnerRejection(data: {
+    email: string;
+    contact_person: string;
+    business_name: string;
+    rejection_reason?: string;
+  }): Promise<NotificationResult> {
+    return this.send({
+      to: data.email,
+      subject: `Partner Application Update - ${data.business_name}`,
+      template: 'partner_rejected',
+      data,
+    });
+  }
+
+  /**
+   * Send admin alert for new partner registration
+   */
+  static async sendAdminPartnerRegistrationAlert(data: {
+    partner_id: string;
+    business_name: string;
+    business_type: string;
+    registration_number?: string;
+    contact_person: string;
+    email: string;
+    phone: string;
+    street_address: string;
+    city: string;
+    province: string;
+    postal_code: string;
+  }): Promise<NotificationResult> {
+    const adminEmail = process.env.PARTNER_ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || 'partners@circletel.co.za';
+
+    return this.send({
+      to: adminEmail,
+      subject: `🆕 New Partner Registration - ${data.business_name}`,
+      template: 'admin_partner_registration_alert',
+      data,
+    });
+  }
+
+  /**
+   * Send admin alert for compliance documents review
+   */
+  static async sendAdminPartnerComplianceReview(data: {
+    partner_id: string;
+    business_name: string;
+    partner_number?: string;
+    contact_person: string;
+    documents_submitted?: string[];
+  }): Promise<NotificationResult> {
+    const adminEmail = process.env.PARTNER_ADMIN_EMAIL || process.env.ADMIN_NOTIFICATION_EMAIL || 'compliance@circletel.co.za';
+
+    return this.send({
+      to: adminEmail,
+      subject: `📋 Partner Compliance Review Required - ${data.business_name}`,
+      template: 'admin_partner_compliance_review',
+      data,
     });
   }
 
@@ -1418,6 +1546,326 @@ export class EmailNotificationService {
           </div>
           <div class="footer">
             <p>CircleTel Service Delivery Team</p>
+          </div>
+        `;
+        break;
+
+      // =======================================================================
+      // PARTNER EMAIL TEMPLATES
+      // =======================================================================
+
+      case 'partner_registration_welcome':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #F5831F 0%, #FF6B00 100%);">
+            <h1>🤝 Welcome to CircleTel Partner Program!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${data.contact_person},</h2>
+            <p>Thank you for registering <strong>${data.business_name}</strong> with the CircleTel Partner Program!</p>
+
+            <div class="info-box" style="background-color: #FFF7ED; border-left: 4px solid #F5831F;">
+              <h3 style="margin-top: 0; color: #C2410C;">Registration Received</h3>
+              <p>Your application has been received and is now pending review. Our team will verify your information and compliance documents.</p>
+            </div>
+
+            <h3>What Happens Next?</h3>
+            <ol>
+              <li><strong>Document Verification</strong> - We'll review your FICA/CIPC compliance documents</li>
+              <li><strong>Application Review</strong> - Our partnerships team will assess your application</li>
+              <li><strong>Approval Notification</strong> - You'll receive an email once approved</li>
+              <li><strong>Partner Number Assignment</strong> - A unique partner number will be assigned to your account</li>
+            </ol>
+
+            <div class="info-box">
+              <h3 style="margin-top: 0;">Your Registration Details</h3>
+              <div class="info-row">
+                <span class="label">Business Name:</span>
+                <span class="value">${data.business_name}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Business Type:</span>
+                <span class="value">${data.business_type}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Contact Person:</span>
+                <span class="value">${data.contact_person}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value">${data.email}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Status:</span>
+                <span class="value"><strong style="color: #F59E0B;">Pending Review</strong></span>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/partner/dashboard" class="button">
+                Access Partner Portal
+              </a>
+            </div>
+
+            <p>If you have any questions about the review process, please contact us at <a href="mailto:partners@circletel.co.za">partners@circletel.co.za</a></p>
+          </div>
+          <div class="footer">
+            <p>CircleTel Partner Program</p>
+            <p>partners@circletel.co.za | 0860 CIRCLE (0860 247 253)</p>
+          </div>
+        `;
+        break;
+
+      case 'partner_compliance_submitted':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+            <h1>📄 Compliance Documents Received</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${data.contact_person},</h2>
+            <p>We've received your compliance documents for <strong>${data.business_name}</strong>.</p>
+
+            <div class="info-box" style="background-color: #DBEAFE; border-left: 4px solid #3B82F6;">
+              <h3 style="margin-top: 0; color: #1E40AF;">Documents Under Review</h3>
+              <p>Our compliance team will review your submitted documents within 2-3 business days.</p>
+            </div>
+
+            <h3>Documents Submitted</h3>
+            <ul>
+              ${data.documents_submitted?.map((doc: string) => `<li>${doc}</li>`).join('') || '<li>Documents uploaded</li>'}
+            </ul>
+
+            <div class="info-box">
+              <div class="info-row">
+                <span class="label">Partner Number:</span>
+                <span class="value">${data.partner_number || 'Pending Approval'}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Compliance Status:</span>
+                <span class="value"><strong style="color: #3B82F6;">Under Review</strong></span>
+              </div>
+            </div>
+
+            <p>You'll receive a notification once our review is complete. Thank you for your patience!</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/partner/dashboard" class="button" style="background-color: #3B82F6;">
+                View Dashboard
+              </a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>CircleTel Compliance Team</p>
+            <p>compliance@circletel.co.za | 0860 CIRCLE (0860 247 253)</p>
+          </div>
+        `;
+        break;
+
+      case 'partner_approved':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+            <h1>🎉 Congratulations! You're Approved!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${data.contact_person},</h2>
+            <p>Great news! <strong>${data.business_name}</strong> has been approved as a CircleTel Partner!</p>
+
+            <div class="info-box" style="background-color: #D1FAE5; border-left: 4px solid #10B981;">
+              <h3 style="margin-top: 0; color: #065F46;">Your Partner Number</h3>
+              <p style="font-size: 28px; font-weight: bold; color: #065F46; margin: 10px 0;">
+                ${data.partner_number}
+              </p>
+              <p style="margin: 0; font-size: 14px; color: #065F46;">Please save this number for your records</p>
+            </div>
+
+            <h3>Your Partner Benefits</h3>
+            <div class="info-box">
+              <div class="info-row">
+                <span class="label">Partner Tier:</span>
+                <span class="value"><strong style="color: #F5831F; text-transform: capitalize;">${data.tier}</strong></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Commission Rate:</span>
+                <span class="value"><strong>${data.commission_rate}%</strong></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Status:</span>
+                <span class="value"><strong style="color: #10B981;">Active ✓</strong></span>
+              </div>
+            </div>
+
+            <h3>Getting Started</h3>
+            <ol>
+              <li><strong>Access Your Portal</strong> - Log in to manage leads and track commissions</li>
+              <li><strong>Download Marketing Materials</strong> - Access brochures and promotional content</li>
+              <li><strong>Start Referring</strong> - Your unique partner code is ready for use</li>
+              <li><strong>Track Earnings</strong> - Monitor your commissions in real-time</li>
+            </ol>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/partner/dashboard" class="button" style="background-color: #10B981;">
+                Go to Partner Dashboard
+              </a>
+            </div>
+
+            <p>Need help getting started? Our partner success team is here for you at <a href="mailto:partners@circletel.co.za">partners@circletel.co.za</a></p>
+          </div>
+          <div class="footer">
+            <p>CircleTel Partner Program</p>
+            <p>Welcome to the team! 🎉</p>
+            <p>partners@circletel.co.za | 0860 CIRCLE (0860 247 253)</p>
+          </div>
+        `;
+        break;
+
+      case 'partner_rejected':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+            <h1>Partner Application Update</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${data.contact_person},</h2>
+            <p>Thank you for your interest in the CircleTel Partner Program.</p>
+
+            <div class="info-box" style="background-color: #FEE2E2; border-left: 4px solid #EF4444;">
+              <h3 style="margin-top: 0; color: #991B1B;">Application Not Approved</h3>
+              <p>Unfortunately, we are unable to approve your partner application for <strong>${data.business_name}</strong> at this time.</p>
+            </div>
+
+            ${data.rejection_reason ? `
+            <h3>Reason</h3>
+            <div class="info-box">
+              <p>${data.rejection_reason}</p>
+            </div>
+            ` : ''}
+
+            <h3>What You Can Do</h3>
+            <ul>
+              <li><strong>Address the concerns</strong> mentioned above if applicable</li>
+              <li><strong>Update your documents</strong> if they were incomplete or expired</li>
+              <li><strong>Reapply</strong> after 30 days with updated information</li>
+              <li><strong>Contact us</strong> if you have questions about this decision</li>
+            </ul>
+
+            <p>If you believe this decision was made in error or have additional information to provide, please contact our partnerships team at <a href="mailto:partners@circletel.co.za">partners@circletel.co.za</a></p>
+          </div>
+          <div class="footer">
+            <p>CircleTel Partner Program</p>
+            <p>partners@circletel.co.za | 0860 CIRCLE (0860 247 253)</p>
+          </div>
+        `;
+        break;
+
+      case 'admin_partner_registration_alert':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);">
+            <h1>🆕 New Partner Registration</h1>
+          </div>
+          <div class="content">
+            <h2>New Partner Application Received</h2>
+
+            <div class="info-box" style="background-color: #EDE9FE; border-left: 4px solid #8B5CF6;">
+              <h3 style="margin-top: 0; color: #5B21B6;">Business Information</h3>
+              <div class="info-row">
+                <span class="label">Business Name:</span>
+                <span class="value"><strong>${data.business_name}</strong></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Business Type:</span>
+                <span class="value">${data.business_type}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Registration Number:</span>
+                <span class="value">${data.registration_number || 'Not provided'}</span>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <h3 style="margin-top: 0;">Contact Information</h3>
+              <div class="info-row">
+                <span class="label">Contact Person:</span>
+                <span class="value">${data.contact_person}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value"><a href="mailto:${data.email}">${data.email}</a></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Phone:</span>
+                <span class="value"><a href="tel:${data.phone}">${data.phone}</a></span>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <h3 style="margin-top: 0;">Location</h3>
+              <p style="margin: 0;">${data.street_address}</p>
+              <p style="margin: 5px 0 0; color: #6B7280;">${data.city}, ${data.province} ${data.postal_code}</p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/partners/${data.partner_id}" class="button" style="background-color: #8B5CF6;">
+                Review Application
+              </a>
+            </div>
+
+            <div style="background-color: #FEF3C7; padding: 15px; border-radius: 8px; border-left: 4px solid #F59E0B; margin: 20px 0;">
+              <p style="margin: 0;"><strong>⏰ ACTION REQUIRED:</strong> Review partner application and compliance documents</p>
+            </div>
+
+            <p style="font-size: 12px; color: #6B7280;">
+              <strong>Partner ID:</strong> ${data.partner_id}<br>
+              <strong>Received:</strong> ${new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })}
+            </p>
+          </div>
+          <div class="footer">
+            <p>CircleTel Admin System</p>
+            <p>Automated notification</p>
+          </div>
+        `;
+        break;
+
+      case 'admin_partner_compliance_review':
+        content = `
+          <div class="header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+            <h1>📋 Partner Compliance Documents Submitted</h1>
+          </div>
+          <div class="content">
+            <h2>Compliance Review Required</h2>
+
+            <div class="info-box" style="background-color: #FEF3C7; border-left: 4px solid #F59E0B;">
+              <h3 style="margin-top: 0; color: #92400E;">Partner Details</h3>
+              <div class="info-row">
+                <span class="label">Business Name:</span>
+                <span class="value"><strong>${data.business_name}</strong></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Partner Number:</span>
+                <span class="value">${data.partner_number || 'Pending'}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Contact:</span>
+                <span class="value">${data.contact_person}</span>
+              </div>
+            </div>
+
+            <h3>Documents Submitted for Review</h3>
+            <ul>
+              ${data.documents_submitted?.map((doc: string) => `<li>${doc}</li>`).join('') || '<li>Compliance documents uploaded</li>'}
+            </ul>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/partners/${data.partner_id}/compliance" class="button" style="background-color: #F59E0B;">
+                Review Documents
+              </a>
+            </div>
+
+            <p style="font-size: 12px; color: #6B7280;">
+              <strong>Partner ID:</strong> ${data.partner_id}<br>
+              <strong>Submitted:</strong> ${new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })}
+            </p>
+          </div>
+          <div class="footer">
+            <p>CircleTel Compliance System</p>
+            <p>Automated notification</p>
           </div>
         `;
         break;

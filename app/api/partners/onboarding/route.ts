@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
 
 // Partner registration schema (matches frontend validation)
 const partnerRegistrationSchema = z.object({
@@ -151,8 +152,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send notification email to admin for approval
-    // TODO: Send welcome email to partner
+    // Send welcome email to partner
+    try {
+      await EmailNotificationService.sendPartnerWelcome({
+        email: data.email,
+        contact_person: data.contactPerson,
+        business_name: data.businessName,
+        business_type: data.businessType,
+      });
+    } catch (emailError) {
+      console.error('Failed to send partner welcome email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
+    // Send notification to admin for approval
+    try {
+      await EmailNotificationService.sendAdminPartnerRegistrationAlert({
+        partner_id: newPartner.id,
+        business_name: data.businessName,
+        business_type: data.businessType,
+        registration_number: data.registrationNumber,
+        contact_person: data.contactPerson,
+        email: data.email,
+        phone: data.phone,
+        street_address: data.streetAddress,
+        city: data.city,
+        province: data.province,
+        postal_code: data.postalCode,
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin notification:', emailError);
+      // Don't fail the registration if email fails
+    }
 
     return NextResponse.json(
       {

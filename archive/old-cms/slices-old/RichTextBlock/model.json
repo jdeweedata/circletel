@@ -1,0 +1,18 @@
+{
+  "id": "rich_text_block",
+  "type": "SharedSlice",
+  "name": "RichTextBlock",
+  "description": "Long-form content with rich text formatting",
+  "variations": [{
+    "id": "default",
+    "name": "Default",
+    "docURL": "...",
+    "version": "initial",
+    "description": "Default rich text block",
+    "imageUrl": "",
+    "primary": {
+      "content": {"type": "RichText", "config": {"label": "Content", "placeholder": "Enter your content here...", "allowTargetBlank": true, "multi": "paragraph, heading1, heading2, heading3, strong, em, hyperlink, list-item, o-list-item, image, embed"}}
+    },
+    "items": {}
+  }]
+}

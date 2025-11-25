@@ -1,4 +1,4 @@
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList, Handshake, LayoutDashboard } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -191,6 +191,22 @@ export const resourcesItems: NavigationItem[] = [
     href: "/resources/wifi-toolkit",
     icon: Wifi,
     description: "Planning tools for Wi-Fi deployments"
+  }
+];
+
+// Partner section
+export const partnerItems: NavigationItem[] = [
+  {
+    name: "Become a Partner",
+    href: "/become-a-partner",
+    icon: Handshake,
+    description: "Join our partner program and earn recurring commissions"
+  },
+  {
+    name: "Partner Portal",
+    href: "/partner/login",
+    icon: LayoutDashboard,
+    description: "Access your partner dashboard and resources"
   }
 ];
 
