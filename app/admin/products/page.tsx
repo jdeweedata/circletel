@@ -741,31 +741,32 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#f7f8fa] text-gray-800 p-10 space-y-12">
+    <div className="space-y-6 p-6">
       {/* PAGE HEADER */}
-      <header className="mb-6 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Product Catalogue</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <PackageBundle className="h-8 w-8 text-circleTel-orange" />
+            Product Catalogue
+          </h1>
+          <p className="text-gray-600 mt-2">
             Manage your CircleTel product offerings
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => {
               fetchProducts();
               fetchStats();
             }}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border rounded-xl text-sm bg-white shadow-sm hover:bg-gray-50 transition disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
-            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90 rounded-xl shadow-sm">
+            <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange/90">
               <Link href="/admin/products/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Product
@@ -773,52 +774,145 @@ export default function AdminProducts() {
             </Button>
           </PermissionGate>
         </div>
-      </header>
+      </div>
 
-      {/* STATUS SUMMARY BAR */}
-      <section className="flex flex-wrap gap-4 text-sm">
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-gray-900">{productStats.total}</span>
-          <span className="text-gray-500">Total</span>
-        </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-green-600">{productStats.active}</span>
-          <span className="text-gray-500">Active</span>
-        </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-yellow-600">{productStats.draft}</span>
-          <span className="text-gray-500">Draft</span>
-        </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-red-600">{productStats.archived}</span>
-          <span className="text-gray-500">Archived</span>
-        </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-blue-600">{productStats.featured}</span>
-          <span className="text-gray-500">Featured</span>
-        </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
-          <span className="font-semibold text-purple-600">{productStats.popular}</span>
-          <span className="text-gray-500">Popular</span>
-        </div>
-      </section>
+      {/* STATS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Products
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-gray-100">
+              <PackageBundle className="h-5 w-5 text-gray-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.total}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              All products
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Active
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-green-100">
+              <Wifi className="h-5 w-5 text-green-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.active}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Live products
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Draft
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-yellow-100">
+              <Code className="h-5 w-5 text-yellow-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.draft}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Not published
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Archived
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-red-100">
+              <HardDrive className="h-5 w-5 text-red-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.archived}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Discontinued
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Featured
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-blue-100">
+              <Headphones className="h-5 w-5 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.featured}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Highlighted
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Popular
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-purple-100">
+              <PackageBundle className="h-5 w-5 text-purple-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {productStats.popular}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Top sellers
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* SEARCH + FILTERS */}
-      <section className="flex flex-wrap items-center justify-between gap-4 bg-white p-6 border rounded-2xl shadow-sm">
-        <div className="w-full space-y-4">
+      <Card>
+        <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2">
+              <SlidersHorizontal className="h-5 w-5 text-circleTel-orange" />
               Filter Products
               {(() => {
                 const activeCount = Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0);
                 return activeCount > 0 ? (
-                  <span className="px-2 py-1 bg-circleTel-orange text-white text-xs rounded-lg">
+                  <Badge className="bg-circleTel-orange">
                     {activeCount} active
-                  </span>
+                  </Badge>
                 ) : null;
               })()}
-            </h2>
+            </CardTitle>
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full space-y-4">
           <div className="space-y-4">
             {/* Row 1: Search (Full Width) */}
             <div className="relative">
@@ -991,8 +1085,9 @@ export default function AdminProducts() {
               )}
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Active Filter Chips */}
       <ActiveFiltersChips
