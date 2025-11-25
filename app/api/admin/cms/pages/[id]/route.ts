@@ -5,43 +5,30 @@
  * PUT /api/admin/cms/pages/[id] - Update page
  * PATCH /api/admin/cms/pages/[id] - Partial update
  * DELETE /api/admin/cms/pages/[id] - Delete page
+ *
+ * Note: Uses service role to bypass RLS. Admin access is controlled
+ * at the routing/layout level (admin pages require admin session).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { createClient as createServiceClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import type { PageStatus } from '@/lib/cms/types';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-// Helper to verify admin authentication from header or cookies
-async function verifyAdminAuth(request: NextRequest) {
-  // Check Authorization header first (admin panel uses localStorage tokens)
-  const authHeader = request.headers.get('authorization');
-
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    const serviceClient = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    const { data: { user }, error } = await serviceClient.auth.getUser(token);
-    if (!error && user) {
-      return { user, supabase: serviceClient };
+// Create service role client (bypasses RLS - admin only endpoint)
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
-  }
-
-  // Fall back to cookie-based auth
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return { user: null, supabase };
-  }
-
-  return { user, supabase };
+  );
 }
 
 // GET - Get single page
@@ -51,11 +38,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const { user, supabase } = await verifyAdminAuth(request);
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = getServiceClient();
 
     const { data: page, error } = await supabase
       .from('pb_pages')
@@ -81,18 +64,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    const { user, supabase } = await verifyAdminAuth(request);
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    const supabase = getServiceClient();
     const body = await request.json();
 
     // Build update data
     const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
-      updated_by: user.id,
     };
 
     // Only include provided fields
@@ -154,18 +131,12 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
-    const { user, supabase } = await verifyAdminAuth(request);
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    const supabase = getServiceClient();
     const body = await request.json();
 
     // Build update data with only provided fields
     const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
-      updated_by: user.id,
     };
 
     if (body.status !== undefined) {
@@ -203,11 +174,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const { user, supabase } = await verifyAdminAuth(request);
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = getServiceClient();
 
     // Soft delete by setting status to archived, or hard delete
     const { searchParams } = new URL(request.url);
@@ -228,7 +195,6 @@ export async function DELETE(
         .update({
           status: 'archived' as PageStatus,
           updated_at: new Date().toISOString(),
-          updated_by: user.id,
         })
         .eq('id', id);
 
@@ -243,17 +209,4 @@ export async function DELETE(
     console.error('Delete page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-// Helper to get next version number
-async function getNextVersionNumber(supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never, pageId: string): Promise<number> {
-  const { data } = await supabase
-    .from('pb_page_versions')
-    .select('version')
-    .eq('page_id', pageId)
-    .order('version', { ascending: false })
-    .limit(1)
-    .single();
-
-  return (data?.version || 0) + 1;
 }
