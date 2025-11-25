@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,7 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { FeaturesEditor } from '@/components/admin/products/FeaturesEditor';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Tag } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
 // Product edit form schema - using database field names
@@ -50,6 +51,14 @@ const productEditSchema = z.object({
   is_active: z.boolean(),
   featured: z.boolean(),
   change_reason: z.string().min(5, 'Please provide a reason for this change'),
+  // Promotional Pricing
+  is_promotional: z.boolean(),
+  promo_price: z.number().min(0).nullable(),
+  promo_start_date: z.string().nullable(),
+  promo_end_date: z.string().nullable(),
+  promo_discount_type: z.enum(['percentage', 'fixed']).nullable(),
+  promo_discount_value: z.number().min(0).nullable(),
+  promo_code: z.string().nullable(),
 });
 
 type ProductEditFormData = z.infer<typeof productEditSchema>;
@@ -75,6 +84,23 @@ export default function EditProductPage() {
   const features = watch('features') || [];
   const isActive = watch('is_active');
   const featured = watch('featured');
+
+  // Promotional pricing watchers
+  const isPromotional = watch('is_promotional');
+  const promoDiscountType = watch('promo_discount_type');
+  const promoDiscountValue = watch('promo_discount_value');
+  const pricingMonthly = watch('pricing_monthly');
+
+  // Calculate promotional price
+  const calculatedPromoPrice = useMemo(() => {
+    if (!isPromotional || !pricingMonthly) return 0;
+    if (promoDiscountType === 'percentage' && promoDiscountValue) {
+      return Math.round(pricingMonthly * (1 - promoDiscountValue / 100));
+    } else if (promoDiscountType === 'fixed' && promoDiscountValue) {
+      return Math.max(0, pricingMonthly - promoDiscountValue);
+    }
+    return pricingMonthly;
+  }, [isPromotional, pricingMonthly, promoDiscountType, promoDiscountValue]);
 
   // Fetch product data
   useEffect(() => {
@@ -119,6 +145,15 @@ export default function EditProductPage() {
         setValue('is_active', data.data.is_active !== false);
         setValue('featured', data.data.featured === true);
         setValue('change_reason', '');
+
+        // Promotional pricing fields
+        setValue('is_promotional', data.data.is_promotional || false);
+        setValue('promo_price', data.data.price_promo || null);
+        setValue('promo_start_date', data.data.promo_start_date?.split('T')[0] || null);
+        setValue('promo_end_date', data.data.promo_end_date?.split('T')[0] || null);
+        setValue('promo_discount_type', data.data.promo_discount_type || 'percentage');
+        setValue('promo_discount_value', data.data.promo_discount_value || null);
+        setValue('promo_code', data.data.promo_code || null);
       } catch (error: any) {
         toast({
           variant: 'destructive',
@@ -148,6 +183,25 @@ export default function EditProductPage() {
         upload_speed: data.pricing_upload_speed || data.speed_upload || 0,
       };
 
+      // Build promotional data object
+      const promotionalData = data.is_promotional ? {
+        is_promotional: true,
+        price_promo: data.promo_price,
+        promo_start_date: data.promo_start_date,
+        promo_end_date: data.promo_end_date,
+        promo_discount_type: data.promo_discount_type,
+        promo_discount_value: data.promo_discount_value,
+        promo_code: data.promo_code,
+      } : {
+        is_promotional: false,
+        price_promo: null,
+        promo_start_date: null,
+        promo_end_date: null,
+        promo_discount_type: null,
+        promo_discount_value: null,
+        promo_code: null,
+      };
+
       // Sync root-level fields with pricing object (for backward compatibility)
       const syncedData = {
         ...data,
@@ -158,6 +212,8 @@ export default function EditProductPage() {
         speed_upload: data.pricing_upload_speed || data.speed_upload,
         // Add the pricing JSONB object
         pricing: pricingObject,
+        // Add promotional data
+        ...promotionalData,
       };
 
       const response = await fetch(`/api/admin/products/${params.id}`, {
@@ -291,6 +347,11 @@ export default function EditProductPage() {
                       <SelectItem value="SkyFibre">SkyFibre</SelectItem>
                       <SelectItem value="HomeFibreConnect">Home Fibre Connect</SelectItem>
                       <SelectItem value="BizFibreConnect">Biz Fibre Connect</SelectItem>
+                      <SelectItem value="5G">5G</SelectItem>
+                      <SelectItem value="LTE">LTE</SelectItem>
+                      <SelectItem value="VoIP">VoIP</SelectItem>
+                      <SelectItem value="Hosting">Hosting</SelectItem>
+                      <SelectItem value="Security">Security</SelectItem>
                       <SelectItem value="IT_Support">IT Support</SelectItem>
                       <SelectItem value="Cloud_Services">Cloud Services</SelectItem>
                     </SelectContent>
@@ -414,6 +475,134 @@ export default function EditProductPage() {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Promotional Pricing */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tag className="h-5 w-5 text-circleTel-orange" />
+                Promotional Pricing
+              </CardTitle>
+              <CardDescription>
+                Configure special deals and promotional offers
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Enable Promotion Toggle */}
+              <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-100">
+                <div className="space-y-0.5">
+                  <Label htmlFor="is_promotional" className="text-base font-medium">
+                    Enable Promotional Pricing
+                  </Label>
+                  <div className="text-sm text-muted-foreground">
+                    Activate a special deal for this product
+                  </div>
+                </div>
+                <Switch
+                  id="is_promotional"
+                  checked={isPromotional}
+                  onCheckedChange={(checked) => setValue('is_promotional', checked)}
+                  className="h-7 w-14 data-[state=checked]:bg-circleTel-orange data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
+                />
+              </div>
+
+              {/* Promotional Fields (shown when enabled) */}
+              {isPromotional && (
+                <div className="space-y-4 animate-in fade-in duration-200">
+                  {/* Discount Type Selection */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Discount Type</Label>
+                      <Select
+                        value={promoDiscountType || 'percentage'}
+                        onValueChange={(value) => setValue('promo_discount_type', value as 'percentage' | 'fixed')}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="percentage">Percentage Off</SelectItem>
+                          <SelectItem value="fixed">Fixed Amount Off</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>
+                        Discount Value {promoDiscountType === 'percentage' ? '(%)' : '(R)'}
+                      </Label>
+                      <Input
+                        type="number"
+                        {...register('promo_discount_value', { valueAsNumber: true })}
+                        placeholder={promoDiscountType === 'percentage' ? 'e.g., 20' : 'e.g., 100'}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Promo Price Display */}
+                  <div className="space-y-2">
+                    <Label>Promotional Price (ZAR)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...register('promo_price', { valueAsNumber: true })}
+                      placeholder="Final promotional price (leave blank to auto-calculate)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Leave blank to auto-calculate from discount
+                    </p>
+                  </div>
+
+                  {/* Promo Code */}
+                  <div className="space-y-2">
+                    <Label>Promo Code (Optional)</Label>
+                    <Input
+                      {...register('promo_code')}
+                      placeholder="e.g., SUMMER25"
+                    />
+                  </div>
+
+                  {/* Date Range */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Start Date</Label>
+                      <Input
+                        type="date"
+                        {...register('promo_start_date')}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Date</Label>
+                      <Input
+                        type="date"
+                        {...register('promo_end_date')}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Live Preview */}
+                  {pricingMonthly && promoDiscountValue && (
+                    <div className="p-4 bg-slate-50 rounded-lg border">
+                      <p className="text-sm font-medium mb-2">Preview</p>
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-2xl font-bold text-circleTel-orange">
+                          R {calculatedPromoPrice}
+                        </span>
+                        <span className="text-lg text-muted-foreground line-through">
+                          R {Math.round(pricingMonthly)}
+                        </span>
+                        <Badge className="bg-red-500 text-white">
+                          {promoDiscountType === 'percentage'
+                            ? `${promoDiscountValue}% OFF`
+                            : `R${promoDiscountValue} OFF`
+                          }
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -574,6 +763,7 @@ export default function EditProductPage() {
                   id="is_active"
                   checked={isActive}
                   onCheckedChange={(checked) => setValue('is_active', checked)}
+                  className="h-7 w-14 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
                 />
               </div>
 
@@ -588,6 +778,7 @@ export default function EditProductPage() {
                   id="featured"
                   checked={featured}
                   onCheckedChange={(checked) => setValue('featured', checked)}
+                  className="h-7 w-14 data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-gray-300 transition-colors shadow-inner"
                 />
               </div>
             </CardContent>
@@ -620,7 +811,11 @@ export default function EditProductPage() {
                 Cancel
               </Button>
             </Link>
-            <Button type="submit" disabled={saving}>
+            <Button
+              type="submit"
+              disabled={saving}
+              className="bg-circleTel-orange text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:bg-[#e07018] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md"
+            >
               {saving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

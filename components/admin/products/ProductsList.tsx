@@ -23,7 +23,10 @@ import {
   TrendingUp,
   GripVertical,
   UploadCloud,
+  ArrowDown,
+  ArrowUp,
 } from 'lucide-react';
+import { getCategoryTheme, getStatusStripeColor, formatCategoryName } from '@/lib/admin/product-category-theme';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -159,9 +162,16 @@ export function ProductsList({
               'relative overflow-x-auto'
             )}
           >
+            {/* Status Stripe - Left Border */}
             <div
               className={cn(
-                'flex items-center gap-4 p-4 border-2 rounded-lg transition-all duration-200 min-w-[900px]',
+                'absolute left-0 top-0 bottom-0 w-1 rounded-l-lg z-10',
+                getStatusStripeColor(product)
+              )}
+            />
+            <div
+              className={cn(
+                'flex items-center gap-4 p-4 pl-5 border-2 rounded-lg transition-all duration-200 min-w-[900px]',
                 'hover:shadow-md hover:border-circleTel-orange/50',
                 isSelected && 'border-circleTel-orange shadow-md bg-orange-50/30',
                 !isSelected && index % 2 === 0 ? 'border-gray-200 bg-white' : 'border-gray-200 bg-gray-50'
@@ -213,6 +223,24 @@ export function ProductsList({
                 <h3 className="font-semibold text-gray-900 text-base truncate">
                   {product.name}
                 </h3>
+                {/* Category Badge with Icon */}
+                {columnVisibility.category && product.category && (() => {
+                  const theme = getCategoryTheme(product.category);
+                  const CategoryIcon = theme.icon;
+                  return (
+                    <Badge
+                      className={cn(
+                        'text-[10px] font-bold uppercase tracking-wider border',
+                        theme.bg,
+                        theme.color,
+                        theme.border
+                      )}
+                    >
+                      <CategoryIcon className="w-3 h-3 mr-1" />
+                      {formatCategoryName(product.category)}
+                    </Badge>
+                  );
+                })()}
                 {columnVisibility.status && getStatusBadge(product)}
                 {columnVisibility.featuredPopular && product.is_featured && (
                   <Badge className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
@@ -234,43 +262,28 @@ export function ProductsList({
                 </p>
               )}
 
-              <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
+              <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
                 {columnVisibility.sku && (
-                  <>
-                    <span className="font-medium">SKU: {product.sku}</span>
-                    <span>•</span>
-                  </>
-                )}
-                {columnVisibility.category && (
-                  <>
-                    <span className="capitalize">{product.category}</span>
-                    <span>•</span>
-                  </>
+                  <span className="font-mono text-gray-600">SKU: {product.sku}</span>
                 )}
                 {columnVisibility.serviceType && product.service_type && (
-                  <>
-                    <Badge variant="outline" className="text-xs">{product.service_type}</Badge>
-                    <span>•</span>
-                  </>
+                  <Badge variant="outline" className="text-xs">{product.service_type}</Badge>
                 )}
                 {columnVisibility.speed && product.pricing?.download_speed && product.pricing?.upload_speed && (
-                  <>
-                    <span>
-                      Speed: {product.pricing.download_speed}/{product.pricing.upload_speed} Mbps
-                    </span>
-                    <span>•</span>
-                  </>
+                  <span className="flex items-center gap-1">
+                    <ArrowDown size={12} className="text-emerald-500" />
+                    <span className="font-medium">{product.pricing.download_speed}</span>
+                    <span className="text-gray-400">/</span>
+                    <ArrowUp size={12} className="text-blue-500" />
+                    <span className="font-medium">{product.pricing.upload_speed}</span>
+                    <span className="text-gray-400">Mbps</span>
+                  </span>
                 )}
                 {columnVisibility.contract && product.metadata?.contract_months && (
-                  <>
-                    <span>Contract: {product.metadata.contract_months}mo</span>
-                    <span>•</span>
-                  </>
+                  <span className="text-gray-500">{product.metadata.contract_months}mo contract</span>
                 )}
                 {columnVisibility.updatedDate && (
-                  <>
-                    <span>Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
-                  </>
+                  <span className="text-gray-400">Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
                 )}
               </div>
             </div>

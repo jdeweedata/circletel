@@ -51,6 +51,9 @@ export async function GET(
 
     // Map service_packages fields to match frontend expectations
     try {
+      // Extract promotional data from metadata
+      const promoData = product.metadata?.promotional || {};
+
       const mappedProduct = {
         ...product,
         // Map service_packages fields to products fields for compatibility
@@ -61,6 +64,14 @@ export async function GET(
         featured: product.is_featured || false,
         data_limit: product.metadata?.data_limit || '',
         contract_duration: product.metadata?.contract_duration || '',
+        // Promotional pricing fields (from metadata)
+        is_promotional: promoData.is_active || false,
+        price_promo: promoData.price || product.promotion_price || null,
+        promo_start_date: promoData.start_date || null,
+        promo_end_date: promoData.end_date || null,
+        promo_discount_type: promoData.discount_type || 'percentage',
+        promo_discount_value: promoData.discount_value || null,
+        promo_code: promoData.promo_code || null,
       };
 
       console.log('[Product Detail API] Successfully mapped product');
@@ -91,6 +102,18 @@ export async function GET(
     );
   }
 }
+
+// Valid columns in service_packages table (whitelist approach)
+const VALID_SERVICE_PACKAGE_COLUMNS = new Set([
+  'name', 'service_type', 'speed_down', 'speed_up', 'price', 'promotion_price',
+  'promotion_months', 'description', 'features', 'active', 'sort_order',
+  'product_category', 'customer_type', 'network_provider_id', 'requires_fttb_coverage',
+  'compatible_providers', 'provider_specific_config', 'provider_priority', 'pricing',
+  'slug', 'sku', 'metadata', 'is_featured', 'is_popular', 'status', 'bundle_components',
+  'base_price_zar', 'cost_price_zar', 'customer_friendly_features', 'marketing_copy',
+  'source_admin_product_id', 'valid_from', 'valid_to', 'market_segment', 'provider',
+  'logical_key', 'price_history'
+]);
 
 // PUT /api/admin/products/[id] - Update product
 export async function PUT(
@@ -123,7 +146,7 @@ export async function PUT(
       hasChangeReason: !!changeReason
     });
 
-    // Remove change_reason and pricing object fields from update payload
+    // Extract all known fields - anything not in whitelist will be ignored
     const {
       change_reason,
       // Frontend field names that need mapping (not direct database columns)
@@ -139,12 +162,23 @@ export async function PUT(
       data_limit, contract_duration,
       // UI-only fields
       features,
-      ...updateData
+      // Promotional fields (store in metadata, not direct columns)
+      is_promotional, price_promo, promo_price, promo_start_date, promo_end_date,
+      promo_discount_type, promo_discount_value, promo_code,
+      ...remainingFields
     } = body;
+
+    // Start with only whitelisted fields from remaining
+    const updateData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(remainingFields)) {
+      if (VALID_SERVICE_PACKAGE_COLUMNS.has(key) && value !== undefined) {
+        updateData[key] = value;
+      }
+    }
 
     // Build pricing JSONB object (trigger will auto-sync to root fields)
     // Only update pricing if pricing-related fields are provided
-    if (body.pricing || pricing_monthly || base_price_zar || price_monthly || monthly_price || 
+    if (body.pricing || pricing_monthly || base_price_zar || price_monthly || monthly_price ||
         pricing_setup || cost_price_zar || price_once_off || setup_fee ||
         pricing_download_speed || body.speed_download || pricing_upload_speed || body.speed_upload) {
       const pricingObject = body.pricing || {
@@ -154,6 +188,16 @@ export async function PUT(
         upload_speed: pricing_upload_speed ?? body.speed_upload ?? 0
       };
       updateData.pricing = pricingObject;
+
+      // Also update root-level price fields for backward compatibility
+      const monthlyPrice = pricing_monthly ?? base_price_zar ?? price_monthly ?? monthly_price;
+      const setupPrice = pricing_setup ?? cost_price_zar ?? price_once_off ?? setup_fee;
+      if (monthlyPrice !== undefined && monthlyPrice !== null) {
+        updateData.base_price_zar = monthlyPrice;
+      }
+      if (setupPrice !== undefined && setupPrice !== null) {
+        updateData.cost_price_zar = setupPrice;
+      }
     }
 
     // Map form fields to service_packages schema
@@ -190,6 +234,26 @@ export async function PUT(
       // Store features in metadata as well
       updateData.features = features;
     }
+
+    // Store promotional pricing in metadata (columns don't exist in table)
+    if (is_promotional !== undefined) {
+      metadata.promotional = {
+        is_active: is_promotional,
+        price: promo_price ?? price_promo ?? null,
+        start_date: promo_start_date ?? null,
+        end_date: promo_end_date ?? null,
+        discount_type: promo_discount_type ?? null,
+        discount_value: promo_discount_value ?? null,
+        promo_code: promo_code ?? null,
+      };
+      // Also update the existing promotion_price column if available
+      if (is_promotional && (promo_price || price_promo)) {
+        updateData.promotion_price = promo_price ?? price_promo;
+      } else if (!is_promotional) {
+        updateData.promotion_price = null;
+      }
+    }
+
     if (Object.keys(metadata).length > 0) {
       updateData.metadata = metadata;
     }
@@ -198,6 +262,7 @@ export async function PUT(
     console.log('[Product Update API] Updating product:', {
       productId: id,
       updateDataKeys: Object.keys(updateData),
+      updateData: JSON.stringify(updateData, null, 2),
       hasPricing: !!updateData.pricing,
       hasMetadata: !!updateData.metadata,
       userEmail,
