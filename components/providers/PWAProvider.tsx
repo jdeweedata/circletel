@@ -1,38 +1,72 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 export function PWAProvider({ children }: { children: React.ReactNode }) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  // Use ref to avoid closure issues - the prompt event needs to persist
+  const deferredPromptRef = useRef<any>(null);
 
   useEffect(() => {
+    // Install function that uses the ref (avoids stale closure)
+    const triggerInstall = async () => {
+      const prompt = deferredPromptRef.current;
+      if (!prompt) {
+        console.log('PWA: No deferred prompt available');
+        return;
+      }
+
+      try {
+        // Show the native install prompt
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
+
+        if (outcome === 'accepted') {
+          console.log('PWA: User accepted the install prompt');
+          toast.success("CircleTel App installed successfully!");
+        } else {
+          console.log('PWA: User dismissed the install prompt');
+        }
+      } catch (error) {
+        console.error('PWA: Error during install:', error);
+      } finally {
+        // Clear the prompt - it can only be used once
+        deferredPromptRef.current = null;
+      }
+    };
+
+    // Expose globally for the toast action
+    (window as any).triggerPWAInstall = triggerInstall;
+
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      setDeferredPrompt(e);
-      setIsInstallable(true);
 
-      // Show custom install prompt
+      // Store the event in ref (not state) to avoid closure issues
+      deferredPromptRef.current = e;
+      console.log('PWA: beforeinstallprompt event captured');
+
+      // Show custom install prompt after a delay
       setTimeout(() => {
         toast("Install CircleTel App", {
           description: "Get the full experience with our mobile app!",
           action: {
             label: "Install",
-            onClick: () => installPWA(),
+            onClick: () => {
+              // Call the global function to avoid closure issues
+              (window as any).triggerPWAInstall?.();
+            },
           },
-          duration: 10000,
+          duration: 15000,
         });
       }, 3000);
     };
 
     // Listen for app installed event
     const handleAppInstalled = () => {
-      setIsInstallable(false);
-      setDeferredPrompt(null);
-      toast.success("CircleTel App installed successfully!");
+      deferredPromptRef.current = null;
+      console.log('PWA: App was installed');
     };
 
     // Register service worker
@@ -40,7 +74,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
-          console.log('SW registered: ', registration);
+          console.log('PWA: Service Worker registered:', registration);
 
           // Listen for updates
           registration.addEventListener('updatefound', () => {
@@ -60,7 +94,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
             }
           });
         } catch (error) {
-          console.log('SW registration failed: ', error);
+          console.log('PWA: Service Worker registration failed:', error);
         }
       });
     } else if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -68,7 +102,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (let registration of registrations) {
           registration.unregister();
-          console.log('Unregistered existing service worker in dev mode');
+          console.log('PWA: Unregistered service worker in dev mode');
         }
       });
     }
@@ -79,29 +113,9 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      delete (window as any).triggerPWAInstall;
     };
   }, []);
-
-  const installPWA = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-
-      setDeferredPrompt(null);
-      setIsInstallable(false);
-    }
-  };
-
-  // Expose install function globally for use in components
-  useEffect(() => {
-    (window as any).installPWA = installPWA;
-  }, [installPWA]);
 
   return <>{children}</>;
 }
