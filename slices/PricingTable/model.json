@@ -1,0 +1,94 @@
+{
+  "id": "pricing_table",
+  "type": "SharedSlice",
+  "name": "PricingTable",
+  "description": "PricingTable",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Default",
+      "imageUrl": "",
+      "primary": {
+        "title": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Title",
+            "placeholder": "Choose Your Perfect Plan",
+            "allowTargetBlank": true,
+            "multi": "paragraph,preformatted,heading1,heading2,heading3,heading4,heading5,heading6,strong,em,hyperlink,image,embed,list-item,o-list-item,rtl"
+          }
+        },
+        "subtitle": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Subtitle",
+            "placeholder": "Flexible pricing for individuals and businesses",
+            "allowTargetBlank": true,
+            "multi": "paragraph,preformatted,heading1,heading2,heading3,heading4,heading5,heading6,strong,em,hyperlink,image,embed,list-item,o-list-item,rtl"
+          }
+        }
+      },
+      "items": {
+        "tier_name": {
+          "type": "Text",
+          "config": {
+            "label": "Tier Name",
+            "placeholder": "Starter"
+          }
+        },
+        "price": {
+          "type": "Text",
+          "config": {
+            "label": "Price",
+            "placeholder": "R499/month"
+          }
+        },
+        "description": {
+          "type": "Text",
+          "config": {
+            "label": "Description",
+            "placeholder": "Perfect for small businesses"
+          }
+        },
+        "features": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Features",
+            "placeholder": "Enter features as a list",
+            "allowTargetBlank": true,
+            "multi": "list-item,o-list-item"
+          }
+        },
+        "cta_button_text": {
+          "type": "Text",
+          "config": {
+            "label": "CTA Button Text",
+            "placeholder": "Get Started"
+          }
+        },
+        "cta_button_link": {
+          "type": "Link",
+          "config": {
+            "label": "CTA Button Link",
+            "placeholder": "",
+            "select": null,
+            "allowTargetBlank": true,
+            "allowText": false
+          }
+        },
+        "is_featured": {
+          "type": "Boolean",
+          "config": {
+            "label": "Is Featured",
+            "placeholder_false": "Regular",
+            "placeholder_true": "Featured (highlighted)",
+            "default_value": false
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "recipe",
+  "type": "SharedSlice",
+  "name": "Recipe",
+  "description": "IT service recipe with ingredients, pricing, and testimonial",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Default",
+      "imageUrl": "",
+      "primary": {
+        "badge_text": {
+          "type": "Text",
+          "config": {
+            "label": "Badge Text",
+            "placeholder": "e.g., Most Popular, Best for Growth"
+          }
+        },
+        "badge_color": {
+          "type": "Select",
+          "config": {
+            "label": "Badge Color",
+            "placeholder": "Select badge color",
+            "options": ["blue", "purple", "red", "green", "orange"],
+            "default_value": "blue"
+          }
+        },
+        "title": {
+          "type": "Text",
+          "config": {
+            "label": "Recipe Title",
+            "placeholder": "e.g., Basic IT Recipe"
+          }
+        },
+        "description": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Description",
+            "placeholder": "Recipe description...",
+            "single": "paragraph"
+          }
+        },
+        "ingredients_title": {
+          "type": "Text",
+          "config": {
+            "label": "Ingredients Title",
+            "placeholder": "e.g., Ingredients"
+          }
+        },
+        "ingredients": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Ingredients List",
+            "placeholder": "List of included services...",
+            "allowTargetBlank": false,
+            "multi": "list-item"
+          }
+        },
+        "price": {
+          "type": "Text",
+          "config": {
+            "label": "Price",
+            "placeholder": "e.g., R3,500/mo"
+          }
+        },
+        "cta_text": {
+          "type": "Text",
+          "config": {
+            "label": "CTA Button Text",
+            "placeholder": "e.g., Get Started"
+          }
+        },
+        "cta_link": {
+          "type": "Link",
+          "config": {
+            "label": "CTA Link",
+            "placeholder": "Link to contact or order page",
+            "select": null
+          }
+        },
+        "testimonial_quote": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Testimonial Quote",
+            "placeholder": "Customer testimonial...",
+            "single": "paragraph"
+          }
+        },
+        "testimonial_author": {
+          "type": "Text",
+          "config": {
+            "label": "Author Name",
+            "placeholder": "e.g., Sarah Baloyi"
+          }
+        },
+        "testimonial_company": {
+          "type": "Text",
+          "config": {
+            "label": "Author Company",
+            "placeholder": "e.g., Green Leaf Accounting"
+          }
+        },
+        "testimonial_initials": {
+          "type": "Text",
+          "config": {
+            "label": "Author Initials",
+            "placeholder": "e.g., SB"
+          }
+        },
+        "background_color": {
+          "type": "Select",
+          "config": {
+            "label": "Background Style",
+            "placeholder": "Select background",
+            "options": ["white", "light-gray", "orange-tint"],
+            "default_value": "white"
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}

@@ -59,6 +59,34 @@ CREATE TABLE IF NOT EXISTS products (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Ensure columns exist if table was already created without them
+ALTER TABLE products ADD COLUMN IF NOT EXISTS short_description TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS requirements JSONB DEFAULT '[]';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS specifications JSONB DEFAULT '{}';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS bundle_components TEXT[] DEFAULT '{}';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS bundle_savings DECIMAL(10, 2) DEFAULT 0;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS gallery_urls TEXT[] DEFAULT '{}';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS monthly_price DECIMAL(10, 2);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS setup_fee DECIMAL(10, 2) DEFAULT 0;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS download_speed INTEGER;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS upload_speed INTEGER;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS is_popular BOOLEAN DEFAULT false;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS vat_inclusive BOOLEAN DEFAULT true;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'ZAR';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS availability_zones TEXT[] DEFAULT '{}';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS min_contract_months INTEGER DEFAULT 12;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS meta_title TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS meta_description TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS sku TEXT;
+ALTER TABLE products ALTER COLUMN sku DROP NOT NULL;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS deal_id TEXT;
+ALTER TABLE products ALTER COLUMN deal_id DROP NOT NULL;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS provider TEXT;
+
 -- Create promotions table
 CREATE TABLE IF NOT EXISTS promotions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -86,15 +114,15 @@ CREATE TABLE IF NOT EXISTS product_comparisons (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_service_type ON products(service_type);
-CREATE INDEX idx_products_status ON products(status);
-CREATE INDEX idx_products_slug ON products(slug);
-CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = true;
-CREATE INDEX idx_products_popular ON products(is_popular) WHERE is_popular = true;
-CREATE INDEX idx_promotions_product_id ON promotions(product_id);
-CREATE INDEX idx_promotions_status ON promotions(status);
-CREATE INDEX idx_promotions_valid_dates ON promotions(valid_from, valid_until);
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_service_type ON products(service_type);
+CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
+CREATE INDEX IF NOT EXISTS idx_products_featured ON products(is_featured) WHERE is_featured = true;
+CREATE INDEX IF NOT EXISTS idx_products_popular ON products(is_popular) WHERE is_popular = true;
+CREATE INDEX IF NOT EXISTS idx_promotions_product_id ON promotions(product_id);
+CREATE INDEX IF NOT EXISTS idx_promotions_status ON promotions(status);
+CREATE INDEX IF NOT EXISTS idx_promotions_valid_dates ON promotions(valid_from, valid_until);
 
 -- Create updated_at trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -105,9 +133,11 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_promotions_updated_at ON promotions;
 CREATE TRIGGER update_promotions_updated_at BEFORE UPDATE ON promotions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -193,7 +223,8 @@ VALUES
    'Premium business bundle',
    3999.00, 1999.00, 200, 200,
    '["BizFibre 200 connectivity", "Pro IT Support", "Microsoft 365", "Cloud backup", "Save R998/month", "Dedicated account manager"]',
-   true, false, 11);
+   true, false, 11)
+ON CONFLICT (slug) DO NOTHING;
 
 -- Insert sample promotions
 INSERT INTO promotions (product_id, name, description, discount_type, discount_value, promo_code, valid_until)

@@ -107,7 +107,7 @@ const getPageInfo = (pathname: string): { title: string; description: string } =
 
   // CMS
   if (pathname.startsWith('/admin/cms')) {
-    return { title: 'CMS Management', description: 'Manage Strapi content' };
+    return { title: 'CMS Management', description: 'Manage website content' };
   }
 
   // Coverage

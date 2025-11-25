@@ -1,0 +1,117 @@
+{
+  "id": "comparison_table",
+  "type": "SharedSlice",
+  "name": "ComparisonTable",
+  "description": "Comparison table for connectivity options or service tiers",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Default",
+      "imageUrl": "",
+      "primary": {
+        "section_title": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Section Title",
+            "placeholder": "e.g., Connectivity Comparison",
+            "allowTargetBlank": false,
+            "single": "heading2"
+          }
+        },
+        "section_description": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Section Description",
+            "placeholder": "Optional description...",
+            "allowTargetBlank": false,
+            "single": "paragraph"
+          }
+        },
+        "column_1_header": {
+          "type": "Text",
+          "config": {
+            "label": "Column 1 Header",
+            "placeholder": "e.g., Fibre"
+          }
+        },
+        "column_2_header": {
+          "type": "Text",
+          "config": {
+            "label": "Column 2 Header",
+            "placeholder": "e.g., 5G"
+          }
+        },
+        "column_3_header": {
+          "type": "Text",
+          "config": {
+            "label": "Column 3 Header",
+            "placeholder": "e.g., Fixed Wireless"
+          }
+        },
+        "column_4_header": {
+          "type": "Text",
+          "config": {
+            "label": "Column 4 Header (Optional)",
+            "placeholder": "e.g., LTE"
+          }
+        },
+        "footer_note": {
+          "type": "Text",
+          "config": {
+            "label": "Footer Note",
+            "placeholder": "Optional table footnote..."
+          }
+        }
+      },
+      "items": {
+        "row_label": {
+          "type": "Text",
+          "config": {
+            "label": "Row Label",
+            "placeholder": "e.g., Speed, Availability"
+          }
+        },
+        "column_1_value": {
+          "type": "Text",
+          "config": {
+            "label": "Column 1 Value",
+            "placeholder": "Value or rating"
+          }
+        },
+        "column_2_value": {
+          "type": "Text",
+          "config": {
+            "label": "Column 2 Value",
+            "placeholder": "Value or rating"
+          }
+        },
+        "column_3_value": {
+          "type": "Text",
+          "config": {
+            "label": "Column 3 Value",
+            "placeholder": "Value or rating"
+          }
+        },
+        "column_4_value": {
+          "type": "Text",
+          "config": {
+            "label": "Column 4 Value (Optional)",
+            "placeholder": "Value or rating"
+          }
+        },
+        "highlight_row": {
+          "type": "Boolean",
+          "config": {
+            "label": "Highlight Row",
+            "placeholder_false": "Normal",
+            "placeholder_true": "Highlighted",
+            "default_value": false
+          }
+        }
+      }
+    }
+  ]
+}

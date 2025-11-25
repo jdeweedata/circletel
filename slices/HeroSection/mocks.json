@@ -1,0 +1,68 @@
+[
+	{
+		"__TYPE__": "SharedSliceContent",
+		"variation": "default",
+		"primary": {
+			"headline": {
+				"__TYPE__": "StructuredTextContent",
+				"value": [
+					{
+						"type": "paragraph",
+						"content": {
+							"text": "Exercitation fugiat deserunt non aliquip dolor non sunt incididunt est minim ipsum sunt."
+						}
+					}
+				]
+			},
+			"subheadline": {
+				"__TYPE__": "StructuredTextContent",
+				"value": [
+					{
+						"type": "paragraph",
+						"content": {
+							"text": "Proident proident magna ad nulla laboris aliqua ullamco deserunt esse ad fugiat officia. Elit magna deserunt enim ea veniam minim non enim."
+						}
+					}
+				]
+			},
+			"cta_button_text": {
+				"__TYPE__": "FieldContent",
+				"value": "good",
+				"type": "Text"
+			},
+			"background_image": {
+				"origin": {
+					"id": "main",
+					"url": "https://images.unsplash.com/photo-1589321578146-4c1ba445cc88",
+					"width": 3168,
+					"height": 4752
+				},
+				"url": "https://images.unsplash.com/photo-1589321578146-4c1ba445cc88",
+				"width": 3168,
+				"height": 4752,
+				"edit": {
+					"zoom": 1,
+					"crop": {
+						"x": 0,
+						"y": 0
+					},
+					"background": "transparent"
+				},
+				"alt": "cell",
+				"credits": null,
+				"__TYPE__": "ImageContent",
+				"thumbnails": {}
+			},
+			"cta_button_link": {
+				"__TYPE__": "LinkContent",
+				"key": "3b22044b-2607-4c2f-a410-2c675b90310e",
+				"value": {
+					"__TYPE__": "ExternalLink",
+					"url": "https://prismic.io",
+					"text": "sense"
+				}
+			}
+		},
+		"items": []
+	}
+]

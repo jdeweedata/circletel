@@ -1,0 +1,58 @@
+{
+  "id": "case_study",
+  "type": "SharedSlice",
+  "name": "CaseStudy",
+  "description": "Customer case study or testimonial with quote and details",
+  "variations": [
+    {
+      "id": "default",
+      "name": "Default",
+      "docURL": "...",
+      "version": "initial",
+      "description": "Default",
+      "imageUrl": "",
+      "primary": {
+        "title": {
+          "type": "Text",
+          "config": {
+            "label": "Case Study Title",
+            "placeholder": "e.g., Financial Services Success Story"
+          }
+        },
+        "quote": {
+          "type": "StructuredText",
+          "config": {
+            "label": "Quote",
+            "placeholder": "Customer testimonial quote...",
+            "allowTargetBlank": false,
+            "multi": "paragraph,em,strong"
+          }
+        },
+        "author": {
+          "type": "Text",
+          "config": {
+            "label": "Author Name",
+            "placeholder": "e.g., John Smith"
+          }
+        },
+        "company": {
+          "type": "Text",
+          "config": {
+            "label": "Company/Title",
+            "placeholder": "e.g., CEO, Example Corp"
+          }
+        },
+        "background_color": {
+          "type": "Select",
+          "config": {
+            "label": "Background Style",
+            "placeholder": "Select background",
+            "options": ["white", "light-gray", "orange-border"],
+            "default_value": "white"
+          }
+        }
+      },
+      "items": {}
+    }
+  ]
+}

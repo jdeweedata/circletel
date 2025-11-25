@@ -1,4 +1,0 @@
-[submodule "strapi-cms"]
-	path = strapi-cms
-	url = https://github.com/jdeweedata/circletel-strapi-cms.git
-	ignore = dirty

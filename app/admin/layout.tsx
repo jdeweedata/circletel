@@ -22,7 +22,7 @@ export default function AdminLayout({
   const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.');
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password', '/admin/cms'];
+  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route)) || isStudioSubdomain;
 
   // Fetch admin user from API (server-side validates session from cookies)

@@ -1,0 +1,152 @@
+# .claudeignore
+# Exclude patterns for Claude Code context management
+# Add this file to your project root to help Claude avoid loading unnecessary files
+
+# Dependencies
+node_modules/
+.pnpm-store/
+bower_components/
+jspm_packages/
+vendor/
+Pods/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Build outputs
+dist/
+build/
+out/
+target/
+.next/
+.nuxt/
+.output/
+.vercel/
+*.dll
+*.exe
+*.o
+*.obj
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Version control
+.git/
+.svn/
+.hg/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+*.test.js.snap
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache
+.cache/
+.parcel-cache/
+.sass-cache/
+*.cache
+.eslintcache
+.stylelintcache
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+.tmp/
+
+# Documentation builds
+docs/_build/
+site/
+_site/
+.docusaurus/
+
+# Lock files (optional - include if causing issues)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# Gemfile.lock
+# Pipfile.lock
+
+# Large data files
+*.csv
+*.tsv
+*.xlsx
+*.sqlite
+*.db
+*.sql
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.webp
+
+# Compiled assets
+*.min.js
+*.min.css
+*.bundle.js
+*.chunk.js
+*.map
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Add project-specific exclusions below
+# Example:
+# data/large_dataset/
+# legacy/old_code/
+# prototypes/

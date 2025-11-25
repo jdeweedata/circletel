@@ -59,9 +59,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Claude Code
-.claude/
-
 # Temporary files
 *.tmp
 *.temp
@@ -101,3 +98,6 @@ test-*.bat
 /scripts/*.ps1
 
 .env*.local
+# Wappalyzer extension files
+wappalyzer*.js
+**/wappalyzer/**

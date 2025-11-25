@@ -84,6 +84,66 @@ See `docs/architecture/AUTHENTICATION_SYSTEM.md` for details.
 **Partners**: FICA/CIPC compliance (13 doc categories) - See `lib/partners/compliance-requirements.ts`
 **Admin-Zoho**: Supabase-first → Async sync to CRM/Billing - See `docs/architecture/ADMIN_SUPABASE_ZOHO_INTEGRATION.md`
 
+## MCP Code Execution Tools
+
+**Location**: `.claude/tools/`
+**Purpose**: Reduce token usage by 75% through programmatic execution instead of text-based interaction
+**Documentation**: See `.claude/tools/README.md` for full details
+
+### Quick Reference
+
+**Supabase Query Executor** (✅ Production Ready):
+```typescript
+import { executeQuery, quickSelect, quickCount, quickFind } from './.claude/tools/supabase-executor';
+
+// Find failed ZOHO syncs
+await executeQuery({
+  table: 'customers',
+  operation: 'select',
+  filters: [{ column: 'zoho_sync_status', operator: 'eq', value: 'failed' }],
+  limit: 10
+});
+
+// Count active services
+const count = await quickCount('customer_services', [
+  { column: 'status', operator: 'eq', value: 'active' }
+]);
+
+// Find customer by ID
+const customer = await quickFind('customers', 'cust_123');
+```
+
+**Token Savings**: 80% reduction (15K → 3K tokens per database operation)
+
+**Common Use Cases**:
+- Admin panel debugging (customer records, failed orders)
+- ZOHO sync health monitoring
+- Payment transaction lookups
+- Coverage lead analysis
+
+**Safety Features**:
+- UPDATE/DELETE require explicit filters
+- Input validation prevents SQL injection
+- 30-second timeout protection
+- Audit logging to `executor_audit_logs` table
+
+**Configuration**:
+```typescript
+await executeQuery(request, {
+  timeout: 60000,        // 60 seconds
+  cacheEnabled: true,    // Enable caching
+  cacheTTL: 600,         // Cache for 10 minutes
+  retries: 2             // Retry twice on failure
+});
+```
+
+**Planned Tools** (Phases 2-4):
+- Coverage Executor (Phase 2) - 75% token reduction on coverage queries
+- ZOHO Health Executor (Phase 2) - 85% reduction on integration monitoring
+- Migration Validator (Phase 3) - 70% reduction on migration checks
+- Workflow Executor (Phase 3) - Multi-step automation
+- Analytics Dashboard (Phase 4) - Performance tracking
+
 ## TypeScript Patterns
 
 ### Next.js 15 API Routes (REQUIRED)
@@ -156,6 +216,8 @@ const headers = {
 
 ## File Organization
 
+### Source Code Structure
+
 | Type | Location | Example |
 |------|----------|---------|
 | Pages | `app/[page]/page.tsx` | `app/packages/[leadId]/page.tsx` |
@@ -164,7 +226,72 @@ const headers = {
 | Services | `lib/[service]/` | `lib/coverage/aggregation-service.ts` |
 | Migrations | `supabase/migrations/` | `supabase/migrations/20251024_*.sql` |
 
-**Naming**: Components (PascalCase), Hooks (use-name.ts), Services (name-service.ts), Docs (SCREAMING_SNAKE.md)
+### Documentation Structure
+
+**⚠️ CRITICAL: Never create documentation files in the project root!**
+
+| Type | Location | Example |
+|------|----------|---------|
+| Architecture Docs | `docs/architecture/` | `docs/architecture/AUTHENTICATION_SYSTEM.md` |
+| Feature Specs | `docs/features/YYYY-MM-DD_feature-name/` | `docs/features/2025-11-23_cms_no_code/` |
+| Implementation Guides | `docs/implementation/` | `docs/implementation/MCP_CODE_EXECUTION.md` |
+| Optimization Guides | `docs/guides/` | `docs/guides/MCP_OPTIMIZATION.md` |
+| API Documentation | `docs/api/` | `docs/api/ADMIN_ENDPOINTS.md` |
+| Claude-Specific | `.claude/docs/` | `.claude/docs/EXECUTOR_PATTERNS.md` |
+| Agent Specs | `agent-os/specs/[spec-id]/` | `agent-os/specs/20251101-b2b-kyc/` |
+
+### MCP/Claude Code Tools
+
+| Type | Location | Example |
+|------|----------|---------|
+| Executors | `.claude/tools/` | `.claude/tools/supabase-executor.ts` |
+| Tool Types | `.claude/tools/types.ts` | Type definitions for all tools |
+| Tool Utils | `.claude/tools/utils.ts` | Shared utility functions |
+| Tool Docs | `.claude/tools/README.md` | Tool documentation |
+| Skills | `.claude/skills/[skill-name]/` | `.claude/skills/context-manager/` |
+| Custom Commands | `.claude/commands/` | `.claude/commands/deploy.md` |
+
+### Temporary/Working Files
+
+| Type | Location | Notes |
+|------|----------|-------|
+| Test Scripts | `scripts/test-*.ts` | Temporary test files (gitignored) |
+| Working Docs | `docs/working/` | WIP documentation (create folder as needed) |
+| Batch Files | `scripts/*.bat` | Temporary automation (gitignored) |
+
+**Naming Conventions**:
+- Components: PascalCase
+- Hooks: use-name.ts
+- Services: name-service.ts
+- Documentation: SCREAMING_SNAKE.md
+- Feature Folders: YYYY-MM-DD_feature-name
+
+**Examples of Correct File Placement**:
+```
+✅ docs/implementation/MCP_CODE_EXECUTION_IMPLEMENTATION.md
+✅ docs/guides/MCP_OPTIMIZATION_GUIDE.md
+✅ docs/features/2025-11-24_mcp-code-execution/PHASE1_COMPLETE.md
+✅ .claude/docs/EXECUTOR_PATTERNS.md
+✅ docs/api/SUPABASE_EXECUTOR_API.md
+
+❌ MCP_CODE_EXECUTION_IMPLEMENTATION.md (root folder)
+❌ MCP_OPTIMIZATION_GUIDE.md (root folder)
+❌ IMPLEMENTATION_NOTES.md (root folder)
+```
+
+**When Creating New Documentation**:
+1. **Architecture changes**: Use `docs/architecture/`
+2. **New features**: Create `docs/features/YYYY-MM-DD_feature-name/`
+3. **Implementation guides**: Use `docs/implementation/`
+4. **Optimization/how-to guides**: Use `docs/guides/`
+5. **MCP/Claude-specific**: Use `.claude/docs/`
+6. **API documentation**: Use `docs/api/`
+
+**Before Creating Files**:
+- Check if appropriate folder exists
+- If not, create the folder first
+- Use descriptive folder names
+- Follow naming conventions above
 
 ## Brand Guidelines
 
