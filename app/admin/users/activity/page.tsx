@@ -294,12 +294,12 @@ export default function AdminUserActivityPage() {
               <label className="text-sm font-medium text-gray-700 block mb-2">
                 Category
               </label>
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <Select value={filterCategory || 'all'} onValueChange={(val) => setFilterCategory(val === 'all' ? '' : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All categories</SelectItem>
+                  <SelectItem value="all">All categories</SelectItem>
                   <SelectItem value="authentication">Authentication</SelectItem>
                   <SelectItem value="password">Password</SelectItem>
                   <SelectItem value="user_management">User Management</SelectItem>
@@ -316,12 +316,12 @@ export default function AdminUserActivityPage() {
               <label className="text-sm font-medium text-gray-700 block mb-2">
                 Status
               </label>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <Select value={filterStatus || 'all'} onValueChange={(val) => setFilterStatus(val === 'all' ? '' : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All statuses</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="success">Success</SelectItem>
                   <SelectItem value="failure">Failure</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
@@ -335,12 +335,12 @@ export default function AdminUserActivityPage() {
               <label className="text-sm font-medium text-gray-700 block mb-2">
                 Severity
               </label>
-              <Select value={filterSeverity} onValueChange={setFilterSeverity}>
+              <Select value={filterSeverity || 'all'} onValueChange={(val) => setFilterSeverity(val === 'all' ? '' : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All severities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All severities</SelectItem>
+                  <SelectItem value="all">All severities</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
