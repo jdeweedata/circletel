@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Poppins, Space_Mono } from "next/font/google";
 
@@ -127,6 +128,12 @@ export default function RootLayout({
             </OfflineProvider>
           </PWAProvider>
         </QueryProvider>
+
+        {/* Prismic Toolbar */}
+        <Script
+          src="https://static.cdn.prismic.io/prismic.js?new=true&repo=circletel"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
