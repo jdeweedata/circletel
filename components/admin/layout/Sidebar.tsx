@@ -107,6 +107,14 @@ const navigation = [
     description: 'Manage customer accounts'
   },
   {
+    name: 'Partners',
+    icon: Handshake,
+    children: [
+      { name: 'All Partners', href: '/admin/partners', icon: Users },
+      { name: 'Pending Approvals', href: '/admin/partners/approvals', icon: Clock },
+    ]
+  },
+  {
     name: 'Approvals',
     href: '/admin/workflow',
     icon: CheckCircle
