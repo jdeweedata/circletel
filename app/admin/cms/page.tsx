@@ -6,9 +6,10 @@
  * Admin dashboard for managing CMS pages with search, filter, and actions.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { SessionStorage } from '@/lib/auth/session-storage';
 import type { CMSPage, PageStatus, ContentType } from '@/lib/cms/types';
 import {
   Plus,
@@ -79,12 +80,19 @@ export default function CMSDashboardPage() {
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
 
-  // Fetch pages
-  useEffect(() => {
-    fetchPages();
-  }, [statusFilter, typeFilter]);
+  // Get auth headers for API requests
+  const getAuthHeaders = useCallback(() => {
+    const token = SessionStorage.getAccessToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  }, []);
 
-  const fetchPages = async () => {
+  const fetchPages = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -93,7 +101,9 @@ export default function CMSDashboardPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (typeFilter !== 'all') params.append('content_type', typeFilter);
 
-      const response = await fetch(`/api/admin/cms/pages?${params.toString()}`);
+      const response = await fetch(`/api/admin/cms/pages?${params.toString()}`, {
+        headers: getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch pages');
 
       const data = await response.json();
@@ -104,7 +114,12 @@ export default function CMSDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, typeFilter, getAuthHeaders]);
+
+  // Fetch pages
+  useEffect(() => {
+    fetchPages();
+  }, [fetchPages]);
 
   const handleDelete = async (pageId: string) => {
     if (!confirm('Are you sure you want to delete this page?')) return;
@@ -112,6 +127,7 @@ export default function CMSDashboardPage() {
     try {
       const response = await fetch(`/api/admin/cms/pages/${pageId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) throw new Error('Failed to delete page');
@@ -127,7 +143,7 @@ export default function CMSDashboardPage() {
     try {
       const response = await fetch(`/api/admin/cms/pages/${pageId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: 'archived' }),
       });
 

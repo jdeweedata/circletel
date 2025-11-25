@@ -9,10 +9,40 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import type { PageStatus } from '@/lib/cms/types';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
+
+// Helper to verify admin authentication from header or cookies
+async function verifyAdminAuth(request: NextRequest) {
+  // Check Authorization header first (admin panel uses localStorage tokens)
+  const authHeader = request.headers.get('authorization');
+
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    const serviceClient = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const { data: { user }, error } = await serviceClient.auth.getUser(token);
+    if (!error && user) {
+      return { user, supabase: serviceClient };
+    }
+  }
+
+  // Fall back to cookie-based auth
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { user: null, supabase };
+  }
+
+  return { user, supabase };
+}
 
 // GET - Get single page
 export async function GET(
@@ -21,15 +51,9 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
+    const { user, supabase } = await verifyAdminAuth(request);
 
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -57,15 +81,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
+    const { user, supabase } = await verifyAdminAuth(request);
 
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -136,15 +154,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
+    const { user, supabase } = await verifyAdminAuth(request);
 
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -191,15 +203,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
+    const { user, supabase } = await verifyAdminAuth(request);
 
-    // Verify admin authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
