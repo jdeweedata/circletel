@@ -45,7 +45,8 @@ import {
   XCircle,
   Clock,
   Eye,
-  Settings
+  Settings,
+  Activity
 } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
@@ -330,28 +331,33 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Users className="h-8 w-8 text-purple-600" />
+            <Users className="h-8 w-8 text-circleTel-orange" />
             User Management
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 mt-2">
             Manage admin users, roles, and access requests
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/admin/users/roles">
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Settings className="mr-2 h-4 w-4" />
               Manage Roles
             </Button>
           </Link>
+          <Link href="/admin/users/activity">
+            <Button variant="outline">
+              <Activity className="mr-2 h-4 w-4" />
+              Activity Logs
+            </Button>
+          </Link>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => activeTab === 'users' ? fetchUsers() : fetchPendingRequests()}
             disabled={loading}
           >
@@ -369,55 +375,87 @@ export default function AdminUsersPage() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold">{users.length}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Users
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-blue-100">
+              <Users className="h-5 w-5 text-blue-600" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {users.length}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Total admin accounts
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Users</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {users.filter(u => u.is_active).length}
-                </p>
-              </div>
-              <UserCheck className="h-8 w-8 text-green-600" />
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Active Users
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-green-100">
+              <UserCheck className="h-5 w-5 text-green-600" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {users.filter(u => u.is_active).length}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Currently active accounts
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pending Requests</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {pendingCount}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-orange-600" />
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Pending Requests
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-orange-100">
+              <Clock className="h-5 w-5 text-circleTel-orange" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <div className="text-3xl font-bold text-circleTel-darkNeutral">
+                {pendingCount}
+              </div>
+              {pendingCount > 0 && (
+                <Badge variant="destructive" className="text-xs">
+                  REVIEW
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Awaiting approval
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Super Admins</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {users.filter(u => u.role === 'super_admin' || u.role_template_id === 'super_admin').length}
-                </p>
-              </div>
-              <Shield className="h-8 w-8 text-red-600" />
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Super Admins
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-red-100">
+              <Shield className="h-5 w-5 text-red-600" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-circleTel-darkNeutral">
+              {users.filter(u => u.role === 'super_admin' || u.role_template_id === 'super_admin').length}
+            </div>
+            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
+              Full system access
+            </p>
           </CardContent>
         </Card>
       </div>
