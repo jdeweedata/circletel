@@ -48,7 +48,9 @@ import {
   LinkIcon,
   MapPin,
   Calendar,
-  Wrench
+  Wrench,
+  ImageIcon,
+  PanelTop,
 } from 'lucide-react';
 
 interface User {
@@ -157,9 +159,12 @@ const navigation = [
   },
   {
     name: 'CMS Management',
-    href: '/admin/cms',
     icon: Globe,
-    description: 'Manage Website Content'
+    children: [
+      { name: 'Pages', href: '/admin/cms', icon: FileText },
+      { name: 'Media Library', href: '/admin/cms/media', icon: ImageIcon },
+      { name: 'Page Builder', href: '/admin/cms/builder', icon: PanelTop }
+    ]
   },
   {
     name: 'Coverage',
