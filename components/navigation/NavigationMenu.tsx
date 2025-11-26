@@ -70,7 +70,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
     <NavigationMenu className={cn("hidden md:flex", className)}>
       <NavigationMenuList>
         {/* Managed IT */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="relative">
           <NavigationMenuTrigger
             className={cn(
               'text-base md:text-lg lg:text-xl',
@@ -79,7 +79,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           >
             Managed IT
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
             <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {managedITItems.map((item) => (
                 <li key={item.name}>
@@ -104,7 +104,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
         </NavigationMenuItem>
 
         {/* Connectivity */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="relative">
           <NavigationMenuTrigger
             className={cn(
               isActive('/connectivity') && 'bg-accent text-accent-foreground',
@@ -113,7 +113,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           >
             Connectivity
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
             <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               <li>
                 <NavigationMenuLink asChild>
@@ -154,7 +154,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
         </NavigationMenuItem>
 
         {/* Cloud & Hosting */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="relative">
           <NavigationMenuTrigger
             className={cn(
               isActive('/cloud') && 'bg-accent text-accent-foreground',
@@ -163,7 +163,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           >
             Cloud & Hosting
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
             <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {cloudHostingItems.map((item) => (
                 <li key={item.name}>
@@ -188,7 +188,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
         </NavigationMenuItem>
 
         {/* Resources */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="relative">
           <NavigationMenuTrigger
             className={cn(
               isActive('/resources') && 'bg-accent text-accent-foreground',
@@ -197,7 +197,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           >
             Resources
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
             <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
               {resourcesItems.map((item) => (
                 <li key={item.name}>
@@ -221,8 +221,8 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Partners */}
-        <NavigationMenuItem>
+        {/* Partners - uses forceMount for right-aligned dropdown */}
+        <NavigationMenuItem className="relative">
           <NavigationMenuTrigger
             className={cn(
               (isActive('/partner') || isActive('/become-a-partner')) && 'bg-accent text-accent-foreground',
@@ -231,8 +231,8 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
           >
             Partners
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[280px] gap-1 p-2">
+          <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute right-0 left-auto top-full mt-1.5 w-[280px] rounded-md border bg-white shadow-lg">
+            <ul className="grid gap-1 p-2">
               {partnerItems.map((item) => (
                 <li key={item.name}>
                   <NavigationMenuLink asChild>
