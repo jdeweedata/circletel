@@ -7,11 +7,30 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  let productId = 'unknown';
+  
   try {
     const { id } = await context.params;
-    const supabase = await createClient();
-
+    productId = id;
+    
     console.log('[Product Detail API] Fetching product:', id);
+    
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid product ID format',
+          details: `Expected UUID format, received: ${id}`,
+          productId: id
+        },
+        { status: 400 }
+      );
+    }
+    
+    const supabase = await createClient();
 
     // Now using service_packages as single source of truth
     const { data: product, error } = await supabase
@@ -26,11 +45,41 @@ export async function GET(
         productId: id,
         errorCode: error.code,
         errorMessage: error.message,
-        errorDetails: error.details
+        errorDetails: error.details,
+        errorHint: error.hint,
+        duration: Date.now() - startTime
       });
+      
+      // Determine appropriate status code
+      let statusCode = 500;
+      let errorType = 'database_error';
+      
+      if (error.code === 'PGRST116') {
+        statusCode = 404;
+        errorType = 'not_found';
+      } else if (error.code === '42501' || error.message?.includes('permission denied')) {
+        statusCode = 403;
+        errorType = 'permission_denied';
+      } else if (error.code === '42P01') {
+        statusCode = 500;
+        errorType = 'table_not_found';
+      } else if (error.code === 'PGRST301') {
+        statusCode = 500;
+        errorType = 'rls_policy_error';
+      }
+      
       return NextResponse.json(
-        { success: false, error: `Database error: ${error.message}` },
-        { status: 500 }
+        { 
+          success: false, 
+          error: `Database error: ${error.message}`,
+          errorType,
+          errorCode: error.code,
+          errorDetails: error.details,
+          errorHint: error.hint,
+          productId: id,
+          duration: Date.now() - startTime
+        },
+        { status: statusCode }
       );
     }
 
@@ -87,16 +136,35 @@ export async function GET(
       throw mappingError; // Re-throw to be caught by outer catch
     }
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.error('[Product Detail API] Unexpected error:', {
       error,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorStack: error instanceof Error ? error.stack : undefined
+      errorStack: error instanceof Error ? error.stack : undefined,
+      errorName: error instanceof Error ? error.name : typeof error,
+      productId,
+      duration
     });
+    
+    // Determine error type for better debugging
+    let errorType = 'unknown_error';
+    if (error instanceof TypeError) {
+      errorType = 'type_error';
+    } else if (error instanceof SyntaxError) {
+      errorType = 'syntax_error';
+    } else if (error instanceof Error && error.message?.includes('fetch')) {
+      errorType = 'network_error';
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
         error: error instanceof Error ? error.message : 'Internal server error',
-        details: error instanceof Error ? error.stack : undefined
+        errorType,
+        errorName: error instanceof Error ? error.name : typeof error,
+        details: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : undefined,
+        productId,
+        duration
       },
       { status: 500 }
     );
