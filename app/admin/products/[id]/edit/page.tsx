@@ -24,7 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { FeaturesEditor } from '@/components/admin/products/FeaturesEditor';
-import { ArrowLeft, Save, Loader2, Tag, DollarSign, Wifi, FileText, Settings, TrendingUp, Calculator, Percent } from 'lucide-react';
+import { ProductCostBreakdown } from '@/components/admin/products/ProductCostBreakdown';
+import { ArrowLeft, Save, Loader2, Tag, DollarSign, Wifi, FileText, Settings, TrendingUp, Calculator, Percent, Layers } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
@@ -98,6 +99,7 @@ export default function EditProductPage() {
   const promoDiscountValue = watch('promo_discount_value');
   const pricingMonthly = watch('pricing_monthly');
   const wholesaleCost = watch('wholesale_cost');
+  const [totalCostFromBreakdown, setTotalCostFromBreakdown] = useState<number | null>(null);
   const costPriceZar = watch('cost_price_zar');
 
   // Calculate promotional price
@@ -112,10 +114,12 @@ export default function EditProductPage() {
   }, [isPromotional, pricingMonthly, promoDiscountType, promoDiscountValue]);
 
   // Calculate VAT and margin values
+  // Use cost breakdown total if available, otherwise fall back to wholesale_cost field
   const priceCalculations = useMemo(() => {
     const sellingPriceExclVat = pricingMonthly || 0;
     const sellingPriceInclVat = sellingPriceExclVat * (1 + VAT_RATE);
-    const cost = wholesaleCost || costPriceZar || 0;
+    // Priority: Cost breakdown total > wholesale_cost > cost_price_zar
+    const cost = totalCostFromBreakdown ?? wholesaleCost ?? costPriceZar ?? 0;
     const grossProfit = sellingPriceExclVat - cost;
     const marginPercentage = sellingPriceExclVat > 0 ? (grossProfit / sellingPriceExclVat) * 100 : 0;
     const markupPercentage = cost > 0 ? (grossProfit / cost) * 100 : 0;
@@ -128,8 +132,9 @@ export default function EditProductPage() {
       grossProfit,
       marginPercentage,
       markupPercentage,
+      usingBreakdown: totalCostFromBreakdown !== null && totalCostFromBreakdown > 0,
     };
-  }, [pricingMonthly, wholesaleCost, costPriceZar]);
+  }, [pricingMonthly, wholesaleCost, costPriceZar, totalCostFromBreakdown]);
 
   // Format currency helper
   const formatCurrency = (amount: number) => {
@@ -322,14 +327,18 @@ export default function EditProductPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-5">
+            <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-3 md:grid-cols-6">
               <TabsTrigger value="basic" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
                 <FileText className="h-4 w-4 mr-1.5" />
                 Basic Info
               </TabsTrigger>
               <TabsTrigger value="pricing" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
                 <Calculator className="h-4 w-4 mr-1.5" />
-                Pricing & Costs
+                Pricing
+              </TabsTrigger>
+              <TabsTrigger value="cost-breakdown" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
+                <Layers className="h-4 w-4 mr-1.5" />
+                Cost Breakdown
               </TabsTrigger>
               <TabsTrigger value="connectivity" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
                 <Wifi className="h-4 w-4 mr-1.5" />
@@ -463,10 +472,24 @@ export default function EditProductPage() {
                     <TrendingUp className="h-5 w-5" />
                     Margin Calculator
                   </CardTitle>
-                  <CardDescription>Real-time profit margin analysis</CardDescription>
+                  <CardDescription>
+                    Real-time profit margin analysis
+                    {priceCalculations.usingBreakdown && (
+                      <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+                        Using Cost Breakdown
+                      </Badge>
+                    )}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Total Cost</p>
+                      <p className="text-2xl font-bold text-red-600">{formatCurrency(priceCalculations.cost)}</p>
+                      <p className="text-xs text-gray-400">
+                        {priceCalculations.usingBreakdown ? 'From breakdown' : 'Wholesale'}
+                      </p>
+                    </div>
                     <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Selling Price (Excl. VAT)</p>
                       <p className="text-2xl font-bold text-gray-900">{formatCurrency(priceCalculations.sellingPriceExclVat)}</p>
@@ -484,7 +507,7 @@ export default function EditProductPage() {
                     </div>
                     <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Margin %</p>
-                      <p className={`text-2xl font-bold ${priceCalculations.marginPercentage >= 20 ? 'text-green-600' : priceCalculations.marginPercentage >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      <p className={`text-2xl font-bold ${priceCalculations.marginPercentage >= 30 ? 'text-green-600' : priceCalculations.marginPercentage >= 20 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {priceCalculations.marginPercentage.toFixed(1)}%
                       </p>
                       <p className="text-xs text-gray-400">Markup: {priceCalculations.markupPercentage.toFixed(1)}%</p>
@@ -493,18 +516,23 @@ export default function EditProductPage() {
                 </CardContent>
               </Card>
 
-              {/* Cost Input */}
-              <Card>
+              {/* Cost Input - Legacy/Simple Mode */}
+              <Card className={priceCalculations.usingBreakdown ? 'opacity-60' : ''}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-red-500" />
-                    Wholesale Cost
+                    Simple Wholesale Cost
                   </CardTitle>
-                  <CardDescription>Your cost from the provider/supplier</CardDescription>
+                  <CardDescription>
+                    {priceCalculations.usingBreakdown 
+                      ? 'Cost breakdown is active - this field is overridden. Go to Cost Breakdown tab to manage detailed costs.'
+                      : 'Enter a single wholesale cost, or use the Cost Breakdown tab for detailed cost components.'
+                    }
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <Label htmlFor="wholesale_cost">Wholesale Cost (Monthly) *</Label>
+                    <Label htmlFor="wholesale_cost">Wholesale Cost (Monthly)</Label>
                     <Input
                       id="wholesale_cost"
                       type="number"
@@ -512,6 +540,7 @@ export default function EditProductPage() {
                       {...register('wholesale_cost', { valueAsNumber: true })}
                       placeholder="e.g., 450.00"
                       className="font-semibold text-lg"
+                      disabled={priceCalculations.usingBreakdown}
                     />
                     <p className="text-xs text-muted-foreground">
                       Enter the monthly cost you pay to the provider
@@ -706,6 +735,17 @@ export default function EditProductPage() {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Cost Breakdown Tab */}
+            <TabsContent value="cost-breakdown" className="space-y-6">
+              {params.id && typeof params.id === 'string' && (
+                <ProductCostBreakdown
+                  packageId={params.id}
+                  sellingPriceExclVat={priceCalculations.sellingPriceExclVat}
+                  onTotalCostChange={setTotalCostFromBreakdown}
+                />
+              )}
             </TabsContent>
 
             {/* Connectivity Tab */}
