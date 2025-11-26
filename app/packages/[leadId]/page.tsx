@@ -47,6 +47,14 @@ interface Package {
   };
 }
 
+// South African VAT rate (15%)
+const VAT_RATE = 0.15;
+
+// Helper to add VAT to price and round to nearest Rand
+const addVAT = (price: number): number => {
+  return Math.round(price * (1 + VAT_RATE));
+};
+
 function PackagesContent() {
   const params = useParams();
   const router = useRouter();
@@ -181,18 +189,19 @@ function PackagesContent() {
       speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
     };
 
-    // Save selected package to OrderContext
+    // Save selected package to OrderContext (prices include VAT for customer display)
+    const priceInclVAT = addVAT(pkg.promotion_price || pkg.price);
     actions.updateOrderData({
       package: {
         selectedPackage: packageDetails,
         pricing: {
-          monthly: pkg.promotion_price || pkg.price,
+          monthly: priceInclVAT,
           onceOff: 0,
           vatIncluded: true,
           breakdown: [
             {
               name: pkg.name,
-              amount: pkg.promotion_price || pkg.price,
+              amount: priceInclVAT,
               type: 'monthly',
             },
           ],
@@ -499,8 +508,8 @@ function PackagesContent() {
                         return (
                           <CompactPackageCard
                             key={pkg.id}
-                            promoPrice={pkg.promotion_price || pkg.price}
-                            originalPrice={pkg.promotion_price ? pkg.price : undefined}
+                            promoPrice={addVAT(pkg.promotion_price || pkg.price)}
+                            originalPrice={pkg.promotion_price ? addVAT(pkg.price) : undefined}
                             promoBadge={pkg.promotion_price ? `${pkg.promotion_months}-MONTH PROMO` : undefined}
                             badgeColor={getBadgeColor()}
                             name={pkg.name}
@@ -565,8 +574,8 @@ function PackagesContent() {
               {selectedPackage && (
                 <div className="hidden lg:block lg:w-[400px]">
                   <PackageDetailSidebar
-                    promoPrice={selectedPackage.promotion_price || selectedPackage.price}
-                    originalPrice={selectedPackage.promotion_price ? selectedPackage.price : undefined}
+                    promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price)}
+                    originalPrice={selectedPackage.promotion_price ? addVAT(selectedPackage.price) : undefined}
                     promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
                     name={selectedPackage.name}
                     type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
@@ -638,10 +647,10 @@ function PackagesContent() {
               Contact Us
             </a>
             <a
-              href="tel:0860123456"
+              href="tel:0870876305"
               className="inline-flex items-center justify-center px-8 py-4 bg-orange-700 text-white font-semibold rounded-xl hover:bg-orange-800 transition-colors"
             >
-              Call 086 012 3456
+              Call 087 087 6305
             </a>
           </div>
         </div>
@@ -651,8 +660,8 @@ function PackagesContent() {
         <MobilePackageDetailOverlay
           isOpen={isMobileSidebarOpen}
           onClose={() => setIsMobileSidebarOpen(false)}
-          promoPrice={selectedPackage.promotion_price || selectedPackage.price}
-          originalPrice={selectedPackage.promotion_price ? selectedPackage.price : undefined}
+          promoPrice={addVAT(selectedPackage.promotion_price || selectedPackage.price)}
+          originalPrice={selectedPackage.promotion_price ? addVAT(selectedPackage.price) : undefined}
           promoDescription={selectedPackage.promotion_months ? `first ${selectedPackage.promotion_months} months` : undefined}
           name={selectedPackage.name}
           type={selectedPackage.description?.toLowerCase().includes('uncapped') || selectedPackage.name?.toLowerCase().includes('uncapped') ? 'uncapped' : undefined}
@@ -680,7 +689,7 @@ function PackagesContent() {
               <div className="text-left flex-1">
                 <h3 className="font-bold text-base text-gray-900 truncate">{selectedPackage.name}</h3>
                 <p className="text-sm text-gray-600">
-                  R{Number(selectedPackage.promotion_price || selectedPackage.price).toLocaleString()}/month
+                  R{addVAT(selectedPackage.promotion_price || selectedPackage.price).toLocaleString()}/month
                 </p>
               </div>
             </div>
