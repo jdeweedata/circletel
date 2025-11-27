@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isValidUUID(value: unknown): boolean {
+  return typeof value === 'string' && UUID_REGEX.test(value);
+}
+
 /**
  * Create a pending order without payment
  * This is part of the reduced-friction flow where payment is handled later in the dashboard
@@ -106,8 +113,8 @@ export async function POST(request: NextRequest) {
       billing_province: null,
       billing_postal_code: null,
 
-      // Package details
-      service_package_id: service_package_id || null,
+      // Package details - validate UUID to prevent 400 errors
+      service_package_id: isValidUUID(service_package_id) ? service_package_id : null,
       package_name,
       package_speed: package_speed || '',
       package_price: package_price || 0,
