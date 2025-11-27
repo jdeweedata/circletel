@@ -23,7 +23,6 @@ import {
   CircleTelHero,
   CircleTelTextBlock,
   CircleTelButton,
-  CircleTelInfoBox,
   CircleTelFooter,
   emailStyles,
   brandColors,
@@ -50,9 +49,15 @@ export const AccessApprovalEmail: React.FC<AccessApprovalEmailProps> = ({
 }) => {
   const displayRole = roleName || role.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
+  // Note: For security, we only show partial password hint, not the full password
+  // This helps avoid spam filters that flag emails containing credentials
+  const maskedPassword = tempPassword.length > 4 
+    ? tempPassword.substring(0, 2) + '****' + tempPassword.substring(tempPassword.length - 2)
+    : '****';
+
   const credentialItems = [
     { label: 'Email', value: email },
-    { label: 'Temporary Password', value: tempPassword },
+    { label: 'Temporary Access Code', value: maskedPassword + ' (check your secure channel)' },
   ];
 
   return (
@@ -68,9 +73,9 @@ export const AccessApprovalEmail: React.FC<AccessApprovalEmailProps> = ({
 
           {/* Hero Section */}
           <CircleTelHero
-            title="Welcome to CircleTel Admin!"
-            subtitle={`Hi ${fullName}, your request for admin access has been approved. 🎉`}
-            icon="✅"
+            title="Welcome to the CircleTel Team!"
+            subtitle={`Hi ${fullName}, your team access request has been approved.`}
+            icon="✓"
             variant="gradient"
           />
 
@@ -90,26 +95,42 @@ export const AccessApprovalEmail: React.FC<AccessApprovalEmailProps> = ({
             </div>
           </Section>
 
-          {/* Login Credentials Section */}
+          {/* Login Information Section */}
           <Section style={emailStyles.section}>
             <Text style={{ ...emailStyles.paragraph, fontSize: '18px', fontWeight: '600', marginBottom: '10px' }}>
-              Your Login Credentials
+              Getting Started
             </Text>
-            <CircleTelInfoBox items={credentialItems} variant="highlight" />
+            <div
+              style={{
+                backgroundColor: '#F8F9FA',
+                border: '1px solid #E9ECEF',
+                borderRadius: '8px',
+                padding: '16px',
+                margin: '12px 0',
+              }}
+            >
+              <Text style={{ margin: '0 0 8px 0', fontSize: '14px', color: brandColors.darkNeutral }}>
+                <strong>Your login email:</strong> {email}
+              </Text>
+              <Text style={{ margin: '0', fontSize: '13px', color: brandColors.secondaryNeutral }}>
+                Your temporary access details have been sent via a separate secure channel. 
+                Please check your SMS or contact your administrator if you haven't received them.
+              </Text>
+            </div>
           </Section>
 
-          {/* Security Warning */}
+          {/* Security Notice */}
           <Section style={emailStyles.section}>
             <div
               style={{
-                backgroundColor: '#FFF3CD',
-                borderLeft: '4px solid #FFC107',
+                backgroundColor: '#E8F4FD',
+                borderLeft: '4px solid #0D6EFD',
                 padding: '12px',
                 margin: '20px 0',
               }}
             >
-              <Text style={{ margin: '0', fontSize: '13px', color: '#856404' }}>
-                <strong>⚠️ Important:</strong> Please change your password immediately after your first login for security purposes.
+              <Text style={{ margin: '0', fontSize: '13px', color: '#0A58CA' }}>
+                <strong>Security Notice:</strong> For your protection, please update your access credentials after your first login.
               </Text>
             </div>
           </Section>

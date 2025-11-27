@@ -96,11 +96,12 @@ export class AdminNotificationService {
     };
 
     // Send to sales team
+    // Note: Avoid emojis in subject lines for better Microsoft deliverability
     const salesResult = await EmailNotificationService.send({
       from: this.adminSenderEmail,
       to: this.config.salesTeamEmail!,
       cc: this.config.ccEmails,
-      subject: `🔔 New Order: ${order.order_number} - ${order.first_name} ${order.last_name}`,
+      subject: `[New Order] ${order.order_number} - ${order.first_name} ${order.last_name}`,
       template: 'admin_new_order_sales',
       data: notificationData,
     });
@@ -110,7 +111,7 @@ export class AdminNotificationService {
       from: this.adminSenderEmail,
       to: this.config.serviceDeliveryEmail!,
       cc: this.config.ccEmails,
-      subject: `📦 New Installation Required: ${order.order_number}`,
+      subject: `[Installation Required] ${order.order_number} - ${order.city || 'New Location'}`,
       template: 'admin_new_order_service_delivery',
       data: notificationData,
     });
@@ -153,8 +154,8 @@ export class AdminNotificationService {
     return await EmailNotificationService.send({
       from: this.adminSenderEmail,
       to: this.config.managementEmail!,
-      cc: [this.config.salesTeamEmail!, this.config.serviceDeliveryEmail!, ...this.config.ccEmails],
-      subject: `🚨 URGENT ORDER: ${order.order_number} - ${reason}`,
+      cc: [this.config.salesTeamEmail!, this.config.serviceDeliveryEmail!, ...(this.config.ccEmails || [])],
+      subject: `[URGENT] Order ${order.order_number} - ${reason}`,
       template: 'admin_urgent_order',
       data: notificationData,
     });
@@ -174,8 +175,8 @@ export class AdminNotificationService {
     return await EmailNotificationService.send({
       from: this.adminSenderEmail,
       to: accountingEmail,
-      cc: [this.config.salesTeamEmail!, ...this.config.ccEmails],
-      subject: `💰 Payment Received: ${order.order_number} - R${paymentAmount.toFixed(2)}`,
+      cc: [this.config.salesTeamEmail!, ...(this.config.ccEmails || [])],
+      subject: `[Payment Received] ${order.order_number} - R${paymentAmount.toFixed(2)}`,
       template: 'admin_payment_received',
       data: {
         order_number: order.order_number,
@@ -201,7 +202,7 @@ export class AdminNotificationService {
     return await EmailNotificationService.send({
       from: this.adminSenderEmail,
       to: this.config.serviceDeliveryEmail!,
-      subject: `📅 Installation Scheduled: ${order.order_number} - ${installationDate}`,
+      subject: `[Installation Scheduled] ${order.order_number} - ${installationDate}`,
       template: 'admin_installation_scheduled',
       data: {
         order_number: order.order_number,

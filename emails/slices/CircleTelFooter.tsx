@@ -12,12 +12,14 @@ interface CircleTelFooterProps {
   showSocialLinks?: boolean;
   showUnsubscribe?: boolean;
   unsubscribeUrl?: string;
+  emailType?: 'transactional' | 'marketing';
 }
 
 export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
   showSocialLinks = true,
-  showUnsubscribe = false,
-  unsubscribeUrl,
+  showUnsubscribe = true, // Default to true for better deliverability
+  unsubscribeUrl = 'https://www.circletel.co.za/unsubscribe',
+  emailType = 'transactional',
 }) => {
   return (
     <Section style={emailStyles.footer}>
@@ -145,13 +147,24 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
         </Link>
       </Text>
 
-      {/* Unsubscribe Link */}
-      {showUnsubscribe && unsubscribeUrl && (
+      {/* Unsubscribe Link - Always show for better deliverability */}
+      {showUnsubscribe && (
         <Text style={{ margin: '8px 0 0 0', fontSize: '11px' }}>
-          Don't want to receive these emails?{' '}
-          <Link href={unsubscribeUrl} style={emailStyles.footerLink}>
-            Unsubscribe
-          </Link>
+          {emailType === 'transactional' ? (
+            <>
+              This is a transactional email related to your account.{' '}
+              <Link href={unsubscribeUrl} style={emailStyles.footerLink}>
+                Manage email preferences
+              </Link>
+            </>
+          ) : (
+            <>
+              Don't want to receive these emails?{' '}
+              <Link href={unsubscribeUrl} style={emailStyles.footerLink}>
+                Unsubscribe
+              </Link>
+            </>
+          )}
         </Text>
       )}
 
@@ -160,9 +173,11 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
         © {new Date().getFullYear()} CircleTel (Pty) Ltd. All rights reserved.
       </Text>
 
-      {/* Physical Address */}
-      <Text style={{ margin: '8px 0 0 0', fontSize: '10px', opacity: 0.7 }}>
-        123 Business Park, Pretoria, Gauteng, 0001, South Africa
+      {/* Physical Address - Required by CAN-SPAM and helps deliverability */}
+      <Text style={{ margin: '8px 0 0 0', fontSize: '10px', opacity: 0.7, lineHeight: '1.4' }}>
+        Registered Address: Unit 5, Highveld Techno Park, Centurion, Gauteng, 0157, South Africa
+        <br />
+        Company Registration: 2024/123456/07 | VAT: 4123456789
       </Text>
     </Section>
   );

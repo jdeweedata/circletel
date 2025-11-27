@@ -78,7 +78,7 @@ export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: kycSession.customer_email || '',
-      subject: 'Verification Complete ✅ - Your Contract is Being Prepared',
+      subject: 'Verification Complete - Your Contract is Being Prepared',
       html: emailHtml,
       tags: [
         {
@@ -181,7 +181,7 @@ export async function sendServiceActivatedEmail(order: OrderData) {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: order.email,
-      subject: `Welcome to CircleTel! Your Service is Active 🎉`,
+      subject: 'Welcome to CircleTel - Your Service is Now Active',
       html: emailHtml,
       tags: [
         {

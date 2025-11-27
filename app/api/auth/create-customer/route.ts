@@ -42,10 +42,30 @@ export async function POST(request: NextRequest) {
 
     // Verify auth user exists before creating customer record
     // This prevents foreign key constraint violations
-    const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(auth_user_id);
+    // Use retry logic to handle race condition where auth user hasn't propagated yet
+    let authUser = null;
+    let authUserError = null;
+    const maxRetries = 3;
+    const retryDelay = 500; // ms
 
-    if (authUserError || !authUser) {
-      console.error('Auth user not found:', authUserError);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      const result = await supabase.auth.admin.getUserById(auth_user_id);
+      authUser = result.data;
+      authUserError = result.error;
+
+      if (authUser?.user) {
+        console.log(`[Create Customer] Auth user found on attempt ${attempt}`);
+        break;
+      }
+
+      if (attempt < maxRetries) {
+        console.log(`[Create Customer] Auth user not found, retrying in ${retryDelay}ms (attempt ${attempt}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+
+    if (authUserError || !authUser?.user) {
+      console.error('Auth user not found after retries:', authUserError);
       return NextResponse.json(
         {
           success: false,

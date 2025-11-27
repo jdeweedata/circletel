@@ -83,9 +83,9 @@ export const OrderConfirmationEmail: React.FC<OrderConfirmationEmailProps> = ({
 
           {/* Hero Section */}
           <CircleTelHero
-            title="Order Confirmed!"
+            title="Order Confirmed"
             subtitle={`Thank you ${customerName}, your order has been successfully placed.`}
-            icon="✅"
+            icon="✓"
             variant="gradient"
           />
 
