@@ -205,7 +205,8 @@
       "Bash(cmd /c dir \"C:\\Users\\JeffreyDeWee\\OneDrive - NEW GENERATION MANAGEMENT CONSULTING (PTY) LTD\\Strategy 2024-5\\Strategy FY27\\Template NXG Strat 2026 flow.pptx\")",
       "Bash(cmd /c:*)",
       "Bash(pip install:*)",
-      "Bash(npm run build:memory:*)"
+      "Bash(npm run build:memory:*)",
+      "mcp__playwright__browser_select_option"
     ],
     "deny": [],
     "ask": []
