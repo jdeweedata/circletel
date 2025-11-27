@@ -217,7 +217,7 @@ export default function DashboardPage() {
         <Package className="h-12 w-12 text-gray-400" />
         <p className="text-lg text-gray-600">No data available</p>
         <Link href="/">
-          <Button>Browse Packages</Button>
+          <Button>Check Coverage & Order</Button>
         </Link>
       </div>
     );
@@ -429,7 +429,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                 <Package className="h-12 w-12 mx-auto mb-2 opacity-20" />
                 <p>No active services</p>
                 <Link href="/">
-                  <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Browse Packages</Button>
+                  <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Check Coverage & Order</Button>
                 </Link>
               </div>
             )}
