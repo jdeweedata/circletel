@@ -201,7 +201,11 @@
       "mcp__playwright__browser_fill_form",
       "mcp__playwright__browser_press_key",
       "mcp__playwright__browser_hover",
-      "mcp__supabase__list_migrations"
+      "mcp__supabase__list_migrations",
+      "Bash(cmd /c dir \"C:\\Users\\JeffreyDeWee\\OneDrive - NEW GENERATION MANAGEMENT CONSULTING (PTY) LTD\\Strategy 2024-5\\Strategy FY27\\Template NXG Strat 2026 flow.pptx\")",
+      "Bash(cmd /c:*)",
+      "Bash(pip install:*)",
+      "Bash(npm run build:memory:*)"
     ],
     "deny": [],
     "ask": []
