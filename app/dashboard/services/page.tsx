@@ -105,7 +105,7 @@ export default function ServicesPage() {
         <Link href="/">
           <Button className="bg-circleTel-orange hover:bg-orange-600">
             <Package className="h-4 w-4 mr-2" />
-            Browse Packages
+            Add New Service
           </Button>
         </Link>
       </div>
@@ -145,7 +145,7 @@ export default function ServicesPage() {
             </p>
             <Link href="/">
               <Button className="bg-circleTel-orange hover:bg-orange-600">
-                Browse Packages
+                Add New Service
               </Button>
             </Link>
           </CardContent>

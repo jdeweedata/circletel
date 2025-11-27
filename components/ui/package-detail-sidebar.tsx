@@ -203,11 +203,6 @@ export function PackageDetailSidebar({
               {period}
             </span>
           </div>
-          {promoDescription && (
-            <div className="text-sm text-gray-600">
-              / {promoDescription}
-            </div>
-          )}
         </div>
 
         {/* Speed Indicators or Data Limit */}
@@ -288,13 +283,16 @@ export function PackageDetailSidebar({
               )}
             </button>
             {isAdditionalInfoExpanded && (
-              <div className="mt-3 space-y-2">
+              <ul className="mt-3 space-y-2 list-none">
                 {additionalInfo.items.map((item, index) => {
                   const itemText = typeof item === 'string' ? item : item.text;
                   const hasTooltip = typeof item === 'object' && item.tooltipTitle && item.tooltipDescription;
 
                   return (
-                    <div key={index} className="flex items-start gap-2">
+                    <li key={index} className="flex items-start gap-3">
+                      <span className="text-circleTel-orange mt-1 flex-shrink-0">
+                        <Check className="w-4 h-4" />
+                      </span>
                       <span className="text-sm text-circleTel-secondaryNeutral flex-1">
                         {itemText}
                       </span>
@@ -304,10 +302,10 @@ export function PackageDetailSidebar({
                           description={item.tooltipDescription!}
                         />
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             )}
           </div>
         )}

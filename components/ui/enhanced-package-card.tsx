@@ -179,11 +179,6 @@ export function EnhancedPackageCard({
               {period}
             </span>
           </div>
-          {promoDescription && (
-            <div className="text-sm text-gray-600 mt-1">
-              / {promoDescription}
-            </div>
-          )}
         </div>
 
         {/* Speed Indicators or Data Limit */}

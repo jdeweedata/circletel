@@ -108,6 +108,31 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
         return null;
       }
 
+      // If customer not found, try to fetch via API (which uses service role)
+      if (!customerData) {
+        console.log('[CustomerAuthProvider] Customer not found via client, trying API...');
+        
+        try {
+          const response = await fetch('/api/customers/ensure', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ auth_user_id: userId }),
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.customer) {
+              console.log('[CustomerAuthProvider] Customer fetched/created via API:', result.customer.id);
+              return result.customer;
+            }
+          }
+        } catch (apiError) {
+          console.error('[CustomerAuthProvider] API fallback failed:', apiError);
+        }
+        
+        return null;
+      }
+      
       console.log('[CustomerAuthProvider] Customer fetched:', customerData ? 'Found' : 'Not found');
       return customerData;
     } catch (error) {

@@ -38,6 +38,27 @@ export default function AccountPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
+
+  // Protect route - require package selection first
+  React.useEffect(() => {
+    const hasPackageData = state.orderData.package?.selectedPackage;
+    const hasCoverageData = state.orderData.coverage?.address || 
+                            state.orderData.coverage?.coordinates;
+    
+    // Check localStorage as backup
+    const savedCoverage = typeof window !== 'undefined' 
+      ? localStorage.getItem('circletel_coverage_address') 
+      : null;
+    
+    if (!hasPackageData && !hasCoverageData && !savedCoverage) {
+      // No valid order flow - redirect to home
+      router.replace('/');
+      return;
+    }
+    
+    setIsCheckingAccess(false);
+  }, [state.orderData.package, state.orderData.coverage, router]);
 
   // Set current stage to 2 when this page loads
   React.useEffect(() => {
@@ -493,7 +514,7 @@ export default function AccountPage() {
                   <div className="text-center text-sm sm:text-base text-gray-600 mt-2">
                     Already have an account?{' '}
                     <Link
-                      href="/auth/login"
+                      href="/auth/login?redirect=/order/service-address"
                       className="text-[#F5831F] hover:underline font-bold"
                     >
                       Sign in

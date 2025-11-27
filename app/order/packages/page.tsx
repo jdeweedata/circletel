@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SecureSignupProgress } from '@/components/ui/secure-signup-progress';
 import { CheckCircle2, Wifi, Zap, Shield, Clock } from 'lucide-react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
+import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
 interface Package {
   id: string;
@@ -26,7 +27,8 @@ interface Package {
 export default function OrderPackagesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { actions: orderActions } = useOrderContext();
+  const { state: orderState, actions: orderActions } = useOrderContext();
+  const { isAuthenticated, customer } = useCustomerAuth();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<'fibre' | 'wireless'>('fibre');
@@ -34,6 +36,24 @@ export default function OrderPackagesPage() {
 
   const leadId = searchParams.get('leadId');
   const address = searchParams.get('address');
+
+  // Protect route - require coverage check first (unless coming from valid flow)
+  useEffect(() => {
+    // Check if user has completed coverage check
+    const hasCoverageData = orderState.orderData.coverage?.address || 
+                            orderState.orderData.coverage?.coordinates ||
+                            leadId; // leadId from URL means they came from coverage check
+    
+    // Also check localStorage for coverage data
+    const savedCoverage = typeof window !== 'undefined' 
+      ? localStorage.getItem('circletel_coverage_address') 
+      : null;
+    
+    if (!hasCoverageData && !savedCoverage && !loading) {
+      // No coverage check done - redirect to home page
+      router.replace('/');
+    }
+  }, [orderState.orderData.coverage, leadId, loading, router]);
 
   useEffect(() => {
     // Fetch packages based on leadId
@@ -205,9 +225,27 @@ export default function OrderPackagesPage() {
             }
           }
         });
+
+        // If user is already authenticated, also save their account info to context
+        if (isAuthenticated && customer) {
+          orderActions.updateOrderData({
+            account: {
+              firstName: customer.first_name || '',
+              lastName: customer.last_name || '',
+              email: customer.email || '',
+              phone: customer.phone || '',
+              accountType: customer.account_type || 'personal',
+            }
+          });
+        }
       }
       
-      router.push(`/order/account?leadId=${leadId}&packageId=${selectedPackageId}`);
+      // If user is already logged in, skip account creation and go to service address
+      if (isAuthenticated) {
+        router.push('/order/service-address');
+      } else {
+        router.push(`/order/account?leadId=${leadId}&packageId=${selectedPackageId}`);
+      }
     }
   };
 

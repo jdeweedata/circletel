@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
+import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
 import { toast } from 'sonner';
@@ -54,6 +55,7 @@ const businessOptions: PropertyTypeOption[] = [
 export default function ServiceAddressPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
+  const { isAuthenticated, customer, user, loading: authLoading } = useCustomerAuth();
   
   const [serviceType, setServiceType] = useState<'residential' | 'business'>(
     state.orderData.account?.accountType === 'business' ? 'business' : 'residential'
@@ -64,6 +66,23 @@ export default function ServiceAddressPage() {
   );
 
   const streetInputRef = useRef<HTMLInputElement>(null);
+
+  // Protect route - require package selection first
+  useEffect(() => {
+    const hasPackageData = state.orderData.package?.selectedPackage;
+    const hasCoverageData = state.orderData.coverage?.address || 
+                            state.orderData.coverage?.coordinates;
+    
+    // Check localStorage as backup
+    const savedCoverage = typeof window !== 'undefined' 
+      ? localStorage.getItem('circletel_coverage_address') 
+      : null;
+    
+    if (!hasPackageData && !hasCoverageData && !savedCoverage) {
+      // No valid order flow - redirect to home
+      router.replace('/');
+    }
+  }, [state.orderData.package, state.orderData.coverage, router]);
 
   // Load persisted address from localStorage as backup
   useEffect(() => {
@@ -166,6 +185,41 @@ export default function ServiceAddressPage() {
       const selectedPackage = packageData?.selectedPackage;
       const pricing = packageData?.pricing;
 
+      // Get customer details - prefer auth provider, then user object, then order context
+      const customerEmail = customer?.email || user?.email || account?.email || '';
+      const customerPhone = customer?.phone || account?.phone || '';
+      const customerFirstName = customer?.first_name || user?.user_metadata?.first_name || account?.firstName || '';
+      const customerLastName = customer?.last_name || user?.user_metadata?.last_name || account?.lastName || '';
+
+      console.log('[ServiceAddress] Creating order with:', {
+        email: customerEmail,
+        hasPackage: !!selectedPackage,
+        hasAddress: !!installationAddress,
+        isAuthenticated,
+        authLoading,
+        hasUser: !!user,
+        userEmail: user?.email,
+        hasCustomer: !!customer,
+        customerEmail: customer?.email,
+        accountEmail: account?.email
+      });
+
+      // Wait for auth to finish loading if still in progress
+      if (authLoading) {
+        console.log('[ServiceAddress] Auth still loading, waiting...');
+        toast.dismiss();
+        toast.loading('Verifying your session...');
+        // Wait a bit and retry
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
+      if (!customerEmail) {
+        toast.dismiss();
+        toast.error('Customer email is required. Please log in or create an account.');
+        router.push('/auth/login?redirect=/order/service-address');
+        return;
+      }
+
       const orderResponse = await fetch('/api/orders/create-pending', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -182,11 +236,11 @@ export default function ServiceAddressPage() {
           installation_location_type: propertyType,
           installation_fee: pricing?.onceOff || selectedPackage?.onceOffPrice || 0,
 
-          // Customer details
-          email: account?.email || '',
-          phone: account?.phone || '',
-          first_name: account?.firstName || '',
-          last_name: account?.lastName || '',
+          // Customer details - use auth provider data if available
+          email: customerEmail,
+          phone: customerPhone,
+          first_name: customerFirstName,
+          last_name: customerLastName,
           account_type: serviceType === 'residential' ? 'personal' : 'business',
         }),
       });
@@ -198,7 +252,7 @@ export default function ServiceAddressPage() {
       }
 
       toast.dismiss();
-      toast.success('Order created! Please log in to complete your order.');
+      toast.success('Order created successfully! Redirecting to your dashboard...');
 
       // Redirect to dashboard (will show login if not authenticated)
       // Store order ID for later reference

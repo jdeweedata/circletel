@@ -13,6 +13,7 @@ import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield, RefreshCw, Chev
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
+import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import type { PackageDetails } from '@/lib/order/types';
 import { NoCoverageLeadCapture } from '@/components/coverage/NoCoverageLeadCapture';
 import { LicensedWirelessLeadCapture } from '@/components/coverage/LicensedWirelessLeadCapture';
@@ -64,6 +65,9 @@ function PackagesContent() {
 
   // Use OrderContext for state persistence
   const { state, actions } = useOrderContext();
+  
+  // Check if user is already logged in
+  const { isAuthenticated, customer } = useCustomerAuth();
 
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,10 +219,30 @@ function PackagesContent() {
 
   const handleContinue = () => {
     if (selectedPackage) {
-      // Mark coverage step as complete and navigate to next step
+      // Mark coverage step as complete
       actions.markStepComplete(1);
-      actions.setCurrentStage(2); // Move to account step
-      router.push('/order/account');
+      
+      // If user is already logged in, skip account creation and go to service-address
+      if (isAuthenticated && customer) {
+        // Save customer info to order context
+        actions.updateOrderData({
+          account: {
+            firstName: customer.first_name || '',
+            lastName: customer.last_name || '',
+            email: customer.email || '',
+            phone: customer.phone || '',
+            accountType: customer.account_type || 'personal',
+            isAuthenticated: true,
+          } as any,
+        });
+        
+        actions.setCurrentStage(2);
+        router.push('/order/service-address');
+      } else {
+        // New user - go to account creation
+        actions.setCurrentStage(2);
+        router.push('/order/account');
+      }
     }
   };
 

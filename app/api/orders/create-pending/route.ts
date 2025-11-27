@@ -16,6 +16,21 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     console.log('[create-pending] User auth check:', user ? 'Authenticated' : 'Not authenticated');
 
+    // If authenticated, get customer record
+    let customerId = null;
+    if (user) {
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+      
+      if (customer) {
+        customerId = customer.id;
+        console.log('[create-pending] Found customer:', customerId);
+      }
+    }
+
     const body = await request.json();
     console.log('[create-pending] Request body received:', {
       hasEmail: !!body.email,
@@ -63,6 +78,9 @@ export async function POST(request: NextRequest) {
       // Order identifiers
       order_number: orderNumber,
       payment_reference: paymentReference,
+
+      // Link to customer (if authenticated)
+      customer_id: customerId,
 
       // Customer info
       first_name: first_name || email.split('@')[0],

@@ -69,8 +69,14 @@ export default function LoginPage() {
       // Show success message
       toast.success('Welcome back!');
 
+      // Small delay to ensure cookies are set before navigation
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Redirect to intended page or dashboard
       router.push(redirectPath);
+      
+      // Force a refresh to ensure session is picked up
+      router.refresh();
     } catch (error) {
       console.error('Error signing in:', error);
       toast.error('Failed to sign in. Please try again.');

@@ -92,17 +92,48 @@ export default function DashboardPage() {
       }
 
       // Wait for customer record to load (ensures session is synced to cookies)
-      // If customer is still null after auth completes, show error instead of infinite loading
+      // If customer is still null after auth completes, try API fallback
       if (!customer) {
-        // Auth is complete but no customer record found - show error
         if (!authLoading) {
-          console.error('[Dashboard] Customer profile not found after auth completed');
-          setError('Customer profile not found. Please contact support at support@circletel.co.za');
-          setLoading(false);
+          console.log('[Dashboard] Customer not found via provider, trying API fallback...');
+          
+          // Try to ensure customer exists via API
+          try {
+            const ensureResponse = await fetch('/api/customers/ensure', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+              },
+            });
+            
+            if (ensureResponse.ok) {
+              const ensureResult = await ensureResponse.json();
+              if (ensureResult.success && ensureResult.customer) {
+                console.log('[Dashboard] Customer found via API fallback');
+                // Continue with dashboard fetch using the session
+              } else {
+                console.error('[Dashboard] Customer profile not found after auth completed');
+                setError('Customer profile not found. Please contact support at support@circletel.co.za');
+                setLoading(false);
+                return;
+              }
+            } else {
+              console.error('[Dashboard] API fallback failed');
+              setError('Customer profile not found. Please contact support at support@circletel.co.za');
+              setLoading(false);
+              return;
+            }
+          } catch (apiError) {
+            console.error('[Dashboard] API fallback error:', apiError);
+            setError('Customer profile not found. Please contact support at support@circletel.co.za');
+            setLoading(false);
+            return;
+          }
         } else {
           console.log('[Dashboard] Customer not loaded yet, waiting for session sync...');
+          return;
         }
-        return;
       }
 
       fetchInProgress.current = true;

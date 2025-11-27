@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     console.log('[Dashboard Summary API] ⏱️ Service role client created:', Date.now() - startTime, 'ms');
 
     // Get customer details using service role
-    const { data: customer, error: customerError } = await supabase
+    let { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('id, first_name, last_name, email, phone, account_number, account_status, created_at')
       .eq('auth_user_id', user.id)
@@ -98,17 +98,43 @@ export async function GET(request: NextRequest) {
 
     console.log('[Dashboard Summary API] ⏱️ Customer fetched:', Date.now() - startTime, 'ms');
 
-    // If customer doesn't exist, return error (don't auto-create)
+    // If customer doesn't exist, auto-create one from auth user data
     if (customerError || !customer) {
-      console.error('[Dashboard Summary API] ❌ Customer not found for user:', user.id, customerError?.message);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Customer record not found. Please contact support.',
-          technical_error: customerError?.message
-        },
-        { status: 404 }
-      );
+      console.log('[Dashboard Summary API] Customer not found, auto-creating for user:', user.id);
+      
+      // Generate account number
+      const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
+      
+      // Create customer record from auth user data
+      const { data: newCustomer, error: createError } = await supabase
+        .from('customers')
+        .insert({
+          auth_user_id: user.id,
+          email: user.email,
+          first_name: user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0] || 'Customer',
+          last_name: user.user_metadata?.last_name || user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
+          phone: user.user_metadata?.phone || user.phone || '',
+          account_number: accountNumber,
+          account_status: 'active',
+          account_type: 'personal',
+        })
+        .select('id, first_name, last_name, email, phone, account_number, account_status, created_at')
+        .single();
+      
+      if (createError || !newCustomer) {
+        console.error('[Dashboard Summary API] ❌ Failed to create customer:', createError?.message);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to create customer profile. Please contact support.',
+            technical_error: createError?.message
+          },
+          { status: 500 }
+        );
+      }
+      
+      console.log('[Dashboard Summary API] ✅ Customer auto-created:', newCustomer.id);
+      customer = newCustomer;
     }
     
     // Parallel queries for better performance with timeout protection

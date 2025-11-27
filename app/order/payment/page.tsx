@@ -45,6 +45,23 @@ export default function PaymentPage() {
   // Validation charge: R1.00 to verify payment method
   const VALIDATION_AMOUNT = 1.00;
 
+  // Protect route - require complete order flow
+  useEffect(() => {
+    const hasPackageData = packageData?.selectedPackage;
+    const hasAccountData = account?.email;
+    const hasCoverageData = coverage?.address || coverage?.coordinates;
+    
+    // Check localStorage as backup
+    const savedCoverage = typeof window !== 'undefined' 
+      ? localStorage.getItem('circletel_coverage_address') 
+      : null;
+    
+    if (!hasPackageData && !hasCoverageData && !savedCoverage) {
+      // No valid order flow - redirect to home
+      router.replace('/');
+    }
+  }, [packageData, account, coverage, router]);
+
   // Set current stage to 3 when this page loads
   useEffect(() => {
     if (state.currentStage !== 3) {
