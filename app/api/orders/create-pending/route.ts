@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 
 // UUID validation regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -16,12 +16,35 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[create-pending] Starting order creation...');
 
+    // Use service role client for database operations (bypasses RLS)
     const supabase = await createClient();
     console.log('[create-pending] Supabase client created');
 
-    // Get authenticated user (may not be authenticated yet)
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log('[create-pending] User auth check:', user ? 'Authenticated' : 'Not authenticated');
+    // Get authenticated user - check BOTH Authorization header AND cookies
+    // (session may be in localStorage on client, sent via Authorization header)
+    let user = null;
+    let authError = null;
+
+    // First, try Authorization header (preferred - works with localStorage sessions)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const { data, error } = await supabase.auth.getUser(token);
+      user = data?.user || null;
+      authError = error;
+      console.log('[create-pending] Auth via header:', user ? `Authenticated (${user.email})` : 'Not authenticated');
+    }
+
+    // Fallback to cookie-based session if no header
+    if (!user) {
+      const supabaseWithSession = await createClientWithSession();
+      const { data, error } = await supabaseWithSession.auth.getUser();
+      user = data?.user || null;
+      authError = error;
+      console.log('[create-pending] Auth via cookies:', user ? `Authenticated (${user.email})` : 'Not authenticated');
+    }
+
+    console.log('[create-pending] Final auth status:', user ? `Authenticated (${user.email})` : 'Not authenticated', authError ? `Error: ${authError.message}` : '');
 
     // If authenticated, get customer record
     let customerId = null;

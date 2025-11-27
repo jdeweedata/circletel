@@ -34,31 +34,59 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function AccountPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
-  const { signUp, signInWithGoogle } = useCustomerAuth();
+  const { signUp, signInWithGoogle, isAuthenticated, customer, loading: authLoading } = useCustomerAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
 
+  // Check if user is already authenticated - redirect to service-address
+  React.useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+
+    if (isAuthenticated && customer) {
+      // User is already logged in - populate account data and redirect
+      actions.updateOrderData({
+        account: {
+          firstName: customer.first_name || '',
+          lastName: customer.last_name || '',
+          email: customer.email || '',
+          phone: customer.phone || '',
+          accountType: customer.account_type || 'personal',
+          isAuthenticated: true,
+        } as any,
+      });
+
+      // Mark step as complete and redirect
+      actions.markStepComplete(2);
+      actions.setCurrentStage(3);
+      router.replace('/order/service-address');
+      return;
+    }
+  }, [isAuthenticated, customer, authLoading, actions, router]);
+
   // Protect route - require package selection first
   React.useEffect(() => {
+    if (authLoading) return; // Wait for auth check first
+    if (isAuthenticated) return; // Don't check if authenticated (will redirect above)
+
     const hasPackageData = state.orderData.package?.selectedPackage;
-    const hasCoverageData = state.orderData.coverage?.address || 
+    const hasCoverageData = state.orderData.coverage?.address ||
                             state.orderData.coverage?.coordinates;
-    
+
     // Check localStorage as backup
-    const savedCoverage = typeof window !== 'undefined' 
-      ? localStorage.getItem('circletel_coverage_address') 
+    const savedCoverage = typeof window !== 'undefined'
+      ? localStorage.getItem('circletel_coverage_address')
       : null;
-    
+
     if (!hasPackageData && !hasCoverageData && !savedCoverage) {
       // No valid order flow - redirect to home
       router.replace('/');
       return;
     }
-    
+
     setIsCheckingAccess(false);
-  }, [state.orderData.package, state.orderData.coverage, router]);
+  }, [state.orderData.package, state.orderData.coverage, router, authLoading, isAuthenticated]);
 
   // Set current stage to 2 when this page loads
   React.useEffect(() => {
@@ -209,6 +237,20 @@ export default function AccountPage() {
       setIsGoogleLoading(false);
     }
   };
+
+  // Show loading while checking authentication status
+  if (authLoading || (isAuthenticated && customer)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-circleTel-orange mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            {isAuthenticated ? 'Redirecting to next step...' : 'Loading...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">

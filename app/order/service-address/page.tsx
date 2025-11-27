@@ -55,7 +55,7 @@ const businessOptions: PropertyTypeOption[] = [
 export default function ServiceAddressPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
-  const { isAuthenticated, customer, user, loading: authLoading } = useCustomerAuth();
+  const { isAuthenticated, customer, user, session, loading: authLoading } = useCustomerAuth();
   
   const [serviceType, setServiceType] = useState<'residential' | 'business'>(
     state.orderData.account?.accountType === 'business' ? 'business' : 'residential'
@@ -222,7 +222,10 @@ export default function ServiceAddressPage() {
 
       const orderResponse = await fetch('/api/orders/create-pending', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+        },
         body: JSON.stringify({
           // Package details
           service_package_id: selectedPackage?.id || null,

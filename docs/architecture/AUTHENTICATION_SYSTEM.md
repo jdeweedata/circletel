@@ -557,6 +557,11 @@ export async function GET(request: NextRequest) {
 }
 ```
 
+> **IMPORTANT**: The Supabase session may be stored in **localStorage** instead of cookies
+> (especially with `@supabase/ssr` client). Always check BOTH the Authorization header AND
+> cookies in API routes. Client-side code should ALWAYS send the Authorization header.
+> See `docs/fixes/2025-11-27_CUSTOMER_ID_NULL_ORDER_FIX.md` for a detailed case study.
+
 ### RBAC Permission Check Pattern
 
 ```typescript

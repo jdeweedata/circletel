@@ -9,6 +9,7 @@ import {
   UserCircle,
   HeadphonesIcon,
   HelpCircle,
+  ShoppingCart,
   LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,15 @@ interface QuickAction {
 }
 
 const quickActions: QuickAction[] = [
+  {
+    id: 'place-order',
+    title: 'Place New Order',
+    icon: ShoppingCart,
+    href: '/order/coverage',
+    description: 'Order a new service',
+    iconBg: 'bg-orange-100',
+    iconColor: 'text-circleTel-orange',
+  },
   {
     id: 'payment-method',
     title: 'Payment Method',

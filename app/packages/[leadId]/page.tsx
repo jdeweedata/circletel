@@ -219,9 +219,46 @@ function PackagesContent() {
 
   const handleContinue = () => {
     if (selectedPackage) {
+      // Convert Package to PackageDetails and save to context
+      const packageDetails: PackageDetails = {
+        id: selectedPackage.id,
+        name: selectedPackage.name,
+        service_type: selectedPackage.service_type,
+        product_category: selectedPackage.product_category,
+        speed_down: selectedPackage.speed_down,
+        speed_up: selectedPackage.speed_up,
+        price: String(selectedPackage.price),
+        promotion_price: selectedPackage.promotion_price ? String(selectedPackage.promotion_price) : null,
+        promotion_months: selectedPackage.promotion_months || null,
+        description: selectedPackage.description,
+        features: selectedPackage.features || [],
+        monthlyPrice: selectedPackage.promotion_price || selectedPackage.price,
+        speed: `${selectedPackage.speed_down}/${selectedPackage.speed_up} Mbps`,
+      };
+
+      // Save selected package to OrderContext (prices include VAT for customer display)
+      const priceInclVAT = addVAT(selectedPackage.promotion_price || selectedPackage.price);
+      actions.updateOrderData({
+        package: {
+          selectedPackage: packageDetails,
+          pricing: {
+            monthly: priceInclVAT,
+            onceOff: 0,
+            vatIncluded: true,
+            breakdown: [
+              {
+                name: selectedPackage.name,
+                amount: priceInclVAT,
+                type: 'monthly',
+              },
+            ],
+          },
+        },
+      });
+
       // Mark coverage step as complete
       actions.markStepComplete(1);
-      
+
       // If user is already logged in, skip account creation and go to service-address
       if (isAuthenticated && customer) {
         // Save customer info to order context
@@ -235,7 +272,7 @@ function PackagesContent() {
             isAuthenticated: true,
           } as any,
         });
-        
+
         actions.setCurrentStage(2);
         router.push('/order/service-address');
       } else {
