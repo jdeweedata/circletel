@@ -209,7 +209,7 @@ async function generateOrderNumber(supabase: any): Promise<string> {
       .from('consumer_orders')
       .select('id')
       .eq('order_number', orderNumber)
-      .single();
+      .maybeSingle();
 
     if (!data) {
       // Order number is unique
