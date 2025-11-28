@@ -43,7 +43,7 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const { user } = useCustomerAuth();
+  const { user, session } = useCustomerAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,10 +54,10 @@ export default function OrdersPage() {
   const ordersPerPage = 10;
 
   useEffect(() => {
-    if (user) {
+    if (session) {
       fetchOrders();
     }
-  }, [user]);
+  }, [session]);
 
   useEffect(() => {
     filterAndSortOrders();
@@ -67,7 +67,7 @@ export default function OrdersPage() {
     try {
       setLoading(true);
 
-      if (!user?.session) {
+      if (!session?.access_token) {
         console.error('No user session found');
         setLoading(false);
         return;
@@ -75,7 +75,7 @@ export default function OrdersPage() {
 
       const response = await fetch('/api/dashboard/orders', {
         headers: {
-          'Authorization': `Bearer ${user.session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       });
 
