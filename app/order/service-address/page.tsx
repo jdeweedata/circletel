@@ -185,11 +185,27 @@ export default function ServiceAddressPage() {
       const selectedPackage = packageData?.selectedPackage;
       const pricing = packageData?.pricing;
 
-      // Get customer details - prefer auth provider, then user object, then order context
-      const customerEmail = customer?.email || user?.email || account?.email || '';
-      const customerPhone = customer?.phone || account?.phone || '';
-      const customerFirstName = customer?.first_name || user?.user_metadata?.first_name || account?.firstName || '';
-      const customerLastName = customer?.last_name || user?.user_metadata?.last_name || account?.lastName || '';
+          // Wait for auth to finish loading if still in progress
+      if (authLoading) {
+        console.log('[ServiceAddress] Auth still loading, waiting...');
+        toast.dismiss();
+        toast.loading('Verifying your session...');
+        // Wait up to 5 seconds for auth to complete, checking every 250ms
+        let attempts = 0;
+        const maxAttempts = 20; // 20 * 250ms = 5 seconds
+        while (authLoading && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 250));
+          attempts++;
+        }
+        toast.dismiss();
+      }
+
+      // Get customer details - prioritize session email for OAuth users (most reliable)
+      // Then fall back to customer record, then user object, then order context
+      const customerEmail = session?.user?.email || user?.email || customer?.email || account?.email || '';
+      const customerPhone = customer?.phone || user?.user_metadata?.phone || account?.phone || '';
+      const customerFirstName = customer?.first_name || user?.user_metadata?.first_name || user?.user_metadata?.full_name?.split(' ')[0] || account?.firstName || '';
+      const customerLastName = customer?.last_name || user?.user_metadata?.last_name || user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') || account?.lastName || '';
 
       console.log('[ServiceAddress] Creating order with:', {
         email: customerEmail,
@@ -199,25 +215,32 @@ export default function ServiceAddressPage() {
         authLoading,
         hasUser: !!user,
         userEmail: user?.email,
+        sessionEmail: session?.user?.email,
         hasCustomer: !!customer,
         customerEmail: customer?.email,
         accountEmail: account?.email
       });
 
-      // Wait for auth to finish loading if still in progress
-      if (authLoading) {
-        console.log('[ServiceAddress] Auth still loading, waiting...');
-        toast.dismiss();
-        toast.loading('Verifying your session...');
-        // Wait a bit and retry
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-
+      // Only redirect to login if truly not authenticated AND no email available
       if (!customerEmail) {
-        toast.dismiss();
-        toast.error('Customer email is required. Please log in or create an account.');
-        router.push('/auth/login?redirect=/order/service-address');
-        return;
+        if (!isAuthenticated && !session?.user) {
+          toast.dismiss();
+          toast.error('Please log in to continue with your order.');
+          router.push('/auth/login?redirect=/order/service-address');
+          return;
+        } else {
+          // Authenticated but no email - this shouldn't happen, log and show error
+          console.error('[ServiceAddress] Authenticated user has no email:', {
+            isAuthenticated,
+            hasSession: !!session,
+            sessionUser: session?.user?.email,
+            user: user?.email
+          });
+          toast.dismiss();
+          toast.error('Unable to retrieve your email. Please try logging in again.');
+          router.push('/auth/login?redirect=/order/service-address');
+          return;
+        }
       }
 
       const orderResponse = await fetch('/api/orders/create-pending', {
@@ -421,10 +444,11 @@ export default function ServiceAddressPage() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-medium rounded-lg transition-colors"
+                  disabled={authLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Create Order
-                  <ArrowRight className="w-5 h-5" />
+                  {authLoading ? 'Loading...' : 'Create Order'}
+                  {!authLoading && <ArrowRight className="w-5 h-5" />}
                 </button>
               </div>
             </div>

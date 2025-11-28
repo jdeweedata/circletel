@@ -34,7 +34,7 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function AccountPage() {
   const router = useRouter();
   const { state, actions } = useOrderContext();
-  const { signUp, signInWithGoogle, isAuthenticated, customer, loading: authLoading } = useCustomerAuth();
+  const { signUp, signInWithGoogle, isAuthenticated, customer, user, session, loading: authLoading } = useCustomerAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
@@ -44,15 +44,38 @@ export default function AccountPage() {
   React.useEffect(() => {
     if (authLoading) return; // Wait for auth to load
 
-    if (isAuthenticated && customer) {
-      // User is already logged in - populate account data and redirect
+    // Check if authenticated - support both customer record and user session (for OAuth)
+    if (isAuthenticated && (customer || user)) {
+      // User is already logged in - populate account data from customer OR user metadata
+      // This ensures OAuth users (who have user but may not have customer yet) still work
+      const firstName = customer?.first_name ||
+                       user?.user_metadata?.first_name ||
+                       user?.user_metadata?.full_name?.split(' ')[0] ||
+                       '';
+      const lastName = customer?.last_name ||
+                      user?.user_metadata?.last_name ||
+                      user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
+                      '';
+      const email = customer?.email || user?.email || '';
+      const phone = customer?.phone || user?.user_metadata?.phone || '';
+      const accountType = customer?.account_type || 'personal';
+
+      console.log('[AccountPage] Authenticated user detected, populating order context:', {
+        isAuthenticated,
+        hasCustomer: !!customer,
+        hasUser: !!user,
+        email,
+        firstName,
+        lastName
+      });
+
       actions.updateOrderData({
         account: {
-          firstName: customer.first_name || '',
-          lastName: customer.last_name || '',
-          email: customer.email || '',
-          phone: customer.phone || '',
-          accountType: customer.account_type || 'personal',
+          firstName,
+          lastName,
+          email,
+          phone,
+          accountType,
           isAuthenticated: true,
         } as any,
       });
@@ -63,7 +86,7 @@ export default function AccountPage() {
       router.replace('/order/service-address');
       return;
     }
-  }, [isAuthenticated, customer, authLoading, actions, router]);
+  }, [isAuthenticated, customer, user, authLoading, actions, router]);
 
   // Protect route - require package selection first
   React.useEffect(() => {
@@ -239,7 +262,8 @@ export default function AccountPage() {
   };
 
   // Show loading while checking authentication status
-  if (authLoading || (isAuthenticated && customer)) {
+  // Include 'user' check for OAuth users who may not have customer record yet
+  if (authLoading || (isAuthenticated && (customer || user))) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">

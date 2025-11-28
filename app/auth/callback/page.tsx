@@ -116,9 +116,27 @@ export default function AuthCallbackPage() {
               }
 
               setStatus('success');
-              setTimeout(() => {
-                router.push(next);
-              }, 2000);
+
+              // Wait for session to be confirmed in storage before redirecting
+              // This fixes race condition where getSession() returns null on next page
+              console.log('[Auth Callback] Verifying session is persisted...');
+              let verified = false;
+              for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+                const { data: checkSession } = await supabase.auth.getSession();
+                if (checkSession.session?.user) {
+                  console.log('[Auth Callback] Session verified after', (i + 1) * 200, 'ms');
+                  verified = true;
+                  break;
+                }
+              }
+
+              if (!verified) {
+                console.warn('[Auth Callback] Session verification timed out, proceeding anyway');
+              }
+
+              // Use replace to avoid back-button navigation issues
+              router.replace(next);
               return;
             }
             }
@@ -164,9 +182,10 @@ export default function AuthCallbackPage() {
               }
 
               setStatus('success');
+              // Use replace to avoid back-button navigation issues
               setTimeout(() => {
-                router.push(next);
-              }, 2000);
+                router.replace(next);
+              }, 1000);
               return;
             }
           } catch (pkceError) {
@@ -217,9 +236,10 @@ export default function AuthCallbackPage() {
 
             setStatus('success');
             const next = searchParams.get('next') || '/dashboard';
+            // Use replace to avoid back-button navigation issues
             setTimeout(() => {
-              router.push(next);
-            }, 2000);
+              router.replace(next);
+            }, 1000);
             return;
           }
         }
