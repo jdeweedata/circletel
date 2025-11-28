@@ -37,9 +37,14 @@ export async function middleware(request: NextRequest) {
       cookies: {
         getAll() {
           const cookies = request.cookies.getAll();
-          const authCookie = cookies.find(c => c.name.includes('auth-token'));
+          // Supabase SSR uses cookies with pattern: sb-<project_ref>-auth-token (or chunked .0, .1, etc)
+          const authCookie = cookies.find(c =>
+            c.name.includes('auth-token') ||
+            c.name.includes('sb-') && c.name.includes('-auth')
+          );
           console.log('[Middleware] Cookies:', {
             count: cookies.length,
+            names: cookies.map(c => c.name),
             hasAuthCookie: !!authCookie,
             authCookiePreview: authCookie ? authCookie.value.substring(0, 50) + '...' : 'none'
           });

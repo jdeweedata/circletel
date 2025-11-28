@@ -21,6 +21,26 @@
   border-width: 3px;
 }
 
+/* Safe area utilities for mobile devices with notches */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.has-bottom-nav {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Ensure viewport includes safe areas */
+@supports (padding: max(0px)) {
+  .pb-safe-max {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
 @layer base {
   :root {
     --background: oklch(1.0000 0 0);
