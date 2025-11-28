@@ -57,10 +57,10 @@ export async function GET(request: NextRequest) {
     // Fetch orders with timeout protection
     const QUERY_TIMEOUT = 12000; // 12 second timeout
     const queryPromise = supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('customer_id', customer.id)
-      .order('created_at', { ascending: false});
+      .order('created_at', { ascending: false });
 
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {

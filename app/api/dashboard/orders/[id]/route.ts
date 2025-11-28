@@ -61,7 +61,7 @@ export async function GET(
     // Fetch order with timeout protection
     const QUERY_TIMEOUT = 12000; // 12 second timeout
     const queryPromise = supabase
-      .from('orders')
+      .from('consumer_orders')
       .select('*')
       .eq('id', id)
       .eq('customer_id', customer.id)
