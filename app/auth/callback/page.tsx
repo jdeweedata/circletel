@@ -141,16 +141,21 @@ export default function AuthCallbackPage() {
 
               // Wait for session to be confirmed in storage before redirecting
               // This fixes race condition where getSession() returns null on next page
-              console.log('[Auth Callback] Verifying session is persisted...');
+              // IMPORTANT: We must verify with a FRESH client to ensure cookies were actually written
+              // The original client has session in memory, so it will always return it
+              console.log('[Auth Callback] Verifying session is persisted with fresh client...');
               let verified = false;
-              for (let i = 0; i < 10; i++) {
-                await new Promise(resolve => setTimeout(resolve, 200));
-                const { data: checkSession } = await supabase.auth.getSession();
+              for (let i = 0; i < 15; i++) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                // Create a fresh client to check if session was persisted to cookies
+                const freshClient = createClient();
+                const { data: checkSession } = await freshClient.auth.getSession();
                 if (checkSession.session?.user) {
-                  console.log('[Auth Callback] Session verified after', (i + 1) * 200, 'ms');
+                  console.log('[Auth Callback] Session verified with fresh client after', (i + 1) * 300, 'ms');
                   verified = true;
                   break;
                 }
+                console.log('[Auth Callback] Session not yet persisted, attempt', i + 1);
               }
 
               if (!verified) {
