@@ -39,7 +39,29 @@ export default function AuthCallbackPage() {
         }
 
         // Get the 'next' parameter for redirect after auth
-        const next = searchParams.get('next') || '/dashboard';
+        // First check localStorage (more reliable for OAuth flows where query params can be lost)
+        // Then fall back to query params
+        let next = '/dashboard';
+
+        if (typeof window !== 'undefined') {
+          const savedNext = localStorage.getItem('circletel_oauth_next');
+          if (savedNext) {
+            next = savedNext;
+            localStorage.removeItem('circletel_oauth_next');  // Clean up after use
+            console.log('[Auth Callback] Got next URL from localStorage:', next);
+          }
+        }
+
+        // Fall back to query param if localStorage didn't have it
+        if (next === '/dashboard') {
+          const queryNext = searchParams.get('next');
+          if (queryNext) {
+            next = queryNext;
+            console.log('[Auth Callback] Got next URL from query param:', next);
+          }
+        }
+
+        console.log('[Auth Callback] Final redirect destination:', next);
 
         // Check for implicit flow (OAuth with hash fragment)
         // This happens when tokens are in the URL hash instead of query params
@@ -235,7 +257,7 @@ export default function AuthCallbackPage() {
             }
 
             setStatus('success');
-            const next = searchParams.get('next') || '/dashboard';
+            // Use the 'next' variable already defined at the top (from localStorage or query params)
             // Use replace to avoid back-button navigation issues
             setTimeout(() => {
               router.replace(next);

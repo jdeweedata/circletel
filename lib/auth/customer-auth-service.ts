@@ -269,7 +269,18 @@ export class CustomerAuthService {
 
       // Use environment variable if set, otherwise use current origin
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-      const redirectUrl = `${baseUrl}/auth/callback?next=/order/service-address`;
+
+      // Save the intended redirect destination to localStorage BEFORE OAuth
+      // This is necessary because Supabase OAuth doesn't reliably preserve query params
+      // (the hash fragment with tokens can overwrite them)
+      const nextUrl = '/order/service-address';
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('circletel_oauth_next', nextUrl);
+        console.log('[Google OAuth] Saved next URL to localStorage:', nextUrl);
+      }
+
+      // Use base callback URL without query params - we'll get next from localStorage
+      const redirectUrl = `${baseUrl}/auth/callback`;
 
       console.log('[Google OAuth] Redirect URL:', redirectUrl);
 
