@@ -137,20 +137,20 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   // ============================================
 
   // Add CircleTel logo (base64 encoded PNG)
-  // Logo dimensions: approximately 50mm wide, maintaining aspect ratio
+  // Logo dimensions: 25x25mm square (1:1 ratio) - matches quote PDF
   try {
-    doc.addImage(circleTelLogoBase64, 'PNG', margin, yPos, 50, 15);
+    doc.addImage(circleTelLogoBase64, 'PNG', margin, yPos, 25, 25);
   } catch (e) {
     // Fallback to text if logo fails to load
     doc.setFillColor(COLORS.primary);
-    doc.rect(margin, yPos, 60, 12, 'F');
+    doc.rect(margin, yPos, 25, 25, 'F');
     doc.setTextColor(COLORS.white);
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('CircleTel', margin + 5, yPos + 8);
+    doc.text('CT', margin + 7, yPos + 15);
   }
 
-  yPos += 20;
+  yPos += 30;
 
   // ============================================
   // COMPANY DETAILS (Left) & INVOICE INFO (Right)
