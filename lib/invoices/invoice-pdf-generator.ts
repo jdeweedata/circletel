@@ -19,17 +19,17 @@ import { circleTelLogoBase64 } from '@/lib/quotes/circletel-logo-base64';
 export const COMPANY_DETAILS = {
   name: 'Circle Tel SA (Pty) Ltd',
   vatNumber: '4380269318',
-  registrationNumber: '2024/123456/07',
+  registrationNumber: '2008/026404/07',
   address: {
-    line1: 'Unit 5, Highveld Techno Park',
-    line2: 'Centurion',
+    line1: 'West House, 7 Autumn Road',
+    line2: 'Rivonia, Johannesburg',
     province: 'Gauteng',
-    postalCode: '0157',
+    postalCode: '2128',
     country: 'South Africa'
   },
   contact: {
     email: 'support@circletel.co.za',
-    phone: '+27 12 345 6789',
+    phone: '+27 10 500 0000',
     website: 'www.circletel.co.za'
   },
   banking: {
@@ -391,31 +391,13 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   yPos = Math.max(yPos + 30, totalsYPos + 15);
 
   // ============================================
-  // FOOTER MESSAGE
+  // PAGE FOOTER - Company Registration
   // ============================================
-
-  // Draw footer box
-  const footerY = yPos + 10;
-  doc.setFillColor('#F9FAFB');
-  doc.roundedRect(margin, footerY, pageWidth - (margin * 2), 20, 2, 2, 'F');
 
   doc.setFontSize(8);
   doc.setTextColor(COLORS.gray);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Please remember – ', margin + 5, footerY + 8);
-
-  doc.setFont('helvetica', 'normal');
-  const footerText = 'you can manage your account 24/7 in our Client Zone; view invoices, update details, change services and log support tickets at circletel.co.za/dashboard.';
-  doc.text(footerText, margin + 35, footerY + 8);
-
-  // ============================================
-  // PAGE FOOTER - SARS Compliance Notice
-  // ============================================
-
-  doc.setFontSize(7);
-  doc.setTextColor(COLORS.gray);
   doc.text(
-    `This is a valid Tax Invoice as per SARS requirements. | Company Reg: ${COMPANY_DETAILS.registrationNumber} | VAT: ${COMPANY_DETAILS.vatNumber}`,
+    `Company Reg: ${COMPANY_DETAILS.registrationNumber} | VAT: ${COMPANY_DETAILS.vatNumber}`,
     pageWidth / 2,
     pageHeight - 10,
     { align: 'center' }
