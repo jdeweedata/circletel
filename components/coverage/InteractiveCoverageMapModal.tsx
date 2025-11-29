@@ -33,9 +33,20 @@ export function InteractiveCoverageMapModal({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+  const [userHasSelectedAddress, setUserHasSelectedAddress] = useState(false);
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const lastGeocodedAddress = useRef<string>('');
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setUserHasSelectedAddress(false);
+      setLocationDetected(false);
+    }
+  }, [isOpen]);
 
   // Update address when initialAddress changes
   useEffect(() => {
@@ -51,13 +62,19 @@ export function InteractiveCoverageMapModal({
     }
   }, [initialCoordinates]);
 
-  // Auto-detect user location when modal opens (only if no initial coordinates)
+  // Auto-detect user location when modal opens (only if no initial coordinates and user hasn't selected an address)
   useEffect(() => {
-    if (isOpen && !initialCoordinates && !locationDetected && typeof navigator !== 'undefined' && navigator.geolocation) {
+    if (isOpen && !initialCoordinates && !locationDetected && !userHasSelectedAddress && typeof navigator !== 'undefined' && navigator.geolocation) {
       setIsDetectingLocation(true);
       
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          // Don't override if user has already selected an address
+          if (userHasSelectedAddress) {
+            setIsDetectingLocation(false);
+            return;
+          }
+          
           const newPosition = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
@@ -67,18 +84,18 @@ export function InteractiveCoverageMapModal({
           setLocationDetected(true);
           setIsDetectingLocation(false);
 
-          // Reverse geocode to get address
-          if (typeof google !== 'undefined') {
+          // Reverse geocode to get address (only if user hasn't selected one)
+          if (typeof google !== 'undefined' && !userHasSelectedAddress) {
             const geocoder = new google.maps.Geocoder();
             geocoder.geocode({ location: newPosition }, (results, status) => {
-              if (status === 'OK' && results && results[0]) {
+              if (status === 'OK' && results && results[0] && !userHasSelectedAddress) {
                 setAddress(results[0].formatted_address);
               }
             });
           }
 
           // Center map on detected location
-          if (mapRef.current) {
+          if (mapRef.current && !userHasSelectedAddress) {
             mapRef.current.panTo(newPosition);
             mapRef.current.setZoom(18);
           }
@@ -95,7 +112,7 @@ export function InteractiveCoverageMapModal({
         }
       );
     }
-  }, [isOpen, initialCoordinates, locationDetected]);
+  }, [isOpen, initialCoordinates, locationDetected, userHasSelectedAddress]);
 
   // Add keyboard accessibility (Escape to close)
   useEffect(() => {
@@ -114,8 +131,43 @@ export function InteractiveCoverageMapModal({
     };
   }, [isOpen, onClose]);
 
+  // Geocode address as fallback for mobile touch selection
+  const geocodeAddress = useCallback((addressToGeocode: string) => {
+    if (!addressToGeocode || addressToGeocode === lastGeocodedAddress.current) {
+      return;
+    }
+    
+    if (typeof google !== 'undefined') {
+      console.log('[InteractiveMap] Geocoding address:', addressToGeocode);
+      lastGeocodedAddress.current = addressToGeocode;
+      
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: addressToGeocode, region: 'ZA' }, (results, status) => {
+        if (status === 'OK' && results && results[0] && results[0].geometry?.location) {
+          const newPosition = {
+            lat: results[0].geometry.location.lat(),
+            lng: results[0].geometry.location.lng()
+          };
+          
+          console.log('[InteractiveMap] Geocoded position:', newPosition);
+          
+          setUserHasSelectedAddress(true);
+          setMarkerPosition(newPosition);
+          
+          // Center map on new location
+          if (mapRef.current) {
+            mapRef.current.panTo(newPosition);
+            mapRef.current.setZoom(18);
+          }
+        }
+      });
+    }
+  }, []);
+
   const handlePlaceChanged = useCallback(() => {
     const place = autocompleteRef.current?.getPlace();
+    
+    console.log('[InteractiveMap] handlePlaceChanged called, place:', place);
     
     if (place && place.geometry?.location) {
       const newPosition = {
@@ -123,16 +175,31 @@ export function InteractiveCoverageMapModal({
         lng: place.geometry.location.lng()
       };
 
+      console.log('[InteractiveMap] Setting new position:', newPosition, 'address:', place.formatted_address);
+      
+      // Mark that user has selected an address - prevents geolocation from overriding
+      setUserHasSelectedAddress(true);
       setMarkerPosition(newPosition);
       setAddress(place.formatted_address || '');
+      lastGeocodedAddress.current = place.formatted_address || '';
 
       // Center map on new location
       if (mapRef.current) {
         mapRef.current.panTo(newPosition);
         mapRef.current.setZoom(18);
       }
+    } else if (place && place.name) {
+      // Fallback: If place has name but no geometry (common on mobile), geocode the name
+      console.log('[InteractiveMap] Place has no geometry, attempting geocode for:', place.name);
+      geocodeAddress(place.name);
+    } else {
+      console.log('[InteractiveMap] Place has no geometry, place object:', place);
+      // Try to geocode the current input value as last resort
+      if (inputRef.current?.value) {
+        geocodeAddress(inputRef.current.value);
+      }
     }
-  }, []);
+  }, [geocodeAddress]);
 
   const handleMapClick = useCallback((event: any) => {
     if (event.latLng && typeof google !== 'undefined') {
@@ -141,6 +208,8 @@ export function InteractiveCoverageMapModal({
         lng: event.latLng.lng()
       };
 
+      // Mark that user has interacted with the map
+      setUserHasSelectedAddress(true);
       setMarkerPosition(newPosition);
 
       // Reverse geocode to get address
@@ -423,15 +492,36 @@ export function InteractiveCoverageMapModal({
                   >
                     <div className="relative">
                       <input
+                        ref={inputRef}
                         type="text"
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={(e) => {
+                          setAddress(e.target.value);
+                          // Mark user interaction when typing
+                          if (e.target.value.length > 3) {
+                            setUserHasSelectedAddress(true);
+                          }
+                        }}
+                        onBlur={() => {
+                          // On mobile, when user taps a suggestion, the input loses focus
+                          // Use a small delay to allow the place_changed event to fire first
+                          setTimeout(() => {
+                            if (address && address !== lastGeocodedAddress.current && !autocompleteRef.current?.getPlace()?.geometry) {
+                              console.log('[InteractiveMap] Input blur - geocoding address:', address);
+                              geocodeAddress(address);
+                            }
+                          }, 300);
+                        }}
                         placeholder="e.g., 10 Main Street, Cape Town"
                         className="w-full px-4 py-3 sm:py-3.5 pr-10 text-sm sm:text-base border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
                       />
                       {address && (
                         <button
-                          onClick={() => setAddress('')}
+                          onClick={() => {
+                            setAddress('');
+                            setUserHasSelectedAddress(false);
+                            lastGeocodedAddress.current = '';
+                          }}
                           className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
                           aria-label="Clear address"
                           type="button"
@@ -484,7 +574,11 @@ export function InteractiveCoverageMapModal({
                         <span className="text-lg">✓</span> Selected Location
                       </p>
                       <button
-                        onClick={() => setAddress('')}
+                        onClick={() => {
+                          setAddress('');
+                          setUserHasSelectedAddress(false);
+                          lastGeocodedAddress.current = '';
+                        }}
                         className="text-green-700 hover:text-green-900 text-xs underline"
                       >
                         Change
@@ -633,16 +727,37 @@ export function InteractiveCoverageMapModal({
                 >
                   <div className="relative">
                     <input
+                      ref={inputRef}
                       type="text"
                       value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                        // Mark user interaction when typing
+                        if (e.target.value.length > 3) {
+                          setUserHasSelectedAddress(true);
+                        }
+                      }}
+                      onBlur={() => {
+                        // On mobile, when user taps a suggestion, the input loses focus
+                        // Use a small delay to allow the place_changed event to fire first
+                        setTimeout(() => {
+                          if (address && address !== lastGeocodedAddress.current && !autocompleteRef.current?.getPlace()?.geometry) {
+                            console.log('[InteractiveMap] Input blur - geocoding address:', address);
+                            geocodeAddress(address);
+                          }
+                        }, 300);
+                      }}
                       placeholder="e.g., 10 Main Street, Cape Town"
                       className="w-full px-4 md:px-6 py-3 md:py-3.5 pr-12 text-sm md:text-base border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
                     />
                     {/* Clear Button */}
                     {address && (
                       <button
-                        onClick={() => setAddress('')}
+                        onClick={() => {
+                          setAddress('');
+                          setUserHasSelectedAddress(false);
+                          lastGeocodedAddress.current = '';
+                        }}
                         className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
                         aria-label="Clear address"
                         type="button"
@@ -661,7 +776,11 @@ export function InteractiveCoverageMapModal({
                         <span className="text-lg">✓</span> Selected Location
                       </p>
                       <button
-                        onClick={() => setAddress('')}
+                        onClick={() => {
+                          setAddress('');
+                          setUserHasSelectedAddress(false);
+                          lastGeocodedAddress.current = '';
+                        }}
                         className="text-green-700 hover:text-green-900 text-xs underline"
                       >
                         Change
