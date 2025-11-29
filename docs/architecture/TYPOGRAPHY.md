@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [frontend, design]
+tags: [typography, fonts, inter, space-mono, tailwind, css]
+status: current
+last_updated: 2025-10-25
+dependencies: [DESIGN_SYSTEM.md]
+priority: low
+description: Typography system with font stacks and CSS variables
+---
+
 # CircleTel Typography System
 
 ## Font Stack

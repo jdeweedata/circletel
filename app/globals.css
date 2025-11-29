@@ -313,3 +313,46 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Google Places Autocomplete dropdown z-index fix for mobile modals */
+/* Ensures the autocomplete dropdown appears above modal overlays */
+.pac-container {
+  z-index: 10000 !important;
+  /* Improve touch target size for mobile */
+  font-size: 16px;
+}
+
+.pac-item {
+  /* Increase touch target size for mobile devices */
+  padding: 12px 16px !important;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pac-item:hover,
+.pac-item:active {
+  background-color: #f5f5f5;
+}
+
+/* Ensure pac-container is visible on mobile when modal is open */
+@media (max-width: 768px) {
+  .pac-container {
+    /* Position above everything including modal overlays */
+    z-index: 10000 !important;
+    /* Ensure it's not clipped by parent containers */
+    position: fixed !important;
+    /* Better mobile styling */
+    max-width: calc(100vw - 32px) !important;
+    left: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+  }
+  
+  .pac-item {
+    /* Larger touch targets on mobile */
+    padding: 14px 16px !important;
+    min-height: 52px;
+  }
+}

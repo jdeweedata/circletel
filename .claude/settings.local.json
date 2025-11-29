@@ -1,9 +1,70 @@
 {
   "permissions": {
     "allow": [
-      "mcp__playwright__browser_run_code"
+      "mcp__playwright__browser_run_code",
+      "Bash(tree:*)",
+      "Bash(dir /B \"C:\\Projects\\circletel-nextjs\\.claude\")",
+      "Bash(dir /B \"C:\\Projects\\circletel-nextjs\\agent-os\\specs\")",
+      "Bash(npm run type-check:memory:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(dir /B /S \"C:\\Projects\\circletel-nextjs\\.claude\\skills\")",
+      "Bash(dir /B \"C:\\Projects\\circletel-nextjs\\.claude\\commands\")",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(npx jest:*)",
+      "Bash(npm test:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.ps1\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/backup-before-edit.ps1\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/backup-before-edit.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/log-bash-commands.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
   }
 }

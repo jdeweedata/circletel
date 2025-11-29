@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [auth, security]
+tags: [authentication, supabase, rls, rbac, consumer, partner, admin]
+status: current
+last_updated: 2025-11-09
+dependencies: [SYSTEM_OVERVIEW.md]
+priority: high
+description: Three-context authentication system (consumer, partner, admin) with RLS and RBAC
+---
+
 # CircleTel Authentication & Data Retrieval Architecture
 
 **Version**: 2.0

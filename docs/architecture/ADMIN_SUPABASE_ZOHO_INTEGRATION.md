@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [admin, integrations]
+tags: [supabase, zoho, crm, billing, sync, async, audit]
+status: current
+last_updated: 2025-11-16
+dependencies: [SYSTEM_OVERVIEW.md, AUTHENTICATION_SYSTEM.md]
+priority: high
+description: Supabase-first architecture with async Zoho CRM/Billing sync
+---
+
 # Admin-Supabase-Zoho Integration Architecture
 
 **Document Version**: 1.0

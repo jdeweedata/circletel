@@ -2,6 +2,93 @@
 
 Guidance for Claude Code when working with CircleTel codebase.
 
+## ⚠️ MANDATORY: Claude Code Rules
+
+> **STOP. Before ANY code change, you MUST follow these rules.**
+
+### Planning & Execution
+
+1. **Always slow down and think first**
+   - Read through ALL relevant files in the codebase before making changes
+   - Build a complete, step-by-step to-do list for every task
+   - Identify all files that will be affected by the changes
+   - Think through potential side effects and edge cases
+
+2. **Explain before implementing**
+   - Stop and explain your approach before making ANY code changes
+   - Describe what you're about to change and why
+   - Outline which files will be modified and how they connect
+   - Wait for confirmation before proceeding with implementation
+
+3. **Keep it simple**
+   - Make every task and code change as simple as humanly possible
+   - Only touch the files and code that absolutely need to be changed
+   - Avoid over-engineering or adding unnecessary complexity
+   - Don't modify or "improve" code that isn't part of the current task
+
+### Quality Standards
+
+4. **Never be lazy**
+   - Always provide complete, production-ready solutions
+   - Never skip steps or take shortcuts
+   - Don't rush through implementations
+   - Maintain focus even when context window is filling up
+
+5. **No temporary fixes**
+   - Only implement long-term solutions that address root causes
+   - Avoid band-aid fixes, workarounds, or "TODO" items
+   - If you identify a problem, fix it properly the first time
+   - Don't create technical debt
+
+6. **No hallucinations**
+   - Only reference files, functions, and variables that actually exist
+   - If you're unsure, check the codebase first
+   - Never assume code exists - verify it
+   - Ask for clarification rather than guessing
+
+### Code Changes
+
+7. **Minimize blast radius**
+   - Isolate changes to prevent breaking existing features
+   - Test that your changes don't impact unrelated functionality
+   - Avoid refactoring code outside the scope of the current task
+   - Keep changes focused and contained
+
+8. **Be thorough but concise**
+   - Provide complete solutions without unnecessary verbosity
+   - Write clean, readable, well-documented code
+   - Follow existing code patterns and conventions in the project
+   - Remove any dead code or unused imports
+
+9. **Confirm understanding**
+   - If requirements are unclear or ambiguous, ask questions first
+   - Propose multiple approaches when there are trade-offs
+   - Highlight any assumptions you're making
+   - Never proceed with major changes without explicit confirmation
+
+10. **Know the system**
+    - ALWAYS read `docs/architecture/SYSTEM_OVERVIEW.md` before working on unfamiliar areas
+    - This file contains: database schema, API routes, service modules, component structure
+    - Reference it to understand how systems connect and where code belongs
+    - Don't assume - verify against the documented architecture
+
+11. **Respect file placement**
+    - **Root-level files ONLY**: Config files (`package.json`, `tsconfig.json`, `next.config.js`, `.env*`, `tailwind.config.*`, `vercel.json`, `CLAUDE.md`, `README.md`, `.gitignore`, `.eslintrc.*`, `.prettierrc.*`)
+    - **All other files MUST go in appropriate subdirectories**:
+      - Source code → `app/`, `components/`, `lib/`, `hooks/`, `types/`
+      - Documentation → `docs/` (see Documentation Structure below)
+      - Database migrations → `supabase/migrations/`
+      - Scripts → `scripts/`
+      - Tests → `__tests__/` or alongside source files
+      - Claude/MCP tools → `.claude/`
+    - **Create folders if they don't exist** - Don't use root as a shortcut; create the proper directory structure first
+    - Never create random `.md`, `.ts`, `.js`, or other files in the project root
+    - If unsure where a file belongs, check the File Organization section or ask
+
+**Remember: Simplicity, thoroughness, and no shortcuts. Think first, explain second, code third.**
+
+---
+
 ## ⚠️ CRITICAL: Context Management
 
 **BEFORE STARTING ANY WORK:**
@@ -346,7 +433,29 @@ See `.env.example` for complete list.
 - `20251101-b2b-quote-to-contract-kyc/` - 64% complete (61 points)
 - `2025-11-01-customer-dashboard-production/` - Ready for implementation (147 points)
 
-## Skills System (7 Total)
+## Claude Code Business OS
+
+### Event Hooks (Auto-Triggered)
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| **Session Start** | New session | Auto-run context analyzer, show budget zone |
+| **Pre-Edit Backup** | Before Edit/Write | Backup files to `.claude/backups/` |
+| **Post-Bash Logging** | After Bash commands | Audit log to `.claude/logs/bash-audit.log` |
+
+**Location**: `.claude/hooks/` | **Config**: `.claude/settings.local.json`
+
+### Custom Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/new-migration <name>` | Create timestamped Supabase migration with template |
+| `/health-check` | Run type-check + context-analyzer + Supabase advisors |
+| `/sync-types` | Generate TypeScript types from Supabase schema |
+
+**Location**: `.claude/commands/`
+
+### Skills System (7 Total)
 
 | Skill | Purpose | Command |
 |-------|---------|---------|
@@ -373,12 +482,13 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 ### Workflow
 
 1. **Run context analysis** (MANDATORY)
-2. `npm run type-check` - Check compilation state
-3. Check `docs/RECENT_CHANGES.md` for latest updates
-4. **Load files progressively** - Don't load entire directories
-5. Make changes following patterns in this file
-6. `npm run type-check` before committing
-7. Test with `npm run dev:memory`
+2. **Read `docs/architecture/SYSTEM_OVERVIEW.md`** - Understand system structure
+3. `npm run type-check` - Check compilation state
+4. Check `docs/RECENT_CHANGES.md` for latest updates
+5. **Load files progressively** - Don't load entire directories
+6. Make changes following patterns in this file
+7. `npm run type-check` before committing
+8. Test with `npm run dev:memory`
 
 ### Progressive Loading Pattern
 
@@ -430,16 +540,17 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ---
 
-**Version**: 5.6 | **Updated**: 2025-11-22 | **Team**: Development + Claude Code
+**Version**: 5.7 | **Updated**: 2025-11-29 | **Team**: Development + Claude Code
+
+**Major Changes in v5.7**:
+- Added Claude Code Business OS framework (Event Hooks, Custom Commands)
+- Session start hook for automatic context analysis
+- Pre-edit backup hook for file protection
+- Post-bash logging hook for audit trail
+- Custom commands: `/new-migration`, `/health-check`, `/sync-types`
+- YAML metadata headers added to architecture docs for better searchability
 
 **Major Changes in v5.6**:
 - Admin Order Details page refactored to tabbed workflow interface
 - Improved UX with focused sections (Overview, Installation/Service, Financials, History/Notes)
 - Persistent header and workflow stepper for continuous status visibility
-
-**Major Changes in v5.5**:
-- Optimized CLAUDE.md from ~50k to <20k tokens
-- Condensed verbose sections while preserving critical patterns
-- Moved detailed content to architecture docs
-- Removed redundant examples and changelog entries
-- Maintained all essential commands, patterns, and references

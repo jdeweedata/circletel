@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [coverage, business]
+tags: [fttb, fibre, multi-provider, business-packages, vumatel, octotel, metrofibre]
+status: current
+last_updated: 2025-10-05
+dependencies: [SYSTEM_OVERVIEW.md]
+priority: medium
+description: Multi-provider FTTB architecture for business fibre coverage checks
+---
+
 # FTTB (Fibre-to-the-Business) Coverage System
 
 ## Overview

@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [frontend, design]
+tags: [design-system, tailwind, react, components, brand, colors, typography]
+status: current
+last_updated: 2025-10-20
+dependencies: []
+priority: medium
+description: Atomic design system with brand guidelines, colors, and component library
+---
+
 # CircleTel Design System
 
 A comprehensive design system for CircleTel's digital products, built on atomic design principles with React, TypeScript, and Tailwind CSS.

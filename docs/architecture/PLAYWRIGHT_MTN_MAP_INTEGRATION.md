@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [coverage, integrations]
+tags: [playwright, mtn, scraping, coverage-map, automation, browser]
+status: current
+last_updated: 2025-10-20
+dependencies: [COVERAGE_INTEGRATION_IMPLEMENTATION.md]
+priority: low
+description: Playwright-based MTN coverage map scraping integration
+---
+
 # Playwright MTN Map Integration Guide
 
 ## Overview

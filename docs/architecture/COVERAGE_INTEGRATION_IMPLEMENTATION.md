@@ -1,3 +1,14 @@
+---
+type: architecture
+domain: [coverage, products]
+tags: [mtn, dfa, coverage-check, service-types, provider-mapping, packages]
+status: current
+last_updated: 2025-10-20
+dependencies: [SYSTEM_OVERVIEW.md, FTTB_COVERAGE_SYSTEM.md]
+priority: medium
+description: Coverage integration mapping MTN/DFA coverage to CircleTel products
+---
+
 # Coverage Integration Implementation
 
 ## Overview
