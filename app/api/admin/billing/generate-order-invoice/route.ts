@@ -163,11 +163,23 @@ export async function POST(request: NextRequest) {
     const invoiceDate = new Date();
     const dueDate = new Date(period_start); // Due on billing day (1st)
 
-    // 7. Insert invoice (matching actual customer_invoices schema)
+    // 7. Generate unique invoice number (INV-YYYY-NNNNN format)
+    const year = invoiceDate.getFullYear();
+    const { count } = await supabase
+      .from('customer_invoices')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', `${year}-01-01`)
+      .lt('created_at', `${year + 1}-01-01`);
+
+    const sequenceNumber = (count || 0) + 1;
+    const invoiceNumber = `INV-${year}-${sequenceNumber.toString().padStart(5, '0')}`;
+
+    // 8. Insert invoice (matching actual customer_invoices schema)
     const { data: invoice, error: invoiceError } = await supabase
       .from('customer_invoices')
       .insert({
         customer_id: order.customer_id,
+        invoice_number: invoiceNumber,
         invoice_date: invoiceDate.toISOString().split('T')[0],
         due_date: dueDate.toISOString().split('T')[0],
         subtotal,
