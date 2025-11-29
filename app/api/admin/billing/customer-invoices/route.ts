@@ -7,11 +7,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get('customer_id');
 
@@ -22,8 +21,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get authenticated admin user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Use session-aware client to get authenticated user
+    const sessionClient = await createClientWithSession();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -31,6 +31,9 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Use service role client for data operations (bypasses RLS)
+    const supabase = await createClient();
 
     // Check admin permissions
     const { data: adminUser } = await supabase
