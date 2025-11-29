@@ -448,7 +448,8 @@ export function buildInvoiceData(params: {
     period_start?: string;
     period_end?: string;
     subtotal: number;
-    vat_amount: number;
+    tax_amount?: number;  // Actual DB column name
+    vat_amount?: number;  // Legacy/alias support
     total_amount: number;
     line_items: any[];
     notes?: string;
@@ -519,7 +520,7 @@ export function buildInvoiceData(params: {
     lineItems,
     subtotal: invoice.subtotal,
     totalDiscount: 0, // Can be calculated from line items if needed
-    totalVat: invoice.vat_amount,
+    totalVat: invoice.tax_amount ?? invoice.vat_amount ?? 0,  // Support both column names
     total: invoice.total_amount,
     notes: invoice.notes,
     status: invoice.status

@@ -108,20 +108,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Check if invoice already exists for this period
-    const { data: existingInvoice } = await supabase
+    // 3. Check if invoice already exists for this month
+    // Since period_start/period_end don't exist, check by invoice_date month
+    const periodMonth = period_start.substring(0, 7); // YYYY-MM
+    const { data: existingInvoices } = await supabase
       .from('customer_invoices')
-      .select('id, invoice_number')
+      .select('id, invoice_number, invoice_date')
       .eq('customer_id', order.customer_id)
-      .eq('period_start', period_start)
-      .eq('period_end', period_end)
-      .single();
+      .gte('invoice_date', `${periodMonth}-01`)
+      .lte('invoice_date', `${periodMonth}-31`);
 
-    if (existingInvoice) {
+    if (existingInvoices && existingInvoices.length > 0) {
       return NextResponse.json({
         success: false,
-        error: `Invoice already exists for this period: ${existingInvoice.invoice_number}`,
-        existing_invoice: existingInvoice
+        error: `Invoice already exists for this month: ${existingInvoices[0].invoice_number}`,
+        existing_invoice: existingInvoices[0]
       }, { status: 409 });
     }
 
@@ -162,24 +163,20 @@ export async function POST(request: NextRequest) {
     const invoiceDate = new Date();
     const dueDate = new Date(period_start); // Due on billing day (1st)
 
-    // 7. Insert invoice
+    // 7. Insert invoice (matching actual customer_invoices schema)
     const { data: invoice, error: invoiceError } = await supabase
       .from('customer_invoices')
       .insert({
         customer_id: order.customer_id,
-        invoice_type: 'recurring',
         invoice_date: invoiceDate.toISOString().split('T')[0],
         due_date: dueDate.toISOString().split('T')[0],
-        period_start,
-        period_end,
         subtotal,
-        vat_rate: vatRate,
-        vat_amount: vatAmount,
+        tax_amount: vatAmount,
         total_amount: totalAmount,
         amount_paid: 0,
+        amount_due: totalAmount,
         line_items: lineItems,
-        status: 'unpaid',
-        notes: `Generated from order ${order.order_number}. Account: ${accountNumber || 'N/A'}`
+        status: 'unpaid'
       })
       .select()
       .single();
