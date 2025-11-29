@@ -39,10 +39,12 @@ import { CommunicationTimeline } from '@/components/admin/orders/CommunicationTi
 import { InstallationSection } from '@/components/admin/orders/InstallationSection';
 import { PaymentMethodStatus } from '@/components/admin/orders/PaymentMethodStatus';
 import { PaymentMethodRegistrationModal } from '@/components/admin/orders/PaymentMethodRegistrationModal';
+import { OrderInvoices } from '@/components/admin/orders/OrderInvoices';
 
 interface Order {
   id: string;
   order_number: string;
+  customer_id: string;
 
   // Customer Information
   first_name: string;
@@ -797,6 +799,17 @@ export default function AdminOrderDetailPage() {
               />
              </div>
              <div className="space-y-6">
+               {/* Invoices Section */}
+               <OrderInvoices
+                orderId={order.id}
+                customerId={order.customer_id}
+                packageName={order.package_name}
+                packagePrice={order.package_price}
+                routerFee={order.router_rental_fee}
+                accountNumber={order.account_number}
+                className="shadow-sm"
+              />
+
                {/* Billing Address */}
                {!order.billing_same_as_installation && order.billing_address && (
                 <Card className="shadow-sm">

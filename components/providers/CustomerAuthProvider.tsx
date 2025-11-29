@@ -25,6 +25,8 @@ interface Customer {
   last_name: string;
   email: string;
   phone: string;
+  account_number?: string;  // Customer account number (CT-YYYY-NNNNN format)
+  account_status?: 'active' | 'suspended' | 'cancelled' | 'pending';
   account_type: 'personal' | 'business';
   business_name?: string;
   business_registration?: string;
