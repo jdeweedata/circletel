@@ -455,7 +455,7 @@ See `.env.example` for complete list.
 
 **Location**: `.claude/commands/`
 
-### Skills System (7 Total)
+### Skills System (8 Total)
 
 | Skill | Purpose | Command |
 |-------|---------|---------|
@@ -466,6 +466,7 @@ See `.env.example` for complete list.
 | **product-import** | Excel to Supabase | See `.claude/skills/product-import/` |
 | **admin-setup** | RBAC configuration | See `.claude/skills/admin-setup/` |
 | **supabase-fetch** | Database queries | See `.claude/skills/supabase-fetch/` |
+| **mobile-testing** | Playwright mobile UI/UX testing | `npm run test:mobile` |
 
 **Auto-load**: Skills activate on keyword mentions. Manual: `/skill <skill-name>`
 
