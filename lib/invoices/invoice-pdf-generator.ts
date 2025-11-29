@@ -176,11 +176,14 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.setTextColor(COLORS.gray);
   doc.setFontSize(9);
 
+  // Use account number as primary customer reference (not internal payment ref)
+  const customerReference = invoice.customer.accountNumber || invoice.invoiceNumber;
+
   const invoiceDetails = [
     ['Invoice Number:', invoice.invoiceNumber],
     ['Invoice Date:', formatDate(invoice.invoiceDate)],
-    ['Account Number:', invoice.customer.accountNumber || 'N/A'],
-    ['Payment Reference #:', invoice.paymentReference || invoice.invoiceNumber],
+    ['Account Number:', customerReference],
+    ['Your Reference:', customerReference],  // Customer-facing reference for payments
     ['Due Date:', formatDate(invoice.dueDate)],
   ];
 
@@ -337,12 +340,15 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   doc.setTextColor(COLORS.gray);
   doc.setFont('helvetica', 'normal');
 
+  // Use customer account number as payment reference (not internal PAY-ORD reference)
+  const paymentRef = invoice.customer.accountNumber || invoice.invoiceNumber;
+
   doc.text(`Bank Details: ${COMPANY_DETAILS.banking.accountName}`, bankDetailsX, yPos);
   doc.text(`Bank: ${COMPANY_DETAILS.banking.bankName}`, bankDetailsX, yPos + 4);
   doc.text(`Acc No: ${COMPANY_DETAILS.banking.accountNumber}`, bankDetailsX, yPos + 8);
   doc.text(`Acc Type: ${COMPANY_DETAILS.banking.accountType}`, bankDetailsX, yPos + 12);
   doc.text(`Branch Code: ${COMPANY_DETAILS.banking.branchCode}`, bankDetailsX, yPos + 16);
-  doc.text(`Payment Reference #: ${invoice.paymentReference || invoice.customer.accountNumber || invoice.invoiceNumber}`, bankDetailsX, yPos + 20);
+  doc.text(`Your Reference: ${paymentRef}`, bankDetailsX, yPos + 20);
 
   // Totals - Right side
   doc.setFontSize(9);

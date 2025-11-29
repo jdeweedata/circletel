@@ -95,7 +95,7 @@ export async function GET(
         period_start: invoice.period_start,
         period_end: invoice.period_end,
         subtotal: parseFloat(invoice.subtotal) || 0,
-        vat_amount: parseFloat(invoice.vat_amount) || 0,
+        tax_amount: parseFloat(invoice.tax_amount) || 0,
         total_amount: parseFloat(invoice.total_amount) || 0,
         line_items: invoice.line_items || [],
         notes: invoice.notes,
