@@ -154,10 +154,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Calculate totals
-    const subtotal = lineItems.reduce((sum, item) => sum + item.amount, 0);
+    // Package prices are VAT-INCLUSIVE, so we need to reverse-calculate
     const vatRate = 15.00; // South African VAT
-    const vatAmount = Math.round(subtotal * (vatRate / 100) * 100) / 100;
-    const totalAmount = Math.round((subtotal + vatAmount) * 100) / 100;
+    const totalAmount = lineItems.reduce((sum, item) => sum + item.amount, 0);
+    // Reverse calculate: subtotal = total / 1.15, vat = total - subtotal
+    const subtotal = Math.round((totalAmount / (1 + vatRate / 100)) * 100) / 100;
+    const vatAmount = Math.round((totalAmount - subtotal) * 100) / 100;
 
     // 6. Calculate dates
     const invoiceDate = new Date();

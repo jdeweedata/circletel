@@ -13,10 +13,11 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { circleTelLogoBase64 } from '@/lib/quotes/circletel-logo-base64';
 
 // CircleTel Company Details (SARS requirement: supplier info)
 export const COMPANY_DETAILS = {
-  name: 'CircleTel (Pty) Ltd',
+  name: 'Circle Tel SA (Pty) Ltd',
   vatNumber: '4380269318',
   registrationNumber: '2024/123456/07',
   address: {
@@ -32,12 +33,12 @@ export const COMPANY_DETAILS = {
     website: 'www.circletel.co.za'
   },
   banking: {
-    bankName: 'First National Bank',
-    accountName: 'CircleTel (Pty) Ltd',
-    accountNumber: '62123456789',
-    accountType: 'Business Current',
-    branchCode: '250655',
-    swiftCode: 'FIRNZAJJ'
+    bankName: 'Standard Bank',
+    accountName: 'Circle Tel SA (Pty) Ltd',
+    accountNumber: '202413993',
+    accountType: 'Current',
+    branchCode: '051001',
+    swiftCode: 'SBZAZAJJ'
   }
 };
 
@@ -132,16 +133,22 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   let yPos = margin;
 
   // ============================================
-  // HEADER SECTION - Company Logo/Name
+  // HEADER SECTION - Company Logo
   // ============================================
 
-  // Company name (as logo placeholder - you can replace with actual logo)
-  doc.setFillColor(COLORS.primary);
-  doc.rect(margin, yPos, 60, 12, 'F');
-  doc.setTextColor(COLORS.white);
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CircleTel', margin + 5, yPos + 8);
+  // Add CircleTel logo (base64 encoded PNG)
+  // Logo dimensions: approximately 50mm wide, maintaining aspect ratio
+  try {
+    doc.addImage(circleTelLogoBase64, 'PNG', margin, yPos, 50, 15);
+  } catch (e) {
+    // Fallback to text if logo fails to load
+    doc.setFillColor(COLORS.primary);
+    doc.rect(margin, yPos, 60, 12, 'F');
+    doc.setTextColor(COLORS.white);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CircleTel', margin + 5, yPos + 8);
+  }
 
   yPos += 20;
 
@@ -481,22 +488,24 @@ export function buildInvoiceData(params: {
   const { invoice, customer, order } = params;
 
   // Transform line items
+  // Note: Prices in line_items are VAT-INCLUSIVE, so we reverse-calculate
   const lineItems: InvoiceLineItem[] = (invoice.line_items || []).map((item: any) => {
-    const unitPrice = item.unit_price || item.amount || 0;
+    const inclPrice = item.unit_price || item.amount || 0; // This is VAT-inclusive
     const quantity = item.quantity || 1;
     const discountPercent = item.discount_percent || 0;
     const vatPercent = 15; // SA VAT rate
 
-    const exclTotal = unitPrice * quantity * (1 - discountPercent / 100);
-    const inclTotal = exclTotal * (1 + vatPercent / 100);
+    // Reverse calculate: excl = incl / 1.15
+    const inclTotal = inclPrice * quantity * (1 - discountPercent / 100);
+    const exclTotal = Math.round((inclTotal / (1 + vatPercent / 100)) * 100) / 100;
 
     return {
       description: item.description || 'Service',
       quantity,
-      unit_price: unitPrice,
+      unit_price: Math.round((inclPrice / (1 + vatPercent / 100)) * 100) / 100, // Excl VAT unit price
       discount_percent: discountPercent,
       vat_percent: vatPercent,
-      excl_total: Math.round(exclTotal * 100) / 100,
+      excl_total: exclTotal,
       incl_total: Math.round(inclTotal * 100) / 100
     };
   });
