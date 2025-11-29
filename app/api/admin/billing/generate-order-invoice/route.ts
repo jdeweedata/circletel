@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
         amount_paid: 0,
         amount_due: totalAmount,
         line_items: lineItems,
-        status: 'unpaid'
+        status: 'draft'
       })
       .select()
       .single();
