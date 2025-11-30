@@ -111,24 +111,38 @@ function PackagesContent() {
       });
 
       // Auto-select appropriate tab based on available packages (priority: Fibre > LTE > 5G > Wireless)
+      // Note: SkyFibre packages use service_type='SkyFibre' and product_category='connectivity'
       if (data.packages && data.packages.length > 0) {
         const hasFibre = data.packages.some((p: Package) => {
-          const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-          return serviceType.includes('fibre') && !serviceType.includes('skyfibre');
+          const serviceType = (p.service_type || '').toLowerCase();
+          const productCategory = (p.product_category || '').toLowerCase();
+          return (serviceType.includes('fibre') || productCategory.includes('fibre')) && 
+                 !serviceType.includes('skyfibre');
         });
         const hasLTE = data.packages.some((p: Package) => {
-          const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-          return serviceType.includes('lte') && !serviceType.includes('5g');
+          const serviceType = (p.service_type || '').toLowerCase();
+          const productCategory = (p.product_category || '').toLowerCase();
+          return (serviceType.includes('lte') || productCategory.includes('lte')) && 
+                 !serviceType.includes('5g') && !productCategory.includes('5g');
         });
         const has5G = data.packages.some((p: Package) => {
-          const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-          return serviceType.includes('5g');
+          const serviceType = (p.service_type || '').toLowerCase();
+          const productCategory = (p.product_category || '').toLowerCase();
+          return serviceType.includes('5g') || productCategory.includes('5g');
         });
         const hasWireless = data.packages.some((p: Package) => {
-          const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-          return (serviceType.includes('wireless') || serviceType.includes('skyfibre')) &&
-                 !serviceType.includes('lte') &&
-                 !serviceType.includes('5g');
+          const serviceType = (p.service_type || '').toLowerCase();
+          const productCategory = (p.product_category || '').toLowerCase();
+          // Include SkyFibre products with connectivity category
+          const isWireless = serviceType.includes('wireless') || 
+                            serviceType.includes('skyfibre') ||
+                            productCategory.includes('wireless') ||
+                            (serviceType.includes('skyfibre') && productCategory === 'connectivity');
+          const isNotMobile = !serviceType.includes('lte') && 
+                             !serviceType.includes('5g') &&
+                             !productCategory.includes('lte') &&
+                             !productCategory.includes('5g');
+          return isWireless && isNotMobile;
         });
 
         // Select first available service type
@@ -150,11 +164,17 @@ function PackagesContent() {
         // Also set default selected package to the FIRST card of the chosen service
         if (defaultService) {
           const matchesService = (p: Package, s: ServiceType) => {
-            const st = (p.service_type || p.product_category || '').toLowerCase();
-            if (s === 'fibre') return st.includes('fibre') && !st.includes('skyfibre');
-            if (s === 'lte') return st.includes('lte') && !st.includes('5g');
-            if (s === '5g') return st.includes('5g');
-            if (s === 'wireless') return (st.includes('wireless') || st.includes('skyfibre')) && !st.includes('lte') && !st.includes('5g');
+            const st = (p.service_type || '').toLowerCase();
+            const pc = (p.product_category || '').toLowerCase();
+            if (s === 'fibre') return (st.includes('fibre') || pc.includes('fibre')) && !st.includes('skyfibre');
+            if (s === 'lte') return (st.includes('lte') || pc.includes('lte')) && !st.includes('5g') && !pc.includes('5g');
+            if (s === '5g') return st.includes('5g') || pc.includes('5g');
+            if (s === 'wireless') {
+              const isWireless = st.includes('wireless') || st.includes('skyfibre') || 
+                                pc.includes('wireless') || (st.includes('skyfibre') && pc === 'connectivity');
+              const isNotMobile = !st.includes('lte') && !st.includes('5g') && !pc.includes('lte') && !pc.includes('5g');
+              return isWireless && isNotMobile;
+            }
             return false;
           };
           const firstOfService = data.packages.find((p: Package) => matchesService(p, defaultService!));
@@ -294,28 +314,45 @@ function PackagesContent() {
   };
 
   // Map ServiceType to package filtering logic
+  // Note: SkyFibre packages use service_type='SkyFibre' and product_category='connectivity'
   const getFilteredPackages = () => {
     if (activeService === 'fibre') {
       return packages.filter(p => {
-        const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-        return serviceType.includes('fibre') && !serviceType.includes('skyfibre');
+        const serviceType = (p.service_type || '').toLowerCase();
+        const productCategory = (p.product_category || '').toLowerCase();
+        // Include fibre packages but exclude SkyFibre (which is wireless)
+        return (serviceType.includes('fibre') || productCategory.includes('fibre')) && 
+               !serviceType.includes('skyfibre');
       });
     } else if (activeService === 'lte') {
       return packages.filter(p => {
-        const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-        return serviceType.includes('lte') && !serviceType.includes('5g');
+        const serviceType = (p.service_type || '').toLowerCase();
+        const productCategory = (p.product_category || '').toLowerCase();
+        return (serviceType.includes('lte') || productCategory.includes('lte')) && 
+               !serviceType.includes('5g') && !productCategory.includes('5g');
       });
     } else if (activeService === '5g') {
       return packages.filter(p => {
-        const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-        return serviceType.includes('5g');
+        const serviceType = (p.service_type || '').toLowerCase();
+        const productCategory = (p.product_category || '').toLowerCase();
+        return serviceType.includes('5g') || productCategory.includes('5g');
       });
     } else if (activeService === 'wireless') {
       return packages.filter(p => {
-        const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-        return (serviceType.includes('wireless') || serviceType.includes('skyfibre')) &&
-               !serviceType.includes('lte') &&
-               !serviceType.includes('5g');
+        const serviceType = (p.service_type || '').toLowerCase();
+        const productCategory = (p.product_category || '').toLowerCase();
+        // Include: wireless, skyfibre, or connectivity (for SkyFibre products)
+        // Exclude: LTE and 5G (they have their own tabs)
+        const isWireless = serviceType.includes('wireless') || 
+                          serviceType.includes('skyfibre') ||
+                          productCategory.includes('wireless') ||
+                          // SkyFibre products use connectivity category
+                          (serviceType.includes('skyfibre') && productCategory === 'connectivity');
+        const isNotMobile = !serviceType.includes('lte') && 
+                           !serviceType.includes('5g') &&
+                           !productCategory.includes('lte') &&
+                           !productCategory.includes('5g');
+        return isWireless && isNotMobile;
       });
     }
     return packages;
@@ -344,25 +381,37 @@ function PackagesContent() {
   const hasMorePackages = filteredPackages.length > INITIAL_PACKAGE_COUNT;
   const remainingCount = filteredPackages.length - INITIAL_PACKAGE_COUNT;
 
-  // Count packages by service type
+  // Count packages by service type (must match getFilteredPackages logic)
   const packageCounts = {
     fibre: packages.filter(p => {
-      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-      return serviceType.includes('fibre') && !serviceType.includes('skyfibre');
+      const serviceType = (p.service_type || '').toLowerCase();
+      const productCategory = (p.product_category || '').toLowerCase();
+      return (serviceType.includes('fibre') || productCategory.includes('fibre')) && 
+             !serviceType.includes('skyfibre');
     }).length,
     lte: packages.filter(p => {
-      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-      return serviceType.includes('lte') && !serviceType.includes('5g');
+      const serviceType = (p.service_type || '').toLowerCase();
+      const productCategory = (p.product_category || '').toLowerCase();
+      return (serviceType.includes('lte') || productCategory.includes('lte')) && 
+             !serviceType.includes('5g') && !productCategory.includes('5g');
     }).length,
     '5g': packages.filter(p => {
-      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-      return serviceType.includes('5g');
+      const serviceType = (p.service_type || '').toLowerCase();
+      const productCategory = (p.product_category || '').toLowerCase();
+      return serviceType.includes('5g') || productCategory.includes('5g');
     }).length,
     wireless: packages.filter(p => {
-      const serviceType = (p.service_type || p.product_category || '').toLowerCase();
-      return (serviceType.includes('wireless') || serviceType.includes('skyfibre')) &&
-             !serviceType.includes('lte') &&
-             !serviceType.includes('5g');
+      const serviceType = (p.service_type || '').toLowerCase();
+      const productCategory = (p.product_category || '').toLowerCase();
+      const isWireless = serviceType.includes('wireless') || 
+                        serviceType.includes('skyfibre') ||
+                        productCategory.includes('wireless') ||
+                        (serviceType.includes('skyfibre') && productCategory === 'connectivity');
+      const isNotMobile = !serviceType.includes('lte') && 
+                         !serviceType.includes('5g') &&
+                         !productCategory.includes('lte') &&
+                         !productCategory.includes('5g');
+      return isWireless && isNotMobile;
     }).length,
   };
 
