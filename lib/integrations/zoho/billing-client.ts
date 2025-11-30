@@ -167,6 +167,27 @@ export class ZohoBillingClient extends ZohoAPIClient {
   }
 
   /**
+   * Get a plan by plan_id (fetches from list and filters)
+   * @param planId - The plan_id (numeric ID) to retrieve
+   */
+  async getPlanById(planId: string): Promise<ZohoBillingPlan | null> {
+    try {
+      // Fetch all plans and find by ID
+      const response = await this.request<any>('/plans');
+      
+      if (!response.plans || !Array.isArray(response.plans)) {
+        return null;
+      }
+      
+      const plan = response.plans.find((p: any) => p.plan_id === planId);
+      return plan || null;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error getting plan by ID:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Create a new plan
    */
   async createPlan(payload: CreatePlanPayload): Promise<string> {

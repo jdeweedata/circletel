@@ -15,7 +15,8 @@ interface GenerateOrderInvoiceRequest {
   period_start: string;  // ISO date string (YYYY-MM-DD)
   period_end: string;    // ISO date string (YYYY-MM-DD)
   sync_account_number?: boolean; // Default true - sync from customers table
-  due_days?: number;     // Days until due (default: 3 for debit order alignment)
+  billing_date?: string; // ISO date string - the actual debit/payment date (defaults to period_start)
+  invoice_days_before_billing?: number; // Days before billing_date to set invoice_date (default: 6)
 }
 
 export async function POST(request: NextRequest) {
@@ -55,7 +56,8 @@ export async function POST(request: NextRequest) {
       period_start,
       period_end,
       sync_account_number = true,
-      due_days = 3 // Default 3 days for debit order (Dec 1 invoice due Dec 1)
+      billing_date, // The actual debit/payment date
+      invoice_days_before_billing = 6 // Invoice created 6 days before billing
     } = body;
 
     if (!order_id || !period_start || !period_end) {
@@ -162,8 +164,13 @@ export async function POST(request: NextRequest) {
     const vatAmount = Math.round((totalAmount - subtotal) * 100) / 100;
 
     // 6. Calculate dates
-    const invoiceDate = new Date();
-    const dueDate = new Date(period_start); // Due on billing day (1st)
+    // Business Rule: Invoice date is X days before billing date, due date is billing date
+    // - billing_date defaults to period_start (e.g., 1st of the month)
+    // - invoice_date is 6 days before billing_date (e.g., 25th of previous month)
+    const effectiveBillingDate = billing_date || period_start;
+    const dueDate = new Date(effectiveBillingDate);
+    const invoiceDate = new Date(dueDate);
+    invoiceDate.setDate(invoiceDate.getDate() - invoice_days_before_billing);
 
     // 7. Generate unique invoice number (INV-YYYY-NNNNN format)
     const year = invoiceDate.getFullYear();

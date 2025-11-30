@@ -92,10 +92,22 @@ export async function syncSubscriptionToZohoBilling(
     }
 
     // Prerequisite 2: Ensure product/plan is synced to ZOHO
-    const planId = service.package?.integration?.[0]?.zoho_billing_plan_id;
+    let planId = service.package?.integration?.[0]?.zoho_billing_plan_id;
+    
+    // If join didn't work, query product_integrations directly
+    if (!planId && service.package_id) {
+      const { data: integration } = await supabase
+        .from('product_integrations')
+        .select('zoho_billing_plan_id')
+        .eq('service_package_id', service.package_id)
+        .eq('sync_status', 'ok')
+        .single();
+      planId = integration?.zoho_billing_plan_id;
+    }
+    
     if (!planId) {
       throw new Error(
-        `Service package not synced to ZOHO Billing. Please publish the product first. Package ID: ${service.service_package_id}`
+        `Service package not synced to ZOHO Billing. Please publish the product first. Package ID: ${service.package_id}`
       );
     }
 
@@ -104,11 +116,23 @@ export async function syncSubscriptionToZohoBilling(
       plan_id: planId
     });
 
+    // Fetch plan details from Zoho to get the plan_code
+    const billingClient = new ZohoBillingClient();
+    const planDetails = await billingClient.getPlanById(planId);
+    const planCode = planDetails?.plan_code;
+    
+    if (!planCode) {
+      throw new Error(`Could not fetch plan_code for plan_id: ${planId}`);
+    }
+    
+    console.log('[SubscriptionSync] Fetched plan_code:', planCode);
+
     // Build ZOHO Billing subscription payload
+    // Zoho requires plan_code (string), not plan_id
     const zohoPayload = {
       customer_id: service.customer.zoho_billing_customer_id,
       plan: {
-        plan_code: planId,
+        plan_code: planCode,
         quantity: 1,
         price: service.monthly_price || service.package?.monthly_price || 0,
       },
@@ -116,8 +140,8 @@ export async function syncSubscriptionToZohoBilling(
       starts_at: service.activation_date || new Date().toISOString().split('T')[0],
       // Next billing date (from service record)
       next_billing_at: service.next_billing_date || undefined,
-      // Auto-collect enabled (bill automatically)
-      auto_collect: true,
+      // Auto-collect disabled - customer will be invoiced (no card on file in Zoho)
+      auto_collect: false,
       // Custom fields for CircleTel reference
       cf_circletel_service_id: service.id,
       cf_installation_address: service.installation_address || undefined,
@@ -136,8 +160,7 @@ export async function syncSubscriptionToZohoBilling(
       plan_id: planId
     });
 
-    // Create subscription in ZOHO Billing
-    const billingClient = new ZohoBillingClient();
+    // Create subscription in ZOHO Billing (reuse billingClient from above)
     const zohoSubscription = await billingClient.createSubscription(zohoPayload);
 
     const zoho_subscription_id = zohoSubscription.subscription_id;

@@ -15,6 +15,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { generateInvoicePDF, buildInvoiceData, COMPANY_DETAILS } from '@/lib/invoices/invoice-pdf-generator';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
 
 // =============================================================================
 // Types
@@ -228,6 +229,38 @@ export class CompliantBillingService {
       pdf_url: signedUrl?.signedUrl,
       storage_path: storagePath
     });
+
+    // Send invoice email to customer
+    if (invoice.customer?.email) {
+      try {
+        await EmailNotificationService.send({
+          to: invoice.customer.email,
+          subject: `Your Invoice ${invoice.invoice_number} is Ready - CircleTel`,
+          template: 'invoice_sent',
+          data: {
+            customer_name: `${invoice.customer.first_name} ${invoice.customer.last_name}`,
+            invoice_number: invoice.invoice_number,
+            invoice_date: this.formatDate(invoice.invoice_date),
+            due_date: this.formatDate(invoice.due_date),
+            period_start: invoice.period_start ? this.formatDate(invoice.period_start) : null,
+            period_end: invoice.period_end ? this.formatDate(invoice.period_end) : null,
+            total_amount: invoice.total_amount,
+            pdf_url: signedUrl?.signedUrl,
+            account_number: invoice.customer.account_number
+          },
+          tags: {
+            template_id: 'invoice_sent',
+            invoice_id: invoiceId,
+            customer_id: invoice.customer.id,
+            notification_type: 'billing'
+          }
+        });
+        console.log(`📧 Invoice email sent to ${invoice.customer.email} for ${invoice.invoice_number}`);
+      } catch (emailError) {
+        // Log error but don't fail the invoice send process
+        console.error(`Failed to send invoice email to ${invoice.customer.email}:`, emailError);
+      }
+    }
 
     return {
       invoice_id: invoiceId,
@@ -526,6 +559,18 @@ export class CompliantBillingService {
         reason: audit?.reason,
         new_data: additionalData
       });
+  }
+
+  /**
+   * Format date for email display (e.g., "29 November 2025")
+   */
+  private static formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-ZA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 
   /**

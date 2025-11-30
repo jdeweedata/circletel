@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession, createClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/admin/zoho-sync/logs
@@ -24,10 +24,11 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Session client to read the authenticated user from cookies
+    const supabaseSession = await createClientWithSession();
 
     // Verify admin authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseSession.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -36,12 +37,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if user is admin
+    // Service-role client for privileged operations
+    const supabase = await createClient();
+
+    // Check if user is admin (match by id - the admin_users.id matches auth user id)
     const { data: adminUser } = await supabase
       .from('admin_users')
-      .select('id')
-      .eq('auth_user_id', user.id)
-      .eq('status', 'active')
+      .select('id, email, role')
+      .eq('id', user.id)
+      .eq('is_active', true)
       .single();
 
     if (!adminUser) {

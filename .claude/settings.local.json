@@ -23,7 +23,9 @@
       "mcp__supabase__execute_sql",
       "mcp__playwright__browser_wait_for",
       "Bash(findstr:*)",
-      "mcp__supabase__apply_migration"
+      "mcp__supabase__apply_migration",
+      "WebFetch(domain:agyjovdugmtopasyvlng.supabase.co)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

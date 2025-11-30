@@ -38,7 +38,7 @@ const customJestConfig = {
     '!**/dist/**',
   ],
 
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 85,
       functions: 90,

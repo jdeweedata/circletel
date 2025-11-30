@@ -51,6 +51,7 @@ interface ResendWebhookEvent {
       template_id?: string;
       order_id?: string;
       customer_id?: string;
+      invoice_id?: string;
       notification_type?: string;
     };
   };
@@ -204,6 +205,7 @@ export async function POST(request: NextRequest) {
     const templateId = event.data.tags?.template_id;
     const orderId = event.data.tags?.order_id || order?.id;
     const customerId = event.data.tags?.customer_id;
+    const invoiceId = event.data.tags?.invoice_id;
 
     // Create notification tracking record
     const { error: insertError } = await supabase
@@ -223,6 +225,7 @@ export async function POST(request: NextRequest) {
           bounce_type: event.data.bounce_type,
           bounce_reason: event.data.bounce_reason,
           template_id: templateId,
+          invoice_id: invoiceId,
           raw_event: event,
         },
       });

@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
         );
         
         // Generate invoice
+        // Business Rule: Invoice date is 6 days before billing date, due date is billing date
         const invoice = await generateCustomerInvoice({
           customer_id: service.customer_id,
           service_id: service.id,
@@ -155,7 +156,8 @@ export async function POST(request: NextRequest) {
           line_items: lineItems,
           period_start: periodStart,
           period_end: periodEnd,
-          due_days: 7
+          billing_date: service.next_billing_date, // Due date = billing date (when payment is collected)
+          invoice_days_before_billing: 6 // Invoice created 6 days before billing
         });
         
         // Update account balance

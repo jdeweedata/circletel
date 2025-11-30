@@ -221,6 +221,13 @@ export class InvoiceReminderService {
           pdf_url: typedInvoice.pdf_url,
           days_until_due: daysUntilDue,
           account_number: typedInvoice.customer.account_number
+        },
+        // Include tags for Resend webhook tracking
+        tags: {
+          template_id: 'invoice_due_reminder',
+          invoice_id: invoiceId,
+          customer_id: typedInvoice.customer.id,
+          notification_type: 'billing_reminder'
         }
       });
 
