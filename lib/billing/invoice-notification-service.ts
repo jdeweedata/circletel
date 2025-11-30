@@ -258,7 +258,7 @@ export class InvoiceNotificationService {
         name: item.description || 'Service',
         description: item.description || '',
         quantity: Number(item.quantity) || 1,
-        rate: Number(item.unit_price) || Number(item.amount) || 0,
+        price: Number(item.unit_price) || Number(item.amount) || 0, // Zoho uses 'price' not 'rate'
       }));
 
       console.log('[InvoiceNotification] Zoho line items:', JSON.stringify(lineItems));
@@ -269,7 +269,9 @@ export class InvoiceNotificationService {
         // We'll store the Zoho invoice number in our reference field
         date: invoice.invoice_date,
         due_date: invoice.due_date,
-        line_items: lineItems,
+        invoice_items: lineItems,
+        // Prices already include VAT - don't add tax on top
+        is_inclusive_tax: true,
         notes: `CircleTel Invoice ${invoice.invoice_number}`,
         // Custom field to reference our invoice number
         reference_number: invoice.invoice_number,

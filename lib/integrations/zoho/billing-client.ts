@@ -909,17 +909,19 @@ export class ZohoBillingClient extends ZohoAPIClient {
     [key: string]: any; // Allow custom fields
   }): Promise<any> {
     try {
+      // Handle both 'line_items' and 'invoice_items' field names
+      const itemCount = payload.line_items?.length || (payload as any).invoice_items?.length || 0;
       console.log('[ZohoBillingClient] Creating invoice:', {
         customer_id: payload.customer_id,
-        line_items: payload.line_items.length,
+        items: itemCount,
       });
 
       // Zoho Billing API expects 'invoice_items' not 'line_items'
-      const zohoPayload = {
-        ...payload,
-        invoice_items: payload.line_items,
-      };
-      delete (zohoPayload as any).line_items;
+      const zohoPayload = { ...payload };
+      if (payload.line_items && !(payload as any).invoice_items) {
+        (zohoPayload as any).invoice_items = payload.line_items;
+        delete (zohoPayload as any).line_items;
+      }
 
       const response = await this.request<any>(
         '/invoices',
