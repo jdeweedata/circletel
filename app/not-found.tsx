@@ -2,15 +2,12 @@ import Link from 'next/link';
 import { FileQuestion } from 'lucide-react';
 
 /**
- * Custom 404 Page for CMS Routes
+ * Global 404 Page
  *
- * Displayed when:
- * - Page slug doesn't exist
- * - Page is not published
- * - Database error occurs
+ * Displayed when a page is not found anywhere in the app
  */
 
-export default function CMSNotFound() {
+export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-circleTel-lightNeutral to-white px-4">
       <div className="text-center max-w-2xl">
