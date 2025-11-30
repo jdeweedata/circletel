@@ -73,17 +73,34 @@ export async function GET(
       );
     }
 
-    // Try to fetch order data for address
+    // Try to fetch order data for address (prefer residential/KYC-verified address for invoicing)
     let orderData = null;
     const { data: order } = await supabase
       .from('consumer_orders')
-      .select('installation_address, city, province, postal_code')
+      .select('installation_address, city, province, postal_code, residential_address, residential_suburb, residential_city, residential_province, residential_postal_code, kyc_address_verified')
       .eq('customer_id', invoice.customer_id)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    orderData = order;
+    // Use residential address (KYC-verified) if available, otherwise fall back to installation address
+    if (order) {
+      if (order.residential_address && order.kyc_address_verified) {
+        orderData = {
+          installation_address: order.residential_address,
+          city: order.residential_city || order.residential_suburb,
+          province: order.residential_province,
+          postal_code: order.residential_postal_code
+        };
+      } else {
+        orderData = {
+          installation_address: order.installation_address,
+          city: order.city,
+          province: order.province,
+          postal_code: order.postal_code
+        };
+      }
+    }
 
     // Build invoice data for PDF generation
     const invoiceData = buildInvoiceData({

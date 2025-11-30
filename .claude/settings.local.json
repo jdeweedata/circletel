@@ -22,7 +22,8 @@
       "mcp__supabase__list_tables",
       "mcp__supabase__execute_sql",
       "mcp__playwright__browser_wait_for",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "mcp__supabase__apply_migration"
     ],
     "deny": [],
     "ask": []

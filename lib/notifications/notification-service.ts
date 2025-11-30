@@ -60,7 +60,9 @@ export type EmailTemplate =
   | 'partner_approved'
   | 'partner_rejected'
   | 'admin_partner_registration_alert'
-  | 'admin_partner_compliance_review';
+  | 'admin_partner_compliance_review'
+  // Billing reminder templates
+  | 'invoice_due_reminder';
 
 export type SmsTemplate =
   | 'order_confirmation'
