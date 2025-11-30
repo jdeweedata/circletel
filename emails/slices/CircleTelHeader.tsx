@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { Section, Img, Link } from '@react-email/components';
+import { Section, Img, Link, Text } from '@react-email/components';
 import { emailStyles, brandColors } from '../utils/styles';
 
 interface CircleTelHeaderProps {
@@ -14,20 +14,25 @@ interface CircleTelHeaderProps {
 }
 
 export const CircleTelHeader: React.FC<CircleTelHeaderProps> = ({
-  logoUrl = 'https://www.circletel.co.za/images/circletel-enclosed-logo.png',
+  logoUrl = 'https://www.circletel.co.za/images/circletel-logo.png',
   homeUrl = 'https://www.circletel.co.za',
 }) => {
   return (
-    <Section style={emailStyles.header}>
+    <Section style={{
+      backgroundColor: brandColors.primary,
+      padding: '24px 20px',
+      textAlign: 'center' as const,
+    }}>
       <Link href={homeUrl} style={{ textDecoration: 'none' }}>
         <Img
           src={logoUrl}
           alt="CircleTel"
-          width="180"
-          height="50"
+          width="200"
+          height="60"
           style={{
             display: 'block',
             margin: '0 auto',
+            maxWidth: '200px',
           }}
         />
       </Link>

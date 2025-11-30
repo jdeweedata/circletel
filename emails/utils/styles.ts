@@ -66,7 +66,7 @@ export const typography = {
 export const emailStyles = {
   // Root body
   body: {
-    backgroundColor: brandColors.lightNeutral,
+    backgroundColor: brandColors.white,
     fontFamily: typography.fontFamily,
     margin: '0',
     padding: '0',
@@ -89,7 +89,7 @@ export const emailStyles = {
 
   // Hero section
   hero: {
-    backgroundColor: brandColors.lightNeutral,
+    backgroundColor: brandColors.white,
     padding: '40px 20px',
     textAlign: 'center' as const,
   } as React.CSSProperties,
