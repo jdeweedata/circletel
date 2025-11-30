@@ -253,22 +253,43 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (paymentTransaction?.id) {
-        // 1. Update associated order (if any)
-        console.log('[Payment Processing] Updating order for reference:', reference);
-        updateOrderFromPayment(reference, paymentTransaction.id, amount)
-          .then((orderResult) => {
-            if (orderResult.success) {
-              console.log('[Order Update] Order updated successfully:', {
-                order_number: orderResult.order_number,
-                status_change: `${orderResult.old_status} → ${orderResult.new_status}`
-              });
-            } else {
-              console.log('[Order Update] No order update needed:', orderResult.error);
-            }
-          })
-          .catch((error) => {
-            console.error('[Order Update] Error updating order:', error);
-          });
+        // Check if this is an invoice payment (reference starts with INV-)
+        if (reference.startsWith('INV-')) {
+          // Update invoice status to paid
+          console.log('[Invoice Payment] Updating invoice:', reference);
+          const { error: invoiceUpdateError } = await supabase
+            .from('customer_invoices')
+            .update({
+              status: 'paid',
+              paid_date: new Date().toISOString(),
+              payment_transaction_id: paymentTransaction.id,
+              updated_at: new Date().toISOString()
+            })
+            .eq('invoice_number', reference);
+
+          if (invoiceUpdateError) {
+            console.error('[Invoice Payment] Failed to update invoice:', invoiceUpdateError);
+          } else {
+            console.log('[Invoice Payment] Invoice marked as paid:', reference);
+          }
+        } else {
+          // 1. Update associated order (if any)
+          console.log('[Payment Processing] Updating order for reference:', reference);
+          updateOrderFromPayment(reference, paymentTransaction.id, amount)
+            .then((orderResult) => {
+              if (orderResult.success) {
+                console.log('[Order Update] Order updated successfully:', {
+                  order_number: orderResult.order_number,
+                  status_change: `${orderResult.old_status} → ${orderResult.new_status}`
+                });
+              } else {
+                console.log('[Order Update] No order update needed:', orderResult.error);
+              }
+            })
+            .catch((error) => {
+              console.error('[Order Update] Error updating order:', error);
+            });
+        }
 
         // 2. Sync to ZOHO Billing (async, non-blocking)
         syncPaymentToZohoBilling(paymentTransaction.id)
