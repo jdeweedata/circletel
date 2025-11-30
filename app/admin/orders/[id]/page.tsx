@@ -61,6 +61,15 @@ interface Order {
   postal_code?: string;
   special_instructions?: string;
 
+  // Residential Address (from KYC verification)
+  residential_address?: string;
+  residential_suburb?: string;
+  residential_city?: string;
+  residential_province?: string;
+  residential_postal_code?: string;
+  kyc_address_verified?: boolean;
+  kyc_address_verified_at?: string;
+
   // Billing Address
   billing_same_as_installation: boolean;
   billing_address?: string;
@@ -521,6 +530,69 @@ export default function AdminOrderDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Residential Address (KYC Verified) */}
+              {order.residential_address && (
+                <Card className="shadow-sm">
+                  <CardHeader className="px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <MapPin size={20} className="text-gray-700" />
+                        <CardTitle className="text-lg font-semibold text-gray-800">
+                          Current Address
+                        </CardTitle>
+                      </div>
+                      {order.kyc_address_verified && (
+                        <Badge className="bg-green-100 text-green-700 border-green-200">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          KYC Verified
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Street Address</label>
+                      <p className="text-base text-gray-900 mt-1">{order.residential_address}</p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {order.residential_suburb && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Suburb</label>
+                          <p className="text-base text-gray-900 mt-1">{order.residential_suburb}</p>
+                        </div>
+                      )}
+                      {order.residential_city && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">City</label>
+                          <p className="text-base text-gray-900 mt-1">{order.residential_city}</p>
+                        </div>
+                      )}
+                      {order.residential_province && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Province</label>
+                          <p className="text-base text-gray-900 mt-1">{order.residential_province}</p>
+                        </div>
+                      )}
+                      {order.residential_postal_code && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Postal Code</label>
+                          <p className="text-base text-gray-900 mt-1">{order.residential_postal_code}</p>
+                        </div>
+                      )}
+                    </div>
+                    {order.kyc_address_verified_at && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Verified on {new Date(order.kyc_address_verified_at).toLocaleDateString('en-ZA', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Package Details */}
               <Card className="shadow-sm">
