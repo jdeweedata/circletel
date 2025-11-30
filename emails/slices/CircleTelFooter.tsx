@@ -32,20 +32,20 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
 
       {/* Contact Info */}
       <Text style={{ margin: '0 0 12px 0', fontSize: '12px', lineHeight: '1.6' }}>
-        📧{' '}
+        Email:{' '}
         <Link
-          href="mailto:support@circletel.co.za"
+          href="mailto:contactus@circletel.co.za"
           style={emailStyles.footerLink}
         >
-          support@circletel.co.za
+          contactus@circletel.co.za
         </Link>
         <br />
-        📞{' '}
-        <Link href="tel:+27123456789" style={emailStyles.footerLink}>
-          +27 12 345 6789
+        Phone:{' '}
+        <Link href="tel:+27870876305" style={emailStyles.footerLink}>
+          087 087 6305
         </Link>
         <br />
-        🌐{' '}
+        Website:{' '}
         <Link href="https://www.circletel.co.za" style={emailStyles.footerLink}>
           www.circletel.co.za
         </Link>

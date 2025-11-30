@@ -93,8 +93,8 @@ export function substituteVariables(
 
   // Add default values for common variables
   const defaults: EmailVariables = {
-    supportEmail: 'support@circletel.co.za',
-    supportPhone: '+27 12 345 6789',
+    supportEmail: 'contactus@circletel.co.za',
+    supportPhone: '087 087 6305',
     loginUrl: 'https://www.circletel.co.za/login',
     dashboardUrl: 'https://www.circletel.co.za/dashboard',
     currentYear: new Date().getFullYear().toString(),

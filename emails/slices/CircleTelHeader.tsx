@@ -14,7 +14,7 @@ interface CircleTelHeaderProps {
 }
 
 export const CircleTelHeader: React.FC<CircleTelHeaderProps> = ({
-  logoUrl = 'https://www.circletel.co.za/logo-white.png',
+  logoUrl = 'https://www.circletel.co.za/images/circletel-enclosed-logo.png',
   homeUrl = 'https://www.circletel.co.za',
 }) => {
   return (

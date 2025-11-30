@@ -49,13 +49,13 @@ export const InvoiceGeneratedEmail: React.FC<InvoiceGeneratedEmailProps> = ({
   accountNumber = 'CT-2025-00123',
 }) => {
   const invoiceDetails: ServiceDetail[] = [
-    { label: 'Invoice Number', value: invoiceNumber, icon: '📋' },
-    { label: 'Total Amount', value: totalAmount, icon: '💰' },
-    { label: 'Due Date', value: dueDate, icon: '📅' },
+    { label: 'Invoice Number', value: invoiceNumber },
+    { label: 'Total Amount', value: totalAmount },
+    { label: 'Due Date', value: dueDate },
   ];
 
   if (accountNumber) {
-    invoiceDetails.push({ label: 'Account Number', value: accountNumber, icon: '🔢' });
+    invoiceDetails.push({ label: 'Account Number', value: accountNumber });
   }
 
   return (
@@ -70,8 +70,7 @@ export const InvoiceGeneratedEmail: React.FC<InvoiceGeneratedEmailProps> = ({
 
           <CircleTelHero
             title="Invoice Ready"
-            subtitle={`Hi ${customerName}, your invoice for ${companyName} is ready.`}
-            icon="📋"
+            subtitle={`Dear ${customerName}, your invoice is ready for payment.`}
             variant="light"
           />
 
@@ -103,29 +102,29 @@ export const InvoiceGeneratedEmail: React.FC<InvoiceGeneratedEmailProps> = ({
           <CircleTelTextBlock align="left" variant="normal">
             <strong>Payment Options:</strong>
             <br />
-            • <strong>Online Payment:</strong> Click "Pay Now" to pay securely online
+            - <strong>Online Payment:</strong> Click "Pay Now" to pay securely online
             <br />
-            • <strong>EFT Transfer:</strong> Download the invoice for our banking details
+            - <strong>EFT Transfer:</strong> Download the invoice for our banking details
             <br />
-            • <strong>Debit Order:</strong> Set up recurring payments via your dashboard
+            - <strong>Debit Order:</strong> Set up recurring payments via your dashboard
             <br />
             <br />
-            💳 We accept: Credit Cards, Instant EFT, Capitec Pay, and more.
+            We accept: Credit Cards, Instant EFT, Capitec Pay, and more.
           </CircleTelTextBlock>
 
           <CircleTelTextBlock align="left" variant="normal">
             <strong>Important Information:</strong>
             <br />
-            • Payment is due by: <strong>{dueDate}</strong>
+            - Payment is due by: <strong>{dueDate}</strong>
             <br />
-            • Late payments may result in service suspension
+            - Late payments may result in service suspension
             <br />
-            • Your reference number is: <strong>{invoiceNumber}</strong>
+            - Your reference number is: <strong>{invoiceNumber}</strong>
             <br />
-            • For queries, contact: billing@circletel.co.za
+            - For queries, contact: contactus@circletel.co.za
           </CircleTelTextBlock>
 
-          <CircleTelFooter showSocialLinks={true} />
+          <CircleTelFooter showSocialLinks={false} />
         </Container>
       </Body>
     </Html>
