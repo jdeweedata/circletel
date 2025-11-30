@@ -334,6 +334,65 @@ export class EnhancedEmailService {
   }
 
   /**
+   * Send invoice generated email
+   */
+  static async sendInvoiceGenerated(invoice: {
+    invoice_id: string;
+    customer_id: string;
+    email: string;
+    customer_name: string;
+    company_name?: string;
+    invoice_number: string;
+    total_amount: number;
+    subtotal: number;
+    vat_amount: number;
+    due_date: string;
+    account_number?: string;
+    line_items: Array<{
+      description: string;
+      quantity: number;
+      unit_price: number;
+      amount: number;
+    }>;
+  }): Promise<EmailResult> {
+    // Format line items for email template
+    const formattedLineItems = invoice.line_items.map(item => ({
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: `R ${item.unit_price.toFixed(2)}`,
+      total: `R ${item.amount.toFixed(2)}`,
+    }));
+
+    // Format due date
+    const dueDate = new Date(invoice.due_date).toLocaleDateString('en-ZA', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+    return this.sendEmail({
+      to: invoice.email,
+      templateId: 'invoice_generated',
+      props: {
+        customerName: invoice.customer_name,
+        companyName: invoice.company_name || invoice.customer_name,
+        invoiceNumber: invoice.invoice_number,
+        invoiceUrl: `${baseUrl}/dashboard/invoices/${invoice.invoice_id}`,
+        paymentUrl: `${baseUrl}/dashboard/invoices/${invoice.invoice_id}/pay`,
+        totalAmount: `R ${invoice.total_amount.toFixed(2)}`,
+        dueDate,
+        lineItems: formattedLineItems,
+        subtotal: `R ${invoice.subtotal.toFixed(2)}`,
+        vatAmount: `R ${invoice.vat_amount.toFixed(2)}`,
+        accountNumber: invoice.account_number,
+      },
+      customerId: invoice.customer_id,
+    });
+  }
+
+  /**
    * Send test email (for testing)
    */
   static async sendTestEmail(to: string): Promise<EmailResult> {
@@ -366,4 +425,5 @@ export const sendPaymentReceived = EnhancedEmailService.sendPaymentReceived.bind
 export const sendInstallationScheduled = EnhancedEmailService.sendInstallationScheduled.bind(EnhancedEmailService);
 export const sendQuoteSent = EnhancedEmailService.sendQuoteSent.bind(EnhancedEmailService);
 export const sendQuoteApproved = EnhancedEmailService.sendQuoteApproved.bind(EnhancedEmailService);
+export const sendInvoiceGenerated = EnhancedEmailService.sendInvoiceGenerated.bind(EnhancedEmailService);
 export const sendTestEmail = EnhancedEmailService.sendTestEmail.bind(EnhancedEmailService);

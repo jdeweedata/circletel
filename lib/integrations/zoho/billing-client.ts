@@ -914,10 +914,17 @@ export class ZohoBillingClient extends ZohoAPIClient {
         line_items: payload.line_items.length,
       });
 
+      // Zoho Billing API expects 'invoice_items' not 'line_items'
+      const zohoPayload = {
+        ...payload,
+        invoice_items: payload.line_items,
+      };
+      delete (zohoPayload as any).line_items;
+
       const response = await this.request<any>(
         '/invoices',
         'POST',
-        payload
+        zohoPayload
       );
 
       // Response structure: { code, message, invoice: {...} }
