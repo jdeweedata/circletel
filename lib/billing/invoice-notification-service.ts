@@ -32,6 +32,7 @@ export interface InvoiceNotificationParams {
   sync_to_zoho?: boolean; // Default true
   send_email?: boolean; // Default true
   force_send?: boolean; // Override duplicate check (default false)
+  test_email?: string; // Override recipient email for testing
 }
 
 export interface InvoiceNotificationResult {
@@ -68,7 +69,8 @@ export class InvoiceNotificationService {
       trigger, 
       sync_to_zoho = true, 
       send_email = true,
-      force_send = false 
+      force_send = false,
+      test_email
     } = params;
     
     const errors: string[] = [];
@@ -154,9 +156,10 @@ export class InvoiceNotificationService {
       }
 
       // 4. Send email notification
-      if (send_email && invoice.customer?.email) {
+      const recipientEmail = test_email || invoice.customer?.email;
+      if (send_email && recipientEmail) {
         try {
-          const emailResult = await this.sendInvoiceEmail(invoice);
+          const emailResult = await this.sendInvoiceEmail(invoice, test_email);
           if (emailResult.success) {
             email_sent = true;
             email_message_id = emailResult.message_id;
@@ -279,7 +282,7 @@ export class InvoiceNotificationService {
 
       console.log('[InvoiceNotification] Zoho payload:', JSON.stringify(zohoPayload));
 
-      const zohoInvoice = await billingClient.createInvoice(zohoPayload);
+      const zohoInvoice = await billingClient.createInvoice(zohoPayload as any);
 
       return {
         success: true,
@@ -297,21 +300,23 @@ export class InvoiceNotificationService {
   /**
    * Send invoice email via Resend
    */
-  private static async sendInvoiceEmail(invoice: any): Promise<{
+  private static async sendInvoiceEmail(invoice: any, testEmail?: string): Promise<{
     success: boolean;
     message_id?: string;
     error?: string;
   }> {
     try {
       const customer = invoice.customer;
-      if (!customer?.email) {
+      const recipientEmail = testEmail || customer?.email;
+      
+      if (!recipientEmail) {
         return {
           success: false,
-          error: 'Customer email not found',
+          error: 'No recipient email provided',
         };
       }
 
-      const customerName = `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Customer';
+      const customerName = `${customer?.first_name || ''} ${customer?.last_name || ''}`.trim() || 'Customer';
 
       // Parse line items
       const lineItems = (invoice.line_items || []).map((item: any) => ({
@@ -321,18 +326,20 @@ export class InvoiceNotificationService {
         amount: item.amount,
       }));
 
+      console.log(`[InvoiceNotification] Sending email to: ${recipientEmail}${testEmail ? ' (TEST)' : ''}`);
+
       const result = await sendInvoiceGenerated({
         invoice_id: invoice.id,
-        customer_id: customer.id,
-        email: customer.email,
+        customer_id: customer?.id || 'test',
+        email: recipientEmail,
         customer_name: customerName,
-        company_name: customer.business_name,
+        company_name: customer?.business_name,
         invoice_number: invoice.invoice_number,
         total_amount: invoice.total_amount,
         subtotal: invoice.subtotal,
         vat_amount: invoice.tax_amount || invoice.vat_amount || 0,
         due_date: invoice.due_date,
-        account_number: customer.account_number,
+        account_number: customer?.account_number,
         line_items: lineItems,
       });
 

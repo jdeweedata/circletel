@@ -16,6 +16,7 @@ interface SendInvoiceRequest {
   send_email?: boolean; // Default true
   resend_only?: boolean; // Just resend email without Zoho sync
   force_send?: boolean; // Override duplicate check
+  test_email?: string; // Override recipient email for testing
 }
 
 export async function POST(request: NextRequest) {
@@ -54,7 +55,8 @@ export async function POST(request: NextRequest) {
       sync_to_zoho = true, 
       send_email = true, 
       resend_only = false,
-      force_send = false 
+      force_send = false,
+      test_email
     } = body;
 
     if (!invoice_id) {
@@ -100,6 +102,7 @@ export async function POST(request: NextRequest) {
         sync_to_zoho,
         send_email,
         force_send,
+        test_email,
       });
 
       // Log admin action
