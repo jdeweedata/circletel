@@ -15,30 +15,65 @@ export interface InvoiceItem {
   amount: number;
 }
 
+// Alternative interface for string-based amounts (from templates)
+export interface InvoiceLineItem {
+  description: string;
+  quantity?: number;
+  unitPrice?: string;
+  total?: string;
+}
+
 interface CircleTelInvoiceTableProps {
-  items: InvoiceItem[];
-  subtotal: number;
+  // Support both old (items) and new (lineItems) prop names
+  items?: InvoiceItem[];
+  lineItems?: InvoiceLineItem[];
+  subtotal?: number | string;
   vat?: number;
+  vatAmount?: string;
   vatRate?: number;
   discount?: number;
-  total: number;
+  total?: number;
+  totalAmount?: string;
   currency?: string;
 }
 
 export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
   items,
+  lineItems,
   subtotal,
   vat,
+  vatAmount,
   vatRate = 0.15,
   discount,
   total,
+  totalAmount,
   currency = 'R',
 }) => {
+  // Parse string amounts to numbers
+  const parseAmount = (value: string | number | undefined): number => {
+    if (typeof value === 'number') return value;
+    if (!value) return 0;
+    // Remove currency symbol and parse
+    return parseFloat(value.replace(/[^0-9.-]/g, '')) || 0;
+  };
+
   const formatAmount = (amount: number) => {
     return `${currency} ${amount.toFixed(2)}`;
   };
 
-  const calculatedVat = vat ?? subtotal * vatRate;
+  // Normalize items from either prop
+  const normalizedItems: InvoiceItem[] = items || (lineItems || []).map(item => ({
+    description: item.description,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice ? parseAmount(item.unitPrice) : undefined,
+    amount: parseAmount(item.total),
+  }));
+
+  // Calculate values
+  const subtotalValue = parseAmount(subtotal);
+  const vatValue = vat ?? parseAmount(vatAmount) ?? subtotalValue * vatRate;
+  const totalValue = total ?? parseAmount(totalAmount) ?? (subtotalValue + vatValue);
+  const calculatedVat = vatValue;
 
   return (
     <Section style={emailStyles.section}>
@@ -64,7 +99,7 @@ export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
       </Row>
 
       {/* Line Items */}
-      {items.map((item, index) => (
+      {normalizedItems.map((item, index) => (
         <Row key={index}>
           <Column style={{ ...emailStyles.tableCell, width: '60%' }}>
             <Text style={{ margin: 0, ...typography.body }}>
@@ -103,7 +138,7 @@ export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
           style={{ width: '40%', padding: '8px 12px', textAlign: 'right' }}
         >
           <Text style={{ margin: 0, fontWeight: '600' }}>
-            {formatAmount(subtotal)}
+            {formatAmount(subtotalValue)}
           </Text>
         </Column>
       </Row>
@@ -172,7 +207,7 @@ export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
               color: brandColors.primary,
             }}
           >
-            {formatAmount(total)}
+            {formatAmount(totalValue)}
           </Text>
         </Column>
       </Row>

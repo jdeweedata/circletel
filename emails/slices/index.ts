@@ -11,7 +11,7 @@ export { CircleTelButton } from './CircleTelButton';
 export { CircleTelServiceDetails } from './CircleTelServiceDetails';
 export type { ServiceDetail } from './CircleTelServiceDetails';
 export { CircleTelInvoiceTable } from './CircleTelInvoiceTable';
-export type { InvoiceItem } from './CircleTelInvoiceTable';
+export type { InvoiceItem, InvoiceLineItem } from './CircleTelInvoiceTable';
 export { CircleTelFooter } from './CircleTelFooter';
 export { CircleTelSocialLinks } from './CircleTelSocialLinks';
 
