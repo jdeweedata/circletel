@@ -117,10 +117,10 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
         }}
       />
       <Text style={{ margin: '0 0 8px 0', fontSize: '11px', lineHeight: '1.5' }}>
-        CircleTel is a licensed Electronic Communications Network Service (ECNS)
+        CircleTel is a licensed Electronic Communications Service (ECS)
         provider registered with ICASA.
         <br />
-        ECNS License Number: 12345 | POPIA Compliant
+        ECS License No: 0343/RE/CECS/MAR/2013 | POPIA Compliant
       </Text>
 
       {/* Privacy & Terms */}
@@ -175,9 +175,9 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
 
       {/* Physical Address - Required by CAN-SPAM and helps deliverability */}
       <Text style={{ margin: '8px 0 0 0', fontSize: '10px', opacity: 0.7, lineHeight: '1.4' }}>
-        Registered Address: Unit 5, Highveld Techno Park, Centurion, Gauteng, 0157, South Africa
+        Registered Address: West House, 7 Autumn Road, Rivonia, Johannesburg, 2128
         <br />
-        Company Registration: 2024/123456/07 | VAT: 4123456789
+        Company Registration: 2008/026404/07
       </Text>
     </Section>
   );

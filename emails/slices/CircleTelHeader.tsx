@@ -14,12 +14,12 @@ interface CircleTelHeaderProps {
 }
 
 export const CircleTelHeader: React.FC<CircleTelHeaderProps> = ({
-  logoUrl = 'https://www.circletel.co.za/images/circletel-logo.png',
+  logoUrl = 'https://www.circletel.co.za/images/circletel-enclosed-logo.png',
   homeUrl = 'https://www.circletel.co.za',
 }) => {
   return (
     <Section style={{
-      backgroundColor: brandColors.primary,
+      backgroundColor: brandColors.white,
       padding: '24px 20px',
       textAlign: 'center' as const,
     }}>
@@ -27,12 +27,13 @@ export const CircleTelHeader: React.FC<CircleTelHeaderProps> = ({
         <Img
           src={logoUrl}
           alt="CircleTel"
-          width="200"
-          height="60"
+          width="150"
+          height="150"
           style={{
             display: 'block',
             margin: '0 auto',
-            maxWidth: '200px',
+            width: '150px',
+            height: 'auto',
           }}
         />
       </Link>
