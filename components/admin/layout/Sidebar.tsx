@@ -77,7 +77,7 @@ const navigation = [
     children: [
       { name: 'All Products', href: '/admin/products', icon: List },
       { name: 'Add Product', href: '/admin/products/new', icon: Plus },
-      { name: 'MTN Deals', href: '/admin/products/mtn-deals', icon: Handshake },
+      { name: 'MTN Dealer Products', href: '/admin/mtn-dealer-products', icon: Handshake },
       { name: 'Drafts', href: '/admin/products/drafts', icon: FileText },
       { name: 'Archived', href: '/admin/products/archived', icon: Archive }
     ]
@@ -183,6 +183,15 @@ const navigation = [
       { name: 'Testing', href: '/admin/coverage/testing', icon: TestTube },
       { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
       { name: 'Maps', href: '/admin/coverage/maps', icon: Map }
+    ]
+  },
+  {
+    name: 'Competitor Analysis',
+    icon: Target,
+    children: [
+      { name: 'Dashboard', href: '/admin/competitor-analysis', icon: LayoutDashboard },
+      { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: Building2 },
+      { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: LinkIcon }
     ]
   },
   {
