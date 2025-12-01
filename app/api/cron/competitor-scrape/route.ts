@@ -1,24 +1,20 @@
 /**
- * Competitor Analysis Scheduled Scrape
+ * Competitor Analysis Scheduled Scrape (Inngest-powered)
  *
- * Vercel cron job that runs daily/weekly to scrape competitor prices.
- * Triggers scrapes for all active providers based on their configured frequency.
+ * Vercel cron job that triggers Inngest to scrape competitor prices.
+ * This is a lightweight trigger - the actual work is done by Inngest functions
+ * which handle retries, timeouts, and reliable execution.
  *
  * Schedule: Daily at 3 AM SAST (1 AM UTC)
+ *
+ * @version 2.0.0 - Now uses Inngest for reliable background processing
  */
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createProvider } from '@/lib/competitor-analysis/providers';
-import { PriceChangeDetector } from '@/lib/competitor-analysis/price-change-detector';
-import { CompetitorAlertService } from '@/lib/competitor-analysis/alert-service';
-import type {
-  CompetitorProvider,
-  CompetitorProduct,
-  ScrapeJobResult,
-  ScrapeStatus,
-} from '@/lib/competitor-analysis/types';
-import type { PriceChange } from '@/lib/competitor-analysis/price-change-detector';
+import { inngest } from '@/lib/inngest';
+import { isProviderSupported } from '@/lib/competitor-analysis';
+import type { CompetitorProvider } from '@/lib/competitor-analysis/types';
 
 // =============================================================================
 // CRON CONFIGURATION
@@ -39,13 +35,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log('[CronCompetitorScrape] Starting scheduled competitor scrape...');
-  const startTime = Date.now();
+  console.log('[CronCompetitorScrape] Starting scheduled competitor scrape via Inngest...');
 
   try {
     const supabase = await createClient();
 
-    // Get all active providers that are due for scraping
+    // Get all active providers
     const { data: providers, error: providerError } = await supabase
       .from('competitor_providers')
       .select('*')
@@ -76,86 +71,103 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log(`[CronCompetitorScrape] Found ${providersToScrape.length} providers due for scraping`);
+    // Filter to only supported providers
+    const supportedProviders = providersToScrape.filter((p) => isProviderSupported(p.slug));
 
-    const results: ScrapeJobResult[] = [];
-    const allPriceChanges: PriceChange[] = [];
+    if (supportedProviders.length === 0) {
+      console.log('[CronCompetitorScrape] No supported providers to scrape');
+      return NextResponse.json({
+        message: 'No supported providers to scrape',
+        checked: providersToScrape.length,
+        supported: 0,
+      });
+    }
 
-    // Scrape each provider
-    for (const provider of providersToScrape) {
-      console.log(`[CronCompetitorScrape] Scraping ${provider.name}...`);
+    console.log(`[CronCompetitorScrape] Queueing ${supportedProviders.length} providers for scraping`);
 
-      const result = await scrapeProvider(provider, supabase);
-      results.push(result);
+    // Create scrape log entries and queue Inngest events
+    const scrapeLogIds: string[] = [];
+    const inngestEvents: Array<{
+      name: 'competitor/scrape.requested';
+      data: {
+        provider_id: string;
+        provider_slug: string;
+        provider_name: string;
+        scrape_log_id: string;
+        scrape_urls: string[];
+        triggered_by: string;
+      };
+    }> = [];
 
-      // Detect price changes if scrape was successful
-      if (result.status === 'completed' && result.products_found > 0) {
-        // Price changes are detected within scrapeProvider and stored
-        // We'll collect them from the result
+    for (const provider of supportedProviders) {
+      const { data: logEntry, error: logError } = await supabase
+        .from('competitor_scrape_logs')
+        .insert({
+          provider_id: provider.id,
+          status: 'pending',
+          trigger_type: 'scheduled',
+        })
+        .select('id')
+        .single();
+
+      if (logError) {
+        console.error(`[CronCompetitorScrape] Failed to create log for ${provider.name}:`, logError);
+        continue;
       }
 
-      // If scrape failed, send alert
-      if (result.status === 'failed' && result.errors.length > 0) {
-        await CompetitorAlertService.sendScrapeFailureAlert(
-          provider,
-          result.errors.join(', ')
+      scrapeLogIds.push(logEntry.id);
+
+      inngestEvents.push({
+        name: 'competitor/scrape.requested',
+        data: {
+          provider_id: provider.id,
+          provider_slug: provider.slug,
+          provider_name: provider.name,
+          scrape_log_id: logEntry.id,
+          scrape_urls: provider.scrape_urls || [],
+          triggered_by: 'cron',
+        },
+      });
+    }
+
+    // Send all events to Inngest
+    if (inngestEvents.length > 0) {
+      try {
+        await inngest.send(inngestEvents);
+        console.log(`[CronCompetitorScrape] Sent ${inngestEvents.length} jobs to Inngest`);
+      } catch (inngestError) {
+        console.error('[CronCompetitorScrape] Failed to send to Inngest:', inngestError);
+        
+        // Mark jobs as failed
+        for (const logId of scrapeLogIds) {
+          await supabase
+            .from('competitor_scrape_logs')
+            .update({
+              status: 'failed',
+              error_message: 'Failed to queue background job',
+              completed_at: new Date().toISOString(),
+            })
+            .eq('id', logId);
+        }
+        
+        return NextResponse.json(
+          { error: 'Failed to queue scrape jobs' },
+          { status: 500 }
         );
       }
     }
 
-    // Fetch recent price changes from the last scrape
-    const { data: recentHistory } = await supabase
-      .from('competitor_price_history')
-      .select('*')
-      .gte('recorded_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-      .order('recorded_at', { ascending: false });
-
-    // Get current products for price change detection
-    const { data: currentProducts } = await supabase
-      .from('competitor_products')
-      .select('*')
-      .eq('is_current', true);
-
-    if (currentProducts && recentHistory && providers) {
-      const detectionResult = PriceChangeDetector.detectPriceChanges(
-        currentProducts as CompetitorProduct[],
-        recentHistory,
-        providers as CompetitorProvider[]
-      );
-
-      // Send alerts for significant price drops
-      if (detectionResult.significant_changes.length > 0) {
-        await CompetitorAlertService.sendPriceDropAlerts(detectionResult.significant_changes);
-        allPriceChanges.push(...detectionResult.significant_changes);
-      }
-    }
-
-    // Send summary if there were any results
-    if (results.length > 0) {
-      await CompetitorAlertService.sendScrapesSummary(results, allPriceChanges);
-    }
-
-    const duration = Date.now() - startTime;
-    console.log(`[CronCompetitorScrape] Completed in ${duration}ms`);
-
     return NextResponse.json({
       success: true,
-      message: `Scraped ${results.length} providers`,
-      duration_ms: duration,
-      results: results.map((r) => ({
-        provider: r.provider_slug,
-        status: r.status,
-        products_found: r.products_found,
-        products_new: r.products_new,
-        products_updated: r.products_updated,
-        errors: r.errors,
-      })),
-      price_changes: allPriceChanges.length,
+      message: `Queued ${inngestEvents.length} providers for scraping`,
+      providers: supportedProviders.map((p) => p.name),
+      scrape_ids: scrapeLogIds,
+      queue: 'inngest',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('[CronCompetitorScrape] Error:', message);
-    return NextResponse.json({ error: 'Scrape failed', details: message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to trigger scrapes', details: message }, { status: 500 });
   }
 }
 
@@ -179,184 +191,20 @@ function filterByFrequency(providers: CompetitorProvider[]): CompetitorProvider[
     const hoursSinceLastScrape = (now.getTime() - lastScrape.getTime()) / (1000 * 60 * 60);
 
     switch (provider.scrape_frequency) {
+      case 'hourly':
+        return hoursSinceLastScrape >= 1;
       case 'daily':
-        return hoursSinceLastScrape >= 22; // At least 22 hours
+        return hoursSinceLastScrape >= 22;
       case 'weekly':
-        return hoursSinceLastScrape >= 166; // At least ~7 days
+        return hoursSinceLastScrape >= 166;
+      case 'monthly':
+        return hoursSinceLastScrape >= 720;
       case 'manual':
-        return false; // Never auto-scrape manual providers
+        return false;
       default:
-        return hoursSinceLastScrape >= 166; // Default to weekly
+        return hoursSinceLastScrape >= 166;
     }
   });
-}
-
-/**
- * Scrape a single provider and save results.
- */
-async function scrapeProvider(
-  provider: CompetitorProvider,
-  supabase: any
-): Promise<ScrapeJobResult> {
-  const startTime = Date.now();
-  const errors: string[] = [];
-
-  // Create scrape log entry
-  const { data: logEntry, error: logError } = await supabase
-    .from('competitor_scrape_logs')
-    .insert({
-      provider_id: provider.id,
-      status: 'running' as ScrapeStatus,
-      trigger_type: 'scheduled',
-      started_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-
-  if (logError) {
-    console.error(`[CronCompetitorScrape] Failed to create log entry for ${provider.name}:`, logError);
-  }
-
-  try {
-    // Get provider instance
-    const providerInstance = createProvider(provider);
-
-    if (!providerInstance) {
-      throw new Error(`No scraper implementation for provider: ${provider.slug}`);
-    }
-
-    // Execute scrape and get raw products
-    const rawProducts = await providerInstance.scrape();
-
-    if (rawProducts.length === 0) {
-      console.log(`[CronCompetitorScrape] No products found for ${provider.name}`);
-    }
-
-    // Normalize products using the provider's normalization logic
-    const normalizedProducts = rawProducts.map((raw) =>
-      providerInstance.normalizeProduct(raw)
-    );
-
-    // Get existing products for comparison
-    const { data: existingProducts } = await supabase
-      .from('competitor_products')
-      .select('*')
-      .eq('provider_id', provider.id)
-      .eq('is_current', true);
-
-    // Mark old products as not current
-    await supabase
-      .from('competitor_products')
-      .update({ is_current: false })
-      .eq('provider_id', provider.id)
-      .eq('is_current', true);
-
-    // Insert new products
-    let newCount = 0;
-    let updatedCount = 0;
-
-    for (const product of normalizedProducts) {
-      const existingProduct = (existingProducts || []).find(
-        (p: CompetitorProduct) => p.external_id === product.external_id || p.product_name === product.product_name
-      );
-
-      // Insert product
-      const { data: insertedProduct, error: insertError } = await supabase
-        .from('competitor_products')
-        .insert({
-          provider_id: provider.id,
-          ...product,
-          is_current: true,
-          scraped_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        errors.push(`Failed to insert product ${product.product_name}: ${insertError.message}`);
-        continue;
-      }
-
-      if (existingProduct) {
-        updatedCount++;
-      } else {
-        newCount++;
-      }
-
-      // Record price history
-      if (insertedProduct && product.monthly_price) {
-        await supabase.from('competitor_price_history').insert({
-          competitor_product_id: insertedProduct.id,
-          monthly_price: product.monthly_price,
-          once_off_price: product.once_off_price,
-          recorded_at: new Date().toISOString(),
-        });
-      }
-    }
-
-    // Update provider last_scraped_at
-    await supabase
-      .from('competitor_providers')
-      .update({ last_scraped_at: new Date().toISOString() })
-      .eq('id', provider.id);
-
-    // Update scrape log
-    const duration = Date.now() - startTime;
-    if (logEntry) {
-      await supabase
-        .from('competitor_scrape_logs')
-        .update({
-          status: 'completed' as ScrapeStatus,
-          products_found: normalizedProducts.length,
-          products_new: newCount,
-          products_updated: updatedCount,
-          completed_at: new Date().toISOString(),
-          error_message: errors.length > 0 ? errors.join('; ') : null,
-        })
-        .eq('id', logEntry.id);
-    }
-
-    return {
-      provider_id: provider.id,
-      provider_slug: provider.slug,
-      status: 'completed',
-      products_found: normalizedProducts.length,
-      products_new: newCount,
-      products_updated: updatedCount,
-      products_unchanged: normalizedProducts.length - newCount - updatedCount,
-      credits_used: 0, // Firecrawl credit tracking handled separately
-      duration_ms: duration,
-      errors,
-    };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(errorMessage);
-
-    // Update scrape log with failure
-    if (logEntry) {
-      await supabase
-        .from('competitor_scrape_logs')
-        .update({
-          status: 'failed' as ScrapeStatus,
-          error_message: errorMessage,
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', logEntry.id);
-    }
-
-    return {
-      provider_id: provider.id,
-      provider_slug: provider.slug,
-      status: 'failed',
-      products_found: 0,
-      products_new: 0,
-      products_updated: 0,
-      products_unchanged: 0,
-      credits_used: 0,
-      duration_ms: Date.now() - startTime,
-      errors,
-    };
-  }
 }
 
 // =============================================================================
@@ -364,4 +212,4 @@ async function scrapeProvider(
 // =============================================================================
 
 export const runtime = 'nodejs';
-export const maxDuration = 300; // 5 minutes max
+export const maxDuration = 30; // Only needs 30s now - just queues jobs

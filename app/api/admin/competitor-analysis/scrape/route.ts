@@ -2,23 +2,22 @@
  * Scrape Trigger API
  *
  * POST /api/admin/competitor-analysis/scrape
- * Triggers a scrape job for one or all providers.
+ * Triggers a scrape job for one or all providers using Inngest for reliable
+ * background processing with automatic retries.
  *
  * GET /api/admin/competitor-analysis/scrape
  * Returns recent scrape logs.
+ *
+ * @version 2.0.0 - Now uses Inngest for background job processing
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import {
-  createProvider,
-  isProviderSupported,
-  getSessionCreditsUsed,
-} from '@/lib/competitor-analysis';
+import { isProviderSupported } from '@/lib/competitor-analysis';
+import { inngest } from '@/lib/inngest';
 import type {
   TriggerScrapeRequest,
   CompetitorProvider,
-  NormalizedProduct,
 } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
@@ -149,8 +148,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create scrape log entries
+    // Create scrape log entries and send Inngest events
     const scrapeLogIds: string[] = [];
+    const inngestEvents: Array<{
+      name: 'competitor/scrape.requested';
+      data: {
+        provider_id: string;
+        provider_slug: string;
+        provider_name: string;
+        scrape_log_id: string;
+        scrape_urls: string[];
+        triggered_by?: string;
+      };
+    }> = [];
 
     for (const provider of supportedProviders) {
       const { data: logEntry, error: logError } = await supabase
@@ -169,18 +179,50 @@ export async function POST(request: NextRequest) {
       }
 
       scrapeLogIds.push(logEntry.id);
+
+      // Queue Inngest event for this provider
+      inngestEvents.push({
+        name: 'competitor/scrape.requested',
+        data: {
+          provider_id: provider.id,
+          provider_slug: provider.slug,
+          provider_name: provider.name,
+          scrape_log_id: logEntry.id,
+          scrape_urls: provider.scrape_urls || [],
+        },
+      });
     }
 
-    // Start scraping in background (don't await)
-    // In production, this would be a queue job
-    runScrapeJobs(supportedProviders, scrapeLogIds, supabase).catch((error) => {
-      console.error('[Scrape API] Background scrape error:', error);
-    });
+    // Send all events to Inngest for reliable background processing
+    if (inngestEvents.length > 0) {
+      try {
+        await inngest.send(inngestEvents);
+        console.log(`[Scrape API] Sent ${inngestEvents.length} scrape jobs to Inngest`);
+      } catch (inngestError) {
+        console.error('[Scrape API] Failed to send to Inngest:', inngestError);
+        // Fall back to marking jobs as failed
+        for (const logId of scrapeLogIds) {
+          await supabase
+            .from('competitor_scrape_logs')
+            .update({
+              status: 'failed',
+              error_message: 'Failed to queue background job',
+              completed_at: new Date().toISOString(),
+            })
+            .eq('id', logId);
+        }
+        return NextResponse.json(
+          { error: 'Failed to queue scrape jobs' },
+          { status: 500 }
+        );
+      }
+    }
 
     return NextResponse.json({
       message: `Started scrape for ${supportedProviders.length} provider(s)`,
       scrape_ids: scrapeLogIds,
       providers: supportedProviders.map((p) => ({ id: p.id, slug: p.slug, name: p.name })),
+      queue: 'inngest',
     });
   } catch (error) {
     console.error('[Scrape API] POST error:', error);
@@ -191,202 +233,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Run scrape jobs for multiple providers.
- * Updates log entries and saves products to database.
- */
-async function runScrapeJobs(
-  providers: CompetitorProvider[],
-  logIds: string[],
-  supabase: Awaited<ReturnType<typeof createClient>>
-) {
-  for (let i = 0; i < providers.length; i++) {
-    const provider = providers[i];
-    const logId = logIds[i];
-
-    try {
-      // Update status to running
-      await supabase
-        .from('competitor_scrape_logs')
-        .update({ status: 'running', started_at: new Date().toISOString() })
-        .eq('id', logId);
-
-      // Get the scraper instance
-      const scraper = createProvider(provider);
-      if (!scraper) {
-        throw new Error(`No scraper implementation for ${provider.slug}`);
-      }
-
-      // Run the scrape job
-      const result = await scraper.runScrapeJob();
-
-      // Save products to database
-      const { newCount, updatedCount } = await saveProducts(
-        supabase,
-        provider.id,
-        result.products_found > 0 ? await getScrapedProducts(scraper) : []
-      );
-
-      // Update log entry with results
-      await supabase
-        .from('competitor_scrape_logs')
-        .update({
-          status: result.status,
-          products_found: result.products_found,
-          products_new: newCount,
-          products_updated: updatedCount,
-          firecrawl_credits_used: result.credits_used,
-          completed_at: new Date().toISOString(),
-          error_message: result.errors.length > 0 ? result.errors.join('; ') : null,
-        })
-        .eq('id', logId);
-
-      // Update provider's last_scraped_at
-      if (result.status === 'completed') {
-        await supabase
-          .from('competitor_providers')
-          .update({ last_scraped_at: new Date().toISOString() })
-          .eq('id', provider.id);
-      }
-    } catch (error) {
-      console.error(`[Scrape] Failed for ${provider.slug}:`, error);
-
-      // Update log entry with error
-      await supabase
-        .from('competitor_scrape_logs')
-        .update({
-          status: 'failed',
-          completed_at: new Date().toISOString(),
-          error_message: error instanceof Error ? error.message : String(error),
-        })
-        .eq('id', logId);
-    }
-  }
-}
-
-/**
- * Get scraped products from a scraper (re-runs scrape to get normalized products).
- * In a real implementation, this would be cached from the scrape job.
- */
-async function getScrapedProducts(
-  scraper: ReturnType<typeof createProvider>
-): Promise<NormalizedProduct[]> {
-  if (!scraper) return [];
-
-  try {
-    const rawProducts = await scraper.scrape();
-    return rawProducts.map((raw) => scraper.normalizeProduct(raw));
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Save normalized products to database.
- * Updates existing products or creates new ones.
- */
-async function saveProducts(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  providerId: string,
-  products: NormalizedProduct[]
-): Promise<{ newCount: number; updatedCount: number }> {
-  let newCount = 0;
-  let updatedCount = 0;
-
-  for (const product of products) {
-    try {
-      // Check if product exists (by external_id or name)
-      let existingQuery = supabase
-        .from('competitor_products')
-        .select('id, monthly_price, once_off_price')
-        .eq('provider_id', providerId)
-        .eq('is_current', true);
-
-      if (product.external_id) {
-        existingQuery = existingQuery.eq('external_id', product.external_id);
-      } else {
-        existingQuery = existingQuery.eq('product_name', product.product_name);
-      }
-
-      const { data: existing } = await existingQuery.single();
-
-      if (existing) {
-        // Check if price changed
-        const priceChanged =
-          existing.monthly_price !== product.monthly_price ||
-          existing.once_off_price !== product.once_off_price;
-
-        if (priceChanged) {
-          // Record price history
-          await supabase.from('competitor_price_history').insert({
-            competitor_product_id: existing.id,
-            monthly_price: product.monthly_price,
-            once_off_price: product.once_off_price,
-          });
-        }
-
-        // Update existing product
-        await supabase
-          .from('competitor_products')
-          .update({
-            product_name: product.product_name,
-            product_type: product.product_type,
-            monthly_price: product.monthly_price,
-            once_off_price: product.once_off_price,
-            price_includes_vat: product.price_includes_vat,
-            contract_term: product.contract_term,
-            data_bundle: product.data_bundle,
-            data_gb: product.data_gb,
-            speed_mbps: product.speed_mbps,
-            device_name: product.device_name,
-            technology: product.technology,
-            source_url: product.source_url,
-            raw_data: product.raw_data,
-            scraped_at: new Date().toISOString(),
-          })
-          .eq('id', existing.id);
-
-        updatedCount++;
-      } else {
-        // Create new product
-        const { data: newProduct } = await supabase
-          .from('competitor_products')
-          .insert({
-            provider_id: providerId,
-            external_id: product.external_id,
-            product_name: product.product_name,
-            product_type: product.product_type,
-            monthly_price: product.monthly_price,
-            once_off_price: product.once_off_price,
-            price_includes_vat: product.price_includes_vat,
-            contract_term: product.contract_term,
-            data_bundle: product.data_bundle,
-            data_gb: product.data_gb,
-            speed_mbps: product.speed_mbps,
-            device_name: product.device_name,
-            technology: product.technology,
-            source_url: product.source_url,
-            raw_data: product.raw_data,
-            is_current: true,
-          })
-          .select('id')
-          .single();
-
-        if (newProduct) {
-          // Record initial price history
-          await supabase.from('competitor_price_history').insert({
-            competitor_product_id: newProduct.id,
-            monthly_price: product.monthly_price,
-            once_off_price: product.once_off_price,
-          });
-        }
-
-        newCount++;
-      }
-    } catch (error) {
-      console.error('[Scrape] Failed to save product:', product.product_name, error);
-    }
-  }
-
-  return { newCount, updatedCount };
-}
+// =============================================================================
+// LEGACY FUNCTIONS REMOVED
+// =============================================================================
+// The runScrapeJobs, getScrapedProducts, and saveProducts functions have been
+// moved to the Inngest function at lib/inngest/functions/competitor-scrape.ts
+// This provides reliable background processing with automatic retries.

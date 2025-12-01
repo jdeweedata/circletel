@@ -10,7 +10,7 @@
 // =============================================================================
 
 export type ProviderType = 'mobile' | 'fibre' | 'both';
-export type ScrapeFrequency = 'daily' | 'weekly' | 'manual';
+export type ScrapeFrequency = 'hourly' | 'daily' | 'weekly' | 'monthly' | 'manual';
 export type ProductType = 'mobile_contract' | 'fibre' | 'lte' | 'device' | 'data_only' | 'prepaid';
 export type Technology = 'LTE' | '5G' | 'Fibre' | 'ADSL' | 'Wireless' | null;
 export type MatchMethod = 'auto' | 'manual';
