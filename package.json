@@ -131,6 +131,7 @@
     "embla-carousel-react": "^8.3.0",
     "framer-motion": "^12.23.24",
     "immer": "^11.0.0",
+    "inngest": "^3.46.0",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
