@@ -64,158 +64,180 @@ interface SidebarProps {
   user: User;
 }
 
-const navigation = [
+// Navigation organized by category
+const navigationSections = [
   {
-    name: 'Dashboard',
-    href: '/admin',
-    icon: LayoutDashboard,
-    end: true
-  },
-  {
-    name: 'Products',
-    icon: Package,
-    children: [
-      { name: 'All Products', href: '/admin/products', icon: List },
-      { name: 'Add Product', href: '/admin/products/new', icon: Plus },
-      { name: 'MTN Dealer Products', href: '/admin/mtn-dealer-products', icon: Handshake },
-      { name: 'Drafts', href: '/admin/products/drafts', icon: FileText },
-      { name: 'Archived', href: '/admin/products/archived', icon: Archive }
+    label: null, // No label for first section (Dashboard)
+    items: [
+      {
+        name: 'Dashboard',
+        href: '/admin',
+        icon: LayoutDashboard,
+        end: true
+      },
     ]
   },
   {
-    name: 'Quotes',
-    icon: FileText,
-    children: [
-      { name: 'All Quotes', href: '/admin/quotes', icon: List },
-      { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: Clock },
-      { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: CheckCircle }
+    label: 'Core Operations',
+    items: [
+      {
+        name: 'Products',
+        icon: Package,
+        children: [
+          { name: 'All Products', href: '/admin/products', icon: List },
+          { name: 'Add Product', href: '/admin/products/new', icon: Plus },
+          { name: 'MTN Dealer Products', href: '/admin/mtn-dealer-products', icon: Handshake },
+          { name: 'Drafts', href: '/admin/products/drafts', icon: FileText },
+          { name: 'Archived', href: '/admin/products/archived', icon: Archive }
+        ]
+      },
+      {
+        name: 'Quotes',
+        icon: FileText,
+        children: [
+          { name: 'All Quotes', href: '/admin/quotes', icon: List },
+          { name: 'Pending Approval', href: '/admin/quotes?status=pending_approval', icon: Clock },
+          { name: 'Accepted', href: '/admin/quotes?status=accepted', icon: CheckCircle }
+        ]
+      },
+      {
+        name: 'Orders',
+        icon: ShoppingCart,
+        children: [
+          { name: 'All Orders', href: '/admin/orders', icon: List },
+          { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar },
+          { name: 'Technicians', href: '/admin/orders/technicians', icon: Wrench }
+        ]
+      },
+      {
+        name: 'Customers',
+        href: '/admin/customers',
+        icon: Users,
+        description: 'Manage customer accounts'
+      },
     ]
   },
   {
-    name: 'Orders',
-    icon: ShoppingCart,
-    children: [
-      { name: 'All Orders', href: '/admin/orders', icon: List },
-      { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar },
-      { name: 'Technicians', href: '/admin/orders/technicians', icon: Wrench }
+    label: 'Sales & Partners',
+    items: [
+      {
+        name: 'Partners',
+        icon: Handshake,
+        children: [
+          { name: 'All Partners', href: '/admin/partners', icon: Users },
+          { name: 'Pending Approvals', href: '/admin/partners/approvals', icon: Clock },
+        ]
+      },
+      {
+        name: 'Competitor Analysis',
+        icon: Target,
+        children: [
+          { name: 'Dashboard', href: '/admin/competitor-analysis', icon: LayoutDashboard },
+          { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: Building2 },
+          { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: LinkIcon }
+        ]
+      },
     ]
   },
   {
-    name: 'Customers',
-    href: '/admin/customers',
-    icon: Users,
-    description: 'Manage customer accounts'
-  },
-  {
-    name: 'Partners',
-    icon: Handshake,
-    children: [
-      { name: 'All Partners', href: '/admin/partners', icon: Users },
-      { name: 'Pending Approvals', href: '/admin/partners/approvals', icon: Clock },
+    label: 'Compliance',
+    items: [
+      {
+        name: 'Approvals',
+        href: '/admin/workflow',
+        icon: CheckCircle
+      },
+      {
+        name: 'KYC Review',
+        href: '/admin/kyc',
+        icon: ShieldCheck,
+        description: 'Review customer verification documents'
+      },
+      {
+        name: 'KYB Compliance',
+        href: '/admin/compliance/kyb',
+        icon: ShieldCheck,
+        description: 'View KYB subject KYC status and risk'
+      },
     ]
   },
   {
-    name: 'Approvals',
-    href: '/admin/workflow',
-    icon: CheckCircle
-  },
-  // {
-  //   name: 'Analytics',
-  //   href: '/admin/analytics',
-  //   icon: BarChart3
-  // },
-  // {
-  //   name: 'Client Forms',
-  //   href: '/admin/forms',
-  //   icon: FileText,
-  //   description: 'Manage client assessment forms'
-  // },
-  {
-    name: 'KYC Review',
-    href: '/admin/kyc',
-    icon: ShieldCheck,
-    description: 'Review customer verification documents'
-  },
-  {
-    name: 'KYB Compliance',
-    href: '/admin/compliance/kyb',
-    icon: ShieldCheck,
-    description: 'View KYB subject KYC status and risk'
-  },
-  {
-    name: 'Notifications',
-    href: '/admin/notifications',
-    icon: Bell,
-    description: 'Email templates and notification logs'
-  },
-  {
-    name: 'Zoho Integration',
-    href: '/admin/zoho',
-    icon: Zap,
-    description: 'Manage Zoho CRM, Mail, and Calendar'
-  },
-  {
-    name: 'Integrations',
-    icon: LinkIcon,
-    children: [
-      { name: 'Overview', href: '/admin/integrations', icon: LayoutDashboard },
-      { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: Settings },
-      { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: Zap },
-      { name: 'API Health', href: '/admin/integrations/apis', icon: Activity },
-      { name: 'Cron Jobs', href: '/admin/integrations/cron', icon: Clock }
+    label: 'Network',
+    items: [
+      {
+        name: 'Coverage',
+        icon: Radio,
+        children: [
+          { name: 'Dashboard', href: '/admin/coverage', icon: LayoutDashboard },
+          { name: 'Analytics', href: '/admin/coverage/analytics', icon: Activity },
+          { name: 'Testing', href: '/admin/coverage/testing', icon: TestTube },
+          { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
+          { name: 'Maps', href: '/admin/coverage/maps', icon: Map }
+        ]
+      },
     ]
   },
   {
-    name: 'CMS Management',
-    icon: Globe,
-    children: [
-      { name: 'Pages', href: '/admin/cms', icon: FileText },
-      { name: 'Media Library', href: '/admin/cms/media', icon: ImageIcon },
-      { name: 'Page Builder', href: '/admin/cms/builder', icon: PanelTop }
+    label: 'Finance',
+    items: [
+      {
+        name: 'Billing & Revenue',
+        icon: CreditCard,
+        children: [
+          { name: 'Dashboard', href: '/admin/billing', icon: LayoutDashboard },
+          { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
+          { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
+        ]
+      },
+      {
+        name: 'Payments',
+        icon: RandSign,
+        children: [
+          { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: Activity },
+          { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
+          { name: 'Webhooks', href: '/admin/payments/webhooks', icon: Zap },
+          { name: 'Settings', href: '/admin/payments/settings', icon: Settings }
+        ]
+      }
     ]
   },
   {
-    name: 'Coverage',
-    icon: Radio,
-    children: [
-      { name: 'Dashboard', href: '/admin/coverage', icon: LayoutDashboard },
-      { name: 'Analytics', href: '/admin/coverage/analytics', icon: Activity },
-      { name: 'Testing', href: '/admin/coverage/testing', icon: TestTube },
-      { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
-      { name: 'Maps', href: '/admin/coverage/maps', icon: Map }
+    label: 'Platform',
+    items: [
+      {
+        name: 'Notifications',
+        href: '/admin/notifications',
+        icon: Bell,
+        description: 'Email templates and notification logs'
+      },
+      {
+        name: 'Zoho Integration',
+        href: '/admin/zoho',
+        icon: Zap,
+        description: 'Manage Zoho CRM, Mail, and Calendar'
+      },
+      {
+        name: 'Integrations',
+        icon: LinkIcon,
+        children: [
+          { name: 'Overview', href: '/admin/integrations', icon: LayoutDashboard },
+          { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: Settings },
+          { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: Zap },
+          { name: 'API Health', href: '/admin/integrations/apis', icon: Activity },
+          { name: 'Cron Jobs', href: '/admin/integrations/cron', icon: Clock }
+        ]
+      },
+      {
+        name: 'CMS Management',
+        icon: Globe,
+        children: [
+          { name: 'Pages', href: '/admin/cms', icon: FileText },
+          { name: 'Media Library', href: '/admin/cms/media', icon: ImageIcon },
+          { name: 'Page Builder', href: '/admin/cms/builder', icon: PanelTop }
+        ]
+      },
     ]
   },
-  {
-    name: 'Competitor Analysis',
-    icon: Target,
-    children: [
-      { name: 'Dashboard', href: '/admin/competitor-analysis', icon: LayoutDashboard },
-      { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: Building2 },
-      { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: LinkIcon }
-    ]
-  },
-  {
-    name: 'Billing & Revenue',
-    icon: CreditCard,
-    children: [
-      { name: 'Dashboard', href: '/admin/billing', icon: LayoutDashboard },
-      { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
-      { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
-      // { name: 'Subscriptions', href: '/admin/billing/subscriptions', icon: List },
-      // { name: 'Analytics', href: '/admin/billing/analytics', icon: TrendingUp },
-      // { name: 'Transactions', href: '/admin/billing/transactions', icon: DollarSign }
-    ]
-  },
-  {
-    name: 'Payments',
-    icon: RandSign,
-    children: [
-      { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: Activity },
-      { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
-      { name: 'Webhooks', href: '/admin/payments/webhooks', icon: Zap },
-      { name: 'Settings', href: '/admin/payments/settings', icon: Settings }
-    ]
-  }
 ];
 
 const adminNavigation = [
@@ -252,13 +274,15 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const [expandedItems, setExpandedItems] = useState<string[]>(() => {
     // Auto-expand dropdowns that contain the current active page
     const expanded: string[] = [];
-    navigation.forEach((item) => {
-      if (item.children) {
-        const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
-        if (isCurrentlyActive) {
-          expanded.push(item.name);
+    navigationSections.forEach((section) => {
+      section.items.forEach((item) => {
+        if (item.children) {
+          const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
+          if (isCurrentlyActive) {
+            expanded.push(item.name);
+          }
         }
-      }
+      });
     });
     adminNavigation.forEach((item) => {
       if (item.children) {
@@ -334,88 +358,106 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        {navigation.map((item) => (
-          <div key={item.name}>
-            {item.children ? (
-              <div className="space-y-1">
-                {/* Dropdown Header - Clickable */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => isOpen && toggleDropdown(item.name)}
-                      className={cn(
-                        'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                        'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                        isOpen && 'cursor-pointer',
-                        !isOpen && 'cursor-default'
-                      )}
-                    >
-                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                      {isOpen && (
-                        <>
-                          <span className="flex-1 text-left">{item.name}</span>
-                          {isExpanded(item.name) ? (
-                            <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4 transition-transform duration-200" />
-                          )}
-                        </>
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  {!isOpen && (
-                    <TooltipContent side="right" className="font-medium">
-                      {item.name}
-                    </TooltipContent>
-                  )}
-                </Tooltip>
+        {navigationSections.map((section, sectionIndex) => (
+          <div key={section.label || 'main'}>
+            {/* Section Label */}
+            {section.label && isOpen && (
+              <div className={cn(
+                'px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider',
+                sectionIndex > 0 && 'mt-4 pt-4 border-t border-gray-200'
+              )}>
+                {section.label}
+              </div>
+            )}
+            {section.label && !isOpen && sectionIndex > 0 && (
+              <div className="my-2 border-t border-gray-200" />
+            )}
 
-                {/* Dropdown Content */}
-                {isOpen && isExpanded(item.name) && (
-                  <div className="ml-9 space-y-1 pl-4">
-                    {item.children.map((child) => (
+            {/* Section Items */}
+            {section.items.map((item) => (
+              <div key={item.name}>
+                {item.children ? (
+                  <div className="space-y-1">
+                    {/* Dropdown Header - Clickable */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => isOpen && toggleDropdown(item.name)}
+                          className={cn(
+                            'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                            'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                            isOpen && 'cursor-pointer',
+                            !isOpen && 'cursor-default'
+                          )}
+                        >
+                          <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                          {isOpen && (
+                            <>
+                              <span className="flex-1 text-left">{item.name}</span>
+                              {isExpanded(item.name) ? (
+                                <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                              )}
+                            </>
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      {!isOpen && (
+                        <TooltipContent side="right" className="font-medium">
+                          {item.name}
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+
+                    {/* Dropdown Content */}
+                    {isOpen && isExpanded(item.name) && (
+                      <div className="ml-9 space-y-1 pl-4">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={cn(
+                              'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
+                              isActiveLink(child.href)
+                                ? 'bg-gray-100 text-gray-900 font-medium'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            )}
+                          >
+                            <child.icon className="mr-2 h-4 w-4" />
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <Link
-                        key={child.href}
-                        href={child.href}
+                        href={item.href!}
                         className={cn(
-                          'flex items-center px-3 py-2 text-sm rounded-lg transition-all',
-                          isActiveLink(child.href)
-                            ? 'bg-gray-100 text-gray-900 font-medium'
+                          'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
+                          isActiveLink(item.href!, item.end)
+                            ? 'bg-gray-100 text-gray-900 shadow-sm'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         )}
                       >
-                        <child.icon className="mr-2 h-4 w-4" />
-                        {child.name}
+                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                        {isOpen && (
+                          <span className="flex-1">{item.name}</span>
+                        )}
                       </Link>
-                    ))}
-                  </div>
+                    </TooltipTrigger>
+                    {!isOpen && (
+                      <TooltipContent side="right" className="font-medium">
+                        {item.name}
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 )}
               </div>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={item.href!}
-                    className={cn(
-                      'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                      isActiveLink(item.href!, item.end)
-                        ? 'bg-gray-100 text-gray-900 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    )}
-                  >
-                    <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                    {isOpen && (
-                      <span className="flex-1">{item.name}</span>
-                    )}
-                  </Link>
-                </TooltipTrigger>
-                {!isOpen && (
-                  <TooltipContent side="right" className="font-medium">
-                    {item.name}
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            )}
+            ))}
           </div>
         ))}
 
