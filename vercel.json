@@ -52,6 +52,10 @@
     "app/api/cron/cleanup-webhook-logs/route.ts": {
       "maxDuration": 60,
       "memory": 512
+    },
+    "app/api/cron/competitor-scrape/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
     }
   },
   "crons": [
@@ -78,6 +82,10 @@
     {
       "path": "/api/cron/cleanup-webhook-logs",
       "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/competitor-scrape",
+      "schedule": "0 1 * * *"
     }
   ]
 }
