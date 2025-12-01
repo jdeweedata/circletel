@@ -3,6 +3,8 @@
  *
  * Provides a typed wrapper around the Firecrawl SDK for web scraping
  * competitor pricing data with error handling, retry logic, and credit tracking.
+ *
+ * @version 1.0.1 - 2025-12-02
  */
 
 import Firecrawl from '@mendable/firecrawl-js';
