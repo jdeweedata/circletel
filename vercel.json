@@ -56,6 +56,14 @@
     "app/api/cron/competitor-scrape/route.ts": {
       "maxDuration": 300,
       "memory": 1024
+    },
+    "app/api/admin/competitor-analysis/scrape/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "app/api/admin/competitor-analysis/test-scrape/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
     }
   },
   "crons": [
