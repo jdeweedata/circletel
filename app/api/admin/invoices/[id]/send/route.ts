@@ -83,15 +83,25 @@ export async function POST(
       updateData.email_attempts = (invoice.email_attempts || 0) + 1;
     }
 
-    const { error: updateError } = await supabase
+    console.log('[SendInvoice] Updating local invoice:', { id, updateData });
+    
+    const { data: updatedInvoice, error: updateError } = await supabase
       .from('customer_invoices')
       .update(updateData)
-      .eq('id', id);
+      .eq('id', id)
+      .select('id, status, updated_at')
+      .single();
 
     if (updateError) {
       console.error('[SendInvoice] Failed to update local invoice:', updateError);
-      // Don't fail - Zoho was already updated
+      // Return error since local update failed
+      return NextResponse.json({
+        success: false,
+        error: `Failed to update local invoice: ${updateError.message}`,
+      }, { status: 500 });
     }
+    
+    console.log('[SendInvoice] Local invoice updated:', updatedInvoice);
 
     return NextResponse.json({
       success: true,
