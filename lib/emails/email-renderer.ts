@@ -9,6 +9,7 @@ import * as React from 'react';
 // Import all email templates
 import OrderConfirmationEmail from '@/emails/templates/consumer/order-confirmation';
 import PaymentReceivedEmail from '@/emails/templates/consumer/payment-received';
+import PaymentReceiptEmail from '@/emails/templates/consumer/payment-receipt';
 import InstallationScheduledEmail from '@/emails/templates/consumer/installation-scheduled';
 import InstallationReminderEmail from '@/emails/templates/consumer/installation-reminder';
 import ServiceActivatedEmail from '@/emails/templates/consumer/service-activated';
@@ -33,6 +34,7 @@ export type EmailTemplateId =
   // Consumer Templates
   | 'order_confirmation'
   | 'payment_received'
+  | 'payment_receipt'
   | 'payment_method_registration'
   | 'installation_scheduled'
   | 'installation_reminder'
@@ -72,6 +74,7 @@ const TEMPLATE_REGISTRY: Record<EmailTemplateId, React.FC<any>> = {
   // Consumer Templates
   order_confirmation: OrderConfirmationEmail,
   payment_received: PaymentReceivedEmail,
+  payment_receipt: PaymentReceiptEmail,
   payment_method_registration: PaymentMethodRegistrationEmail,
   installation_scheduled: InstallationScheduledEmail,
   installation_reminder: InstallationReminderEmail,
@@ -99,6 +102,7 @@ const TEMPLATE_SUBJECTS: Record<EmailTemplateId, string> = {
   // Consumer Templates
   order_confirmation: 'Order Confirmed: {{orderNumber}}',
   payment_received: 'Payment Received: {{paymentAmount}}',
+  payment_receipt: 'Payment Received for Invoice {{invoiceNumber}}',
   payment_method_registration: 'Payment Method Registration',
   installation_scheduled: 'Installation Scheduled: {{installationDate}}',
   installation_reminder: 'Installation Reminder: Tomorrow at {{installationTime}}',

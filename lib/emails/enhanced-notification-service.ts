@@ -428,6 +428,48 @@ export class EnhancedEmailService {
   }
 
   /**
+   * Send payment receipt email (for invoice payments)
+   * Different from sendPaymentReceived which is for new orders
+   */
+  static async sendPaymentReceipt(payment: {
+    invoice_id: string;
+    customer_id: string;
+    email: string;
+    customer_name: string;
+    invoice_number: string;
+    payment_amount: number;
+    payment_date: string;
+    payment_method: string;
+    payment_reference: string;
+    remaining_balance: number;
+  }): Promise<EmailResult> {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+    // Format payment date
+    const formattedDate = new Date(payment.payment_date).toLocaleDateString('en-ZA', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    return this.sendEmail({
+      to: payment.email,
+      templateId: 'payment_receipt',
+      props: {
+        customerName: payment.customer_name,
+        invoiceNumber: payment.invoice_number,
+        paymentAmount: `R ${payment.payment_amount.toFixed(2)}`,
+        paymentDate: formattedDate,
+        paymentMethod: payment.payment_method,
+        paymentReference: payment.payment_reference,
+        remainingBalance: `R ${payment.remaining_balance.toFixed(2)}`,
+        invoiceUrl: `${baseUrl}/dashboard/invoices/${payment.invoice_id}`,
+      },
+      customerId: payment.customer_id,
+    });
+  }
+
+  /**
    * Send test email (for testing)
    */
   static async sendTestEmail(to: string): Promise<EmailResult> {
@@ -457,6 +499,7 @@ export class EnhancedEmailService {
 export const sendEmail = EnhancedEmailService.sendEmail.bind(EnhancedEmailService);
 export const sendOrderConfirmation = EnhancedEmailService.sendOrderConfirmation.bind(EnhancedEmailService);
 export const sendPaymentReceived = EnhancedEmailService.sendPaymentReceived.bind(EnhancedEmailService);
+export const sendPaymentReceipt = EnhancedEmailService.sendPaymentReceipt.bind(EnhancedEmailService);
 export const sendInstallationScheduled = EnhancedEmailService.sendInstallationScheduled.bind(EnhancedEmailService);
 export const sendQuoteSent = EnhancedEmailService.sendQuoteSent.bind(EnhancedEmailService);
 export const sendQuoteApproved = EnhancedEmailService.sendQuoteApproved.bind(EnhancedEmailService);

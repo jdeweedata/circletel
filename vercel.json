@@ -64,6 +64,14 @@
     "app/api/admin/competitor-analysis/test-scrape/route.ts": {
       "maxDuration": 120,
       "memory": 512
+    },
+    "app/api/cron/payment-sync-retry/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
+    },
+    "app/api/cron/payment-sync-monitor/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
     }
   },
   "crons": [
@@ -98,6 +106,14 @@
     {
       "path": "/api/cron/payment-reconciliation",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/payment-sync-retry",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/payment-sync-monitor",
+      "schedule": "0 2,6,10,14,18,22 * * *"
     }
   ]
 }

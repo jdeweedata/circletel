@@ -15,6 +15,8 @@ import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
 import { updateOrderFromPayment } from '@/lib/orders/payment-order-updater';
+import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
+import { formatPaymentMethod } from '@/lib/payments/types';
 
 /**
  * Verify NetCash webhook signature
@@ -257,20 +259,87 @@ export async function POST(request: NextRequest) {
         if (reference.startsWith('INV-')) {
           // Update invoice status to paid
           console.log('[Invoice Payment] Updating invoice:', reference);
-          const { error: invoiceUpdateError } = await supabase
-            .from('customer_invoices')
-            .update({
-              status: 'paid',
-              paid_date: new Date().toISOString(),
-              payment_transaction_id: paymentTransaction.id,
-              updated_at: new Date().toISOString()
-            })
-            .eq('invoice_number', reference);
 
-          if (invoiceUpdateError) {
-            console.error('[Invoice Payment] Failed to update invoice:', invoiceUpdateError);
+          // Get invoice and customer data for email
+          const { data: invoice, error: invoiceFetchError } = await supabase
+            .from('customer_invoices')
+            .select(`
+              id,
+              invoice_number,
+              total_amount,
+              amount_paid,
+              amount_due,
+              customer:customers(
+                id,
+                email,
+                first_name,
+                last_name
+              )
+            `)
+            .eq('invoice_number', reference)
+            .single();
+
+          if (invoiceFetchError || !invoice) {
+            console.error('[Invoice Payment] Invoice not found:', reference);
           } else {
-            console.log('[Invoice Payment] Invoice marked as paid:', reference);
+            // Extract customer from relationship (Supabase returns array for relations)
+            const customer = Array.isArray(invoice.customer) ? invoice.customer[0] : invoice.customer;
+
+            // Calculate new amount paid and remaining balance
+            const newAmountPaid = (invoice.amount_paid || 0) + amount;
+            const newAmountDue = Math.max(0, invoice.total_amount - newAmountPaid);
+            const newStatus = newAmountDue <= 0 ? 'paid' : 'partial';
+
+            // Update invoice
+            const { error: invoiceUpdateError } = await supabase
+              .from('customer_invoices')
+              .update({
+                status: newStatus,
+                amount_paid: newAmountPaid,
+                amount_due: newAmountDue,
+                paid_at: newStatus === 'paid' ? new Date().toISOString() : null,
+                updated_at: new Date().toISOString()
+              })
+              .eq('invoice_number', reference);
+
+            if (invoiceUpdateError) {
+              console.error('[Invoice Payment] Failed to update invoice:', invoiceUpdateError);
+            } else {
+              console.log('[Invoice Payment] Invoice updated:', {
+                invoice_number: reference,
+                status: newStatus,
+                amount_paid: newAmountPaid,
+                amount_due: newAmountDue
+              });
+
+              // Send payment receipt email
+              if (customer?.email) {
+                const paymentMethod = bodyParsed.PaymentMethod || bodyParsed.payment_method || 'Online Payment';
+
+                EnhancedEmailService.sendPaymentReceipt({
+                  invoice_id: invoice.id,
+                  customer_id: customer.id,
+                  email: customer.email,
+                  customer_name: `${customer.first_name} ${customer.last_name}`,
+                  invoice_number: invoice.invoice_number,
+                  payment_amount: amount,
+                  payment_date: new Date().toISOString(),
+                  payment_method: formatPaymentMethod(paymentMethod),
+                  payment_reference: transactionId,
+                  remaining_balance: newAmountDue,
+                })
+                  .then((result) => {
+                    if (result.success) {
+                      console.log('[Invoice Payment] Payment receipt email sent:', result.message_id);
+                    } else {
+                      console.error('[Invoice Payment] Payment receipt email failed:', result.error);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error('[Invoice Payment] Payment receipt email error:', error);
+                  });
+              }
+            }
           }
         } else {
           // 1. Update associated order (if any)
@@ -292,6 +361,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Sync to ZOHO Billing (async, non-blocking)
+        // This records the payment as an "offline payment" in ZOHO for reporting/BI
         syncPaymentToZohoBilling(paymentTransaction.id)
           .then((result) => {
             if (result.success) {
@@ -304,8 +374,8 @@ export async function POST(request: NextRequest) {
             console.error('[ZOHO Trigger] Payment sync error:', error);
           });
 
-        // TODO: 3. Send customer notification
-        // TODO: 4. Update admin dashboard real-time notifications
+        // Note: Customer notification is sent above for invoice payments
+        // Order payments use the sendPaymentReceived flow in updateOrderFromPayment
       }
     }
 
