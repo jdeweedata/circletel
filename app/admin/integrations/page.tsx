@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AIAssistantWidget } from '@/components/admin/integrations/AIAssistantWidget';
 
 interface Integration {
   id: string;
@@ -960,6 +961,9 @@ export default function IntegrationsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* AI Assistant Widget */}
+      <AIAssistantWidget />
     </div>
   );
 }
