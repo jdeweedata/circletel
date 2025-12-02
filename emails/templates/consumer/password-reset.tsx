@@ -38,8 +38,7 @@ export const PasswordResetEmail: React.FC<PasswordResetEmailProps> = ({
           <CircleTelHero
             title="Reset Your Password"
             subtitle="Secure password reset request"
-            icon="🔐"
-            variant="gradient"
+            variant="light"
           />
 
           <CircleTelTextBlock align="left">
@@ -64,7 +63,7 @@ export const PasswordResetEmail: React.FC<PasswordResetEmailProps> = ({
             margin: '20px 40px',
           }}>
             <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#92400E' }}>
-              ⏰ Link expires in {expiresIn}
+              Link expires in {expiresIn}
             </p>
             <p style={{ margin: 0, fontSize: '13px', color: '#92400E', lineHeight: '1.5' }}>
               For security reasons, this password reset link will expire in {expiresIn}. 
