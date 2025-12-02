@@ -25,6 +25,7 @@ export interface EmailNotificationInput {
   bcc?: string[];
   from?: string; // Optional custom sender email
   tags?: EmailTags; // Optional tracking tags for Resend webhooks
+  isMarketingEmail?: boolean; // Set to true for marketing/promotional emails to add List-Unsubscribe headers
 }
 
 /**
@@ -101,6 +102,24 @@ export class EmailNotificationService {
   private static apiKey = process.env.RESEND_API_KEY;
   private static fromEmail = 'noreply@notifications.circletelsa.co.za'; // Verified Resend domain
   private static fromName = 'CircleTel';
+  private static baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+  /**
+   * Generate List-Unsubscribe header for Microsoft/Gmail compliance
+   * RFC 8058 compliant one-click unsubscribe
+   */
+  private static generateUnsubscribeHeaders(email: string): {
+    'List-Unsubscribe': string;
+    'List-Unsubscribe-Post': string;
+  } {
+    const encodedEmail = encodeURIComponent(email);
+    const token = Buffer.from(`${email}:${Date.now()}`).toString('base64url');
+    
+    return {
+      'List-Unsubscribe': `<${this.baseUrl}/unsubscribe?email=${encodedEmail}&token=${token}>, <mailto:unsubscribe@circletel.co.za?subject=Unsubscribe%20${encodedEmail}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    };
+  }
 
   /**
    * Send email using Resend API
@@ -130,6 +149,12 @@ export class EmailNotificationService {
       // Add tags if provided (for webhook tracking)
       if (input.tags && Object.keys(input.tags).length > 0) {
         requestBody.tags = input.tags;
+      }
+
+      // Add List-Unsubscribe headers for marketing emails (required by Microsoft/Gmail)
+      // This significantly improves deliverability to Microsoft 365, Outlook, and Hotmail
+      if (input.isMarketingEmail) {
+        requestBody.headers = this.generateUnsubscribeHeaders(input.to);
       }
 
       const response = await fetch('https://api.resend.com/emails', {

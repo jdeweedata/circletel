@@ -25,7 +25,14 @@
       "Bash(findstr:*)",
       "mcp__supabase__apply_migration",
       "WebFetch(domain:agyjovdugmtopasyvlng.supabase.co)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(powershell -File:*)",
+      "Bash(test:*)",
+      "Bash(powershell \"Get-ChildItem -Path ''C:\\Projects\\circletel-nextjs\\agent-os\\specs\\20251201-customer-referral-rewards'' -Recurse | Select-Object Name, Length\")",
+      "Bash(powershell \"Get-ChildItem -Path ''C:\\Projects\\circletel-nextjs\\agent-os\\specs\\20251201-customer-referral-rewards'' | Select-Object Name, @{Name=''Size (KB)''; Expression={[math]::Round($_Length/1KB, 2)}}\")",
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)",
+      "mcp__firecrawl-mcp__firecrawl_scrape"
     ],
     "deny": [],
     "ask": []

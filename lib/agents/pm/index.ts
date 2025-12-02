@@ -135,6 +135,48 @@ export {
 } from './templates';
 
 // ============================================================================
+// Capability Exports
+// ============================================================================
+
+export {
+  ProductGapAnalyzer,
+  analyzeProductGap,
+} from './capabilities/product-analysis';
+
+export type {
+  ProductDomain,
+  ImpactScore,
+  EffortScore,
+  FeatureCategory,
+  ProductGapInput,
+  ProductGapOutput,
+  SuggestedFeature,
+  RelevantSection,
+} from './capabilities/product-analysis';
+
+// ============================================================================
+// Context Exports
+// ============================================================================
+
+export {
+  CIRCLETEL_SITEMAP,
+  findRoutes,
+  getRouteSection,
+  getProductsByCategory,
+  getAllProductSlugs,
+  routeExists,
+} from './context/product-map';
+
+export type {
+  RouteItem,
+  MenuSection,
+  NavigationTab,
+  ProductCategory,
+  ProductDefinition,
+  SitemapStructure,
+} from './context/product-map';
+
+// ============================================================================
 // Convenience Factories
 // ============================================================================
 

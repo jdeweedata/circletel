@@ -21,6 +21,8 @@ export interface SendEmailOptions {
   // Tracking metadata
   orderId?: string;
   customerId?: string;
+  // Marketing email options
+  isMarketingEmail?: boolean; // Set to true for marketing/promotional emails
 }
 
 export interface EmailResult {
@@ -38,6 +40,28 @@ export class EnhancedEmailService {
   private static fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@notifications.circletelsa.co.za';
   private static fromName = 'CircleTel';
   private static replyToEmail = process.env.RESEND_REPLY_TO_EMAIL || 'contactus@circletel.co.za';
+  private static baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+  /**
+   * Generate List-Unsubscribe header for Microsoft/Gmail compliance
+   * RFC 8058 compliant one-click unsubscribe
+   */
+  private static generateUnsubscribeHeaders(email: string): {
+    'List-Unsubscribe': string;
+    'List-Unsubscribe-Post': string;
+  } {
+    // Encode email for URL safety
+    const encodedEmail = encodeURIComponent(email);
+    // Generate a simple token (in production, use a proper signed token)
+    const token = Buffer.from(`${email}:${Date.now()}`).toString('base64url');
+    
+    return {
+      // RFC 2369 List-Unsubscribe header with both mailto and https options
+      'List-Unsubscribe': `<${this.baseUrl}/unsubscribe?email=${encodedEmail}&token=${token}>, <mailto:unsubscribe@circletel.co.za?subject=Unsubscribe%20${encodedEmail}>`,
+      // RFC 8058 One-Click Unsubscribe (required by Gmail and Microsoft)
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    };
+  }
 
   /**
    * Send email using React Email template
@@ -74,6 +98,31 @@ export class EnhancedEmailService {
 
       console.log(`📧 Sending email: ${subject} to ${Array.isArray(to) ? to.join(', ') : to}`);
 
+      // Build request payload
+      const emailPayload: Record<string, unknown> = {
+        from: from || `${this.fromName} <${this.fromEmail}>`,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html,
+        text,
+        cc,
+        bcc,
+        reply_to: replyTo || this.replyToEmail,
+        tags: [
+          { name: 'template', value: templateId },
+          orderId ? { name: 'order_id', value: orderId } : null,
+          customerId ? { name: 'customer_id', value: customerId } : null,
+        ].filter(Boolean),
+      };
+
+      // Add List-Unsubscribe headers for marketing emails (required by Microsoft/Gmail)
+      // This significantly improves deliverability to Microsoft 365, Outlook, and Hotmail
+      if (options.isMarketingEmail) {
+        const recipientEmail = Array.isArray(to) ? to[0] : to;
+        const unsubscribeHeaders = this.generateUnsubscribeHeaders(recipientEmail);
+        emailPayload.headers = unsubscribeHeaders;
+      }
+
       // Send via Resend API
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -81,21 +130,7 @@ export class EnhancedEmailService {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          from: from || `${this.fromName} <${this.fromEmail}>`,
-          to: Array.isArray(to) ? to : [to],
-          subject,
-          html,
-          text,
-          cc,
-          bcc,
-          reply_to: replyTo || this.replyToEmail,
-          tags: [
-            { name: 'template', value: templateId },
-            orderId ? { name: 'order_id', value: orderId } : null,
-            customerId ? { name: 'customer_id', value: customerId } : null,
-          ].filter(Boolean),
-        }),
+        body: JSON.stringify(emailPayload),
       });
 
       if (!response.ok) {

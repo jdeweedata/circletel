@@ -163,10 +163,81 @@ export async function GET(request: NextRequest) {
 
 // ============================================================================
 // POST /api/unsubscribe
+// Supports both:
+// 1. Regular preference updates (JSON body)
+// 2. RFC 8058 One-Click Unsubscribe (form-urlencoded body with List-Unsubscribe=One-Click)
 // ============================================================================
 
 export async function POST(request: NextRequest) {
   try {
+    const contentType = request.headers.get('content-type') || '';
+    
+    // Handle RFC 8058 One-Click Unsubscribe (from email headers)
+    // Microsoft and Gmail send: Content-Type: application/x-www-form-urlencoded
+    // Body: List-Unsubscribe=One-Click
+    if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await request.text();
+      const params = new URLSearchParams(formData);
+      
+      // Check for one-click unsubscribe
+      if (params.get('List-Unsubscribe') === 'One-Click') {
+        // Get email from URL params (set in List-Unsubscribe header)
+        const { searchParams } = new URL(request.url);
+        const email = searchParams.get('email');
+        
+        if (!email) {
+          return NextResponse.json(
+            { success: false, error: 'Email required for one-click unsubscribe' },
+            { status: 400 }
+          );
+        }
+        
+        const normalizedEmail = email.toLowerCase();
+        
+        // Check if preferences exist
+        const { data: existing } = await supabase
+          .from('marketing_email_preferences')
+          .select('id')
+          .eq('email', normalizedEmail)
+          .single();
+        
+        if (existing) {
+          // Update existing
+          await supabase
+            .from('marketing_email_preferences')
+            .update({
+              unsubscribed_all: true,
+              unsubscribed_at: new Date().toISOString(),
+              unsubscribe_reason: 'One-Click Unsubscribe from email header',
+            })
+            .eq('id', existing.id);
+        } else {
+          // Create new with unsubscribed
+          await supabase
+            .from('marketing_email_preferences')
+            .insert({
+              email: normalizedEmail,
+              promotional_emails: false,
+              newsletter_emails: false,
+              product_updates: false,
+              partner_offers: false,
+              unsubscribed_all: true,
+              unsubscribed_at: new Date().toISOString(),
+              unsubscribe_reason: 'One-Click Unsubscribe from email header',
+            });
+        }
+        
+        console.log(`[One-Click Unsubscribe] Successfully unsubscribed: ${normalizedEmail}`);
+        
+        // Return 200 OK for one-click unsubscribe (RFC 8058 requirement)
+        return NextResponse.json({
+          success: true,
+          message: 'Successfully unsubscribed',
+        });
+      }
+    }
+    
+    // Regular JSON preference update
     const body = await request.json();
     
     console.log('[Unsubscribe API] POST body:', JSON.stringify(body, null, 2));

@@ -172,11 +172,14 @@ export async function syncInvoiceToZohoBilling(
       total: zohoInvoice.total
     });
 
-    // Update invoice with ZOHO invoice ID
+    // Update invoice with ZOHO invoice ID and sync invoice number from Zoho
+    // IMPORTANT: Use Zoho's invoice number as the source of truth for consistency
     await supabase
       .from('customer_invoices')
       .update({
         zoho_billing_invoice_id: zoho_invoice_id,
+        zoho_invoice_id: zoho_invoice_id, // Legacy field for compatibility
+        invoice_number: zohoInvoice.invoice_number, // Sync invoice number from Zoho
         zoho_sync_status: 'synced',
         zoho_last_synced_at: new Date().toISOString(),
         zoho_last_sync_error: null

@@ -1,4 +1,4 @@
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList, Handshake, LayoutDashboard } from "lucide-react";
+import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList, Handshake, LayoutDashboard, Smartphone } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // Type definitions for proper typing
@@ -114,6 +114,12 @@ export const connectivityItems: NavigationItem[] = [
     href: "/connectivity/fibre",
     icon: Globe,
     description: "High-speed fibre internet solutions"
+  },
+  {
+    name: "Mobile Deals",
+    href: "/deals",
+    icon: Smartphone,
+    description: "Mobile deals with devices and SIM-only options"
   },
   {
     name: "Connectivity Guide",

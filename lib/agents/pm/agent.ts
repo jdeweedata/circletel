@@ -33,6 +33,11 @@ import {
   generateReadmeContent,
   generateProgressContent,
 } from './templates';
+import {
+  ProductGapAnalyzer,
+  ProductGapInput,
+  ProductGapOutput,
+} from './capabilities/product-analysis';
 
 // ============================================================================
 // PM Agent Class
@@ -77,6 +82,9 @@ export class PMAgent extends BaseAgent {
   /** Architecture generator instance */
   private readonly architectureGenerator: ArchitectureGenerator;
 
+  /** Product gap analyzer instance */
+  private readonly productGapAnalyzer: ProductGapAnalyzer;
+
   /**
    * Create a new PM Agent.
    *
@@ -120,6 +128,7 @@ export class PMAgent extends BaseAgent {
       includeSubtasks: true,
     });
     this.architectureGenerator = new ArchitectureGenerator();
+    this.productGapAnalyzer = new ProductGapAnalyzer();
   }
 
   // ==========================================================================
@@ -331,6 +340,43 @@ export class PMAgent extends BaseAgent {
     return tasks.content;
   }
 
+  /**
+   * Analyze product gaps for a business goal.
+   *
+   * Identifies relevant sections in the product map and suggests features
+   * with impact and effort scores.
+   *
+   * @param input - Product gap analysis input
+   * @returns Product gap analysis output
+   *
+   * @example
+   * ```typescript
+   * const result = await pmAgent.analyzeProductGap({
+   *   goal: 'We need to improve B2B retention',
+   *   maxFeatures: 10,
+   * });
+   *
+   * console.log('Quick wins:', result.summary.quickWins);
+   * for (const feature of result.suggestedFeatures) {
+   *   console.log(`${feature.name}: Impact ${feature.impactScore}, Effort ${feature.effortScore}`);
+   * }
+   * ```
+   */
+  async analyzeProductGap(input: ProductGapInput): Promise<ProductGapOutput> {
+    this.emit('spec:analyzing:codebase', { type: 'product-gap', goal: input.goal });
+
+    const result = await this.productGapAnalyzer.analyze(input);
+
+    this.emit('spec:generation:completed', {
+      type: 'product-gap',
+      goal: input.goal,
+      featuresFound: result.suggestedFeatures.length,
+      quickWins: result.summary.quickWins,
+    });
+
+    return result;
+  }
+
   // ==========================================================================
   // Task Execution (Required by BaseAgent)
   // ==========================================================================
@@ -376,6 +422,20 @@ export class PMAgent extends BaseAgent {
         };
         const content = await this.regenerateTasks(specPath);
         return { content };
+      }
+
+      case 'analyze-product-gap': {
+        const { input: gapInput } = task.input as {
+          type: string;
+          input: ProductGapInput;
+        };
+        const gapResult = await this.analyzeProductGap(gapInput);
+        return {
+          goal: gapResult.goal,
+          suggestedFeatures: gapResult.suggestedFeatures,
+          summary: gapResult.summary,
+          relevantSections: gapResult.relevantSections,
+        };
       }
 
       default:
