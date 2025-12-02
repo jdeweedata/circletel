@@ -32,7 +32,12 @@
       "Bash(powershell \"Get-ChildItem -Path ''C:\\Projects\\circletel-nextjs\\agent-os\\specs\\20251201-customer-referral-rewards'' | Select-Object Name, @{Name=''Size (KB)''; Expression={[math]::Round($_Length/1KB, 2)}}\")",
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "mcp__firecrawl-mcp__firecrawl_scrape"
+      "mcp__firecrawl-mcp__firecrawl_scrape",
+      "Bash(powershell -Command:*)",
+      "mcp__supabase__get_logs",
+      "Bash(curl:*)",
+      "Bash(npm exec:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

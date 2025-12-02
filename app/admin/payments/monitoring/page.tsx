@@ -354,13 +354,13 @@ export default function PaymentMonitoringDashboard() {
                     <div>
                       <span className="text-circleTel-secondaryNeutral">Currencies:</span>
                       <div className="font-medium text-circleTel-darkNeutral">
-                        {provider.capabilities.supported_currencies.join(', ')}
+                        {provider.capabilities.supported_currencies?.join(', ') || 'N/A'}
                       </div>
                     </div>
                     <div>
                       <span className="text-circleTel-secondaryNeutral">Amount Range:</span>
                       <div className="font-medium text-circleTel-darkNeutral">
-                        R{provider.capabilities.min_amount} -
+                        R{provider.capabilities.min_amount ?? 0} -
                         {provider.capabilities.max_amount
                           ? ` R${provider.capabilities.max_amount}`
                           : ' Unlimited'}
