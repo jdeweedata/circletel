@@ -51,48 +51,113 @@ export async function GET(request: NextRequest) {
     const providerParam = searchParams.get('provider') as PaymentProviderType | null;
     const detailed = searchParams.get('detailed') === 'true';
 
+    // All known payment providers
+    const allProviders: PaymentProviderType[] = ['netcash', 'zoho_billing', 'payfast', 'paygate'];
+
     // Perform health checks
-    let healthChecks;
+    let healthChecks: Array<{
+      provider: PaymentProviderType;
+      healthy: boolean;
+      configured: boolean;
+      available: boolean;
+      response_time_ms: number;
+      capabilities?: {
+        supports_cards: boolean;
+        supports_eft: boolean;
+        supports_instant_eft: boolean;
+        supports_recurring: boolean;
+        supports_refunds: boolean;
+        supported_currencies: string[];
+        max_amount: number | null;
+        min_amount: number;
+      };
+    }>;
 
     if (providerParam) {
       // Check specific provider
-      if (!PaymentProviderFactory.isProviderAvailable(providerParam)) {
+      const isKnownProvider = allProviders.includes(providerParam);
+      if (!isKnownProvider) {
         return NextResponse.json(
           {
             error: 'Provider not found',
-            message: `Payment provider '${providerParam}' is not available`,
+            message: `Payment provider '${providerParam}' is not a known provider`,
             available_providers: PaymentProviderFactory.getAvailableProviders()
           },
           { status: 404 }
         );
       }
 
-      const provider = PaymentProviderFactory.getProvider(providerParam);
-      const isConfigured = provider.isConfigured();
-      const capabilities = detailed ? provider.getCapabilities() : undefined;
+      const isAvailable = PaymentProviderFactory.isProviderAvailable(providerParam);
+      let capabilities = undefined;
+
+      if (isAvailable && detailed) {
+        try {
+          const provider = PaymentProviderFactory.getProvider(providerParam);
+          const caps = provider.getCapabilities?.();
+          if (caps) {
+            capabilities = {
+              supports_cards: caps.payment_methods?.includes('card') ?? false,
+              supports_eft: caps.payment_methods?.includes('eft') ?? false,
+              supports_instant_eft: caps.payment_methods?.includes('instant_eft') ?? false,
+              supports_recurring: caps.recurring_payments ?? false,
+              supports_refunds: caps.refunds ?? false,
+              supported_currencies: ['ZAR'],
+              max_amount: null,
+              min_amount: 1.0
+            };
+          }
+        } catch {
+          // Provider not configured, skip capabilities
+        }
+      }
 
       healthChecks = [{
         provider: providerParam,
-        healthy: isConfigured,
-        configured: isConfigured,
-        available: true,
+        healthy: isAvailable,
+        configured: isAvailable,
+        available: isAvailable,
         response_time_ms: Date.now() - startTime,
-        ...(detailed && { capabilities })
+        ...(capabilities && { capabilities })
       }];
     } else {
-      // Check all providers
-      healthChecks = await PaymentProviderFactory.healthCheckAll();
+      // Check all providers - include all known providers, not just available ones
+      healthChecks = await Promise.all(
+        allProviders.map(async (providerType) => {
+          const checkStart = Date.now();
+          const isAvailable = PaymentProviderFactory.isProviderAvailable(providerType);
 
-      // Add capabilities if detailed mode
-      if (detailed) {
-        healthChecks = healthChecks.map(check => {
-          const capabilities = PaymentProviderFactory.getProviderCapabilities(check.provider);
+          let capabilities = undefined;
+          if (isAvailable && detailed) {
+            try {
+              const provider = PaymentProviderFactory.getProvider(providerType);
+              const caps = provider.getCapabilities?.();
+              if (caps) {
+                capabilities = {
+                  supports_cards: caps.payment_methods?.includes('card') ?? false,
+                  supports_eft: caps.payment_methods?.includes('eft') ?? false,
+                  supports_instant_eft: caps.payment_methods?.includes('instant_eft') ?? false,
+                  supports_recurring: caps.recurring_payments ?? false,
+                  supports_refunds: caps.refunds ?? false,
+                  supported_currencies: ['ZAR'],
+                  max_amount: null,
+                  min_amount: 1.0
+                };
+              }
+            } catch {
+              // Provider not configured, skip capabilities
+            }
+          }
+
           return {
-            ...check,
-            capabilities
+            provider: providerType,
+            healthy: isAvailable,
+            configured: isAvailable,
+            available: isAvailable,
+            response_time_ms: Date.now() - checkStart,
+            ...(capabilities && { capabilities })
           };
-        });
-      }
+        })
+      );
     }
 
     // Calculate summary
