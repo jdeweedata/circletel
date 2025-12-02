@@ -5,11 +5,14 @@
  *
  * Full-screen page builder with drag-and-drop canvas.
  * Route: /admin/cms/builder?id=xxx (edit) or /admin/cms/builder (new)
+ *
+ * This page bypasses the admin layout for full-screen experience
+ * and handles its own authentication.
  */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { DndContext, DragEndEvent, DragStartEvent, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { usePageBuilderStore } from '@/lib/cms/store';
 import { BuilderHeader } from '@/components/admin/cms/BuilderHeader';
 import { BlockPalette } from '@/components/admin/cms/BlockPalette';
@@ -25,6 +28,7 @@ export default function PageBuilderPage() {
   const router = useRouter();
   const pageId = searchParams.get('id');
 
+  const [authChecking, setAuthChecking] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
@@ -37,8 +41,41 @@ export default function PageBuilderPage() {
   const reset = usePageBuilderStore((state) => state.reset);
   const isPreviewing = usePageBuilderStore((state) => state.isPreviewing);
 
+  // Check admin authentication (since this page bypasses admin layout)
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/me');
+        const result = await response.json();
+
+        if (!isMounted) return;
+
+        if (!response.ok || !result.success || !result.user) {
+          router.push('/admin/login?error=unauthorized');
+          return;
+        }
+
+        setAuthChecking(false);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        if (isMounted) {
+          router.push('/admin/login?error=unauthorized');
+        }
+      }
+    };
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
   // Load page or show template selector
   useEffect(() => {
+    if (authChecking) return;
     const loadPage = async () => {
       if (pageId) {
         // Editing existing page
@@ -65,7 +102,7 @@ export default function PageBuilderPage() {
     };
 
     loadPage();
-  }, [pageId, initPage, reset]);
+  }, [authChecking, pageId, initPage, reset]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -122,7 +159,7 @@ export default function PageBuilderPage() {
     [addBlock]
   );
 
-  if (loading) {
+  if (authChecking || loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

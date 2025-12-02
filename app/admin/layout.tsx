@@ -25,12 +25,19 @@ export default function AdminLayout({
   const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route)) || isStudioSubdomain;
 
+  // Full-screen routes that use their own layout (no admin sidebar/header)
+  const fullScreenRoutes = ['/admin/cms/builder'];
+  const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
+
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (isPublicRoute) {
       setIsLoading(false);
       return;
     }
+
+    // For full-screen routes, still check auth but don't set user state
+    // (the page will handle its own loading state)
 
     let isMounted = true;
     const checkAuth = async () => {
@@ -78,6 +85,12 @@ export default function AdminLayout({
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {
+    return <>{children}</>;
+  }
+
+  // For full-screen routes (like CMS builder), render without admin wrapper
+  // These routes handle their own auth and layout
+  if (isFullScreenRoute) {
     return <>{children}</>;
   }
 
