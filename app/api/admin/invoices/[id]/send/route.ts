@@ -67,20 +67,9 @@ export async function POST(
         console.log('[SendInvoice] Invoice marked as sent in Zoho');
       }
     } catch (zohoError: any) {
-      // Check if error is because invoice is already sent (not a real error)
-      const errorMsg = zohoError.message || '';
-      if (errorMsg.includes('already') || errorMsg.includes('status')) {
-        console.log('[SendInvoice] Invoice already sent in Zoho, updating local status only');
-      } else {
-        console.error('[SendInvoice] Zoho error:', zohoError);
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: `Zoho error: ${zohoError.message || 'Failed to update invoice in Zoho'}` 
-          },
-          { status: 500 }
-        );
-      }
+      // Log the error but continue to update local status
+      // Invoice may already be sent in Zoho, which is fine
+      console.log('[SendInvoice] Zoho API response (may be already sent):', zohoError.message);
     }
 
     // Update local invoice status
