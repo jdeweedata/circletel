@@ -57,25 +57,37 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get OAuth token from database
-    const { data: token, error: tokenError } = await supabaseAdmin
-      .from('integration_oauth_tokens')
-      .select('*')
-      .eq('integration_slug', slug)
-      .eq('is_active', true)
-      .single();
-
-    if (tokenError || !token) {
-      return NextResponse.json({ error: 'OAuth token not found' }, { status: 404 });
-    }
-
     // Refresh token based on integration type
     let refreshResult: { success: boolean; expiresAt?: string; error?: string };
 
-    if (slug.startsWith('zoho-')) {
-      // Use Zoho OAuth refresh
+    // Handle Zoho token refresh (stored in zoho_tokens table)
+    if (slug === 'zoho') {
+      refreshResult = await refreshZohoTokenFromEnv(supabaseAdmin);
+    } else if (slug.startsWith('zoho-')) {
+      // Legacy: Get OAuth token from integration_oauth_tokens table
+      const { data: token, error: tokenError } = await supabaseAdmin
+        .from('integration_oauth_tokens')
+        .select('*')
+        .eq('integration_slug', slug)
+        .eq('is_active', true)
+        .single();
+
+      if (tokenError || !token) {
+        return NextResponse.json({ error: 'OAuth token not found' }, { status: 404 });
+      }
       refreshResult = await refreshZohoToken(token);
     } else {
+      // Get OAuth token from database for other integrations
+      const { data: token, error: tokenError } = await supabaseAdmin
+        .from('integration_oauth_tokens')
+        .select('*')
+        .eq('integration_slug', slug)
+        .eq('is_active', true)
+        .single();
+
+      if (tokenError || !token) {
+        return NextResponse.json({ error: 'OAuth token not found' }, { status: 404 });
+      }
       return NextResponse.json(
         { error: 'OAuth refresh not implemented for this integration' },
         { status: 501 }
@@ -125,7 +137,75 @@ export async function POST(
 }
 
 /**
- * Refresh Zoho OAuth token
+ * Refresh Zoho OAuth token using environment variables
+ * Stores token in zoho_tokens table
+ */
+async function refreshZohoTokenFromEnv(supabase: any): Promise<{
+  success: boolean;
+  expiresAt?: string;
+  error?: string;
+}> {
+  try {
+    const clientId = process.env.ZOHO_CLIENT_ID;
+    const clientSecret = process.env.ZOHO_CLIENT_SECRET;
+    const refreshToken = process.env.ZOHO_REFRESH_TOKEN;
+
+    if (!clientId || !clientSecret || !refreshToken) {
+      return { success: false, error: 'Missing Zoho OAuth credentials in environment' };
+    }
+
+    const params = new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: 'refresh_token',
+    });
+
+    const response = await fetch('https://accounts.zoho.com/oauth/v2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      return {
+        success: false,
+        error: data.error || `HTTP ${response.status}: ${response.statusText}`,
+      };
+    }
+
+    // Calculate expiry time
+    const expiresAt = new Date(Date.now() + (data.expires_in || 3600) * 1000);
+
+    // Delete existing tokens and insert new one
+    await supabase.from('zoho_tokens').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    
+    await supabase.from('zoho_tokens').insert({
+      access_token: data.access_token,
+      refresh_token: refreshToken,
+      expires_at: expiresAt.toISOString(),
+      token_type: data.token_type || 'Bearer',
+      scope: data.scope || 'ZohoCRM.modules.ALL',
+    });
+
+    return {
+      success: true,
+      expiresAt: expiresAt.toISOString(),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Refresh Zoho OAuth token (legacy - from integration_oauth_tokens)
  */
 async function refreshZohoToken(token: any): Promise<{
   success: boolean;

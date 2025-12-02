@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     // TODO: Add RBAC permission check when implemented (integrations:view)
 
     // =========================================================================
-    // Fetch OAuth Tokens
+    // Fetch OAuth Tokens from integration_oauth_tokens table
     // =========================================================================
     const { data: tokens, error: tokensError } = await supabase
       .from('integration_oauth_tokens')
@@ -62,7 +62,19 @@ export async function GET(request: NextRequest) {
 
     if (tokensError) {
       console.error('[OAuth API] Error fetching tokens:', tokensError);
-      return NextResponse.json({ error: 'Failed to fetch OAuth tokens' }, { status: 500 });
+      // Don't fail completely, continue with empty array
+    }
+
+    // =========================================================================
+    // Fetch Zoho Token from zoho_tokens table (separate storage)
+    // =========================================================================
+    const { data: zohoToken, error: zohoError } = await supabase
+      .from('zoho_tokens')
+      .select('*')
+      .single();
+
+    if (zohoError && zohoError.code !== 'PGRST116') {
+      console.error('[OAuth API] Error fetching Zoho token:', zohoError);
     }
 
     // =========================================================================
@@ -76,7 +88,7 @@ export async function GET(request: NextRequest) {
     const integrationMap = new Map(integrations?.map((i) => [i.slug, i.name]) || []);
 
     // =========================================================================
-    // Format Response
+    // Format Response - Integration OAuth Tokens
     // =========================================================================
     const formattedTokens = (tokens || []).map((token) => {
       // Calculate token status
@@ -102,6 +114,30 @@ export async function GET(request: NextRequest) {
         created_at: token.created_at,
       };
     });
+
+    // =========================================================================
+    // Add Zoho Token if exists
+    // =========================================================================
+    if (zohoToken) {
+      const zohoExpiresAt = zohoToken.expires_at ? new Date(zohoToken.expires_at) : null;
+      const now = new Date();
+      let zohoStatus: 'active' | 'expired' | 'revoked' = 'active';
+      
+      if (zohoExpiresAt && zohoExpiresAt <= now) {
+        zohoStatus = 'expired';
+      }
+
+      formattedTokens.unshift({
+        id: zohoToken.id || 'zoho-token',
+        integration_slug: 'zoho',
+        integration_name: 'Zoho (CRM, Billing, Sign)',
+        token_status: zohoStatus,
+        expires_at: zohoToken.expires_at,
+        last_refreshed_at: zohoToken.updated_at || zohoToken.created_at,
+        refresh_count: 0, // Not tracked for Zoho
+        created_at: zohoToken.created_at,
+      });
+    }
 
     return NextResponse.json({
       tokens: formattedTokens,
