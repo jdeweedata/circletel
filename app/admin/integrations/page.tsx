@@ -1111,6 +1111,12 @@ function IntegrationCard({ integration }: { integration: Integration }) {
             Configure
           </Link>
         </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/admin/integrations/${integration.slug}/logs`}>
+            <FileText className="h-4 w-4 mr-1" />
+            Logs
+          </Link>
+        </Button>
         <Button
           variant="outline"
           size="sm"
