@@ -74,12 +74,14 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
 
   const handleSelect = () => {
     onSelect(selectedTemplate);
-    onClose();
+    // Note: Don't call onClose() here - the parent component's onSelect handler
+    // will close the modal via setShowTemplateSelector(false) after loading the template
   };
 
   const handleStartBlank = () => {
     onSelect(null);
-    onClose();
+    // Note: Don't call onClose() here - the parent component's onSelect handler
+    // will close the modal via setShowTemplateSelector(false) after loading the blank page
   };
 
   if (!isOpen) return null;
