@@ -51,6 +51,8 @@ import {
   Wrench,
   ImageIcon,
   PanelTop,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 interface User {
@@ -187,6 +189,7 @@ const navigationSections = [
           { name: 'Dashboard', href: '/admin/billing', icon: LayoutDashboard },
           { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
           { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
+          { name: 'Outstanding', href: '/admin/finance/outstanding', icon: AlertCircle },
         ]
       },
       {
@@ -195,6 +198,7 @@ const navigationSections = [
         children: [
           { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: Activity },
           { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
+          { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: RefreshCw },
           { name: 'Webhooks', href: '/admin/payments/webhooks', icon: Zap },
           { name: 'Settings', href: '/admin/payments/settings', icon: Settings }
         ]
