@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
     const firstName = customer?.first_name || 'Customer';
 
     // Generate password reset link using Admin API
-    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za'}/auth/reset-password`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+    const redirectTo = `${baseUrl}/auth/reset-password`;
     
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
@@ -101,16 +102,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // The generated link contains the token - we need to use it
-    const resetUrl = linkData.properties?.action_link;
+    // Log the full response for debugging
+    console.log('generateLink response:', JSON.stringify(linkData, null, 2));
 
-    if (!resetUrl) {
-      console.error('No action_link in response:', linkData);
+    // The action_link goes through Supabase's verify endpoint
+    // We need to extract the token and build our own URL that goes through /auth/confirm
+    const actionLink = linkData.properties?.action_link;
+    const tokenHash = linkData.properties?.hashed_token;
+    
+    if (!actionLink && !tokenHash) {
+      console.error('No action_link or hashed_token in response:', linkData);
       return NextResponse.json(
         { error: 'Failed to generate reset link. Please try again.' },
         { status: 500 }
       );
     }
+
+    // Build the reset URL that goes through our /auth/confirm endpoint
+    // This ensures proper token verification and session handling
+    let resetUrl: string;
+    
+    if (tokenHash) {
+      // Use our confirm endpoint with the token hash
+      resetUrl = `${baseUrl}/auth/confirm?token_hash=${tokenHash}&type=recovery&redirect_to=${encodeURIComponent(redirectTo)}`;
+    } else {
+      // Fallback to the action_link from Supabase
+      resetUrl = actionLink!;
+    }
+    
+    console.log('Reset URL being sent:', resetUrl);
 
     // Render the email template
     const emailHtml = await render(
