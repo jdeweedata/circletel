@@ -139,7 +139,7 @@ export class NetCashStatementService {
       method: 'POST',
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        'SOAPAction': 'http://ws.netcash.co.za/NIWS_NIF/NIWS_NIF/RequestMerchantStatement',
+        'SOAPAction': 'http://tempuri.org/INIWS_NIF/RequestMerchantStatement',
       },
       body: soapEnvelope,
     });
@@ -169,7 +169,7 @@ export class NetCashStatementService {
       method: 'POST',
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        'SOAPAction': 'http://ws.netcash.co.za/NIWS_NIF/NIWS_NIF/RetrieveMerchantStatement',
+        'SOAPAction': 'http://tempuri.org/INIWS_NIF/RetrieveMerchantStatement',
       },
       body: soapEnvelope,
     });
@@ -236,7 +236,7 @@ export class NetCashStatementService {
       method: 'POST',
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        'SOAPAction': 'http://ws.netcash.co.za/NIWS_NIF/NIWS_NIF/RetrieveBatchStatus',
+        'SOAPAction': 'http://tempuri.org/INIWS_NIF/RetrieveBatchStatus',
       },
       body: soapEnvelope,
     });
@@ -326,16 +326,16 @@ export class NetCashStatementService {
 
   private buildSoapEnvelope(method: string, params: Record<string, string>): string {
     const paramXml = Object.entries(params)
-      .map(([key, value]) => `<niws:${key}>${this.escapeXml(value)}</niws:${key}>`)
+      .map(([key, value]) => `<tem:${key}>${this.escapeXml(value)}</tem:${key}>`)
       .join('');
 
-    // NetCash SOAP format with niws namespace prefix (matching emandate service)
+    // NetCash SOAP format with tempuri.org namespace (from WSDL)
     return `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:niws="http://ws.netcash.co.za/NIWS_NIF">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
   <soap:Body>
-    <niws:${method}>
+    <tem:${method}>
       ${paramXml}
-    </niws:${method}>
+    </tem:${method}>
   </soap:Body>
 </soap:Envelope>`;
   }
@@ -353,18 +353,13 @@ export class NetCashStatementService {
     try {
       const parsed = await parseStringPromise(xmlResponse, { explicitArray: false });
       
-      // Handle different namespace formats
-      const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
-      const body = envelope?.['soap:Body'] || envelope?.['s:Body'] || envelope?.['SOAP-ENV:Body'];
+      // Handle different namespace formats (s: is used by NetCash)
+      const envelope = parsed['s:Envelope'] || parsed['soap:Envelope'] || parsed['SOAP-ENV:Envelope'];
+      const body = envelope?.['s:Body'] || envelope?.['soap:Body'] || envelope?.['SOAP-ENV:Body'];
       
-      // Try different response element names
-      const response = body?.['RequestMerchantStatementResponse'] || 
-                       body?.['ns:RequestMerchantStatementResponse'] ||
-                       body?.['ns1:RequestMerchantStatementResponse'];
-      
-      const result = response?.['RequestMerchantStatementResult'] ||
-                     response?.['ns:RequestMerchantStatementResult'] ||
-                     response?.['ns1:RequestMerchantStatementResult'];
+      // Response uses tempuri.org namespace (no prefix in response)
+      const response = body?.['RequestMerchantStatementResponse'];
+      const result = response?.['RequestMerchantStatementResult'];
       
       // Handle both array and non-array results
       const pollingId = Array.isArray(result) ? result[0] : result;
@@ -382,17 +377,13 @@ export class NetCashStatementService {
     try {
       const parsed = await parseStringPromise(xmlResponse, { explicitArray: false });
       
-      // Handle different namespace formats
-      const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
-      const body = envelope?.['soap:Body'] || envelope?.['s:Body'] || envelope?.['SOAP-ENV:Body'];
+      // Handle different namespace formats (s: is used by NetCash)
+      const envelope = parsed['s:Envelope'] || parsed['soap:Envelope'] || parsed['SOAP-ENV:Envelope'];
+      const body = envelope?.['s:Body'] || envelope?.['soap:Body'] || envelope?.['SOAP-ENV:Body'];
       
-      const response = body?.['RetrieveMerchantStatementResponse'] || 
-                       body?.['ns:RetrieveMerchantStatementResponse'] ||
-                       body?.['ns1:RetrieveMerchantStatementResponse'];
-      
-      let result = response?.['RetrieveMerchantStatementResult'] ||
-                   response?.['ns:RetrieveMerchantStatementResult'] ||
-                   response?.['ns1:RetrieveMerchantStatementResult'];
+      // Response uses tempuri.org namespace (no prefix in response)
+      const response = body?.['RetrieveMerchantStatementResponse'];
+      let result = response?.['RetrieveMerchantStatementResult'];
       
       // Handle array format
       result = Array.isArray(result) ? result[0] : result;
