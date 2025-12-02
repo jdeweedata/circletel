@@ -1116,4 +1116,62 @@ export class ZohoBillingClient extends ZohoAPIClient {
       throw error;
     }
   }
+
+  // ============================================================================
+  // Invoice Actions
+  // ============================================================================
+
+  /**
+   * Mark an invoice as sent (changes status from draft to sent)
+   * This is equivalent to clicking "Mark as Sent" in Zoho Billing UI
+   */
+  async markInvoiceAsSent(invoiceId: string): Promise<any> {
+    try {
+      console.log('[ZohoBillingClient] Marking invoice as sent:', invoiceId);
+
+      const response = await this.request<any>(
+        `/invoices/${invoiceId}/status/sent`,
+        'POST'
+      );
+
+      console.log('[ZohoBillingClient] Invoice marked as sent:', {
+        invoice_id: invoiceId,
+        response: response,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error marking invoice as sent:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send an invoice via email to the customer
+   */
+  async emailInvoice(invoiceId: string, options?: {
+    to_mail_ids?: string[];
+    cc_mail_ids?: string[];
+    subject?: string;
+    body?: string;
+  }): Promise<any> {
+    try {
+      console.log('[ZohoBillingClient] Emailing invoice:', invoiceId);
+
+      const response = await this.request<any>(
+        `/invoices/${invoiceId}/email`,
+        'POST',
+        options || {}
+      );
+
+      console.log('[ZohoBillingClient] Invoice emailed successfully:', {
+        invoice_id: invoiceId,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('[ZohoBillingClient] Error emailing invoice:', error);
+      throw error;
+    }
+  }
 }
