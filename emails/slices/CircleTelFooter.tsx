@@ -40,10 +40,7 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
           contactus@circletel.co.za
         </Link>
         <br />
-        Phone:{' '}
-        <Link href="tel:+27870876305" style={emailStyles.footerLink}>
-          087 087 6305
-        </Link>
+        Phone: 087 087 6305
         <br />
         Website:{' '}
         <Link href="https://www.circletel.co.za" style={emailStyles.footerLink}>
