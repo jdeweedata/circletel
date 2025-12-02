@@ -326,16 +326,16 @@ export class NetCashStatementService {
 
   private buildSoapEnvelope(method: string, params: Record<string, string>): string {
     const paramXml = Object.entries(params)
-      .map(([key, value]) => `<${key}>${this.escapeXml(value)}</${key}>`)
+      .map(([key, value]) => `<niws:${key}>${this.escapeXml(value)}</niws:${key}>`)
       .join('');
 
-    // NetCash uses a specific SOAP format without namespace prefixes on parameters
+    // NetCash SOAP format with niws namespace prefix (matching emandate service)
     return `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:niws="http://ws.netcash.co.za/NIWS_NIF">
   <soap:Body>
-    <${method} xmlns="http://ws.netcash.co.za/NIWS_NIF">
+    <niws:${method}>
       ${paramXml}
-    </${method}>
+    </niws:${method}>
   </soap:Body>
 </soap:Envelope>`;
   }
