@@ -42,6 +42,11 @@ export default function ResetPasswordPage() {
     let mounted = true;
 
     const handlePasswordResetLink = async () => {
+      // Initialize Supabase client FIRST
+      const supabase = createClient();
+      supabaseRef.current = supabase;
+
+      // Check for errors in query string first
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
 
@@ -51,11 +56,28 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // Create a single Supabase client instance and store it in ref
-      if (!supabaseRef.current) {
-        supabaseRef.current = createClient();
+      // CRITICAL: Also check for errors in hash fragment (Supabase sends errors here)
+      // URL format: /reset-password#error=access_denied&error_code=otp_expired&error_description=...
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const hashError = hashParams.get('error');
+        const hashErrorCode = hashParams.get('error_code');
+        const hashErrorDescription = hashParams.get('error_description');
+
+        if (hashError || hashErrorCode) {
+          console.log('Detected error in hash fragment:', { hashError, hashErrorCode, hashErrorDescription });
+          setHasError(true);
+          
+          // Provide user-friendly messages based on error code
+          if (hashErrorCode === 'otp_expired') {
+            setErrorHint('Password reset links expire after 1 hour. Please request a new link.');
+            toast.error('This password reset link has expired. Please request a new one.');
+          } else {
+            toast.error(hashErrorDescription?.replace(/\+/g, ' ') || 'Invalid or expired reset link');
+          }
+          return;
+        }
       }
-      const supabase = supabaseRef.current;
 
       // First check: token_hash in query string (custom email template)
       const tokenHash = searchParams.get('token_hash');
