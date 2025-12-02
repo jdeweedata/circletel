@@ -27,11 +27,12 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
 
     // Build query
+    // Note: Using created_at for ordering since sort_order column may not exist yet
     let query = supabase
       .from('pb_templates')
       .select('*')
       .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (category) {
       query = query.eq('category', category);
