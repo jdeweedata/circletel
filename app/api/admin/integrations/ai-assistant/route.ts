@@ -241,10 +241,34 @@ export async function POST(request: NextRequest) {
       const errorText = await geminiResponse.text();
       console.error('Gemini API error:', geminiResponse.status, errorText);
 
+      // Parse error for more specific messaging
+      let errorMessage = 'Failed to get response from AI. Please try again.';
+      let errorCode = 'AI_SERVICE_ERROR';
+
+      try {
+        const errorJson = JSON.parse(errorText);
+        if (errorJson.error?.message) {
+          // Handle specific Gemini API errors
+          if (errorJson.error.message.includes('API key')) {
+            errorMessage = 'AI service API key is invalid or expired. Please contact support.';
+            errorCode = 'INVALID_API_KEY';
+          } else if (errorJson.error.message.includes('quota')) {
+            errorMessage = 'AI service quota exceeded. Please try again later.';
+            errorCode = 'QUOTA_EXCEEDED';
+          } else if (errorJson.error.message.includes('rate')) {
+            errorMessage = 'Too many requests. Please wait a moment and try again.';
+            errorCode = 'RATE_LIMITED';
+          }
+        }
+      } catch {
+        // Keep default error message if parsing fails
+      }
+
       return NextResponse.json(
         {
-          error: 'AI service error',
-          message: 'Failed to get response from AI. Please try again.'
+          error: errorCode,
+          message: errorMessage,
+          status: geminiResponse.status
         },
         { status: 502 }
       );

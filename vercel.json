@@ -72,6 +72,10 @@
     "app/api/cron/payment-sync-monitor/route.ts": {
       "maxDuration": 60,
       "memory": 512
+    },
+    "app/api/admin/integrations/ai-assistant/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
     }
   },
   "crons": [
