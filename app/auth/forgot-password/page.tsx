@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import Link from 'next/link';
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 
@@ -39,10 +38,19 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await CustomerAuthService.sendPasswordResetEmail(data.email);
+      // Use custom API endpoint for personalized password reset email
+      const response = await fetch('/api/auth/password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.email }),
+      });
 
-      if (result.error) {
-        toast.error(result.error);
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to send password reset email');
         return;
       }
 
@@ -62,10 +70,19 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await CustomerAuthService.sendPasswordResetEmail(submittedEmail);
+      // Use custom API endpoint for personalized password reset email
+      const response = await fetch('/api/auth/password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: submittedEmail }),
+      });
 
-      if (result.error) {
-        toast.error(result.error);
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.error || 'Failed to resend email');
         return;
       }
 
