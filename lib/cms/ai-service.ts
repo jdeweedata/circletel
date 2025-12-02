@@ -388,6 +388,7 @@ Focus on South African telecommunications market keywords.`;
   /**
    * Generate an image using Gemini 3 Pro Image (Nano Banana Pro)
    * Supports up to 4K resolution with advanced reasoning
+   * Uses REST API directly for proper imageConfig support
    * See: https://ai.google.dev/gemini-api/docs/image-generation
    */
   async generateImage(
@@ -396,6 +397,7 @@ Focus on South African telecommunications market keywords.`;
     options?: {
       aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4';
       style?: 'photorealistic' | 'illustration' | 'abstract' | 'corporate';
+      imageSize?: '1K' | '2K' | '4K';
     }
   ): Promise<AIGenerationResponse> {
     const startTime = Date.now();
@@ -411,34 +413,61 @@ Focus on South African telecommunications market keywords.`;
 
       const aspectRatio = options?.aspectRatio || '16:9';
       const style = options?.style || 'photorealistic';
+      const imageSize = options?.imageSize || '2K';
 
       const enhancedPrompt = this.buildImagePrompt(prompt, style, aspectRatio);
 
-      // Image generation requires responseModalities to include 'image'
-      // Using the @google/generative-ai SDK with proper config
-      const result = await this.imageModel.generateContent({
-        contents: [{ role: 'user', parts: [{ text: enhancedPrompt }] }],
-        generationConfig: {
-          temperature: 0.8,
-          // @ts-expect-error - responseModalities is required for image generation but not in SDK types yet
-          responseModalities: ['TEXT', 'IMAGE'],
-        },
-      });
+      // Use REST API directly for Gemini 3 Pro Image with proper imageConfig
+      const apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return { success: false, error: 'Google AI API key not configured' };
+      }
 
-      const response = result.response;
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: enhancedPrompt }],
+              },
+            ],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE'],
+              imageConfig: {
+                aspectRatio: aspectRatio,
+                imageSize: imageSize,
+              },
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData?.error?.message || `API error: ${response.status}`;
+        console.error('Image generation API error:', errorData);
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
 
       // Extract image from response
-      // For image generation, we get base64 data in inlineData
-      const candidates = response.candidates;
       let imageData: string | null = null;
       let responseText: string | null = null;
 
+      const candidates = data.candidates;
       if (candidates && candidates.length > 0) {
         const parts = candidates[0].content?.parts || [];
         for (const part of parts) {
-          if ('text' in part && part.text) {
+          if (part.text) {
             responseText = part.text;
-          } else if ('inlineData' in part && part.inlineData) {
+          } else if (part.inlineData) {
             imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
           }
         }
@@ -473,6 +502,7 @@ Focus on South African telecommunications market keywords.`;
           enhancedPrompt,
           aspectRatio,
           style,
+          imageSize,
         },
         usage: {
           inputTokens: this.estimateTokens(enhancedPrompt),
