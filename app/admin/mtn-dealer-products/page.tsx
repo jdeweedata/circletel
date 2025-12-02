@@ -41,7 +41,7 @@ import {
   Filter,
   Calculator,
   Smartphone,
-  SimCard,
+  CreditCard,
   Signal,
   Wifi,
   Calendar,
@@ -680,7 +680,7 @@ export default function MTNDealerProductsPage() {
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-1 text-gray-400">
-                                  <SimCard className="h-4 w-4" />
+                                  <CreditCard className="h-4 w-4" />
                                   <span className="text-xs">SIM Only</span>
                                 </div>
                               )}
