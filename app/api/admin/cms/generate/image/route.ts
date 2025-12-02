@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClientWithSession } from '@/lib/supabase/server';
 import { generateImage } from '@/lib/cms/ai-service';
 import { checkRateLimit } from '@/lib/cms/usage-tracking';
 
@@ -22,7 +22,7 @@ interface ImageGenerationRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = await createClientWithSession();
 
     // Verify admin authentication
     const {
