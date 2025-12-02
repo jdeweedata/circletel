@@ -129,6 +129,12 @@ export class NetCashStatementService {
       FromActionDate: formattedDate,
     });
 
+    console.log('NetCash RequestMerchantStatement request:', { 
+      url: this.webServiceUrl, 
+      date: formattedDate,
+      serviceKeyLength: this.accountServiceKey?.length 
+    });
+
     const response = await fetch(this.webServiceUrl, {
       method: 'POST',
       headers: {
@@ -138,11 +144,13 @@ export class NetCashStatementService {
       body: soapEnvelope,
     });
 
+    const responseText = await response.text();
+    
     if (!response.ok) {
+      console.error('NetCash API error:', { status: response.status, body: responseText.substring(0, 1000) });
       throw new Error(`NetCash API returned ${response.status}: ${response.statusText}`);
     }
 
-    const responseText = await response.text();
     const pollingId = await this.extractPollingId(responseText);
     
     return pollingId;
@@ -318,15 +326,16 @@ export class NetCashStatementService {
 
   private buildSoapEnvelope(method: string, params: Record<string, string>): string {
     const paramXml = Object.entries(params)
-      .map(([key, value]) => `<niws:${key}>${this.escapeXml(value)}</niws:${key}>`)
+      .map(([key, value]) => `<${key}>${this.escapeXml(value)}</${key}>`)
       .join('');
 
+    // NetCash uses a specific SOAP format without namespace prefixes on parameters
     return `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:niws="http://ws.netcash.co.za/NIWS_NIF">
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
-    <niws:${method}>
+    <${method} xmlns="http://ws.netcash.co.za/NIWS_NIF">
       ${paramXml}
-    </niws:${method}>
+    </${method}>
   </soap:Body>
 </soap:Envelope>`;
   }
@@ -342,23 +351,53 @@ export class NetCashStatementService {
 
   private async extractPollingId(xmlResponse: string): Promise<string> {
     try {
-      const parsed = await parseStringPromise(xmlResponse);
-      const body = parsed['soap:Envelope']?.['soap:Body']?.[0];
-      const response = body?.['RequestMerchantStatementResponse']?.[0];
-      const result = response?.['RequestMerchantStatementResult']?.[0];
-      return result || '';
+      const parsed = await parseStringPromise(xmlResponse, { explicitArray: false });
+      
+      // Handle different namespace formats
+      const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
+      const body = envelope?.['soap:Body'] || envelope?.['s:Body'] || envelope?.['SOAP-ENV:Body'];
+      
+      // Try different response element names
+      const response = body?.['RequestMerchantStatementResponse'] || 
+                       body?.['ns:RequestMerchantStatementResponse'] ||
+                       body?.['ns1:RequestMerchantStatementResponse'];
+      
+      const result = response?.['RequestMerchantStatementResult'] ||
+                     response?.['ns:RequestMerchantStatementResult'] ||
+                     response?.['ns1:RequestMerchantStatementResult'];
+      
+      // Handle both array and non-array results
+      const pollingId = Array.isArray(result) ? result[0] : result;
+      
+      console.log('NetCash RequestMerchantStatement response:', { pollingId, rawResponse: xmlResponse.substring(0, 500) });
+      
+      return pollingId || '';
     } catch (error) {
-      console.error('Error parsing polling ID:', error);
+      console.error('Error parsing polling ID:', error, 'Response:', xmlResponse.substring(0, 1000));
       throw new Error('Failed to parse NetCash response');
     }
   }
 
   private async parseStatementResponse(xmlResponse: string): Promise<StatementResponse> {
     try {
-      const parsed = await parseStringPromise(xmlResponse);
-      const body = parsed['soap:Envelope']?.['soap:Body']?.[0];
-      const response = body?.['RetrieveMerchantStatementResponse']?.[0];
-      const result = response?.['RetrieveMerchantStatementResult']?.[0];
+      const parsed = await parseStringPromise(xmlResponse, { explicitArray: false });
+      
+      // Handle different namespace formats
+      const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
+      const body = envelope?.['soap:Body'] || envelope?.['s:Body'] || envelope?.['SOAP-ENV:Body'];
+      
+      const response = body?.['RetrieveMerchantStatementResponse'] || 
+                       body?.['ns:RetrieveMerchantStatementResponse'] ||
+                       body?.['ns1:RetrieveMerchantStatementResponse'];
+      
+      let result = response?.['RetrieveMerchantStatementResult'] ||
+                   response?.['ns:RetrieveMerchantStatementResult'] ||
+                   response?.['ns1:RetrieveMerchantStatementResult'];
+      
+      // Handle array format
+      result = Array.isArray(result) ? result[0] : result;
+      
+      console.log('NetCash RetrieveMerchantStatement response:', { resultLength: result?.length, rawResponse: xmlResponse.substring(0, 500) });
 
       // Check for error responses
       if (['100', '200', 'FILE NOT READY', 'NO CHANGE'].includes(result)) {
