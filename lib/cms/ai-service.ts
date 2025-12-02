@@ -1,9 +1,11 @@
 /**
  * CMS Page Builder - AI Service
  *
- * Gemini 3 Pro integration for content and image generation.
- * - gemini-3-pro-preview: Text/multimodal reasoning (1M token context)
- * - gemini-3-pro-image-preview: Nano Banana Pro for image generation
+ * Google Gemini integration for content and image generation.
+ * - gemini-2.5-flash: Text generation (1M token context, stable)
+ * - gemini-2.5-flash-image: Image generation (Nano Banana, stable)
+ *
+ * See: https://ai.google.dev/gemini-api/docs/models
  */
 
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
@@ -27,9 +29,10 @@ import { trackAIUsage, checkRateLimit } from './usage-tracking';
 // Configuration
 // ============================================
 
-// Gemini 3 Pro models
-const GEMINI_TEXT_MODEL = 'gemini-3-pro-preview'; // Text/multimodal reasoning
-const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview'; // Nano Banana Pro for image generation
+// Gemini models - using stable/preview versions
+// See: https://ai.google.dev/gemini-api/docs/models
+const GEMINI_TEXT_MODEL = 'gemini-2.5-flash'; // Fast text generation (stable)
+const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image'; // Image generation (stable, aka Nano Banana)
 const MAX_OUTPUT_TOKENS = 4096;
 
 // Gemini 3 Pro pricing (per 1K tokens, in cents)
@@ -383,7 +386,8 @@ Focus on South African telecommunications market keywords.`;
   }
 
   /**
-   * Generate an image using Nano Banana Pro (gemini-3-pro-image-preview)
+   * Generate an image using Gemini 2.5 Flash Image (Nano Banana)
+   * See: https://ai.google.dev/gemini-api/docs/image-generation
    */
   async generateImage(
     prompt: string,
@@ -409,27 +413,32 @@ Focus on South African telecommunications market keywords.`;
 
       const enhancedPrompt = this.buildImagePrompt(prompt, style, aspectRatio);
 
+      // Image generation requires responseModalities to include 'image'
+      // Using the @google/generative-ai SDK with proper config
       const result = await this.imageModel.generateContent({
         contents: [{ role: 'user', parts: [{ text: enhancedPrompt }] }],
         generationConfig: {
           temperature: 0.8,
+          // @ts-expect-error - responseModalities is required for image generation but not in SDK types yet
+          responseModalities: ['TEXT', 'IMAGE'],
         },
       });
 
       const response = result.response;
 
       // Extract image from response
-      // Note: The actual image extraction depends on the Gemini API response format
-      // For image generation, we typically get base64 or a URL
+      // For image generation, we get base64 data in inlineData
       const candidates = response.candidates;
       let imageData: string | null = null;
+      let responseText: string | null = null;
 
       if (candidates && candidates.length > 0) {
         const parts = candidates[0].content?.parts || [];
         for (const part of parts) {
-          if ('inlineData' in part && part.inlineData) {
+          if ('text' in part && part.text) {
+            responseText = part.text;
+          } else if ('inlineData' in part && part.inlineData) {
             imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-            break;
           }
         }
       }
@@ -451,7 +460,7 @@ Focus on South African telecommunications market keywords.`;
       if (!imageData) {
         return {
           success: false,
-          error: 'Failed to generate image. Please try a different prompt.',
+          error: responseText || 'Failed to generate image. Please try a different prompt.',
         };
       }
 
@@ -473,6 +482,7 @@ Focus on South African telecommunications market keywords.`;
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Image generation error:', error);
 
       await trackAIUsage({
         userId,
