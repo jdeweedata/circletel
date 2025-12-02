@@ -73,8 +73,9 @@ export async function POST(
     }
 
     // Update local invoice status
+    // Valid statuses: 'draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled', 'voided'
     const updateData: any = {
-      status: 'unpaid', // Changed from draft to unpaid (sent but not paid)
+      status: 'sent', // Changed from draft to sent
       updated_at: new Date().toISOString(),
     };
 
@@ -111,7 +112,7 @@ export async function POST(
       invoice: {
         id,
         invoice_number: invoice.invoice_number,
-        status: 'unpaid',
+        status: 'sent',
         emailed: send_email,
       }
     });
