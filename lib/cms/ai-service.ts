@@ -1,9 +1,9 @@
 /**
  * CMS Page Builder - AI Service
  *
- * Google Gemini integration for content and image generation.
- * - gemini-2.5-flash: Text generation (1M token context, stable)
- * - gemini-2.5-flash-image: Image generation (Nano Banana, stable)
+ * Google Gemini 3 Pro integration for content and image generation.
+ * - gemini-3-pro-preview: Text generation (1M token context, best reasoning)
+ * - gemini-3-pro-image-preview: Image generation (Nano Banana Pro, up to 4K)
  *
  * See: https://ai.google.dev/gemini-api/docs/models
  */
@@ -29,10 +29,10 @@ import { trackAIUsage, checkRateLimit } from './usage-tracking';
 // Configuration
 // ============================================
 
-// Gemini models - using stable/preview versions
-// See: https://ai.google.dev/gemini-api/docs/models
-const GEMINI_TEXT_MODEL = 'gemini-2.5-flash'; // Fast text generation (stable)
-const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image'; // Image generation (stable, aka Nano Banana)
+// Gemini 3 Pro models - most advanced reasoning and image generation
+// See: https://ai.google.dev/gemini-api/docs/models#gemini-3-pro
+const GEMINI_TEXT_MODEL = 'gemini-3-pro-preview'; // Best reasoning, 1M context
+const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview'; // Nano Banana Pro, up to 4K images
 const MAX_OUTPUT_TOKENS = 4096;
 
 // Gemini 3 Pro pricing (per 1K tokens, in cents)
@@ -386,7 +386,8 @@ Focus on South African telecommunications market keywords.`;
   }
 
   /**
-   * Generate an image using Gemini 2.5 Flash Image (Nano Banana)
+   * Generate an image using Gemini 3 Pro Image (Nano Banana Pro)
+   * Supports up to 4K resolution with advanced reasoning
    * See: https://ai.google.dev/gemini-api/docs/image-generation
    */
   async generateImage(
