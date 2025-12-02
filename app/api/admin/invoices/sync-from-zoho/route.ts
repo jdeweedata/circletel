@@ -33,13 +33,17 @@ export async function POST(request: NextRequest) {
     const { invoice_ids } = body;
 
     // Build query for invoices to sync
+    // Check both zoho_billing_invoice_id and zoho_invoice_id (legacy field)
     let query = supabase
       .from('customer_invoices')
-      .select('id, invoice_number, zoho_billing_invoice_id, zoho_invoice_id')
-      .not('zoho_billing_invoice_id', 'is', null);
+      .select('id, invoice_number, zoho_billing_invoice_id, zoho_invoice_id');
 
     if (invoice_ids && Array.isArray(invoice_ids) && invoice_ids.length > 0) {
+      // If specific IDs provided, fetch those
       query = query.in('id', invoice_ids);
+    } else {
+      // Otherwise, only fetch invoices that have a Zoho ID
+      query = query.or('zoho_billing_invoice_id.not.is.null,zoho_invoice_id.not.is.null');
     }
 
     const { data: invoices, error: fetchError } = await query;
