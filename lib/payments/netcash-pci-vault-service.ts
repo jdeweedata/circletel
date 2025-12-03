@@ -91,7 +91,9 @@ export class NetCashPciVaultService {
   private externalTokenizationUrl: string;
 
   constructor() {
-    this.pciVaultKey = process.env.NETCASH_PCI_VAULT_KEY || '';
+    // Check both env var names for compatibility
+    this.pciVaultKey = process.env.NETCASH_PCI_VAULT_KEY ||
+                       process.env.NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY || '';
     this.tokenizationUrl = 'https://cde.netcash.co.za/Site/TokeniseCard.aspx';
     this.externalTokenizationUrl = 'https://cde.netcash.co.za/Site/TokeniseCardExternal.aspx';
 
