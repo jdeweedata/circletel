@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         line_items,
         subtotal,
         tax_amount,
-        vat_amount,
+        vat_rate,
         customer:customers(
           id,
           first_name,
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         amount_due: amountDue,
         status: invoice.status,
         subtotal: invoice.subtotal,
-        tax_amount: invoice.tax_amount || invoice.vat_amount || 0,
+        tax_amount: invoice.tax_amount || 0,
         line_items: invoice.line_items || [],
         customer_first_name: customer?.first_name || 'Customer',
         // Mask email for privacy (show first 2 chars + domain)
