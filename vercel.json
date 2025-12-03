@@ -80,6 +80,10 @@
     "app/api/cron/submit-debit-orders/route.ts": {
       "maxDuration": 120,
       "memory": 512
+    },
+    "app/api/cron/submit-cc-debit-orders/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
     }
   },
   "crons": [
@@ -133,6 +137,10 @@
     },
     {
       "path": "/api/cron/submit-debit-orders",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/submit-cc-debit-orders",
       "schedule": "0 6 * * *"
     }
   ]
