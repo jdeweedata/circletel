@@ -258,17 +258,18 @@ export default function PublicPaymentPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950/20 dark:to-background pb-24 md:pb-0">
       {/* Header - Orange bar like NetCash */}
       <header className="bg-circleTel-orange">
-        <div className="container mx-auto py-3 px-4 flex items-center justify-between">
+        <div className="container mx-auto py-4 px-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/images/circletel-logo.png"
               alt="CircleTel"
-              width={120}
-              height={40}
-              className="h-8 w-auto brightness-0 invert"
+              width={180}
+              height={60}
+              className="h-10 sm:h-12 md:h-14 w-auto brightness-0 invert"
+              priority
             />
           </Link>
-          <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30">
+          <Badge variant="secondary" className="text-xs sm:text-sm bg-white/20 text-white border-white/30">
             Secure Payment
           </Badge>
         </div>
