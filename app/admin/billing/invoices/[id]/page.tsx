@@ -62,7 +62,7 @@ interface Invoice {
     last_name: string;
     email: string;
     phone: string;
-    company_name: string | null;
+    business_name: string | null;
   } | null;
 }
 
@@ -363,10 +363,10 @@ export default function InvoiceDetailPage() {
                     <p className="font-medium text-gray-900">
                       {invoice.customer.first_name} {invoice.customer.last_name}
                     </p>
-                    {invoice.customer.company_name && (
+                    {invoice.customer.business_name && (
                       <p className="text-sm text-gray-500 flex items-center gap-1">
                         <Building className="h-3 w-3" />
-                        {invoice.customer.company_name}
+                        {invoice.customer.business_name}
                       </p>
                     )}
                   </div>

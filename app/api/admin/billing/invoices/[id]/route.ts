@@ -43,7 +43,7 @@ export async function GET(
           last_name,
           email,
           phone,
-          company_name
+          business_name
         )
       `)
       .eq('id', id)
