@@ -291,9 +291,15 @@ export async function POST(
       // Don't fail the request if history logging fails
     }
 
+    // Create customer_services record for billing/invoice generation
+    const serviceRecord = await createCustomerServiceRecord(supabase, order, updatedOrder, billing);
+    if (!serviceRecord.success) {
+      console.error('Error creating customer service record:', serviceRecord.error);
+      // Don't fail - order is activated, service record is supplementary
+    }
+
     // TODO: Create first pro-rata invoice
     // TODO: Send activation notification to customer
-    // TODO: Schedule first billing on next_billing_date
 
     return NextResponse.json({
       success: true,
@@ -318,5 +324,116 @@ export async function POST(
       },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * Create a customer_services record from an activated order
+ * This enables the invoice generation cron to pick up the service
+ */
+async function createCustomerServiceRecord(
+  supabase: any, // Using any to avoid complex Supabase type inference issues
+  order: any,
+  updatedOrder: any,
+  billing: {
+    prorataAmount: number;
+    prorataDays: number;
+    nextBillingDate: Date;
+    billingCycleDay: number;
+  }
+): Promise<{ success: boolean; error?: string; serviceId?: string }> {
+  try {
+    // Check if service record already exists for this order
+    const { data: existingService } = await supabase
+      .from('customer_services')
+      .select('id')
+      .eq('customer_id', order.customer_id)
+      .eq('package_name', order.package_name)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (existingService) {
+      console.log('Customer service record already exists:', existingService.id);
+      return { success: true, serviceId: existingService.id };
+    }
+
+    // Determine service type from package name or order details
+    let serviceType = 'wireless'; // Default
+    const packageNameLower = (order.package_name || '').toLowerCase();
+
+    if (packageNameLower.includes('fibre') || packageNameLower.includes('fiber')) {
+      serviceType = 'fibre';
+    } else if (packageNameLower.includes('lte')) {
+      serviceType = 'lte';
+    } else if (packageNameLower.includes('5g')) {
+      serviceType = '5g';
+    } else if (packageNameLower.includes('sky') || packageNameLower.includes('wireless')) {
+      serviceType = 'wireless';
+    }
+
+    // Parse speed from package_speed (e.g., "100/50 Mbps")
+    let speedDown: number | null = null;
+    let speedUp: number | null = null;
+    if (order.package_speed) {
+      const speedMatch = order.package_speed.match(/(\d+)\s*\/\s*(\d+)/);
+      if (speedMatch) {
+        speedDown = parseInt(speedMatch[1], 10);
+        speedUp = parseInt(speedMatch[2], 10);
+      }
+    }
+
+    // Build full installation address
+    const fullAddress = [
+      order.installation_address,
+      order.residential_suburb || order.suburb,
+      order.residential_city || order.city,
+      order.residential_province || order.province,
+      order.residential_postal_code || order.postal_code,
+    ].filter(Boolean).join(', ');
+
+    // Create the service record using actual customer_services columns
+    const { data: newService, error: insertError } = await supabase
+      .from('customer_services')
+      .insert({
+        customer_id: order.customer_id,
+        service_type: serviceType,
+        package_name: order.package_name,
+        speed_down: speedDown,
+        speed_up: speedUp,
+        data_cap_gb: null, // Unlimited
+        installation_address: fullAddress,
+        monthly_price: parseFloat(order.package_price),
+        setup_fee: parseFloat(order.installation_fee || 0),
+        status: 'active',
+        active: true,
+        activation_date: updatedOrder.activation_date,
+        provider_name: 'MTN', // Default provider
+        provider_code: 'MTN',
+        contract_months: 24,
+        contract_start_date: updatedOrder.activation_date,
+        contract_end_date: new Date(
+          new Date(updatedOrder.activation_date).setFullYear(
+            new Date(updatedOrder.activation_date).getFullYear() + 2
+          )
+        ).toISOString().split('T')[0],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
+
+    if (insertError) {
+      console.error('Error creating customer service record:', insertError);
+      return { success: false, error: insertError.message };
+    }
+
+    console.log('Created customer service record:', newService.id);
+    return { success: true, serviceId: newService.id };
+  } catch (error) {
+    console.error('Error in createCustomerServiceRecord:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
   }
 }

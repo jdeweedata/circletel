@@ -76,6 +76,10 @@
     "app/api/admin/integrations/ai-assistant/route.ts": {
       "maxDuration": 60,
       "memory": 512
+    },
+    "app/api/cron/submit-debit-orders/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
     }
   },
   "crons": [
@@ -126,6 +130,10 @@
     {
       "path": "/api/cron/ar-snapshot",
       "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/cron/submit-debit-orders",
+      "schedule": "0 6 * * *"
     }
   ]
 }
