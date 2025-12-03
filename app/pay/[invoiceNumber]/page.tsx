@@ -428,11 +428,11 @@ export default function PublicPaymentPage() {
                   contactus@circletel.co.za
                 </a>
                 <a
-                  href="tel:0860247253"
+                  href="tel:0870876305"
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
                   <Phone className="h-3 w-3" />
-                  0860 247 253
+                  087 087 6305
                 </a>
               </div>
             </div>
