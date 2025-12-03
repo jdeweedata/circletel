@@ -34,8 +34,9 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       console.error('[Tokenize] User not authenticated:', authError);
+      // Redirect to auth login, with return to the verify-card page (not the API route)
       return NextResponse.redirect(
-        new URL(`/login?redirect=${encodeURIComponent(request.url)}`, request.url)
+        new URL(`/auth/login?redirect=${encodeURIComponent('/dashboard/billing/verify-card')}`, request.url)
       );
     }
 
