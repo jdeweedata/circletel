@@ -9,6 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
+import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
 
 // =============================================================================
 // Types
@@ -313,6 +314,16 @@ export class InvoiceSmsReminderService {
       message = SMS_TEMPLATES.final_reminder(templateData);
     }
 
+    // Determine template name based on reminder count
+    let templateName: 'first_reminder' | 'second_reminder' | 'final_notice' = 'first_reminder';
+    if (reminderCount === 0 && daysOverdue <= 3) {
+      templateName = 'first_reminder';
+    } else if (reminderCount <= 1 && daysOverdue <= 7) {
+      templateName = 'second_reminder';
+    } else {
+      templateName = 'final_notice';
+    }
+
     // Send SMS via Clickatell
     try {
       const clickatell = this.getClickatellService();
@@ -335,6 +346,25 @@ export class InvoiceSmsReminderService {
         })
         .eq('id', invoiceId);
 
+      // Log to notification tracking (for AR analytics)
+      await NotificationTrackingService.logNotification({
+        invoice_id: invoiceId,
+        invoice_number: invoice.invoice_number,
+        customer_id: customer.id,
+        notification_type: 'sms',
+        notification_template: templateName,
+        recipient: customer.phone,
+        message_content: message,
+        status: 'sent',
+        provider: 'clickatell',
+        provider_message_id: smsResult.messageId,
+        amount_due: amountDue,
+        days_overdue: daysOverdue,
+        metadata: {
+          reminder_number: reminderCount + 1,
+        },
+      });
+
       // Log to audit
       await this.logAudit(invoiceId, 'sms_reminder_sent', {
         recipient_phone: customer.phone,
@@ -355,6 +385,22 @@ export class InvoiceSmsReminderService {
 
       // Update invoice with error
       await this.updateSmsReminderError(invoiceId, errorMessage);
+
+      // Log failed notification to tracking
+      await NotificationTrackingService.logNotification({
+        invoice_id: invoiceId,
+        invoice_number: invoice.invoice_number,
+        customer_id: customer.id,
+        notification_type: 'sms',
+        notification_template: templateName,
+        recipient: customer.phone,
+        message_content: message,
+        status: 'failed',
+        provider: 'clickatell',
+        error_message: errorMessage,
+        amount_due: amountDue,
+        days_overdue: daysOverdue,
+      });
 
       // Log failure to audit
       await this.logAudit(invoiceId, 'sms_reminder_failed', {

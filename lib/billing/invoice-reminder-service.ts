@@ -10,6 +10,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
 
 // =============================================================================
 // Types
@@ -245,6 +246,28 @@ export class InvoiceReminderService {
         })
         .eq('id', invoiceId);
 
+      // Log to notification tracking for AR analytics
+      const amountDue = typedInvoice.total_amount - (typedInvoice.amount_paid || 0);
+      await NotificationTrackingService.logNotification({
+        invoice_id: invoiceId,
+        invoice_number: typedInvoice.invoice_number,
+        customer_id: typedInvoice.customer.id,
+        notification_type: 'email',
+        notification_template: daysUntilDue > 0 ? 'due_reminder' : 'overdue_reminder',
+        recipient: typedInvoice.customer.email,
+        message_content: `Payment reminder for invoice ${typedInvoice.invoice_number}`,
+        status: 'sent',
+        provider: 'resend',
+        provider_message_id: emailResult.message_id,
+        amount_due: amountDue,
+        days_overdue: daysUntilDue < 0 ? Math.abs(daysUntilDue) : 0,
+        metadata: {
+          days_until_due: daysUntilDue,
+          reminder_count: (typedInvoice.reminder_count || 0) + 1,
+          template: 'invoice_due_reminder'
+        }
+      });
+
       // Log to audit
       await this.logAudit(invoiceId, 'reminder_sent', {
         recipient_email: typedInvoice.customer.email,
@@ -264,6 +287,27 @@ export class InvoiceReminderService {
 
       // Update invoice with error
       await this.updateReminderError(invoiceId, errorMessage);
+
+      // Log failed notification for AR analytics
+      const amountDue = typedInvoice.total_amount - (typedInvoice.amount_paid || 0);
+      await NotificationTrackingService.logNotification({
+        invoice_id: invoiceId,
+        invoice_number: typedInvoice.invoice_number,
+        customer_id: typedInvoice.customer.id,
+        notification_type: 'email',
+        notification_template: daysUntilDue > 0 ? 'due_reminder' : 'overdue_reminder',
+        recipient: typedInvoice.customer.email,
+        message_content: `Payment reminder for invoice ${typedInvoice.invoice_number}`,
+        status: 'failed',
+        provider: 'resend',
+        error_message: errorMessage,
+        amount_due: amountDue,
+        days_overdue: daysUntilDue < 0 ? Math.abs(daysUntilDue) : 0,
+        metadata: {
+          days_until_due: daysUntilDue,
+          reminder_count: (typedInvoice.reminder_count || 0) + 1
+        }
+      });
 
       // Log failure to audit
       await this.logAudit(invoiceId, 'reminder_failed', {

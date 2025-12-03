@@ -190,6 +190,7 @@ const navigationSections = [
           { name: 'Customers', href: '/admin/billing/customers', icon: UserCheck },
           { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
           { name: 'Outstanding', href: '/admin/finance/outstanding', icon: AlertCircle },
+          { name: 'AR Analytics', href: '/admin/finance/ar-analytics', icon: TrendingUp },
         ]
       },
       {
