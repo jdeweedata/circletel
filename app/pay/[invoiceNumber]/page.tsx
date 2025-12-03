@@ -261,7 +261,7 @@ export default function PublicPaymentPage() {
         <div className="container mx-auto py-3 px-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/circletel-logo-new.png"
+              src="/images/circletel-logo.png"
               alt="CircleTel"
               width={120}
               height={40}
