@@ -7,8 +7,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 interface RouteParams {
   params: Promise<{ invoiceNumber: string }>;
@@ -17,7 +20,13 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { invoiceNumber } = await params;
-    const supabase = await createClient();
+
+    // Use service role client to bypass RLS for public invoice lookup
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
 
     // Normalize invoice number
     const normalizedInvoiceNumber = invoiceNumber.toUpperCase().trim();
