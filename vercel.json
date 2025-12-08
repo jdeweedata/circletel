@@ -84,6 +84,10 @@
     "app/api/cron/submit-cc-debit-orders/route.ts": {
       "maxDuration": 120,
       "memory": 512
+    },
+    "app/api/admin/suppliers/[id]/sync/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
     }
   },
   "crons": [

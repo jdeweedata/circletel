@@ -177,22 +177,35 @@ export async function syncScoopProducts(options: {
 }
 
 /**
- * Fetch XML content from URL
+ * Fetch XML content from URL with timeout
  */
 async function fetchXml(url: string): Promise<string> {
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'CircleTel-Sync/1.0',
-      'Accept': 'application/xml, text/xml',
-    },
-    cache: 'no-store',
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 120000) // 2 minute timeout
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch XML: ${response.status} ${response.statusText}`)
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'CircleTel-Sync/1.0',
+        'Accept': 'application/xml, text/xml, */*',
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch XML: ${response.status} ${response.statusText}`)
+    }
+
+    return response.text()
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('XML fetch timeout - feed took too long to respond')
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
   }
-
-  return response.text()
 }
 
 /**
@@ -303,7 +316,7 @@ function parseXmlProduct(xmlProduct: any): ParsedScoopProduct | null {
 }
 
 /**
- * Upsert products to database
+ * Upsert products to database using batch operations for performance
  */
 async function upsertProducts(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -337,94 +350,140 @@ async function upsertProducts(
     )
   )
 
-  // Process in batches of 100
-  const batchSize = 100
-  for (let i = 0; i < products.length; i += batchSize) {
-    const batch = products.slice(i, i + batchSize)
+  const now = new Date().toISOString()
 
-    for (const product of batch) {
-      try {
-        const existing = existingMap.get(product.sku)
+  // Separate products into new and existing for batch processing
+  const toInsert: Array<{
+    supplier_id: string
+    sku: string
+    name: string
+    description: string | null
+    manufacturer: string
+    cost_price: number
+    retail_price: number
+    source_image_url: string
+    stock_cpt: number
+    stock_jhb: number
+    stock_dbn: number
+    stock_total: number
+    product_url: string | null
+    category: string | null
+    last_synced_at: string
+    is_active: boolean
+  }> = []
 
-        if (existing) {
-          // Check if update needed
-          const hasChanges =
-            existing.cost_price !== product.cost_price ||
-            existing.stock_total !== product.stock_total
+  const toUpdate: Array<{
+    id: string
+    sku: string
+    data: Record<string, unknown>
+  }> = []
 
-          if (hasChanges) {
-            const { error } = await supabase
-              .from('supplier_products')
-              .update({
-                name: product.name,
-                description: product.description,
-                manufacturer: product.manufacturer,
-                cost_price: product.cost_price,
-                retail_price: product.retail_price,
-                source_image_url: product.source_image_url,
-                stock_cpt: product.stock_cpt,
-                stock_jhb: product.stock_jhb,
-                stock_dbn: product.stock_dbn,
-                stock_total: product.stock_total,
-                product_url: product.product_url,
-                category: product.category,
-                previous_cost_price: existing.cost_price,
-                previous_stock_total: existing.stock_total,
-                last_synced_at: new Date().toISOString(),
-                is_active: true,
-              })
-              .eq('id', existing.id)
+  const unchangedIds: string[] = []
 
-            if (error) {
-              result.errors.push({ sku: product.sku, error: error.message })
-            } else {
-              result.updated.push(product.sku)
-            }
-          } else {
-            // Just update last_synced_at
-            await supabase
-              .from('supplier_products')
-              .update({ last_synced_at: new Date().toISOString() })
-              .eq('id', existing.id)
+  // Categorize products
+  for (const product of products) {
+    const existing = existingMap.get(product.sku)
 
-            result.unchanged.push(product.sku)
-          }
-        } else {
-          // Insert new product
-          const { error } = await supabase
-            .from('supplier_products')
-            .insert({
-              supplier_id: supplierId,
-              sku: product.sku,
-              name: product.name,
-              description: product.description,
-              manufacturer: product.manufacturer,
-              cost_price: product.cost_price,
-              retail_price: product.retail_price,
-              source_image_url: product.source_image_url,
-              stock_cpt: product.stock_cpt,
-              stock_jhb: product.stock_jhb,
-              stock_dbn: product.stock_dbn,
-              stock_total: product.stock_total,
-              product_url: product.product_url,
-              category: product.category,
-              last_synced_at: new Date().toISOString(),
-              is_active: true,
-            })
+    if (existing) {
+      const hasChanges =
+        existing.cost_price !== product.cost_price ||
+        existing.stock_total !== product.stock_total
 
-          if (error) {
-            result.errors.push({ sku: product.sku, error: error.message })
-          } else {
-            result.created.push(product.sku)
-          }
-        }
-      } catch (error) {
-        result.errors.push({
+      if (hasChanges) {
+        toUpdate.push({
+          id: existing.id,
           sku: product.sku,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          data: {
+            name: product.name,
+            description: product.description,
+            manufacturer: product.manufacturer,
+            cost_price: product.cost_price,
+            retail_price: product.retail_price,
+            source_image_url: product.source_image_url,
+            stock_cpt: product.stock_cpt,
+            stock_jhb: product.stock_jhb,
+            stock_dbn: product.stock_dbn,
+            stock_total: product.stock_total,
+            product_url: product.product_url,
+            category: product.category,
+            previous_cost_price: existing.cost_price,
+            previous_stock_total: existing.stock_total,
+            last_synced_at: now,
+            is_active: true,
+          },
         })
+      } else {
+        unchangedIds.push(existing.id)
+        result.unchanged.push(product.sku)
       }
+    } else {
+      toInsert.push({
+        supplier_id: supplierId,
+        sku: product.sku,
+        name: product.name,
+        description: product.description,
+        manufacturer: product.manufacturer,
+        cost_price: product.cost_price,
+        retail_price: product.retail_price,
+        source_image_url: product.source_image_url,
+        stock_cpt: product.stock_cpt,
+        stock_jhb: product.stock_jhb,
+        stock_dbn: product.stock_dbn,
+        stock_total: product.stock_total,
+        product_url: product.product_url,
+        category: product.category,
+        last_synced_at: now,
+        is_active: true,
+      })
     }
+  }
+
+  // Batch insert new products (500 at a time)
+  const insertBatchSize = 500
+  for (let i = 0; i < toInsert.length; i += insertBatchSize) {
+    const batch = toInsert.slice(i, i + insertBatchSize)
+    const { error } = await supabase
+      .from('supplier_products')
+      .insert(batch)
+
+    if (error) {
+      console.error('[ScoopSync] Batch insert error:', error)
+      batch.forEach(p => result.errors.push({ sku: p.sku, error: error.message }))
+    } else {
+      batch.forEach(p => result.created.push(p.sku))
+    }
+  }
+
+  // Batch update existing products (use individual updates but in parallel)
+  const updateBatchSize = 50
+  for (let i = 0; i < toUpdate.length; i += updateBatchSize) {
+    const batch = toUpdate.slice(i, i + updateBatchSize)
+
+    // Execute updates in parallel within batch
+    const updatePromises = batch.map(async ({ id, sku, data }) => {
+      const { error } = await supabase
+        .from('supplier_products')
+        .update(data)
+        .eq('id', id)
+
+      if (error) {
+        result.errors.push({ sku, error: error.message })
+      } else {
+        result.updated.push(sku)
+      }
+    })
+
+    await Promise.all(updatePromises)
+  }
+
+  // Batch update last_synced_at for unchanged products (500 at a time)
+  const unchangedBatchSize = 500
+  for (let i = 0; i < unchangedIds.length; i += unchangedBatchSize) {
+    const batch = unchangedIds.slice(i, i + unchangedBatchSize)
+    await supabase
+      .from('supplier_products')
+      .update({ last_synced_at: now })
+      .in('id', batch)
   }
 
   return result
