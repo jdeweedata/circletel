@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
+import {
   Table,
   TableBody,
   TableCell,
@@ -33,6 +41,8 @@ import {
   RefreshCw,
   Layers,
   Info,
+  Home,
+  Truck,
 } from 'lucide-react'
 import { SupplierProduct, Supplier } from '@/lib/suppliers/types'
 
@@ -120,6 +130,39 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <div className="container mx-auto py-6 px-4">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin" className="flex items-center gap-1">
+                  <Home className="h-4 w-4" />
+                  Admin
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers" className="flex items-center gap-1">
+                  <Truck className="h-4 w-4" />
+                  Suppliers
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers/products">Product Catalog</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Loading...</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" disabled>
             <ArrowLeft className="w-4 h-4" />
@@ -141,6 +184,39 @@ export default function ProductDetailPage() {
   if (error) {
     return (
       <div className="container mx-auto py-6 px-4">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin" className="flex items-center gap-1">
+                  <Home className="h-4 w-4" />
+                  Admin
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers" className="flex items-center gap-1">
+                  <Truck className="h-4 w-4" />
+                  Suppliers
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers/products">Product Catalog</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Error</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers/products')}>
             <ArrowLeft className="w-4 h-4" />
@@ -164,6 +240,39 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="container mx-auto py-6 px-4">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin" className="flex items-center gap-1">
+                  <Home className="h-4 w-4" />
+                  Admin
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers" className="flex items-center gap-1">
+                  <Truck className="h-4 w-4" />
+                  Suppliers
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/suppliers/products">Product Catalog</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Not Found</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers/products')}>
             <ArrowLeft className="w-4 h-4" />
@@ -185,6 +294,39 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container mx-auto py-6 px-4">
+      {/* Breadcrumb */}
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/admin" className="flex items-center gap-1">
+                <Home className="h-4 w-4" />
+                Admin
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/admin/suppliers" className="flex items-center gap-1">
+                <Truck className="h-4 w-4" />
+                Suppliers
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/admin/suppliers/products">Product Catalog</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="max-w-[200px] truncate">{product.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-6 gap-4">
         <div className="flex items-start gap-4">
