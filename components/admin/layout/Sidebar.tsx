@@ -53,6 +53,8 @@ import {
   PanelTop,
   AlertCircle,
   RefreshCw,
+  Truck,
+  Box,
 } from 'lucide-react';
 
 interface User {
@@ -116,6 +118,14 @@ const navigationSections = [
         href: '/admin/customers',
         icon: Users,
         description: 'Manage customer accounts'
+      },
+      {
+        name: 'Suppliers',
+        icon: Truck,
+        children: [
+          { name: 'All Suppliers', href: '/admin/suppliers', icon: Truck },
+          { name: 'Product Catalog', href: '/admin/suppliers/products', icon: Box }
+        ]
       },
     ]
   },

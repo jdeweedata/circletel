@@ -172,6 +172,18 @@ export const PERMISSIONS = {
     APPROVE_PAYOUTS: 'partners_admin:approve_payouts',
     VIEW_ANALYTICS: 'partners_admin:view_analytics',
   },
+
+  // Supplier Management
+  SUPPLIERS: {
+    VIEW: 'suppliers:view',
+    CREATE: 'suppliers:create',
+    EDIT: 'suppliers:edit',
+    DELETE: 'suppliers:delete',
+    SYNC: 'suppliers:sync',
+    VIEW_PRODUCTS: 'suppliers:view_products',
+    MANAGE_PRODUCTS: 'suppliers:manage_products',
+    VIEW_SYNC_LOGS: 'suppliers:view_sync_logs',
+  },
 } as const
 
 // Flatten permissions for easy iteration
@@ -199,6 +211,7 @@ export const PERMISSION_CATEGORIES = {
   'System Administration': PERMISSIONS.SYSTEM,
   'Sales Partners': PERMISSIONS.PARTNERS,
   'Partner Administration': PERMISSIONS.PARTNERS_ADMIN,
+  'Supplier Management': PERMISSIONS.SUPPLIERS,
 } as const
 
 // Helper type for permission strings
