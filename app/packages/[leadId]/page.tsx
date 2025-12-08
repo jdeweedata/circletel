@@ -419,6 +419,11 @@ function PackagesContent() {
   const mapPackageToCardProps = (pkg: Package) => {
     const isPromotion = !!pkg.promotion_price;
     const serviceType = (pkg.service_type || pkg.product_category || '').toLowerCase();
+    const promoBadge = isPromotion
+      ? pkg.promotion_months
+        ? `${pkg.promotion_months}-MONTH PROMO`
+        : 'PROMO'
+      : undefined;
 
     // Determine badge color based on product type
     const getBadgeColor = (): 'pink' | 'orange' | 'yellow' | 'blue' => {
@@ -437,8 +442,11 @@ function PackagesContent() {
     return {
       promoPrice: pkg.promotion_price || pkg.price,
       originalPrice: isPromotion ? pkg.price : undefined,
-      promoBadge: isPromotion ? `${pkg.promotion_months}-MONTH PROMO` : undefined,
-      promoDescription: isPromotion ? `first ${pkg.promotion_months} months` : undefined,
+      promoBadge,
+      promoDescription:
+        isPromotion && pkg.promotion_months
+          ? `first ${pkg.promotion_months} months`
+          : undefined,
       badgeColor: getBadgeColor(),
       name: pkg.name,
       type: 'uncapped' as const,
@@ -620,7 +628,13 @@ function PackagesContent() {
                             key={pkg.id}
                             promoPrice={addVAT(pkg.promotion_price || pkg.price)}
                             originalPrice={pkg.promotion_price ? addVAT(pkg.price) : undefined}
-                            promoBadge={pkg.promotion_price ? `${pkg.promotion_months}-MONTH PROMO` : undefined}
+                            promoBadge={
+                              pkg.promotion_price
+                                ? pkg.promotion_months
+                                  ? `${pkg.promotion_months}-MONTH PROMO`
+                                  : 'PROMO'
+                                : undefined
+                            }
                             badgeColor={getBadgeColor()}
                             name={pkg.name}
                             type="uncapped"
