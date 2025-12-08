@@ -364,6 +364,61 @@ export interface SyncTriggerResponse {
 }
 
 // =====================================================
+// Product Enrichment Types
+// =====================================================
+
+/**
+ * Enrichment status for tracking progress
+ */
+export type EnrichmentStatus = 'pending' | 'scraped' | 'enriched' | 'failed'
+
+/**
+ * Enrichment request mode
+ */
+export type EnrichmentMode = 'all' | 'missing' | 'selected'
+
+/**
+ * Enrichment request payload
+ */
+export interface EnrichmentRequest {
+  mode: EnrichmentMode
+  product_ids?: string[]
+  skip_scraping?: boolean
+}
+
+/**
+ * Enrichment API response
+ */
+export interface EnrichmentResponse {
+  success: boolean
+  data?: {
+    total: number
+    urls_found: number
+    scraped: number
+    enriched: number
+    failed: number
+    duration_ms: number
+  }
+  error?: string
+}
+
+/**
+ * Product enrichment metadata stored in metadata JSONB
+ */
+export interface ProductEnrichmentMetadata {
+  enrichment_status?: EnrichmentStatus
+  enrichment_error?: string
+  enriched_at?: string
+  scraped_at?: string
+  scraped_data?: {
+    title?: string
+    description?: string
+    raw_content?: string
+    additional_images?: string[]
+  }
+}
+
+// =====================================================
 // UI Component Props
 // =====================================================
 

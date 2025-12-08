@@ -53,11 +53,23 @@
       "Bash(\"to\": \"0826574256\",)",
       "Bash(\"message\": \"Hi Shaun, CircleTel here. Your December invoice (INV-000040) for R899.00 will be collected via debit order on 4 Dec 2025. Contact us on 010 880 3\")",
       "Bash(exit_code=\"$?\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "WebFetch(domain:storage.googleapis.com)",
+      "Skill(frontend-design:frontend-design)",
+      "mcp__firecrawl-mcp__firecrawl_map",
+      "mcp__supabase__generate_typescript_types",
+      "Bash(git diff:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
   },
+  "enabledMcpjsonServers": [
+    "supabase",
+    "playwright",
+    "shadcn",
+    "Zoho"
+  ],
   "hooks": {
     "SessionStart": [
       {

@@ -34,6 +34,8 @@ import {
   TrendingUp,
   TrendingDown,
   Package,
+  Sparkles,
+  Loader2,
 } from 'lucide-react'
 import { Supplier, SupplierProduct, SupplierSyncLog, SyncStatus } from '@/lib/suppliers/types'
 
@@ -56,6 +58,13 @@ export default function SupplierDetailPage() {
   const [loading, setLoading] = React.useState(true)
   const [productsLoading, setProductsLoading] = React.useState(true)
   const [syncing, setSyncing] = React.useState(false)
+  const [enriching, setEnriching] = React.useState(false)
+  const [enrichmentStats, setEnrichmentStats] = React.useState<{
+    total: number
+    enriched: number
+    pending: number
+    cost_estimate?: { estimated_tokens: number; estimated_cost_usd: number }
+  } | null>(null)
   const [searchQuery, setSearchQuery] = React.useState('')
   const [stockFilter, setStockFilter] = React.useState('all')
   const [manufacturerFilter, setManufacturerFilter] = React.useState('all')
@@ -67,6 +76,7 @@ export default function SupplierDetailPage() {
   React.useEffect(() => {
     fetchSupplier()
     fetchManufacturers()
+    fetchEnrichmentStats()
   }, [supplierId])
 
   React.useEffect(() => {
@@ -127,6 +137,48 @@ export default function SupplierDetailPage() {
       }
     } catch (error) {
       console.error('Failed to fetch manufacturers:', error)
+    }
+  }
+
+  const fetchEnrichmentStats = async () => {
+    try {
+      const response = await fetch(`/api/admin/suppliers/${supplierId}/enrich`)
+      const result = await response.json()
+      if (result.success) {
+        setEnrichmentStats(result.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch enrichment stats:', error)
+    }
+  }
+
+  const handleEnrich = async () => {
+    if (!confirm('This will use AI to enrich product data. Estimated cost shown in the stats card. Continue?')) {
+      return
+    }
+
+    try {
+      setEnriching(true)
+      const response = await fetch(`/api/admin/suppliers/${supplierId}/enrich`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'missing' }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert(`Enrichment complete!\n\nEnriched: ${result.data.enriched}\nFailed: ${result.data.failed}\nDuration: ${(result.data.duration_ms / 1000).toFixed(1)}s`)
+        await fetchEnrichmentStats()
+        await fetchProducts()
+      } else {
+        alert(`Enrichment failed: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Enrichment failed:', error)
+      alert('Enrichment failed. Please try again.')
+    } finally {
+      setEnriching(false)
     }
   }
 
@@ -259,6 +311,19 @@ export default function SupplierDetailPage() {
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
           <Button
+            variant="outline"
+            disabled={enriching || !enrichmentStats?.pending}
+            onClick={handleEnrich}
+            title={enrichmentStats?.pending ? `Enrich ${enrichmentStats.pending} products` : 'All products enriched'}
+          >
+            {enriching ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            {enriching ? 'Enriching...' : 'AI Enrich'}
+          </Button>
+          <Button
             variant="default"
             className="bg-orange-500 hover:bg-orange-600"
             disabled={syncing}
@@ -307,6 +372,55 @@ export default function SupplierDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Enrichment Stats Card */}
+      {enrichmentStats && (
+        <Card className="mb-6 border-purple-200 bg-purple-50/50">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-600" />
+                <CardTitle className="text-lg">AI Enrichment Status</CardTitle>
+              </div>
+              {enrichmentStats.pending > 0 && enrichmentStats.cost_estimate && (
+                <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">
+                  Est. ${enrichmentStats.cost_estimate.estimated_cost_usd.toFixed(2)} USD
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">Enriched</p>
+                <p className="text-2xl font-bold text-green-600">{enrichmentStats.enriched}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Pending</p>
+                <p className="text-2xl font-bold text-orange-600">{enrichmentStats.pending}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Progress</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {enrichmentStats.total > 0
+                    ? Math.round((enrichmentStats.enriched / enrichmentStats.total) * 100)
+                    : 0}%
+                </p>
+              </div>
+            </div>
+            {enrichmentStats.total > 0 && (
+              <div className="mt-3">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-purple-600 h-2 rounded-full transition-all"
+                    style={{ width: `${(enrichmentStats.enriched / enrichmentStats.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Products Table */}
       <Card>
