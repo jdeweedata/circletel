@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,12 +10,9 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import {
-  NavigationItem,
-  NavigationSection,
   managedITItems,
   connectivityItems,
   cloudHostingItems,
@@ -87,11 +83,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                        isActive(item.href) ? 'bg-gray-100' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                        isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -120,11 +116,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                   <Link
                     href="/connectivity"
                     className={cn(
-                      "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                      isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-gray-100' : ''
+                      "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                      isActive('/connectivity') && !currentPath.includes('/connectivity/') ? 'bg-circleTel-orange/10' : ''
                     )}
                   >
-                    <div className="text-sm font-semibold text-circleTel-darkNeutral">Connectivity Overview</div>
+                    <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">Connectivity Overview</div>
                     <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                       Explore all our connectivity solutions
                     </p>
@@ -137,11 +133,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                        isActive(item.href) ? 'bg-gray-100' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                        isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -171,11 +167,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                        isActive(item.href) ? 'bg-gray-100' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                        isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -205,11 +201,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                        isActive(item.href) ? 'bg-gray-100' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                        isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
@@ -239,11 +235,11 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
                     <Link
                       href={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-gray-100 focus:bg-gray-100",
-                        isActive(item.href) ? 'bg-gray-100' : ''
+                        "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-150 hover:bg-circleTel-orange/10 focus:bg-circleTel-orange/10 cursor-pointer",
+                        isActive(item.href) ? 'bg-circleTel-orange/10' : ''
                       )}
                     >
-                      <div className="text-sm font-semibold text-circleTel-darkNeutral">{item.name}</div>
+                      <div className="text-sm font-semibold text-circleTel-darkNeutral hover:text-circleTel-orange transition-colors">{item.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-circleTel-secondaryNeutral mt-1">
                         {item.description}
                       </p>
