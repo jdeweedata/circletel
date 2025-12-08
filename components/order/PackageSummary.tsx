@@ -4,18 +4,28 @@ import React from 'react';
 import { Package, Wifi, Zap, CheckCircle } from 'lucide-react';
 import { PackageDetails } from '@/lib/order/types';
 
+// South African VAT rate (15%)
+const VAT_RATE = 0.15;
+
 interface PackageSummaryProps {
   package: PackageDetails;
   compact?: boolean;
+  showVatInclusive?: boolean; // Default true - show VAT-inclusive prices
 }
 
-export function PackageSummary({ package: pkg, compact = false }: PackageSummaryProps) {
-  const monthlyPrice = typeof pkg.price === 'string' 
+export function PackageSummary({ package: pkg, compact = false, showVatInclusive = true }: PackageSummaryProps) {
+  const baseMonthlyPrice = typeof pkg.price === 'string' 
     ? parseFloat(pkg.price) 
     : pkg.price || pkg.monthlyPrice;
 
-  const promotionPrice = pkg.promotion_price 
+  const basePromotionPrice = pkg.promotion_price 
     ? (typeof pkg.promotion_price === 'string' ? parseFloat(pkg.promotion_price) : pkg.promotion_price)
+    : null;
+
+  // Calculate VAT-inclusive prices
+  const monthlyPrice = showVatInclusive ? baseMonthlyPrice * (1 + VAT_RATE) : baseMonthlyPrice;
+  const promotionPrice = basePromotionPrice !== null 
+    ? (showVatInclusive ? basePromotionPrice * (1 + VAT_RATE) : basePromotionPrice)
     : null;
 
   const hasPromotion = promotionPrice !== null && promotionPrice < monthlyPrice;
@@ -59,14 +69,14 @@ export function PackageSummary({ package: pkg, compact = false }: PackageSummary
                 <div className="text-lg font-bold text-circleTel-orange">
                   R{promotionPrice.toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-600">per month</div>
+                <div className="text-xs text-gray-600">per month {showVatInclusive && '(incl. VAT)'}</div>
               </>
             ) : (
               <>
                 <div className="text-lg font-bold text-gray-900">
                   R{monthlyPrice.toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-600">per month</div>
+                <div className="text-xs text-gray-600">per month {showVatInclusive && '(incl. VAT)'}</div>
               </>
             )}
           </div>
@@ -103,7 +113,7 @@ export function PackageSummary({ package: pkg, compact = false }: PackageSummary
                   <div className="text-2xl font-bold text-circleTel-orange">
                     R{promotionPrice.toFixed(2)}
                   </div>
-                  <div className="text-sm text-gray-600">per month</div>
+                  <div className="text-sm text-gray-600">per month {showVatInclusive && '(incl. VAT)'}</div>
                   {pkg.promotion_months && (
                     <div className="text-xs text-circleTel-orange font-medium mt-1">
                       For {pkg.promotion_months} months
@@ -115,7 +125,7 @@ export function PackageSummary({ package: pkg, compact = false }: PackageSummary
                   <div className="text-2xl font-bold text-gray-900">
                     R{monthlyPrice.toFixed(2)}
                   </div>
-                  <div className="text-sm text-gray-600">per month</div>
+                  <div className="text-sm text-gray-600">per month {showVatInclusive && '(incl. VAT)'}</div>
                 </>
               )}
             </div>

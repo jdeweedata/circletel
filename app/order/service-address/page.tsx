@@ -454,15 +454,6 @@ export default function ServiceAddressPage() {
             </div>
           </div>
 
-          {/* Help Text */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Need help? Contact us at{' '}
-              <a href="tel:0877772473" className="text-circleTel-orange hover:underline font-medium">
-                087 777 2473
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </div>
