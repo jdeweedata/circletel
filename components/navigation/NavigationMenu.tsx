@@ -47,7 +47,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Managed IT
           </NavigationMenuTrigger>
           <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
-            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px] pointer-events-auto">
               {managedITItems.map((item) => (
                 <li key={item.name}>
                   <Link
@@ -79,7 +79,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Connectivity
           </NavigationMenuTrigger>
           <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
-            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px] pointer-events-auto">
               <li>
                 <Link
                   href="/connectivity"
@@ -125,7 +125,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Cloud & Hosting
           </NavigationMenuTrigger>
           <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
-            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px] pointer-events-auto">
               {cloudHostingItems.map((item) => (
                 <li key={item.name}>
                   <Link
@@ -157,7 +157,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Resources
           </NavigationMenuTrigger>
           <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute left-0 top-full mt-1.5 rounded-md border bg-white shadow-lg">
-            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px]">
+            <ul className="grid w-[320px] gap-1 p-2 md:w-[400px] md:grid-cols-2 lg:w-[500px] pointer-events-auto">
               {resourcesItems.map((item) => (
                 <li key={item.name}>
                   <Link
@@ -189,7 +189,7 @@ export const DesktopNavigationMenu = ({ className }: DesktopNavigationProps) => 
             Partners
           </NavigationMenuTrigger>
           <NavigationMenuContent forceMount className="data-[state=closed]:hidden absolute right-0 left-auto top-full mt-1.5 w-[280px] rounded-md border bg-white shadow-lg">
-            <ul className="grid gap-1 p-2">
+            <ul className="grid gap-1 p-2 pointer-events-auto">
               {partnerItems.map((item) => (
                 <li key={item.name}>
                   <Link
