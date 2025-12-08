@@ -268,7 +268,11 @@ export default function AllProductsPage() {
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => (
-                    <TableRow key={product.id}>
+                    <TableRow
+                      key={product.id}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => router.push(`/admin/suppliers/products/${product.id}`)}
+                    >
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {product.cached_image_path || product.source_image_url ? (
