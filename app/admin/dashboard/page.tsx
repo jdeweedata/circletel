@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// Card components kept for potential future use but currently using custom styled divs
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -400,13 +400,16 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-full"></div>
-              </CardContent>
-            </Card>
+            <div key={i} className="rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm animate-pulse">
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-24"></div>
+                </div>
+                <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-32"></div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -417,19 +420,14 @@ export default function AdminDashboard() {
     const Icon = stat.icon;
     return (
       <Link key={stat.title} href={stat.href}>
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {stat.title}
-            </CardTitle>
-            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-              <Icon className={`h-5 w-5 ${stat.color}`} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="text-3xl font-bold text-circleTel-darkNeutral">
-                {stat.value}
+        <div className="rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 cursor-pointer hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30">
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="text-gray-400">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">{stat.title}</h3>
               </div>
               {stat.urgent && (
                 <Badge variant="destructive" className="text-xs">
@@ -437,11 +435,12 @@ export default function AdminDashboard() {
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-circleTel-secondaryNeutral mt-1">
-              {stat.description}
-            </p>
-          </CardContent>
-        </Card>
+            <div className="mb-2">
+              <p className="text-3xl font-bold text-gray-900 tracking-tight">{stat.value}</p>
+            </div>
+            <p className="text-sm font-medium text-gray-700">{stat.description}</p>
+          </div>
+        </div>
       </Link>
     );
   };
@@ -520,39 +519,30 @@ export default function AdminDashboard() {
                   key={action.title}
                   permissions={[action.permission]}
                   fallback={
-                    <Card className="opacity-50 cursor-not-allowed">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <action.icon className="h-5 w-5 text-gray-400" />
-                            <div>
-                              <CardTitle className="text-base text-gray-400">
-                                {action.title}
-                              </CardTitle>
-                              <CardDescription className="text-xs">
-                                {action.description}
-                              </CardDescription>
+                    <div className="rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm opacity-50 cursor-not-allowed">
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="text-gray-400">
+                              <action.icon className="h-5 w-5" />
                             </div>
+                            <h3 className="text-sm font-medium text-gray-400">{action.title}</h3>
                           </div>
                         </div>
-                      </CardHeader>
-                    </Card>
+                        <p className="text-xs text-gray-400">{action.description}</p>
+                      </div>
+                    </div>
                   }
                 >
                   <Link href={action.href}>
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <action.icon className="h-5 w-5 text-circleTel-orange" />
-                            <div>
-                              <CardTitle className="text-base">
-                                {action.title}
-                              </CardTitle>
-                              <CardDescription className="text-xs">
-                                {action.description}
-                              </CardDescription>
+                    <div className="rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 cursor-pointer hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30">
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="text-circleTel-orange">
+                              <action.icon className="h-5 w-5" />
                             </div>
+                            <h3 className="text-sm font-medium text-gray-600">{action.title}</h3>
                           </div>
                           {action.badge && (
                             <Badge variant="destructive" className="text-xs">
@@ -560,8 +550,9 @@ export default function AdminDashboard() {
                             </Badge>
                           )}
                         </div>
-                      </CardHeader>
-                    </Card>
+                        <p className="text-xs text-gray-500">{action.description}</p>
+                      </div>
+                    </div>
                   </Link>
                 </PermissionGate>
               ))}
@@ -593,23 +584,20 @@ export default function AdminDashboard() {
 
         <TabsContent value="system" className="space-y-6 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <Card className="lg:col-span-1 hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    Payment Provider Health
-                  </CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    NetCash gateway status
-                  </CardDescription>
+            <div className="lg:col-span-1 rounded-lg relative overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg hover:border-circleTel-orange/30">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="text-gray-400">
+                      <DollarSign className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-600">Payment Provider Health</h3>
+                  </div>
                 </div>
-                <div className="p-2 rounded-lg bg-orange-100">
-                  <DollarSign className="h-5 w-5 text-circleTel-orange" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
+                <p className="text-xs text-gray-500 mb-4">NetCash gateway status</p>
+                
                 {providerHealthLoading && !providerHealth && (
-                  <div className="flex items-center gap-2 text-sm text-circleTel-secondaryNeutral">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
                     <RefreshCw className="h-4 w-4 animate-spin" />
                     <span>Checking payment gateway health…</span>
                   </div>
@@ -641,21 +629,21 @@ export default function AdminDashboard() {
 
                       return (
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="text-2xl font-bold text-circleTel-darkNeutral">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-2xl font-bold text-gray-900 tracking-tight">
                               NetCash
-                            </div>
+                            </p>
                             <Badge variant="outline" className={statusClasses}>
                               {statusLabel}
                             </Badge>
                           </div>
-                          <div className="text-xs text-circleTel-secondaryNeutral">
+                          <p className="text-sm font-medium text-gray-700">
                             Environment: {netcash.test_mode ? 'Test' : 'Production'}
-                          </div>
-                          <div className="text-xs text-circleTel-secondaryNeutral">
+                          </p>
+                          <p className="text-xs text-gray-500">
                             Providers healthy: {providerHealth.summary.healthy_providers}/
                             {providerHealth.summary.total_providers}
-                          </div>
+                          </p>
                         </div>
                       );
                     })()}
@@ -669,7 +657,7 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                <div className="pt-2 text-xs">
+                <div className="pt-4 text-xs">
                   <Link
                     href="/admin/payments/monitoring"
                     className="text-circleTel-orange hover:underline"
@@ -677,8 +665,8 @@ export default function AdminDashboard() {
                     View detailed payment monitoring
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
