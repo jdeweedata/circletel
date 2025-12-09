@@ -278,6 +278,21 @@ export default function ServiceAddressPage() {
       }
 
       toast.dismiss();
+
+      // Handle existing order case - user already has a pending order for this address
+      if (result.existing_order) {
+        toast.info(`You already have a pending order (${result.order.order_number}). Redirecting to your dashboard...`);
+
+        // Store for dashboard reference
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('circletel_pending_order_id', result.order.id);
+        }
+
+        router.push('/dashboard');
+        return;
+      }
+
+      // New order created successfully
       toast.success('Order created successfully! Redirecting to your dashboard...');
 
       // Redirect to dashboard (will show login if not authenticated)

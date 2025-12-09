@@ -45,21 +45,13 @@ export function PaymentMethodSection({
     }, 45000);
 
     try {
-      // Initiate R1.00 validation charge using test-initiate endpoint
-      const response = await fetch('/api/payments/test-initiate', {
+      // Initiate R1.00 validation charge using dedicated payment-method-initiate endpoint
+      // This endpoint handles authentication, customer lookup, and correct return URLs
+      const response = await fetch('/api/payments/payment-method-initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: 1.0, // R1.00 validation charge
-          currency: 'ZAR',
-          reference: `PAYMENT-METHOD-VALIDATION-${Date.now()}`,
-          customer_email: '', // Will be auto-filled by API from session
-          metadata: {
-            type: 'payment_method_validation',
-            validation_amount: 1.0,
-            timestamp: new Date().toISOString(),
-          },
-        }),
+        // No body needed - endpoint handles everything internally based on authenticated user
+        body: JSON.stringify({}),
         signal: controller.signal,
       });
 
@@ -72,6 +64,7 @@ export function PaymentMethodSection({
       toast.success('Redirecting to secure payment...');
 
       // Redirect to NetCash payment page
+      // After payment, user will be redirected to /dashboard/billing?payment_method=success|cancelled
       setTimeout(() => {
         window.location.href = data.payment_url as string;
       }, 1000);

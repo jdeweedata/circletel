@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,52 +76,88 @@ interface BillingData {
 
 export default function BillingPage() {
   const { session } = useCustomerAuth();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('invoices');
 
-  useEffect(() => {
-    async function fetchBillingData() {
-      if (!session?.access_token) {
-        console.error('No session found');
-        setError('Please log in to view billing information');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/dashboard/billing', {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch billing data: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          setData(result.data);
-          setError(null);
-        } else {
-          console.error('Invalid response format:', result);
-          setError(result.error || 'Failed to load billing information');
-          setData(null);
-        }
-      } catch (err) {
-        console.error('Billing error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load billing information');
-        setData(null);
-      } finally {
-        setLoading(false);
-      }
+  // Memoized fetch function that can be called from multiple places
+  const fetchBillingData = useCallback(async () => {
+    if (!session?.access_token) {
+      console.error('No session found');
+      setError('Please log in to view billing information');
+      setLoading(false);
+      return;
     }
 
+    try {
+      const response = await fetch('/api/dashboard/billing', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch billing data: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        setData(result.data);
+        setError(null);
+      } else {
+        console.error('Invalid response format:', result);
+        setError(result.error || 'Failed to load billing information');
+        setData(null);
+      }
+    } catch (err) {
+      console.error('Billing error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load billing information');
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.access_token]);
+
+  // Initial data fetch
+  useEffect(() => {
     fetchBillingData();
-  }, [session]);
+  }, [fetchBillingData]);
+
+  // Handle payment method return URL parameters
+  useEffect(() => {
+    const paymentMethodStatus = searchParams.get('payment_method');
+    const ref = searchParams.get('ref');
+
+    if (paymentMethodStatus === 'success') {
+      // Show success toast
+      toast.success('Payment method added successfully! Your account has been credited R1.00.');
+
+      // Refresh billing data to show new payment method
+      fetchBillingData();
+
+      // Switch to payment methods tab to show the new method
+      setActiveTab('methods');
+
+      // Clean URL by removing query parameters
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/billing');
+      }
+    } else if (paymentMethodStatus === 'cancelled') {
+      // Show cancelled toast
+      toast.error('Payment method validation was cancelled. Please try again.');
+
+      // Switch to payment methods tab
+      setActiveTab('methods');
+
+      // Clean URL
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/billing');
+      }
+    }
+  }, [searchParams, fetchBillingData]);
 
   if (loading) {
     return (

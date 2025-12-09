@@ -99,6 +99,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for existing pending/active orders with same email, address, and package
+    // This prevents duplicate orders for the same service at the same address
+    console.log('[create-pending] Checking for duplicate orders...');
+    const { data: existingOrders, error: duplicateCheckError } = await supabase
+      .from('consumer_orders')
+      .select('id, order_number, status, payment_status, package_name, installation_address, service_package_id, created_at')
+      .eq('email', email.toLowerCase())
+      .in('status', ['pending', 'confirmed', 'processing', 'installation_scheduled'])
+      .limit(10);
+
+    if (duplicateCheckError) {
+      console.error('[create-pending] Error checking for duplicates:', duplicateCheckError);
+      // Continue with order creation if check fails - don't block the user
+    }
+
+    if (existingOrders && existingOrders.length > 0) {
+      const normalizedAddress = installation_address.trim().toLowerCase();
+
+      // Find a matching order with same address and package
+      const matchingOrder = existingOrders.find(order => {
+        const orderAddr = (order.installation_address || '').trim().toLowerCase();
+        // Check if addresses match (either contains the other for partial matches)
+        const addressMatch = orderAddr.includes(normalizedAddress) ||
+                            normalizedAddress.includes(orderAddr) ||
+                            orderAddr === normalizedAddress;
+        // Check if package matches (by ID or name)
+        const packageMatch = (service_package_id && order.service_package_id === service_package_id) ||
+                            order.package_name === package_name;
+        return addressMatch && packageMatch;
+      });
+
+      if (matchingOrder) {
+        console.log('[create-pending] Existing order found:', matchingOrder.order_number);
+
+        return NextResponse.json({
+          success: true,
+          existing_order: true,
+          order: {
+            id: matchingOrder.id,
+            order_number: matchingOrder.order_number,
+            status: matchingOrder.status,
+            payment_status: matchingOrder.payment_status,
+            package_name: matchingOrder.package_name,
+            created_at: matchingOrder.created_at
+          },
+          message: 'You already have a pending order for this address. Please check your dashboard.'
+        });
+      }
+    }
+
+    console.log('[create-pending] No duplicate found, proceeding with order creation');
+
     // Generate order number
     const orderNumber = await generateOrderNumber(supabase);
     const paymentReference = `PAY-${orderNumber}`;

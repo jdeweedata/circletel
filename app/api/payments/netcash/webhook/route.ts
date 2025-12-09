@@ -247,14 +247,107 @@ export async function POST(request: NextRequest) {
 
     // Process completed payments
     if (paymentStatus === 'completed') {
-      // Get the payment transaction ID
+      // Get the payment transaction with metadata
       const { data: paymentTransaction } = await supabase
         .from('payment_transactions')
-        .select('id')
+        .select('id, metadata, customer_id, customer_email')
         .eq('transaction_id', transactionId)
         .single();
 
       if (paymentTransaction?.id) {
+        // Check if this is a payment method validation transaction
+        const txMetadata = paymentTransaction.metadata as Record<string, unknown> || {};
+
+        if (txMetadata.type === 'payment_method_validation') {
+          console.log('[Payment Method Validation] Processing successful validation');
+
+          const customerId = paymentTransaction.customer_id || txMetadata.customer_id as string;
+
+          if (customerId) {
+            try {
+              // Check if customer already has a primary payment method
+              const { data: existingMethods } = await supabase
+                .from('customer_payment_methods')
+                .select('id')
+                .eq('customer_id', customerId)
+                .eq('is_primary', true)
+                .eq('is_active', true)
+                .limit(1);
+
+              const shouldBePrimary = !existingMethods || existingMethods.length === 0;
+
+              // Extract payment method details from NetCash response
+              const paymentMethodType = bodyParsed.PaymentMethod || bodyParsed.payment_method || 'card';
+              const cardType = bodyParsed.CardType || bodyParsed.card_type || 'unknown';
+              const maskedCard = bodyParsed.CardMasked || bodyParsed.MaskedPan || bodyParsed.card_masked || '';
+              const lastFour = maskedCard ? maskedCard.slice(-4) : '****';
+
+              // Determine method type
+              const methodType = paymentMethodType.toLowerCase().includes('card') ||
+                                paymentMethodType.toLowerCase().includes('visa') ||
+                                paymentMethodType.toLowerCase().includes('master') ? 'card' : 'eft';
+
+              // Store the validated payment method
+              const { error: pmError } = await supabase
+                .from('customer_payment_methods')
+                .insert({
+                  customer_id: customerId,
+                  method_type: methodType,
+                  display_name: `${cardType !== 'unknown' ? cardType : methodType.toUpperCase()} ***${lastFour}`,
+                  last_four: lastFour,
+                  card_type: cardType !== 'unknown' ? cardType : null,
+                  card_masked_number: maskedCard || null,
+                  is_primary: shouldBePrimary,
+                  is_active: true,
+                  token_status: 'verified',
+                  token_verified_at: new Date().toISOString(),
+                  encrypted_details: JSON.stringify({
+                    validation_transaction_id: transactionId,
+                    payment_method: paymentMethodType,
+                    card_type: cardType,
+                    validated_at: new Date().toISOString()
+                  }),
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                });
+
+              if (pmError) {
+                console.error('[Payment Method Validation] Failed to store payment method:', pmError);
+              } else {
+                console.log('[Payment Method Validation] Payment method stored successfully', {
+                  customer_id: customerId,
+                  method_type: methodType,
+                  is_primary: shouldBePrimary
+                });
+              }
+            } catch (storageError) {
+              console.error('[Payment Method Validation] Error storing payment method:', storageError);
+            }
+          } else {
+            console.warn('[Payment Method Validation] No customer_id found in transaction');
+          }
+
+          // Mark webhook as processed and return early (don't process as invoice/order)
+          if (webhookLog) {
+            await supabase
+              .from('payment_webhook_logs')
+              .update({
+                status: 'processed',
+                success: true,
+                processing_completed_at: new Date().toISOString(),
+                processing_duration_ms: Date.now() - startTime,
+                actions_taken: ['payment_method_validation_stored']
+              })
+              .eq('id', webhookLog.id);
+          }
+
+          return NextResponse.json({
+            success: true,
+            message: 'Payment method validation processed',
+            transaction_id: transactionId
+          });
+        }
+
         // Check if this is an invoice payment (reference starts with INV-)
         if (reference.startsWith('INV-')) {
           // Update invoice status to paid
