@@ -97,9 +97,9 @@ export default function AccountPage() {
     const hasCoverageData = state.orderData.coverage?.address ||
                             state.orderData.coverage?.coordinates;
 
-    // Check localStorage as backup
+    // Check sessionStorage as backup
     const savedCoverage = typeof window !== 'undefined'
-      ? localStorage.getItem('circletel_coverage_address')
+      ? sessionStorage.getItem('circletel_coverage_address')
       : null;
 
     if (!hasPackageData && !hasCoverageData && !savedCoverage) {

@@ -313,9 +313,9 @@ export function InteractiveCoverageMapModal({
         }
       }
 
-      // Store address in localStorage for persistence with full components
+      // Store address in sessionStorage (clears when browser closes)
       if (typeof window !== 'undefined') {
-        localStorage.setItem('circletel_coverage_address', JSON.stringify({
+        sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
           address: address,
           coordinates: markerPosition,
           addressComponents: addressComponents,

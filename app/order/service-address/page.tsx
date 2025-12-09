@@ -73,9 +73,9 @@ export default function ServiceAddressPage() {
     const hasCoverageData = state.orderData.coverage?.address || 
                             state.orderData.coverage?.coordinates;
     
-    // Check localStorage as backup
-    const savedCoverage = typeof window !== 'undefined' 
-      ? localStorage.getItem('circletel_coverage_address') 
+    // Check sessionStorage as backup
+    const savedCoverage = typeof window !== 'undefined'
+      ? sessionStorage.getItem('circletel_coverage_address')
       : null;
     
     if (!hasPackageData && !hasCoverageData && !savedCoverage) {
@@ -84,10 +84,10 @@ export default function ServiceAddressPage() {
     }
   }, [state.orderData.package, state.orderData.coverage, router]);
 
-  // Load persisted address from localStorage as backup
+  // Load persisted address from sessionStorage as backup
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem('circletel_coverage_address');
+      const savedData = sessionStorage.getItem('circletel_coverage_address');
       if (savedData && !installationAddress) {
         try {
           const parsed = JSON.parse(savedData);
@@ -138,9 +138,9 @@ export default function ServiceAddressPage() {
       return;
     }
 
-    // Update localStorage
+    // Update sessionStorage
     if (typeof window !== 'undefined') {
-      const existingData = localStorage.getItem('circletel_coverage_address');
+      const existingData = sessionStorage.getItem('circletel_coverage_address');
       let savedData = { address: installationAddress, type: serviceType };
 
       if (existingData) {
@@ -152,7 +152,7 @@ export default function ServiceAddressPage() {
         }
       }
 
-      localStorage.setItem('circletel_coverage_address', JSON.stringify({
+      sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
         ...savedData,
         address: installationAddress,
         type: serviceType,

@@ -51,9 +51,9 @@ export default function PaymentPage() {
     const hasAccountData = account?.email;
     const hasCoverageData = coverage?.address || coverage?.coordinates;
     
-    // Check localStorage as backup
-    const savedCoverage = typeof window !== 'undefined' 
-      ? localStorage.getItem('circletel_coverage_address') 
+    // Check sessionStorage as backup
+    const savedCoverage = typeof window !== 'undefined'
+      ? sessionStorage.getItem('circletel_coverage_address')
       : null;
     
     if (!hasPackageData && !hasCoverageData && !savedCoverage) {

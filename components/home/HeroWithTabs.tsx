@@ -44,10 +44,10 @@ export function HeroWithTabs() {
 
   const currentTab = COVERAGE_TABS.find(tab => tab.id === activeTab) || COVERAGE_TABS[0];
 
-  // Load persisted address from localStorage on mount
+  // Load persisted address from sessionStorage on mount (clears when browser closes)
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem('circletel_coverage_address');
+      const savedData = sessionStorage.getItem('circletel_coverage_address');
       if (savedData) {
         try {
           const parsed = JSON.parse(savedData);
@@ -90,8 +90,8 @@ export function HeroWithTabs() {
     if (address.trim()) {
       setIsChecking(true);
       try {
-        // Store address in localStorage for persistence with full components
-        localStorage.setItem('circletel_coverage_address', JSON.stringify({
+        // Store address in sessionStorage (clears when browser closes)
+        sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
           address: address.trim(),
           coordinates: coordinates,
           type: activeTab,

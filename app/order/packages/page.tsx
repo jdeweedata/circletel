@@ -44,9 +44,9 @@ export default function OrderPackagesPage() {
                             orderState.orderData.coverage?.coordinates ||
                             leadId; // leadId from URL means they came from coverage check
     
-    // Also check localStorage for coverage data
-    const savedCoverage = typeof window !== 'undefined' 
-      ? localStorage.getItem('circletel_coverage_address') 
+    // Also check sessionStorage for coverage data
+    const savedCoverage = typeof window !== 'undefined'
+      ? sessionStorage.getItem('circletel_coverage_address')
       : null;
     
     if (!hasCoverageData && !savedCoverage && !loading) {

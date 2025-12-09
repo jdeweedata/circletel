@@ -65,8 +65,8 @@ export default function CoveragePage() {
     setIsChecking(true);
 
     try {
-      // Store address in localStorage for persistence
-      localStorage.setItem('circletel_coverage_address', JSON.stringify({
+      // Store address in sessionStorage (clears when browser closes)
+      sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
         address: address.trim(),
         coordinates: coordinates,
         type: coverageType,
