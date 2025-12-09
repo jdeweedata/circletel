@@ -530,7 +530,7 @@ export default function AccountPage() {
                           >
                             I agree to the{' '}
                             <Link
-                              href="/terms-of-service"
+                              href="/terms"
                               target="_blank"
                               className="text-[#F5831F] hover:underline font-medium"
                             >
