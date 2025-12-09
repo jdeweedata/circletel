@@ -23,6 +23,7 @@ export class MTNWholesaleClient {
   private productsCache: string[] | null = null;
   private productsCacheTime: number = 0;
   private readonly PRODUCTS_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+  private readonly DEFAULT_RADIUS_METERS = 500; // Default radius for multi-point check
 
   constructor(config?: Partial<MTNWholesaleConfig>) {
     this.config = {
@@ -41,6 +42,38 @@ export class MTNWholesaleClient {
     const controller = new AbortController();
     setTimeout(() => controller.abort(), ms);
     return controller.signal;
+  }
+
+  /**
+   * Generate cardinal points around a center coordinate for multi-point coverage check
+   * This compensates for geocoding inaccuracy (Google Maps can be ~460m off)
+   *
+   * @param center - Center coordinates from geocoding
+   * @param radiusMeters - Radius in meters (default 500m covers typical geocoding variance)
+   * @returns Array of 5 coordinates: center + N/S/E/W
+   *
+   * Pattern:
+   *         N (500m)
+   *           •
+   *           |
+   *   W •-----+-----• E (500m)
+   *           |
+   *           •
+   *         S (500m)
+   */
+  private generateCardinalPoints(center: Coordinates, radiusMeters: number = this.DEFAULT_RADIUS_METERS): Coordinates[] {
+    // 1 degree latitude ≈ 111,000 meters (constant worldwide)
+    // 1 degree longitude ≈ 111,000 * cos(latitude) meters (varies by latitude)
+    const latOffset = radiusMeters / 111000;
+    const lngOffset = radiusMeters / (111000 * Math.cos(center.lat * Math.PI / 180));
+
+    return [
+      center, // Center point (original geocoded location)
+      { lat: center.lat + latOffset, lng: center.lng }, // North
+      { lat: center.lat - latOffset, lng: center.lng }, // South
+      { lat: center.lat, lng: center.lng - lngOffset }, // West
+      { lat: center.lat, lng: center.lng + lngOffset }, // East
+    ];
   }
 
   /**
@@ -89,11 +122,18 @@ export class MTNWholesaleClient {
 
   /**
    * Check feasibility for multiple products at a location
+   * Uses multi-point radius check to compensate for geocoding inaccuracy (~460m variance)
+   *
+   * @param coordinates - Center coordinates (from geocoding)
+   * @param productNames - Product names to check (defaults to all)
+   * @param customerName - Customer name for the request
+   * @param useRadiusCheck - Enable multi-point radius check (default: true)
    */
   async checkFeasibility(
     coordinates: Coordinates,
     productNames?: string[],
-    customerName?: string
+    customerName?: string,
+    useRadiusCheck: boolean = true
   ): Promise<MTNWholesaleCoverageResult> {
     const startTime = Date.now();
 
@@ -104,15 +144,29 @@ export class MTNWholesaleClient {
         products = await this.getProducts();
       }
 
-      // Build request
+      // Generate check points: center + cardinal points at 500m radius (if enabled)
+      // This compensates for Google Maps geocoding variance (~460m observed)
+      const checkPoints = useRadiusCheck
+        ? this.generateCardinalPoints(coordinates, this.DEFAULT_RADIUS_METERS)
+        : [coordinates];
+
+      const pointLabels = ['Center', 'North', 'South', 'West', 'East'];
+
+      console.log('[MTN Wholesale] Checking feasibility with', checkPoints.length, 'points:', {
+        center: coordinates,
+        radiusCheck: useRadiusCheck,
+        radiusMeters: this.DEFAULT_RADIUS_METERS
+      });
+
+      // Build request with multiple inputs (single API call)
       const request: MTNFeasibilityRequest = {
-        inputs: [
-          {
-            latitude: coordinates.lat.toString(),
-            longitude: coordinates.lng.toString(),
-            customer_name: customerName || `Location ${coordinates.lat},${coordinates.lng}`
-          }
-        ],
+        inputs: checkPoints.map((coord, i) => ({
+          latitude: coord.lat.toString(),
+          longitude: coord.lng.toString(),
+          customer_name: customerName
+            ? `${customerName} (${pointLabels[i] || `Point_${i}`})`
+            : `${pointLabels[i] || `Point_${i}`} ${coord.lat.toFixed(6)},${coord.lng.toFixed(6)}`
+        })),
         product_names: products,
         requestor: 'coverage@circletel.co.za'
       };
@@ -142,16 +196,70 @@ export class MTNWholesaleClient {
         throw new Error(`API Error: ${data.error_message}`);
       }
 
-      // Parse and map results
-      const output = data.outputs[0]; // We only sent one location
-      const mappedProducts = output?.product_results?.map(product => ({
-        name: product.product_name,
-        feasible: product.product_feasible.toLowerCase() === 'yes',
-        capacity: product.product_capacity,
-        region: product.product_region,
-        notes: product.product_notes,
-        productCategory: this.mapProductToCategory(product.product_name)
-      })) || [];
+      // Aggregate results from ALL check points
+      // A product is considered feasible if it's feasible at ANY of the check points
+      const productFeasibilityMap = new Map<string, {
+        feasible: boolean;
+        capacity: string;
+        region: string;
+        notes: string;
+        feasibleAt: string[];
+      }>();
+
+      // Process each output (one per check point)
+      data.outputs.forEach((output, pointIndex) => {
+        const pointLabel = pointLabels[pointIndex] || `Point_${pointIndex}`;
+
+        output.product_results?.forEach(product => {
+          const isFeasible = product.product_feasible.toLowerCase() === 'yes';
+          const existing = productFeasibilityMap.get(product.product_name);
+
+          if (existing) {
+            // Update if this point shows feasibility
+            if (isFeasible && !existing.feasible) {
+              existing.feasible = true;
+              existing.capacity = product.product_capacity;
+              existing.region = product.product_region;
+              existing.notes = product.product_notes;
+            }
+            if (isFeasible) {
+              existing.feasibleAt.push(pointLabel);
+            }
+          } else {
+            // First occurrence of this product
+            productFeasibilityMap.set(product.product_name, {
+              feasible: isFeasible,
+              capacity: product.product_capacity,
+              region: product.product_region,
+              notes: product.product_notes,
+              feasibleAt: isFeasible ? [pointLabel] : []
+            });
+          }
+        });
+      });
+
+      // Convert map to array format
+      const mappedProducts = Array.from(productFeasibilityMap.entries()).map(([name, result]) => ({
+        name,
+        feasible: result.feasible,
+        capacity: result.capacity,
+        region: result.region,
+        notes: result.feasibleAt.length > 0
+          ? `${result.notes || ''} [Feasible at: ${result.feasibleAt.join(', ')}]`.trim()
+          : result.notes,
+        productCategory: this.mapProductToCategory(name)
+      }));
+
+      // Log aggregated results
+      const feasibleProducts = mappedProducts.filter(p => p.feasible);
+      console.log('[MTN Wholesale] Aggregated feasibility results:', {
+        totalProducts: mappedProducts.length,
+        feasibleCount: feasibleProducts.length,
+        feasibleProducts: feasibleProducts.map(p => ({
+          name: p.name,
+          feasibleAt: productFeasibilityMap.get(p.name)?.feasibleAt
+        }))
+      });
 
       const responseTime = Date.now() - startTime;
 
