@@ -23,8 +23,10 @@ import {
   DollarSign,
   FileText,
   Zap,
-  ExternalLink
+  ExternalLink,
+  PlusCircle
 } from 'lucide-react';
+import { ManualPaymentDialog } from '@/components/admin/billing/ManualPaymentDialog';
 
 interface Payment {
   id: string;
@@ -91,6 +93,7 @@ export default function InvoiceDetailPage() {
   const [data, setData] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -267,6 +270,16 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          {invoice.status !== 'paid' && (
+            <Button
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => setShowPaymentDialog(true)}
+            >
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Record Payment
+            </Button>
+          )}
           <Button variant="outline">
             <Mail className="h-4 w-4 mr-2" />
             Send Reminder
@@ -277,6 +290,23 @@ export default function InvoiceDetailPage() {
           </Button>
         </div>
       </div>
+
+      {/* Manual Payment Dialog */}
+      {invoice.status !== 'paid' && (
+        <ManualPaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={setShowPaymentDialog}
+          invoice={{
+            id: invoice.id,
+            invoice_number: invoice.invoice_number,
+            total_amount: invoice.total_amount,
+            amount_paid: invoice.amount_paid,
+            amount_due: invoice.amount_due,
+            status: invoice.status,
+          }}
+          onPaymentRecorded={() => fetchInvoice(params.id as string)}
+        />
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

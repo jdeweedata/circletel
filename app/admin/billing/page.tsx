@@ -357,11 +357,12 @@ export default function BillingDashboard() {
                 <span>Customer Billing</span>
               </Button>
             </Link>
-            <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2" disabled>
-              <CreditCard className="h-6 w-6 text-green-500" />
-              <span>Payment Methods</span>
-              <Badge variant="secondary" className="text-xs">Coming Soon</Badge>
-            </Button>
+            <Link href="/admin/billing/payment-methods">
+              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+                <CreditCard className="h-6 w-6 text-green-500" />
+                <span>Payment Methods</span>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
