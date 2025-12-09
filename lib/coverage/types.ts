@@ -19,6 +19,20 @@ export interface CoverageCheckResult {
   services: ServiceCoverage[];
   providers: ProviderCoverage[];
   lastUpdated: string;
+  metadata?: {
+    source?: string;
+    endpoint?: string;
+    phase?: string;
+    note?: string;
+    error?: string;
+    infrastructureEstimatorAvailable?: boolean;
+    wholesaleFallbackUsed?: boolean;
+    coverageType?: string;
+    buildingId?: string;
+    distance?: number;
+    installationEstimate?: any;
+    productsAvailable?: number;
+  };
 }
 
 export interface CoverageCheckResponse {
