@@ -236,7 +236,11 @@ export class CoverageAggregationService {
           s => s.type === 'uncapped_wireless' && s.available
         );
 
+        // Track wholesale fallback debug info
+        let wholesaleDebug: { attempted: boolean; result?: any; error?: string } = { attempted: false };
+
         if (!hasUncappedWireless) {
+          wholesaleDebug.attempted = true;
           try {
             console.log('[MTN Coverage] WMS missing uncapped_wireless, trying Wholesale API fallback for:', {
               lat: coordinates.lat,
@@ -257,6 +261,14 @@ export class CoverageAggregationService {
               responseTime: wholesaleResult.responseTime
             });
 
+            // Store debug info
+            wholesaleDebug.result = {
+              available: wholesaleResult.available,
+              productCount: wholesaleResult.products.length,
+              error: wholesaleResult.error,
+              responseTime: wholesaleResult.responseTime
+            };
+
             const fwbProduct = wholesaleResult.products.find(
               p => p.name === 'Fixed Wireless Broadband' && p.feasible
             );
@@ -274,13 +286,18 @@ export class CoverageAggregationService {
                 provider: 'MTN',
                 technology: 'Tarana Wireless G1'
               });
+              wholesaleDebug.result.fwbFound = true;
+              wholesaleDebug.result.capacity = fwbProduct.capacity;
             } else if (wholesaleResult.error) {
               console.error('[MTN Coverage] Wholesale API returned error:', wholesaleResult.error);
+              wholesaleDebug.error = wholesaleResult.error;
             } else {
               console.log('[MTN Coverage] Wholesale API found no Fixed Wireless Broadband coverage');
+              wholesaleDebug.result.fwbFound = false;
             }
           } catch (wholesaleError) {
             console.error('[MTN Coverage] Wholesale API fallback exception:', wholesaleError);
+            wholesaleDebug.error = wholesaleError instanceof Error ? wholesaleError.message : 'Unknown error';
             // Continue without Wholesale fallback - WMS results still valid
           }
         }
@@ -301,7 +318,8 @@ export class CoverageAggregationService {
             endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
             phase: 'phase_3_infrastructure_ready',
             infrastructureEstimatorAvailable: true,
-            wholesaleFallbackUsed: !hasUncappedWireless && services.some(s => s.type === 'uncapped_wireless')
+            wholesaleFallbackUsed: !hasUncappedWireless && services.some(s => s.type === 'uncapped_wireless'),
+            wholesaleDebug
           }
         };
       }

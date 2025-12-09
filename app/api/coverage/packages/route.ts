@@ -81,6 +81,9 @@ export async function GET(request: NextRequest) {
           const mtnProvider = coverageResult.providers.mtn;
           const dfaProvider = coverageResult.providers.dfa;
           
+          // Get aggregation metadata including wholesale debug info
+          const aggMeta = (coverageResult as any)?.metadata;
+
           coverageMetadata = {
             providers: {
               mtn: mtnProvider ? {
@@ -93,10 +96,10 @@ export async function GET(request: NextRequest) {
               } : null
             },
             lastUpdated: coverageResult.lastUpdated,
-            totalServicesFound: availableServices.length
+            totalServicesFound: availableServices.length,
+            // Include wholesale debug info for troubleshooting
+            wholesaleDebug: aggMeta?.wholesaleDebug
           };
-
-          const aggMeta = (coverageResult as any)?.metadata;
           if (aggMeta && typeof aggMeta === 'object') {
             if (typeof aggMeta.coverageType === 'string') {
               fibreCoverage = aggMeta.coverageType as any;
