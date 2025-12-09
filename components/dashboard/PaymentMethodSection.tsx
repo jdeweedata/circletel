@@ -80,6 +80,11 @@ export function PaymentMethodSection({
   });
 
   const handleAddPaymentMethod = async () => {
+    if (!session?.access_token) {
+      toast.error('Please sign in to add a payment method');
+      return;
+    }
+
     setIsProcessing(true);
 
     const controller = new AbortController();
@@ -92,7 +97,10 @@ export function PaymentMethodSection({
       // This endpoint handles authentication, customer lookup, and correct return URLs
       const response = await fetch('/api/payments/payment-method-initiate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
         // No body needed - endpoint handles everything internally based on authenticated user
         body: JSON.stringify({}),
         signal: controller.signal,
