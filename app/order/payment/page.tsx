@@ -163,16 +163,24 @@ export default function PaymentPage() {
         body: JSON.stringify(orderData),
       });
 
-      if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        console.error('Order creation failed:', errorData);
-        const errorMessage = errorData.details
-          ? `${errorData.error}: ${errorData.details}`
-          : errorData.error || 'Failed to create order';
+      const orderResult = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderResult.success) {
+        console.error('Order creation failed:', orderResult);
+        const errorMessage = orderResult.details
+          ? `${orderResult.error}: ${orderResult.details}`
+          : orderResult.error || 'Failed to create order';
         throw new Error(errorMessage);
       }
 
-      const { order } = await orderResponse.json();
+      // Handle existing order case - duplicate prevention
+      if (orderResult.existing_order) {
+        toast.info(`You already have a pending order (${orderResult.order.order_number}). Redirecting to your dashboard...`);
+        router.push('/dashboard');
+        return;
+      }
+
+      const { order } = orderResult;
 
       // Save order ID for tracking
       saveOrderId(order.id);

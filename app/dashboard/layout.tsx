@@ -18,7 +18,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, signOut, loading } = useCustomerAuth();
+  const { user, session, signOut, loading } = useCustomerAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Initialize sidebar state from localStorage
@@ -45,12 +45,17 @@ export default function DashboardLayout({
     });
   };
 
-  // Auth redirect
+  // Auth redirect - with race condition protection
+  // Check both user AND session to prevent premature redirects during auth initialization
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/order/account');
+    if (!loading && !user && !session) {
+      // Small delay to allow auth state to fully settle after provider initialization
+      const timeoutId = setTimeout(() => {
+        router.push('/auth/login?redirect=/dashboard');
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
-  }, [user, loading, router]);
+  }, [user, session, loading, router]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -69,19 +74,22 @@ export default function DashboardLayout({
     );
   }
 
-  // Not authenticated
-  if (!user) {
+  // Not authenticated - check both user and session
+  if (!user && !session) {
     return null;
   }
 
+  // Get user from state or session as fallback
+  const currentUser = user || session?.user;
+
   // Get user display name
   const displayName =
-    [user.user_metadata?.firstName, user.user_metadata?.lastName]
+    [currentUser?.user_metadata?.firstName, currentUser?.user_metadata?.lastName]
       .filter(Boolean)
       .join(' ') ||
-    (user.user_metadata as any)?.full_name ||
-    (user.user_metadata as any)?.name ||
-    (user.email ? user.email.split('@')[0] : '') ||
+    (currentUser?.user_metadata as any)?.full_name ||
+    (currentUser?.user_metadata as any)?.name ||
+    (currentUser?.email ? currentUser.email.split('@')[0] : '') ||
     'User';
 
   return (
@@ -90,7 +98,7 @@ export default function DashboardLayout({
         {/* Header with tabs (desktop) */}
         <DashboardHeader
           displayName={displayName}
-          email={user.email || ''}
+          email={currentUser?.email || ''}
           onSignOut={handleSignOut}
         />
 
