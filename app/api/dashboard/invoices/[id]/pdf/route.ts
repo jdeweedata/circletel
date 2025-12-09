@@ -7,11 +7,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/dashboard/invoices/[id]/pdf
- * 
+ *
  * Returns:
  * - PDF file stream
  * - Content-Type: application/pdf
@@ -22,19 +23,37 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient();
     const { id } = await context.params;
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+
+    // Support both Bearer token and cookie authentication
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    let user: any = null;
+    let supabase: any;
+
+    if (token) {
+      // Use service role client for token validation
+      supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
       );
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
+      if (tokenError || !tokenUser) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      user = tokenUser;
+    } else {
+      // Fall back to cookies
+      supabase = await createServerClient();
+      const { data: { user: cookieUser }, error: cookieError } = await supabase.auth.getUser();
+      if (cookieError || !cookieUser) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      user = cookieUser;
     }
-    
+
     // Get customer_id from auth_user_id
     const { data: customer } = await supabase
       .from('customers')

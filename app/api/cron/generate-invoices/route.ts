@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { BillingService } from '@/lib/billing/billing-service';
+import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
 
 /**
  * POST /api/cron/generate-invoices
@@ -74,7 +75,8 @@ export async function POST(request: NextRequest) {
           first_name,
           last_name,
           email,
-          phone
+          phone,
+          account_number
         )
       `)
       .eq('status', 'active')
@@ -168,7 +170,14 @@ export async function POST(request: NextRequest) {
         );
         
         // Send notifications (email + SMS)
-        await sendInvoiceNotifications(service.customer, invoice);
+        // Calculate subtotal from total_amount - vat_amount
+        const subtotal = invoice.total_amount - invoice.vat_amount;
+        await sendInvoiceNotifications(service.customer, {
+          ...invoice,
+          id: invoice.invoice_id,
+          subtotal,
+          line_items: lineItems,
+        });
         
         console.log(`Generated invoice ${invoice.invoice_number} for service ${service.id}`);
         recordsProcessed++;
@@ -275,26 +284,68 @@ async function logExecution(
 
 /**
  * Send invoice notifications (email + SMS)
- * 
- * TODO: Implement actual notification sending
- * - Email via Resend
- * - SMS via Clickatell
+ *
+ * Sends email via Resend with invoice details
+ * SMS reminders are handled by separate cron job for overdue invoices
  */
 async function sendInvoiceNotifications(
-  customer: any,
-  invoice: any
+  customer: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    account_number?: string;
+    phone?: string;
+  },
+  invoice: {
+    id: string;
+    invoice_number: string;
+    total_amount: number;
+    subtotal: number;
+    vat_amount: number;
+    due_date: string;
+    line_items: Array<{
+      description: string;
+      quantity: number;
+      unit_price: number;
+      amount: number;
+    }>;
+  }
 ) {
   try {
-    // TODO: Implement email notification
-    console.log(`Would send invoice email to ${customer.email}`);
-    
-    // TODO: Implement SMS notification
-    console.log(`Would send invoice SMS to ${customer.phone}`);
-    
-    // For now, just log
-    return true;
+    // Skip if no email
+    if (!customer.email) {
+      console.warn(`[Invoice Notification] No email for customer ${customer.id}`);
+      return false;
+    }
+
+    // Send email via Resend
+    const emailResult = await sendInvoiceGenerated({
+      invoice_id: invoice.id,
+      customer_id: customer.id,
+      email: customer.email,
+      customer_name: `${customer.first_name} ${customer.last_name}`.trim(),
+      invoice_number: invoice.invoice_number,
+      total_amount: invoice.total_amount,
+      subtotal: invoice.subtotal,
+      vat_amount: invoice.vat_amount,
+      due_date: invoice.due_date,
+      account_number: customer.account_number,
+      line_items: invoice.line_items,
+    });
+
+    if (emailResult.success) {
+      console.log(`[Invoice Notification] Email sent to ${customer.email} for ${invoice.invoice_number}`);
+    } else {
+      console.error(`[Invoice Notification] Email failed for ${invoice.invoice_number}:`, emailResult.error);
+    }
+
+    // Note: SMS reminders for overdue invoices are handled by /api/cron/invoice-sms-reminders
+    // We don't send SMS for new invoice generation to avoid message fatigue
+
+    return emailResult.success;
   } catch (error) {
-    console.error('Failed to send notifications:', error);
+    console.error('[Invoice Notification] Failed to send notifications:', error);
     // Don't throw - notifications are non-critical
     return false;
   }

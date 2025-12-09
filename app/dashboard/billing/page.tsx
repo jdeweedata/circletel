@@ -399,11 +399,41 @@ export default function BillingPage() {
                                 )}
                               </Button>
                             )}
-                            <Button size="sm" variant="outline" className="gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => window.open(`/dashboard/invoices/${invoice.id}`, '_blank')}
+                            >
                               <Eye className="h-4 w-4" />
                               View
                             </Button>
-                            <Button size="sm" variant="outline" className="gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/api/dashboard/invoices/${invoice.id}/pdf?download=true`, {
+                                    headers: {
+                                      'Authorization': `Bearer ${session?.access_token}`,
+                                    },
+                                  });
+                                  if (!response.ok) throw new Error('Failed to download PDF');
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `${invoice.invoice_number}.pdf`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch (err) {
+                                  toast.error('Failed to download invoice PDF');
+                                }
+                              }}
+                            >
                               <Download className="h-4 w-4" />
                               PDF
                             </Button>
