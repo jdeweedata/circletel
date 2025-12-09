@@ -127,13 +127,13 @@ export class MTNWholesaleClient {
    * @param coordinates - Center coordinates (from geocoding)
    * @param productNames - Product names to check (defaults to all)
    * @param customerName - Customer name for the request
-   * @param useRadiusCheck - Enable multi-point radius check (default: true)
+   * @param useRadiusCheck - Enable multi-point radius check (default: false - disabled to prevent false positives)
    */
   async checkFeasibility(
     coordinates: Coordinates,
     productNames?: string[],
     customerName?: string,
-    useRadiusCheck: boolean = true
+    useRadiusCheck: boolean = false
   ): Promise<MTNWholesaleCoverageResult> {
     const startTime = Date.now();
 
