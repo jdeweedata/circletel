@@ -89,6 +89,11 @@ export async function processPaymentSuccess(
       throw new Error(`Failed to update order: ${updateError.message}`);
     }
 
+    // 2.5. Store payment method for recurring billing
+    if (order.customer_id) {
+      await storePaymentMethod(payload, order.customer_id, order.id, webhookId);
+    }
+
     // 3. Create audit log
     await createWebhookAudit(webhookId, 'order_updated', {
       order_id: order.id,
@@ -631,4 +636,125 @@ export async function getOrderByReference(paymentReference: string): Promise<any
   }
 
   return data;
+}
+
+// ==================================================================
+// PAYMENT METHOD STORAGE
+// ==================================================================
+
+/**
+ * Store payment method for recurring billing
+ * Extracts card details from webhook payload and stores in customer_payment_methods
+ */
+async function storePaymentMethod(
+  payload: NetcashWebhookPayload,
+  customerId: string,
+  orderId: string,
+  webhookId: string
+): Promise<void> {
+  try {
+    const supabase = await getSupabase();
+
+    // Extract card details from payload
+    const cardLast4 = payload.CardNumber?.slice(-4) || 'XXXX';
+    const cardType = (payload.CardType?.toLowerCase() || 'visa') as 'visa' | 'mastercard';
+    const cardToken = payload.Token || payload.CardToken || payload.TransactionID;
+
+    if (!cardToken) {
+      console.warn('[Webhook Processor] No card token in payload, skipping payment method storage');
+      return;
+    }
+
+    // Check if payment method already exists for this customer with same card
+    const { data: existing } = await supabase
+      .from('customer_payment_methods')
+      .select('id')
+      .eq('customer_id', customerId)
+      .eq('card_last_four', cardLast4)
+      .eq('method_type', 'credit_card')
+      .maybeSingle();
+
+    if (existing) {
+      console.log('[Webhook Processor] Payment method already exists:', existing.id);
+      // Update verification status
+      await supabase
+        .from('customer_payment_methods')
+        .update({
+          is_verified: true,
+          verified_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existing.id);
+      return;
+    }
+
+    // Clear any existing primary payment method for this customer
+    await supabase
+      .from('customer_payment_methods')
+      .update({ is_primary: false })
+      .eq('customer_id', customerId)
+      .eq('is_primary', true);
+
+    // Create new payment method
+    const { data: paymentMethod, error } = await supabase
+      .from('customer_payment_methods')
+      .insert({
+        customer_id: customerId,
+        order_id: orderId,
+        method_type: 'credit_card',
+        card_type: cardType,
+        card_last_four: cardLast4,
+        netcash_token: cardToken,
+        is_active: true,
+        is_primary: true,
+        is_verified: true,
+        verified_at: new Date().toISOString(),
+        encrypted_details: {
+          verified: true,
+          verification_method: 'r1_validation',
+          verification_date: new Date().toISOString(),
+          transaction_id: payload.TransactionID,
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to store payment method: ${error.message}`);
+    }
+
+    console.log('[Webhook Processor] Payment method stored:', paymentMethod.id);
+
+    // Update or create customer_billing record with primary payment method
+    const { error: billingError } = await supabase
+      .from('customer_billing')
+      .upsert({
+        customer_id: customerId,
+        primary_payment_method_id: paymentMethod.id,
+        payment_method_type: 'card',
+        auto_pay_enabled: true,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'customer_id',
+      });
+
+    if (billingError) {
+      console.error('[Webhook Processor] Failed to update customer_billing:', billingError);
+    }
+
+    await createWebhookAudit(webhookId, 'payment_method_stored', {
+      payment_method_id: paymentMethod.id,
+      card_type: cardType,
+      card_last_four: cardLast4,
+    });
+
+  } catch (error) {
+    console.error('[Webhook Processor] Failed to store payment method:', error);
+    await createWebhookAudit(webhookId, 'payment_method_storage_failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    // Don't throw - payment processing succeeded, method storage is supplementary
+  }
 }

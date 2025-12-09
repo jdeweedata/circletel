@@ -81,6 +81,7 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('invoices');
+  const [payingInvoiceId, setPayingInvoiceId] = useState<string | null>(null);
 
   // Memoized fetch function that can be called from multiple places
   const fetchBillingData = useCallback(async () => {
@@ -158,6 +159,68 @@ export default function BillingPage() {
       }
     }
   }, [searchParams, fetchBillingData]);
+
+  // Handle invoice payment return URL parameters
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    const invoiceNumber = searchParams.get('invoice');
+
+    if (paymentStatus === 'success' && invoiceNumber) {
+      toast.success(`Payment successful for invoice ${invoiceNumber}!`);
+      fetchBillingData();
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/billing');
+      }
+    } else if (paymentStatus === 'cancelled' && invoiceNumber) {
+      toast.error(`Payment cancelled for invoice ${invoiceNumber}. Please try again.`);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/billing');
+      }
+    }
+  }, [searchParams, fetchBillingData]);
+
+  // Handle invoice payment
+  const handlePayInvoice = async (invoiceId: string, invoiceNumber: string) => {
+    if (!session?.access_token) {
+      toast.error('Please log in to make a payment');
+      return;
+    }
+
+    setPayingInvoiceId(invoiceId);
+
+    try {
+      const response = await fetch(`/api/dashboard/invoices/${invoiceId}/pay`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result.status === 'already_paid') {
+          toast.info('This invoice has already been paid');
+          fetchBillingData();
+          return;
+        }
+        throw new Error(result.error || 'Failed to initiate payment');
+      }
+
+      if (result.success && result.paymentUrl) {
+        toast.info(`Redirecting to payment gateway for R${result.amount.toFixed(2)}...`);
+        window.location.href = result.paymentUrl;
+      } else {
+        throw new Error('No payment URL received');
+      }
+    } catch (err) {
+      console.error('Payment error:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to initiate payment');
+    } finally {
+      setPayingInvoiceId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -315,6 +378,27 @@ export default function BillingPage() {
                             )}
                           </div>
                           <div className="flex flex-col gap-2">
+                            {/* Pay Now button - only for unpaid invoices */}
+                            {invoice.status !== 'paid' && invoice.amount_due > 0 && (
+                              <Button
+                                size="sm"
+                                className="gap-2 bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
+                                onClick={() => handlePayInvoice(invoice.id, invoice.invoice_number)}
+                                disabled={payingInvoiceId === invoice.id}
+                              >
+                                {payingInvoiceId === invoice.id ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard className="h-4 w-4" />
+                                    Pay Now
+                                  </>
+                                )}
+                              </Button>
+                            )}
                             <Button size="sm" variant="outline" className="gap-2">
                               <Eye className="h-4 w-4" />
                               View

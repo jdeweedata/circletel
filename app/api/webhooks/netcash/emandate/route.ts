@@ -152,6 +152,34 @@ export async function POST(request: NextRequest) {
         console.error('Error updating payment method:', pmUpdateError);
       }
 
+      // Update or create customer_billing record with primary payment method
+      if (customerId && emandateRequest.payment_method_id) {
+        const debitDay = parseInt(parsedPostback.DebitDay || '1');
+        const billingDate = [1, 5, 25, 30].includes(debitDay) ? debitDay : 1;
+
+        const { error: billingError } = await supabase
+          .from('customer_billing')
+          .upsert({
+            customer_id: customerId,
+            primary_payment_method_id: emandateRequest.payment_method_id,
+            payment_method_type: 'debit_order',
+            auto_pay_enabled: true,
+            preferred_billing_date: billingDate,
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'customer_id',
+          });
+
+        if (billingError) {
+          console.error('Error updating customer_billing:', billingError);
+        } else {
+          console.log('Customer billing updated with debit order:', {
+            customerId,
+            billingDate,
+          });
+        }
+      }
+
       // Update order status to payment_method_registered
       const { error: orderUpdateError } = await supabase
         .from('consumer_orders')

@@ -51,32 +51,71 @@ export async function GET(request: NextRequest) {
     // Use service role client for database query
     const supabaseService = await createClient();
 
-    // Check if customer has any completed payment validations
-    // A completed validation charge indicates they have a verified payment method
-    const { data: validations, error: validationError } = await supabaseService
-      .from('consumer_orders')
-      .select('id, payment_status')
-      .eq('email', user.email)
-      .eq('payment_status', 'completed')
+    // First, get customer record from auth user ID
+    const { data: customer, error: customerError } = await supabaseService
+      .from('customers')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (customerError || !customer) {
+      // Customer record doesn't exist yet - no payment method
+      return NextResponse.json({
+        success: true,
+        hasPaymentMethod: false,
+        paymentMethod: null,
+      });
+    }
+
+    // Query payment_methods table for active, verified payment method
+    const { data: paymentMethods, error: paymentError } = await supabaseService
+      .from('payment_methods')
+      .select(`
+        id,
+        method_type,
+        status,
+        is_verified,
+        is_primary,
+        bank_name,
+        bank_account_number_masked,
+        card_type,
+        card_number_masked,
+        mandate_active
+      `)
+      .eq('customer_id', customer.id)
+      .eq('status', 'active')
+      .eq('is_verified', true)
+      .order('is_primary', { ascending: false })
       .limit(1);
 
-    if (validationError) {
-      console.error('Error checking payment method:', validationError);
+    if (paymentError) {
+      console.error('Error checking payment method:', paymentError);
       return NextResponse.json(
         {
           success: false,
           error: 'Failed to check payment method',
-          details: validationError.message
+          details: paymentError.message
         },
         { status: 500 }
       );
     }
 
-    const hasPaymentMethod = validations && validations.length > 0;
+    const hasPaymentMethod = paymentMethods && paymentMethods.length > 0;
+    const primaryMethod = hasPaymentMethod ? paymentMethods[0] : null;
 
     return NextResponse.json({
       success: true,
       hasPaymentMethod,
+      paymentMethod: primaryMethod ? {
+        id: primaryMethod.id,
+        type: primaryMethod.method_type,
+        isPrimary: primaryMethod.is_primary,
+        // Masked details for display
+        displayName: primaryMethod.method_type === 'bank_account'
+          ? `${primaryMethod.bank_name || 'Bank'} ****${primaryMethod.bank_account_number_masked?.slice(-4) || '****'}`
+          : `${primaryMethod.card_type || 'Card'} ****${primaryMethod.card_number_masked?.slice(-4) || '****'}`,
+        mandateActive: primaryMethod.mandate_active,
+      } : null,
     });
 
   } catch (error) {

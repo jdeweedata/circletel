@@ -31,6 +31,8 @@ export interface NetcashWebhookPayload {
   // Card Details (masked)
   CardNumber?: string;
   CardType?: string;
+  CardToken?: string;
+  Token?: string;
 
   // Timestamp
   TransactionDate?: string;

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -298,8 +300,49 @@ export async function POST(
       // Don't fail - order is activated, service record is supplementary
     }
 
-    // TODO: Create first pro-rata invoice
-    // TODO: Send activation notification to customer
+    // Generate pro-rata invoice if applicable
+    let invoiceNumber: string | undefined;
+    if (billing.prorataAmount > 0 && serviceRecord.success && serviceRecord.serviceId) {
+      try {
+        const lineItems = buildInvoiceLineItems(
+          'pro_rata',
+          {
+            package_name: order.package_name || 'Internet Service',
+            monthly_price: parseFloat(order.package_price),
+          },
+          billing.prorataAmount,
+          {
+            start: activationDate.toISOString().split('T')[0],
+            end: billing.nextBillingDate.toISOString().split('T')[0],
+          }
+        );
+
+        const invoice = await generateCustomerInvoice({
+          customer_id: order.customer_id,
+          service_id: serviceRecord.serviceId,
+          invoice_type: 'pro_rata',
+          line_items: lineItems,
+          period_start: activationDate.toISOString().split('T')[0],
+          period_end: billing.nextBillingDate.toISOString().split('T')[0],
+          due_days: 7,
+        });
+
+        invoiceNumber = invoice.invoice_number;
+        console.log('[Activation] Pro-rata invoice generated:', invoice.invoice_number);
+      } catch (invoiceError) {
+        console.error('[Activation] Failed to generate pro-rata invoice:', invoiceError);
+        // Don't fail activation if invoice generation fails
+      }
+    }
+
+    // Send activation notification to customer
+    try {
+      await sendActivationNotification(order, updatedOrder, billing, invoiceNumber);
+      console.log('[Activation] Notification sent to:', order.email);
+    } catch (notifyError) {
+      console.error('[Activation] Failed to send notification:', notifyError);
+      // Don't fail activation if notification fails
+    }
 
     return NextResponse.json({
       success: true,
@@ -431,9 +474,102 @@ async function createCustomerServiceRecord(
     return { success: true, serviceId: newService.id };
   } catch (error) {
     console.error('Error in createCustomerServiceRecord:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
+  }
+}
+
+/**
+ * Send activation notification to customer via email
+ * Includes service details, billing info, and pro-rata invoice if applicable
+ */
+async function sendActivationNotification(
+  order: any,
+  updatedOrder: any,
+  billing: {
+    prorataAmount: number;
+    prorataDays: number;
+    nextBillingDate: Date;
+    billingCycleDay: number;
+  },
+  invoiceNumber?: string
+): Promise<void> {
+  // Email via Resend
+  if (process.env.RESEND_API_KEY && order.email) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const proRataSection = billing.prorataAmount > 0 && invoiceNumber
+      ? `
+        <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #856404;">Pro-Rata Charge</h3>
+          <p>Your service was activated mid-billing cycle. A pro-rata invoice has been generated:</p>
+          <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
+          <p><strong>Pro-Rata Amount:</strong> R${billing.prorataAmount.toFixed(2)} (for ${billing.prorataDays} days)</p>
+          <p><strong>Due Date:</strong> Within 7 days</p>
+        </div>
+      `
+      : '';
+
+    await resend.emails.send({
+      from: 'CircleTel <service@circletel.co.za>',
+      to: order.email,
+      subject: `Your CircleTel Service is Now Active!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #F5831F;">Welcome to CircleTel!</h1>
+
+          <p>Dear ${order.first_name || 'Valued Customer'},</p>
+
+          <p>Great news! Your internet service has been activated and is ready to use.</p>
+
+          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="margin-top: 0;">Service Details</h2>
+            <p><strong>Package:</strong> ${order.package_name || 'Internet Service'}</p>
+            <p><strong>Speed:</strong> ${order.package_speed || 'N/A'}</p>
+            ${updatedOrder.account_number ? `<p><strong>Account Number:</strong> ${updatedOrder.account_number}</p>` : ''}
+            <p><strong>Installation Address:</strong> ${order.installation_address || 'N/A'}</p>
+          </div>
+
+          <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #2e7d32;">Billing Information</h3>
+            <p><strong>Monthly Amount:</strong> R${parseFloat(order.package_price).toFixed(2)}</p>
+            <p><strong>Billing Day:</strong> ${billing.billingCycleDay}${getOrdinalSuffix(billing.billingCycleDay)} of each month</p>
+            <p><strong>Next Billing Date:</strong> ${billing.nextBillingDate.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          </div>
+
+          ${proRataSection}
+
+          <p>You can view your invoices and manage your account at <a href="https://www.circletel.co.za/dashboard">your customer dashboard</a>.</p>
+
+          <p>If you have any questions, please contact us:</p>
+          <ul>
+            <li>Email: support@circletel.co.za</li>
+            <li>Phone: 0860 CIRCLE (247 253)</li>
+          </ul>
+
+          <p>Thank you for choosing CircleTel!</p>
+
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+          <p style="font-size: 12px; color: #666;">
+            This is an automated notification. Please do not reply to this message.
+          </p>
+        </div>
+      `
+    });
+  }
+}
+
+/**
+ * Get ordinal suffix for day number (1st, 2nd, 3rd, etc.)
+ */
+function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
   }
 }
