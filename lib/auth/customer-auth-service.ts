@@ -414,11 +414,28 @@ export class CustomerAuthService {
 
   /**
    * Sign out current user
+   * Clears auth session and all CircleTel localStorage data for privacy/security
    */
   static async signOut(): Promise<{ error: string | null }> {
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.signOut();
+
+      // Clear all CircleTel localStorage data to prevent data leakage on shared devices
+      if (typeof window !== 'undefined') {
+        const keysToRemove = [
+          'circletel_order_data',
+          'circletel_order_id',
+          'circletel_pending_order_id',
+          'circletel_coverage_address',
+          'circletel_payment_retries',
+          'circletel_payment_error',
+          'circletel_oauth_next',
+          'dashboard-sidebar-collapsed', // UI preference, safe to clear
+        ];
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        console.log('[CustomerAuthService] Cleared localStorage on sign out');
+      }
 
       if (error) {
         return { error: error.message };
