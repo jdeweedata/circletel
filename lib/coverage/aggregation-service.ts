@@ -5,6 +5,7 @@ import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
 import { mtnWholesaleClient } from './mtn/wholesale-client';
+import { mtnNADClient, NADCorrectionResult } from './mtn/nad-client';
 import { dfaCoverageClient } from './providers/dfa';
 import { dfaProductMapper } from './providers/dfa';
 
@@ -198,9 +199,11 @@ export class CoverageAggregationService {
    *
    * ✅ PHASE 2 ENABLED - MTN Consumer API Integration (October 4, 2025)
    * ✅ PHASE 3 ENHANCED - Infrastructure-Based Quality Metrics (October 4, 2025)
+   * ✅ PHASE 4 ENABLED - NAD Coordinate Correction (December 9, 2025)
    *
    * Using verified Consumer API endpoint: https://mtnsi.mtn.co.za/cache/geoserver/wms
    * Infrastructure scoring available via InfrastructureSignalEstimator
+   * NAD correction fixes ~460m geocoding variance from Google Maps
    * Documentation: docs/MTN_PHASE2_COMPLETION.md, docs/MTN_PHASE3_COMPLETION.md
    */
   private async getMTNCoverage(
@@ -208,9 +211,37 @@ export class CoverageAggregationService {
     serviceTypes?: ServiceType[]
   ): Promise<CoverageResponse> {
     try {
+      // PHASE 4: Apply NAD coordinate correction before coverage check
+      // Google Maps geocoding can be ~460m off from actual location
+      // MTN's NAD (National Address Database) provides accurate coordinates
+      let nadCorrection: NADCorrectionResult | null = null;
+      let checkCoordinates = coordinates;
+
+      try {
+        nadCorrection = await mtnNADClient.correctCoordinates(coordinates);
+
+        if (nadCorrection.source === 'nad' && nadCorrection.distance > 50) {
+          // Only use NAD correction if distance is significant (>50m)
+          console.log('[MTN Coverage] NAD correction applied:', {
+            original: coordinates,
+            corrected: nadCorrection.corrected,
+            distance: `${nadCorrection.distance.toFixed(0)}m`,
+            address: nadCorrection.address?.formattedAddress
+          });
+          checkCoordinates = nadCorrection.corrected;
+        } else {
+          console.log('[MTN Coverage] NAD correction minimal, using original coordinates:', {
+            distance: `${nadCorrection.distance.toFixed(0)}m`
+          });
+        }
+      } catch (nadError) {
+        console.warn('[MTN Coverage] NAD correction failed, using original coordinates:', nadError);
+        // Continue with original coordinates if NAD fails
+      }
+
       // Use Consumer API (GeoServer WMS) - verified working endpoint
       const realtimeCoverage = await mtnWMSRealtimeClient.checkCoverage(
-        coordinates,
+        checkCoordinates,
         serviceTypes
       );
 
@@ -316,23 +347,31 @@ export class CoverageAggregationService {
           metadata: {
             source: 'mtn_consumer_api',
             endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
-            phase: 'phase_3_infrastructure_ready',
+            phase: 'phase_4_nad_correction',
             infrastructureEstimatorAvailable: true,
             wholesaleFallbackUsed: !hasUncappedWireless && services.some(s => s.type === 'uncapped_wireless'),
-            wholesaleDebug
+            wholesaleDebug,
+            nadCorrection: nadCorrection ? {
+              applied: nadCorrection.source === 'nad' && nadCorrection.distance > 50,
+              distance: nadCorrection.distance,
+              original: coordinates,
+              corrected: checkCoordinates
+            } : undefined
           }
         };
       }
 
       // If Consumer API returns no coverage, try Wholesale API as fallback
+      // Use NAD-corrected coordinates for wholesale check as well
       console.log('[MTN Coverage] Consumer API found no coverage, trying Wholesale API fallback for:', {
-        lat: coordinates.lat,
-        lng: coordinates.lng
+        lat: checkCoordinates.lat,
+        lng: checkCoordinates.lng,
+        nadCorrected: nadCorrection?.source === 'nad'
       });
 
       try {
         const wholesaleResult = await mtnWholesaleClient.checkFeasibility(
-          coordinates,
+          checkCoordinates,
           ['Fixed Wireless Broadband']
         );
 

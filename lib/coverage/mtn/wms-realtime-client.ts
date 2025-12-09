@@ -1,6 +1,38 @@
-// MTN GeoServer WMS Real-time Coverage Client
-// This client queries the live MTN WMS service for coverage checking
-// Based on analysis of https://mtnsi.mtn.co.za/coverage/dev/v3/map3.html
+/**
+ * MTN GeoServer WMS Real-time Coverage Client
+ *
+ * This client queries MTN's live WMS (Web Map Service) GeoServer for coverage checking.
+ * It provides real-time verification of wireless broadband coverage including SkyFibre,
+ * 5G, Fixed LTE, Fibre, and Licensed Wireless services.
+ *
+ * @module lib/coverage/mtn/wms-realtime-client
+ * @see {@link https://mtnsi.mtn.co.za/cache/geoserver/wms} MTN WMS Endpoint
+ * @see {@link docs/api/MTN_COVERAGE_API_INTEGRATION.md} Full API Documentation
+ *
+ * Key Features:
+ * - Multi-point buffer query (500m radius) for SkyFibre to compensate for geocoding variance
+ * - Parallel WMS queries with 8-second timeout per layer
+ * - EPSG:900913 (Web Mercator) coordinate transformation
+ * - Caching and error handling with graceful fallbacks
+ *
+ * @example
+ * ```typescript
+ * import { mtnWMSRealtimeClient } from '@/lib/coverage/mtn/wms-realtime-client';
+ *
+ * const result = await mtnWMSRealtimeClient.checkCoverage(
+ *   { lat: -26.7115, lng: 27.8375 },
+ *   ['uncapped_wireless', '5g']
+ * );
+ *
+ * if (result.available) {
+ *   console.log('Services found:', result.services.filter(s => s.available));
+ * }
+ * ```
+ *
+ * @author CircleTel Development Team
+ * @version 1.0.0
+ * @since 2025-12-09
+ */
 
 import { Coordinates, ServiceType, CoverageCheckResult } from '../types';
 
@@ -80,8 +112,48 @@ export class MTNWMSRealtimeClient {
   private static readonly DEFAULT_ZOOM = 14;
 
   /**
+   * Buffer radius for multi-point coverage check (compensates for ~466m geocoding variance)
+   * MTN uses NAD (National Address Database) which can differ from Google Maps by 400-500m
+   */
+  private static readonly GEOCODING_BUFFER_METERS = 500;
+
+  /**
+   * Generate cardinal points around a center coordinate for multi-point coverage check
+   * Compensates for Google Maps geocoding variance (~466m observed in South Africa)
+   *
+   * Pattern:
+   *         N (500m)
+   *           •
+   *           |
+   *   W •-----C-----• E (500m)
+   *           |
+   *           •
+   *         S (500m)
+   */
+  private static generateCardinalPoints(
+    center: Coordinates,
+    radiusMeters: number = this.GEOCODING_BUFFER_METERS
+  ): Coordinates[] {
+    // 1 degree latitude ≈ 111,000 meters (constant worldwide)
+    // 1 degree longitude ≈ 111,000 * cos(latitude) meters (varies by latitude)
+    const latOffset = radiusMeters / 111000;
+    const lngOffset = radiusMeters / (111000 * Math.cos(center.lat * Math.PI / 180));
+
+    return [
+      center, // Center point (original geocoded location)
+      { lat: center.lat + latOffset, lng: center.lng }, // North
+      { lat: center.lat - latOffset, lng: center.lng }, // South
+      { lat: center.lat, lng: center.lng - lngOffset }, // West
+      { lat: center.lat, lng: center.lng + lngOffset }, // East
+    ];
+  }
+
+  /**
    * Check coverage at specific coordinates using WMS GetFeatureInfo
    * Optimized with parallel queries and timeout controls
+   *
+   * For uncapped_wireless (SkyFibre/Tarana), uses multi-point query with 500m buffer
+   * to compensate for Google Maps geocoding variance (~466m observed)
    */
   static async checkCoverage(
     coordinates: Coordinates,
@@ -92,42 +164,76 @@ export class MTNWMSRealtimeClient {
       type: ServiceType;
       available: boolean;
       layerData?: any;
+      checkedAt?: string; // Which point found coverage (for debugging)
     }>;
   }> {
     const layersToCheck = serviceTypes
       ? this.getLayersForServiceTypes(serviceTypes)
       : Object.values(MTN_WMS_LAYERS);
 
+    // Generate cardinal points for buffer check
+    const cardinalPoints = this.generateCardinalPoints(coordinates);
+    const pointLabels = ['Center', 'North', 'South', 'West', 'East'];
+
     // Optimization: Add timeout wrapper for each query
-    const queryWithTimeout = (layer: typeof MTN_WMS_LAYERS[keyof typeof MTN_WMS_LAYERS]) => {
+    const queryWithTimeout = async (
+      layer: typeof MTN_WMS_LAYERS[keyof typeof MTN_WMS_LAYERS],
+      coord: Coordinates
+    ) => {
       return Promise.race([
-        this.queryLayer(coordinates, layer.wmsLayer),
-        new Promise<null>((_, reject) => 
+        this.queryLayer(coord, layer.wmsLayer),
+        new Promise<null>((_, reject) =>
           setTimeout(() => reject(new Error('Query timeout')), 8000)
         )
       ]);
     };
 
-    const results = await Promise.allSettled(
-      layersToCheck.map(layer => queryWithTimeout(layer))
-    );
+    // For uncapped_wireless (SkyFibre), use multi-point buffer query
+    // For other layers, use single-point query (center only)
+    const services: Array<{
+      type: ServiceType;
+      available: boolean;
+      layerData?: any;
+      checkedAt?: string;
+    }> = [];
 
-    const services = layersToCheck.map((layer, index) => {
-      const result = results[index];
+    for (const layer of layersToCheck) {
+      const useBufferCheck = layer.serviceType === 'uncapped_wireless';
+      const pointsToCheck = useBufferCheck ? cardinalPoints : [coordinates];
 
-      if (result.status === 'fulfilled' && result.value) {
-        return {
-          type: layer.serviceType,
-          available: result.value.features.length > 0,
-          layerData: result.value.features[0]?.properties
-        };
+      let foundCoverage = false;
+      let layerData: any = undefined;
+      let foundAt = '';
+
+      // Check all points (in parallel for buffer check)
+      const pointResults = await Promise.allSettled(
+        pointsToCheck.map((coord, idx) => queryWithTimeout(layer, coord))
+      );
+
+      for (let i = 0; i < pointResults.length; i++) {
+        const result = pointResults[i];
+        if (result.status === 'fulfilled' && result.value && result.value.features.length > 0) {
+          foundCoverage = true;
+          layerData = result.value.features[0]?.properties;
+          foundAt = useBufferCheck ? pointLabels[i] : 'Center';
+
+          if (useBufferCheck) {
+            console.log(`[WMS] ${layer.label} coverage found at ${pointLabels[i]}:`, {
+              coordinates: pointsToCheck[i],
+              features: result.value.features.length
+            });
+          }
+          break; // Stop checking once coverage is found
+        }
       }
 
-      return {
+      services.push({
         type: layer.serviceType,
-        available: false
-      };
-    });
+        available: foundCoverage,
+        layerData,
+        checkedAt: foundCoverage ? foundAt : undefined
+      });
+    }
 
     return {
       available: services.some(s => s.available),

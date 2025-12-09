@@ -46,8 +46,21 @@ export async function GET(request: NextRequest) {
     let hasLicensedWireless = false;
 
     // Extract coordinates from JSONB structure
-    const lat = lead.coordinates?.lat;
-    const lng = lead.coordinates?.lng;
+    // Handle both formats: {lat, lng} or GeoJSON {type: 'Point', coordinates: [lng, lat]}
+    let lat: number | undefined;
+    let lng: number | undefined;
+
+    if (lead.coordinates) {
+      if (lead.coordinates.type === 'Point' && Array.isArray(lead.coordinates.coordinates)) {
+        // GeoJSON format: coordinates are [longitude, latitude]
+        lng = lead.coordinates.coordinates[0];
+        lat = lead.coordinates.coordinates[1];
+      } else if (typeof lead.coordinates.lat === 'number' && typeof lead.coordinates.lng === 'number') {
+        // Simple format: {lat, lng}
+        lat = lead.coordinates.lat;
+        lng = lead.coordinates.lng;
+      }
+    }
 
     if (lat && lng) {
       try {
