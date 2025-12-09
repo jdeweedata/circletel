@@ -184,7 +184,8 @@ const navigationSections = [
           { name: 'Analytics', href: '/admin/coverage/analytics', icon: Activity },
           { name: 'Testing', href: '/admin/coverage/testing', icon: TestTube },
           { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
-          { name: 'Maps', href: '/admin/coverage/maps', icon: Map }
+          { name: 'Maps', href: '/admin/coverage/maps', icon: Map },
+          { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: MapPin }
         ]
       },
     ]

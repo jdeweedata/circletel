@@ -4,9 +4,10 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, Wifi, Zap, Info, TrendingUp, TrendingDown, Calendar, User } from 'lucide-react';
+import { Check, Wifi, Zap, Info, TrendingUp, TrendingDown, Calendar, User, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface PriceHistory {
   old_price: number;
@@ -14,6 +15,17 @@ interface PriceHistory {
   changed_by: string;
   changed_at: string;
   change_reason?: string;
+}
+
+// Installation warning info from base station validation
+interface InstallationWarning {
+  requiresElevatedInstall: boolean;
+  installationNote: string | null;
+  coverageConfidence?: 'high' | 'medium' | 'low' | 'none';
+  nearestBaseStation?: {
+    siteName: string;
+    distanceKm: number;
+  };
 }
 
 interface PackageCardProps {
@@ -36,6 +48,8 @@ interface PackageCardProps {
   lastUpdatedAt?: string;
   priceHistory?: PriceHistory[];
   showAuditTrail?: boolean;
+  // Installation requirements (from base station validation)
+  installationWarning?: InstallationWarning;
 }
 
 export function PackageCard({
@@ -56,12 +70,14 @@ export function PackageCard({
   lastUpdatedBy,
   lastUpdatedAt,
   priceHistory,
-  showAuditTrail = false
+  showAuditTrail = false,
+  installationWarning
 }: PackageCardProps) {
   const hasPromotion = !!promotion_price && promotion_price < price;
   const savingsAmount = hasPromotion ? price - promotion_price : 0;
   const savingsPercent = hasPromotion ? Math.round((savingsAmount / price) * 100) : 0;
   const hasPriceHistory = priceHistory && priceHistory.length > 0;
+  const hasInstallationWarning = installationWarning?.requiresElevatedInstall || installationWarning?.installationNote;
 
   return (
     <Card
@@ -249,6 +265,21 @@ export function PackageCard({
             ))}
           </ul>
         </div>
+
+        {/* Installation Warning */}
+        {hasInstallationWarning && (
+          <Alert className="border-amber-200 bg-amber-50">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-xs text-amber-800">
+              {installationWarning?.installationNote || 'Special installation requirements may apply'}
+              {installationWarning?.nearestBaseStation && (
+                <span className="block mt-1 text-amber-600">
+                  Nearest tower: {installationWarning.nearestBaseStation.siteName} ({installationWarning.nearestBaseStation.distanceKm.toFixed(1)}km)
+                </span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* CTA Button */}
         {onSelect && (

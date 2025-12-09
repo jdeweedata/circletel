@@ -142,3 +142,61 @@ export type CoverageErrorCode =
   | 'TIMEOUT'
   | 'PARSING_ERROR'
   | 'NETWORK_ERROR';
+
+// ============================================
+// Tarana Base Station Types (SkyFibre Coverage)
+// ============================================
+
+/**
+ * Coverage confidence levels based on base station proximity
+ * - high: <3km with >10 active connections
+ * - medium: <3km with 5-10 connections OR 3-5km with >5 connections
+ * - low: 3-5km with <5 connections (may require elevated install)
+ * - none: >5km from any base station
+ */
+export type BaseStationCoverageConfidence = 'high' | 'medium' | 'low' | 'none';
+
+/**
+ * Tarana base station data from BN-Report
+ */
+export interface TaranaBaseStation {
+  id: string;
+  serial_number: string;
+  hostname: string;
+  site_name: string;
+  active_connections: number;
+  market: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+}
+
+/**
+ * Result of base station proximity check for SkyFibre coverage validation
+ */
+export interface BaseStationProximityResult {
+  /** Whether the location has Tarana coverage */
+  hasCoverage: boolean;
+  /** Coverage confidence based on distance and base station activity */
+  confidence: BaseStationCoverageConfidence;
+  /** Whether elevated antenna (10m+) is likely required */
+  requiresElevatedInstall: boolean;
+  /** Installation note to display to user */
+  installationNote: string | null;
+  /** Nearest base station details */
+  nearestStation: {
+    siteName: string;
+    hostname: string;
+    distanceKm: number;
+    activeConnections: number;
+    market: string;
+  } | null;
+  /** All nearby base stations (up to limit) */
+  allNearbyStations: TaranaBaseStation[];
+  /** Query metadata */
+  metadata: {
+    checkedAt: string;
+    coordinatesUsed: Coordinates;
+    stationsChecked: number;
+  };
+}

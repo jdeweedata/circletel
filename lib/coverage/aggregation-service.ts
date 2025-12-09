@@ -1,11 +1,12 @@
 // Multi-source Coverage Aggregation Service
-import { Coordinates, ServiceType, CoverageResponse, CoverageProvider, SignalStrength } from './types';
+import { Coordinates, ServiceType, CoverageResponse, CoverageProvider, SignalStrength, BaseStationProximityResult } from './types';
 import { mtnWMSClient } from './mtn/wms-client';
 import { MTNWMSParser } from './mtn/wms-parser';
 import { MTNServiceCoverage } from './mtn/types';
 import { mtnWMSRealtimeClient } from './mtn/wms-realtime-client';
 import { mtnWholesaleClient } from './mtn/wholesale-client';
 import { mtnNADClient, NADCorrectionResult } from './mtn/nad-client';
+import { checkBaseStationProximity, shouldShowSkyFibre } from './mtn/base-station-service';
 import { dfaCoverageClient } from './providers/dfa';
 import { dfaProductMapper } from './providers/dfa';
 
@@ -270,6 +271,38 @@ export class CoverageAggregationService {
         // Track wholesale fallback debug info
         let wholesaleDebug: { attempted: boolean; result?: any; error?: string } = { attempted: false };
 
+        // PHASE 5: Validate SkyFibre with base station proximity
+        let baseStationValidation: BaseStationProximityResult | null = null;
+        if (hasUncappedWireless) {
+          baseStationValidation = await this.validateSkyFibreWithBaseStation(checkCoordinates);
+
+          if (baseStationValidation && !shouldShowSkyFibre(baseStationValidation)) {
+            // Base station check says no coverage - remove uncapped_wireless
+            console.log('[MTN Coverage] Base station validation failed - removing SkyFibre from results:', {
+              confidence: baseStationValidation.confidence,
+              nearestStation: baseStationValidation.nearestStation?.siteName,
+              distance: baseStationValidation.nearestStation?.distanceKm
+            });
+            // Filter out uncapped_wireless
+            const filteredServices = services.filter(s => s.type !== 'uncapped_wireless');
+            services.length = 0;
+            services.push(...filteredServices);
+          } else if (baseStationValidation && baseStationValidation.installationNote) {
+            // Update the uncapped_wireless service with installation note
+            const skyFibreService = services.find(s => s.type === 'uncapped_wireless');
+            if (skyFibreService) {
+              (skyFibreService as any).metadata = {
+                baseStationValidation: {
+                  confidence: baseStationValidation.confidence,
+                  nearestStation: baseStationValidation.nearestStation,
+                  requiresElevatedInstall: baseStationValidation.requiresElevatedInstall,
+                  installationNote: baseStationValidation.installationNote
+                }
+              };
+            }
+          }
+        }
+
         if (!hasUncappedWireless) {
           wholesaleDebug.attempted = true;
           try {
@@ -347,7 +380,7 @@ export class CoverageAggregationService {
           metadata: {
             source: 'mtn_consumer_api',
             endpoint: 'https://mtnsi.mtn.co.za/cache/geoserver/wms',
-            phase: 'phase_4_nad_correction',
+            phase: 'phase_5_base_station_validation',
             infrastructureEstimatorAvailable: true,
             wholesaleFallbackUsed: !hasUncappedWireless && services.some(s => s.type === 'uncapped_wireless'),
             wholesaleDebug,
@@ -356,6 +389,13 @@ export class CoverageAggregationService {
               distance: nadCorrection.distance,
               original: coordinates,
               corrected: checkCoordinates
+            } : undefined,
+            baseStationValidation: baseStationValidation ? {
+              confidence: baseStationValidation.confidence,
+              nearestStation: baseStationValidation.nearestStation,
+              requiresElevatedInstall: baseStationValidation.requiresElevatedInstall,
+              installationNote: baseStationValidation.installationNote,
+              stationsChecked: baseStationValidation.metadata.stationsChecked
             } : undefined
           }
         };
@@ -394,33 +434,52 @@ export class CoverageAggregationService {
             region: fwbProduct.region
           });
 
-          const services = [{
-            type: 'uncapped_wireless' as ServiceType,
-            available: true,
-            signal: 'good' as SignalStrength,
-            provider: 'MTN',
-            technology: 'Tarana Wireless G1'
-          }];
+          // PHASE 5: Also validate Wholesale API results with base station proximity
+          const wholesaleBaseStationCheck = await this.validateSkyFibreWithBaseStation(checkCoordinates);
 
-          return {
-            available: true,
-            coordinates,
-            confidence: 'medium', // Wholesale-only coverage is medium confidence
-            services,
-            providers: [{
-              name: 'MTN',
+          if (wholesaleBaseStationCheck && !shouldShowSkyFibre(wholesaleBaseStationCheck)) {
+            // Base station validation failed - don't show SkyFibre
+            console.log('[MTN Coverage] Wholesale coverage rejected by base station validation:', {
+              confidence: wholesaleBaseStationCheck.confidence,
+              distance: wholesaleBaseStationCheck.nearestStation?.distanceKm
+            });
+            // Continue to return no coverage
+          } else {
+            const services = [{
+              type: 'uncapped_wireless' as ServiceType,
               available: true,
-              services
-            }],
-            lastUpdated: new Date().toISOString(),
-            metadata: {
-              source: 'mtn_wholesale_api',
-              endpoint: 'https://asp-feasibility.mtnbusiness.co.za',
-              phase: 'wholesale_fallback',
-              note: 'Coverage found via Wholesale API (WMS returned no coverage)',
-              wholesaleFallbackUsed: true
-            }
-          };
+              signal: 'good' as SignalStrength,
+              provider: 'MTN',
+              technology: 'Tarana Wireless G1'
+            }];
+
+            return {
+              available: true,
+              coordinates,
+              confidence: wholesaleBaseStationCheck?.confidence === 'low' ? 'low' : 'medium',
+              services,
+              providers: [{
+                name: 'MTN',
+                available: true,
+                services
+              }],
+              lastUpdated: new Date().toISOString(),
+              metadata: {
+                source: 'mtn_wholesale_api',
+                endpoint: 'https://asp-feasibility.mtnbusiness.co.za',
+                phase: 'phase_5_base_station_validation',
+                note: 'Coverage found via Wholesale API (WMS returned no coverage)',
+                wholesaleFallbackUsed: true,
+                baseStationValidation: wholesaleBaseStationCheck ? {
+                  confidence: wholesaleBaseStationCheck.confidence,
+                  nearestStation: wholesaleBaseStationCheck.nearestStation,
+                  requiresElevatedInstall: wholesaleBaseStationCheck.requiresElevatedInstall,
+                  installationNote: wholesaleBaseStationCheck.installationNote,
+                  stationsChecked: wholesaleBaseStationCheck.metadata.stationsChecked
+                } : undefined
+              }
+            };
+          }
         }
       } catch (wholesaleError) {
         console.error('[MTN Coverage] Wholesale API fallback also failed:', wholesaleError);
@@ -879,6 +938,46 @@ export class CoverageAggregationService {
 
   private setCache(key: string, data: AggregatedCoverageResponse): void {
     this.cache.set(key, { data, timestamp: Date.now() });
+  }
+
+  /**
+   * Validate SkyFibre (uncapped_wireless) coverage using base station proximity
+   *
+   * ✅ PHASE 5 ENABLED - Base Station Proximity Validation (December 9, 2025)
+   *
+   * This provides an additional layer of validation beyond WMS coverage maps:
+   * - Checks distance to nearest Tarana base station
+   * - Evaluates active connections at the base station
+   * - Returns coverage confidence and installation requirements
+   *
+   * Coverage Rules:
+   * - <3km, >10 connections: HIGH confidence - Show SkyFibre
+   * - 3-5km, >5 connections: MEDIUM confidence - Show with note
+   * - 3-5km, 1-5 connections: LOW confidence - Show with elevated install warning
+   * - >5km: NONE - Hide SkyFibre
+   */
+  private async validateSkyFibreWithBaseStation(
+    coordinates: Coordinates
+  ): Promise<BaseStationProximityResult | null> {
+    try {
+      const proximityResult = await checkBaseStationProximity(coordinates, { limit: 5 });
+
+      console.log('[SkyFibre Validation] Base station proximity check:', {
+        hasCoverage: proximityResult.hasCoverage,
+        confidence: proximityResult.confidence,
+        nearestStation: proximityResult.nearestStation?.siteName,
+        distance: proximityResult.nearestStation?.distanceKm,
+        activeConnections: proximityResult.nearestStation?.activeConnections,
+        requiresElevatedInstall: proximityResult.requiresElevatedInstall
+      });
+
+      return proximityResult;
+    } catch (error) {
+      console.error('[SkyFibre Validation] Base station check failed:', error);
+      // Return null to indicate validation couldn't be performed
+      // The WMS result will be used as fallback
+      return null;
+    }
   }
 
   /**
