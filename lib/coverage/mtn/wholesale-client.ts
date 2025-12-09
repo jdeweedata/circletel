@@ -34,6 +34,16 @@ export class MTNWholesaleClient {
   }
 
   /**
+   * Create an AbortSignal with timeout (compatible with all Node.js versions)
+   * AbortSignal.timeout() is only available in Node.js 17.3+
+   */
+  private createTimeoutSignal(ms: number): AbortSignal {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), ms);
+    return controller.signal;
+  }
+
+  /**
    * Get available MTN wholesale products
    * Cached for 1 hour
    */
@@ -52,7 +62,7 @@ export class MTNWholesaleClient {
             'X-API-KEY': this.config.apiKey,
             'Accept': 'application/json',
           },
-          signal: AbortSignal.timeout(this.config.timeout!)
+          signal: this.createTimeoutSignal(this.config.timeout!)
         }
       );
 
@@ -118,7 +128,7 @@ export class MTNWholesaleClient {
             'Accept': 'application/json',
           },
           body: JSON.stringify(request),
-          signal: AbortSignal.timeout(this.config.timeout!)
+          signal: this.createTimeoutSignal(this.config.timeout!)
         }
       );
 

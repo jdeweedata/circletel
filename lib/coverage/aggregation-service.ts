@@ -238,11 +238,24 @@ export class CoverageAggregationService {
 
         if (!hasUncappedWireless) {
           try {
-            console.log('[MTN Coverage] WMS missing uncapped_wireless, trying Wholesale API fallback...');
+            console.log('[MTN Coverage] WMS missing uncapped_wireless, trying Wholesale API fallback for:', {
+              lat: coordinates.lat,
+              lng: coordinates.lng
+            });
+
             const wholesaleResult = await mtnWholesaleClient.checkFeasibility(
               coordinates,
               ['Fixed Wireless Broadband']
             );
+
+            // Log the full result including any errors
+            console.log('[MTN Coverage] Wholesale API result:', {
+              available: wholesaleResult.available,
+              productCount: wholesaleResult.products.length,
+              products: wholesaleResult.products.map(p => ({ name: p.name, feasible: p.feasible, capacity: p.capacity })),
+              error: wholesaleResult.error,
+              responseTime: wholesaleResult.responseTime
+            });
 
             const fwbProduct = wholesaleResult.products.find(
               p => p.name === 'Fixed Wireless Broadband' && p.feasible
@@ -261,9 +274,13 @@ export class CoverageAggregationService {
                 provider: 'MTN',
                 technology: 'Tarana Wireless G1'
               });
+            } else if (wholesaleResult.error) {
+              console.error('[MTN Coverage] Wholesale API returned error:', wholesaleResult.error);
+            } else {
+              console.log('[MTN Coverage] Wholesale API found no Fixed Wireless Broadband coverage');
             }
           } catch (wholesaleError) {
-            console.error('[MTN Coverage] Wholesale API fallback failed:', wholesaleError);
+            console.error('[MTN Coverage] Wholesale API fallback exception:', wholesaleError);
             // Continue without Wholesale fallback - WMS results still valid
           }
         }
@@ -290,13 +307,25 @@ export class CoverageAggregationService {
       }
 
       // If Consumer API returns no coverage, try Wholesale API as fallback
-      console.log('[MTN Coverage] Consumer API found no coverage, trying Wholesale API fallback...');
+      console.log('[MTN Coverage] Consumer API found no coverage, trying Wholesale API fallback for:', {
+        lat: coordinates.lat,
+        lng: coordinates.lng
+      });
 
       try {
         const wholesaleResult = await mtnWholesaleClient.checkFeasibility(
           coordinates,
           ['Fixed Wireless Broadband']
         );
+
+        // Log the full result including any errors
+        console.log('[MTN Coverage] Wholesale API result (no WMS coverage):', {
+          available: wholesaleResult.available,
+          productCount: wholesaleResult.products.length,
+          products: wholesaleResult.products.map(p => ({ name: p.name, feasible: p.feasible, capacity: p.capacity })),
+          error: wholesaleResult.error,
+          responseTime: wholesaleResult.responseTime
+        });
 
         const fwbProduct = wholesaleResult.products.find(
           p => p.name === 'Fixed Wireless Broadband' && p.feasible
