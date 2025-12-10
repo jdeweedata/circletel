@@ -68,29 +68,65 @@ export async function POST(request: NextRequest) {
 
     console.log('[NetCash Webhook] Received webhook from:', sourceIp);
 
-    // 2. Parse payload
-    let bodyParsed;
+    // 2. Parse payload - NetCash sends form data (application/x-www-form-urlencoded), NOT JSON
+    let bodyParsed: Record<string, unknown> = {};
+    const contentType = headers['content-type'] || '';
+
     try {
-      bodyParsed = JSON.parse(rawBody);
+      if (contentType.includes('application/json')) {
+        // JSON payload
+        bodyParsed = JSON.parse(rawBody);
+        console.log('[NetCash Webhook] Parsed as JSON');
+      } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
+        // Form data payload (NetCash default format)
+        const params = new URLSearchParams(rawBody);
+        params.forEach((value, key) => {
+          bodyParsed[key] = value;
+        });
+        console.log('[NetCash Webhook] Parsed as form data');
+      } else {
+        // Try JSON first, then form data as fallback
+        try {
+          bodyParsed = JSON.parse(rawBody);
+          console.log('[NetCash Webhook] Parsed as JSON (no content-type)');
+        } catch {
+          const params = new URLSearchParams(rawBody);
+          params.forEach((value, key) => {
+            bodyParsed[key] = value;
+          });
+          console.log('[NetCash Webhook] Parsed as form data (fallback)');
+        }
+      }
     } catch (parseError) {
-      console.error('[NetCash Webhook] Failed to parse JSON:', parseError);
+      console.error('[NetCash Webhook] Failed to parse payload:', parseError);
+      console.error('[NetCash Webhook] Raw body:', rawBody.substring(0, 500));
       return NextResponse.json(
-        { error: 'Invalid JSON payload' },
+        { error: 'Invalid payload format' },
         { status: 400 }
       );
     }
 
-    // 3. Extract webhook data
-    const webhookId = bodyParsed.webhook_id || crypto.randomUUID();
-    const eventType = bodyParsed.event_type || 'payment.notification';
-    const transactionId = bodyParsed.transaction_id || bodyParsed.TransactionId || 'unknown';
-    const reference = bodyParsed.reference || bodyParsed.Reference || bodyParsed.Extra1 || '';
+    console.log('[NetCash Webhook] Parsed body:', JSON.stringify(bodyParsed).substring(0, 500));
+
+    // 3. Extract webhook data - NetCash uses various field names
+    const webhookId = (bodyParsed.webhook_id as string) || crypto.randomUUID();
+    const eventType = (bodyParsed.event_type as string) || 'payment.notification';
+    // NetCash sends transaction ID as RequestTrace, TransactionId, or transaction_id
+    const transactionId = (bodyParsed.RequestTrace as string) ||
+                         (bodyParsed.TransactionId as string) ||
+                         (bodyParsed.transaction_id as string) ||
+                         'unknown';
+    // Reference is in Reference or Extra1 field
+    const reference = (bodyParsed.Reference as string) ||
+                     (bodyParsed.reference as string) ||
+                     (bodyParsed.Extra1 as string) || '';
 
     console.log('[NetCash Webhook] Processing:', {
       webhookId,
       eventType,
       transactionId,
-      reference
+      reference,
+      allFields: Object.keys(bodyParsed)
     });
 
     // 4. Verify signature (if secret is configured)
@@ -204,11 +240,66 @@ export async function POST(request: NextRequest) {
     }
 
     // 9. Update or create payment transaction
-    const { data: existingTransaction } = await supabase
+    // First try to find by transaction_id (NetCash RequestTrace)
+    let { data: existingTransaction } = await supabase
       .from('payment_transactions')
       .select('*')
       .eq('transaction_id', transactionId)
       .single();
+
+    // If not found by transaction_id (RequestTrace), try matching transaction_id column against Reference field
+    // NetCash sends our full transaction reference (CT-PM-VAL-xxx) in the Reference field
+    if (!existingTransaction && reference) {
+      console.log('[NetCash Webhook] Transaction not found by RequestTrace, trying transaction_id column with Reference:', reference);
+      const { data: txByTxIdRef } = await supabase
+        .from('payment_transactions')
+        .select('*')
+        .eq('transaction_id', reference)
+        .single();
+
+      if (txByTxIdRef) {
+        existingTransaction = txByTxIdRef;
+        console.log('[NetCash Webhook] Found transaction by transaction_id column:', existingTransaction.id);
+      }
+    }
+
+    // Try by reference column
+    if (!existingTransaction && reference) {
+      console.log('[NetCash Webhook] Trying by reference column:', reference);
+      const { data: txByRef } = await supabase
+        .from('payment_transactions')
+        .select('*')
+        .eq('reference', reference)
+        .single();
+
+      if (txByRef) {
+        existingTransaction = txByRef;
+        console.log('[NetCash Webhook] Found transaction by reference:', existingTransaction.id);
+      }
+    }
+
+    // Try with CT- prefix and trailing timestamp removed to match stored reference format
+    // e.g., CT-PM-VAL-92d6d9fb-1765356713732-1765356713732 -> PM-VAL-92d6d9fb-1765356713732
+    if (!existingTransaction && reference.startsWith('CT-')) {
+      // Remove CT- prefix and the trailing duplicate timestamp
+      const parts = reference.replace(/^CT-/, '').split('-');
+      // Reference format is PM-VAL-{customerId}-{timestamp}-{timestamp2}, we want PM-VAL-{customerId}-{timestamp}
+      if (parts.length >= 4 && parts[parts.length - 1] === parts[parts.length - 2]) {
+        parts.pop(); // Remove duplicate timestamp
+      }
+      const cleanedRef = parts.join('-');
+      console.log('[NetCash Webhook] Trying cleaned reference:', cleanedRef);
+      const { data: txByCleanedRef } = await supabase
+        .from('payment_transactions')
+        .select('*')
+        .eq('reference', cleanedRef)
+        .single();
+
+      if (txByCleanedRef) {
+        existingTransaction = txByCleanedRef;
+        console.log('[NetCash Webhook] Found transaction by cleaned reference:', existingTransaction.id);
+      }
+    }
 
     if (existingTransaction) {
       // Update existing transaction
@@ -221,11 +312,12 @@ export async function POST(request: NextRequest) {
           completed_at: paymentStatus === 'completed' ? new Date().toISOString() : null,
           updated_at: new Date().toISOString()
         })
-        .eq('transaction_id', transactionId);
+        .eq('id', existingTransaction.id);
 
-      console.log('[NetCash Webhook] Transaction updated:', transactionId);
+      console.log('[NetCash Webhook] Transaction updated:', existingTransaction.id);
     } else {
-      // Create new transaction
+      // Create new transaction (fallback - this shouldn't normally happen for payment method validations)
+      console.log('[NetCash Webhook] No existing transaction found, creating new one');
       await supabase
         .from('payment_transactions')
         .insert({
@@ -246,13 +338,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Process completed payments
-    if (paymentStatus === 'completed') {
-      // Get the payment transaction with metadata
-      const { data: paymentTransaction } = await supabase
-        .from('payment_transactions')
-        .select('id, metadata, customer_id, customer_email')
-        .eq('transaction_id', transactionId)
-        .single();
+    if (paymentStatus === 'completed' && existingTransaction) {
+      // Use the transaction we already found (includes metadata, customer_id, etc.)
+      const paymentTransaction = existingTransaction;
 
       if (paymentTransaction?.id) {
         // Check if this is a payment method validation transaction

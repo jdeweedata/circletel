@@ -105,9 +105,9 @@ export async function POST(request: NextRequest) {
       description: buildPaymentMethodDescription(),
       customerEmail: customer.email,
       customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Customer',
-      // CORRECT return URLs - redirect to /dashboard/billing
-      returnUrl: `${baseUrl}/dashboard/billing?payment_method=success&ref=${reference}`,
-      cancelUrl: `${baseUrl}/dashboard/billing?payment_method=cancelled`,
+      // Return URLs - redirect to /payment/callback (doesn't require auth, handles session loss)
+      returnUrl: `${baseUrl}/api/payments/netcash/redirect`,
+      cancelUrl: `${baseUrl}/api/payments/netcash/redirect`,
       notifyUrl: `${baseUrl}/api/payments/netcash/webhook`,
       metadata: {
         type: 'payment_method_validation',
