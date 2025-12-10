@@ -13,29 +13,25 @@ export const maxDuration = 30;
  * then calls NetCash API to get mandate signing URL.
  *
  * Required body:
- * - customer_id: UUID
- * - order_id: UUID
+ * - order_id: UUID (required)
  * - billing_day: number (1, 5, 25, or 30)
  *
  * Optional body:
+ * - customer_id: UUID (if not provided, will be derived from auth token)
  * - bank_details: { bank_name, account_name, account_number, branch_code, account_type }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customer_id, order_id, billing_day = 1, bank_details } = body;
+    let { customer_id, order_id, billing_day = 1, bank_details } = body;
 
-    // Validate required fields
-    if (!customer_id || !order_id) {
+    // Validate order_id is required
+    if (!order_id) {
       return NextResponse.json(
-        { error: 'customer_id and order_id are required' },
+        { error: 'order_id is required' },
         { status: 400 }
       );
     }
-
-    // Validate billing_day
-    const validBillingDays = [1, 5, 25, 30];
-    const debitDay = validBillingDays.includes(billing_day) ? billing_day : 1;
 
     // Use service role to bypass RLS
     const supabase = createClient(
@@ -48,6 +44,48 @@ export async function POST(request: NextRequest) {
         },
       }
     );
+
+    // If customer_id not provided, get it from auth token
+    if (!customer_id) {
+      const authHeader = request.headers.get('authorization');
+      const token = authHeader?.replace('Bearer ', '');
+
+      if (token) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        
+        if (authError || !user) {
+          return NextResponse.json(
+            { error: 'Unauthorized - invalid token' },
+            { status: 401 }
+          );
+        }
+
+        // Get customer_id from auth_user_id
+        const { data: customerRecord, error: customerLookupError } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (customerLookupError || !customerRecord) {
+          return NextResponse.json(
+            { error: 'Customer record not found for authenticated user' },
+            { status: 404 }
+          );
+        }
+
+        customer_id = customerRecord.id;
+      } else {
+        return NextResponse.json(
+          { error: 'customer_id is required or provide Authorization header' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate billing_day
+    const validBillingDays = [1, 5, 25, 30];
+    const debitDay = validBillingDays.includes(billing_day) ? billing_day : 1;
 
     // Fetch customer details (including account_number for NetCash reference)
     const { data: customer, error: customerError } = await supabase

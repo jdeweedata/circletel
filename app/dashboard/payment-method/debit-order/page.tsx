@@ -122,6 +122,11 @@ export default function DebitOrderPage() {
     try {
       const orderId = pendingOrders[0]?.id;
 
+      if (!orderId) {
+        toast.error('No pending order found. Please create an order first.');
+        return;
+      }
+
       const response = await fetch('/api/payment/emandate/initiate', {
         method: 'POST',
         headers: {
