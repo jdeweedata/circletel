@@ -130,11 +130,11 @@ export default function CardPaymentPage() {
                 className="h-8 w-auto"
               />
               <Image
-                src="/images/payment-logos/3d-secure.png"
+                src="/images/payment-logos/3d-secure-logo.svg"
                 alt="3D Secure"
-                width={40}
-                height={25}
-                className="h-6 w-auto"
+                width={50}
+                height={30}
+                className="h-7 w-auto"
               />
             </div>
 
