@@ -332,6 +332,7 @@ export class NetCashEMandateService {
     params['niws:ServiceKey'] = request.ServiceKey;
     params['niws:AccountReference'] = request.AccountReference;
     params['niws:MandateName'] = request.MandateName;
+    // NetCash expects amount in cents for batch file, but decimal for synchronous API
     params['niws:MandateAmount'] = request.MandateAmount.toFixed(2);
     params['niws:IsConsumer'] = request.IsConsumer;
     params['niws:FirstName'] = request.FirstName;
@@ -366,7 +367,11 @@ export class NetCashEMandateService {
     if (request.BankAccountName) params['niws:BankAccountName'] = request.BankAccountName;
     if (request.BankAccountNumber) params['niws:BankAccountNumber'] = request.BankAccountNumber;
     if (request.BranchCode) params['niws:BranchCode'] = request.BranchCode;
-    if (request.BankAccountType) params['niws:BankAccountType'] = request.BankAccountType;
+    if (request.BankAccountType) {
+      // Convert string to numeric code: 1 = Current, 2 = Savings, 3 = Transmission
+      const accountTypeMap: Record<string, number> = { 'Current': 1, 'Savings': 2, 'Transmission': 3 };
+      params['niws:BankAccountType'] = accountTypeMap[request.BankAccountType] || 1;
+    }
     if (request.CreditCardToken) params['niws:CreditCardToken'] = request.CreditCardToken;
     if (request.CreditCardType) params['niws:CreditCardType'] = request.CreditCardType;
     if (request.ExpiryMonth) params['niws:ExpiryMonth'] = request.ExpiryMonth;

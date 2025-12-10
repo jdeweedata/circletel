@@ -205,7 +205,18 @@ export async function POST(request: NextRequest) {
         BankAccountName: bank_details.account_name,
         BankAccountNumber: bank_details.account_number,
         BranchCode: bank_details.branch_code,
-        BankAccountType: bank_details.account_type || 'Current',
+        // Map frontend account types to NetCash expected values
+        BankAccountType: (() => {
+          const typeMap: Record<string, 'Current' | 'Savings' | 'Transmission'> = {
+            'cheque': 'Current',
+            'savings': 'Savings',
+            'transmission': 'Transmission',
+            'Current': 'Current',
+            'Savings': 'Savings',
+            'Transmission': 'Transmission',
+          };
+          return typeMap[bank_details.account_type] || 'Current';
+        })(),
       }),
     };
 
