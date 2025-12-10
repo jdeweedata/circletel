@@ -193,6 +193,20 @@ export default function AccountPage() {
         } as any,
       });
 
+      // CRITICAL: Also save to sessionStorage as backup
+      // This ensures account data persists even if OrderContext/localStorage fails
+      // New users who haven't verified email yet need this for order creation
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('circletel_account_data', JSON.stringify({
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          timestamp: new Date().toISOString()
+        }));
+        console.log('[Account] Saved account data to sessionStorage as backup');
+      }
+
       // Store customer ID for order creation
       if (result.customer?.id) {
         actions.updateOrderData({

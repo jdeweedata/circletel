@@ -185,7 +185,27 @@ export default function ServiceAddressPage() {
       const selectedPackage = packageData?.selectedPackage;
       const pricing = packageData?.pricing;
 
-          // Wait for auth to finish loading if still in progress
+      // Get account data with sessionStorage fallback for new signups
+      // This is critical for users who just signed up and haven't verified email yet
+      let accountData = account;
+      if (!accountData?.email && typeof window !== 'undefined') {
+        const savedAccount = sessionStorage.getItem('circletel_account_data');
+        if (savedAccount) {
+          try {
+            const parsed = JSON.parse(savedAccount);
+            // Check if data is less than 24 hours old
+            const hoursDiff = (Date.now() - new Date(parsed.timestamp).getTime()) / (1000 * 60 * 60);
+            if (hoursDiff < 24 && parsed.email) {
+              accountData = parsed;
+              console.log('[ServiceAddress] Using sessionStorage account data:', parsed.email);
+            }
+          } catch (e) {
+            console.error('[ServiceAddress] Failed to parse saved account:', e);
+          }
+        }
+      }
+
+      // Wait for auth to finish loading if still in progress
       if (authLoading) {
         console.log('[ServiceAddress] Auth still loading, waiting...');
         toast.dismiss();
@@ -200,12 +220,20 @@ export default function ServiceAddressPage() {
         toast.dismiss();
       }
 
-      // Get customer details - prioritize session email for OAuth users (most reliable)
-      // Then fall back to customer record, then user object, then order context
-      const customerEmail = session?.user?.email || user?.email || customer?.email || account?.email || '';
-      const customerPhone = customer?.phone || user?.user_metadata?.phone || account?.phone || '';
-      const customerFirstName = customer?.first_name || user?.user_metadata?.first_name || user?.user_metadata?.full_name?.split(' ')[0] || account?.firstName || '';
-      const customerLastName = customer?.last_name || user?.user_metadata?.last_name || user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') || account?.lastName || '';
+      // Get customer details - PRIORITIZE OrderContext/sessionStorage for new signups
+      // New users who haven't verified email won't have session data yet
+      const customerEmail = accountData?.email || session?.user?.email || user?.email || customer?.email || '';
+      const customerPhone = accountData?.phone || customer?.phone || user?.user_metadata?.phone || '';
+      const customerFirstName = accountData?.firstName || customer?.first_name || user?.user_metadata?.first_name || user?.user_metadata?.full_name?.split(' ')[0] || '';
+      const customerLastName = accountData?.lastName || customer?.last_name || user?.user_metadata?.last_name || user?.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '';
+
+      // Check phone verification status from sessionStorage
+      // This is required for new signups who haven't verified email yet
+      const phoneVerificationData = typeof window !== 'undefined'
+        ? sessionStorage.getItem('circletel_phone_verified')
+        : null;
+      const isPhoneVerified = !!phoneVerificationData;
+      const hasEmailSession = !!session?.user?.email_confirmed_at;
 
       console.log('[ServiceAddress] Creating order with:', {
         email: customerEmail,
@@ -218,29 +246,27 @@ export default function ServiceAddressPage() {
         sessionEmail: session?.user?.email,
         hasCustomer: !!customer,
         customerEmail: customer?.email,
-        accountEmail: account?.email
+        accountEmail: accountData?.email,
+        usedSessionStorage: accountData !== account,
+        isPhoneVerified,
+        hasEmailSession
       });
 
-      // Only redirect to login if truly not authenticated AND no email available
+      // If no email from any source, redirect to account creation (not login)
       if (!customerEmail) {
-        if (!isAuthenticated && !session?.user) {
-          toast.dismiss();
-          toast.error('Please log in to continue with your order.');
-          router.push('/auth/login?redirect=/order/service-address');
-          return;
-        } else {
-          // Authenticated but no email - this shouldn't happen, log and show error
-          console.error('[ServiceAddress] Authenticated user has no email:', {
-            isAuthenticated,
-            hasSession: !!session,
-            sessionUser: session?.user?.email,
-            user: user?.email
-          });
-          toast.dismiss();
-          toast.error('Unable to retrieve your email. Please try logging in again.');
-          router.push('/auth/login?redirect=/order/service-address');
-          return;
-        }
+        toast.dismiss();
+        toast.error('Please create an account to continue with your order.');
+        router.push('/order/account');
+        return;
+      }
+
+      // For new signups (no email session), require phone verification
+      // This ensures user identity is verified before order creation
+      if (!hasEmailSession && !isPhoneVerified && accountData !== account) {
+        toast.dismiss();
+        toast.error('Please verify your phone number to continue with your order.');
+        router.push(`/order/verify-otp?phone=${encodeURIComponent(customerPhone)}&email=${encodeURIComponent(customerEmail)}`);
+        return;
       }
 
       const orderResponse = await fetch('/api/orders/create-pending', {
@@ -295,13 +321,21 @@ export default function ServiceAddressPage() {
       // New order created successfully
       toast.success('Order created successfully! Redirecting to your dashboard...');
 
-      // Redirect to dashboard (will show login if not authenticated)
       // Store order ID for later reference
       if (typeof window !== 'undefined') {
         localStorage.setItem('circletel_pending_order_id', result.order.id);
+        // Clear the signup session data after successful order
+        sessionStorage.removeItem('circletel_account_data');
+        sessionStorage.removeItem('circletel_phone_verified');
       }
 
-      router.push('/dashboard');
+      // Redirect to dashboard - show email verification modal for unverified users
+      const needsEmailVerification = !session?.user?.email_confirmed_at;
+      if (needsEmailVerification) {
+        router.push(`/dashboard?showVerifyEmail=true&order=${result.order.order_number}&email=${encodeURIComponent(customerEmail)}`);
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       toast.dismiss();
       console.error('Order creation error:', error);

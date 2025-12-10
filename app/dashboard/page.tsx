@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import Link from "next/link";
 import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
 import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
+import { EmailVerificationModal } from "@/components/dashboard/EmailVerificationModal";
 
 interface DashboardData {
   customer: {
@@ -64,11 +66,44 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const { user, session, customer, loading: authLoading } = useCustomerAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingOrders, setPendingOrders] = useState<number>(0);
   const fetchInProgress = useRef(false);
+
+  // Email verification modal state
+  const [showVerifyEmailModal, setShowVerifyEmailModal] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string | undefined>(undefined);
+  const [verifyEmail, setVerifyEmail] = useState<string | undefined>(undefined);
+
+  // Check URL params for email verification modal trigger
+  useEffect(() => {
+    const showVerify = searchParams.get('showVerifyEmail');
+    const order = searchParams.get('order');
+    const email = searchParams.get('email');
+
+    if (showVerify === 'true') {
+      setShowVerifyEmailModal(true);
+      if (order) setOrderNumber(order);
+      if (email) setVerifyEmail(decodeURIComponent(email));
+
+      // Clean up URL params after reading them
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('showVerifyEmail');
+      newUrl.searchParams.delete('order');
+      newUrl.searchParams.delete('email');
+      router.replace(newUrl.pathname, { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  const handleCloseVerifyModal = () => {
+    setShowVerifyEmailModal(false);
+    setOrderNumber(undefined);
+    setVerifyEmail(undefined);
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -223,7 +258,17 @@ export default function DashboardPage() {
     );
   }
 
-  return <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} />;
+  return (
+    <>
+      <EmailVerificationModal
+        isOpen={showVerifyEmailModal}
+        onClose={handleCloseVerifyModal}
+        orderNumber={orderNumber}
+        email={verifyEmail}
+      />
+      <DashboardContent data={data} user={user} customer={customer} pendingOrders={pendingOrders} />
+    </>
+  );
 }
 
 function DashboardContent({ data, user, customer, pendingOrders }: { data: DashboardData; user: any; customer: any; pendingOrders: number }) {

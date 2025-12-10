@@ -58,6 +58,17 @@ export default function VerifyOTPPage() {
 
       if (result.success) {
         toast.success('Phone number verified successfully!');
+
+        // Store phone verification status in sessionStorage
+        // This enables phone as secondary auth factor for order creation
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('circletel_phone_verified', JSON.stringify({
+            phone: phone,
+            verifiedAt: new Date().toISOString()
+          }));
+          console.log('[VerifyOTP] Phone verification stored in sessionStorage');
+        }
+
         // Continue to service address confirmation step
         router.push('/order/service-address');
       } else {

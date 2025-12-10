@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { otpService } from '@/lib/integrations/clickatell/otp-service';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,9 +24,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Update customer record with phone verification timestamp
+    // This enables phone as a secondary authentication factor
+    const supabase = await createClient();
+    const { error: updateError } = await supabase
+      .from('customers')
+      .update({ phone_verified_at: new Date().toISOString() })
+      .eq('phone', phone);
+
+    if (updateError) {
+      console.error('[OTP Verify] Failed to update phone_verified_at:', updateError);
+      // Non-blocking - continue with success since OTP was verified
+    } else {
+      console.log('[OTP Verify] Phone verified and customer record updated:', phone);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Phone number verified successfully',
+      phoneVerified: true,
     });
   } catch (error) {
     console.error('Error in OTP verify route:', error);
