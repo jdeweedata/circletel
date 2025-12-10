@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -21,22 +21,33 @@ export default function DashboardLayout({
   const searchParams = useSearchParams();
   const { user, session, signOut, loading } = useCustomerAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isPaymentReturn, setIsPaymentReturn] = useState(false);
 
-  // Detect if this is a payment return (e.g., from NetCash)
-  useEffect(() => {
+  // CRITICAL: Detect payment return SYNCHRONOUSLY to prevent race condition
+  // This must be computed immediately, not via useEffect, to prevent redirect before detection
+  const isPaymentReturnFromUrl = useMemo(() => {
     const paymentMethod = searchParams.get('payment_method');
     const paymentStatus = searchParams.get('payment_status');
     const sessionRecovery = searchParams.get('session_recovery');
-    if (paymentMethod || paymentStatus || sessionRecovery) {
-      setIsPaymentReturn(true);
-      // Clear the flag after a longer delay to allow session to fully restore
+    return !!(paymentMethod || paymentStatus || sessionRecovery);
+  }, [searchParams]);
+
+  // Track when we can safely redirect (after grace period for session restoration)
+  const [paymentReturnGracePeriodActive, setPaymentReturnGracePeriodActive] = useState(isPaymentReturnFromUrl);
+
+  // Clear the grace period flag after session has had time to restore
+  useEffect(() => {
+    if (isPaymentReturnFromUrl) {
+      setPaymentReturnGracePeriodActive(true);
+      // Extended grace period (5 seconds) for session cookie restoration after external redirect
       const clearFlagTimeout = setTimeout(() => {
-        setIsPaymentReturn(false);
-      }, 3000); // 3 second grace period for payment returns
+        setPaymentReturnGracePeriodActive(false);
+      }, 5000);
       return () => clearTimeout(clearFlagTimeout);
     }
-  }, [searchParams]);
+  }, [isPaymentReturnFromUrl]);
+
+  // Combined flag: true if URL indicates payment return OR grace period is active
+  const isPaymentReturn = isPaymentReturnFromUrl || paymentReturnGracePeriodActive;
 
   // Initialize sidebar state from localStorage
   useEffect(() => {
@@ -66,15 +77,19 @@ export default function DashboardLayout({
   // Check both user AND session to prevent premature redirects during auth initialization
   // Skip redirect during payment return flow to allow session to restore from cookies
   useEffect(() => {
-    if (!loading && !user && !session && !isPaymentReturn) {
+    // During payment return, never redirect - wait for session to restore
+    if (isPaymentReturn) {
+      console.log('[DashboardLayout] Payment return detected, skipping auth redirect');
+      return;
+    }
+
+    if (!loading && !user && !session) {
+      console.log('[DashboardLayout] No auth detected, will redirect after delay...');
       // Extended delay to allow auth state to fully settle after external redirects
-      // Payment returns especially need more time for session cookie restoration
       const timeoutId = setTimeout(() => {
-        // Double-check isPaymentReturn hasn't been set during the timeout
-        if (!isPaymentReturn) {
-          router.push('/auth/login?redirect=/dashboard');
-        }
-      }, 500); // Increased from 100ms to 500ms for better session recovery
+        console.log('[DashboardLayout] Executing redirect to login');
+        router.push('/auth/login?redirect=/dashboard');
+      }, 1000); // 1 second delay for better session recovery
       return () => clearTimeout(timeoutId);
     }
   }, [user, session, loading, router, isPaymentReturn]);
@@ -85,14 +100,23 @@ export default function DashboardLayout({
   };
 
   // Loading state - also show during payment return while session recovers
-  if (loading || (isPaymentReturn && !user && !session)) {
+  // This is CRITICAL for payment returns - we must wait for session to restore from cookies
+  const showLoading = loading || (isPaymentReturn && !user && !session);
+
+  if (showLoading) {
+    console.log('[DashboardLayout] Showing loading state', { loading, isPaymentReturn, hasUser: !!user, hasSession: !!session });
     return (
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg text-circleTel-secondaryNeutral">
-            {isPaymentReturn ? 'Completing payment...' : 'Loading...'}
+            {isPaymentReturn ? 'Completing payment verification...' : 'Loading...'}
           </p>
+          {isPaymentReturn && (
+            <p className="text-sm text-circleTel-secondaryNeutral/70 mt-2">
+              Restoring your session...
+            </p>
+          )}
         </div>
       </div>
     );
