@@ -67,7 +67,49 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Query payment_methods table for active, verified payment method
+    // Query BOTH payment method tables:
+    // 1. payment_methods - for eMandate/debit order (older table)
+    // 2. customer_payment_methods - for card payments (newer table)
+
+    // Check customer_payment_methods first (card payments from NetCash Pay Now)
+    const { data: customerPaymentMethods, error: customerPmError } = await supabaseService
+      .from('customer_payment_methods')
+      .select(`
+        id,
+        method_type,
+        display_name,
+        last_four,
+        is_primary,
+        is_active,
+        token_status,
+        mandate_status
+      `)
+      .eq('customer_id', customer.id)
+      .eq('is_active', true)
+      .order('is_primary', { ascending: false })
+      .limit(1);
+
+    if (customerPmError) {
+      console.error('Error checking customer_payment_methods:', customerPmError);
+    }
+
+    // If found in customer_payment_methods, return it
+    if (customerPaymentMethods && customerPaymentMethods.length > 0) {
+      const method = customerPaymentMethods[0];
+      return NextResponse.json({
+        success: true,
+        hasPaymentMethod: true,
+        paymentMethod: {
+          id: method.id,
+          type: method.method_type,
+          isPrimary: method.is_primary,
+          displayName: method.display_name,
+          mandateActive: method.mandate_status === 'active' || method.token_status === 'active',
+        },
+      });
+    }
+
+    // Fallback: Check payment_methods table (for eMandate/debit order)
     const { data: paymentMethods, error: paymentError } = await supabaseService
       .from('payment_methods')
       .select(`
@@ -89,7 +131,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (paymentError) {
-      console.error('Error checking payment method:', paymentError);
+      console.error('Error checking payment_methods:', paymentError);
       return NextResponse.json(
         {
           success: false,
