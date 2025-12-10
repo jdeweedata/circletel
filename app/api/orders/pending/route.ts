@@ -51,12 +51,13 @@ export async function GET(request: NextRequest) {
     // Use service role client for database query
     const supabaseService = await createClient();
 
-    // Fetch pending orders for this customer (status: 'pending' with payment_status: 'pending')
+    // Fetch pending orders for this customer
+    // Include 'pending' and 'payment_method_pending' statuses (for retry scenarios)
     const { data: orders, error: ordersError } = await supabaseService
       .from('consumer_orders')
       .select('id, order_number, package_name, package_price, installation_address, created_at, status, payment_status')
       .eq('email', user.email)
-      .eq('status', 'pending')
+      .in('status', ['pending', 'payment_method_pending'])
       .eq('payment_status', 'pending')
       .order('created_at', { ascending: false });
 
