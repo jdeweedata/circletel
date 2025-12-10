@@ -433,16 +433,48 @@ export class NetCashEMandateService {
    */
   private async parseSoapResponse(xmlResponse: string): Promise<EMandateResponse> {
     try {
+      // Log raw response for debugging
+      console.log('[eMandate] Raw response (first 1000 chars):', xmlResponse.substring(0, 1000));
+
       const parsed = await parseStringPromise(xmlResponse);
+      
+      // Log parsed structure
+      console.log('[eMandate] Parsed response keys:', JSON.stringify(Object.keys(parsed)));
 
-      // Navigate through SOAP envelope
-      const body = parsed['soap:Envelope']['soap:Body'][0];
-      const response = body['AddMandateResponse'][0]['AddMandateResult'][0];
+      // Try different SOAP envelope formats (s:Envelope vs soap:Envelope)
+      const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
+      if (!envelope) {
+        console.error('[eMandate] Unknown envelope format. Keys:', Object.keys(parsed));
+        throw new Error('Unknown SOAP envelope format');
+      }
 
-      const errorCode = response['ErrorCode']?.[0] || '999';
-      const mandateUrl = response['MandateUrl']?.[0];
-      const errors = response['Errors']?.[0]?.['StringArray'] || [];
-      const warnings = response['Warnings']?.[0]?.['StringArray'] || [];
+      const body = envelope['soap:Body']?.[0] || envelope['s:Body']?.[0] || envelope['SOAP-ENV:Body']?.[0];
+      if (!body) {
+        console.error('[eMandate] Unknown body format. Envelope keys:', Object.keys(envelope));
+        throw new Error('Unknown SOAP body format');
+      }
+
+      // Try different response element names
+      const responseWrapper = body['AddMandateResponse'] || body['tem:AddMandateResponse'];
+      if (!responseWrapper) {
+        console.error('[eMandate] No AddMandateResponse found. Body keys:', Object.keys(body));
+        throw new Error('AddMandateResponse not found in response');
+      }
+
+      const result = responseWrapper[0]['AddMandateResult']?.[0] || responseWrapper[0]['tem:AddMandateResult']?.[0];
+      if (!result) {
+        console.error('[eMandate] No AddMandateResult found. Response keys:', Object.keys(responseWrapper[0]));
+        throw new Error('AddMandateResult not found in response');
+      }
+
+      console.log('[eMandate] Result keys:', Object.keys(result));
+
+      const errorCode = result['ErrorCode']?.[0] || result['a:ErrorCode']?.[0] || '999';
+      const mandateUrl = result['MandateUrl']?.[0] || result['a:MandateUrl']?.[0];
+      const errors = result['Errors']?.[0]?.['StringArray'] || result['a:Errors']?.[0]?.['b:string'] || [];
+      const warnings = result['Warnings']?.[0]?.['StringArray'] || result['a:Warnings']?.[0]?.['b:string'] || [];
+
+      console.log('[eMandate] Parsed result:', { errorCode, mandateUrl, errorsCount: errors.length });
 
       return {
         ErrorCode: errorCode,
@@ -452,6 +484,7 @@ export class NetCashEMandateService {
       };
     } catch (error) {
       console.error('Error parsing SOAP response:', error);
+      console.error('Raw XML:', xmlResponse.substring(0, 500));
       throw new Error('Failed to parse NetCash response');
     }
   }
