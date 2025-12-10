@@ -236,12 +236,12 @@ export class NetCashEMandateService {
       });
 
       // Call NetCash API
-      // SOAPAction format: http://ws.netcash.co.za/NIWS/NIWS_NIF/AddMandate
+      // SOAPAction from WSDL: http://tempuri.org/INIWS_NIF/AddMandate
       const response = await fetch(this.webServiceUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/xml; charset=utf-8',
-          'SOAPAction': 'http://ws.netcash.co.za/NIWS/NIWS_NIF/AddMandate',
+          'SOAPAction': 'http://tempuri.org/INIWS_NIF/AddMandate',
         },
         body: soapEnvelope,
       });
@@ -326,15 +326,16 @@ export class NetCashEMandateService {
       renderOpts: { pretty: false },
     });
 
+    // WSDL namespace is http://tempuri.org/
     const envelope = {
       'soap:Envelope': {
         $: {
           'xmlns:soap': 'http://schemas.xmlsoap.org/soap/envelope/',
-          'xmlns:niws': 'http://ws.netcash.co.za/NIWS_NIF',
+          'xmlns:tem': 'http://tempuri.org/',
         },
         'soap:Body': {
-          'niws:AddMandate': {
-            'niws:MethodParameters': this.buildMethodParameters(request),
+          'tem:AddMandate': {
+            'tem:MethodParameters': this.buildMethodParameters(request),
           },
         },
       },
@@ -350,79 +351,79 @@ export class NetCashEMandateService {
     const params: any = {};
 
     // Required fields
-    params['niws:ServiceKey'] = request.ServiceKey;
-    params['niws:AccountReference'] = request.AccountReference;
-    params['niws:MandateName'] = request.MandateName;
+    params['tem:ServiceKey'] = request.ServiceKey;
+    params['tem:AccountReference'] = request.AccountReference;
+    params['tem:MandateName'] = request.MandateName;
     // NetCash expects amount in cents for batch file, but decimal for synchronous API
-    params['niws:MandateAmount'] = request.MandateAmount.toFixed(2);
-    params['niws:IsConsumer'] = request.IsConsumer;
-    params['niws:FirstName'] = request.FirstName;
-    params['niws:Surname'] = request.Surname;
-    params['niws:TradingName'] = request.TradingName || '';
-    params['niws:RegistrationNumber'] = request.RegistrationNumber || '';
-    params['niws:RegisteredName'] = request.RegisteredName || '';
-    params['niws:MobileNumber'] = request.MobileNumber;
-    params['niws:DebitFrequency'] = request.DebitFrequency;
-    params['niws:CommencementMonth'] = request.CommencementMonth;
-    params['niws:CommencementDay'] = request.CommencementDay;
-    params['niws:AgreementDate'] = request.AgreementDate;
-    params['niws:AgreementReferenceNumber'] = request.AgreementReferenceNumber;
+    params['tem:MandateAmount'] = request.MandateAmount.toFixed(2);
+    params['tem:IsConsumer'] = request.IsConsumer;
+    params['tem:FirstName'] = request.FirstName;
+    params['tem:Surname'] = request.Surname;
+    params['tem:TradingName'] = request.TradingName || '';
+    params['tem:RegistrationNumber'] = request.RegistrationNumber || '';
+    params['tem:RegisteredName'] = request.RegisteredName || '';
+    params['tem:MobileNumber'] = request.MobileNumber;
+    params['tem:DebitFrequency'] = request.DebitFrequency;
+    params['tem:CommencementMonth'] = request.CommencementMonth;
+    params['tem:CommencementDay'] = request.CommencementDay;
+    params['tem:AgreementDate'] = request.AgreementDate;
+    params['tem:AgreementReferenceNumber'] = request.AgreementReferenceNumber;
 
     // Optional fields (only include if provided)
-    if (request.CancellationNoticePeriod) params['niws:CancellationNoticePeriod'] = request.CancellationNoticePeriod;
-    if (request.PublicHolidayOption) params['niws:PublicHolidayOption'] = request.PublicHolidayOption;
-    if (request.Notes) params['niws:Notes'] = request.Notes;
-    if (request.Field1) params['niws:Field1'] = request.Field1;
-    if (request.Field2) params['niws:Field2'] = request.Field2;
-    if (request.Field3) params['niws:Field3'] = request.Field3;
-    if (request.Field4) params['niws:Field4'] = request.Field4;
-    if (request.Field5) params['niws:Field5'] = request.Field5;
-    if (request.Field6) params['niws:Field6'] = request.Field6;
-    if (request.Field7) params['niws:Field7'] = request.Field7;
-    if (request.Field8) params['niws:Field8'] = request.Field8;
-    if (request.Field9) params['niws:Field9'] = request.Field9;
-    if (request.AllowVariableDebitAmounts !== undefined) params['niws:AllowVariableDebitAmounts'] = request.AllowVariableDebitAmounts;
+    if (request.CancellationNoticePeriod) params['tem:CancellationNoticePeriod'] = request.CancellationNoticePeriod;
+    if (request.PublicHolidayOption) params['tem:PublicHolidayOption'] = request.PublicHolidayOption;
+    if (request.Notes) params['tem:Notes'] = request.Notes;
+    if (request.Field1) params['tem:Field1'] = request.Field1;
+    if (request.Field2) params['tem:Field2'] = request.Field2;
+    if (request.Field3) params['tem:Field3'] = request.Field3;
+    if (request.Field4) params['tem:Field4'] = request.Field4;
+    if (request.Field5) params['tem:Field5'] = request.Field5;
+    if (request.Field6) params['tem:Field6'] = request.Field6;
+    if (request.Field7) params['tem:Field7'] = request.Field7;
+    if (request.Field8) params['tem:Field8'] = request.Field8;
+    if (request.Field9) params['tem:Field9'] = request.Field9;
+    if (request.AllowVariableDebitAmounts !== undefined) params['tem:AllowVariableDebitAmounts'] = request.AllowVariableDebitAmounts;
 
     // Bank/Card details
-    if (request.BankDetailType) params['niws:BankDetailType'] = request.BankDetailType;
-    if (request.BankAccountName) params['niws:BankAccountName'] = request.BankAccountName;
-    if (request.BankAccountNumber) params['niws:BankAccountNumber'] = request.BankAccountNumber;
-    if (request.BranchCode) params['niws:BranchCode'] = request.BranchCode;
+    if (request.BankDetailType) params['tem:BankDetailType'] = request.BankDetailType;
+    if (request.BankAccountName) params['tem:BankAccountName'] = request.BankAccountName;
+    if (request.BankAccountNumber) params['tem:BankAccountNumber'] = request.BankAccountNumber;
+    if (request.BranchCode) params['tem:BranchCode'] = request.BranchCode;
     if (request.BankAccountType) {
       // Convert string to numeric code: 1 = Current, 2 = Savings, 3 = Transmission
       const accountTypeMap: Record<string, number> = { 'Current': 1, 'Savings': 2, 'Transmission': 3 };
-      params['niws:BankAccountType'] = accountTypeMap[request.BankAccountType] || 1;
+      params['tem:BankAccountType'] = accountTypeMap[request.BankAccountType] || 1;
     }
-    if (request.CreditCardToken) params['niws:CreditCardToken'] = request.CreditCardToken;
-    if (request.CreditCardType) params['niws:CreditCardType'] = request.CreditCardType;
-    if (request.ExpiryMonth) params['niws:ExpiryMonth'] = request.ExpiryMonth;
-    if (request.ExpiryYear) params['niws:ExpiryYear'] = request.ExpiryYear;
+    if (request.CreditCardToken) params['tem:CreditCardToken'] = request.CreditCardToken;
+    if (request.CreditCardType) params['tem:CreditCardType'] = request.CreditCardType;
+    if (request.ExpiryMonth) params['tem:ExpiryMonth'] = request.ExpiryMonth;
+    if (request.ExpiryYear) params['tem:ExpiryYear'] = request.ExpiryYear;
 
     // Additional fields
-    if (request.IsIdNumber !== undefined) params['niws:IsIdNumber'] = request.IsIdNumber;
-    if (request.Title) params['niws:Title'] = request.Title;
-    if (request.EmailAddress) params['niws:EmailAddress'] = request.EmailAddress;
-    if (request.PhoneNumber) params['niws:PhoneNumber'] = request.PhoneNumber;
-    if (request.DateOfBirth) params['niws:DateOfBirth'] = request.DateOfBirth;
-    if (request.DecemberDebitDay) params['niws:DecemberDebitDay'] = request.DecemberDebitDay;
-    if (request.DebitMasterfileGroup) params['niws:DebitMasterfileGroup'] = request.DebitMasterfileGroup;
-    if (request.PhysicalAddressLine1) params['niws:PhysicalAddressLine1'] = request.PhysicalAddressLine1;
-    if (request.PhysicalAddressLine2) params['niws:PhysicalAddressLine2'] = request.PhysicalAddressLine2;
-    if (request.PhysicalAddressLine3) params['niws:PhysicalAddressLine3'] = request.PhysicalAddressLine3;
-    if (request.PhysicalSuburb) params['niws:PhysicalSuburb'] = request.PhysicalSuburb;
-    if (request.PhysicalCity) params['niws:PhysicalCity'] = request.PhysicalCity;
-    if (request.PhysicalProvince) params['niws:PhysicalProvince'] = request.PhysicalProvince;
-    if (request.PhysicalPostalCode) params['niws:PhysicalPostalCode'] = request.PhysicalPostalCode;
-    if (request.MandateActive !== undefined) params['niws:MandateActive'] = request.MandateActive;
-    if (request.RequestAVS !== undefined) params['niws:RequestAVS'] = request.RequestAVS;
-    if (request.AVSCheckNumber) params['niws:AVSCheckNumber'] = request.AVSCheckNumber;
-    if (request.IncludeDebiCheck !== undefined) params['niws:IncludeDebiCheck'] = request.IncludeDebiCheck;
-    if (request.DebiCheckMandateTemplateId) params['niws:DebiCheckMandateTemplateId'] = request.DebiCheckMandateTemplateId;
-    if (request.DebiCheckCollectionAmount) params['niws:DebiCheckCollectionAmount'] = request.DebiCheckCollectionAmount;
-    if (request.DebiCheckFirstCollectionDiffers !== undefined) params['niws:DebiCheckFirstCollectionDiffers'] = request.DebiCheckFirstCollectionDiffers;
-    if (request.DebiCheckFirstCollectionAmount) params['niws:DebiCheckFirstCollectionAmount'] = request.DebiCheckFirstCollectionAmount;
-    if (request.DebiCheckCollectionDayCode) params['niws:DebiCheckCollectionDayCode'] = request.DebiCheckCollectionDayCode;
-    if (request.AddToMasterFile !== undefined) params['niws:AddToMasterFile'] = request.AddToMasterFile;
+    if (request.IsIdNumber !== undefined) params['tem:IsIdNumber'] = request.IsIdNumber;
+    if (request.Title) params['tem:Title'] = request.Title;
+    if (request.EmailAddress) params['tem:EmailAddress'] = request.EmailAddress;
+    if (request.PhoneNumber) params['tem:PhoneNumber'] = request.PhoneNumber;
+    if (request.DateOfBirth) params['tem:DateOfBirth'] = request.DateOfBirth;
+    if (request.DecemberDebitDay) params['tem:DecemberDebitDay'] = request.DecemberDebitDay;
+    if (request.DebitMasterfileGroup) params['tem:DebitMasterfileGroup'] = request.DebitMasterfileGroup;
+    if (request.PhysicalAddressLine1) params['tem:PhysicalAddressLine1'] = request.PhysicalAddressLine1;
+    if (request.PhysicalAddressLine2) params['tem:PhysicalAddressLine2'] = request.PhysicalAddressLine2;
+    if (request.PhysicalAddressLine3) params['tem:PhysicalAddressLine3'] = request.PhysicalAddressLine3;
+    if (request.PhysicalSuburb) params['tem:PhysicalSuburb'] = request.PhysicalSuburb;
+    if (request.PhysicalCity) params['tem:PhysicalCity'] = request.PhysicalCity;
+    if (request.PhysicalProvince) params['tem:PhysicalProvince'] = request.PhysicalProvince;
+    if (request.PhysicalPostalCode) params['tem:PhysicalPostalCode'] = request.PhysicalPostalCode;
+    if (request.MandateActive !== undefined) params['tem:MandateActive'] = request.MandateActive;
+    if (request.RequestAVS !== undefined) params['tem:RequestAVS'] = request.RequestAVS;
+    if (request.AVSCheckNumber) params['tem:AVSCheckNumber'] = request.AVSCheckNumber;
+    if (request.IncludeDebiCheck !== undefined) params['tem:IncludeDebiCheck'] = request.IncludeDebiCheck;
+    if (request.DebiCheckMandateTemplateId) params['tem:DebiCheckMandateTemplateId'] = request.DebiCheckMandateTemplateId;
+    if (request.DebiCheckCollectionAmount) params['tem:DebiCheckCollectionAmount'] = request.DebiCheckCollectionAmount;
+    if (request.DebiCheckFirstCollectionDiffers !== undefined) params['tem:DebiCheckFirstCollectionDiffers'] = request.DebiCheckFirstCollectionDiffers;
+    if (request.DebiCheckFirstCollectionAmount) params['tem:DebiCheckFirstCollectionAmount'] = request.DebiCheckFirstCollectionAmount;
+    if (request.DebiCheckCollectionDayCode) params['tem:DebiCheckCollectionDayCode'] = request.DebiCheckCollectionDayCode;
+    if (request.AddToMasterFile !== undefined) params['tem:AddToMasterFile'] = request.AddToMasterFile;
 
     return params;
   }
