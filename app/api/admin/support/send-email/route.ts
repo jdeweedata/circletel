@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     const bccRecipients = body.bcc ? (Array.isArray(body.bcc) ? body.bcc : [body.bcc]) : undefined;
 
     // Auto-detect HTML content
-    const isHtml = body.isHtml ?? body.body.includes('<') && body.body.includes('>');
+    const isHtml = body.isHtml ?? (body.body.includes('<') && body.body.includes('>'));
 
     // Build email content
     const fromName = body.fromName || DEFAULT_FROM_NAME;
