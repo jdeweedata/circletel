@@ -153,7 +153,20 @@ export async function POST(request: NextRequest) {
           ? `****${bank_details.account_number.slice(-4)}`
           : null,
         branch_code: bank_details?.branch_code || null,
-        bank_account_type: bank_details?.account_type || null,
+        // Map frontend account types to database expected values (lowercase)
+        bank_account_type: bank_details?.account_type
+          ? (() => {
+              const dbTypeMap: Record<string, string> = {
+                'cheque': 'current',
+                'savings': 'savings',
+                'transmission': 'transmission',
+                'Current': 'current',
+                'Savings': 'savings',
+                'Transmission': 'transmission',
+              };
+              return dbTypeMap[bank_details.account_type] || 'current';
+            })()
+          : null,
         metadata: {
           initiated_at: new Date().toISOString(),
           order_number: order.order_number,
