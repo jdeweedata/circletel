@@ -220,6 +220,21 @@ export class NetCashEMandateService {
       // Build SOAP envelope
       const soapEnvelope = this.buildSoapEnvelope(fullRequest);
 
+      // Log request details (without sensitive data)
+      console.log('[eMandate] Calling NetCash API:', {
+        url: this.webServiceUrl,
+        accountReference: fullRequest.AccountReference,
+        mandateName: fullRequest.MandateName,
+        mandateAmount: fullRequest.MandateAmount,
+        isConsumer: fullRequest.IsConsumer,
+        debitFrequency: fullRequest.DebitFrequency,
+        commencementMonth: fullRequest.CommencementMonth,
+        commencementDay: fullRequest.CommencementDay,
+        agreementDate: fullRequest.AgreementDate,
+        hasBankDetails: !!fullRequest.BankAccountNumber,
+        hasServiceKey: !!fullRequest.ServiceKey,
+      });
+
       // Call NetCash API
       const response = await fetch(this.webServiceUrl, {
         method: 'POST',
@@ -230,7 +245,12 @@ export class NetCashEMandateService {
         body: soapEnvelope,
       });
 
+      // Log response status
+      console.log('[eMandate] NetCash API response status:', response.status, response.statusText);
+
       if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('[eMandate] NetCash API error response:', errorBody.substring(0, 500));
         throw new Error(`NetCash API returned ${response.status}: ${response.statusText}`);
       }
 
