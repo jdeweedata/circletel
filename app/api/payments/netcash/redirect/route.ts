@@ -5,7 +5,11 @@
  *
  * NetCash sends a POST request after payment completion.
  * This handler receives the POST data and redirects the user
- * to the appropriate page via GET.
+ * to a dedicated callback page that doesn't require authentication.
+ *
+ * IMPORTANT: We redirect to /payment/callback instead of /dashboard/billing
+ * because the session cookies may be lost during external redirects.
+ * The callback page handles both authenticated and unauthenticated states.
  *
  * @module app/api/payments/netcash/redirect
  */
@@ -32,32 +36,31 @@ export async function POST(request: NextRequest) {
     });
 
     // Determine redirect URL based on transaction status
+    // IMPORTANT: Redirect to /payment/callback which doesn't require auth
     let redirectUrl: string;
 
     if (transactionAccepted === 'true' || transactionAccepted === true) {
-      // Payment successful - include session_recovery flag to trigger extended loading in dashboard
-      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success&session_recovery=true`;
+      redirectUrl = `${baseUrl}/payment/callback?payment_method=success`;
       if (reference) {
         redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;
       }
       console.log('[NetCash Redirect] Payment successful, redirecting to:', redirectUrl);
     } else {
-      // Payment cancelled or failed - include session_recovery flag
-      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled&session_recovery=true`;
+      redirectUrl = `${baseUrl}/payment/callback?payment_method=cancelled`;
       if (reason) {
         redirectUrl += `&reason=${encodeURIComponent(String(reason))}`;
       }
       console.log('[NetCash Redirect] Payment cancelled/failed, redirecting to:', redirectUrl);
     }
 
-    // Redirect user to billing page via GET
+    // Redirect user to callback page via GET
     return NextResponse.redirect(redirectUrl, { status: 303 }); // 303 See Other for POST->GET redirect
 
   } catch (error) {
     console.error('[NetCash Redirect] Error processing redirect:', error);
 
-    // On error, redirect to billing page with error status
-    const errorUrl = `${baseUrl}/dashboard/billing?payment_method=error&session_recovery=true`;
+    // On error, redirect to callback page with error status
+    const errorUrl = `${baseUrl}/payment/callback?payment_method=error`;
     return NextResponse.redirect(errorUrl, { status: 303 });
   }
 }
@@ -81,12 +84,12 @@ export async function GET(request: NextRequest) {
   let redirectUrl: string;
 
   if (transactionAccepted === 'true') {
-    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success&session_recovery=true`;
+    redirectUrl = `${baseUrl}/payment/callback?payment_method=success`;
     if (reference) {
       redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;
     }
   } else {
-    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled&session_recovery=true`;
+    redirectUrl = `${baseUrl}/payment/callback?payment_method=cancelled`;
     if (reason) {
       redirectUrl += `&reason=${encodeURIComponent(String(reason))}`;
     }

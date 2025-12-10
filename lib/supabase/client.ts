@@ -31,6 +31,16 @@ function getSupabaseClient() {
         'x-application-name': 'circletel-nextjs',
       },
     },
+    // Configure cookie options for better persistence after external redirects
+    cookieOptions: {
+      // Use 'Lax' for SameSite to allow cookies on top-level navigations
+      // This is important for redirects from external payment gateways
+      sameSite: 'lax',
+      // Ensure cookies are secure in production
+      secure: process.env.NODE_ENV === 'production',
+      // Set a reasonable max age (7 days)
+      maxAge: 60 * 60 * 24 * 7,
+    },
   });
 
   return _supabaseClient;
