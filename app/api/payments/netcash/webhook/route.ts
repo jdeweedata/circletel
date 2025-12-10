@@ -407,7 +407,7 @@ export async function POST(request: NextRequest) {
                   card_masked_number: maskedCard || null,
                   is_primary: shouldBePrimary,
                   is_active: true,
-                  token_status: 'verified',
+                  token_status: 'active',
                   token_verified_at: new Date().toISOString(),
                   encrypted_details: JSON.stringify({
                     validation_transaction_id: transactionId,
