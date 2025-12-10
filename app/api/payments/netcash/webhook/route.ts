@@ -175,24 +175,44 @@ export async function POST(request: NextRequest) {
     // 6. Determine payment status from NetCash response
     let paymentStatus = 'pending';
     const responseCode = bodyParsed.ResponseCode || bodyParsed.response_code;
-    const amount = parseFloat(bodyParsed.Amount || bodyParsed.amount || '0');
+    const transactionAccepted = bodyParsed.TransactionAccepted || bodyParsed.transaction_accepted;
+    const reason = bodyParsed.Reason || bodyParsed.reason || '';
+    const amount = parseFloat(String(bodyParsed.Amount || bodyParsed.amount || '0'));
 
-    // NetCash Response Codes:
-    // 0 = Successful
-    // 1 = Declined
-    // 2 = Cancelled
-    // 3 = Pending
-    if (responseCode === 0 || responseCode === '0') {
+    // NetCash uses multiple status indicators:
+    // 1. TransactionAccepted: "true" / "false" (most common in Pay Now)
+    // 2. ResponseCode: 0=Success, 1=Declined, 2=Cancelled, 3=Pending
+    // 3. Reason: "Success", "Declined", etc.
+
+    // Check TransactionAccepted first (primary indicator for Pay Now)
+    if (transactionAccepted === 'true' || transactionAccepted === true) {
       paymentStatus = 'completed';
-    } else if (responseCode === 1 || responseCode === '1') {
-      paymentStatus = 'failed';
-    } else if (responseCode === 2 || responseCode === '2') {
-      paymentStatus = 'cancelled';
-    } else {
-      paymentStatus = 'pending';
+    } else if (transactionAccepted === 'false' || transactionAccepted === false) {
+      // Check reason for more detail
+      if (reason.toLowerCase().includes('cancel')) {
+        paymentStatus = 'cancelled';
+      } else {
+        paymentStatus = 'failed';
+      }
+    } else if (responseCode !== undefined) {
+      // Fallback to ResponseCode
+      if (responseCode === 0 || responseCode === '0') {
+        paymentStatus = 'completed';
+      } else if (responseCode === 1 || responseCode === '1') {
+        paymentStatus = 'failed';
+      } else if (responseCode === 2 || responseCode === '2') {
+        paymentStatus = 'cancelled';
+      }
+    } else if (reason.toLowerCase() === 'success') {
+      // Last resort: check Reason field
+      paymentStatus = 'completed';
     }
 
-    console.log('[NetCash Webhook] Payment status:', paymentStatus, '(ResponseCode:', responseCode, ')');
+    console.log('[NetCash Webhook] Payment status:', paymentStatus, {
+      transactionAccepted,
+      responseCode,
+      reason
+    });
 
     // 7. Check for existing webhook (idempotency)
     const { data: existingWebhook } = await supabase
