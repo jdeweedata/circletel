@@ -236,11 +236,12 @@ export class NetCashEMandateService {
       });
 
       // Call NetCash API
+      // SOAPAction format: http://ws.netcash.co.za/NIWS/NIWS_NIF/AddMandate
       const response = await fetch(this.webServiceUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/xml; charset=utf-8',
-          'SOAPAction': 'http://ws.netcash.co.za/NIWS_NIF/NIWS_NIF/AddMandate',
+          'SOAPAction': 'http://ws.netcash.co.za/NIWS/NIWS_NIF/AddMandate',
         },
         body: soapEnvelope,
       });
