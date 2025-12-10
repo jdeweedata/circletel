@@ -160,12 +160,16 @@ export class NetCashEMandateBatchService {
     const hasCustomFields = requests.some(r => r.field1 || r.field2 || r.field3);
 
     // Build key record - define field order
+    // Fields 121, 122, 123 are MANDATORY for Mandates instruction (even if empty for individuals)
     const keyFields: number[] = [
       101, // Account reference
       102, // Mandate name
       110, // Is Consumer
       114, // First name
       113, // Surname
+      121, // Trading name (mandatory, empty for individuals)
+      122, // Registration number (mandatory, empty for individuals)
+      123, // Registered name (mandatory, empty for individuals)
       202, // Mobile number
       161, // Mandate amount (in cents)
       530, // Debit frequency
@@ -204,38 +208,41 @@ export class NetCashEMandateBatchService {
     const transactionRecords = requests.map(req => {
       const fields: string[] = ['T'];
       
-      // Required fields in key order
-      fields.push(req.accountReference.substring(0, 22));
-      fields.push(req.mandateName.substring(0, 50));
-      fields.push(req.isConsumer ? '1' : '0');
-      fields.push(req.firstName.substring(0, 50));
-      fields.push(req.surname.substring(0, 50));
-      fields.push(this.formatMobileNumber(req.mobileNumber));
-      fields.push(Math.round(req.mandateAmount * 100).toString()); // Convert to cents
-      fields.push(req.debitFrequency.toString());
-      fields.push(req.commencementMonth.toString().padStart(2, '0'));
-      fields.push(req.commencementDay);
-      fields.push(this.formatDate(req.agreementDate));
-      fields.push(req.agreementReference.substring(0, 50));
-      fields.push(req.sendMandate !== false ? '1' : '0'); // Default to send
-      fields.push((req.publicHolidayOption || 0).toString());
+      // Required fields in key order (must match keyFields order exactly)
+      fields.push(req.accountReference.substring(0, 22));  // 101
+      fields.push(req.mandateName.substring(0, 50));       // 102
+      fields.push(req.isConsumer ? '1' : '0');             // 110
+      fields.push(req.firstName.substring(0, 50));         // 114
+      fields.push(req.surname.substring(0, 50));           // 113
+      fields.push(req.tradingName?.substring(0, 50) || ''); // 121 - empty for individuals
+      fields.push(req.registrationNumber?.substring(0, 50) || ''); // 122 - empty for individuals
+      fields.push(req.registeredName?.substring(0, 50) || ''); // 123 - empty for individuals
+      fields.push(this.formatMobileNumber(req.mobileNumber)); // 202
+      fields.push(Math.round(req.mandateAmount * 100).toString()); // 161 - Convert to cents
+      fields.push(req.debitFrequency.toString());          // 530
+      fields.push(req.commencementMonth.toString().padStart(2, '0')); // 531
+      fields.push(req.commencementDay);                    // 532
+      fields.push(this.formatDate(req.agreementDate));     // 534
+      fields.push(req.agreementReference.substring(0, 50)); // 535
+      fields.push(req.sendMandate !== false ? '1' : '0');  // 540 - Default to send
+      fields.push((req.publicHolidayOption || 0).toString()); // 541
 
-      // Optional fields
+      // Optional fields (must match order added to keyFields)
       if (hasEmail) {
-        fields.push(req.emailAddress || '');
+        fields.push(req.emailAddress || '');               // 201
       }
       if (hasBankDetails) {
-        fields.push((req.bankDetailType || 1).toString());
-        fields.push(req.bankAccountName || '');
-        fields.push((req.bankAccountType || 1).toString());
-        fields.push(req.branchCode || '');
-        fields.push('0'); // Filler for bank accounts
-        fields.push(req.bankAccountNumber || '');
+        fields.push((req.bankDetailType || 1).toString()); // 131
+        fields.push(req.bankAccountName || '');            // 132
+        fields.push((req.bankAccountType || 1).toString()); // 133
+        fields.push(req.branchCode || '');                 // 134
+        fields.push('0');                                  // 135 - Filler for bank accounts
+        fields.push(req.bankAccountNumber || '');          // 136
       }
       if (hasCustomFields) {
-        fields.push(req.field1 || '');
-        fields.push(req.field2 || '');
-        fields.push(req.field3 || '');
+        fields.push(req.field1 || '');                     // 311
+        fields.push(req.field2 || '');                     // 312
+        fields.push(req.field3 || '');                     // 313
       }
 
       return fields.join(TAB);
