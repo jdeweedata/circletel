@@ -130,16 +130,27 @@ export async function POST(request: NextRequest) {
     const accountReference = customer.account_number;
     const mandateAmount = parseFloat(order.package_price) || 0;
 
-    // Delete any existing pending payment methods for this order (from failed previous attempts)
-    const { error: deleteError } = await supabase
+    // Delete any existing pending payment methods for this order OR with same account reference
+    // (from failed previous attempts)
+    const { error: deleteError1 } = await supabase
       .from('payment_methods')
       .delete()
       .eq('order_id', order_id)
       .eq('status', 'pending');
 
-    if (deleteError) {
-      console.warn('[eMandate Initiate] Failed to clean up old payment methods:', deleteError);
-      // Continue anyway - this is not critical
+    if (deleteError1) {
+      console.warn('[eMandate Initiate] Failed to clean up old payment methods by order:', deleteError1);
+    }
+
+    // Also delete any pending payment methods with the same account reference (unique constraint)
+    const { error: deleteError2 } = await supabase
+      .from('payment_methods')
+      .delete()
+      .eq('netcash_account_reference', accountReference)
+      .eq('status', 'pending');
+
+    if (deleteError2) {
+      console.warn('[eMandate Initiate] Failed to clean up old payment methods by account ref:', deleteError2);
     }
 
     // Create payment_methods record (pending status)
