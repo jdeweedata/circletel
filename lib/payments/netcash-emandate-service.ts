@@ -438,7 +438,12 @@ export class NetCashEMandateService {
    * Parse postback data from NetCash (form-encoded data)
    */
   static parsePostback(formData: Record<string, string>): EMandatePostback {
-    return formData as EMandatePostback;
+    // Runtime validation for required fields
+    if (!formData.MandateSuccessful || !formData.AccountRef) {
+      console.error('Invalid postback data received:', Object.keys(formData));
+      throw new Error('Invalid postback data: missing required fields (MandateSuccessful, AccountRef)');
+    }
+    return formData as unknown as EMandatePostback;
   }
 
   /**
