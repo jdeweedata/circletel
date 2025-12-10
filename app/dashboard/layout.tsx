@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { DashboardErrorBoundary } from '@/components/dashboard/ErrorBoundary';
@@ -18,8 +18,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, session, signOut, loading } = useCustomerAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isPaymentReturn, setIsPaymentReturn] = useState(false);
+
+  // Detect if this is a payment return (e.g., from NetCash)
+  useEffect(() => {
+    const paymentMethod = searchParams.get('payment_method');
+    const paymentStatus = searchParams.get('payment_status');
+    const sessionRecovery = searchParams.get('session_recovery');
+    if (paymentMethod || paymentStatus || sessionRecovery) {
+      setIsPaymentReturn(true);
+      // Clear the flag after a longer delay to allow session to fully restore
+      const clearFlagTimeout = setTimeout(() => {
+        setIsPaymentReturn(false);
+      }, 3000); // 3 second grace period for payment returns
+      return () => clearTimeout(clearFlagTimeout);
+    }
+  }, [searchParams]);
 
   // Initialize sidebar state from localStorage
   useEffect(() => {
@@ -47,35 +64,42 @@ export default function DashboardLayout({
 
   // Auth redirect - with race condition protection
   // Check both user AND session to prevent premature redirects during auth initialization
+  // Skip redirect during payment return flow to allow session to restore from cookies
   useEffect(() => {
-    if (!loading && !user && !session) {
-      // Small delay to allow auth state to fully settle after provider initialization
+    if (!loading && !user && !session && !isPaymentReturn) {
+      // Extended delay to allow auth state to fully settle after external redirects
+      // Payment returns especially need more time for session cookie restoration
       const timeoutId = setTimeout(() => {
-        router.push('/auth/login?redirect=/dashboard');
-      }, 100);
+        // Double-check isPaymentReturn hasn't been set during the timeout
+        if (!isPaymentReturn) {
+          router.push('/auth/login?redirect=/dashboard');
+        }
+      }, 500); // Increased from 100ms to 500ms for better session recovery
       return () => clearTimeout(timeoutId);
     }
-  }, [user, session, loading, router]);
+  }, [user, session, loading, router, isPaymentReturn]);
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/');
   };
 
-  // Loading state
-  if (loading) {
+  // Loading state - also show during payment return while session recovers
+  if (loading || (isPaymentReturn && !user && !session)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-circleTel-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg text-circleTel-secondaryNeutral">Loading...</p>
+          <p className="text-lg text-circleTel-secondaryNeutral">
+            {isPaymentReturn ? 'Completing payment...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  // Not authenticated - check both user and session
-  if (!user && !session) {
+  // Not authenticated - check both user and session (but allow payment returns time to restore)
+  if (!user && !session && !isPaymentReturn) {
     return null;
   }
 

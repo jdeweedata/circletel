@@ -35,15 +35,15 @@ export async function POST(request: NextRequest) {
     let redirectUrl: string;
 
     if (transactionAccepted === 'true' || transactionAccepted === true) {
-      // Payment successful
-      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success`;
+      // Payment successful - include session_recovery flag to trigger extended loading in dashboard
+      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success&session_recovery=true`;
       if (reference) {
         redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;
       }
       console.log('[NetCash Redirect] Payment successful, redirecting to:', redirectUrl);
     } else {
-      // Payment cancelled or failed
-      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled`;
+      // Payment cancelled or failed - include session_recovery flag
+      redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled&session_recovery=true`;
       if (reason) {
         redirectUrl += `&reason=${encodeURIComponent(String(reason))}`;
       }
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     console.error('[NetCash Redirect] Error processing redirect:', error);
 
     // On error, redirect to billing page with error status
-    const errorUrl = `${baseUrl}/dashboard/billing?payment_method=error`;
+    const errorUrl = `${baseUrl}/dashboard/billing?payment_method=error&session_recovery=true`;
     return NextResponse.redirect(errorUrl, { status: 303 });
   }
 }
@@ -81,12 +81,12 @@ export async function GET(request: NextRequest) {
   let redirectUrl: string;
 
   if (transactionAccepted === 'true') {
-    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success`;
+    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=success&session_recovery=true`;
     if (reference) {
       redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;
     }
   } else {
-    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled`;
+    redirectUrl = `${baseUrl}/dashboard/billing?payment_method=cancelled&session_recovery=true`;
     if (reason) {
       redirectUrl += `&reason=${encodeURIComponent(String(reason))}`;
     }
