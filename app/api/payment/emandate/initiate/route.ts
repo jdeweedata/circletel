@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         status: 'pending',
         netcash_account_reference: accountReference,
         mandate_amount: mandateAmount,
-        mandate_frequency: 'Monthly',
+        mandate_frequency: 'monthly', // lowercase to match database constraint
         mandate_debit_day: debitDay,
         mandate_agreement_date: new Date().toISOString().split('T')[0],
         mandate_active: false,
