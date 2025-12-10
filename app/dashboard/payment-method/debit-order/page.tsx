@@ -153,15 +153,29 @@ export default function DebitOrderPage() {
         throw new Error(data.error || data.details || 'Failed to initiate debit order mandate');
       }
 
-      if (!data.mandate_url) {
-        throw new Error('No mandate URL received. Please try again.');
+      // Batch processing - customer will receive email/SMS from NetCash
+      if (data.file_token) {
+        toast.success('Debit order mandate submitted! Check your email/SMS from NetCash to sign the mandate.', {
+          duration: 8000,
+        });
+        
+        // Redirect to payment methods page after short delay
+        setTimeout(() => {
+          window.location.href = '/dashboard/payment-method';
+        }, 3000);
+        return;
       }
 
-      toast.success('Redirecting to authorize your debit order...');
+      // Legacy: Direct redirect if mandate_url provided
+      if (data.mandate_url) {
+        toast.success('Redirecting to authorize your debit order...');
+        setTimeout(() => {
+          window.location.href = data.mandate_url as string;
+        }, 1000);
+        return;
+      }
 
-      setTimeout(() => {
-        window.location.href = data.mandate_url as string;
-      }, 1000);
+      throw new Error('No mandate response received. Please try again.');
     } catch (error: any) {
       console.error('Debit order setup error:', error);
       if (error?.name === 'AbortError') {
