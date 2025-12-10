@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { NetCashEMandateService } from '@/lib/payments/netcash-emandate-service';
+import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -198,54 +198,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build eMandate request
+    // Build eMandate batch request
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     const isConsumer = customer.account_type !== 'business';
 
-    const emandateRequest = {
-      AccountReference: accountReference,
-      MandateName: `${customer.first_name} ${customer.last_name}`,
-      MandateAmount: mandateAmount,
-      IsConsumer: isConsumer,
-      FirstName: customer.first_name,
-      Surname: customer.last_name,
-      TradingName: '', // Not a business
-      RegistrationNumber: '',
-      RegisteredName: '',
-      MobileNumber: customer.phone?.replace(/^\+27/, '0').replace(/\D/g, '') || '',
-      DebitFrequency: 'Monthly' as const,
-      CommencementMonth: nextMonth.getMonth() + 1,
-      CommencementDay: String(debitDay).padStart(2, '0'),
-      AgreementDate: NetCashEMandateService.formatDate(today),
-      AgreementReferenceNumber: order.order_number,
+    // Map bank account type to NetCash numeric code
+    const getBankAccountType = (type: string): number => {
+      const typeMap: Record<string, number> = {
+        'cheque': 1,
+        'current': 1,
+        'savings': 2,
+        'transmission': 3,
+        'Current': 1,
+        'Savings': 2,
+        'Transmission': 3,
+      };
+      return typeMap[type] || 1;
+    };
+
+    const emandateBatchRequest: EMandateBatchRequest = {
+      accountReference: accountReference,
+      mandateName: `${customer.first_name} ${customer.last_name}`,
+      mandateAmount: mandateAmount,
+      isConsumer: isConsumer,
+      firstName: customer.first_name,
+      surname: customer.last_name,
+      mobileNumber: customer.phone?.replace(/^\+27/, '0').replace(/\D/g, '') || '',
+      debitFrequency: 1, // 1 = Monthly
+      commencementMonth: nextMonth.getMonth() + 1,
+      commencementDay: String(debitDay).padStart(2, '0'),
+      agreementDate: today,
+      agreementReference: order.order_number,
       // Custom fields for postback identification
-      Field1: order_id, // order_id
-      Field2: order.order_number, // order_number
-      Field3: customer_id, // customer_id
+      field1: order_id,
+      field2: order.order_number,
+      field3: customer_id,
       // Optional fields
-      EmailAddress: customer.email || undefined,
-      AllowVariableDebitAmounts: true,
+      emailAddress: customer.email || undefined,
+      sendMandate: true, // Auto-send mandate for signature
+      publicHolidayOption: 1, // Next business day
       // Bank details (if provided)
       ...(bank_details && {
-        BankDetailType: 1 as const,
-        BankAccountName: bank_details.account_name,
-        BankAccountNumber: bank_details.account_number,
-        BranchCode: bank_details.branch_code,
-        // Map frontend account types to NetCash expected values
-        BankAccountType: (() => {
-          const typeMap: Record<string, 'Current' | 'Savings' | 'Transmission'> = {
-            'cheque': 'Current',
-            'savings': 'Savings',
-            'transmission': 'Transmission',
-            'Current': 'Current',
-            'Savings': 'Savings',
-            'Transmission': 'Transmission',
-          };
-          return typeMap[bank_details.account_type] || 'Current';
-        })(),
+        bankDetailType: 1, // Bank account
+        bankAccountName: bank_details.account_name,
+        bankAccountNumber: bank_details.account_number,
+        branchCode: bank_details.branch_code,
+        bankAccountType: getBankAccountType(bank_details.account_type),
       }),
     };
+
+    // Keep original format for database storage
+    const emandateRequest = emandateBatchRequest;
 
     // Create emandate_requests record
     const { data: emandateRecord, error: erError } = await supabase
@@ -277,48 +281,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call NetCash API to create mandate
-    let mandateUrl: string | undefined;
-    let netcashResponse;
+    // Call NetCash BatchFileUpload API to submit mandate request
+    let fileToken: string | undefined;
 
     try {
-      const emandateService = new NetCashEMandateService();
-      netcashResponse = await emandateService.createMandate(emandateRequest);
+      const emandateBatchService = new NetCashEMandateBatchService();
+      const batchResult = await emandateBatchService.submitMandate(emandateBatchRequest);
 
-      if (netcashResponse.ErrorCode !== '0' && netcashResponse.ErrorCode !== '000') {
+      if (!batchResult.success) {
         throw new Error(
-          `NetCash API error: ${netcashResponse.ErrorCode} - ${netcashResponse.Errors?.join(', ') || 'Unknown error'}`
+          `NetCash API error: ${batchResult.errorCode} - ${batchResult.errorMessage || 'Unknown error'}`
         );
       }
 
-      mandateUrl = netcashResponse.MandateUrl;
+      fileToken = batchResult.fileToken;
 
       // Update emandate_requests with response
       await supabase
         .from('emandate_requests')
         .update({
           status: 'sent',
-          netcash_mandate_url: mandateUrl,
-          netcash_response_code: netcashResponse.ErrorCode,
-          netcash_error_messages: netcashResponse.Errors || [],
-          netcash_warnings: netcashResponse.Warnings || [],
+          request_type: 'batch', // Update to batch type
+          netcash_response_code: 'SUCCESS',
+          metadata: {
+            file_token: fileToken,
+            submitted_at: new Date().toISOString(),
+          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
 
-      // Update payment_methods with mandate URL
+      // Update payment_methods status
       await supabase
         .from('payment_methods')
         .update({
-          netcash_mandate_url: mandateUrl,
+          status: 'pending', // Waiting for customer to sign
+          metadata: {
+            ...paymentMethod.metadata,
+            file_token: fileToken,
+            mandate_sent_at: new Date().toISOString(),
+          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', paymentMethod.id);
 
-      console.log('[eMandate Initiate] Mandate created successfully:', {
+      console.log('[eMandate Initiate] Mandate batch submitted successfully:', {
         emandateRequestId: emandateRecord.id,
         paymentMethodId: paymentMethod.id,
-        mandateUrl,
+        fileToken,
       });
     } catch (netcashError: any) {
       console.error('[eMandate Initiate] NetCash API error:', netcashError);
@@ -328,7 +338,7 @@ export async function POST(request: NextRequest) {
         .from('emandate_requests')
         .update({
           status: 'failed',
-          netcash_response_code: netcashResponse?.ErrorCode || 'ERROR',
+          netcash_response_code: 'ERROR',
           netcash_error_messages: [netcashError.message],
           updated_at: new Date().toISOString(),
         })
@@ -361,13 +371,16 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', order_id);
 
+    // For batch processing, there's no immediate redirect URL
+    // Customer will receive email/SMS from NetCash to sign the mandate
     return NextResponse.json({
       success: true,
       emandate_request_id: emandateRecord.id,
       payment_method_id: paymentMethod.id,
-      mandate_url: mandateUrl,
+      file_token: fileToken,
       account_reference: accountReference,
       expires_at: emandateRecord.expires_at,
+      message: 'Mandate request submitted. Customer will receive an email/SMS from NetCash to sign the mandate.',
     });
   } catch (error: any) {
     console.error('[eMandate Initiate] Unexpected error:', error);
