@@ -20,11 +20,20 @@ interface PendingOrder {
   status: string;
 }
 
+interface PaymentMethodInfo {
+  id: string;
+  type: string;
+  isPrimary: boolean;
+  displayName: string;
+  mandateActive: boolean;
+}
+
 export default function PaymentMethodPage() {
   const router = useRouter();
   const { user, session } = useCustomerAuth();
   const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
   const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
+  const [paymentMethodInfo, setPaymentMethodInfo] = useState<PaymentMethodInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const fetchInProgress = useRef(false);
@@ -81,6 +90,9 @@ export default function PaymentMethodPage() {
         if (paymentResponse.ok) {
           const paymentData = await paymentResponse.json();
           setHasPaymentMethod(paymentData.hasPaymentMethod || false);
+          if (paymentData.paymentMethod) {
+            setPaymentMethodInfo(paymentData.paymentMethod);
+          }
         } else if (!loadError) {
           setLoadError('Could not confirm payment method status.');
         }
@@ -247,7 +259,26 @@ export default function PaymentMethodPage() {
         <Card className="mb-6">
           <CardContent className="p-6">
             <h3 className="font-semibold text-gray-900 mb-4">Manage Existing Payment Methods</h3>
-            {hasPaymentMethod ? (
+            {hasPaymentMethod && paymentMethodInfo ? (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {paymentMethodInfo.type === 'card' ? (
+                      <CreditCard className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <Building2 className="w-5 h-5 text-gray-600" />
+                    )}
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">{paymentMethodInfo.displayName}</span>
+                      {paymentMethodInfo.isPrimary && (
+                        <span className="ml-2 text-xs text-gray-500">(Primary)</span>
+                      )}
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                </div>
+              </div>
+            ) : hasPaymentMethod ? (
               <div className="border rounded-lg p-4 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
