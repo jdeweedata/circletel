@@ -498,19 +498,6 @@ export default function AdminOrderDetailPage() {
                         <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline">
                           {order.email}
                         </a>
-                        <SendEmailDialog
-                          defaultTo={order.email}
-                          defaultSubject={`RE: Order ${order.order_number}`}
-                          defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
-                          customerId={order.customer_id}
-                          orderId={order.id}
-                          trigger={
-                            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                              <Mail className="h-3 w-3 mr-1" />
-                              Quick Email
-                            </Button>
-                          }
-                        />
                       </div>
                     </div>
                     <div>
