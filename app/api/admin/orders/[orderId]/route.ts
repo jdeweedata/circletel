@@ -45,6 +45,18 @@ export async function GET(
       );
     }
 
+    // Fetch customer account number if not on order
+    let customerAccountNumber = order.account_number;
+    if (!customerAccountNumber && order.customer_id) {
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('account_number')
+        .eq('id', order.customer_id)
+        .single();
+      
+      customerAccountNumber = customer?.account_number || null;
+    }
+
     // Fetch active payment method status for this customer
     const { data: paymentMethod } = await supabase
       .from('customer_payment_methods')
@@ -55,9 +67,10 @@ export async function GET(
       .limit(1)
       .maybeSingle();
 
-    // Enrich order data with payment method status
+    // Enrich order data with payment method status and customer account number
     const enrichedOrder = {
       ...order,
+      account_number: customerAccountNumber || order.account_number,
       payment_method_active: !!paymentMethod,
       payment_method_mandate_status: paymentMethod?.mandate_status || (paymentMethod ? 'active' : null)
     };

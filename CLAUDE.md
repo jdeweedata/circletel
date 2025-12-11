@@ -455,22 +455,64 @@ See `.env.example` for complete list.
 
 **Location**: `.claude/commands/`
 
-### Skills System (8 Total)
+### Skills System (13 Total)
 
+#### Core Skills
 | Skill | Purpose | Command |
 |-------|---------|---------|
 | **context-manager** 🔥 | Token optimization (USE FIRST!) | `powershell -File .claude/skills/context-manager/run-context-analyzer.ps1` |
+| **bug-fixing** | Systematic debugging workflow | Auto-activates on errors |
+| **database-migration** | Supabase migrations & RLS | `/new-migration <name>` |
+| **prompt-optimizer** | Transform prompts for CircleTel | Auto-activates |
+
+#### v2.0.64 Skills (NEW)
+| Skill | Purpose | Key Commands |
+|-------|---------|--------------|
+| **session-manager** 🆕 | Named sessions, resume work | `/rename`, `/resume <name>` |
+| **async-runner** 🆕 | Background tasks & parallel agents | `Ctrl+B`, `/tasks` |
+| **rules-organizer** 🆕 | Modular `.claude/rules/` standards | Create `.claude/rules/*.md` |
+| **stats-tracker** 🆕 | Usage analytics & streaks | `/stats`, `/usage` |
+| **screenshot-analyzer** 🆕 | UI debugging with coordinates | Paste screenshot + ask |
+
+#### Utility Skills
+| Skill | Purpose | Command |
+|-------|---------|---------|
 | **sql-assistant** | Natural language to SQL | See `.claude/skills/sql-assistant/` |
 | **deployment-check** | Pre-deploy validation | See `.claude/skills/deployment-check/` |
 | **coverage-check** | Multi-provider coverage | See `.claude/skills/coverage-check/` |
-| **product-import** | Excel to Supabase | See `.claude/skills/product-import/` |
-| **admin-setup** | RBAC configuration | See `.claude/skills/admin-setup/` |
-| **supabase-fetch** | Database queries | See `.claude/skills/supabase-fetch/` |
-| **mobile-testing** | Playwright mobile UI/UX testing | `npm run test:mobile` |
+| **mobile-testing** | Playwright mobile UI/UX | `npm run test:mobile` |
+
+**User Guide**: See `.claude/skills/USER_GUIDE.md` for complete documentation.
 
 **Auto-load**: Skills activate on keyword mentions. Manual: `/skill <skill-name>`
 
 ## Getting Started (New Session)
+
+### Quick Start (v2.0.64+)
+
+```bash
+# 1. Check stats and name your session
+/stats                              # Check streak, usage
+/rename feature-name                # Name this session
+
+# 2. Run context analysis
+powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
+
+# 3. Start dev server in background
+npm run dev:memory &                # Non-blocking
+
+# 4. Begin work!
+```
+
+### Resume Previous Work
+
+```bash
+# Resume by name
+claude --resume feature-name
+
+# Or use picker
+/resume                             # P=preview, R=rename
+```
 
 ### MANDATORY: Context Analysis First
 
@@ -480,16 +522,17 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1
 powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path app/admin
 ```
 
-### Workflow
+### Full Workflow
 
-1. **Run context analysis** (MANDATORY)
-2. **Read `docs/architecture/SYSTEM_OVERVIEW.md`** - Understand system structure
-3. `npm run type-check` - Check compilation state
-4. Check `docs/RECENT_CHANGES.md` for latest updates
-5. **Load files progressively** - Don't load entire directories
-6. Make changes following patterns in this file
-7. `npm run type-check` before committing
-8. Test with `npm run dev:memory`
+1. **Check stats & name session** - `/stats`, `/rename feature-x`
+2. **Run context analysis** (MANDATORY)
+3. **Start dev server in background** - `npm run dev:memory &`
+4. **Read `docs/architecture/SYSTEM_OVERVIEW.md`** - Understand system structure
+5. `npm run type-check` - Check compilation state
+6. **Load files progressively** - Don't load entire directories
+7. Make changes following patterns in this file
+8. `npm run type-check` before committing
+9. Test with dev server (already running in background)
 
 ### Progressive Loading Pattern
 
