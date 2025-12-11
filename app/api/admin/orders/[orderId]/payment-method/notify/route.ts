@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 
@@ -19,7 +19,18 @@ interface RouteContext {
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { orderId } = await context.params;
-    const supabase = await createClient();
+    
+    // Use service role to bypass RLS for admin operations
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
 
     // Get order details
     const { data: order, error: orderError } = await supabase
@@ -35,38 +46,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // Get payment method and eMandate request
-    const { data: paymentMethod, error: pmError } = await supabase
-      .from('payment_methods')
-      .select(`
-        *,
-        emandate_requests (
-          mandate_url,
-          account_reference,
-          created_at,
-          status
-        )
-      `)
+    // Get eMandate request directly from emandate_requests table
+    const { data: emandate, error: emandateError } = await supabase
+      .from('emandate_requests')
+      .select('*')
       .eq('order_id', orderId)
-      .eq('status', 'pending')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (pmError || !paymentMethod) {
-      return NextResponse.json(
-        { success: false, error: 'No pending payment method registration found' },
-        { status: 404 }
-      );
+    if (emandateError) {
+      console.error('Error fetching emandate request:', emandateError);
     }
 
-    // @ts-ignore - emandate_requests is an array from the join
-    const emandate = paymentMethod.emandate_requests?.[0];
-
-    if (!emandate || !emandate.mandate_url) {
+    // Check if we have a mandate URL
+    const mandateUrl = emandate?.netcash_short_url;
+    
+    if (!emandate) {
       return NextResponse.json(
-        { success: false, error: 'No eMandate URL found. Please create the eMandate request first.' },
-        { status: 400 }
+        { success: false, error: 'No eMandate request found. Please create the eMandate request first.' },
+        { status: 404 }
       );
     }
 
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       sms: { sent: false, error: null as string | null },
     };
 
-    // Send Email
+    // Send Email - reminder about pending mandate
     try {
       const emailResult = await EnhancedEmailService.sendEmail({
         to: order.email,
@@ -90,7 +89,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         props: {
           customerName: `${order.first_name} ${order.last_name}`,
           orderNumber: order.order_number,
-          mandateUrl: emandate.mandate_url,
+          mandateUrl: mandateUrl || 'Please check your email for the signing link',
           monthlyAmount: order.package_price || packageData?.price_monthly || 0,
           packageName: packageData?.name || 'Internet Service',
         },
@@ -107,10 +106,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
       results.email.error = emailError.message;
     }
 
-    // Send SMS
+    // Send SMS - reminder about pending mandate
     try {
       const clickatell = new ClickatellService();
-      const smsText = `Hi ${order.first_name}, register your payment method for ${order.order_number}. Click: ${emandate.mandate_url}`;
+      let smsText: string;
+      
+      if (mandateUrl) {
+        smsText = `Hi ${order.first_name}, please complete your CircleTel payment registration for ${order.order_number}. Click: ${mandateUrl} - CircleTel`;
+      } else {
+        smsText = `Hi ${order.first_name}, please check your email to complete your CircleTel payment registration for ${order.order_number}. - CircleTel`;
+      }
 
       const smsResult = await clickatell.sendSMS({
         to: order.phone,
@@ -135,13 +140,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
           channel: 'email',
           recipient: order.email,
           subject: 'Payment Method Registration Required',
-          content: `Sent payment method registration link: ${emandate.mandate_url}`,
+          content: `Sent payment method registration reminder`,
           status: results.email.sent ? 'delivered' : 'failed',
           sent_at: new Date().toISOString(),
           metadata: {
             template: 'payment_method_registration',
-            mandate_url: emandate.mandate_url,
-            account_reference: emandate.account_reference,
+            mandate_url: mandateUrl,
+            account_reference: emandate.netcash_account_reference,
           },
         },
         {
@@ -154,7 +159,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
           status: results.sms.sent ? 'delivered' : 'failed',
           sent_at: new Date().toISOString(),
           metadata: {
-            mandate_url: emandate.mandate_url,
+            mandate_url: mandateUrl,
           },
         },
       ]);
@@ -171,8 +176,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
       data: {
         email: results.email,
         sms: results.sms,
-        mandateUrl: emandate.mandate_url,
-        accountReference: emandate.account_reference,
+        mandateUrl: mandateUrl,
+        accountReference: emandate.netcash_account_reference,
       },
       message: success
         ? 'Notification sent successfully'
