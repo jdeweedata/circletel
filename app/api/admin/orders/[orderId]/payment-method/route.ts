@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * GET /api/admin/orders/[orderId]/payment-method
- * Retrieve payment method details for an order
+ * Retrieve payment method details for an order including eMandate requests
  */
 export async function GET(
   request: NextRequest,
@@ -11,7 +11,18 @@ export async function GET(
 ) {
   try {
     const { orderId } = await context.params;
-    const supabase = await createClient();
+    
+    // Use service role to bypass RLS for admin
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
 
     // Get the order to find customer_id
     const { data: order, error: orderError } = await supabase
@@ -27,7 +38,74 @@ export async function GET(
       );
     }
 
-    // Get the customer's payment method
+    // First, check for eMandate request for this order
+    const { data: emandateRequest, error: emandateError } = await supabase
+      .from('emandate_requests')
+      .select(`
+        *,
+        payment_methods (*)
+      `)
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (emandateError) {
+      console.error('Error fetching emandate request:', emandateError);
+    }
+
+    // If we have an eMandate request, use that data
+    if (emandateRequest) {
+      const pm = emandateRequest.payment_methods;
+      
+      const transformedPaymentMethod = {
+        id: pm?.id || emandateRequest.payment_method_id,
+        method_type: 'bank_account',
+        status: pm?.status || 'pending',
+        
+        // Bank account details from payment_methods or emandate postback
+        bank_name: pm?.bank_name || emandateRequest.postback_data?.BankName || null,
+        bank_account_name: pm?.bank_account_name || emandateRequest.postback_data?.BankAccountName || null,
+        bank_account_number_masked: pm?.bank_account_number_masked || emandateRequest.postback_data?.BankAccountNo || null,
+        bank_account_type: pm?.bank_account_type || 'cheque',
+        branch_code: pm?.branch_code || emandateRequest.postback_data?.BranchCode || null,
+        
+        // Mandate details
+        mandate_amount: pm?.mandate_amount || emandateRequest.mandate_amount,
+        mandate_frequency: 'monthly',
+        mandate_debit_day: emandateRequest.billing_day || pm?.mandate_debit_day || 25,
+        mandate_signed_at: pm?.mandate_signed_at || emandateRequest.signed_at,
+        netcash_mandate_pdf_link: pm?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link,
+        
+        created_at: pm?.created_at || emandateRequest.created_at,
+      };
+
+      const transformedEmandateRequest = {
+        id: emandateRequest.id,
+        status: emandateRequest.status,
+        netcash_short_url: emandateRequest.netcash_short_url,
+        expires_at: emandateRequest.expires_at,
+        postback_reason_for_decline: emandateRequest.postback_reason_for_decline,
+        created_at: emandateRequest.created_at,
+        // SMS tracking fields
+        sms_provider: emandateRequest.sms_provider,
+        sms_message_id: emandateRequest.sms_message_id,
+        sms_sent_at: emandateRequest.sms_sent_at,
+        sms_delivery_status: emandateRequest.sms_delivery_status,
+        sms_delivered_at: emandateRequest.sms_delivered_at,
+        sms_error: emandateRequest.sms_error,
+      };
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          paymentMethod: transformedPaymentMethod,
+          emandateRequest: transformedEmandateRequest,
+        },
+      });
+    }
+
+    // Fallback: Check customer_payment_methods table
     const { data: paymentMethod, error: pmError } = await supabase
       .from('customer_payment_methods')
       .select('*')
