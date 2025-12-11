@@ -491,19 +491,19 @@ export default function AdminOrderDetailPage() {
                         </p>
                       </div>
                     )}
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-sm font-medium text-gray-600">Email Address</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline">
+                      <div className="flex items-center gap-2 mt-1 min-w-0">
+                        <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline truncate" title={order.email}>
                           {order.email}
                         </a>
                       </div>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-sm font-medium text-gray-600">Phone Number</label>
                       <div className="flex items-center gap-2 mt-1">
-                        <Phone className="h-4 w-4 text-gray-400" />
+                        <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
                         <a href={`tel:${order.phone}`} className="text-base text-blue-600 hover:underline">
                           {order.phone}
                         </a>
