@@ -151,7 +151,7 @@ export async function POST(
         { 
           success: false, 
           error: 'Failed to resend mandate via NetCash',
-          details: batchResult.errors || batchResult.message
+          details: batchResult.errorMessage || batchResult.errorCode
         },
         { status: 500 }
       );
