@@ -22,6 +22,10 @@ interface UploadedFile {
   name: string;
   size: number;
   type: string;
+  path?: string;
+  url?: string;
+  uploading?: boolean;
+  error?: string;
 }
 
 interface Customer {
@@ -113,18 +117,72 @@ export default function CreateSupportTicketPage() {
     }
   });
 
+  // Upload file to Supabase Storage
+  const uploadFile = async (file: File, fileId: string): Promise<{ path: string; url: string } | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await fetch('/api/admin/support/attachments', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      return {
+        path: result.data.path,
+        url: result.data.url,
+      };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Update attachment with error state
+      setAttachments((prev) =>
+        prev.map((a) =>
+          a.id === fileId ? { ...a, uploading: false, error: 'Upload failed' } : a
+        )
+      );
+      return null;
+    }
+  };
+
   // Handle file selection
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files) return;
     
-    const newFiles: UploadedFile[] = Array.from(files).map((file) => ({
+    const fileArray = Array.from(files);
+    
+    // Add files with uploading state
+    const newFiles: UploadedFile[] = fileArray.map((file) => ({
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name: file.name,
       size: file.size,
       type: file.type,
+      uploading: true,
     }));
     
     setAttachments((prev) => [...prev, ...newFiles]);
+
+    // Upload each file
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const fileId = newFiles[i].id;
+      
+      const result = await uploadFile(file, fileId);
+      
+      if (result) {
+        setAttachments((prev) =>
+          prev.map((a) =>
+            a.id === fileId
+              ? { ...a, uploading: false, path: result.path, url: result.url }
+              : a
+          )
+        );
+      }
+    }
   }, []);
 
   // Drag and drop handlers
@@ -144,8 +202,21 @@ export default function CreateSupportTicketPage() {
     handleFiles(e.dataTransfer.files);
   }, [handleFiles]);
 
-  // Remove attachment
-  const removeAttachment = (id: string) => {
+  // Remove attachment (also delete from storage if uploaded)
+  const removeAttachment = async (id: string) => {
+    const attachment = attachments.find((a) => a.id === id);
+    
+    // If file was uploaded to storage, delete it
+    if (attachment?.path) {
+      try {
+        await fetch(`/api/admin/support/attachments?path=${encodeURIComponent(attachment.path)}`, {
+          method: 'DELETE',
+        });
+      } catch (error) {
+        console.error('Error deleting file from storage:', error);
+      }
+    }
+    
     setAttachments((prev) => prev.filter((file) => file.id !== id));
   };
 
@@ -192,7 +263,9 @@ export default function CreateSupportTicketPage() {
         category,
         agent_id: agentId || null,
         status: 'open',
-        attachments: attachments.map((a) => ({ name: a.name, size: a.size, type: a.type })),
+        attachments: attachments
+          .filter((a) => a.path && !a.error)
+          .map((a) => ({ name: a.name, size: a.size, type: a.type, path: a.path, url: a.url })),
       };
 
       const response = await fetch('/api/admin/support/tickets', {
@@ -447,17 +520,35 @@ export default function CreateSupportTicketPage() {
                   {attachments.map((file) => (
                     <div
                       key={file.id}
-                      className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded"
+                      className={`flex items-center justify-between py-1.5 px-2 rounded ${
+                        file.error ? 'bg-red-50' : 'bg-gray-50'
+                      }`}
                     >
                       <div className="flex items-center gap-2">
-                        {getFileIcon(file.type)}
-                        <span className="text-sm text-gray-700">{file.name}</span>
+                        {file.uploading ? (
+                          <div className="w-4 h-4 border-2 border-gray-300 border-t-circleTel-orange rounded-full animate-spin" />
+                        ) : (
+                          getFileIcon(file.type)
+                        )}
+                        <span className={`text-sm ${file.error ? 'text-red-600' : 'text-gray-700'}`}>
+                          {file.name}
+                        </span>
                         <span className="text-xs text-gray-400">({formatFileSize(file.size)})</span>
+                        {file.uploading && (
+                          <span className="text-xs text-gray-500">Uploading...</span>
+                        )}
+                        {file.error && (
+                          <span className="text-xs text-red-500">{file.error}</span>
+                        )}
+                        {file.path && !file.uploading && (
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                        )}
                       </div>
                       <button
                         type="button"
                         onClick={() => removeAttachment(file.id)}
                         className="text-red-500 hover:text-red-700 p-1"
+                        disabled={file.uploading}
                       >
                         <X className="w-4 h-4" />
                       </button>

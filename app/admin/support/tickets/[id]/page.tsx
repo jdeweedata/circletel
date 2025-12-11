@@ -5,8 +5,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Clock, User, Tag, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, User, Tag, FileText, Image, File, Download, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+
+interface Attachment {
+  name: string;
+  size: number;
+  type: string;
+  path?: string;
+  url?: string;
+}
 
 interface Ticket {
   id: string;
@@ -20,7 +28,7 @@ interface Ticket {
   category: string;
   status: string;
   assigned_agent_id: string | null;
-  attachments: { name: string; size: number; type: string }[];
+  attachments: Attachment[];
   created_at: string;
   updated_at: string;
 }
@@ -191,14 +199,57 @@ export default function TicketDetailPage() {
 
           {ticket.attachments && ticket.attachments.length > 0 && (
             <div className="border-t border-gray-100 pt-6 mt-6">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Attachments</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Attachments ({ticket.attachments.length})</h3>
               <div className="space-y-2">
-                {ticket.attachments.map((attachment, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{attachment.name}</span>
-                  </div>
-                ))}
+                {ticket.attachments.map((attachment, index) => {
+                  const getIcon = () => {
+                    if (attachment.type.startsWith('image/')) return <Image className="w-4 h-4 text-blue-500" />;
+                    if (attachment.type.includes('pdf') || attachment.type.includes('document')) return <FileText className="w-4 h-4 text-red-500" />;
+                    return <File className="w-4 h-4 text-gray-500" />;
+                  };
+                  
+                  const formatSize = (bytes: number) => {
+                    if (bytes < 1024) return `${bytes} B`;
+                    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+                    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+                  };
+
+                  return (
+                    <div 
+                      key={index} 
+                      className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        {getIcon()}
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">{attachment.name}</p>
+                          <p className="text-xs text-gray-500">{formatSize(attachment.size)}</p>
+                        </div>
+                      </div>
+                      {attachment.path && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/admin/support/attachments?path=${encodeURIComponent(attachment.path!)}`);
+                              const data = await response.json();
+                              if (data.data?.url) {
+                                window.open(data.data.url, '_blank');
+                              }
+                            } catch (error) {
+                              console.error('Error getting download URL:', error);
+                            }
+                          }}
+                        >
+                          <Download className="w-3 h-3 mr-1" />
+                          Download
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
