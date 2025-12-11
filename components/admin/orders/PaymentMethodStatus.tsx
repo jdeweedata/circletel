@@ -592,8 +592,9 @@ export function PaymentMethodStatus({
             </Button>
           )}
 
-          {/* Send SMS via Clickatell (with delivery tracking) */}
+          {/* Send SMS via Clickatell (with delivery tracking) - only show if we have the signing URL */}
           {paymentMethod.status === 'pending' && emandateRequest && 
+           emandateRequest.netcash_short_url &&
            ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
             <Button
               size="sm"
