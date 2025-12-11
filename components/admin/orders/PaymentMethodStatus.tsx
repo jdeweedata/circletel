@@ -67,6 +67,7 @@ export function PaymentMethodStatus({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sendingNotification, setSendingNotification] = useState(false);
+  const [resendingMandate, setResendingMandate] = useState(false);
 
   useEffect(() => {
     fetchPaymentMethodStatus();
@@ -133,6 +134,37 @@ export function PaymentMethodStatus({
     }
   };
 
+  const resendMandate = async () => {
+    try {
+      setResendingMandate(true);
+
+      const response = await fetch(`/api/admin/orders/${orderId}/resend-mandate`, {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Mandate resent successfully', {
+          description: `Email and SMS sent to ${result.data.recipientEmail}`,
+        });
+        // Refresh the status
+        fetchPaymentMethodStatus();
+      } else {
+        toast.error('Failed to resend mandate', {
+          description: result.error || 'Please try again',
+        });
+      }
+    } catch (err) {
+      console.error('Error resending mandate:', err);
+      toast.error('Network error', {
+        description: 'Failed to resend mandate',
+      });
+    } finally {
+      setResendingMandate(false);
+    }
+  };
+
   const getStatusConfig = (status: string) => {
     const configs: Record<string, { label: string; className: string; icon: any }> = {
       pending: {
@@ -174,6 +206,7 @@ export function PaymentMethodStatus({
     const configs: Record<string, { label: string; className: string }> = {
       pending: { label: 'Pending Creation', className: 'bg-gray-100 text-gray-800' },
       sent: { label: 'Sent to Customer', className: 'bg-blue-100 text-blue-800' },
+      resent: { label: 'Resent to Customer', className: 'bg-blue-100 text-blue-800' },
       customer_notified: { label: 'Customer Notified', className: 'bg-purple-100 text-purple-800' },
       viewed: { label: 'Viewed by Customer', className: 'bg-indigo-100 text-indigo-800' },
       signed: { label: 'Signed', className: 'bg-green-100 text-green-800' },
@@ -446,16 +479,40 @@ export function PaymentMethodStatus({
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex flex-wrap items-center gap-2 pt-2">
           <Button size="sm" variant="outline" onClick={fetchPaymentMethodStatus}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Status
           </Button>
 
-          {paymentMethod.status === 'pending' && emandateRequest && !expired && (
+          {/* Resend Mandate - show for pending/sent/resent statuses */}
+          {paymentMethod.status === 'pending' && emandateRequest && 
+           ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
             <Button
               size="sm"
               variant="default"
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              onClick={resendMandate}
+              disabled={resendingMandate}
+            >
+              {resendingMandate ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Resending...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Resend Mandate
+                </>
+              )}
+            </Button>
+          )}
+
+          {paymentMethod.status === 'pending' && emandateRequest && !expired && (
+            <Button
+              size="sm"
+              variant="outline"
               onClick={sendReminder}
               disabled={sendingNotification}
             >
