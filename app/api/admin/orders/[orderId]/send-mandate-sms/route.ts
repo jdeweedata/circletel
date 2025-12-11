@@ -98,72 +98,26 @@ export async function POST(
     // Check if we have a mandate URL from NetCash
     let mandateUrl = emandateRequest.netcash_short_url;
 
-    // If no URL, we need to submit to NetCash first with sendMandate=0
+    // If no signing URL stored, we cannot send via Clickatell
+    // The signing URL is only available when NetCash sends it (sendMandate=1)
     if (!mandateUrl) {
-      console.log('[Mandate SMS] No existing mandate URL, submitting to NetCash with sendMandate=0');
-
-      const accountReference = customer.account_number || `CT-${order.order_number}`;
-      const agreementDate = new Date();
-      const requestPayload = emandateRequest.request_payload || {};
-      const bankDetails = requestPayload.bank_details || {};
-
-      const emandateBatchRequest: EMandateBatchRequest = {
-        accountReference: accountReference.substring(0, 22),
-        mandateName: `${customer.first_name} ${customer.last_name}`.substring(0, 50),
-        isConsumer: true,
-        firstName: customer.first_name || order.first_name,
-        surname: customer.last_name || order.last_name,
-        mobileNumber: customer.phone || order.phone,
-        emailAddress: customer.email || order.email,
-        mandateAmount: parseFloat(order.package_price) || 0,
-        debitFrequency: 1,
-        commencementMonth: agreementDate.getMonth() + 1,
-        commencementDay: String(emandateRequest.billing_day || requestPayload.billing_day || 25),
-        agreementDate: agreementDate,
-        agreementReference: order.order_number,
-        sendMandate: false, // DON'T auto-send - we'll send via Clickatell
-        
-        ...(bankDetails.account_number && {
-          bankDetailType: 1,
-          bankAccountName: bankDetails.account_name || `${customer.first_name} ${customer.last_name}`,
-          bankAccountType: bankDetails.account_type === 'savings' ? 2 : 1,
-          branchCode: bankDetails.branch_code,
-          bankAccountNumber: bankDetails.account_number,
-        }),
-        
-        field1: orderId,
-        field2: order.order_number,
-        field3: customer.id,
-      };
-
-      const emandateBatchService = new NetCashEMandateBatchService();
-      const batchResult = await emandateBatchService.submitMandate(emandateBatchRequest);
-
-      if (!batchResult.success) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Failed to create mandate in NetCash',
-            details: batchResult.errorMessage || batchResult.errorCode
-          },
-          { status: 500 }
-        );
-      }
-
-      // Note: NetCash BatchFileUpload doesn't return the mandate URL directly
-      // The URL is typically sent via email/SMS when sendMandate=1
-      // For sendMandate=0, we need to construct the URL or get it from the portal
-      // For now, we'll use a placeholder approach - in production, you'd need to
-      // either query NetCash for the URL or use their synchronous API
+      console.log('[Mandate SMS] No mandate signing URL available');
       
-      // Update: The mandate URL format is typically:
+      // Option 1: Use "Resend Mandate" via NetCash instead (which auto-sends the correct URL)
+      // Option 2: Check if there's a mandate URL pattern we can use
+      
+      // NetCash mandate URLs typically look like:
       // https://mandate.netcash.co.za/m/{short_code}
-      // But we don't get the short_code from BatchFileUpload
+      // But we don't have the short_code unless NetCash sends it
       
-      // Fallback: Use the NetCash portal URL for manual lookup
-      mandateUrl = `https://merchant.netcash.co.za/SitePages/DebitOrders/ElectronicMandates.aspx?ref=${accountReference}`;
-      
-      console.log('[Mandate SMS] NetCash submission successful, but URL not available from batch API');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'No mandate signing URL available. Please use "Resend Mandate" button instead, which will send the correct signing link via NetCash.',
+          suggestion: 'The mandate signing URL is only available after NetCash processes the mandate. Use the "Resend Mandate" button to have NetCash send the signing link directly to the customer.'
+        },
+        { status: 400 }
+      );
     }
 
     // Send SMS via Clickatell
