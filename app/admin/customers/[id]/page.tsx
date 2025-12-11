@@ -5,7 +5,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ArrowLeft, Plus, Search } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -38,6 +46,23 @@ interface Order {
   created_at: string;
 }
 
+interface Service {
+  id: string;
+  name: string;
+  status: string;
+  start_date: string;
+  end_date: string | null;
+}
+
+interface Ticket {
+  id: string;
+  ticket_id: string;
+  subject: string;
+  status: string;
+  last_interaction_date: string;
+  agent: string | null;
+}
+
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -45,8 +70,16 @@ export default function CustomerDetailPage() {
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ticket filters
+  const [ticketSearch, setTicketSearch] = useState('');
+  const [ticketStatusFilter, setTicketStatusFilter] = useState('all');
+  const [ticketDateFilter, setTicketDateFilter] = useState('all');
+  const [ticketAgentFilter, setTicketAgentFilter] = useState('all');
 
   useEffect(() => {
     fetchCustomerData();
@@ -69,8 +102,26 @@ export default function CustomerDetailPage() {
       const ordersResponse = await fetch(`/api/admin/customers/${customerId}/orders`);
       if (ordersResponse.ok) {
         const ordersData = await ordersResponse.json();
-        setOrders(ordersData.data || []);
+        const ordersArray = ordersData.data || [];
+        setOrders(ordersArray);
+
+        // Derive services from active orders
+        const activeOrders = ordersArray.filter(
+          (order: Order) => order.status.toLowerCase() === 'active'
+        );
+        const derivedServices: Service[] = activeOrders.map((order: Order) => ({
+          id: order.id,
+          name: `${order.package_name} ${order.package_speed}`.trim(),
+          status: 'Active',
+          start_date: order.created_at,
+          end_date: null,
+        }));
+        setServices(derivedServices);
       }
+
+      // Fetch customer tickets (mock data for now - can be replaced with real API)
+      // TODO: Replace with actual ticket API when available
+      setTickets([]);
     } catch (err) {
       console.error('Error fetching customer data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load customer');
@@ -78,6 +129,16 @@ export default function CustomerDetailPage() {
       setLoading(false);
     }
   };
+
+  // Filter tickets based on search and filters
+  const filteredTickets = tickets.filter((ticket) => {
+    const matchesSearch = ticketSearch === '' || 
+      ticket.ticket_id.toLowerCase().includes(ticketSearch.toLowerCase()) ||
+      ticket.subject.toLowerCase().includes(ticketSearch.toLowerCase());
+    const matchesStatus = ticketStatusFilter === 'all' || ticket.status.toLowerCase() === ticketStatusFilter.toLowerCase();
+    const matchesAgent = ticketAgentFilter === 'all' || ticket.agent === ticketAgentFilter;
+    return matchesSearch && matchesStatus && matchesAgent;
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -200,9 +261,9 @@ export default function CustomerDetailPage() {
           </div>
 
           {/* Three Column Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t border-gray-100 items-start">
             {/* Contact Information */}
-            <div>
+            <div className="min-h-[120px]">
               <h3 className="text-sm font-medium text-gray-900 mb-4">Contact Information</h3>
               <div className="space-y-3">
                 <div>
@@ -217,7 +278,7 @@ export default function CustomerDetailPage() {
             </div>
 
             {/* Account Details */}
-            <div>
+            <div className="min-h-[120px]">
               <h3 className="text-sm font-medium text-gray-900 mb-4">Account Details</h3>
               <div className="space-y-3">
                 <div>
@@ -236,7 +297,7 @@ export default function CustomerDetailPage() {
             </div>
 
             {/* Activity */}
-            <div>
+            <div className="min-h-[120px]">
               <h3 className="text-sm font-medium text-gray-900 mb-4">Activity</h3>
               <div className="space-y-3">
                 <div>
@@ -285,7 +346,7 @@ export default function CustomerDetailPage() {
       </Card>
 
       {/* Orders Section */}
-      <Card>
+      <Card className="mb-6">
         <CardContent className="p-6">
           <h3 className="text-sm font-medium text-gray-900 mb-4">Orders ({orders.length})</h3>
           
@@ -340,6 +401,153 @@ export default function CustomerDetailPage() {
                           View
                         </Button>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Service Delivery Section */}
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Service Delivery</h3>
+          
+          {services.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-8">No active services</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Service Name</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Status</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Start Date</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">End Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {services.map((service) => (
+                    <tr key={service.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                      <td className="py-3 px-2 text-gray-900">{service.name}</td>
+                      <td className="py-3 px-2">
+                        <Badge 
+                          variant="outline" 
+                          className="bg-green-50 text-green-600 border-green-200 text-xs font-medium"
+                        >
+                          {service.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-2 text-gray-900">{formatDate(service.start_date)}</td>
+                      <td className="py-3 px-2 text-gray-500">{service.end_date ? formatDate(service.end_date) : '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Customer Support Interactions Section */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-900">Customer Support Interactions</h3>
+            <Button
+              size="sm"
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white h-8 text-xs"
+              onClick={() => {
+                // TODO: Implement create ticket modal or redirect
+                console.log('Create new ticket for customer:', customerId);
+              }}
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Create New Ticket
+            </Button>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <div className="relative flex-1 min-w-[200px] max-w-[280px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search interactions..."
+                value={ticketSearch}
+                onChange={(e) => setTicketSearch(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+            <Select value={ticketStatusFilter} onValueChange={setTicketStatusFilter}>
+              <SelectTrigger className="w-[130px] h-8 text-xs">
+                <SelectValue placeholder="Status: All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Status: All</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={ticketDateFilter} onValueChange={setTicketDateFilter}>
+              <SelectTrigger className="w-[150px] h-8 text-xs">
+                <SelectValue placeholder="Date Range: All Time" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Date Range: All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="quarter">This Quarter</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={ticketAgentFilter} onValueChange={setTicketAgentFilter}>
+              <SelectTrigger className="w-[120px] h-8 text-xs">
+                <SelectValue placeholder="Agent: All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Agent: All</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Tickets Table */}
+          {filteredTickets.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-8">No support tickets found</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Ticket ID</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Subject</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Status</th>
+                    <th className="text-left py-3 px-2 text-xs font-medium text-gray-500">Last Interaction Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTickets.map((ticket) => (
+                    <tr key={ticket.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                      <td className="py-3 px-2 text-gray-900">{ticket.ticket_id}</td>
+                      <td className="py-3 px-2 text-gray-900">{ticket.subject}</td>
+                      <td className="py-3 px-2">
+                        <Badge 
+                          variant="outline" 
+                          className={`${
+                            ticket.status.toLowerCase() === 'open' 
+                              ? 'bg-green-50 text-green-600 border-green-200' 
+                              : ticket.status.toLowerCase() === 'pending'
+                              ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                              : 'bg-gray-50 text-gray-600 border-gray-200'
+                          } text-xs font-medium`}
+                        >
+                          {ticket.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-2 text-gray-900">{formatDate(ticket.last_interaction_date)}</td>
                     </tr>
                   ))}
                 </tbody>
