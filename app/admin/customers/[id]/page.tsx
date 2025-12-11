@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Search, CheckCircle, X } from 'lucide-react';
+import Link from 'next/link';
 
 interface Customer {
   id: string;
@@ -80,6 +81,31 @@ export default function CustomerDetailPage() {
   const [ticketStatusFilter, setTicketStatusFilter] = useState('all');
   const [ticketDateFilter, setTicketDateFilter] = useState('all');
   const [ticketAgentFilter, setTicketAgentFilter] = useState('all');
+
+  // Success toast state
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [createdTicketNumber, setCreatedTicketNumber] = useState<string | null>(null);
+  const [createdTicketId, setCreatedTicketId] = useState<string | null>(null);
+
+  // Check for ticket creation success from URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ticketCreated = urlParams.get('ticketCreated');
+    const ticketNumber = urlParams.get('ticketNumber');
+    const ticketId = urlParams.get('ticketId');
+    
+    if (ticketCreated === 'true' && ticketNumber) {
+      setCreatedTicketNumber(ticketNumber);
+      setCreatedTicketId(ticketId);
+      setShowSuccessToast(true);
+      
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Auto-hide after 10 seconds
+      setTimeout(() => setShowSuccessToast(false), 10000);
+    }
+  }, []);
 
   useEffect(() => {
     fetchCustomerData();
@@ -223,7 +249,31 @@ export default function CustomerDetailPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl">
+    <div className="p-6 max-w-5xl relative">
+      {/* Success Toast */}
+      {showSuccessToast && createdTicketNumber && (
+        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-start gap-3 max-w-md animate-in slide-in-from-top-2">
+          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-green-800">
+              Success: Support ticket <span className="font-semibold">#{createdTicketNumber}</span> created successfully.{' '}
+              <Link 
+                href={`/admin/support/tickets/${createdTicketId}`}
+                className="text-blue-600 hover:underline font-medium"
+              >
+                View Ticket
+              </Link>
+            </p>
+          </div>
+          <button
+            onClick={() => setShowSuccessToast(false)}
+            className="text-green-600 hover:text-green-800"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-gray-900">Customer Details</h1>
@@ -459,10 +509,7 @@ export default function CustomerDetailPage() {
             <Button
               size="sm"
               className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white h-8 text-xs"
-              onClick={() => {
-                // TODO: Implement create ticket modal or redirect
-                console.log('Create new ticket for customer:', customerId);
-              }}
+              onClick={() => router.push(`/admin/support/tickets/new?customerId=${customerId}`)}
             >
               <Plus className="w-3 h-3 mr-1" />
               Create New Ticket
