@@ -49,6 +49,13 @@ interface EMandateRequest {
   expires_at?: string;
   postback_reason_for_decline?: string;
   created_at: string;
+  // SMS tracking fields
+  sms_provider?: string;
+  sms_message_id?: string;
+  sms_sent_at?: string;
+  sms_delivery_status?: string;
+  sms_delivered_at?: string;
+  sms_error?: string;
 }
 
 interface PaymentMethodStatusProps {
@@ -68,6 +75,7 @@ export function PaymentMethodStatus({
   const [error, setError] = useState<string | null>(null);
   const [sendingNotification, setSendingNotification] = useState(false);
   const [resendingMandate, setResendingMandate] = useState(false);
+  const [sendingClickatellSMS, setSendingClickatellSMS] = useState(false);
 
   useEffect(() => {
     fetchPaymentMethodStatus();
@@ -162,6 +170,36 @@ export function PaymentMethodStatus({
       });
     } finally {
       setResendingMandate(false);
+    }
+  };
+
+  const sendClickatellSMS = async () => {
+    try {
+      setSendingClickatellSMS(true);
+
+      const response = await fetch(`/api/admin/orders/${orderId}/send-mandate-sms`, {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('SMS sent via Clickatell', {
+          description: `Mandate link sent to ${result.data.recipientPhone}. Delivery tracking enabled.`,
+        });
+        fetchPaymentMethodStatus();
+      } else {
+        toast.error('Failed to send SMS', {
+          description: result.error || 'Please try again',
+        });
+      }
+    } catch (err) {
+      console.error('Error sending Clickatell SMS:', err);
+      toast.error('Network error', {
+        description: 'Failed to send SMS via Clickatell',
+      });
+    } finally {
+      setSendingClickatellSMS(false);
     }
   };
 
@@ -478,6 +516,51 @@ export function PaymentMethodStatus({
           </div>
         )}
 
+        {/* SMS Delivery Status (Clickatell) */}
+        {emandateRequest?.sms_message_id && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-900">SMS Delivery Status</h4>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge className={
+                    emandateRequest.sms_delivery_status === 'delivered' 
+                      ? 'bg-green-100 text-green-800'
+                      : emandateRequest.sms_delivery_status === 'failed'
+                      ? 'bg-red-100 text-red-800'
+                      : emandateRequest.sms_delivery_status === 'expired'
+                      ? 'bg-gray-100 text-gray-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }>
+                    {emandateRequest.sms_delivery_status === 'delivered' && <CheckCircle className="h-3 w-3 mr-1" />}
+                    {emandateRequest.sms_delivery_status === 'failed' && <XCircle className="h-3 w-3 mr-1" />}
+                    {emandateRequest.sms_delivery_status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                    SMS {emandateRequest.sms_delivery_status?.charAt(0).toUpperCase()}{emandateRequest.sms_delivery_status?.slice(1)}
+                  </Badge>
+                  <span className="text-xs text-gray-500">
+                    via {emandateRequest.sms_provider === 'clickatell' ? 'Clickatell' : 'NetCash'}
+                  </span>
+                </div>
+                {emandateRequest.sms_sent_at && (
+                  <span className="text-xs text-gray-500">
+                    Sent {new Date(emandateRequest.sms_sent_at).toLocaleString()}
+                  </span>
+                )}
+              </div>
+              {emandateRequest.sms_delivered_at && (
+                <p className="text-xs text-green-600 mt-1">
+                  Delivered at {new Date(emandateRequest.sms_delivered_at).toLocaleString()}
+                </p>
+              )}
+              {emandateRequest.sms_error && (
+                <p className="text-xs text-red-600 mt-1">
+                  Error: {emandateRequest.sms_error}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-2 pt-2">
           <Button size="sm" variant="outline" onClick={fetchPaymentMethodStatus}>
@@ -504,6 +587,30 @@ export function PaymentMethodStatus({
                 <>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Resend Mandate
+                </>
+              )}
+            </Button>
+          )}
+
+          {/* Send SMS via Clickatell (with delivery tracking) */}
+          {paymentMethod.status === 'pending' && emandateRequest && 
+           ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-green-500 text-green-700 hover:bg-green-50"
+              onClick={sendClickatellSMS}
+              disabled={sendingClickatellSMS}
+            >
+              {sendingClickatellSMS ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send SMS (Clickatell)
                 </>
               )}
             </Button>
