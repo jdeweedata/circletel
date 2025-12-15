@@ -307,17 +307,32 @@ export default function BillingPage() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto">
-          <TabsTrigger value="invoices" className="gap-2">
-            <FileText className="h-4 w-4" />
+        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex h-auto p-1.5 bg-gray-100 border border-gray-200 rounded-xl gap-1">
+          <TabsTrigger
+            value="invoices"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <FileText className="h-5 w-5" />
             <span className="hidden sm:inline">Invoices</span>
           </TabsTrigger>
-          <TabsTrigger value="payments" className="gap-2">
-            <Receipt className="h-4 w-4" />
+          <TabsTrigger
+            value="payments"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <Receipt className="h-5 w-5" />
             <span className="hidden sm:inline">Payment History</span>
           </TabsTrigger>
-          <TabsTrigger value="methods" className="gap-2">
-            <CreditCard className="h-4 w-4" />
+          <TabsTrigger
+            value="methods"
+            className="gap-2.5 px-5 py-3 text-sm font-semibold rounded-lg transition-all duration-200
+              data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
+              data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
+          >
+            <CreditCard className="h-5 w-5" />
             <span className="hidden sm:inline">Payment Methods</span>
           </TabsTrigger>
         </TabsList>
