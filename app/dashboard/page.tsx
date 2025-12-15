@@ -385,16 +385,16 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         />
 
         <ModernStatCard
-          title="Service Status"
+          title="Billing Status"
           value={data.stats.overdueInvoices > 0 ? "Overdue" : "Current"}
           trend={{
             value: data.stats.overdueInvoices > 0 ? -15 : 5,
             isPositive: data.stats.overdueInvoices === 0,
             label: "this period"
           }}
-          subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "All payments current"}
-          description={data.stats.overdueInvoices > 0 ? "Payment required" : "Good payment history"}
-          icon={<Clock className="h-5 w-5" />}
+          subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "No outstanding payments"}
+          description={data.stats.overdueInvoices > 0 ? "Payment required" : "Account in good standing"}
+          icon={<CreditCard className="h-5 w-5" />}
           href="/dashboard/billing"
         />
       </div>
