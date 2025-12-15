@@ -18,12 +18,73 @@ import { createServerClient } from '@supabase/ssr';
  * IMPORTANT: Uses @supabase/ssr createServerClient to properly persist
  * session cookies after verifyOtp(). This ensures the session is available
  * when the user is redirected to /auth/reset-password.
+ *
+ * LINK PREVIEW BOT PROTECTION:
+ * For password recovery, this route redirects to an intermediate page that requires
+ * user interaction (button click) before verifying the token. This prevents email
+ * security tools (Outlook SafeLinks, Proofpoint, etc.) from consuming one-time tokens.
  */
+
+// Common link preview bot user agents
+const BOT_USER_AGENTS = [
+  'outlook-express',
+  'microsoft office',
+  'ms office',
+  'safelinks',
+  'proofpoint',
+  'barracuda',
+  'mimecast',
+  'fireeye',
+  'symantec',
+  'messagelabs',
+  'fortigate',
+  'fortiguard',
+  'websense',
+  'mcafee',
+  'ironport',
+  'sophos',
+  'trend micro',
+  'paloalto',
+  'cisco',
+  'zscaler',
+  'facebookexternalhit',
+  'twitterbot',
+  'linkedinbot',
+  'slackbot',
+  'telegrambot',
+  'whatsapp',
+  'discordbot',
+  'googlebot',
+  'bingbot',
+  'baiduspider',
+  'yandex',
+  'duckduckbot',
+  'bot',
+  'crawler',
+  'spider',
+  'preview',
+  'fetch',
+  'urllib',
+  'python-requests',
+  'go-http-client',
+  'java/',
+  'curl/',
+  'wget/',
+];
+
+function isLinkPreviewBot(userAgent: string | null): boolean {
+  if (!userAgent) return false;
+  const lowerUA = userAgent.toLowerCase();
+  return BOT_USER_AGENTS.some(bot => lowerUA.includes(bot));
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const token_hash = searchParams.get('token_hash');
   const type = searchParams.get('type') as 'recovery' | 'signup' | 'email_change' | 'magiclink' | null;
   const next = searchParams.get('next') || '/';
+  const confirmed = searchParams.get('confirmed') === 'true';
+  const userAgent = request.headers.get('user-agent');
 
   // Validate required parameters
   if (!token_hash || !type) {
@@ -31,6 +92,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       new URL('/auth/login?error=invalid_link&message=Invalid or expired link', request.url)
     );
+  }
+
+  // LINK PREVIEW BOT PROTECTION for password recovery
+  // Redirect to intermediate page unless user has confirmed (clicked button)
+  if (type === 'recovery' && !confirmed) {
+    const isBot = isLinkPreviewBot(userAgent);
+    console.log('[Auth Confirm] Recovery request - User-Agent:', userAgent?.substring(0, 100), '| IsBot:', isBot);
+
+    // Always redirect to confirmation page for recovery tokens
+    // This ensures the token isn't consumed by bots OR by the initial GET request
+    const confirmUrl = new URL('/auth/confirm-reset', request.url);
+    confirmUrl.searchParams.set('token_hash', token_hash);
+    confirmUrl.searchParams.set('type', type);
+    if (next && next !== '/') {
+      confirmUrl.searchParams.set('next', next);
+    }
+
+    console.log('[Auth Confirm] Redirecting to confirmation page:', confirmUrl.pathname);
+    return NextResponse.redirect(confirmUrl);
   }
 
   // We need to track cookies that need to be set on the response
