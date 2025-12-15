@@ -1,20 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 /**
  * POST /api/customers/ensure
  * Ensures a customer record exists for the authenticated user
  * Creates one if it doesn't exist
+ *
+ * Supports both Authorization header (Bearer token) and cookie-based auth
  */
 export async function POST(request: NextRequest) {
   try {
+    // Service role client for database operations
     const supabase = await createClient();
-    
+
     // Try to get user from request body first (for cases where session isn't available)
     const body = await request.json().catch(() => ({}));
-    
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    // Get authenticated user - check Authorization header first, then cookies
+    let user = null;
+    let authError = null;
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      // Extract token and verify with Supabase
+      const token = authHeader.split(' ')[1];
+      const tokenClient = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data, error } = await tokenClient.auth.getUser(token);
+      user = data?.user ?? null;
+      authError = error;
+    } else {
+      // Fall back to cookie-based auth
+      try {
+        const sessionClient = await createClientWithSession();
+        const { data, error } = await sessionClient.auth.getUser();
+        user = data?.user ?? null;
+        authError = error;
+      } catch (e) {
+        // Cookie reading failed, continue with null user
+        console.log('[API/customers/ensure] Cookie auth failed:', e);
+      }
+    }
     
     // If we have auth_user_id in body, use that (allows creating customer without session)
     if (body.auth_user_id) {
