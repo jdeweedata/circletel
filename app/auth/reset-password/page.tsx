@@ -35,13 +35,21 @@ export default function ResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
   const [errorHint, setErrorHint] = React.useState<string | null>(null);
+  const [sessionReady, setSessionReady] = React.useState(false);
   const supabaseRef = useRef<SupabaseClient | null>(null);
+  const hasProcessedTokens = useRef(false);
 
   // Check if we have the access token from the URL (Supabase sends this after clicking reset link)
   useEffect(() => {
     let mounted = true;
 
     const handlePasswordResetLink = async () => {
+      // Prevent processing tokens multiple times (React strict mode, re-renders)
+      if (hasProcessedTokens.current) {
+        console.log('[Reset Password] Already processed tokens, skipping...');
+        return;
+      }
+
       // Initialize Supabase client FIRST
       const supabase = createClient();
       supabaseRef.current = supabase;
@@ -54,6 +62,9 @@ export default function ResetPasswordPage() {
 
       if (session?.user) {
         console.log('[Reset Password] Found existing session for user:', session.user.email);
+        if (!mounted) return;
+        setSessionReady(true);
+        hasProcessedTokens.current = true;
         toast.success('Session verified! Please set your new password.');
         return; // Session exists - show the password reset form
       }
@@ -118,6 +129,9 @@ export default function ResetPasswordPage() {
 
           if (data.session) {
             console.log('Session established from token_hash');
+            if (!mounted) return;
+            setSessionReady(true);
+            hasProcessedTokens.current = true;
             toast.success('Session verified! Please set your new password.');
             return;
           }
@@ -161,6 +175,8 @@ export default function ResetPasswordPage() {
             if (data.session) {
               console.log('Session manually established from hash fragment tokens');
               if (!mounted) return;
+              setSessionReady(true);
+              hasProcessedTokens.current = true;
               toast.success('Session verified! Please set your new password.');
               // Session is set - the form will now be shown
               // Do NOT navigate away - user needs to enter new password
@@ -199,6 +215,9 @@ export default function ResetPasswordPage() {
             toast.error('Invalid or expired reset link. Request a new one and open it in the same browser.');
             return;
           } else if (data.session) {
+            if (!mounted) return;
+            setSessionReady(true);
+            hasProcessedTokens.current = true;
             toast.success('Session verified! Please set your new password.');
             return;
           } else {
