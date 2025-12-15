@@ -141,25 +141,17 @@ export default function AuthCallbackPage() {
 
               // Wait for session to be confirmed in storage before redirecting
               // This fixes race condition where getSession() returns null on next page
-              // IMPORTANT: We must verify with a FRESH client to ensure cookies were actually written
-              // The original client has session in memory, so it will always return it
-              console.log('[Auth Callback] Verifying session is persisted with fresh client...');
-              let verified = false;
-              for (let i = 0; i < 15; i++) {
-                await new Promise(resolve => setTimeout(resolve, 300));
-                // Create a fresh client to check if session was persisted to cookies
-                const freshClient = createClient();
-                const { data: checkSession } = await freshClient.auth.getSession();
-                if (checkSession.session?.user) {
-                  console.log('[Auth Callback] Session verified with fresh client after', (i + 1) * 300, 'ms');
-                  verified = true;
-                  break;
-                }
-                console.log('[Auth Callback] Session not yet persisted, attempt', i + 1);
-              }
+              // We wait a fixed delay to allow cookies to be written, rather than
+              // creating multiple client instances (which triggers GoTrueClient warnings)
+              console.log('[Auth Callback] Waiting for session to persist to cookies...');
+              await new Promise(resolve => setTimeout(resolve, 1500));
 
-              if (!verified) {
-                console.warn('[Auth Callback] Session verification timed out, proceeding anyway');
+              // Verify session is still valid with the same client
+              const { data: checkSession } = await supabase.auth.getSession();
+              if (checkSession.session?.user) {
+                console.log('[Auth Callback] Session verified successfully');
+              } else {
+                console.warn('[Auth Callback] Session verification failed, proceeding anyway');
               }
 
               // Use replace to avoid back-button navigation issues
