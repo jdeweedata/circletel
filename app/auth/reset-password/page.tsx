@@ -46,6 +46,24 @@ export default function ResetPasswordPage() {
       const supabase = createClient();
       supabaseRef.current = supabase;
 
+      // IMPORTANT: Check for existing session FIRST
+      // This handles the case where user arrives via /auth/confirm redirect
+      // which already verified the token and set session cookies
+      console.log('[Reset Password] Checking for existing session...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        console.log('[Reset Password] Found existing session for user:', session.user.email);
+        toast.success('Session verified! Please set your new password.');
+        return; // Session exists - show the password reset form
+      }
+
+      if (sessionError) {
+        console.log('[Reset Password] Session check error (non-fatal):', sessionError.message);
+      } else {
+        console.log('[Reset Password] No existing session, checking for tokens...');
+      }
+
       // Check for errors in query string first
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
@@ -189,10 +207,20 @@ export default function ResetPasswordPage() {
         }
       }
 
-      // If no valid session or token found, show error
+      // If we reach here, no valid session or token was found
+      // This could happen if:
+      // 1. User navigated directly to /auth/reset-password without going through email link
+      // 2. Session cookies weren't set properly
+      // 3. All token verification methods failed
+      console.log('[Reset Password] No session or valid tokens found');
+      setHasError(true);
       if (code || tokenHash) {
-        setHasError(true);
+        // Had tokens but they didn't work
         toast.error('Invalid or expired reset link. Please request a new one.');
+      } else {
+        // No tokens at all - user probably navigated here directly
+        setErrorHint('Please use the reset link from your email to access this page.');
+        toast.error('No valid reset link found. Please request a password reset.');
       }
     };
 

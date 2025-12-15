@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
 /**
  * Auth Confirm Route
- * 
+ *
  * Handles token-based email verification for:
  * - Password recovery (type=recovery)
  * - Email verification (type=signup, type=email_change)
  * - Magic link login (type=magiclink)
- * 
+ *
  * This route allows Supabase email templates to use your domain
  * instead of the default Supabase URL, improving email deliverability.
- * 
+ *
  * Usage in Supabase email template:
  * <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery">Reset Password</a>
+ *
+ * IMPORTANT: Uses @supabase/ssr createServerClient to properly persist
+ * session cookies after verifyOtp(). This ensures the session is available
+ * when the user is redirected to /auth/reset-password.
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -29,11 +33,27 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // We need to track cookies that need to be set on the response
+  // since we can't set cookies until we have the response object
+  let cookiesToSet: { name: string; value: string; options: any }[] = [];
+
   try {
-    // Create Supabase client
-    const supabase = createClient(
+    // Create SSR-aware Supabase client that properly handles cookies
+    // This ensures the session from verifyOtp() is persisted to browser cookies
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookies) {
+            // Store cookies to set on response later
+            cookiesToSet = cookies;
+          },
+        },
+      }
     );
 
     // Verify the OTP token
@@ -83,25 +103,18 @@ export async function GET(request: NextRequest) {
     // Create response with redirect
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
-    // If we have a session, we need to set the cookies
-    // The verifyOtp call should have set the session, but we ensure cookies are set
-    if (data.session) {
-      // Set auth cookies for the session
-      response.cookies.set('sb-access-token', data.session.access_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: data.session.expires_in,
+    // Apply cookies from Supabase SSR client
+    // This properly sets the session cookies with correct names (sb-<project>-auth-token)
+    // so the browser client and middleware can read the session
+    if (cookiesToSet.length > 0) {
+      console.log('[Auth Confirm] Setting', cookiesToSet.length, 'session cookies');
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
       });
-      
-      response.cookies.set('sb-refresh-token', data.session.refresh_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
+    } else if (data.session) {
+      // Fallback: If SSR client didn't set cookies (shouldn't happen),
+      // log a warning for debugging
+      console.warn('[Auth Confirm] Session exists but no cookies were set by SSR client');
     }
 
     return response;
