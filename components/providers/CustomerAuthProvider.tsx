@@ -69,13 +69,13 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
   const isInitializing = React.useRef(false);
   const currentUserId = React.useRef<string | null>(null);
 
-  // Skip auth initialization on admin, partner, password reset and auth callback pages to prevent
+  // Skip auth initialization on admin, partner, and ALL auth pages to prevent
   // competing Supabase client instances that clear the session
   // Also skip on studio subdomain (for Sanity CMS)
   const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.');
   const isAdminPage = pathname?.startsWith('/admin');
   const isPartnerPage = pathname?.startsWith('/partners');
-  const isAuthPage = pathname?.startsWith('/auth/reset-password') || pathname?.startsWith('/auth/callback');
+  const isAuthPage = pathname?.startsWith('/auth/');
 
   // Shared function to fetch customer with duplicate prevention
   const fetchCustomer = React.useCallback(async (userId: string, supabase: any): Promise<Customer | null> => {
