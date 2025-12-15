@@ -60,3 +60,43 @@ export const supabase = new Proxy({} as SupabaseClient, {
     return getSupabaseClient()[prop as keyof SupabaseClient];
   }
 });
+
+/**
+ * Clear all Supabase session cookies from the browser
+ * Use this when detecting stale/invalid sessions (403 errors)
+ * to allow users to log in fresh without manual cookie clearing
+ */
+export function clearSupabaseSession(): void {
+  if (typeof window === 'undefined') return;
+
+  // Supabase cookie names for our project
+  const projectRef = 'agyjovdugmtopasyvlng';
+  const cookieNames = [
+    `sb-${projectRef}-auth-token`,
+    `sb-${projectRef}-auth-token-code-verifier`,
+  ];
+
+  // Clear each cookie by setting it to expire in the past
+  cookieNames.forEach(name => {
+    // Clear for current path
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    // Also clear for root path
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+  });
+
+  // Also clear localStorage items that Supabase might use
+  try {
+    const keysToRemove = Object.keys(localStorage).filter(
+      key => key.startsWith('sb-') || key.includes('supabase')
+    );
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  } catch (e) {
+    // localStorage might not be available
+    console.warn('[clearSupabaseSession] Could not clear localStorage:', e);
+  }
+
+  // Reset the singleton client so a fresh one is created
+  _supabaseClient = null;
+
+  console.log('[clearSupabaseSession] Cleared Supabase session cookies and localStorage');
+}

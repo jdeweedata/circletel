@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { clearSupabaseSession } from '@/lib/supabase/client';
 import { DashboardErrorBoundary } from '@/components/dashboard/ErrorBoundary';
 import {
   DashboardHeader,
@@ -88,6 +89,8 @@ export default function DashboardLayout({
       // Extended delay to allow auth state to fully settle after external redirects
       const timeoutId = setTimeout(() => {
         console.log('[DashboardLayout] Executing redirect to login');
+        // Clear any stale session cookies before redirect to prevent 403 loops
+        clearSupabaseSession();
         router.push('/auth/login?redirect=/dashboard');
       }, 1000); // 1 second delay for better session recovery
       return () => clearTimeout(timeoutId);

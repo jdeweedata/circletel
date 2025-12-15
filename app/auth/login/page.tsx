@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
+import { clearSupabaseSession } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { ArrowLeft, Eye, EyeOff, Info, Lock, Phone } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -37,6 +38,17 @@ export default function LoginPage() {
 
   // Get redirect path from query params (e.g., ?redirect=/order/payment)
   const redirectPath = searchParams.get('redirect') || '/dashboard';
+
+  // Clear any stale session cookies when arriving at login page with a redirect
+  // This handles the case where a user was kicked out due to an invalid session
+  React.useEffect(() => {
+    if (searchParams.get('redirect')) {
+      // User was redirected here (likely due to auth failure)
+      // Clear any stale cookies so they can log in fresh
+      console.log('[Login] Clearing stale session due to redirect from:', searchParams.get('redirect'));
+      clearSupabaseSession();
+    }
+  }, [searchParams]);
 
   // Email login form
   const emailForm = useForm<EmailLoginFormValues>({

@@ -14,7 +14,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, clearSupabaseSession } from '@/lib/supabase/client';
 import { CustomerAuthService } from '@/lib/auth/customer-auth-service';
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
@@ -239,6 +239,9 @@ export function CustomerAuthProvider({ children }: { children: React.ReactNode }
             console.log('[CustomerAuthProvider] User signed out, clearing customer data');
             currentUserId.current = null;
             setCustomer(null);
+            // Clear any stale session cookies to prevent 403 loops
+            // This ensures users can log in fresh without manual cookie clearing
+            clearSupabaseSession();
           } else {
             console.log('[CustomerAuthProvider] Same user, skipping customer fetch');
           }
