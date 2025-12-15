@@ -140,6 +140,10 @@ export default function ResetPasswordPage() {
 
         if (accessToken && refreshToken) {
           try {
+            // Clear the hash BEFORE setting session to prevent re-processing
+            // and to avoid Supabase's detectSessionInUrl from triggering navigation
+            window.history.replaceState(null, '', window.location.pathname);
+            
             // Manually set the session using the tokens from the hash
             const { data, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
@@ -148,6 +152,7 @@ export default function ResetPasswordPage() {
 
             if (sessionError) {
               console.error('Error setting session:', sessionError);
+              if (!mounted) return;
               setHasError(true);
               toast.error('Failed to establish session. Please request a new reset link.');
               return;
@@ -155,15 +160,20 @@ export default function ResetPasswordPage() {
 
             if (data.session) {
               console.log('Session manually established from hash fragment tokens');
+              if (!mounted) return;
               toast.success('Session verified! Please set your new password.');
+              // Session is set - the form will now be shown
+              // Do NOT navigate away - user needs to enter new password
             }
           } catch (err) {
             console.error('Session setup error:', err);
+            if (!mounted) return;
             setHasError(true);
             toast.error('Failed to establish session. Please try again.');
           }
         } else {
           console.error('Missing access_token or refresh_token in hash');
+          if (!mounted) return;
           setHasError(true);
           toast.error('Invalid reset link format. Please request a new one.');
         }
