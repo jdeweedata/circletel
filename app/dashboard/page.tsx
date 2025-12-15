@@ -57,10 +57,15 @@ interface DashboardData {
   }>;
   stats: {
     activeServices: number;
+    activeServicesTrend?: { value: number; isPositive: boolean; hasData: boolean };
     totalOrders: number;
+    totalOrdersTrend?: { value: number; isPositive: boolean; hasData: boolean };
     pendingOrders: number;
+    pendingOrdersTrend?: { value: number; isPositive: boolean; hasData: boolean };
     overdueInvoices: number;
+    overdueInvoicesTrend?: { value: number; isPositive: boolean; hasData: boolean };
     accountBalance: number;
+    accountBalanceTrend?: { value: number; isPositive: boolean; hasData: boolean };
   };
 }
 
@@ -345,11 +350,11 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <ModernStatCard
           title="Active Services"
           value={data.stats.activeServices}
-          trend={{
-            value: data.stats.activeServices > 0 ? 100 : 0,
-            isPositive: true,
-            label: "vs last month"
-          }}
+          trend={data.stats.activeServicesTrend?.hasData ? {
+            value: data.stats.activeServicesTrend.value,
+            isPositive: data.stats.activeServicesTrend.isPositive,
+            label: "vs 30 days ago"
+          } : undefined}
           subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
           description="Connected and billing"
           icon={<Wifi className="h-5 w-5" />}
@@ -359,11 +364,11 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <ModernStatCard
           title="Total Orders"
           value={data.stats.totalOrders}
-          trend={{
-            value: data.stats.pendingOrders > 0 ? -20 : 0,
-            isPositive: false,
-            label: "vs last month"
-          }}
+          trend={data.stats.totalOrdersTrend?.hasData ? {
+            value: data.stats.totalOrdersTrend.value,
+            isPositive: data.stats.totalOrdersTrend.isPositive,
+            label: "vs 30 days ago"
+          } : undefined}
           subtitle={data.stats.pendingOrders > 0 ? `${data.stats.pendingOrders} pending` : "All orders completed"}
           description={data.stats.pendingOrders > 0 ? "Some orders need attention" : "Order history"}
           icon={<Package className="h-5 w-5" />}
@@ -373,11 +378,11 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <ModernStatCard
           title="Account Balance"
           value={`R${data.stats.accountBalance.toFixed(2)}`}
-          trend={{
-            value: data.stats.accountBalance === 0 ? 0 : data.stats.accountBalance > 0 ? -10 : 10,
-            isPositive: data.stats.accountBalance <= 0,
-            label: "vs last month"
-          }}
+          trend={data.stats.accountBalanceTrend?.hasData ? {
+            value: data.stats.accountBalanceTrend.value,
+            isPositive: data.stats.accountBalanceTrend.isPositive,
+            label: "vs 30 days ago"
+          } : undefined}
           subtitle={data.stats.accountBalance === 0 ? "No balance due" : data.stats.accountBalance > 0 ? "Payment due" : "Credit available"}
           description={data.stats.accountBalance > 0 ? "Please make payment" : "Account in good standing"}
           icon={<CreditCard className="h-5 w-5" />}
@@ -387,11 +392,11 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <ModernStatCard
           title="Billing Status"
           value={data.stats.overdueInvoices > 0 ? "Overdue" : "Current"}
-          trend={{
-            value: data.stats.overdueInvoices > 0 ? -15 : 5,
-            isPositive: data.stats.overdueInvoices === 0,
-            label: "this period"
-          }}
+          trend={data.stats.overdueInvoicesTrend?.hasData ? {
+            value: data.stats.overdueInvoicesTrend.value,
+            isPositive: data.stats.overdueInvoicesTrend.isPositive,
+            label: "vs 30 days ago"
+          } : undefined}
           subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "No outstanding payments"}
           description={data.stats.overdueInvoices > 0 ? "Payment required" : "Account in good standing"}
           icon={<CreditCard className="h-5 w-5" />}

@@ -176,7 +176,23 @@ export async function GET(request: NextRequest) {
         .select('*')
         .eq('customer_id', customer.id)
         .order('initiated_at', { ascending: false })
-        .limit(5)
+        .limit(5),
+
+      // Get snapshot from 30 days ago for trend calculation
+      (async () => {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const snapshotDate = thirtyDaysAgo.toISOString().split('T')[0];
+
+        return supabase
+          .from('customer_stats_snapshots')
+          .select('*')
+          .eq('customer_id', customer.id)
+          .lte('snapshot_date', snapshotDate)
+          .order('snapshot_date', { ascending: false })
+          .limit(1)
+          .single();
+      })()
     ]);
 
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -185,10 +201,10 @@ export async function GET(request: NextRequest) {
       }, QUERY_TIMEOUT);
     });
 
-    let servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult;
+    let servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult, snapshotResult;
     try {
       const results = await Promise.race([parallelQueriesPromise, timeoutPromise]);
-      [servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult] = results;
+      [servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult, snapshotResult] = results;
       console.log('[Dashboard Summary API] ⏱️ All queries completed:', Date.now() - startTime, 'ms');
     } catch (timeoutError) {
       console.error('[Dashboard Summary API] ❌ Queries timeout:', Date.now() - startTime, 'ms');
@@ -207,6 +223,29 @@ export async function GET(request: NextRequest) {
     const orders = ordersResult.data || [];
     const invoices = invoicesResult.data || [];
     const transactions = transactionsResult.data || [];
+    const oldSnapshot = snapshotResult?.data || null;
+
+    // Helper function to calculate trend percentage
+    const calculateTrend = (current: number, old: number | null | undefined, invertPositive = false) => {
+      if (old === null || old === undefined) {
+        // No historical data yet
+        return { value: 0, isPositive: true, hasData: false };
+      }
+      if (old === 0) {
+        // Avoid division by zero - show absolute change
+        return {
+          value: current > 0 ? 100 : 0,
+          isPositive: invertPositive ? current <= 0 : current > 0,
+          hasData: true
+        };
+      }
+      const percentChange = Math.round(((current - old) / Math.abs(old)) * 100);
+      return {
+        value: Math.abs(percentChange),
+        isPositive: invertPositive ? percentChange <= 0 : percentChange >= 0,
+        hasData: true
+      };
+    };
     
     // Get primary payment method
     const primaryPaymentMethod = await PaymentMethodService.getPrimaryMethod(customer.id);
@@ -288,10 +327,27 @@ export async function GET(request: NextRequest) {
 
       stats: {
         activeServices: activeServices.length,
+        activeServicesTrend: calculateTrend(activeServices.length, oldSnapshot?.active_services),
         totalOrders: orders.length,
+        totalOrdersTrend: calculateTrend(orders.length, oldSnapshot?.total_orders),
         pendingOrders: orders.filter(o => o.status === 'pending').length,
+        pendingOrdersTrend: calculateTrend(
+          orders.filter(o => o.status === 'pending').length,
+          oldSnapshot?.pending_orders,
+          true // Fewer pending is positive
+        ),
         overdueInvoices: overdueInvoices.length,
-        accountBalance: billing?.account_balance || 0
+        overdueInvoicesTrend: calculateTrend(
+          overdueInvoices.length,
+          oldSnapshot?.overdue_invoices,
+          true // Fewer overdue is positive
+        ),
+        accountBalance: billing?.account_balance || 0,
+        accountBalanceTrend: calculateTrend(
+          billing?.account_balance || 0,
+          oldSnapshot?.account_balance,
+          true // Lower balance (less owed) is positive
+        )
       }
     };
 
