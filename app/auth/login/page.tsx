@@ -39,13 +39,14 @@ export default function LoginPage() {
   // Get redirect path from query params (e.g., ?redirect=/order/payment)
   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
-  // Clear any stale session cookies when arriving at login page with a redirect
-  // This handles the case where a user was kicked out due to an invalid session
+  // Only clear session if there's an explicit auth error indicator
+  // Don't clear just because there's a redirect param - that's too aggressive
+  // and can cause login loops when the session is still valid
   React.useEffect(() => {
-    if (searchParams.get('redirect')) {
-      // User was redirected here (likely due to auth failure)
-      // Clear any stale cookies so they can log in fresh
-      console.log('[Login] Clearing stale session due to redirect from:', searchParams.get('redirect'));
+    const authError = searchParams.get('error') || searchParams.get('auth_error');
+    if (authError) {
+      // Only clear session for actual auth errors, not just redirects
+      console.log('[Login] Clearing session due to auth error:', authError);
       clearSupabaseSession();
     }
   }, [searchParams]);
