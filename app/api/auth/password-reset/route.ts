@@ -108,8 +108,20 @@ export async function POST(request: NextRequest) {
     // The action_link goes through Supabase's verify endpoint
     // We need to extract the token and build our own URL that goes through /auth/confirm
     const actionLink = linkData.properties?.action_link;
-    const tokenHash = linkData.properties?.hashed_token;
-    
+    let tokenHash = linkData.properties?.hashed_token;
+
+    // If hashed_token is not directly available, extract it from the action_link
+    // action_link format: https://project.supabase.co/auth/v1/verify?token=<hash>&type=recovery&...
+    if (!tokenHash && actionLink) {
+      try {
+        const actionUrl = new URL(actionLink);
+        tokenHash = actionUrl.searchParams.get('token') || undefined;
+        console.log('Extracted token_hash from action_link:', tokenHash ? 'Found' : 'Not found');
+      } catch (e) {
+        console.error('Failed to parse action_link:', e);
+      }
+    }
+
     if (!actionLink && !tokenHash) {
       console.error('No action_link or hashed_token in response:', linkData);
       return NextResponse.json(
@@ -121,12 +133,14 @@ export async function POST(request: NextRequest) {
     // Build the reset URL that goes through our /auth/confirm endpoint
     // This ensures proper token verification and session handling
     let resetUrl: string;
-    
+
     if (tokenHash) {
       // Use our confirm endpoint with the token hash
-      resetUrl = `${baseUrl}/auth/confirm?token_hash=${tokenHash}&type=recovery&redirect_to=${encodeURIComponent(redirectTo)}`;
+      resetUrl = `${baseUrl}/auth/confirm?token_hash=${tokenHash}&type=recovery`;
+      console.log('Using custom /auth/confirm route with token_hash');
     } else {
-      // Fallback to the action_link from Supabase
+      // Fallback to the action_link from Supabase (should not happen with extraction above)
+      console.warn('Falling back to Supabase action_link - token extraction failed');
       resetUrl = actionLink!;
     }
     
