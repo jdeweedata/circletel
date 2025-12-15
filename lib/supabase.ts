@@ -1,42 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+/**
+ * Supabase Client - Unified Export
+ *
+ * IMPORTANT: This file re-exports from lib/supabase/client.ts to ensure
+ * a single GoTrueClient instance across the entire application.
+ *
+ * All imports should ultimately resolve to the same singleton client.
+ */
 
-// Capture env vars at module level (Next.js replaces these at build time)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+// Re-export the singleton client from lib/supabase/client.ts
+import { supabase as singletonClient } from './supabase/client';
 
-// Lazy initialization to avoid build-time errors
-let _typedSupabase: ReturnType<typeof createClient<Database>> | null = null;
-
-function getSupabaseClient() {
-  if (_typedSupabase) return _typedSupabase;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
-  }
-
-  _typedSupabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-      storageKey: 'sb-agyjovdugmtopasyvlng-auth-token', // Use consistent storage key
-    },
-    global: {
-      headers: {
-        'x-application-name': 'circletel-nextjs',
-      },
-    },
-  });
-
-  return _typedSupabase;
-}
-
-// Export as a getter to maintain singleton pattern but with lazy initialization
-export const typedSupabase = new Proxy({} as ReturnType<typeof createClient<Database>>, {
-  get(_, prop) {
-    return getSupabaseClient()[prop as keyof ReturnType<typeof createClient<Database>>];
-  }
-});
+// Export with both names for backwards compatibility
+export const typedSupabase = singletonClient;
+export const supabase = singletonClient;
 
 // Database Types
 export interface Database {
@@ -113,11 +89,9 @@ export interface Database {
   };
 }
 
-// Typed Supabase client
-export type TypedSupabaseClient = ReturnType<typeof createClient<Database>>;
-
-// Backwards-compatible alias
-export const supabase = typedSupabase;
+// Typed Supabase client - use SupabaseClient type from the package
+import type { SupabaseClient } from '@supabase/supabase-js';
+export type TypedSupabaseClient = SupabaseClient<Database>;
 
 // Form submission types and functions
 export interface FormSubmissionResponse {
