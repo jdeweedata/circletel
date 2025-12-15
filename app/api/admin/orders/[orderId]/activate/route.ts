@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
+import { PPPoECredentialService } from '@/lib/pppoe';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -300,6 +301,41 @@ export async function POST(
       // Don't fail - order is activated, service record is supplementary
     }
 
+    // Create PPPoE credentials for the service
+    let pppoeCredentials: { username?: string; password?: string } | null = null;
+    if (serviceRecord.success && serviceRecord.serviceId && updatedOrder.account_number) {
+      try {
+        const pppoeResult = await PPPoECredentialService.create({
+          customerId: order.customer_id,
+          serviceId: serviceRecord.serviceId,
+          accountNumber: updatedOrder.account_number,
+          profileId: process.env.INTERSTELLIO_DEFAULT_PROFILE_ID || '',
+          sendNotifications: {
+            sms: true,
+            email: true,
+          },
+        });
+
+        if (pppoeResult.success && pppoeResult.credential && pppoeResult.password) {
+          pppoeCredentials = {
+            username: pppoeResult.credential.pppoeUsername,
+            password: pppoeResult.password,
+          };
+          console.log('[Activation] PPPoE credentials created:', pppoeResult.credential.pppoeUsername);
+
+          // Provision to Interstellio (non-blocking)
+          PPPoECredentialService.provision(pppoeResult.credential.id).catch((err) => {
+            console.error('[Activation] Failed to provision PPPoE to Interstellio:', err);
+          });
+        } else {
+          console.warn('[Activation] Failed to create PPPoE credentials:', pppoeResult.error);
+        }
+      } catch (pppoeError) {
+        console.error('[Activation] PPPoE credential creation error:', pppoeError);
+        // Don't fail activation if PPPoE creation fails
+      }
+    }
+
     // Generate pro-rata invoice if applicable
     let invoiceNumber: string | undefined;
     if (billing.prorataAmount > 0 && serviceRecord.success && serviceRecord.serviceId) {
@@ -355,6 +391,14 @@ export async function POST(
         nextBillingDate: billing.nextBillingDate.toISOString().split('T')[0],
         billingCycleDay: billing.billingCycleDay,
         monthlyAmount: parseFloat(order.package_price),
+      },
+      pppoe: pppoeCredentials ? {
+        username: pppoeCredentials.username,
+        created: true,
+        message: 'PPPoE credentials created and notifications sent',
+      } : {
+        created: false,
+        message: 'PPPoE credentials will be created manually',
       },
     });
   } catch (error: any) {

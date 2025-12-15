@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft, Plus, Search, CheckCircle, X } from 'lucide-react';
 import Link from 'next/link';
+import { CustomerRadiusSection } from '@/components/admin/interstellio';
+import { PPPoECredentialsSection } from '@/components/admin/pppoe';
 
 interface Customer {
   id: string;
@@ -64,6 +66,14 @@ interface Ticket {
   agent: string | null;
 }
 
+interface CustomerService {
+  id: string;
+  connection_id: string | null;
+  package_name: string;
+  package_speed: string | null;
+  status: string;
+}
+
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -72,6 +82,7 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [customerServices, setCustomerServices] = useState<CustomerService[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +154,13 @@ export default function CustomerDetailPage() {
           end_date: null,
         }));
         setServices(derivedServices);
+      }
+
+      // Fetch customer services (with connection_id for Interstellio linking)
+      const servicesResponse = await fetch(`/api/admin/customers/${customerId}/services`);
+      if (servicesResponse.ok) {
+        const servicesData = await servicesResponse.json();
+        setCustomerServices(servicesData.services || []);
       }
 
       // Fetch customer tickets (mock data for now - can be replaced with real API)
@@ -501,8 +519,33 @@ export default function CustomerDetailPage() {
         </CardContent>
       </Card>
 
+      {/* RADIUS / Interstellio Section */}
+      <CustomerRadiusSection
+        customerId={customerId}
+        services={customerServices}
+      />
+
+      {/* PPPoE Credentials Section */}
+      {customer && customerServices.length > 0 && (
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <PPPoECredentialsSection
+              customerId={customerId}
+              serviceId={customerServices[0]?.id}
+              accountNumber={customer.account_number}
+              customerName={`${customer.first_name} ${customer.last_name}`}
+              service={customerServices[0] ? {
+                id: customerServices[0].id,
+                packageName: customerServices[0].package_name,
+                status: customerServices[0].status,
+              } : undefined}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Customer Support Interactions Section */}
-      <Card>
+      <Card className="mt-6">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-900">Customer Support Interactions</h3>
