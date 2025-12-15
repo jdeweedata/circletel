@@ -144,16 +144,53 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[Auth Confirm] Token verification failed:', error.message);
-      
+
       // Determine appropriate error redirect based on type
-      const errorRedirect = type === 'recovery' 
+      const errorRedirect = type === 'recovery'
         ? '/auth/forgot-password?error=expired&message=Reset link has expired. Please request a new one.'
         : '/auth/login?error=verification_failed&message=Verification failed. Please try again.';
-      
+
       return NextResponse.redirect(new URL(errorRedirect, request.url));
     }
 
     console.log('[Auth Confirm] Token verified successfully for type:', type);
+    console.log('[Auth Confirm] Session data:', data.session ? 'Session exists' : 'No session');
+
+    // If we have a session, manually prepare the cookie data
+    // The SSR client's setAll might not be called automatically by verifyOtp
+    if (data.session && cookiesToSet.length === 0) {
+      console.log('[Auth Confirm] Manually preparing session cookies...');
+      const projectRef = 'agyjovdugmtopasyvlng';
+      const cookieName = `sb-${projectRef}-auth-token`;
+
+      // Supabase stores session as base64-encoded JSON chunks
+      const sessionData = {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expires_at: data.session.expires_at,
+        expires_in: data.session.expires_in,
+        token_type: data.session.token_type,
+        user: data.session.user,
+      };
+
+      const sessionStr = JSON.stringify(sessionData);
+      // Split into chunks if needed (Supabase does this for large cookies)
+      const base64Session = Buffer.from(sessionStr).toString('base64');
+
+      cookiesToSet = [{
+        name: cookieName,
+        value: base64Session,
+        options: {
+          path: '/',
+          httpOnly: false, // Supabase client needs to read this
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax' as const,
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+        },
+      }];
+
+      console.log('[Auth Confirm] Prepared manual session cookie');
+    }
 
     // Determine redirect based on verification type
     let redirectUrl: string;
