@@ -193,32 +193,39 @@ export async function GET(request: NextRequest) {
     }
 
     // Determine redirect based on verification type
-    let redirectUrl: string;
+    let redirectUrl: URL;
 
     switch (type) {
       case 'recovery':
         // Password reset - redirect to reset password page
-        // The session is now set, user can update their password
-        redirectUrl = '/auth/reset-password';
+        // IMPORTANT: Pass tokens via URL hash so client-side can establish session
+        // This is necessary because server-side cookies and client-side localStorage
+        // use different storage mechanisms in the current Supabase setup
+        redirectUrl = new URL('/auth/reset-password', request.url);
+        if (data.session) {
+          // Pass tokens in hash fragment (same format as Supabase default magic links)
+          redirectUrl.hash = `access_token=${data.session.access_token}&refresh_token=${data.session.refresh_token}&type=recovery`;
+          console.log('[Auth Confirm] Passing tokens via URL hash for recovery flow');
+        }
         break;
       
       case 'signup':
       case 'email_change':
         // Email verification - redirect to dashboard or specified next URL
-        redirectUrl = next || '/dashboard';
+        redirectUrl = new URL(next || '/dashboard', request.url);
         break;
       
       case 'magiclink':
         // Magic link login - redirect to dashboard or specified next URL
-        redirectUrl = next || '/dashboard';
+        redirectUrl = new URL(next || '/dashboard', request.url);
         break;
       
       default:
-        redirectUrl = '/';
+        redirectUrl = new URL('/', request.url);
     }
 
     // Create response with redirect
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+    const response = NextResponse.redirect(redirectUrl);
 
     // Apply cookies from Supabase SSR client
     // This properly sets the session cookies with correct names (sb-<project>-auth-token)
