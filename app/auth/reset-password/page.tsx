@@ -7,10 +7,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { createClient } from '@/integrations/supabase/client';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient, SupabaseClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+
+// Create an ISOLATED Supabase client for password reset
+// This prevents auth state changes from propagating to other components
+// and avoids the "Multiple GoTrueClient instances" conflicts
+function createIsolatedClient(): SupabaseClient {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: false, // Don't auto-refresh during password reset
+      detectSessionInUrl: false, // We handle URL tokens manually
+      storageKey: 'sb-reset-password-session', // Isolated storage key
+    },
+  });
+}
 
 // Reset password form validation schema
 const resetPasswordSchema = z.object({
@@ -50,8 +66,8 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // Initialize Supabase client FIRST
-      const supabase = createClient();
+      // Initialize ISOLATED Supabase client to prevent auth state conflicts
+      const supabase = createIsolatedClient();
       supabaseRef.current = supabase;
 
       // IMPORTANT: Check for existing session FIRST
