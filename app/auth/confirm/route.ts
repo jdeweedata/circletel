@@ -143,13 +143,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[Auth Confirm] Token verification failed:', error.message);
+      console.error('[Auth Confirm] Token verification failed:', error.message, '| Type:', type);
 
       // Determine appropriate error redirect based on type
       const errorRedirect = type === 'recovery'
         ? '/auth/forgot-password?error=expired&message=Reset link has expired. Please request a new one.'
         : '/auth/login?error=verification_failed&message=Verification failed. Please try again.';
 
+      console.log('[Auth Confirm] Redirecting to error page:', errorRedirect);
       return NextResponse.redirect(new URL(errorRedirect, request.url));
     }
 
