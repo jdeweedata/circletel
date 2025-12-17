@@ -8,6 +8,7 @@ export const maxDuration = 10;
 /**
  * GET /api/admin/technicians
  * Returns list of technicians (active by default, or all if include_inactive=true)
+ * Maps new schema (first_name, last_name, skills) to old format (name, specialties) for compatibility
  */
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('technicians')
       .select('*')
-      .order('name', { ascending: true });
+      .order('first_name', { ascending: true });
 
     // Filter by active status unless include_inactive is true
     if (!includeInactive) {
@@ -44,9 +45,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Map new schema to old format for backwards compatibility
+    const mappedTechnicians = (technicians || []).map((tech) => ({
+      ...tech,
+      // Combine first_name + last_name as 'name' for old UI
+      name: `${tech.first_name} ${tech.last_name}`.trim(),
+      // Map 'skills' to 'specialties' for old UI
+      specialties: tech.skills || [],
+      // Keep original fields for new UI
+      total_installations: 0,
+      completed_installations: 0,
+      average_rating: null,
+      notes: null,
+    }));
+
     return NextResponse.json({
       success: true,
-      data: technicians || [],
+      data: mappedTechnicians,
     });
   } catch (error: any) {
     console.error('Admin technicians fetch error:', error);
@@ -64,6 +79,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/admin/technicians
  * Creates a new technician
+ * Accepts both old format (name) and new format (first_name, last_name)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -79,12 +95,23 @@ export async function POST(request: NextRequest) {
     );
     const body = await request.json();
 
-    const { name, email, phone, specialties, notes } = body;
+    const { name, first_name, last_name, email, phone, specialties, skills, team, employee_id } = body;
+
+    // Handle both old format (name) and new format (first_name, last_name)
+    let firstName = first_name;
+    let lastName = last_name;
+
+    if (!firstName && name) {
+      // Split name into first_name and last_name
+      const nameParts = name.trim().split(' ');
+      firstName = nameParts[0] || '';
+      lastName = nameParts.slice(1).join(' ') || '';
+    }
 
     // Validation
-    if (!name || !email || !phone) {
+    if (!firstName || !phone) {
       return NextResponse.json(
-        { success: false, error: 'Name, email, and phone are required' },
+        { success: false, error: 'First name and phone are required' },
         { status: 400 }
       );
     }
@@ -92,11 +119,14 @@ export async function POST(request: NextRequest) {
     const { data: technician, error } = await supabase
       .from('technicians')
       .insert({
-        name,
-        email,
+        first_name: firstName,
+        last_name: lastName || '',
+        email: email || null,
         phone,
-        specialties: specialties || [],
-        notes: notes || null,
+        skills: skills || specialties || [],
+        team: team || null,
+        employee_id: employee_id || null,
+        status: 'available',
         is_active: true,
       })
       .select()
@@ -110,9 +140,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Map response to include 'name' for backwards compatibility
+    const mappedTechnician = {
+      ...technician,
+      name: `${technician.first_name} ${technician.last_name}`.trim(),
+      specialties: technician.skills || [],
+    };
+
     return NextResponse.json({
       success: true,
-      data: technician,
+      data: mappedTechnician,
       message: 'Technician created successfully',
     });
   } catch (error: any) {

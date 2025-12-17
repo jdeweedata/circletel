@@ -8,6 +8,7 @@ export const maxDuration = 10;
 /**
  * GET /api/admin/technicians/[id]
  * Returns a single technician's details
+ * Maps new schema to old format for backwards compatibility
  */
 export async function GET(
   request: NextRequest,
@@ -48,9 +49,20 @@ export async function GET(
       );
     }
 
+    // Map to include backwards-compatible fields
+    const mappedTechnician = {
+      ...technician,
+      name: `${technician.first_name} ${technician.last_name}`.trim(),
+      specialties: technician.skills || [],
+      total_installations: 0,
+      completed_installations: 0,
+      average_rating: null,
+      notes: null,
+    };
+
     return NextResponse.json({
       success: true,
-      data: technician,
+      data: mappedTechnician,
     });
   } catch (error: any) {
     console.error('Technician fetch error:', error);
@@ -68,6 +80,7 @@ export async function GET(
 /**
  * PATCH /api/admin/technicians/[id]
  * Updates an existing technician
+ * Accepts both old format (name, specialties) and new format (first_name, last_name, skills)
  */
 export async function PATCH(
   request: NextRequest,
@@ -110,33 +123,42 @@ export async function PATCH(
     }
 
     // Build update object - only update provided fields
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
-    if (body.name !== undefined) updateData.name = body.name;
-    if (body.email !== undefined) updateData.email = body.email.toLowerCase();
+    // Handle old format 'name' field - split into first_name/last_name
+    if (body.name !== undefined) {
+      const nameParts = body.name.trim().split(' ');
+      updateData.first_name = nameParts[0] || '';
+      updateData.last_name = nameParts.slice(1).join(' ') || '';
+    }
+
+    // Handle new format fields
+    if (body.first_name !== undefined) updateData.first_name = body.first_name;
+    if (body.last_name !== undefined) updateData.last_name = body.last_name;
+    if (body.email !== undefined) updateData.email = body.email?.toLowerCase() || null;
     if (body.phone !== undefined) updateData.phone = body.phone;
-    if (body.specialties !== undefined) updateData.specialties = body.specialties;
-    if (body.notes !== undefined) updateData.notes = body.notes;
+
+    // Handle skills/specialties (map old to new)
+    if (body.specialties !== undefined) updateData.skills = body.specialties;
+    if (body.skills !== undefined) updateData.skills = body.skills;
+
+    // Handle new schema fields
+    if (body.team !== undefined) updateData.team = body.team;
+    if (body.employee_id !== undefined) updateData.employee_id = body.employee_id;
+    if (body.status !== undefined) updateData.status = body.status;
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
 
     // Validation for required fields if they're being updated
-    if (updateData.name !== undefined && !updateData.name.trim()) {
+    if (updateData.first_name !== undefined && !(updateData.first_name as string).trim()) {
       return NextResponse.json(
-        { success: false, error: 'Name cannot be empty' },
+        { success: false, error: 'First name cannot be empty' },
         { status: 400 }
       );
     }
 
-    if (updateData.email !== undefined && !updateData.email.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'Email cannot be empty' },
-        { status: 400 }
-      );
-    }
-
-    if (updateData.phone !== undefined && !updateData.phone.trim()) {
+    if (updateData.phone !== undefined && !(updateData.phone as string).trim()) {
       return NextResponse.json(
         { success: false, error: 'Phone cannot be empty' },
         { status: 400 }
@@ -162,9 +184,16 @@ export async function PATCH(
       );
     }
 
+    // Map response to include backwards-compatible fields
+    const mappedTechnician = {
+      ...updatedTechnician,
+      name: `${updatedTechnician.first_name} ${updatedTechnician.last_name}`.trim(),
+      specialties: updatedTechnician.skills || [],
+    };
+
     return NextResponse.json({
       success: true,
-      data: updatedTechnician,
+      data: mappedTechnician,
       message: 'Technician updated successfully',
     });
   } catch (error: any) {

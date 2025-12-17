@@ -147,7 +147,15 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'All Orders', href: '/admin/orders', icon: List },
           { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar },
-          { name: 'Technicians', href: '/admin/orders/technicians', icon: Wrench }
+        ]
+      },
+      {
+        name: 'Field Operations',
+        icon: Wrench,
+        children: [
+          { name: 'Dashboard', href: '/admin/field-ops', icon: LayoutDashboard },
+          { name: 'Technicians', href: '/admin/field-ops/technicians', icon: Users },
+          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase }
         ]
       },
       {
@@ -234,15 +242,6 @@ const navigationSections: NavSection[] = [
           { name: 'Providers', href: '/admin/coverage/providers', icon: Building2 },
           { name: 'Maps', href: '/admin/coverage/maps', icon: Map },
           { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: MapPin }
-        ]
-      },
-      {
-        name: 'Field Operations',
-        icon: Wrench,
-        children: [
-          { name: 'Dashboard', href: '/admin/field-ops', icon: LayoutDashboard },
-          { name: 'Technicians', href: '/admin/field-ops/technicians', icon: Users },
-          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase }
         ]
       },
     ]
