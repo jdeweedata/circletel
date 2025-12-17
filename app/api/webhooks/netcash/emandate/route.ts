@@ -56,12 +56,14 @@ export async function POST(request: NextRequest) {
     );
 
     // Find emandate request by account reference
+    // Include 'pending' and 'resent' statuses for robustness - sometimes the status
+    // update doesn't happen before the postback arrives
     const { data: emandateRequest, error: findError } = await supabase
       .from('emandate_requests')
       .select('*')
       .eq('order_id', orderId)
       .eq('netcash_account_reference', parsedPostback.AccountRef)
-      .in('status', ['sent', 'customer_notified', 'viewed'])
+      .in('status', ['pending', 'sent', 'resent', 'customer_notified', 'viewed'])
       .order('created_at', { ascending: false })
       .maybeSingle();
 

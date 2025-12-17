@@ -76,6 +76,7 @@ export function PaymentMethodStatus({
   const [sendingNotification, setSendingNotification] = useState(false);
   const [resendingMandate, setResendingMandate] = useState(false);
   const [sendingClickatellSMS, setSendingClickatellSMS] = useState(false);
+  const [approvingValidation, setApprovingValidation] = useState(false);
 
   useEffect(() => {
     fetchPaymentMethodStatus();
@@ -200,6 +201,40 @@ export function PaymentMethodStatus({
       });
     } finally {
       setSendingClickatellSMS(false);
+    }
+  };
+
+  const approveValidation = async () => {
+    try {
+      setApprovingValidation(true);
+
+      const response = await fetch(`/api/admin/orders/${orderId}/approve-validation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notes: 'Approved after receiving NetCash 102 Validation email confirmation',
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Payment method validated', {
+          description: 'Debit order is now active and ready for billing',
+        });
+        fetchPaymentMethodStatus();
+      } else {
+        toast.error('Failed to approve validation', {
+          description: result.error || 'Please try again',
+        });
+      }
+    } catch (err) {
+      console.error('Error approving validation:', err);
+      toast.error('Network error', {
+        description: 'Failed to approve payment method validation',
+      });
+    } finally {
+      setApprovingValidation(false);
     }
   };
 
@@ -568,8 +603,32 @@ export function PaymentMethodStatus({
             Refresh Status
           </Button>
 
+          {/* Approve Validation - for when NetCash 102 Validation email is received */}
+          {paymentMethod.status === 'pending' && (
+            <Button
+              size="sm"
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={approveValidation}
+              disabled={approvingValidation}
+              title="Use this when you receive the NetCash '102 Validation return' email confirming successful bank validation"
+            >
+              {approvingValidation ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Approving...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Approve Validation
+                </>
+              )}
+            </Button>
+          )}
+
           {/* Resend Mandate - show for pending/sent/resent statuses */}
-          {paymentMethod.status === 'pending' && emandateRequest && 
+          {paymentMethod.status === 'pending' && emandateRequest &&
            ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
             <Button
               size="sm"
