@@ -143,11 +143,9 @@ const navigationSections: NavSection[] = [
       },
       {
         name: 'Orders',
+        href: '/admin/orders',
         icon: ShoppingCart,
-        children: [
-          { name: 'All Orders', href: '/admin/orders', icon: List },
-          { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar },
-        ]
+        description: 'Manage customer orders'
       },
       {
         name: 'Field Operations',
@@ -155,7 +153,8 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'Dashboard', href: '/admin/field-ops', icon: LayoutDashboard },
           { name: 'Technicians', href: '/admin/field-ops/technicians', icon: Users },
-          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase }
+          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase },
+          { name: 'Installation Schedule', href: '/admin/orders/installations', icon: Calendar }
         ]
       },
       {
