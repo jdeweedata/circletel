@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,29 +48,56 @@ import {
 } from '@/lib/types/technician-tracking';
 
 export default function FieldOpsPage() {
+  const router = useRouter();
   const [data, setData] = useState<AdminFieldOpsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTechnician, setSelectedTechnician] = useState<string | null>(null);
+  const [authError, setAuthError] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/field-ops');
+      
+      if (response.status === 401) {
+        stopPolling();
+        setAuthError(true);
+        router.push('/admin/login');
+        return;
+      }
+      
+      if (response.status === 403) {
+        stopPolling();
+        setAuthError(true);
+        toast.error('Admin access required');
+        return;
+      }
+      
       if (!response.ok) throw new Error('Failed to fetch data');
       const result = await response.json();
       setData(result);
     } catch (err) {
-      toast.error('Failed to load field operations data');
+      if (!authError) {
+        toast.error('Failed to load field operations data');
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [stopPolling, router, authError]);
 
   useEffect(() => {
     fetchData();
     // Refresh every 30 seconds
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+    intervalRef.current = setInterval(fetchData, 30000);
+    return () => stopPolling();
+  }, [fetchData, stopPolling]);
 
   if (loading) {
     return (
