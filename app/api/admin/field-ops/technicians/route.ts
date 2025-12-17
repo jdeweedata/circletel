@@ -5,33 +5,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getTechnicians, createTechnician } from '@/lib/services/technician-service';
 import { CreateTechnicianInput } from '@/lib/types/technician-tracking';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Verify admin access
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin (checks Authorization header first, then cookies)
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
-    
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('email', user.email)
-      .eq('is_active', true)
-      .single();
-    
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-    
+
     const technicians = await getTechnicians();
-    
+
     return NextResponse.json(technicians);
   } catch (error) {
     console.error('[Admin Technicians API] Error:', error);
@@ -44,27 +31,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    
-    // Verify admin access
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin (checks Authorization header first, then cookies)
+    const authResult = await authenticateAdmin(request);
+    if (!authResult.success) {
+      return authResult.response;
     }
-    
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id, is_active')
-      .eq('email', user.email)
-      .eq('is_active', true)
-      .single();
-    
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-    
+
     const body: CreateTechnicianInput = await request.json();
-    
+
     // Validate required fields
     if (!body.first_name || !body.last_name || !body.phone) {
       return NextResponse.json(
@@ -72,9 +46,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const technician = await createTechnician(body);
-    
+
     return NextResponse.json(technician, { status: 201 });
   } catch (error) {
     console.error('[Admin Technicians API] Error:', error);
