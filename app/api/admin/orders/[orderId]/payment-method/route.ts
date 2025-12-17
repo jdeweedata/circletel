@@ -54,29 +54,50 @@ export async function GET(
       console.error('Error fetching emandate request:', emandateError);
     }
 
+    // Helper function to generate signed URL for mandate PDFs in Supabase storage
+    const getSignedPdfUrl = async (pdfLink: string | null): Promise<string | null> => {
+      if (!pdfLink) return null;
+
+      // Check if it's a Supabase storage path
+      if (pdfLink.startsWith('mandate-documents/')) {
+        const storagePath = pdfLink.replace('mandate-documents/', '');
+        const { data: urlData } = await supabase.storage
+          .from('mandate-documents')
+          .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
+        return urlData?.signedUrl || null;
+      }
+
+      // Return as-is if it's already a full URL
+      return pdfLink;
+    };
+
     // If we have an eMandate request, use that data
     if (emandateRequest) {
       const pm = emandateRequest.payment_methods;
-      
+
+      // Get signed URL for the mandate PDF
+      const pdfLink = pm?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link;
+      const signedPdfUrl = await getSignedPdfUrl(pdfLink);
+
       const transformedPaymentMethod = {
         id: pm?.id || emandateRequest.payment_method_id,
         method_type: 'bank_account',
         status: pm?.status || 'pending',
-        
+
         // Bank account details from payment_methods or emandate postback
         bank_name: pm?.bank_name || emandateRequest.postback_data?.BankName || null,
         bank_account_name: pm?.bank_account_name || emandateRequest.postback_data?.BankAccountName || null,
         bank_account_number_masked: pm?.bank_account_number_masked || emandateRequest.postback_data?.BankAccountNo || null,
         bank_account_type: pm?.bank_account_type || 'cheque',
         branch_code: pm?.branch_code || emandateRequest.postback_data?.BranchCode || null,
-        
+
         // Mandate details
         mandate_amount: pm?.mandate_amount || emandateRequest.mandate_amount,
         mandate_frequency: 'monthly',
         mandate_debit_day: emandateRequest.billing_day || pm?.mandate_debit_day || 25,
         mandate_signed_at: pm?.mandate_signed_at || emandateRequest.signed_at,
-        netcash_mandate_pdf_link: pm?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link,
-        
+        netcash_mandate_pdf_link: signedPdfUrl,
+
         created_at: pm?.created_at || emandateRequest.created_at,
       };
 
