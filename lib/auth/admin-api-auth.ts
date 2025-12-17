@@ -51,20 +51,36 @@ export type AuthResult = AuthSuccess | AuthFailure;
 
 /**
  * Authenticate an admin user for API requests
- * Checks both Supabase auth session and admin_users table
+ * Checks Authorization header first, then falls back to cookies
  */
 export async function authenticateAdmin(request: NextRequest): Promise<AuthResult> {
   try {
-    // Use session client to read cookies (NOT service role client)
-    const supabaseSession = await createClientWithSession();
+    let user: User | null = null;
 
-    // Get user from session cookies
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseSession.auth.getUser();
+    // First, check for Authorization header (Bearer token from localStorage)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      // Use service role client to verify the token
+      const supabaseAdmin = await createClient();
+      const { data: { user: tokenUser }, error: tokenError } = await supabaseAdmin.auth.getUser(token);
 
-    if (authError || !user) {
+      if (!tokenError && tokenUser) {
+        user = tokenUser;
+      }
+    }
+
+    // Fall back to cookie-based session if no valid token
+    if (!user) {
+      const supabaseSession = await createClientWithSession();
+      const { data: { user: sessionUser }, error: authError } = await supabaseSession.auth.getUser();
+
+      if (!authError && sessionUser) {
+        user = sessionUser;
+      }
+    }
+
+    if (!user) {
       return {
         success: false,
         response: NextResponse.json(

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { adminFetch } from '@/lib/auth/admin-api-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,22 +65,23 @@ export default function FieldOpsPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/field-ops');
-      
+      // Use adminFetch to automatically include Authorization header
+      const response = await adminFetch('/api/admin/field-ops');
+
       if (response.status === 401) {
         stopPolling();
         setAuthError(true);
         router.push('/admin/login');
         return;
       }
-      
+
       if (response.status === 403) {
         stopPolling();
         setAuthError(true);
         toast.error('Admin access required');
         return;
       }
-      
+
       if (!response.ok) throw new Error('Failed to fetch data');
       const result = await response.json();
       setData(result);
