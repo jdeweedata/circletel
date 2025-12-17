@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
+import { OrderCreatedBanner } from '@/components/order/OrderCreatedBanner';
+import { ErrorRecoveryBanner, ErrorType } from '@/components/order/ErrorRecoveryBanner';
 import { toast } from 'sonner';
 import {
   CreditCard,
@@ -23,6 +25,7 @@ import {
   saveOrderData,
   recordPaymentAttempt,
   saveOrderId,
+  getRetryInfo,
 } from '@/lib/payment/payment-persistence';
 
 export default function PaymentPage() {
@@ -31,6 +34,21 @@ export default function PaymentPage() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<ErrorType | undefined>(undefined);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Track created order for display
+  const [createdOrder, setCreatedOrder] = useState<{
+    orderNumber: string;
+    paymentReference: string;
+    orderId: string;
+  } | null>(null);
+
+  // Load retry count on mount
+  useEffect(() => {
+    const retryInfo = getRetryInfo();
+    setRetryCount(retryInfo.count);
+  }, []);
 
   // Extract order data from context
   const { coverage, package: packageData, account } = state.orderData;
@@ -185,6 +203,16 @@ export default function PaymentPage() {
       // Save order ID for tracking
       saveOrderId(order.id);
 
+      // CX Improvement: Show order number immediately after creation
+      setCreatedOrder({
+        orderNumber: order.order_number,
+        paymentReference: order.payment_reference,
+        orderId: order.id,
+      });
+
+      // Brief delay to let user see the order number
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Step 2: Initiate Netcash payment
       // Note: Charging R1.00 for payment method validation only
       // The actual package fee will be billed separately via subscription
@@ -222,19 +250,86 @@ export default function PaymentPage() {
       console.error('Payment initiation error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
 
-      // Record payment attempt
-      recordPaymentAttempt('payment_failed', errorMessage);
+      // Detect error type for better UX
+      let detectedErrorType: ErrorType = 'unknown';
+      const errorLower = errorMessage.toLowerCase();
+      if (errorLower.includes('network') || errorLower.includes('fetch')) {
+        detectedErrorType = 'network_error';
+      } else if (errorLower.includes('missing') || errorLower.includes('required')) {
+        detectedErrorType = 'validation_error';
+      } else if (errorLower.includes('order') && errorLower.includes('create')) {
+        detectedErrorType = 'order_creation_failed';
+      } else if (errorLower.includes('payment') || errorLower.includes('declined')) {
+        detectedErrorType = 'payment_failed';
+      }
+
+      // Record payment attempt and update retry count
+      const retryInfo = recordPaymentAttempt(detectedErrorType, errorMessage);
+      setRetryCount(retryInfo.count);
 
       // Update state
       setError(errorMessage);
+      setErrorType(detectedErrorType);
       setIsProcessing(false);
 
-      toast.error('Payment initiation failed. Please try again.');
+      // Only show toast for first error, use banner for subsequent
+      if (retryInfo.count === 1) {
+        toast.error('Payment initiation failed. See details below.');
+      }
     }
   };
 
   const handleBack = () => {
     router.push('/order/service-address');
+  };
+
+  // Error recovery handlers
+  const handleRetry = () => {
+    setError(null);
+    setErrorType(undefined);
+    handlePayment();
+  };
+
+  const handleContactSupport = () => {
+    // Open phone dialer or support modal
+    window.location.href = 'tel:0870876305';
+  };
+
+  const handleSaveForLater = async () => {
+    if (!createdOrder) return;
+
+    try {
+      // The order is already saved in the database
+      // Just notify the user
+      toast.success(
+        `Order ${createdOrder.orderNumber} saved. We'll email you a link to complete payment.`,
+        { duration: 5000 }
+      );
+
+      // Redirect to home after delay
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+    } catch (err) {
+      toast.error('Failed to save order. Please try again.');
+    }
+  };
+
+  const handleGoBackToFix = () => {
+    // Determine which step to go back to based on error
+    if (errorType === 'validation_error') {
+      if (error?.toLowerCase().includes('package')) {
+        router.push('/order/packages');
+      } else if (error?.toLowerCase().includes('account') || error?.toLowerCase().includes('email')) {
+        router.push('/order/account');
+      } else if (error?.toLowerCase().includes('address')) {
+        router.push('/order/service-address');
+      } else {
+        router.push('/order/service-address');
+      }
+    } else {
+      router.push('/order/service-address');
+    }
   };
 
   return (
@@ -282,21 +377,28 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              {/* Error Display */}
+              {/* Order Created Banner - CX Improvement #1 */}
+              {createdOrder && !error && (
+                <OrderCreatedBanner
+                  orderNumber={createdOrder.orderNumber}
+                  paymentReference={createdOrder.paymentReference}
+                  customerEmail={account?.email}
+                />
+              )}
+
+              {/* Error Recovery Banner - CX Improvement #2 */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-red-900 mb-1">
-                        Payment Failed
-                      </p>
-                      <p className="text-xs text-red-700">
-                        {error}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <ErrorRecoveryBanner
+                  error={error}
+                  errorType={errorType}
+                  orderNumber={createdOrder?.orderNumber}
+                  retryCount={retryCount}
+                  onRetry={handleRetry}
+                  onContactSupport={handleContactSupport}
+                  onSaveForLater={createdOrder ? handleSaveForLater : undefined}
+                  onGoBack={handleGoBackToFix}
+                  className="mb-6"
+                />
               )}
 
               {/* Order Summary */}
@@ -482,8 +584,8 @@ export default function PaymentPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Need help? Contact us at{' '}
-              <a href="tel:0877772473" className="text-circleTel-orange hover:underline font-medium">
-                087 777 2473
+              <a href="tel:0870876305" className="text-circleTel-orange hover:underline font-medium">
+                087 087 6305
               </a>
             </p>
           </div>
