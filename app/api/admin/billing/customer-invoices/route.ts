@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
@@ -21,11 +22,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Use session-aware client to get authenticated user
-    const sessionClient = await createClientWithSession();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    // Check for Authorization header first (admin panel uses this)
+    const authHeader = request.headers.get('authorization');
+    let user = null;
 
-    if (authError || !user) {
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const supabaseAuth = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data } = await supabaseAuth.auth.getUser(token);
+      user = data.user;
+    }
+
+    // Fallback to cookie-based session
+    if (!user) {
+      const sessionClient = await createClientWithSession();
+      const { data } = await sessionClient.auth.getUser();
+      user = data.user;
+    }
+
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
