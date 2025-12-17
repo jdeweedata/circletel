@@ -204,7 +204,7 @@ export default function BusinessPage() {
               </div>
 
               <div className="text-3xl font-bold mb-2">From R3,000<span className="text-lg font-normal text-gray-600">/month</span></div>
-              <p className="text-sm text-gray-500 mb-6">50Mbps starting package (excl. VAT)</p>
+              <p className="text-sm text-gray-500 mb-6">50Mbps starting package (incl. VAT)</p>
 
               <Link
                 href="/quotes/request"
@@ -242,7 +242,7 @@ export default function BusinessPage() {
               </div>
 
               <div className="text-3xl font-bold mb-2">From R1,500<span className="text-lg font-normal text-gray-600">/month</span></div>
-              <p className="text-sm text-gray-500 mb-6">20Mbps starting package (excl. VAT)</p>
+              <p className="text-sm text-gray-500 mb-6">20Mbps starting package (incl. VAT)</p>
 
               <Link
                 href="/connectivity/fixed-wireless"

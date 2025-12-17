@@ -194,7 +194,7 @@ export default function CommissionTiersPage() {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="monthlyValue">Monthly Package Value (excl. VAT)</Label>
+              <Label htmlFor="monthlyValue">Monthly Package Value (incl. VAT)</Label>
               <div className="flex items-center space-x-2 mt-1">
                 <span className="text-gray-600">R</span>
                 <Input
@@ -248,7 +248,7 @@ export default function CommissionTiersPage() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">Your Commission (excl. VAT)</p>
+                  <p className="text-sm text-gray-600">Your Commission (incl. VAT)</p>
                   <p className="text-3xl font-bold text-green-700 mt-1">
                     {formatCurrency(calculation.partnerCommission)}
                   </p>

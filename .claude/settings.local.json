@@ -143,7 +143,17 @@
       "Bash(app/admin/integrations/interstellio/ )",
       "Bash(components/admin/interstellio/ )",
       "Bash(docs/api/INTERSTELLIO_API.md )",
-      "Bash(app/api/admin/customers/[id]/services/route.ts)"
+      "Bash(app/api/admin/customers/[id]/services/route.ts)",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__new_page",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(netstat:*)",
+      "Bash(exit 0)",
+      "Bash(PORT=3001 npm run dev:*)",
+      "mcp__chrome-devtools__resize_page",
+      "mcp__supabase__list_branches",
+      "Bash(timeout /t 10 /nobreak)",
+      "mcp__chrome-devtools__close_page"
     ],
     "deny": [],
     "ask": []

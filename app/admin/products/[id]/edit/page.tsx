@@ -557,7 +557,7 @@ export default function EditProductPage() {
                     Selling Price
                   </CardTitle>
                   <CardDescription>
-                    Monthly recurring fee (excl. VAT) - VAT will be calculated automatically
+                    Monthly recurring fee (incl. VAT)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

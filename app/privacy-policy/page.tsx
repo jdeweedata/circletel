@@ -18,7 +18,7 @@ const PrivacyPolicy = () => {
 
               <div className="prose max-w-none">
                 <p className="text-lg text-circleTel-secondaryNeutral mb-8">
-                  <strong>Last updated:</strong> September 2024
+                  <strong>Last updated:</strong> December 2024
                 </p>
 
                 <Card className="mb-8">
@@ -117,35 +117,81 @@ const PrivacyPolicy = () => {
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">6. Cookies and Tracking Technologies</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">6. Third-Party Services</h2>
+                    <p className="text-circleTel-secondaryNeutral mb-4">
+                      We use trusted third-party services to provide and improve our platform. These services may process your data as described below:
+                    </p>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Google Services</h3>
+                        <p className="text-circleTel-secondaryNeutral mb-2">
+                          CircleTel's use and transfer of information received from Google APIs adheres to the{' '}
+                          <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-circleTel-orange hover:underline">
+                            Google API Services User Data Policy
+                          </a>, including the Limited Use requirements.
+                        </p>
+                        <ul className="list-disc list-inside text-circleTel-secondaryNeutral space-y-2 ml-4">
+                          <li>
+                            <strong>Google Sign-In:</strong> When you choose to sign in with Google, we access your email address and display name solely to create and manage your CircleTel account. We do not access your Google contacts, calendar, or any other Google services.
+                          </li>
+                          <li>
+                            <strong>Google Maps &amp; Places:</strong> We use Google Maps to verify your service address and check fibre/wireless coverage availability. Your address is sent to Google's geocoding service to convert it to geographic coordinates. This data is used only for coverage verification and is not stored beyond what is necessary for service delivery.
+                          </li>
+                        </ul>
+                        <p className="text-circleTel-secondaryNeutral mt-2">
+                          For more information about how Google handles your data, please review{' '}
+                          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-circleTel-orange hover:underline">
+                            Google's Privacy Policy
+                          </a>.
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Payment Processing</h3>
+                        <p className="text-circleTel-secondaryNeutral">
+                          We use NetCash, a South African payment gateway, to process payments securely. Your payment information is transmitted directly to NetCash and is not stored on our servers. NetCash is PCI-DSS compliant.
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-semibold text-circleTel-darkNeutral mb-2">Authentication &amp; Database</h3>
+                        <p className="text-circleTel-secondaryNeutral">
+                          We use Supabase for secure user authentication and data storage. Your account credentials are encrypted and stored securely in compliance with industry standards.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">7. Cookies and Tracking Technologies</h2>
                     <p className="text-circleTel-secondaryNeutral mb-4">
                       We use cookies and similar technologies to improve your browsing experience, analyze website traffic, and personalize content. You can control cookie preferences through your browser settings.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">7. Data Retention</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">8. Data Retention</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       We retain your personal information for as long as necessary to fulfill the purposes outlined in this policy, comply with legal obligations, resolve disputes, and enforce our agreements. Specific retention periods may vary based on the type of information and applicable legal requirements.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">8. International Data Transfers</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">9. International Data Transfers</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       Your information may be transferred to and processed in countries other than South Africa. We ensure appropriate safeguards are in place to protect your information in accordance with applicable data protection laws.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">9. Changes to This Policy</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">10. Changes to This Policy</h2>
                     <p className="text-circleTel-secondaryNeutral">
                       We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on our website and updating the "Last updated" date. Your continued use of our services after such changes constitutes acceptance of the updated policy.
                     </p>
                   </section>
 
                   <section>
-                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">10. Contact Information</h2>
+                    <h2 className="text-2xl font-bold text-circleTel-darkNeutral mb-4">11. Contact Information</h2>
                     <Card>
                       <CardContent className="p-6">
                         <p className="text-circleTel-secondaryNeutral mb-4">

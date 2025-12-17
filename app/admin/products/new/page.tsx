@@ -419,7 +419,7 @@ export default function NewProduct() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Monthly Price (excl. VAT)</Label>
+                <Label htmlFor="price">Monthly Price (incl. VAT)</Label>
                 <Input
                   id="price"
                   value={formData.price}
@@ -429,7 +429,7 @@ export default function NewProduct() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="setup_fee">Setup Fee (excl. VAT)</Label>
+                <Label htmlFor="setup_fee">Setup Fee (incl. VAT)</Label>
                 <Input
                   id="setup_fee"
                   value={formData.setup_fee}

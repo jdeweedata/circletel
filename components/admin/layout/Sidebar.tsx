@@ -120,6 +120,17 @@ const navigationSections = [
         description: 'Manage customer accounts'
       },
       {
+        name: 'B2B Customers',
+        icon: Building2,
+        description: 'Business customer journey',
+        children: [
+          { name: 'All B2B Customers', href: '/admin/b2b-customers', icon: Building2 },
+          { name: 'Site Details', href: '/admin/b2b-customers/site-details', icon: MapPin },
+          { name: 'Journey Overview', href: '/admin/b2b-customers?view=journey', icon: TrendingUp },
+          { name: 'Blocked', href: '/admin/b2b-customers?status=blocked', icon: AlertCircle }
+        ]
+      },
+      {
         name: 'Suppliers',
         icon: Truck,
         children: [
