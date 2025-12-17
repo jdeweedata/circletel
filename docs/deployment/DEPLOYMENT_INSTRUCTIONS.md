@@ -3,7 +3,7 @@
 ## ✅ Current Status
 
 ### What's Working:
-- ✅ **Resend API**: Configured with key `re_6iZ9mzS5_F4mjSkQYHyYP6teateSeknUV`
+- ✅ **Resend API**: Configured with key from environment variables
 - ✅ **Domain Verified**: `notifications.circletelsa.co.za` is fully verified
 - ✅ **Test Email**: Successfully sent email ID `d2f1abbf-dbb9-462f-9ce8-e7b5121b1469`
 - ✅ **Form Integration**: UI components and notification preferences ready
@@ -37,7 +37,7 @@ Since the project is currently in read-only mode, you'll need to deploy the Edge
 In your Supabase Dashboard → Settings → Edge Functions → Environment Variables:
 
 ```env
-RESEND_API_KEY=re_6iZ9mzS5_F4mjSkQYHyYP6teateSeknUV
+RESEND_API_KEY=your_resend_api_key_here
 CIRCLETEL_DOMAIN=notifications.circletelsa.co.za
 UNJANI_TEAM_EMAILS=unjani-team@notifications.circletelsa.co.za,rollout@notifications.circletelsa.co.za
 UNJANI_SUPPORT_EMAIL=unjani@notifications.circletelsa.co.za
@@ -87,7 +87,7 @@ supabase functions deploy send-audit-notification
 supabase functions deploy unjani-form-submission
 
 # Set environment variables
-supabase secrets set RESEND_API_KEY=re_6iZ9mzS5_F4mjSkQYHyYP6teateSeknUV
+supabase secrets set RESEND_API_KEY=your_resend_api_key_here
 supabase secrets set CIRCLETEL_DOMAIN=notifications.circletelsa.co.za
 supabase secrets set UNJANI_TEAM_EMAILS=unjani-team@notifications.circletelsa.co.za,rollout@notifications.circletelsa.co.za
 ```

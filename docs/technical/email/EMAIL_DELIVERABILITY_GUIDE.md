@@ -46,7 +46,7 @@ Your email ending up in the junk folder is **completely expected** for a new dom
 ### 3. Monitor Email Health
 ```bash
 # Check your domain reputation (periodically)
-curl -H "Authorization: Bearer re_6iZ9mzS5_F4mjSkQYHyYP6teateSeknUV" \
+curl -H "Authorization: Bearer $RESEND_API_KEY" \
   https://api.resend.com/domains/notifications.circletelsa.co.za
 ```
 

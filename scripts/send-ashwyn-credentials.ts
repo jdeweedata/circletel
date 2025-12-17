@@ -75,9 +75,14 @@ async function sendSMS(phone: string, isTest: boolean = false) {
 async function sendEmail() {
   console.log('\n=== Sending Email ===');
 
-  // Use the correct API key and domain
-  const apiKey = 're_6iZ9mzS5_F4mjSkQYHyYP6teateSeknUV';
-  const fromEmail = 'noreply@notify.circletel.co.za';
+  // Use the API key from environment variables
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@notify.circletel.co.za';
+  
+  if (!apiKey) {
+    console.error('RESEND_API_KEY not configured');
+    return false;
+  }
 
   const emailHtml = `
 <!DOCTYPE html>
