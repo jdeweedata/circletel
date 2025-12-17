@@ -13,9 +13,11 @@ Complete guide for using the new Claude Code skills in the CircleTel project.
 5. [Rules Organizer](#3-rules-organizer)
 6. [Stats Tracker](#4-stats-tracker)
 7. [Screenshot Analyzer](#5-screenshot-analyzer)
-8. [Daily Workflows](#daily-workflows)
-9. [Best Practices](#best-practices)
-10. [Troubleshooting](#troubleshooting)
+8. [Skill Creator](#6-skill-creator)
+9. [Refactor Agent](#7-refactor-agent)
+10. [Daily Workflows](#daily-workflows)
+11. [Best Practices](#best-practices)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -73,6 +75,8 @@ claude
 | **rules-organizer** | Modular coding standards | `.claude/rules/` |
 | **stats-tracker** | Monitor productivity | `/stats`, streaks |
 | **screenshot-analyzer** | UI debugging | Accurate coordinates |
+| **skill-creator** | Scaffold new skills | Templates, structure |
+| **refactor** | Code quality analysis | Tech debt, patterns |
 
 ### How Skills Activate
 
@@ -93,6 +97,12 @@ You: "How much have I used Claude this week?"
 
 You: [Paste screenshot] "What's wrong with this button?"
 → screenshot-analyzer activates
+
+You: "I want to create a new skill for database queries"
+→ skill-creator activates
+
+You: "Review this module for technical debt and refactoring opportunities"
+→ refactor activates
 ```
 
 ---
@@ -651,6 +661,162 @@ git commit -m "fix: payment timeout issue"
 - Note viewport dimensions
 - Prefer data-testid selectors
 - Document coordinate usage
+
+### Skill Creation
+- Define clear activation triggers
+- Include reusable templates
+- Document CircleTel-specific patterns
+- Add validation checklists
+
+---
+
+## 6. Skill Creator
+
+**Purpose**: Scaffold new Claude Code skills with proper structure and templates.
+
+### Quick Start
+
+```bash
+# Create a new skill
+mkdir -p .claude/skills/my-skill-name
+
+# Create SKILL.md using the template
+# See skill-creator/SKILL.md for full template
+```
+
+### Skill Structure
+
+```
+.claude/skills/
+└── my-skill-name/
+    └── SKILL.md          # Required: Main skill definition
+    ├── templates/        # Optional: Reusable templates
+    ├── examples/         # Optional: Usage examples
+    └── checklists/       # Optional: Workflow checklists
+```
+
+### SKILL.md Format
+
+```markdown
+---
+name: My Skill Name
+description: What this skill does and when to use it
+version: 1.0.0
+dependencies: none
+---
+
+# My Skill Name
+
+[Introduction explaining the skill's purpose]
+
+## When This Skill Activates
+
+This skill automatically activates when you:
+- [Trigger scenario 1]
+- [Trigger scenario 2]
+
+**Keywords**: keyword1, keyword2, keyword3
+
+## Core Content
+
+[Main instructions, workflows, patterns]
+
+## Templates
+
+[Reusable templates]
+
+## Best Practices
+
+[Guidelines and recommendations]
+```
+
+### Skill Categories
+
+| Category | Use For | Example |
+|----------|---------|---------|
+| **Debugging** | Troubleshooting specific systems | bug-fixing |
+| **Generation** | Creating code/files from templates | api-route-generator |
+| **Workflow** | Multi-step processes | database-migration |
+| **Integration** | External API/service helpers | zoho-integration |
+
+### Best Practices
+
+1. **Clear triggers**: Specific keywords and scenarios
+2. **Copy-paste ready**: Templates that work immediately
+3. **Project context**: CircleTel-specific patterns and files
+4. **Validation**: Checklists to verify completion
+
+---
+
+## 7. Refactor Agent
+
+**Purpose**: Analyze codebases to identify technical debt, performance bottlenecks, and architectural improvements with prioritized, actionable recommendations.
+
+### Quick Start
+
+```
+# Full module analysis
+"Analyze app/admin/ for refactoring opportunities"
+
+# Pre-feature analysis
+"I'm about to add payment retry logic. Analyze lib/payment/ first."
+
+# Quick smell check
+"Quick refactor check on these files: [file1.ts, file2.ts]"
+```
+
+### Analysis Categories
+
+| Category | What to Look For |
+|----------|------------------|
+| **Duplication** | Copy-paste code, repeated patterns |
+| **Complexity** | Deep nesting, long functions (>50 lines) |
+| **Coupling** | Circular dependencies, feature envy |
+| **Performance** | N+1 queries, missing caching |
+| **Dead code** | Unused functions, orphaned files |
+| **Testing gaps** | Critical paths without tests |
+
+### Output Format
+
+The skill produces structured reports with:
+
+1. **Executive Summary**: Health assessment, biggest risk, top recommendation
+2. **Critical Issues**: Fix now (with effort + risk estimates)
+3. **High-Value Improvements**: Next sprint targets
+4. **Technical Debt Backlog**: Track for future
+5. **Not Recommended**: What was excluded and why
+
+### Key Constraints
+
+- **Preserve behavior**: Refactors only, not feature changes
+- **Size estimates required**: Every recommendation includes hours/days
+- **Risk levels**: Safe / Moderate / Significant
+- **Leave working code alone**: Ugly but stable = low priority
+
+### Workflow Templates
+
+**Full Codebase Analysis**:
+```
+Analyze the codebase for refactoring opportunities:
+Focus: [area]
+Team size: [N]
+Upcoming work: [features]
+```
+
+**Pre-Feature Analysis**:
+```
+Before implementing [feature], analyze [modules] for:
+- Tech debt that will slow me down
+- Refactoring to do first vs. after
+- Testing gaps to address
+```
+
+### Best Practices
+
+1. **ROI over perfection**: Simplest fix that works
+2. **Test before touching**: No tests = write tests first
+3. **Batch related changes**: Multiple issues = one PR
+4. **Respect existing patterns**: Consistency often beats "better"
 
 ---
 

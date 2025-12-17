@@ -4,6 +4,29 @@ import React, { useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * Suppress Google Maps Places API deprecation warning.
+ * The Autocomplete API still works for existing customers and will continue to work.
+ * Migration to PlaceAutocompleteElement is planned for when the new API stabilizes.
+ */
+function suppressGoogleMapsDeprecationWarning() {
+  if (typeof window === 'undefined') return;
+  if ((window as { __gmapsWarningSuppressed?: boolean }).__gmapsWarningSuppressed) return;
+
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    const message = args[0];
+    if (
+      typeof message === 'string' &&
+      message.includes('google.maps.places.Autocomplete is not available to new customers')
+    ) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+  (window as { __gmapsWarningSuppressed?: boolean }).__gmapsWarningSuppressed = true;
+}
+
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string, placeDetails?: google.maps.places.PlaceResult) => void;
@@ -24,6 +47,9 @@ export function AddressAutocomplete({
   const [internalValue, setInternalValue] = React.useState(value);
 
   useEffect(() => {
+    // Suppress deprecation warning before loading Google Maps
+    suppressGoogleMapsDeprecationWarning();
+
     // Check if Google Maps API is already loaded
     if (typeof google !== 'undefined' && google.maps && google.maps.places) {
       initAutocomplete();

@@ -101,3 +101,5 @@ test-*.bat
 # Wappalyzer extension files
 wappalyzer*.js
 **/wappalyzer/**
+scripts/test-interstellio.ts
+scripts/get-interstellio-profiles.ts

@@ -237,6 +237,7 @@ const navigationSections = [
         icon: LinkIcon,
         children: [
           { name: 'Overview', href: '/admin/integrations', icon: LayoutDashboard },
+          { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: Radio },
           { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: Settings },
           { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: Zap },
           { name: 'API Health', href: '/admin/integrations/apis', icon: Activity },
