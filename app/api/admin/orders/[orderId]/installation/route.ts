@@ -41,7 +41,8 @@ export async function GET(
         *,
         technician:technicians(
           id,
-          name,
+          first_name,
+          last_name,
           email,
           phone
         )
@@ -71,9 +72,20 @@ export async function GET(
       );
     }
 
+    // Transform technician data to combine first_name and last_name
+    const transformedTask = {
+      ...task,
+      technician: task.technician ? {
+        id: task.technician.id,
+        name: `${task.technician.first_name || ''} ${task.technician.last_name || ''}`.trim(),
+        email: task.technician.email,
+        phone: task.technician.phone,
+      } : null,
+    };
+
     return NextResponse.json({
       success: true,
-      data: task,
+      data: transformedTask,
     });
   } catch (error: any) {
     console.error('Error fetching installation task:', error);
