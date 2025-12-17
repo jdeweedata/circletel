@@ -56,9 +56,28 @@ export async function GET(
       );
     }
 
+    // Generate signed URLs for mandate PDFs stored in Supabase
+    const paymentMethodsWithUrls = await Promise.all(
+      (paymentMethods || []).map(async (pm) => {
+        if (pm.netcash_mandate_pdf_link && pm.netcash_mandate_pdf_link.startsWith('mandate-documents/')) {
+          // It's a Supabase storage path, generate signed URL
+          const storagePath = pm.netcash_mandate_pdf_link.replace('mandate-documents/', '');
+          const { data: urlData } = await supabase.storage
+            .from('mandate-documents')
+            .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
+
+          return {
+            ...pm,
+            netcash_mandate_pdf_link: urlData?.signedUrl || pm.netcash_mandate_pdf_link,
+          };
+        }
+        return pm;
+      })
+    );
+
     return NextResponse.json({
       success: true,
-      data: paymentMethods || [],
+      data: paymentMethodsWithUrls,
     });
   } catch (error) {
     console.error('Error in payment-methods API:', error);
