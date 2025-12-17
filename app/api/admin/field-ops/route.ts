@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const { data: adminUser } = await supabase
       .from('admin_users')
       .select('id, is_active')
-      .eq('user_id', user.id)
+      .eq('email', user.email)
       .eq('is_active', true)
       .single();
     
