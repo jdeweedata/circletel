@@ -193,23 +193,79 @@ export async function getTodaysJobs(): Promise<FieldJobWithTechnician[]> {
 
 export async function createFieldJob(input: CreateFieldJobInput): Promise<FieldJob> {
   const supabase = await createClient();
-  
+
   const jobData: any = {
     ...input,
     status: input.assigned_technician_id ? 'assigned' : 'pending',
   };
-  
+
   if (input.assigned_technician_id) {
     jobData.assigned_at = new Date().toISOString();
   }
-  
+
   const { data, error } = await supabase
     .from('field_jobs')
     .insert(jobData)
     .select()
     .single();
-  
+
   if (error) throw new Error(`Failed to create field job: ${error.message}`);
+
+  // If this is for an order, also create installation_tasks entry and update order status
+  const isInstallationJob = input.job_type === 'fibre_installation' || input.job_type === 'wireless_installation';
+  if (input.order_id && isInstallationJob) {
+    // Get order details for installation task
+    const { data: order } = await supabase
+      .from('consumer_orders')
+      .select('first_name, last_name, email, phone, installation_address, suburb, city, province, postal_code, coordinates')
+      .eq('id', input.order_id)
+      .single();
+
+    if (order) {
+      // Create installation_tasks entry
+      const installationTaskData = {
+        order_id: input.order_id,
+        technician_id: input.assigned_technician_id || null,
+        scheduled_date: input.scheduled_date,
+        scheduled_time_slot: input.scheduled_time_start || null,
+        status: input.assigned_technician_id ? 'assigned' : 'pending',
+        installation_address: {
+          street: order.installation_address,
+          suburb: order.suburb,
+          city: order.city,
+          province: order.province,
+          postal_code: order.postal_code,
+          coordinates: order.coordinates,
+        },
+        customer_contact_name: `${order.first_name} ${order.last_name}`,
+        customer_contact_phone: order.phone,
+        customer_contact_email: order.email,
+      };
+
+      const { error: taskError } = await supabase
+        .from('installation_tasks')
+        .insert(installationTaskData);
+
+      if (taskError) {
+        console.error('Failed to create installation_tasks entry:', taskError);
+      }
+
+      // Update order status to installation_scheduled
+      const { error: orderError } = await supabase
+        .from('consumer_orders')
+        .update({
+          status: 'installation_scheduled',
+          installation_scheduled_date: input.scheduled_date,
+          installation_time_slot: input.scheduled_time_start || null,
+        })
+        .eq('id', input.order_id);
+
+      if (orderError) {
+        console.error('Failed to update order status:', orderError);
+      }
+    }
+  }
+
   return data;
 }
 

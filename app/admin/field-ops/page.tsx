@@ -23,6 +23,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
   Users,
   MapPin,
   Briefcase,
@@ -39,6 +48,13 @@ import {
   User,
   MapPinned,
   Zap,
+  Package,
+  Calendar,
+  CreditCard,
+  ChevronRight,
+  Search,
+  AlertCircle,
+  X,
 } from 'lucide-react';
 import {
   SharedPageHeader,
@@ -170,11 +186,401 @@ function TechnicianAvatar({ name, status }: { name: string; status: string }) {
   );
 }
 
+// Schedulable Order Interface
+interface SchedulableOrder {
+  id: string;
+  order_number: string;
+  status: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  installation_address: string;
+  suburb: string | null;
+  city: string | null;
+  province: string | null;
+  postal_code: string | null;
+  coordinates: { lat: number; lng: number } | null;
+  package_name: string;
+  package_speed: string;
+  package_price: number;
+  preferred_installation_date: string | null;
+  installation_scheduled_date: string | null;
+  special_instructions: string | null;
+  created_at: string;
+  has_installation_task: boolean;
+  full_address: string;
+  customer_name: string;
+}
+
+interface SchedulableOrdersData {
+  ready_to_schedule: SchedulableOrder[];
+  pending_payment: SchedulableOrder[];
+  already_scheduled: SchedulableOrder[];
+  total_schedulable: number;
+}
+
+// New Job Modal Component
+function NewJobModal({
+  open,
+  onOpenChange,
+  technicians,
+  onJobCreated,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  technicians: TechnicianWithStats[];
+  onJobCreated: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [ordersData, setOrdersData] = useState<SchedulableOrdersData | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<SchedulableOrder | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTimeSlot, setScheduledTimeSlot] = useState('');
+  const [selectedTechnician, setSelectedTechnicianId] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      fetchSchedulableOrders();
+    } else {
+      // Reset state when closing
+      setSelectedOrder(null);
+      setSearchQuery('');
+      setScheduledDate('');
+      setScheduledTimeSlot('');
+      setSelectedTechnicianId('');
+    }
+  }, [open]);
+
+  const fetchSchedulableOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await adminFetch('/api/admin/field-ops/schedulable-orders');
+      if (response.ok) {
+        const result = await response.json();
+        setOrdersData(result.data);
+      }
+    } catch (err) {
+      toast.error('Failed to load orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateJob = async () => {
+    if (!selectedOrder || !scheduledDate) {
+      toast.error('Please select an order and scheduled date');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const response = await adminFetch('/api/admin/field-ops/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: selectedOrder.id,
+          job_type: 'fibre_installation',
+          title: `Installation - ${selectedOrder.package_name}`,
+          description: `Install ${selectedOrder.package_name} for ${selectedOrder.customer_name}`,
+          address: selectedOrder.full_address,
+          latitude: selectedOrder.coordinates?.lat,
+          longitude: selectedOrder.coordinates?.lng,
+          customer_name: selectedOrder.customer_name,
+          customer_phone: selectedOrder.phone,
+          customer_email: selectedOrder.email,
+          scheduled_date: scheduledDate,
+          scheduled_time_start: scheduledTimeSlot || null,
+          assigned_technician_id: selectedTechnician || null,
+          priority: 'normal',
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Installation job created successfully');
+        onJobCreated();
+        onOpenChange(false);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Failed to create job');
+      }
+    } catch (err) {
+      toast.error('Failed to create job');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const filteredOrders = ordersData?.ready_to_schedule.filter(order => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      order.order_number.toLowerCase().includes(query) ||
+      order.customer_name.toLowerCase().includes(query) ||
+      order.full_address.toLowerCase().includes(query) ||
+      order.package_name.toLowerCase().includes(query)
+    );
+  }) || [];
+
+  const availableTechnicians = technicians.filter(t => t.status === 'available');
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="border-b pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-circleTel-orange/10 rounded-lg">
+              <Plus className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl">Create Installation Job</DialogTitle>
+              <DialogDescription>
+                Select an order to schedule for installation
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          {!selectedOrder ? (
+            // Order Selection View
+            <>
+              {/* Search */}
+              <div className="p-4 border-b bg-gray-50/50">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by order number, customer, address..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Orders List */}
+              <div className="flex-1 overflow-y-auto">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <RefreshCw className="h-6 w-6 animate-spin text-circleTel-orange" />
+                  </div>
+                ) : filteredOrders.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                    <Package className="h-12 w-12 text-gray-300 mb-3" />
+                    <p className="font-medium">No orders ready for scheduling</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {searchQuery ? 'Try a different search term' : 'All orders have been scheduled'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {filteredOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        onClick={() => setSelectedOrder(order)}
+                        className="p-4 hover:bg-gray-50 cursor-pointer transition-colors group"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-mono text-sm font-semibold text-gray-900">
+                                {order.order_number}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] ${
+                                  order.status === 'pending'
+                                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                    : 'bg-blue-50 text-blue-700 border-blue-200'
+                                }`}
+                              >
+                                {order.status.replace(/_/g, ' ')}
+                              </Badge>
+                            </div>
+                            <p className="font-medium text-gray-900">{order.customer_name}</p>
+                            <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{order.full_address}</span>
+                            </div>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Package className="h-3 w-3" />
+                                {order.package_name}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                {order.phone}
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-circleTel-orange transition-colors" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Pending Payment Orders */}
+              {ordersData && ordersData.pending_payment.length > 0 && (
+                <div className="border-t bg-amber-50/50 p-4">
+                  <div className="flex items-center gap-2 text-amber-700 mb-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {ordersData.pending_payment.length} order(s) pending payment setup
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-600">
+                    These orders cannot be scheduled until payment method is confirmed.
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            // Scheduling Form View
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Selected Order Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 border">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-sm font-semibold">{selectedOrder.order_number}</span>
+                      <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]">
+                        Selected
+                      </Badge>
+                    </div>
+                    <p className="font-medium text-gray-900">{selectedOrder.customer_name}</p>
+                    <p className="text-sm text-gray-500 mt-1">{selectedOrder.full_address}</p>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <span>{selectedOrder.package_name}</span>
+                      <span>{selectedOrder.package_speed}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedOrder(null)}
+                    className="h-8 w-8"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Scheduling Form */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="scheduled_date" className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      Installation Date *
+                    </Label>
+                    <Input
+                      id="scheduled_date"
+                      type="date"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="time_slot" className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-gray-500" />
+                      Time Slot
+                    </Label>
+                    <Select value={scheduledTimeSlot} onValueChange={setScheduledTimeSlot}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="08:00-10:00">08:00 - 10:00</SelectItem>
+                        <SelectItem value="10:00-12:00">10:00 - 12:00</SelectItem>
+                        <SelectItem value="12:00-14:00">12:00 - 14:00</SelectItem>
+                        <SelectItem value="14:00-16:00">14:00 - 16:00</SelectItem>
+                        <SelectItem value="16:00-18:00">16:00 - 18:00</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-gray-500" />
+                    Assign Technician
+                  </Label>
+                  {availableTechnicians.length > 0 ? (
+                    <Select value={selectedTechnician} onValueChange={setSelectedTechnicianId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select technician (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTechnicians.map((tech) => (
+                          <SelectItem key={tech.id} value={tech.id}>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                              {tech.full_name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg text-amber-700 text-sm">
+                      <AlertCircle className="h-4 w-4" />
+                      No technicians currently available
+                    </div>
+                  )}
+                </div>
+
+                {selectedOrder.special_instructions && (
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                    <p className="text-sm font-medium text-blue-900 mb-1">Special Instructions</p>
+                    <p className="text-sm text-blue-700">{selectedOrder.special_instructions}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {selectedOrder && (
+          <div className="border-t p-4 bg-gray-50 flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setSelectedOrder(null)}>
+              Back to Orders
+            </Button>
+            <Button
+              onClick={handleCreateJob}
+              disabled={!scheduledDate || creating}
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+            >
+              {creating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Installation Job
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function FieldOpsPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminFieldOpsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTechnician, setSelectedTechnician] = useState<string | null>(null);
+  const [newJobModalOpen, setNewJobModalOpen] = useState(false);
   const [authError, setAuthError] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -247,12 +653,23 @@ export default function FieldOpsPage() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+            <Button
+              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+              onClick={() => setNewJobModalOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Job
             </Button>
           </div>
         }
+      />
+
+      {/* New Job Modal */}
+      <NewJobModal
+        open={newJobModalOpen}
+        onOpenChange={setNewJobModalOpen}
+        technicians={technicians}
+        onJobCreated={fetchData}
       />
 
       {/* Stats Cards - Enhanced with gradients and better layout */}
@@ -594,7 +1011,11 @@ export default function FieldOpsPage() {
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all">
+                  <Button
+                    size="sm"
+                    className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all"
+                    onClick={() => setNewJobModalOpen(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     New Job
                   </Button>
