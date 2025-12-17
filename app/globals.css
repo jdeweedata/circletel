@@ -191,6 +191,35 @@
   .outline-button {
     @apply border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200;
   }
+
+  /* Global Dashboard Component Classes */
+  .dashboard-stat-card {
+    @apply border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30 transition-all duration-200;
+  }
+
+  .dashboard-action-card {
+    @apply border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30 transition-all duration-200 rounded-lg;
+  }
+
+  .dashboard-info-box-orange {
+    @apply bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4;
+  }
+
+  .dashboard-info-box-blue {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-4;
+  }
+
+  .dashboard-info-box-green {
+    @apply bg-green-50 border border-green-200 rounded-lg p-4;
+  }
+
+  .dashboard-nav-item-active {
+    @apply bg-circleTel-orange/10 text-circleTel-orange font-medium;
+  }
+
+  .dashboard-nav-item {
+    @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+  }
 }
 
 /* Wireless packages animations */

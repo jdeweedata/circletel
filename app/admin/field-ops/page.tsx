@@ -34,6 +34,11 @@ import {
   Phone,
   Eye,
 } from 'lucide-react';
+import {
+  SharedStatCard,
+  SharedPageHeader,
+  SharedEmptyStateInline,
+} from '@/components/shared/dashboard';
 import { toast } from 'sonner';
 import {
   AdminFieldOpsData,
@@ -116,91 +121,61 @@ export default function FieldOpsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Field Operations</h1>
-          <p className="text-gray-500">Manage technicians and field jobs</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Job
-          </Button>
-        </div>
-      </div>
+      <SharedPageHeader
+        title="Field Operations"
+        subtitle="Manage technicians and field jobs"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={fetchData}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+              <Plus className="h-4 w-4 mr-2" />
+              New Job
+            </Button>
+          </div>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.total_technicians}</p>
-                <p className="text-xs text-gray-500">Total Technicians</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />
-              <div>
-                <p className="text-2xl font-bold">{stats.available_technicians}</p>
-                <p className="text-xs text-gray-500">Available</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Navigation className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.on_job_technicians}</p>
-                <p className="text-xs text-gray-500">On Job</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-yellow-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.pending_jobs}</p>
-                <p className="text-xs text-gray-500">Pending Jobs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.in_progress_jobs}</p>
-                <p className="text-xs text-gray-500">In Progress</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">{stats.completed_today}</p>
-                <p className="text-xs text-gray-500">Completed Today</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats Cards - Using SharedStatCard with hover effects */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <SharedStatCard
+          title="Total Technicians"
+          value={stats.total_technicians}
+          icon={<Users className="h-4 w-4 text-blue-500" />}
+          href="/admin/field-ops/technicians"
+        />
+        <SharedStatCard
+          title="Available"
+          value={stats.available_technicians}
+          icon={<div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />}
+          subtitle="Ready to dispatch"
+        />
+        <SharedStatCard
+          title="On Job"
+          value={stats.on_job_technicians}
+          icon={<Navigation className="h-4 w-4 text-circleTel-orange" />}
+          subtitle="Currently working"
+        />
+        <SharedStatCard
+          title="Pending Jobs"
+          value={stats.pending_jobs}
+          icon={<Clock className="h-4 w-4 text-yellow-500" />}
+          href="/admin/field-ops/jobs"
+        />
+        <SharedStatCard
+          title="In Progress"
+          value={stats.in_progress_jobs}
+          icon={<Briefcase className="h-4 w-4 text-blue-500" />}
+          href="/admin/field-ops/jobs"
+        />
+        <SharedStatCard
+          title="Completed Today"
+          value={stats.completed_today}
+          icon={<CheckCircle2 className="h-4 w-4 text-green-500" />}
+          subtitle="Jobs finished"
+        />
       </div>
 
       {/* Main Content */}
@@ -215,23 +190,23 @@ export default function FieldOpsPage() {
         <TabsContent value="map">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Map */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Live Map</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Map integration coming soon</p>
-                    <p className="text-sm">Will display technician locations in real-time</p>
-                  </div>
+                <div className="h-[500px] bg-gray-50 rounded-lg flex items-center justify-center">
+                  <SharedEmptyStateInline
+                    title="Map integration coming soon"
+                    description="Will display technician locations in real-time"
+                    icon={MapPin}
+                  />
                 </div>
               </CardContent>
             </Card>
 
             {/* Technician List */}
-            <Card>
+            <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Technicians</CardTitle>
               </CardHeader>
@@ -275,11 +250,11 @@ export default function FieldOpsPage() {
 
         {/* Technicians Tab */}
         <TabsContent value="technicians">
-          <Card>
+          <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>All Technicians</CardTitle>
-                <Button size="sm">
+                <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Technician
                 </Button>
@@ -347,7 +322,7 @@ export default function FieldOpsPage() {
 
         {/* Jobs Tab */}
         <TabsContent value="jobs">
-          <Card>
+          <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Today's Jobs</CardTitle>
@@ -364,7 +339,7 @@ export default function FieldOpsPage() {
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button size="sm">
+                  <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
                     <Plus className="h-4 w-4 mr-2" />
                     New Job
                   </Button>
