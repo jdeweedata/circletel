@@ -41,10 +41,7 @@ export async function GET(
     // First, check for eMandate request for this order
     const { data: emandateRequest, error: emandateError } = await supabase
       .from('emandate_requests')
-      .select(`
-        *,
-        payment_methods (*)
-      `)
+      .select('*')
       .eq('order_id', orderId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -54,26 +51,52 @@ export async function GET(
       console.error('Error fetching emandate request:', emandateError);
     }
 
+    // Fetch payment method separately to avoid join issues
+    let paymentMethodData = null;
+    if (emandateRequest?.payment_method_id) {
+      const { data: pmData, error: pmError } = await supabase
+        .from('payment_methods')
+        .select('*')
+        .eq('id', emandateRequest.payment_method_id)
+        .single();
+
+      if (pmError) {
+        console.error('Error fetching payment method:', pmError);
+      } else {
+        paymentMethodData = pmData;
+      }
+    }
+
     // Helper function to generate signed URL for mandate PDFs in Supabase storage
     const getSignedPdfUrl = async (pdfLink: string | null): Promise<string | null> => {
       if (!pdfLink) return null;
 
-      // Check if it's a Supabase storage path
-      if (pdfLink.startsWith('mandate-documents/')) {
-        const storagePath = pdfLink.replace('mandate-documents/', '');
-        const { data: urlData } = await supabase.storage
-          .from('mandate-documents')
-          .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
-        return urlData?.signedUrl || null;
-      }
+      try {
+        // Check if it's a Supabase storage path
+        if (pdfLink.startsWith('mandate-documents/')) {
+          const storagePath = pdfLink.replace('mandate-documents/', '');
+          const { data: urlData, error: urlError } = await supabase.storage
+            .from('mandate-documents')
+            .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
 
-      // Return as-is if it's already a full URL
-      return pdfLink;
+          if (urlError) {
+            console.error('Error creating signed URL:', urlError);
+            return null;
+          }
+          return urlData?.signedUrl || null;
+        }
+
+        // Return as-is if it's already a full URL
+        return pdfLink;
+      } catch (err) {
+        console.error('Exception in getSignedPdfUrl:', err);
+        return null;
+      }
     };
 
     // If we have an eMandate request, use that data
     if (emandateRequest) {
-      const pm = emandateRequest.payment_methods;
+      const pm = paymentMethodData;
 
       // Get signed URL for the mandate PDF
       const pdfLink = pm?.netcash_mandate_pdf_link || emandateRequest.postback_mandate_pdf_link;

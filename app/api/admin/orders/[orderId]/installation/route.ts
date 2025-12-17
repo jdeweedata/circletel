@@ -34,19 +34,10 @@ export async function GET(
       }
     );
 
-    // Fetch installation task with technician details
+    // Fetch installation task (without technician join - no FK relationship exists)
     const { data: task, error } = await supabase
       .from('installation_tasks')
-      .select(`
-        *,
-        technician:technicians(
-          id,
-          first_name,
-          last_name,
-          email,
-          phone
-        )
-      `)
+      .select('*')
       .eq('order_id', orderId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -72,15 +63,29 @@ export async function GET(
       );
     }
 
-    // Transform technician data to combine first_name and last_name
+    // Fetch technician separately if technician_id exists
+    let technician = null;
+    if (task.technician_id) {
+      const { data: techData, error: techError } = await supabase
+        .from('technicians')
+        .select('id, first_name, last_name, email, phone')
+        .eq('id', task.technician_id)
+        .single();
+
+      if (!techError && techData) {
+        technician = {
+          id: techData.id,
+          name: `${techData.first_name || ''} ${techData.last_name || ''}`.trim(),
+          email: techData.email,
+          phone: techData.phone,
+        };
+      }
+    }
+
+    // Build transformed task
     const transformedTask = {
       ...task,
-      technician: task.technician ? {
-        id: task.technician.id,
-        name: `${task.technician.first_name || ''} ${task.technician.last_name || ''}`.trim(),
-        email: task.technician.email,
-        phone: task.technician.phone,
-      } : null,
+      technician,
     };
 
     return NextResponse.json({
