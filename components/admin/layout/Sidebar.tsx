@@ -55,6 +55,7 @@ import {
   RefreshCw,
   Truck,
   Box,
+  Briefcase,
 } from 'lucide-react';
 
 interface User {
@@ -68,8 +69,44 @@ interface SidebarProps {
   user: User;
 }
 
+// Type definitions for navigation items
+interface NavChild {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface NavItemWithHref {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  end?: boolean;
+  description?: string;
+  adminOnly?: boolean;
+}
+
+interface NavItemWithChildren {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children: NavChild[];
+  description?: string;
+  adminOnly?: boolean;
+}
+
+type NavItem = NavItemWithHref | NavItemWithChildren;
+
+interface NavSection {
+  label: string | null;
+  items: NavItem[];
+}
+
+// Type guard to check if item has children
+function hasChildren(item: NavItem): item is NavItemWithChildren {
+  return 'children' in item && Array.isArray(item.children);
+}
+
 // Navigation organized by category
-const navigationSections = [
+const navigationSections: NavSection[] = [
   {
     label: null, // No label for first section (Dashboard)
     items: [
@@ -199,6 +236,15 @@ const navigationSections = [
           { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: MapPin }
         ]
       },
+      {
+        name: 'Field Operations',
+        icon: Wrench,
+        children: [
+          { name: 'Dashboard', href: '/admin/field-ops', icon: LayoutDashboard },
+          { name: 'Technicians', href: '/admin/field-ops/technicians', icon: Users },
+          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase }
+        ]
+      },
     ]
   },
   {
@@ -304,8 +350,8 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     const expanded: string[] = [];
     navigationSections.forEach((section) => {
       section.items.forEach((item) => {
-        if (item.children) {
-          const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
+        if (hasChildren(item)) {
+          const isCurrentlyActive = item.children.some((child: NavChild) => pathname.startsWith(child.href));
           if (isCurrentlyActive) {
             expanded.push(item.name);
           }
@@ -313,8 +359,8 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
       });
     });
     adminNavigation.forEach((item) => {
-      if (item.children) {
-        const isCurrentlyActive = item.children.some((child) => pathname.startsWith(child.href));
+      if ('children' in item && item.children) {
+        const isCurrentlyActive = item.children.some((child: NavChild) => pathname.startsWith(child.href));
         if (isCurrentlyActive) {
           expanded.push(item.name);
         }
@@ -404,7 +450,7 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
             {/* Section Items */}
             {section.items.map((item) => (
               <div key={item.name}>
-                {item.children ? (
+                {hasChildren(item) ? (
                   <div className="space-y-1">
                     {/* Dropdown Header - Clickable */}
                     <Tooltip>
@@ -463,10 +509,10 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                        href={item.href!}
+                        href={item.href}
                         className={cn(
                           'flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all',
-                          isActiveLink(item.href!, item.end)
+                          isActiveLink(item.href, item.end)
                             ? 'bg-gray-100 text-gray-900 shadow-sm'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         )}
