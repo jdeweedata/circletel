@@ -33,11 +33,15 @@ import {
   Navigation,
   Phone,
   Eye,
+  Wrench,
+  TrendingUp,
+  Radio,
+  User,
+  MapPinned,
+  Zap,
 } from 'lucide-react';
 import {
-  SharedStatCard,
   SharedPageHeader,
-  SharedEmptyStateInline,
 } from '@/components/shared/dashboard';
 import { toast } from 'sonner';
 import {
@@ -52,6 +56,119 @@ import {
   PRIORITY_LABELS,
   PRIORITY_COLORS,
 } from '@/lib/types/technician-tracking';
+
+// Enhanced Stat Card Component
+interface EnhancedStatCardProps {
+  title: string;
+  value: number;
+  subtitle?: string;
+  icon: React.ReactNode;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'info';
+  href?: string;
+}
+
+function EnhancedStatCard({
+  title,
+  value,
+  subtitle,
+  icon,
+  trend,
+  trendValue,
+  variant = 'default',
+  href,
+}: EnhancedStatCardProps) {
+  const router = useRouter();
+
+  const variantStyles = {
+    default: 'bg-white border-gray-200 hover:border-gray-300',
+    primary: 'bg-gradient-to-br from-circleTel-orange/5 to-orange-50 border-circleTel-orange/20 hover:border-circleTel-orange/40',
+    success: 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200/50 hover:border-emerald-300',
+    warning: 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200/50 hover:border-amber-300',
+    info: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200/50 hover:border-blue-300',
+  };
+
+  const iconStyles = {
+    default: 'bg-gray-100 text-gray-600',
+    primary: 'bg-circleTel-orange/10 text-circleTel-orange',
+    success: 'bg-emerald-100 text-emerald-600',
+    warning: 'bg-amber-100 text-amber-600',
+    info: 'bg-blue-100 text-blue-600',
+  };
+
+  return (
+    <div
+      onClick={() => href && router.push(href)}
+      className={`
+        relative overflow-hidden rounded-xl border p-5
+        transition-all duration-300 ease-out
+        hover:shadow-lg hover:-translate-y-0.5
+        ${variantStyles[variant]}
+        ${href ? 'cursor-pointer' : ''}
+      `}
+    >
+      {/* Subtle pattern overlay */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      }} />
+
+      <div className="relative flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+            {title}
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900 tabular-nums">
+              {value}
+            </span>
+            {trend && trendValue && (
+              <span className={`text-xs font-medium flex items-center gap-0.5 ${
+                trend === 'up' ? 'text-emerald-600' : trend === 'down' ? 'text-red-500' : 'text-gray-500'
+              }`}>
+                <TrendingUp className={`h-3 w-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
+                {trendValue}
+              </span>
+            )}
+          </div>
+          {subtitle && (
+            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+          )}
+        </div>
+        <div className={`p-2.5 rounded-lg ${iconStyles[variant]}`}>
+          {icon}
+        </div>
+      </div>
+
+      {href && (
+        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Eye className="h-3 w-3 text-gray-400" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Technician Avatar Component
+function TechnicianAvatar({ name, status }: { name: string; status: string }) {
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const statusColors = {
+    available: 'ring-emerald-400 bg-emerald-500',
+    on_job: 'ring-circleTel-orange bg-circleTel-orange',
+    break: 'ring-amber-400 bg-amber-500',
+    offline: 'ring-gray-400 bg-gray-400',
+  };
+
+  return (
+    <div className="relative">
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-sm font-semibold shadow-md">
+        {initials}
+      </div>
+      <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-white ${statusColors[status as keyof typeof statusColors] || statusColors.offline}`} />
+    </div>
+  );
+}
 
 export default function FieldOpsPage() {
   const router = useRouter();
@@ -138,176 +255,306 @@ export default function FieldOpsPage() {
         }
       />
 
-      {/* Stats Cards - Using SharedStatCard with hover effects */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <SharedStatCard
-          title="Total Technicians"
+      {/* Stats Cards - Enhanced with gradients and better layout */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <EnhancedStatCard
+          title="Technicians"
           value={stats.total_technicians}
-          icon={<Users className="h-4 w-4 text-blue-500" />}
+          icon={<Users className="h-5 w-5" />}
+          variant="info"
           href="/admin/field-ops/technicians"
+          subtitle="Total team"
         />
-        <SharedStatCard
+        <EnhancedStatCard
           title="Available"
           value={stats.available_technicians}
-          icon={<div className="h-3 w-3 bg-green-500 rounded-full animate-pulse" />}
+          icon={<Radio className="h-5 w-5" />}
+          variant="success"
           subtitle="Ready to dispatch"
         />
-        <SharedStatCard
+        <EnhancedStatCard
           title="On Job"
           value={stats.on_job_technicians}
-          icon={<Navigation className="h-4 w-4 text-circleTel-orange" />}
-          subtitle="Currently working"
+          icon={<Wrench className="h-5 w-5" />}
+          variant="primary"
+          subtitle="In the field"
         />
-        <SharedStatCard
-          title="Pending Jobs"
+        <EnhancedStatCard
+          title="Pending"
           value={stats.pending_jobs}
-          icon={<Clock className="h-4 w-4 text-yellow-500" />}
+          icon={<Clock className="h-5 w-5" />}
+          variant="warning"
           href="/admin/field-ops/jobs"
+          subtitle="Awaiting assignment"
         />
-        <SharedStatCard
+        <EnhancedStatCard
           title="In Progress"
           value={stats.in_progress_jobs}
-          icon={<Briefcase className="h-4 w-4 text-blue-500" />}
+          icon={<Zap className="h-5 w-5" />}
+          variant="info"
           href="/admin/field-ops/jobs"
+          subtitle="Active jobs"
         />
-        <SharedStatCard
-          title="Completed Today"
+        <EnhancedStatCard
+          title="Done Today"
           value={stats.completed_today}
-          icon={<CheckCircle2 className="h-4 w-4 text-green-500" />}
-          subtitle="Jobs finished"
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          variant="success"
+          subtitle="Completed"
         />
       </div>
 
       {/* Main Content */}
       <Tabs defaultValue="map" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="map">Map View</TabsTrigger>
-          <TabsTrigger value="technicians">Technicians</TabsTrigger>
-          <TabsTrigger value="jobs">Today's Jobs</TabsTrigger>
+        <TabsList className="bg-gray-100/80 p-1 rounded-lg">
+          <TabsTrigger value="map" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
+            <MapPinned className="h-4 w-4 mr-2" />
+            Map View
+          </TabsTrigger>
+          <TabsTrigger value="technicians" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
+            <Users className="h-4 w-4 mr-2" />
+            Technicians
+          </TabsTrigger>
+          <TabsTrigger value="jobs" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
+            <Briefcase className="h-4 w-4 mr-2" />
+            Today's Jobs
+          </TabsTrigger>
         </TabsList>
 
         {/* Map View Tab */}
         <TabsContent value="map">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Map */}
-            <Card className="lg:col-span-2 border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
-              <CardHeader>
-                <CardTitle>Live Map</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[500px] bg-gray-50 rounded-lg flex items-center justify-center">
-                  <SharedEmptyStateInline
-                    title="Map integration coming soon"
-                    description="Will display technician locations in real-time"
-                    icon={MapPin}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Technician List */}
-            <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
-              <CardHeader>
-                <CardTitle>Technicians</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="max-h-[500px] overflow-y-auto">
-                  {technicians.map((tech) => (
-                    <div
-                      key={tech.id}
-                      className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                        selectedTechnician === tech.id ? 'bg-blue-50' : ''
-                      }`}
-                      onClick={() => setSelectedTechnician(tech.id)}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{tech.full_name}</span>
-                        <Badge className={TECHNICIAN_STATUS_COLORS[tech.status]}>
-                          {TECHNICIAN_STATUS_LABELS[tech.status]}
-                        </Badge>
+            <div className="lg:col-span-2">
+              <Card className="overflow-hidden border-0 shadow-lg bg-white">
+                <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-circleTel-orange/10 rounded-lg">
+                        <MapPin className="h-5 w-5 text-circleTel-orange" />
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {tech.current_job_title ? (
-                          <span className="text-circleTel-orange">{tech.current_job_title}</span>
-                        ) : (
-                          <span>No active job</span>
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        {tech.location_updated_at ? (
-                          `Last seen: ${new Date(tech.location_updated_at).toLocaleTimeString()}`
-                        ) : (
-                          'Location not available'
-                        )}
+                      <div>
+                        <CardTitle className="text-lg">Live Map</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Real-time technician tracking</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                      Coming Soon
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="h-[500px] relative overflow-hidden">
+                    {/* Stylized map background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50">
+                      {/* Grid pattern */}
+                      <div className="absolute inset-0 opacity-30" style={{
+                        backgroundImage: `
+                          linear-gradient(to right, #cbd5e1 1px, transparent 1px),
+                          linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)
+                        `,
+                        backgroundSize: '40px 40px',
+                      }} />
+                      {/* Decorative circles representing locations */}
+                      <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-circleTel-orange/30 rounded-full animate-ping" />
+                      <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-circleTel-orange rounded-full" />
+                      <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-blue-400/40 rounded-full" />
+                      <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-emerald-400/40 rounded-full" />
+                      <div className="absolute bottom-1/3 left-1/2 w-2 h-2 bg-amber-400/40 rounded-full" />
+                    </div>
+                    {/* Center content */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center max-w-sm">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-circleTel-orange/20 to-orange-100 flex items-center justify-center">
+                          <MapPinned className="h-8 w-8 text-circleTel-orange" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Map Integration Coming Soon</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                          Track your technicians in real-time with live GPS updates and route optimization.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Technician List */}
+            <div>
+              <Card className="overflow-hidden border-0 shadow-lg bg-white h-full">
+                <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Users className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Technicians</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">{technicians.length} team members</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="max-h-[500px] overflow-y-auto divide-y divide-gray-100">
+                    {technicians.length === 0 ? (
+                      <div className="p-8 text-center text-gray-500">
+                        <User className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                        <p className="text-sm">No technicians found</p>
+                      </div>
+                    ) : (
+                      technicians.map((tech) => (
+                        <div
+                          key={tech.id}
+                          className={`p-4 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
+                            selectedTechnician === tech.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                          }`}
+                          onClick={() => setSelectedTechnician(tech.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <TechnicianAvatar name={tech.full_name} status={tech.status} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-semibold text-gray-900 truncate">{tech.full_name}</span>
+                                <Badge
+                                  className={`text-[10px] px-2 py-0.5 font-medium shrink-0 ${
+                                    tech.status === 'available'
+                                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                                      : tech.status === 'on_job'
+                                      ? 'bg-orange-100 text-orange-700 border-orange-200'
+                                      : 'bg-gray-100 text-gray-600 border-gray-200'
+                                  }`}
+                                  variant="outline"
+                                >
+                                  {TECHNICIAN_STATUS_LABELS[tech.status]}
+                                </Badge>
+                              </div>
+                              <div className="text-sm mt-1">
+                                {tech.current_job_title ? (
+                                  <span className="text-circleTel-orange font-medium">{tech.current_job_title}</span>
+                                ) : (
+                                  <span className="text-gray-400">No active job</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-gray-400 mt-1.5">
+                                <MapPin className="h-3 w-3" />
+                                {tech.location_updated_at ? (
+                                  <span>Last seen {new Date(tech.location_updated_at).toLocaleTimeString()}</span>
+                                ) : (
+                                  <span>Location unavailable</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 
         {/* Technicians Tab */}
         <TabsContent value="technicians">
-          <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
-            <CardHeader>
+          <Card className="overflow-hidden border-0 shadow-lg bg-white">
+            <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center justify-between">
-                <CardTitle>All Technicians</CardTitle>
-                <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">All Technicians</CardTitle>
+                    <p className="text-xs text-gray-500 mt-0.5">{technicians.length} team members</p>
+                  </div>
+                </div>
+                <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Technician
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Employee ID</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Current Job</TableHead>
-                    <TableHead>Completed Today</TableHead>
-                    <TableHead>Pending</TableHead>
-                    <TableHead>Last Location</TableHead>
+                  <TableRow className="bg-gray-50/50">
+                    <TableHead className="font-semibold">Technician</TableHead>
+                    <TableHead className="font-semibold">Employee ID</TableHead>
+                    <TableHead className="font-semibold">Team</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="font-semibold">Current Job</TableHead>
+                    <TableHead className="font-semibold text-center">Done</TableHead>
+                    <TableHead className="font-semibold text-center">Pending</TableHead>
+                    <TableHead className="font-semibold">Location</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {technicians.map((tech) => (
-                    <TableRow key={tech.id}>
-                      <TableCell className="font-medium">{tech.full_name}</TableCell>
-                      <TableCell>{tech.employee_id || '-'}</TableCell>
-                      <TableCell>{tech.team || '-'}</TableCell>
+                    <TableRow key={tech.id} className="hover:bg-gray-50/50 transition-colors">
                       <TableCell>
-                        <Badge className={TECHNICIAN_STATUS_COLORS[tech.status]}>
+                        <div className="flex items-center gap-3">
+                          <TechnicianAvatar name={tech.full_name} status={tech.status} />
+                          <span className="font-semibold text-gray-900">{tech.full_name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600 font-mono text-sm">{tech.employee_id || '-'}</TableCell>
+                      <TableCell>
+                        {tech.team ? (
+                          <Badge variant="outline" className="bg-gray-50">{tech.team}</Badge>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`${
+                            tech.status === 'available'
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                              : tech.status === 'on_job'
+                              ? 'bg-orange-100 text-orange-700 border-orange-200'
+                              : 'bg-gray-100 text-gray-600 border-gray-200'
+                          }`}
+                          variant="outline"
+                        >
                           {TECHNICIAN_STATUS_LABELS[tech.status]}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {tech.current_job_number ? (
-                          <span className="text-circleTel-orange">{tech.current_job_number}</span>
+                          <span className="text-circleTel-orange font-semibold">{tech.current_job_number}</span>
                         ) : (
-                          '-'
+                          <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
-                      <TableCell>{tech.jobs_completed_today}</TableCell>
-                      <TableCell>{tech.pending_jobs}</TableCell>
-                      <TableCell className="text-xs text-gray-500">
-                        {tech.location_updated_at
-                          ? new Date(tech.location_updated_at).toLocaleTimeString()
-                          : 'N/A'}
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-sm">
+                          {tech.jobs_completed_today}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full font-semibold text-sm ${
+                          tech.pending_jobs > 0 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          {tech.pending_jobs}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <MapPin className="h-3 w-3" />
+                          {tech.location_updated_at
+                            ? new Date(tech.location_updated_at).toLocaleTimeString()
+                            : 'N/A'}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600" asChild>
                             <a href={`tel:${tech.phone}`}>
                               <Phone className="h-4 w-4" />
                             </a>
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-gray-100">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -322,13 +569,21 @@ export default function FieldOpsPage() {
 
         {/* Jobs Tab */}
         <TabsContent value="jobs">
-          <Card className="border border-gray-200 hover:shadow-lg hover:border-circleTel-orange/30 transition-all duration-200">
-            <CardHeader>
+          <Card className="overflow-hidden border-0 shadow-lg bg-white">
+            <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white">
               <div className="flex items-center justify-between">
-                <CardTitle>Today's Jobs</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Briefcase className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Today's Jobs</CardTitle>
+                    <p className="text-xs text-gray-500 mt-0.5">{todays_jobs.length} jobs scheduled</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
                   <Select defaultValue="all">
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-[150px] bg-white border-gray-200">
                       <SelectValue placeholder="Filter status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -339,54 +594,96 @@ export default function FieldOpsPage() {
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90">
+                  <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange/90 shadow-md hover:shadow-lg transition-all">
                     <Plus className="h-4 w-4 mr-2" />
                     New Job
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Job #</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Address</TableHead>
-                    <TableHead>Scheduled</TableHead>
-                    <TableHead>Technician</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Status</TableHead>
+                  <TableRow className="bg-gray-50/50">
+                    <TableHead className="font-semibold">Job #</TableHead>
+                    <TableHead className="font-semibold">Type</TableHead>
+                    <TableHead className="font-semibold">Title</TableHead>
+                    <TableHead className="font-semibold">Address</TableHead>
+                    <TableHead className="font-semibold">Scheduled</TableHead>
+                    <TableHead className="font-semibold">Technician</TableHead>
+                    <TableHead className="font-semibold">Priority</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {todays_jobs.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-mono text-sm">{job.job_number}</TableCell>
-                      <TableCell>{JOB_TYPE_LABELS[job.job_type]}</TableCell>
-                      <TableCell className="font-medium max-w-[200px] truncate">
+                    <TableRow key={job.id} className="hover:bg-gray-50/50 transition-colors">
+                      <TableCell className="font-mono text-sm font-semibold text-gray-700">{job.job_number}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-gray-50 text-gray-700">
+                          {JOB_TYPE_LABELS[job.job_type]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium max-w-[200px] truncate text-gray-900">
                         {job.title}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate text-sm text-gray-500">
-                        {job.address}
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          {job.address}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        {job.scheduled_time_start || '-'}
-                      </TableCell>
-                      <TableCell>
-                        {job.technician_name || (
-                          <span className="text-gray-400">Unassigned</span>
+                        {job.scheduled_time_start ? (
+                          <span className="font-medium text-gray-700">{job.scheduled_time_start}</span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={PRIORITY_COLORS[job.priority]}>
+                        {job.technician_name ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-white text-[10px] font-semibold">
+                              {job.technician_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </div>
+                            <span className="text-gray-900">{job.technician_name}</span>
+                          </div>
+                        ) : (
+                          <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
+                            Unassigned
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${
+                            job.priority === 'urgent'
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : job.priority === 'high'
+                              ? 'bg-orange-50 text-orange-700 border-orange-200'
+                              : job.priority === 'normal'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-gray-50 text-gray-600 border-gray-200'
+                          }`}
+                        >
                           {PRIORITY_LABELS[job.priority]}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={JOB_STATUS_COLORS[job.status]}>
+                        <Badge
+                          className={`${
+                            job.status === 'completed'
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                              : job.status === 'in_progress'
+                              ? 'bg-blue-100 text-blue-700 border-blue-200'
+                              : job.status === 'assigned'
+                              ? 'bg-purple-100 text-purple-700 border-purple-200'
+                              : 'bg-amber-100 text-amber-700 border-amber-200'
+                          }`}
+                          variant="outline"
+                        >
                           {JOB_STATUS_LABELS[job.status]}
                         </Badge>
                       </TableCell>
@@ -396,6 +693,7 @@ export default function FieldOpsPage() {
                             <Button
                               variant="ghost"
                               size="icon"
+                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
                               onClick={() => {
                                 window.open(
                                   `https://www.google.com/maps?q=${job.latitude},${job.longitude}`,
@@ -403,10 +701,10 @@ export default function FieldOpsPage() {
                                 );
                               }}
                             >
-                              <MapPin className="h-4 w-4" />
+                              <Navigation className="h-4 w-4" />
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-gray-100">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -415,8 +713,14 @@ export default function FieldOpsPage() {
                   ))}
                   {todays_jobs.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-gray-500">
-                        No jobs scheduled for today
+                      <TableCell colSpan={9} className="text-center py-12">
+                        <div className="flex flex-col items-center text-gray-500">
+                          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <Briefcase className="h-6 w-6 text-gray-400" />
+                          </div>
+                          <p className="font-medium text-gray-600">No jobs scheduled</p>
+                          <p className="text-sm text-gray-400 mt-1">Create a new job to get started</p>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )}
