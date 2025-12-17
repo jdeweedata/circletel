@@ -17,6 +17,7 @@ import { ArrowLeft, Plus, Search, CheckCircle, X } from 'lucide-react';
 import Link from 'next/link';
 import { CustomerRadiusSection } from '@/components/admin/interstellio';
 import { PPPoECredentialsSection } from '@/components/admin/pppoe';
+import { CustomerPaymentMethods } from '@/components/admin/customers/CustomerPaymentMethods';
 
 interface Customer {
   id: string;
@@ -413,8 +414,11 @@ export default function CustomerDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Payment Methods / eMandate Section */}
+      <CustomerPaymentMethods customerId={customerId} />
+
       {/* Orders Section */}
-      <Card className="mb-6">
+      <Card className="mb-6 mt-6">
         <CardContent className="p-6">
           <h3 className="text-sm font-medium text-gray-900 mb-4">Orders ({orders.length})</h3>
           
