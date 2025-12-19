@@ -7,11 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   CreditCard,
-  DollarSign,
+  Calendar,
   Loader2,
   CheckCircle,
   AlertCircle,
   ArrowRight,
+  Shield,
+  Clock,
+  Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,14 +24,16 @@ interface OrderDetails {
   first_name: string;
   last_name: string;
   email: string;
+  phone: string;
   package_name: string;
   package_price: number;
   installation_fee: number;
   payment_status: string;
   status: string;
+  customer_id: string;
 }
 
-export default function PaymentPage() {
+export default function PaymentMethodSetupPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params.orderId as string;
@@ -37,6 +42,7 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (orderId) {
@@ -53,14 +59,9 @@ export default function PaymentPage() {
       if (data.success && data.order) {
         setOrder(data.order);
 
-        // Check if already paid
-        if (data.order.payment_status === 'paid') {
-          toast.info('Order already paid', {
-            description: 'Redirecting to order tracking...',
-          });
-          setTimeout(() => {
-            router.push(`/orders/${orderId}`);
-          }, 2000);
+        // Check if payment method already set up
+        if (data.order.status === 'payment_method_pending' || data.order.status === 'payment_method_registered') {
+          setSuccess(true);
         }
       } else {
         setError('Order not found');
@@ -73,34 +74,40 @@ export default function PaymentPage() {
     }
   };
 
-  const handlePayNow = async () => {
+  const handleSetupDebitOrder = async () => {
     if (!order) return;
 
     try {
       setProcessing(true);
       setError('');
 
-      // Initiate payment
-      const response = await fetch('/api/payments/initiate', {
+      // Initiate eMandate (debit order) setup
+      const response = await fetch('/api/payment/emandate/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({
+          order_id: order.id,
+          customer_id: order.customer_id,
+          billing_day: 1, // 1st of each month
+        }),
       });
 
       const result = await response.json();
 
-      if (result.success && result.paymentUrl) {
-        // Redirect to Netcash payment gateway
-        window.location.href = result.paymentUrl;
+      if (result.success) {
+        setSuccess(true);
+        toast.success('Debit order setup initiated!', {
+          description: 'Please check your email/SMS for the mandate signing link.',
+        });
       } else {
-        setError(result.error || 'Failed to initiate payment');
-        toast.error('Payment initiation failed', {
+        setError(result.error || 'Failed to set up debit order');
+        toast.error('Setup failed', {
           description: result.error,
         });
       }
     } catch (err) {
-      console.error('Payment initiation error:', err);
-      setError('Failed to initiate payment. Please try again.');
+      console.error('Debit order setup error:', err);
+      setError('Failed to set up debit order. Please try again.');
       toast.error('Network error', {
         description: 'Please check your connection and try again',
       });
@@ -120,7 +127,7 @@ export default function PaymentPage() {
     );
   }
 
-  if (error || !order) {
+  if (error && !order) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <Card className="max-w-md w-full">
@@ -137,7 +144,7 @@ export default function PaymentPage() {
     );
   }
 
-  const totalAmount = order.package_price + (order.installation_fee || 0);
+  if (!order) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -147,22 +154,30 @@ export default function PaymentPage() {
           <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Complete Your Payment</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Set Up Payment Method</h1>
           <p className="text-gray-600 mt-2">
             Order: <span className="font-semibold">{order.order_number}</span>
           </p>
         </div>
 
-        {/* Already Paid Alert */}
-        {order.payment_status === 'paid' && (
+        {/* Success State */}
+        {success && (
           <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-5 w-5 text-green-600" />
             <AlertDescription className="text-green-800">
-              <strong>Payment Complete!</strong> This order has already been paid. You will be
-              redirected to order tracking shortly.
+              <strong>Almost there!</strong> We&apos;ve sent you an email and SMS with a secure link to sign your debit order mandate.
+              Please check your inbox at <strong>{order.email}</strong> or SMS at <strong>{order.phone}</strong>.
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Important Notice - No Immediate Billing */}
+        <Alert className="mb-6 bg-blue-50 border-blue-200">
+          <Info className="h-5 w-5 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            <strong>Important:</strong> You will <strong>NOT</strong> be billed today. Your first payment will only be processed after your service has been installed and activated, calculated pro-rata from your activation date.
+          </AlertDescription>
+        </Alert>
 
         {/* Order Summary Card */}
         <Card className="mb-6">
@@ -198,18 +213,18 @@ export default function PaymentPage() {
           </CardContent>
         </Card>
 
-        {/* Payment Amount Card */}
+        {/* Monthly Amount Card */}
         <Card className="border-circleTel-orange bg-gradient-to-br from-orange-50 to-white mb-6">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-circleTel-orange rounded-full flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-white" />
+                  <Calendar className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Amount Due</p>
+                  <p className="text-sm text-gray-600">Monthly Debit Order Amount</p>
                   <p className="text-3xl font-bold text-circleTel-orange">
-                    R{totalAmount.toFixed(2)}
+                    R{order.package_price.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -223,27 +238,35 @@ export default function PaymentPage() {
                 </p>
               </div>
             )}
+
+            {/* Pro-rata Billing Note */}
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-sm text-amber-800">
+                <Clock className="w-4 h-4 inline mr-1" />
+                <strong>Pro-rata billing:</strong> Your first invoice will be calculated based on your actual activation date, not the full month.
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Payment Button */}
-        {order.payment_status !== 'paid' && (
+        {/* Setup Button */}
+        {!success && (
           <Card>
             <CardContent className="pt-6">
               <Button
-                onClick={handlePayNow}
+                onClick={handleSetupDebitOrder}
                 disabled={processing}
-                className="w-full h-14 text-lg"
+                className="w-full h-14 text-lg bg-circleTel-orange hover:bg-orange-600"
                 size="lg"
               >
                 {processing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Processing...
+                    Setting up...
                   </>
                 ) : (
                   <>
-                    Proceed to Payment
+                    Set Up Debit Order
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </>
                 )}
@@ -251,16 +274,20 @@ export default function PaymentPage() {
 
               <div className="mt-6 space-y-3">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Secure payment via Netcash</span>
+                  <Shield className="w-4 h-4 text-green-600" />
+                  <span>Secure mandate via NetCash</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Card and EFT payments accepted</span>
+                  <span>No payment taken today</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Instant confirmation via email</span>
+                  <span>First billing only after service activation</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span>Cancel anytime with 30 days notice</span>
                 </div>
               </div>
 
@@ -274,6 +301,33 @@ export default function PaymentPage() {
           </Card>
         )}
 
+        {/* What Happens Next */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">What happens next?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="space-y-3 text-sm text-gray-600">
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-circleTel-orange text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                <span>You&apos;ll receive an email and SMS with a secure link to sign your debit order mandate</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-circleTel-orange text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                <span>Our team will contact you to schedule your installation</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-circleTel-orange text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                <span>Once installed, your service will be activated</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-circleTel-orange text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                <span>Your first pro-rata invoice will be generated based on activation date</span>
+              </li>
+            </ol>
+          </CardContent>
+        </Card>
+
         {/* Help Text */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
@@ -283,6 +337,13 @@ export default function PaymentPage() {
               className="text-circleTel-orange hover:underline font-medium"
             >
               Contact Support
+            </a>
+            {' '}or call{' '}
+            <a
+              href="tel:0108803223"
+              className="text-circleTel-orange hover:underline font-medium"
+            >
+              010 880 3223
             </a>
           </p>
         </div>
