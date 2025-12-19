@@ -189,7 +189,6 @@ export async function POST(request: NextRequest) {
         .from('consumer_orders')
         .update({
           status: 'payment_method_registered',
-          payment_method_registered_at: new Date().toISOString(),
         })
         .eq('id', orderId);
 
