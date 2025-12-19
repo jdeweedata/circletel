@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
+
+// Service role client for public order lookup (bypasses RLS)
+function createServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -217,7 +227,8 @@ export async function GET(request: NextRequest) {
     const orderNumber = searchParams.get('orderNumber');
     const email = searchParams.get('email');
 
-    const supabase = await createClient();
+    // Use service role client to bypass RLS for public order lookup
+    const supabase = createServiceClient();
 
     if (orderId) {
       // Get specific order by ID
