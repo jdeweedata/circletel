@@ -15,6 +15,10 @@ import {
   Shield,
   Clock,
   Info,
+  RefreshCw,
+  Mail,
+  Phone,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -43,6 +47,15 @@ export default function PaymentMethodSetupPage() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  // VAT calculation (15% VAT in South Africa)
+  const VAT_RATE = 0.15;
+  const calculateVAT = (inclVat: number) => {
+    const exclVat = inclVat / (1 + VAT_RATE);
+    const vatAmount = inclVat - exclVat;
+    return { exclVat, vatAmount, inclVat };
+  };
 
   useEffect(() => {
     if (orderId) {
@@ -113,6 +126,45 @@ export default function PaymentMethodSetupPage() {
       });
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleResendMandate = async () => {
+    if (!order) return;
+
+    try {
+      setResending(true);
+      setError('');
+
+      // Resend mandate link
+      const response = await fetch('/api/payment/emandate/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: order.id,
+          customer_id: order.customer_id,
+          billing_day: 1,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Mandate link resent!', {
+          description: 'Please check your email/SMS for the new signing link.',
+        });
+      } else {
+        toast.error('Failed to resend', {
+          description: result.error || 'Please try again or contact support.',
+        });
+      }
+    } catch (err) {
+      console.error('Resend error:', err);
+      toast.error('Network error', {
+        description: 'Please check your connection and try again.',
+      });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -198,17 +250,47 @@ export default function PaymentMethodSetupPage() {
               <p className="font-semibold text-lg">{order.package_name}</p>
             </div>
 
+            {/* VAT Breakdown */}
             <div className="pt-4 border-t space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Monthly Subscription</span>
-                <span className="font-semibold">R{order.package_price.toFixed(2)}</span>
-              </div>
-              {order.installation_fee > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Installation Fee</span>
-                  <span className="font-semibold">R{order.installation_fee.toFixed(2)}</span>
-                </div>
-              )}
+              {(() => {
+                const priceVAT = calculateVAT(order.package_price);
+                const installVAT = order.installation_fee > 0 ? calculateVAT(order.installation_fee) : null;
+                const totalExclVAT = priceVAT.exclVat + (installVAT?.exclVat || 0);
+                const totalVAT = priceVAT.vatAmount + (installVAT?.vatAmount || 0);
+                const totalInclVAT = order.package_price + (order.installation_fee || 0);
+
+                return (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Monthly Subscription (excl. VAT)</span>
+                      <span className="text-gray-700">R{priceVAT.exclVat.toFixed(2)}</span>
+                    </div>
+                    {installVAT && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Installation Fee (excl. VAT)</span>
+                        <span className="text-gray-700">R{installVAT.exclVat.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm pt-2 border-t border-dashed">
+                      <span className="text-gray-500">Subtotal (excl. VAT)</span>
+                      <span className="text-gray-700">R{totalExclVAT.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">VAT (15%)</span>
+                      <span className="text-gray-700">R{totalVAT.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t font-semibold">
+                      <span className="text-gray-900">Total (incl. VAT)</span>
+                      <span className="text-circleTel-orange text-lg">R{totalInclVAT.toFixed(2)}</span>
+                    </div>
+                    {order.installation_fee === 0 && (
+                      <div className="text-xs text-green-600 text-right">
+                        ✓ Free installation included
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </CardContent>
         </Card>
@@ -249,57 +331,104 @@ export default function PaymentMethodSetupPage() {
           </CardContent>
         </Card>
 
-        {/* Setup Button */}
-        {!success && (
-          <Card>
-            <CardContent className="pt-6">
-              <Button
-                onClick={handleSetupDebitOrder}
-                disabled={processing}
-                className="w-full h-14 text-lg bg-circleTel-orange hover:bg-orange-600"
-                size="lg"
-              >
-                {processing ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Setting up...
-                  </>
-                ) : (
-                  <>
-                    Set Up Debit Order
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </>
-                )}
-              </Button>
+        {/* Action Buttons */}
+        <Card>
+          <CardContent className="pt-6">
+            {!success ? (
+              <>
+                {/* Initial Setup Button */}
+                <Button
+                  onClick={handleSetupDebitOrder}
+                  disabled={processing}
+                  className="w-full h-14 text-lg bg-circleTel-orange hover:bg-orange-600"
+                  size="lg"
+                >
+                  {processing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Setting up...
+                    </>
+                  ) : (
+                    <>
+                      Set Up Debit Order
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* Success State Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleResendMandate}
+                    disabled={resending}
+                    variant="outline"
+                    className="w-full h-12 text-base border-circleTel-orange text-circleTel-orange hover:bg-orange-50"
+                    size="lg"
+                  >
+                    {resending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Resending...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Resend Mandate Link
+                      </>
+                    )}
+                  </Button>
 
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Shield className="w-4 h-4 text-green-600" />
-                  <span>Secure mandate via NetCash</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="outline"
+                      className="h-12"
+                      onClick={() => window.location.href = `mailto:support@circletel.co.za?subject=Order ${order.order_number} - Mandate Assistance`}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Email Support
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-12"
+                      onClick={() => window.open('https://wa.me/27108803223', '_blank')}
+                    >
+                      <Phone className="mr-2 h-4 w-4" />
+                      WhatsApp Us
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>No payment taken today</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>First billing only after service activation</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span>Cancel anytime with 30 days notice</span>
-                </div>
+              </>
+            )}
+
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Shield className="w-4 h-4 text-green-600" />
+                <span>Secure mandate via NetCash</span>
               </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span>No payment taken today</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span>First billing only after service activation</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span>Cancel anytime with 30 days notice</span>
+              </div>
+            </div>
 
-              {error && (
-                <Alert variant="destructive" className="mt-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        )}
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
 
         {/* What Happens Next */}
         <Card className="mt-6">
@@ -337,13 +466,6 @@ export default function PaymentMethodSetupPage() {
               className="text-circleTel-orange hover:underline font-medium"
             >
               Contact Support
-            </a>
-            {' '}or call{' '}
-            <a
-              href="tel:0108803223"
-              className="text-circleTel-orange hover:underline font-medium"
-            >
-              010 880 3223
             </a>
           </p>
         </div>
