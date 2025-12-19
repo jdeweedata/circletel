@@ -174,6 +174,7 @@ export async function POST(
     };
 
     // Create emandate_requests record
+    // Note: billing_day and mandate_amount stored in request_payload
     const { data: emandateRecord, error: erError } = await supabase
       .from('emandate_requests')
       .insert({
@@ -183,18 +184,19 @@ export async function POST(
         request_type: 'batch',
         status: 'pending',
         netcash_account_reference: accountReference,
-        billing_day: billingDay,
-        mandate_amount: amount,
-        request_payload: emandateBatchRequest,
+        request_payload: {
+          ...emandateBatchRequest,
+          billing_day: billingDay,
+          mandate_amount: amount,
+          initiated_by: 'admin',
+          admin_notes: notes,
+        },
         notification_email: customer.email,
         notification_phone: customer.phone,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] || null,
         user_agent: request.headers.get('user-agent') || null,
-        metadata: {
-          initiated_by: 'admin',
-          admin_notes: notes,
-        },
+        notes: notes || null,
       })
       .select()
       .single();
@@ -224,16 +226,19 @@ export async function POST(
       fileToken = batchResult.fileToken;
 
       // Update emandate_requests with response
+      // Store file_token in request_payload since there's no metadata column
+      const updatedPayload = {
+        ...(emandateRecord.request_payload || {}),
+        file_token: fileToken,
+        submitted_at: new Date().toISOString(),
+      };
+
       await supabase
         .from('emandate_requests')
         .update({
           status: 'sent',
           netcash_response_code: 'SUCCESS',
-          metadata: {
-            ...emandateRecord.metadata,
-            file_token: fileToken,
-            submitted_at: new Date().toISOString(),
-          },
+          request_payload: updatedPayload,
           updated_at: new Date().toISOString(),
         })
         .eq('id', emandateRecord.id);
