@@ -102,6 +102,9 @@ export async function POST(
       .is('mandate_signed_at', null);
 
     // Create payment_methods record
+    // Note: valid_bank_account constraint requires bank_name, bank_account_name,
+    // and bank_account_number_masked when method_type = 'bank_account'
+    // Using placeholder values until customer completes mandate signing
     const { data: paymentMethod, error: pmError } = await supabase
       .from('payment_methods')
       .insert({
@@ -109,6 +112,11 @@ export async function POST(
         order_id: orderId,
         method_type: 'bank_account',
         status: 'pending',
+        // Placeholder bank details (required by constraint, updated after mandate signing)
+        bank_name: 'Pending',
+        bank_account_name: `${customer.first_name} ${customer.last_name}`,
+        bank_account_number_masked: 'XXXX-XXXX',
+        bank_account_type: 'current',
         netcash_account_reference: accountReference,
         mandate_amount: amount,
         mandate_frequency: 'monthly',
@@ -125,6 +133,7 @@ export async function POST(
           payment_method_type: paymentMethodType,
           debit_frequency: debitFrequency,
           admin_notes: notes,
+          bank_details_pending: true,
         },
       })
       .select()
