@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -193,6 +194,34 @@ export async function POST(
     if (historyError) {
       console.error('Error logging status history:', historyError);
       // Don't fail the request if history logging fails
+    }
+
+    // Send notification to Service Delivery Manager for quality verification
+    // Non-blocking: Don't fail the request if notification fails
+    try {
+      const completionDate = new Date().toLocaleString('en-ZA', {
+        timeZone: 'Africa/Johannesburg',
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+
+      await AdminNotificationService.notifyInstallationCompleted({
+        order_number: order.order_number,
+        order_id: orderId,
+        customer_name: `${order.first_name} ${order.last_name}`,
+        customer_phone: order.phone || 'Not provided',
+        installation_address: order.installation_address || 'Not specified',
+        package_name: order.package_name || 'Unknown package',
+        technician_name: order.assigned_technician || 'Not assigned',
+        completion_date: completionDate,
+        document_uploaded: !!filePath,
+        document_url: publicUrl || undefined,
+        document_name: file?.name,
+        notes: notes || undefined,
+      });
+    } catch (notificationError) {
+      // Log but don't fail the request
+      console.error('[CompleteInstallation] Failed to send SDM notification:', notificationError);
     }
 
     return NextResponse.json({

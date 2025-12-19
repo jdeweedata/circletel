@@ -220,6 +220,50 @@ export class AdminNotificationService {
   }
 
   /**
+   * Send installation completed notification to Service Delivery Manager
+   * Triggered when technician marks installation as complete
+   * Includes document status and QA review link
+   */
+  static async notifyInstallationCompleted(data: {
+    order_number: string;
+    order_id: string;
+    customer_name: string;
+    customer_phone: string;
+    installation_address: string;
+    package_name: string;
+    technician_name: string;
+    completion_date: string;
+    document_uploaded: boolean;
+    document_url?: string;
+    document_name?: string;
+    notes?: string;
+  }): Promise<NotificationResult> {
+    console.log(`[AdminNotifications] Sending installation completed notification for ${data.order_number}`);
+
+    const notificationData = {
+      ...data,
+      admin_order_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://circletel.co.za'}/admin/orders/${data.order_id}`,
+    };
+
+    const result = await EmailNotificationService.send({
+      from: this.adminSenderEmail,
+      to: this.config.serviceDeliveryEmail!,
+      cc: this.config.ccEmails,
+      subject: `[Installation Complete] ${data.order_number} - Quality Review Required`,
+      template: 'admin_installation_completed',
+      data: notificationData,
+    });
+
+    if (result.success) {
+      console.log(`[AdminNotifications] SDM notified of installation completion (MessageID: ${result.message_id})`);
+    } else {
+      console.error(`[AdminNotifications] Failed to notify SDM of installation completion:`, result.error);
+    }
+
+    return result;
+  }
+
+  /**
    * Calculate order urgency based on various factors
    */
   private static calculateUrgency(order: ConsumerOrder): 'high' | 'medium' | 'low' {
