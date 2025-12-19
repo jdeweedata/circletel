@@ -16,8 +16,6 @@ import {
   Clock,
   Info,
   RefreshCw,
-  Mail,
-  Phone,
   FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -380,24 +378,6 @@ export default function PaymentMethodSetupPage() {
                     )}
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      className="h-12"
-                      onClick={() => window.location.href = `mailto:support@circletel.co.za?subject=Order ${order.order_number} - Mandate Assistance`}
-                    >
-                      <Mail className="mr-2 h-4 w-4" />
-                      Email Support
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-12"
-                      onClick={() => window.open('https://wa.me/27108803223', '_blank')}
-                    >
-                      <Phone className="mr-2 h-4 w-4" />
-                      WhatsApp Us
-                    </Button>
-                  </div>
                 </div>
               </>
             )}
