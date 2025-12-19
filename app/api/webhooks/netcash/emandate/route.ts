@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -213,10 +215,62 @@ export async function POST(request: NextRequest) {
         bankName: parsedPostback.BankName,
       });
 
-      // TODO: Trigger notifications (Phase 5)
-      // - Send confirmation email to customer
-      // - Notify admin of successful registration
-      // - Update communication timeline
+      // Fetch order details for notifications
+      const { data: order } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (order) {
+        const debitDay = parseInt(parsedPostback.DebitDay || '1');
+
+        // Send customer confirmation email (async, don't block)
+        EmailNotificationService.sendPaymentMethodRegisteredEmail({
+          email: order.email,
+          customer_name: `${order.first_name} ${order.last_name}`,
+          order_number: order.order_number,
+          account_number: order.account_number || undefined,
+          bank_name: parsedPostback.BankName || 'Bank',
+          bank_account_masked: parsedPostback.BankAccountNo || 'XXXX-XXXX',
+          debit_day: debitDay,
+          monthly_amount: order.package_price,
+          package_name: order.package_name,
+        }).then((result) => {
+          if (result.success) {
+            console.log('Customer payment method confirmation email sent:', result.message_id);
+          } else {
+            console.error('Failed to send customer confirmation:', result.error);
+          }
+        }).catch((err) => console.error('Email error:', err));
+
+        // Send admin notification (async, don't block)
+        AdminNotificationService.notifyPaymentMethodRegistered({
+          order_number: order.order_number,
+          order_id: order.id,
+          customer_name: `${order.first_name} ${order.last_name}`,
+          customer_email: order.email,
+          customer_phone: order.phone,
+          bank_name: parsedPostback.BankName || 'Bank',
+          bank_account_masked: parsedPostback.BankAccountNo || 'XXXX-XXXX',
+          debit_day: debitDay,
+          package_name: order.package_name,
+          monthly_amount: order.package_price,
+        }).then((result) => {
+          if (result.success) {
+            console.log('Admin payment method notification sent:', result.message_id);
+          } else {
+            console.error('Failed to send admin notification:', result.error);
+          }
+        }).catch((err) => console.error('Admin notification error:', err));
+
+        // Update order_status_history to mark customer was notified
+        await supabase
+          .from('order_status_history')
+          .update({ customer_notified: true })
+          .eq('entity_id', orderId)
+          .eq('new_status', 'payment_method_registered');
+      }
     } else {
       // Mandate declined or failed
       const { error: pmFailError } = await supabase
@@ -240,9 +294,40 @@ export async function POST(request: NextRequest) {
         reason: parsedPostback.ReasonForDecline,
       });
 
-      // TODO: Trigger notifications (Phase 5)
-      // - Notify admin of failed registration
-      // - Provide instructions for retry
+      // Fetch order details for admin notification
+      const { data: failedOrder } = await supabase
+        .from('consumer_orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (failedOrder) {
+        // Notify admin of failed registration (async, don't block)
+        const adminEmail = process.env.SALES_TEAM_EMAIL || 'sales@circletel.co.za';
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
+        resend.emails.send({
+          from: 'CircleTel Admin <devadmin@notifications.circletelsa.co.za>',
+          to: adminEmail,
+          subject: `[FAILED] Payment Method Registration - ${failedOrder.order_number}`,
+          html: `
+            <h2>Payment Method Registration Failed</h2>
+            <p><strong>Order:</strong> ${failedOrder.order_number}</p>
+            <p><strong>Customer:</strong> ${failedOrder.first_name} ${failedOrder.last_name}</p>
+            <p><strong>Email:</strong> ${failedOrder.email}</p>
+            <p><strong>Phone:</strong> ${failedOrder.phone}</p>
+            <p><strong>Reason:</strong> ${parsedPostback.ReasonForDecline || 'Not specified'}</p>
+            <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/orders/${orderId}">View Order</a></p>
+            <hr>
+            <p><strong>Action Required:</strong> Contact customer to retry payment method setup or use alternative payment method.</p>
+          `,
+        }).then(() => {
+          console.log('Admin notified of failed mandate:', failedOrder.order_number);
+        }).catch((err) => {
+          console.error('Failed to notify admin of mandate failure:', err);
+        });
+      }
     }
 
     // Return 200 to acknowledge receipt

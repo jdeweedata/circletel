@@ -254,6 +254,52 @@ export class AdminNotificationService {
       default: return '#6B7280'; // Gray
     }
   }
+
+  /**
+   * Send notification when payment method is registered (mandate signed)
+   */
+  static async notifyPaymentMethodRegistered(data: {
+    order_number: string;
+    order_id: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    bank_name: string;
+    bank_account_masked: string;
+    debit_day: number;
+    package_name: string;
+    monthly_amount: number;
+  }): Promise<NotificationResult> {
+    console.log(`[AdminNotifications] Sending payment method registered notification for ${data.order_number}`);
+
+    const notificationData = {
+      ...data,
+      registered_at: new Date().toLocaleString('en-ZA', {
+        timeZone: 'Africa/Johannesburg',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }),
+      admin_order_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://circletel.co.za'}/admin/orders/${data.order_id}`,
+    };
+
+    // Send to sales team - they need to know mandate is signed for scheduling
+    return EmailNotificationService.send({
+      from: this.adminSenderEmail,
+      to: this.config.salesTeamEmail!,
+      cc: [this.config.serviceDeliveryEmail!, ...(this.config.ccEmails || [])],
+      subject: `[Payment Method Registered] ${data.order_number} - ${data.customer_name}`,
+      template: 'admin_payment_received', // Reuse existing template
+      data: {
+        order_number: notificationData.order_number,
+        customer_name: notificationData.customer_name,
+        payment_amount: notificationData.monthly_amount,
+        payment_method: `Debit Order - ${data.bank_name} (${data.bank_account_masked})`,
+        transaction_id: `Mandate signed at ${notificationData.registered_at}`,
+        package_name: notificationData.package_name,
+        admin_order_url: notificationData.admin_order_url,
+      },
+    });
+  }
 }
 
 // Export singleton for convenience
