@@ -243,6 +243,12 @@ const navigationSections: NavSection[] = [
           { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: MapPin }
         ]
       },
+      {
+        name: 'Diagnostics',
+        href: '/admin/diagnostics',
+        icon: Activity,
+        description: 'Monitor subscriber connection health'
+      },
     ]
   },
   {

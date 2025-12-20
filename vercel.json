@@ -92,6 +92,14 @@
     "app/api/cron/stats-snapshot/route.ts": {
       "maxDuration": 120,
       "memory": 512
+    },
+    "app/api/cron/diagnostics-health-check/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "app/api/webhooks/interstellio/diagnostics/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
     }
   },
   "crons": [
@@ -154,6 +162,10 @@
     {
       "path": "/api/cron/stats-snapshot",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/diagnostics-health-check",
+      "schedule": "0 0,6,12,18 * * *"
     }
   ]
 }

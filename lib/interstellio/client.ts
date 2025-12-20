@@ -32,6 +32,9 @@ import type {
   InterstellioError,
   ListQueryParams,
   SubscriberListParams,
+  TelemetryCDRRecord,
+  CDRQuery,
+  SessionAnalysis,
 } from './types'
 
 // ============================================================================
@@ -326,6 +329,100 @@ export class InterstellioClient {
       return result
     }
     return result.payload || []
+  }
+
+  /**
+   * Get CDR (Call Detail Records) for a subscriber
+   * Use this to check session history and determine if sessions are active
+   *
+   * @param subscriberId - The subscriber UUID
+   * @param query - Time range query with start_time and end_time in ISO 8601 format
+   * @returns Array of CDR records, most recent first
+   *
+   * @example
+   * const records = await client.getCDRRecords('subscriber-uuid', {
+   *   start_time: '2025-12-19T00:00:00+02:00',
+   *   end_time: '2025-12-19T23:59:59+02:00'
+   * })
+   */
+  async getCDRRecords(subscriberId: string, query: CDRQuery): Promise<TelemetryCDRRecord[]> {
+    const result = await this.request<TelemetryCDRRecord | TelemetryCDRRecord[]>(
+      'POST',
+      `${BASE_URLS.telemetry}/v1/subscriber/${subscriberId}/cdr/records`,
+      query
+    )
+    // API may return single record or array
+    if (Array.isArray(result)) {
+      return result
+    }
+    return result ? [result] : []
+  }
+
+  /**
+   * Analyze session status for a subscriber
+   * Returns whether subscriber has an active session and session statistics
+   *
+   * @param subscriberId - The subscriber UUID
+   * @returns Session analysis with active status and statistics
+   */
+  async analyzeSessionStatus(subscriberId: string): Promise<SessionAnalysis> {
+    const now = new Date()
+    const startOfDay = new Date(now)
+    startOfDay.setHours(0, 0, 0, 0)
+
+    // Format dates in South Africa timezone
+    const formatDate = (date: Date): string => {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      const seconds = String(date.getSeconds()).padStart(2, '0')
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+02:00`
+    }
+
+    const records = await this.getCDRRecords(subscriberId, {
+      start_time: formatDate(startOfDay),
+      end_time: formatDate(now),
+    })
+
+    // Analyze records
+    const terminateCauses: Record<string, number> = {}
+    let totalDuration = 0
+
+    for (const record of records) {
+      totalDuration += record.duration || 0
+      if (record.terminate_cause) {
+        terminateCauses[record.terminate_cause] = (terminateCauses[record.terminate_cause] || 0) + 1
+      }
+    }
+
+    // Get most recent record
+    const lastSession = records.length > 0 ? records[0] : null
+
+    // Session is active if there's a recent record with no terminate_cause
+    // or if terminate_cause is null
+    const isActive = lastSession !== null && lastSession.terminate_cause === null
+
+    return {
+      isActive,
+      lastSession,
+      totalSessionsToday: records.length,
+      totalDurationSeconds: totalDuration,
+      terminateCauses,
+    }
+  }
+
+  /**
+   * Check if a subscriber currently has an active session
+   * Quick method that returns just the active status
+   *
+   * @param subscriberId - The subscriber UUID
+   * @returns true if subscriber has an active session
+   */
+  async isSessionActive(subscriberId: string): Promise<boolean> {
+    const analysis = await this.analyzeSessionStatus(subscriberId)
+    return analysis.isActive
   }
 
   /**

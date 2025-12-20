@@ -354,6 +354,40 @@ export interface CDRRecord {
   session_time: number
 }
 
+/**
+ * CDR Record from telemetry API (POST /v1/subscriber/{id}/cdr/records)
+ * This is the actual response format from the NebularStack telemetry service
+ */
+export interface TelemetryCDRRecord {
+  id: string
+  start_time: string
+  update_time: string
+  acct_unique_id: string
+  username: string
+  calling_station_id: string | null
+  called_station_id: string | null
+  nas_ip_address: string
+  client_ip_address: string | null
+  duration: number // Duration in seconds
+  terminate_cause: string | null // e.g., "Lost-Carrier", "User-Request", null for active sessions
+}
+
+export interface CDRQuery {
+  start_time: string // ISO 8601 format with timezone, e.g., "2025-12-19T00:00:00+02:00"
+  end_time: string // ISO 8601 format with timezone, e.g., "2025-12-19T23:59:59+02:00"
+}
+
+/**
+ * Session status analysis result
+ */
+export interface SessionAnalysis {
+  isActive: boolean
+  lastSession: TelemetryCDRRecord | null
+  totalSessionsToday: number
+  totalDurationSeconds: number
+  terminateCauses: Record<string, number>
+}
+
 // ============================================================================
 // Credits (Data Caps)
 // ============================================================================
