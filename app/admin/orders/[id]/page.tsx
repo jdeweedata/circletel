@@ -1,14 +1,13 @@
 'use client';
 
-// Forced update to trigger recompilation
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import {
   ArrowLeft,
   Package,
@@ -21,16 +20,17 @@ import {
   Mail,
   Clock,
   CheckCircle,
-  XCircle,
   AlertCircle,
-  Edit,
   Printer,
   Download,
   Inbox,
   Banknote,
   Wrench,
   CheckSquare,
-  Wifi
+  Wifi,
+  TrendingUp,
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { WorkflowStepper, WorkflowStep } from '@/components/admin/orders/WorkflowStepper';
@@ -131,11 +131,108 @@ interface Order {
   // Enriched Data from API
   payment_method_active?: boolean;
   payment_method_mandate_status?: string;
-  
+
   // Installation Documentation
   installation_document_url?: string;
   installation_document_name?: string;
   installation_completed_at?: string;
+}
+
+// Dashboard-style card component
+function DashboardCard({
+  children,
+  className,
+  onClick
+}: {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        onClick && 'cursor-pointer hover:shadow-lg hover:scale-[1.01] hover:border-circleTel-orange/30',
+        className
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Dashboard-style card header
+function DashboardCardHeader({
+  icon: Icon,
+  title,
+  badge,
+  action
+}: {
+  icon: React.ElementType;
+  title: string;
+  badge?: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="px-6 py-4 border-b border-gray-100">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+            <Icon className="h-5 w-5 text-circleTel-orange" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          {badge}
+          {action}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Dashboard-style stat card
+function OrderStatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  iconBg = 'bg-gray-100',
+  iconColor = 'text-gray-600',
+}: {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ElementType;
+  iconBg?: string;
+  iconColor?: string;
+}) {
+  return (
+    <div className={cn(
+      'relative overflow-hidden border border-gray-200 bg-white',
+      'shadow-sm transition-all duration-200 rounded-lg p-6',
+      'hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30'
+    )}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', iconBg)}>
+            <Icon className={cn('h-5 w-5', iconColor)} />
+          </div>
+        </div>
+      </div>
+      <div className="mb-1">
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+      </div>
+      <div className="mb-1">
+        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+      </div>
+      {subtitle && (
+        <p className="text-xs text-gray-500">{subtitle}</p>
+      )}
+    </div>
+  );
 }
 
 export default function AdminOrderDetailPage() {
@@ -165,7 +262,6 @@ export default function AdminOrderDetailPage() {
         return;
       }
 
-      // Use API endpoint to bypass RLS
       const response = await fetch(`/api/admin/orders/${orderId}`);
       const result = await response.json();
 
@@ -188,45 +284,45 @@ export default function AdminOrderDetailPage() {
   };
 
   const getStatusBadge = (status: string) => {
+    const isActive = status === 'active' || status === 'Service Active';
+    const isCompleted = status === 'completed' || status === 'Installation Complete' || status === 'installation_completed';
+    const isInProgress = status.includes('Progress') || status.includes('Installation');
+    const isPending = status === 'pending' || status === 'Payment Pending';
+    const isCancelled = status === 'cancelled' || status === 'Failed';
+
     return (
-      <Badge className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-        status === 'active' || status === 'Service Active'
-          ? 'bg-green-100 text-green-700 border-green-200'
-          : status.includes('Progress') || status.includes('Installation')
-          ? 'bg-blue-50 text-blue-700 border-blue-200'
-          : status === 'completed' || status === 'Installation Complete' || status === 'installation_completed'
-          ? 'bg-green-100 text-green-700 border-green-200'
-          : status === 'pending' || status === 'Payment Pending'
-          ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-          : status === 'cancelled' || status === 'Failed'
-          ? 'bg-red-50 text-red-700 border-red-200'
-          : 'bg-gray-100 text-gray-700 border-gray-200'
-      }`}>
+      <Badge className={cn(
+        'px-3 py-1 rounded-full text-sm font-semibold border',
+        isActive || isCompleted ? 'bg-green-100 text-green-700 border-green-200' :
+        isInProgress ? 'bg-blue-100 text-blue-700 border-blue-200' :
+        isPending ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+        isCancelled ? 'bg-red-100 text-red-700 border-red-200' :
+        'bg-gray-100 text-gray-700 border-gray-200'
+      )}>
         {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
       </Badge>
     );
   };
 
   const getPaymentBadge = (status: string) => {
-    const paymentConfig: Record<string, { label: string; className: string }> = {
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
-      paid: { label: 'Paid', className: 'bg-green-100 text-green-800' },
-      partial: { label: 'Partial', className: 'bg-blue-100 text-blue-800' },
-      failed: { label: 'Failed', className: 'bg-red-100 text-red-800' },
-      refunded: { label: 'Refunded', className: 'bg-gray-100 text-gray-800' }
+    const config: Record<string, { label: string; className: string }> = {
+      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+      paid: { label: 'Paid', className: 'bg-green-100 text-green-700 border-green-200' },
+      partial: { label: 'Partial', className: 'bg-blue-100 text-blue-700 border-blue-200' },
+      failed: { label: 'Failed', className: 'bg-red-100 text-red-700 border-red-200' },
+      refunded: { label: 'Refunded', className: 'bg-gray-100 text-gray-700 border-gray-200' }
     };
 
-    const config = paymentConfig[status] || paymentConfig.pending;
+    const { label, className } = config[status] || config.pending;
 
     return (
-      <Badge className={config.className}>
-        {config.label}
+      <Badge className={cn('px-2.5 py-0.5 rounded-full text-xs font-semibold border', className)}>
+        {label}
       </Badge>
     );
   };
 
   const getWorkflowSteps = (currentStatus: string): WorkflowStep[] => {
-    // Helper function to determine step status
     const getStepStatus = (orderStatus: string, stepName: string): 'completed' | 'active' | 'pending' => {
       const statusMap: Record<string, number> = {
         'pending': 1,
@@ -236,9 +332,9 @@ export default function AdminOrderDetailPage() {
         'installation_in_progress': 5,
         'installation_completed': 6,
         'active': 7,
-        'suspended': 7, // Treat as active phase
-        'cancelled': 0, // Special case
-        'failed': 0 // Special case
+        'suspended': 7,
+        'cancelled': 0,
+        'failed': 0
       };
 
       const stepIds: Record<string, number> = {
@@ -254,13 +350,12 @@ export default function AdminOrderDetailPage() {
       const currentStepId = statusMap[orderStatus] || 1;
       const thisStepId = stepIds[stepName] || 1;
 
-      if (currentStepId === 0) return 'pending'; // Cancelled/Failed
+      if (currentStepId === 0) return 'pending';
       if (thisStepId < currentStepId) return 'completed';
       if (thisStepId === currentStepId) return 'active';
       return 'pending';
     };
 
-    // Helper function to format date
     const formatShortDate = (dateString: string): string => {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', {
@@ -288,7 +383,7 @@ export default function AdminOrderDetailPage() {
         subLabel: "Method registered",
         status: getStepStatus(order.status, 'Payment Method'),
         icon: CreditCard,
-        date: order.payment_date ? formatShortDate(order.payment_date) : undefined // Approximation
+        date: order.payment_date ? formatShortDate(order.payment_date) : undefined
       },
       {
         id: 3,
@@ -335,381 +430,395 @@ export default function AdminOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" disabled>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Orders
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex items-center gap-4">
           <Link href="/admin/orders">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button variant="ghost" size="sm" className="gap-2 text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="h-4 w-4" />
               Back to Orders
             </Button>
           </Link>
         </div>
-        <Card>
-          <CardContent className="p-12 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Order Not Found</h2>
-            <p className="text-gray-600 mb-4">{error || 'The order you are looking for does not exist.'}</p>
+        <DashboardCard className="p-12">
+          <div className="text-center">
+            <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Order Not Found</h2>
+            <p className="text-gray-600 mb-6">{error || 'The order you are looking for does not exist.'}</p>
             <Link href="/admin/orders">
-              <Button>View All Orders</Button>
+              <Button className="bg-circleTel-orange hover:bg-orange-600">View All Orders</Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </DashboardCard>
       </div>
     );
   }
 
   return (
-    <main className="flex-1 overflow-x-hidden overflow-y-auto pb-10 bg-gray-50">
-      <div className="p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-6">
-          <div className="flex items-start gap-4">
-            {/* Back Button */}
-            <Link
-              href="/admin/orders"
-              className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-              title="Back to Orders"
-            >
-              <ArrowLeft size={24} />
-            </Link>
+    <div className="space-y-8">
+      {/* Clean Modern Header - Dashboard Style */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start gap-4">
+          <Link
+            href="/admin/orders"
+            className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={20} />
+          </Link>
 
-            {/* Order ID and Status */}
-            <div>
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Order #{order.order_number}
-                </h2>
-                {getStatusBadge(order.status)}
-              </div>
-              <span className="text-sm text-gray-500 mt-1 block">
-                Created {new Date(order.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </span>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 mt-4">
-                <StatusActionButtons
-                  currentStatus={order.status}
-                  orderId={order.id}
-                  orderNumber={order.order_number}
-                  packagePrice={order.package_price}
-                  firstName={order.first_name}
-                  lastName={order.last_name}
-                  onStatusUpdate={fetchOrder}
-                />
-                <div className="h-8 w-px bg-gray-200 mx-1 hidden lg:block" />
-                <SendEmailDialog
-                  defaultTo={order.email}
-                  defaultSubject={`RE: Order ${order.order_number}`}
-                  defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
-                  customerId={order.customer_id}
-                  orderId={order.id}
-                />
-                <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
-                  <Printer size={16} />
-                  <span className="hidden lg:inline">Print</span>
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-2 h-9 whitespace-nowrap">
-                  <Download size={16} />
-                  <span className="hidden lg:inline">Export</span>
-                </Button>
-              </div>
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-3 mb-1">
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Order #{order.order_number}
+              </h1>
+              {getStatusBadge(order.status)}
             </div>
+            <p className="text-sm text-gray-500">
+              Created {new Date(order.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+              {order.account_number && (
+                <span className="ml-3">
+                  Account: <span className="font-medium text-circleTel-orange">{order.account_number}</span>
+                </span>
+              )}
+            </p>
           </div>
         </div>
 
-        {/* Workflow Stepper */}
-      <Card className="shadow-sm overflow-hidden">
-        <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
-      </Card>
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3 ml-12">
+          <StatusActionButtons
+            currentStatus={order.status}
+            orderId={order.id}
+            orderNumber={order.order_number}
+            packagePrice={order.package_price}
+            firstName={order.first_name}
+            lastName={order.last_name}
+            onStatusUpdate={fetchOrder}
+          />
+          <div className="h-6 w-px bg-gray-200 mx-1 hidden lg:block" />
+          <SendEmailDialog
+            defaultTo={order.email}
+            defaultSubject={`RE: Order ${order.order_number}`}
+            defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
+            customerId={order.customer_id}
+            orderId={order.id}
+          />
+          <Button variant="outline" size="sm" className="gap-2 border-gray-200 hover:border-circleTel-orange/30">
+            <Printer size={16} />
+            <span className="hidden lg:inline">Print</span>
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2 border-gray-200 hover:border-circleTel-orange/30">
+            <Download size={16} />
+            <span className="hidden lg:inline">Export</span>
+          </Button>
+        </div>
+      </div>
 
-      {/* Tabs Interface */}
+      {/* Quick Stats - Dashboard Style */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <OrderStatCard
+          title="Package"
+          value={order.package_name}
+          subtitle={order.package_speed}
+          icon={Package}
+          iconBg="bg-orange-100"
+          iconColor="text-circleTel-orange"
+        />
+        <OrderStatCard
+          title="Monthly Price"
+          value={`R${parseFloat(order.package_price as any).toFixed(2)}`}
+          subtitle="Per month"
+          icon={CreditCard}
+          iconBg="bg-green-100"
+          iconColor="text-green-600"
+        />
+        <OrderStatCard
+          title="Payment Status"
+          value={order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+          subtitle={order.payment_date ? `Paid ${new Date(order.payment_date).toLocaleDateString()}` : 'Awaiting payment'}
+          icon={Banknote}
+          iconBg={order.payment_status === 'paid' ? 'bg-green-100' : 'bg-yellow-100'}
+          iconColor={order.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'}
+        />
+        <OrderStatCard
+          title="Lead Source"
+          value={order.lead_source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          subtitle={order.source_campaign || 'Direct'}
+          icon={TrendingUp}
+          iconBg="bg-blue-100"
+          iconColor="text-blue-600"
+        />
+      </div>
+
+      {/* Workflow Stepper - Dashboard Card Style */}
+      <DashboardCard>
+        <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
+      </DashboardCard>
+
+      {/* Tabs Interface - Dashboard Style */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4">
-          <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Overview</TabsTrigger>
-          <TabsTrigger value="installation" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Installation & Service</TabsTrigger>
-          <TabsTrigger value="financials" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">Financials</TabsTrigger>
-          <TabsTrigger value="history" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">History & Notes</TabsTrigger>
+        <TabsList className="bg-white p-1.5 border border-gray-200 rounded-xl shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4 gap-1">
+          <TabsTrigger
+            value="overview"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="installation"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
+          >
+            Installation & Service
+          </TabsTrigger>
+          <TabsTrigger
+            value="financials"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
+          >
+            Financials
+          </TabsTrigger>
+          <TabsTrigger
+            value="history"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
+          >
+            History & Notes
+          </TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW TAB */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column: Customer & Package */}
+            {/* Left Column */}
             <div className="space-y-6">
               {/* Customer Information */}
-              <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <User size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Customer Information
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+              <DashboardCard>
+                <DashboardCardHeader icon={User} title="Customer Information" />
+                <div className="p-6 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Full Name</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Full Name</label>
                       <p className="text-base font-semibold text-gray-900 mt-1">
                         {order.first_name} {order.last_name}
                       </p>
                     </div>
                     {order.account_number && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">CircleTel Account Number</label>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account Number</label>
                         <p className="text-base font-semibold text-circleTel-orange mt-1">
                           {order.account_number}
                         </p>
                       </div>
                     )}
                     <div className="min-w-0">
-                      <label className="text-sm font-medium text-gray-600">Email Address</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
                       <div className="flex items-center gap-2 mt-1 min-w-0">
-                        <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                        <a href={`mailto:${order.email}`} className="text-base text-blue-600 hover:underline truncate" title={order.email}>
+                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Mail className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate" title={order.email}>
                           {order.email}
                         </a>
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <label className="text-sm font-medium text-gray-600">Phone Number</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Phone</label>
                       <div className="flex items-center gap-2 mt-1">
-                        <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                        <a href={`tel:${order.phone}`} className="text-base text-blue-600 hover:underline">
+                        <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                          <Phone className="h-4 w-4 text-green-600" />
+                        </div>
+                        <a href={`tel:${order.phone}`} className="text-sm text-blue-600 hover:underline">
                           {order.phone}
                         </a>
                       </div>
                     </div>
-                    {order.alternate_phone && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-600">Alternate Phone</label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Phone className="h-4 w-4 text-gray-400" />
-                          <a href={`tel:${order.alternate_phone}`} className="text-base text-blue-600 hover:underline">
-                            {order.alternate_phone}
-                          </a>
-                        </div>
-                      </div>
-                    )}
                   </div>
-                  <Separator />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Separator className="my-4" />
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Contact Preference</label>
-                      <p className="text-base text-gray-900 mt-1 capitalize">{order.contact_preference}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Contact Pref</label>
+                      <p className="text-sm text-gray-900 mt-1 capitalize">{order.contact_preference}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Marketing Opt-in</label>
-                      <p className="text-base text-gray-900 mt-1">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Marketing</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">WhatsApp Opt-in</label>
-                      <p className="text-base text-gray-900 mt-1">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">WhatsApp</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </DashboardCard>
 
               {/* Residential Address (KYC Verified) */}
               {order.residential_address && (
-                <Card className="shadow-sm">
-                  <CardHeader className="px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <MapPin size={20} className="text-gray-700" />
-                        <CardTitle className="text-lg font-semibold text-gray-800">
-                          Current Address
-                        </CardTitle>
-                      </div>
-                      {order.kyc_address_verified && (
-                        <Badge className="bg-green-100 text-green-700 border-green-200">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          KYC Verified
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
+                <DashboardCard>
+                  <DashboardCardHeader
+                    icon={MapPin}
+                    title="Current Address"
+                    badge={order.kyc_address_verified && (
+                      <Badge className="bg-green-100 text-green-700 border-green-200 gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        KYC Verified
+                      </Badge>
+                    )}
+                  />
+                  <div className="p-6 space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Street Address</label>
-                      <p className="text-base text-gray-900 mt-1">{order.residential_address}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.residential_address}</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {order.residential_suburb && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Suburb</label>
-                          <p className="text-base text-gray-900 mt-1">{order.residential_suburb}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.residential_suburb}</p>
                         </div>
                       )}
                       {order.residential_city && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">City</label>
-                          <p className="text-base text-gray-900 mt-1">{order.residential_city}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.residential_city}</p>
                         </div>
                       )}
                       {order.residential_province && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Province</label>
-                          <p className="text-base text-gray-900 mt-1">{order.residential_province}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.residential_province}</p>
                         </div>
                       )}
                       {order.residential_postal_code && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Postal Code</label>
-                          <p className="text-base text-gray-900 mt-1">{order.residential_postal_code}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.residential_postal_code}</p>
                         </div>
                       )}
                     </div>
-                    {order.kyc_address_verified_at && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        Verified on {new Date(order.kyc_address_verified_at).toLocaleDateString('en-ZA', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </DashboardCard>
               )}
 
               {/* Package Details */}
-              <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <Package size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Package Details
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+              <DashboardCard>
+                <DashboardCardHeader icon={Package} title="Package Details" />
+                <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Package Name</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Package Name</label>
                       <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Speed</label>
-                      <p className="text-base text-gray-900 mt-1">{order.package_speed}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Speed</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.package_speed}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Monthly Price</label>
-                      <p className="text-base font-semibold text-gray-900 mt-1">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Monthly Price</label>
+                      <p className="text-xl font-bold text-gray-900 mt-1 tabular-nums">
                         R{parseFloat(order.package_price as any).toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Installation Fee</label>
-                      <p className="text-base text-gray-900 mt-1">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Installation Fee</label>
+                      <p className="text-sm text-gray-900 mt-1">
                         R{parseFloat(order.installation_fee as any).toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Router Included</label>
-                      <p className="text-base text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Router Included</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
                     </div>
                     {order.router_rental_fee && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Router Rental Fee</label>
-                        <p className="text-base text-gray-900 mt-1">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Router Rental</label>
+                        <p className="text-sm text-gray-900 mt-1">
                           R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
                         </p>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </DashboardCard>
             </div>
 
-            {/* Right Column: Order Source & Timestamps */}
+            {/* Right Column */}
             <div className="space-y-6">
               {/* Order Source */}
-              <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <FileText size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Order Source
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+              <DashboardCard>
+                <DashboardCardHeader icon={TrendingUp} title="Order Source" />
+                <div className="p-6 space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Lead Source</label>
-                    <p className="text-base text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Lead Source</label>
+                    <p className="text-sm text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
                   </div>
                   {order.source_campaign && (
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Campaign</label>
-                      <p className="text-base text-gray-900 mt-1">{order.source_campaign}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Campaign</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.source_campaign}</p>
                     </div>
                   )}
                   {order.referral_code && (
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Referral Code</label>
-                      <p className="text-base font-mono text-gray-900 mt-1">{order.referral_code}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Referral Code</label>
+                      <p className="text-sm font-mono text-gray-900 mt-1 bg-gray-50 px-2 py-1 rounded inline-block">
+                        {order.referral_code}
+                      </p>
                     </div>
                   )}
                   {order.referred_by && (
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Referred By</label>
-                      <p className="text-base text-gray-900 mt-1">{order.referred_by}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Referred By</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.referred_by}</p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </DashboardCard>
 
               {/* Timestamps */}
-              <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <Clock size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Timestamps
-                    </CardTitle>
+              <DashboardCard>
+                <DashboardCardHeader icon={Clock} title="Timeline" />
+                <div className="p-6 space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Created</span>
+                    <span className="text-sm font-medium text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
                   </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Created</span>
-                    <span className="text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span className="text-sm text-gray-600">Last Updated</span>
+                    <span className="text-sm font-medium text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Last Updated</span>
-                    <span className="text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
-                  </div>
-                </CardContent>
-              </Card>
+                  {order.payment_date && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-sm text-gray-600">Payment Date</span>
+                      <span className="text-sm font-medium text-gray-900">{new Date(order.payment_date).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {order.installation_scheduled_date && (
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-sm text-gray-600">Installation Scheduled</span>
+                      <span className="text-sm font-medium text-gray-900">{new Date(order.installation_scheduled_date).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {order.activation_date && (
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-sm text-gray-600">Activated</span>
+                      <span className="text-sm font-medium text-green-600">{new Date(order.activation_date).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              </DashboardCard>
             </div>
           </div>
         </TabsContent>
@@ -718,48 +827,40 @@ export default function AdminOrderDetailPage() {
         <TabsContent value="installation" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
-               {/* Installation Section */}
-               <InstallationSection orderId={order.id} className="shadow-sm" />
+              <InstallationSection orderId={order.id} className="border border-gray-200 shadow-sm rounded-lg" />
             </div>
             <div className="space-y-6">
-               {/* Installation Address */}
-               <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <MapPin size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Installation Address
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+              {/* Installation Address */}
+              <DashboardCard>
+                <DashboardCardHeader icon={MapPin} title="Installation Address" />
+                <div className="p-6 space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-600">Street Address</label>
-                    <p className="text-base text-gray-900 mt-1">{order.installation_address}</p>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
+                    <p className="text-sm text-gray-900 mt-1">{order.installation_address}</p>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {order.suburb && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Suburb</label>
-                        <p className="text-base text-gray-900 mt-1">{order.suburb}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
+                        <p className="text-sm text-gray-900 mt-1">{order.suburb}</p>
                       </div>
                     )}
                     {order.city && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">City</label>
-                        <p className="text-base text-gray-900 mt-1">{order.city}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
+                        <p className="text-sm text-gray-900 mt-1">{order.city}</p>
                       </div>
                     )}
                     {order.province && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Province</label>
-                        <p className="text-base text-gray-900 mt-1">{order.province}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
+                        <p className="text-sm text-gray-900 mt-1">{order.province}</p>
                       </div>
                     )}
                     {order.postal_code && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Postal Code</label>
-                        <p className="text-base text-gray-900 mt-1">{order.postal_code}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
+                        <p className="text-sm text-gray-900 mt-1">{order.postal_code}</p>
                       </div>
                     )}
                   </div>
@@ -767,33 +868,28 @@ export default function AdminOrderDetailPage() {
                     <>
                       <Separator />
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Special Instructions</label>
-                        <p className="text-base text-gray-900 mt-1">{order.special_instructions}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Special Instructions</label>
+                        <p className="text-sm text-gray-900 mt-1 bg-yellow-50 border border-yellow-100 rounded-lg p-3">
+                          {order.special_instructions}
+                        </p>
                       </div>
                     </>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </DashboardCard>
 
-               {/* Installation Documentation */}
-               {order.installation_document_url && (
-                <Card className="shadow-sm">
-                  <CardHeader className="px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <FileText size={20} className="text-gray-700" />
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Installation Documentation
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+              {/* Installation Documentation */}
+              {order.installation_document_url && (
+                <DashboardCard>
+                  <DashboardCardHeader icon={FileText} title="Installation Documentation" />
+                  <div className="p-6">
+                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="bg-white p-2 rounded border">
+                        <div className="h-12 w-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
                           <FileText className="h-6 w-6 text-blue-600" />
                         </div>
                         <div className="overflow-hidden">
-                          <p className="font-medium text-sm truncate max-w-[150px] sm:max-w-[200px]" title={order.installation_document_name}>
+                          <p className="font-medium text-sm text-gray-900 truncate max-w-[180px]" title={order.installation_document_name}>
                             {order.installation_document_name || 'Installation Proof'}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -804,6 +900,7 @@ export default function AdminOrderDetailPage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="gap-2 border-gray-200 hover:border-circleTel-orange/30"
                         onClick={() => {
                           const url = order.installation_document_url?.startsWith('http')
                             ? order.installation_document_url
@@ -811,12 +908,12 @@ export default function AdminOrderDetailPage() {
                           window.open(url, '_blank');
                         }}
                       >
-                        <Download className="h-4 w-4 mr-2" />
+                        <Download className="h-4 w-4" />
                         Download
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </DashboardCard>
               )}
             </div>
           </div>
@@ -824,161 +921,146 @@ export default function AdminOrderDetailPage() {
 
         {/* FINANCIALS TAB */}
         <TabsContent value="financials" className="space-y-6">
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="space-y-6">
-               {/* Payment Information */}
-               <Card className="shadow-sm">
-                <CardHeader className="px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <CreditCard size={20} className="text-gray-700" />
-                    <CardTitle className="text-lg font-semibold text-gray-800">
-                      Payment Information
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              {/* Payment Information */}
+              <DashboardCard>
+                <DashboardCardHeader
+                  icon={CreditCard}
+                  title="Payment Information"
+                  badge={getPaymentBadge(order.payment_status)}
+                />
+                <div className="p-6 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Payment Method</label>
-                      <p className="text-base text-gray-900 mt-1 capitalize">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payment Method</label>
+                      <p className="text-sm text-gray-900 mt-1 capitalize">
                         {order.payment_method || 'Not specified'}
                       </p>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Payment Status</label>
-                      <div className="mt-1">{getPaymentBadge(order.payment_status)}</div>
-                    </div>
                     {order.payment_reference && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Payment Reference</label>
-                        <p className="text-base text-gray-900 mt-1">{order.payment_reference}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Reference</label>
+                        <p className="text-sm font-mono text-gray-900 mt-1 bg-gray-50 px-2 py-1 rounded inline-block">
+                          {order.payment_reference}
+                        </p>
                       </div>
                     )}
                     {order.payment_date && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Payment Date</label>
-                        <p className="text-base text-gray-900 mt-1">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payment Date</label>
+                        <p className="text-sm text-gray-900 mt-1">
                           {new Date(order.payment_date).toLocaleDateString()}
                         </p>
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Total Paid</label>
-                      <p className="text-base font-semibold text-gray-900 mt-1">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Paid</label>
+                      <p className="text-xl font-bold text-green-600 mt-1 tabular-nums">
                         R{parseFloat(order.total_paid as any).toFixed(2)}
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </DashboardCard>
 
-               {/* Payment Method Status */}
-               <PaymentMethodStatus
+              {/* Payment Method Status */}
+              <PaymentMethodStatus
                 orderId={order.id}
                 onRequestPaymentMethod={() => setPaymentMethodModal(true)}
               />
-             </div>
-             <div className="space-y-6">
-               {/* Invoices Section */}
-               <OrderInvoices
+            </div>
+            <div className="space-y-6">
+              {/* Invoices Section */}
+              <OrderInvoices
                 orderId={order.id}
                 customerId={order.customer_id}
                 packageName={order.package_name}
                 packagePrice={order.package_price}
                 routerFee={order.router_rental_fee}
                 accountNumber={order.account_number}
-                className="shadow-sm"
+                className="border border-gray-200 shadow-sm rounded-lg"
               />
 
-               {/* Billing Address */}
-               {!order.billing_same_as_installation && order.billing_address && (
-                <Card className="shadow-sm">
-                  <CardHeader className="px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <FileText size={20} className="text-gray-700" />
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Billing Address
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
+              {/* Billing Address */}
+              {!order.billing_same_as_installation && order.billing_address && (
+                <DashboardCard>
+                  <DashboardCardHeader icon={FileText} title="Billing Address" />
+                  <div className="p-6 space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Street Address</label>
-                      <p className="text-base text-gray-900 mt-1">{order.billing_address}</p>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
+                      <p className="text-sm text-gray-900 mt-1">{order.billing_address}</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {order.billing_suburb && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Suburb</label>
-                          <p className="text-base text-gray-900 mt-1">{order.billing_suburb}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.billing_suburb}</p>
                         </div>
                       )}
                       {order.billing_city && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">City</label>
-                          <p className="text-base text-gray-900 mt-1">{order.billing_city}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.billing_city}</p>
                         </div>
                       )}
                       {order.billing_province && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Province</label>
-                          <p className="text-base text-gray-900 mt-1">{order.billing_province}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.billing_province}</p>
                         </div>
                       )}
                       {order.billing_postal_code && (
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Postal Code</label>
-                          <p className="text-base text-gray-900 mt-1">{order.billing_postal_code}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
+                          <p className="text-sm text-gray-900 mt-1">{order.billing_postal_code}</p>
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </DashboardCard>
               )}
-             </div>
-           </div>
+            </div>
+          </div>
         </TabsContent>
 
         {/* HISTORY TAB */}
         <TabsContent value="history" className="space-y-6">
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <div className="space-y-6">
-               {/* Communication Timeline */}
-               <CommunicationTimeline orderId={order.id} />
-             </div>
-             <div className="space-y-6">
-               {/* Notes */}
-               {(order.technician_notes || order.internal_notes) && (
-                <Card className="shadow-sm">
-                  <CardHeader className="px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <FileText size={20} className="text-gray-700" />
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Notes
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              {/* Communication Timeline */}
+              <CommunicationTimeline orderId={order.id} />
+            </div>
+            <div className="space-y-6">
+              {/* Notes */}
+              {(order.technician_notes || order.internal_notes) && (
+                <DashboardCard>
+                  <DashboardCardHeader icon={FileText} title="Notes" />
+                  <div className="p-6 space-y-4">
                     {order.technician_notes && (
                       <div>
-                        <label className="text-sm font-medium text-gray-600">Technician Notes</label>
-                        <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.technician_notes}</p>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Technician Notes</label>
+                        <p className="text-sm text-gray-900 mt-2 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-lg p-3">
+                          {order.technician_notes}
+                        </p>
                       </div>
                     )}
                     {order.internal_notes && (
                       <>
                         {order.technician_notes && <Separator />}
                         <div>
-                          <label className="text-sm font-medium text-gray-600">Internal Notes</label>
-                          <p className="text-base text-gray-900 mt-1 whitespace-pre-wrap">{order.internal_notes}</p>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Internal Notes</label>
+                          <p className="text-sm text-gray-900 mt-2 whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-3">
+                            {order.internal_notes}
+                          </p>
                         </div>
                       </>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </DashboardCard>
               )}
-             </div>
-           </div>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 
@@ -996,11 +1078,10 @@ export default function AdminOrderDetailPage() {
           package_price: order.package_price,
         }}
         onSuccess={() => {
-          fetchOrder(); // Refresh order data
+          fetchOrder();
           setPaymentMethodModal(false);
         }}
       />
     </div>
-    </main>
   );
 }
