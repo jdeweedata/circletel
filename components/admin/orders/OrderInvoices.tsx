@@ -11,15 +11,14 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   FileText,
   Download,
   Plus,
   RefreshCw,
-  Calendar,
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
@@ -193,21 +192,32 @@ export function OrderInvoices({
   };
 
   return (
-    <Card className={className}>
-      <CardHeader className="px-6 py-4 border-b border-gray-100">
+    <div className={cn(
+      'relative overflow-hidden border border-gray-200 bg-white',
+      'shadow-sm transition-all duration-200 rounded-lg',
+      className
+    )}>
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FileText size={20} className="text-gray-700" />
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              Invoices
-            </CardTitle>
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Invoices</h3>
+              <p className="text-sm text-gray-500">
+                {invoices.length} invoice{invoices.length !== 1 ? 's' : ''} generated
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={fetchInvoices}
               disabled={loading}
+              className="h-8 px-2 text-gray-500 hover:text-gray-700"
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             </Button>
@@ -231,8 +241,10 @@ export function OrderInvoices({
             </Button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-6">
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
         {/* Status Messages */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
@@ -342,8 +354,8 @@ export function OrderInvoices({
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

@@ -50,7 +50,7 @@ export function WorkflowStepper({ steps, currentStatus, onStepClick }: WorkflowS
               <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center border-2
                 transition-all duration-300 shadow-sm
                 ${isCompleted ? 'bg-white border-green-500 text-green-500' : ''}
-                ${isActive ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg scale-110' : ''}
+                ${isActive ? 'bg-circleTel-orange text-white border-circleTel-orange shadow-lg scale-110' : ''}
                 ${isPending ? 'bg-gray-50 border-gray-200 text-gray-300' : ''}
                 group-hover:shadow-md
               `}>
@@ -67,7 +67,7 @@ export function WorkflowStepper({ steps, currentStatus, onStepClick }: WorkflowS
               {/* Labels */}
               <div className="mt-4 text-center px-1">
                 <p className={`text-xs font-bold uppercase tracking-wide mb-1 transition-colors duration-300
-                  ${isActive ? 'text-indigo-600' : (isCompleted ? 'text-gray-700' : 'text-gray-500')}
+                  ${isActive ? 'text-circleTel-orange' : (isCompleted ? 'text-gray-700' : 'text-gray-500')}
                 `}>
                   {step.label}
                 </p>
