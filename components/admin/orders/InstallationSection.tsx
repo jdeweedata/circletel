@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import {
   Calendar,
   Clock,
@@ -122,72 +122,96 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Installation Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Wrench className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Installation Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Wrench className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (!task) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Installation Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Wrench className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <div className="text-center py-8 text-gray-500">
             <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
             <p className="text-sm">No installation scheduled yet</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className={className}>
-      <CardHeader>
+    <div className={cn(
+      'relative overflow-hidden border border-gray-200 bg-white',
+      'shadow-sm transition-all duration-200 rounded-lg',
+      className
+    )}>
+      <div className="px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Installation Details
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Wrench className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
+          </div>
           {getStatusBadge(task.status)}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      </div>
+      <div className="p-6 space-y-6">
         {/* Schedule Information */}
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-gray-900">Schedule</h4>
@@ -388,7 +412,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
             </div>
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
