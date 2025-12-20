@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 import {
   CreditCard,
   CheckCircle,
@@ -299,64 +299,82 @@ export function PaymentMethodStatus({
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment Method
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment Method
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (!paymentMethod) {
     // No payment method registered yet
     return (
-      <Card className={className}>
-        <CardHeader>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg',
+        className
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment Method
-              </CardTitle>
-              <CardDescription className="mt-1">
-                No payment method registered
-              </CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-circleTel-orange" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
+                <p className="text-sm text-gray-500">No payment method registered</p>
+              </div>
             </div>
             <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
               Not Registered
             </Badge>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="p-6">
           <div className="text-center py-6">
-            <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-gray-400" />
+            </div>
             <p className="text-sm text-gray-600 font-medium mb-2">
               No payment method on file
             </p>
@@ -364,14 +382,14 @@ export function PaymentMethodStatus({
               Request the customer to register their bank account or credit card for recurring billing
             </p>
             {onRequestPaymentMethod && (
-              <Button onClick={onRequestPaymentMethod} size="sm">
+              <Button onClick={onRequestPaymentMethod} size="sm" className="bg-circleTel-orange hover:bg-orange-600">
                 <CreditCard className="h-4 w-4 mr-2" />
                 Request Payment Method
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -380,27 +398,33 @@ export function PaymentMethodStatus({
   const expired = emandateRequest && isExpired(emandateRequest.expires_at);
 
   return (
-    <Card className={className}>
-      <CardHeader>
+    <div className={cn(
+      'relative overflow-hidden border border-gray-200 bg-white',
+      'shadow-sm transition-all duration-200 rounded-lg',
+      className
+    )}>
+      <div className="px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Payment Method
-            </CardTitle>
-            <CardDescription className="mt-1">
-              {paymentMethod.method_type === 'bank_account'
-                ? 'Bank Account'
-                : 'Credit Card'} - {paymentMethod.mandate_frequency || 'Monthly'}
-            </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
+              <p className="text-sm text-gray-500">
+                {paymentMethod.method_type === 'bank_account'
+                  ? 'Bank Account'
+                  : 'Credit Card'} - {paymentMethod.mandate_frequency || 'monthly'}
+              </p>
+            </div>
           </div>
           <Badge className={`${statusConfig.className} border`}>
             <StatusIcon className="h-3 w-3 mr-1" />
             {statusConfig.label}
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="p-6 space-y-4">
         {/* Bank Account Details */}
         {paymentMethod.method_type === 'bank_account' && paymentMethod.status === 'active' && (
           <div className="space-y-3">
@@ -709,13 +733,13 @@ export function PaymentMethodStatus({
           )}
 
           {paymentMethod.status === 'failed' && onRequestPaymentMethod && (
-            <Button size="sm" onClick={onRequestPaymentMethod}>
+            <Button size="sm" onClick={onRequestPaymentMethod} className="bg-circleTel-orange hover:bg-orange-600">
               <CreditCard className="h-4 w-4 mr-2" />
               Retry Request
             </Button>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
