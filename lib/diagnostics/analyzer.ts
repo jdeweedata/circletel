@@ -186,11 +186,16 @@ export class DiagnosticsAnalyzer {
 
     await supabase
       .from('subscriber_diagnostics')
-      .upsert({
-        customer_service_id: customerServiceId,
-        interstellio_subscriber_id: interstellioSubscriberId,
-        ...diagnosticsUpdate,
-      })
+      .upsert(
+        {
+          customer_service_id: customerServiceId,
+          interstellio_subscriber_id: interstellioSubscriberId,
+          ...diagnosticsUpdate,
+        },
+        {
+          onConflict: 'customer_service_id',
+        }
+      )
 
     // Create health check event
     await this.createEvent({
