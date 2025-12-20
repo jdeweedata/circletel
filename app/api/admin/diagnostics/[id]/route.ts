@@ -11,10 +11,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createDiagnosticsAnalyzer } from '@/lib/diagnostics/analyzer'
+import { getInterstellioClient } from '@/lib/interstellio'
+import type { DataUsageEntry } from '@/lib/interstellio/types'
 import type {
   DiagnosticsDetailResponse,
   ManualDiagnosticsRequest,
   ManualDiagnosticsResponse,
+  UsageSummary,
 } from '@/lib/diagnostics/types'
 
 /**
@@ -93,6 +96,62 @@ export async function GET(
       .in('status', ['open', 'pending', 'in_progress'])
       .order('created_at', { ascending: false })
 
+    // Fetch usage data from Interstellio
+    let usage: UsageSummary | null = null
+
+    if (service.connection_id) {
+      try {
+        const client = getInterstellioClient()
+        const now = new Date()
+
+        // Calculate totals from usage entries
+        const calculateTotals = (entries: DataUsageEntry[]) => {
+          const totalUploadKb = entries.reduce((sum, e) => sum + (e.upload_kb || 0), 0)
+          const totalDownloadKb = entries.reduce((sum, e) => sum + (e.download_kb || 0), 0)
+          return {
+            uploadGb: Math.round((totalUploadKb / 1024 / 1024) * 100) / 100,
+            downloadGb: Math.round((totalDownloadKb / 1024 / 1024) * 100) / 100,
+            totalGb: Math.round(((totalUploadKb + totalDownloadKb) / 1024 / 1024) * 100) / 100,
+          }
+        }
+
+        // Fetch today's usage (hourly aggregation)
+        const startOfToday = new Date(now)
+        startOfToday.setHours(0, 0, 0, 0)
+
+        const todayUsage = await client.getSubscriberUsage(
+          service.connection_id,
+          'hourly',
+          {
+            start: startOfToday.toISOString(),
+            end: now.toISOString(),
+          }
+        )
+
+        // Fetch 7-day usage (daily aggregation)
+        const startOf7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+        const sevenDayUsage = await client.getSubscriberUsage(
+          service.connection_id,
+          'daily',
+          {
+            start: startOf7Days.toISOString(),
+            end: now.toISOString(),
+          }
+        )
+
+        usage = {
+          today: calculateTotals(todayUsage),
+          sevenDays: calculateTotals(sevenDayUsage),
+          lastUpdated: now.toISOString(),
+        }
+      } catch (error) {
+        console.error('[Admin Diagnostics] Failed to fetch usage data:', error)
+        // Don't fail entire request - just set usage to null
+        usage = null
+      }
+    }
+
     // Handle the case where customers might be an array or single object
     const customersData = service.customers as unknown
     const customer = (Array.isArray(customersData) ? customersData[0] : customersData) as {
@@ -122,6 +181,7 @@ export async function GET(
       },
       recent_events: events || [],
       open_tickets: tickets || [],
+      usage,
     }
 
     return NextResponse.json(response)

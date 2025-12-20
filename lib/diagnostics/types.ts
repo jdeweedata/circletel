@@ -348,6 +348,23 @@ export interface DiagnosticsListResponse {
 }
 
 /**
+ * Usage summary from Interstellio telemetry
+ */
+export interface UsageSummary {
+  today: {
+    uploadGb: number
+    downloadGb: number
+    totalGb: number
+  }
+  sevenDays: {
+    uploadGb: number
+    downloadGb: number
+    totalGb: number
+  }
+  lastUpdated: string | null
+}
+
+/**
  * Single subscriber diagnostics detail response
  */
 export interface DiagnosticsDetailResponse {
@@ -374,6 +391,7 @@ export interface DiagnosticsDetailResponse {
     status: string
     created_at: string
   }[]
+  usage: UsageSummary | null
 }
 
 /**

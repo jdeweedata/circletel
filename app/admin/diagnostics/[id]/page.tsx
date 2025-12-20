@@ -38,6 +38,8 @@ import {
   Signal,
   Zap,
   ExternalLink,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
@@ -281,7 +283,7 @@ export default function DiagnosticsDetailPage() {
     )
   }
 
-  const { diagnostics, customer, service, recent_events, open_tickets } = data
+  const { diagnostics, customer, service, recent_events, open_tickets, usage } = data
   const healthConfig = getHealthStatusConfig(diagnostics.health_status as HealthStatus)
 
   return (
@@ -565,7 +567,10 @@ export default function DiagnosticsDetailPage() {
           </div>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className={cn(
+            'grid gap-4',
+            usage ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 md:grid-cols-4'
+          )}>
             <StatCard
               title="Total Sessions"
               value={diagnostics.total_sessions_7days}
@@ -595,6 +600,27 @@ export default function DiagnosticsDetailPage() {
               iconBgColor="bg-purple-100"
               iconColor="text-purple-600"
             />
+            {/* Usage cards - only show if usage data available */}
+            {usage && (
+              <>
+                <StatCard
+                  title="Upload (7d)"
+                  value={`${usage.sevenDays.uploadGb} GB`}
+                  icon={<ArrowUp className="h-5 w-5" />}
+                  iconBgColor="bg-cyan-100"
+                  iconColor="text-cyan-600"
+                  subtitle={`${usage.today.uploadGb} GB today`}
+                />
+                <StatCard
+                  title="Download (7d)"
+                  value={`${usage.sevenDays.downloadGb} GB`}
+                  icon={<ArrowDown className="h-5 w-5" />}
+                  iconBgColor="bg-indigo-100"
+                  iconColor="text-indigo-600"
+                  subtitle={`${usage.today.downloadGb} GB today`}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
