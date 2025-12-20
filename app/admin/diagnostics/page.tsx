@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -29,16 +30,85 @@ import {
   AlertTriangle,
   Activity,
   Clock,
-  TrendingDown,
   CheckCircle2,
   XCircle,
   HelpCircle,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  Loader2,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type {
   DiagnosticsListResponse,
   DiagnosticsSummary,
   HealthStatus,
 } from '@/lib/diagnostics/types'
+
+// Modern stat card component matching dashboard design
+interface DiagnosticsStatCardProps {
+  title: string
+  value: number
+  icon: React.ReactNode
+  iconBgColor: string
+  iconColor: string
+  trend?: { value: number; isPositive: boolean }
+  subtitle?: string
+  onClick?: () => void
+  isActive?: boolean
+}
+
+function DiagnosticsStatCard({
+  title,
+  value,
+  icon,
+  iconBgColor,
+  iconColor,
+  trend,
+  subtitle,
+  onClick,
+  isActive,
+}: DiagnosticsStatCardProps) {
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        'relative overflow-hidden border bg-white shadow-sm rounded-lg transition-all duration-200 cursor-pointer',
+        isActive
+          ? 'border-circleTel-orange ring-2 ring-circleTel-orange/20'
+          : 'border-gray-200 hover:shadow-md hover:border-circleTel-orange/30'
+      )}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-3">
+          <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', iconBgColor)}>
+            <div className={iconColor}>{icon}</div>
+          </div>
+          {trend && (
+            <div
+              className={cn(
+                'flex items-center gap-1 text-sm font-semibold',
+                trend.isPositive ? 'text-green-600' : 'text-red-600'
+              )}
+            >
+              {trend.isPositive ? (
+                <TrendingUp className="h-4 w-4" />
+              ) : (
+                <TrendingDown className="h-4 w-4" />
+              )}
+              <span>{trend.value}%</span>
+            </div>
+          )}
+        </div>
+
+        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+        <p className="text-3xl font-bold text-gray-900 tracking-tight">{value}</p>
+
+        {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
+      </div>
+    </div>
+  )
+}
 
 export default function DiagnosticsPage() {
   const router = useRouter()
@@ -123,162 +193,174 @@ export default function DiagnosticsPage() {
   }
 
   const getHealthStatusBadge = (status: HealthStatus, score: number) => {
-    const config: Record<HealthStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode; className: string }> = {
+    const config: Record<
+      HealthStatus,
+      { bg: string; text: string; icon: React.ReactNode }
+    > = {
       healthy: {
-        variant: 'default',
-        icon: <CheckCircle2 className="w-3 h-3 mr-1" />,
-        className: 'bg-green-500 hover:bg-green-600',
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        icon: <CheckCircle2 className="w-3.5 h-3.5" />,
       },
       warning: {
-        variant: 'secondary',
-        icon: <AlertTriangle className="w-3 h-3 mr-1" />,
-        className: 'bg-amber-500 hover:bg-amber-600 text-white',
+        bg: 'bg-amber-100',
+        text: 'text-amber-800',
+        icon: <AlertTriangle className="w-3.5 h-3.5" />,
       },
       critical: {
-        variant: 'destructive',
-        icon: <XCircle className="w-3 h-3 mr-1" />,
-        className: '',
+        bg: 'bg-red-100',
+        text: 'text-red-800',
+        icon: <XCircle className="w-3.5 h-3.5" />,
       },
       offline: {
-        variant: 'outline',
-        icon: <WifiOff className="w-3 h-3 mr-1" />,
-        className: 'bg-gray-500 hover:bg-gray-600 text-white border-gray-500',
+        bg: 'bg-gray-100',
+        text: 'text-gray-700',
+        icon: <WifiOff className="w-3.5 h-3.5" />,
       },
       unknown: {
-        variant: 'outline',
-        icon: <HelpCircle className="w-3 h-3 mr-1" />,
-        className: '',
+        bg: 'bg-gray-50',
+        text: 'text-gray-500',
+        icon: <HelpCircle className="w-3.5 h-3.5" />,
       },
     }
 
-    const { variant, icon, className } = config[status]
+    const { bg, text, icon } = config[status]
 
     return (
-      <Badge variant={variant} className={`flex items-center ${className}`}>
+      <div className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium', bg, text)}>
         {icon}
         <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
-        <span className="ml-1 text-xs opacity-75">({score})</span>
-      </Badge>
+        <span className="opacity-60">({score})</span>
+      </div>
     )
   }
 
   const getSessionStatusBadge = (isActive: boolean) => {
     if (isActive) {
       return (
-        <Badge variant="outline" className="flex items-center bg-green-100 text-green-800 border-green-300">
-          <Wifi className="w-3 h-3 mr-1" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+          <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
           Online
-        </Badge>
+        </div>
       )
     }
     return (
-      <Badge variant="outline" className="flex items-center bg-gray-100 text-gray-600 border-gray-300">
-        <WifiOff className="w-3 h-3 mr-1" />
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
+        <div className="h-2 w-2 bg-gray-400 rounded-full" />
         Offline
-      </Badge>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Network Diagnostics</h1>
-          <p className="text-gray-500">Monitor subscriber connection health and troubleshoot issues</p>
+    <div className="space-y-8">
+      {/* Header - matching dashboard style */}
+      <div className="mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Network Diagnostics</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Monitor subscriber connection health and troubleshoot issues
+            </p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="bg-circleTel-orange hover:bg-orange-600 gap-2"
+          >
+            <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
+            Refresh
+          </Button>
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} className="gap-2">
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Modern Stats Grid - 4 columns like dashboard */}
       {data?.stats && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('all')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total</p>
-                  <p className="text-2xl font-bold">{data.stats.total}</p>
-                </div>
-                <Activity className="w-8 h-8 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <DiagnosticsStatCard
+            title="Total Subscribers"
+            value={data.stats.total}
+            icon={<Activity className="h-5 w-5" />}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            subtitle="All monitored connections"
+            onClick={() => setStatusFilter('all')}
+            isActive={statusFilter === 'all'}
+          />
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('healthy')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Healthy</p>
-                  <p className="text-2xl font-bold text-green-600">{data.stats.healthy}</p>
-                </div>
-                <CheckCircle2 className="w-8 h-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
+          <DiagnosticsStatCard
+            title="Healthy"
+            value={data.stats.healthy}
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            subtitle="Connections running smoothly"
+            onClick={() => setStatusFilter('healthy')}
+            isActive={statusFilter === 'healthy'}
+          />
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('warning')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Warning</p>
-                  <p className="text-2xl font-bold text-amber-600">{data.stats.warning}</p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
+          <DiagnosticsStatCard
+            title="Needs Attention"
+            value={data.stats.warning + data.stats.critical}
+            icon={<AlertTriangle className="h-5 w-5" />}
+            iconBgColor="bg-amber-100"
+            iconColor="text-amber-600"
+            subtitle={`${data.stats.warning} warning, ${data.stats.critical} critical`}
+            onClick={() => setStatusFilter('warning')}
+            isActive={statusFilter === 'warning' || statusFilter === 'critical'}
+          />
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('critical')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Critical</p>
-                  <p className="text-2xl font-bold text-red-600">{data.stats.critical}</p>
-                </div>
-                <XCircle className="w-8 h-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('offline')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Offline</p>
-                  <p className="text-2xl font-bold text-gray-600">{data.stats.offline}</p>
-                </div>
-                <WifiOff className="w-8 h-8 text-gray-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('unknown')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Unknown</p>
-                  <p className="text-2xl font-bold text-gray-400">{data.stats.unknown}</p>
-                </div>
-                <HelpCircle className="w-8 h-8 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
+          <DiagnosticsStatCard
+            title="Offline"
+            value={data.stats.offline}
+            icon={<WifiOff className="h-5 w-5" />}
+            iconBgColor="bg-gray-100"
+            iconColor="text-gray-600"
+            subtitle="Currently disconnected"
+            onClick={() => setStatusFilter('offline')}
+            isActive={statusFilter === 'offline'}
+          />
         </div>
       )}
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Subscriber Health</CardTitle>
-          <CardDescription>
-            View and manage subscriber connection diagnostics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Critical Alert Banner - if any critical issues */}
+      {data?.stats && data.stats.critical > 0 && (
+        <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-red-500 rounded-lg">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {data.stats.critical} Critical Connection{data.stats.critical !== 1 ? 's' : ''}
+              </h3>
+              <p className="text-gray-700 mb-4">
+                There are subscribers experiencing severe connection issues that require immediate attention.
+              </p>
+              <Button
+                onClick={() => setStatusFilter('critical')}
+                className="bg-red-600 hover:bg-red-700 font-semibold shadow-md"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                View Critical Issues
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Subscriber Health Card - matching dashboard card style */}
+      <div className="border border-gray-200 bg-white shadow-sm rounded-lg overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">Subscriber Health</h2>
+            <span className="text-sm text-gray-500">
+              {data?.pagination.total || 0} subscribers monitored
+            </span>
+          </div>
+        </div>
+        <div className="p-6">
+          {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <form onSubmit={handleSearch} className="flex-1 flex gap-2">
               <div className="relative flex-1">
@@ -287,17 +369,17 @@ export default function DiagnosticsPage() {
                   placeholder="Search by name, email, or subscriber ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 border-gray-200 focus:border-circleTel-orange focus:ring-circleTel-orange/20"
                 />
               </div>
-              <Button type="submit" variant="secondary">
+              <Button type="submit" variant="secondary" className="bg-gray-100 hover:bg-gray-200">
                 Search
               </Button>
             </form>
 
             <div className="flex gap-2">
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as HealthStatus | 'all')}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[140px] border-gray-200">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -311,7 +393,7 @@ export default function DiagnosticsPage() {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[160px] border-gray-200">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -327,122 +409,151 @@ export default function DiagnosticsPage() {
                 size="icon"
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                className="border-gray-200 hover:bg-gray-100"
               >
                 {sortOrder === 'asc' ? '↑' : '↓'}
               </Button>
             </div>
           </div>
 
-          {/* Table */}
+          {/* Table / Loading / Empty State */}
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-gray-500">Loading diagnostics...</span>
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange mb-4" />
+              <p className="text-gray-500">Loading diagnostics...</p>
             </div>
           ) : !data?.data?.length ? (
-            <div className="text-center py-12">
-              <Activity className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No diagnostics data found</p>
-              <p className="text-sm text-gray-400 mt-1">
+            <div className="text-center py-16">
+              <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Activity className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-lg font-medium text-gray-700 mb-1">No diagnostics data found</p>
+              <p className="text-sm text-gray-500">
                 Diagnostics will appear here once subscribers are connected
               </p>
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Package</TableHead>
-                    <TableHead>Health</TableHead>
-                    <TableHead>Session</TableHead>
-                    <TableHead className="text-center">Drops Today</TableHead>
-                    <TableHead className="text-center">Sessions 7d</TableHead>
-                    <TableHead>Last Check</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.data.map((item: DiagnosticsSummary) => (
-                    <TableRow
-                      key={item.diagnostics_id}
-                      className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => router.push(`/admin/diagnostics/${item.customer_service_id}`)}
-                    >
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{item.customer_name}</p>
-                          <p className="text-sm text-gray-500">{item.customer_email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{item.package_name}</p>
-                          <p className="text-xs text-gray-400 truncate max-w-[200px]">
-                            {item.installation_address}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getHealthStatusBadge(item.health_status, item.health_score)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          {getSessionStatusBadge(item.is_session_active)}
-                          {item.is_session_active && item.last_session_duration_seconds > 0 && (
-                            <span className="text-xs text-gray-400 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatDuration(item.last_session_duration_seconds)}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className={`font-medium ${item.lost_carrier_count_today >= 5 ? 'text-red-600' : item.lost_carrier_count_today >= 3 ? 'text-amber-600' : 'text-gray-600'}`}>
-                          {item.lost_carrier_count_today}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="text-gray-600">{item.total_sessions_7days}</span>
-                        {item.lost_carrier_count_7days > 0 && (
-                          <span className="text-xs text-red-500 ml-1">
-                            ({item.lost_carrier_count_7days} drops)
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <p>{formatDate(item.last_check_at)}</p>
-                          {item.critical_events_24h > 0 && (
-                            <p className="text-xs text-red-500 flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              {item.critical_events_24h} critical events
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            router.push(`/admin/diagnostics/${item.customer_service_id}`)
-                          }}
-                        >
-                          View
-                        </Button>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-gray-200">
+                      <TableHead className="text-gray-600 font-semibold">Customer</TableHead>
+                      <TableHead className="text-gray-600 font-semibold">Package</TableHead>
+                      <TableHead className="text-gray-600 font-semibold">Health</TableHead>
+                      <TableHead className="text-gray-600 font-semibold">Session</TableHead>
+                      <TableHead className="text-center text-gray-600 font-semibold">Drops Today</TableHead>
+                      <TableHead className="text-center text-gray-600 font-semibold">7-Day Activity</TableHead>
+                      <TableHead className="text-gray-600 font-semibold">Last Check</TableHead>
+                      <TableHead className="text-right text-gray-600 font-semibold">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.data.map((item: DiagnosticsSummary) => (
+                      <TableRow
+                        key={item.diagnostics_id}
+                        className="cursor-pointer hover:bg-gray-50 border-gray-100 transition-colors"
+                        onClick={() => router.push(`/admin/diagnostics/${item.customer_service_id}`)}
+                      >
+                        <TableCell>
+                          <div>
+                            <p className="font-semibold text-gray-900">{item.customer_name}</p>
+                            <p className="text-sm text-gray-500">{item.customer_email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-gray-900">{item.package_name}</p>
+                            <p className="text-xs text-gray-400 truncate max-w-[200px]">
+                              {item.installation_address}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getHealthStatusBadge(item.health_status, item.health_score)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            {getSessionStatusBadge(item.is_session_active)}
+                            {item.is_session_active && item.last_session_duration_seconds > 0 && (
+                              <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {formatDuration(item.last_session_duration_seconds)}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span
+                            className={cn(
+                              'font-bold text-lg',
+                              item.lost_carrier_count_today >= 5
+                                ? 'text-red-600'
+                                : item.lost_carrier_count_today >= 3
+                                ? 'text-amber-600'
+                                : 'text-gray-600'
+                            )}
+                          >
+                            {item.lost_carrier_count_today}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col items-center">
+                            <span className="font-medium text-gray-900">{item.total_sessions_7days}</span>
+                            <span className="text-xs text-gray-500">sessions</span>
+                            {item.lost_carrier_count_7days > 0 && (
+                              <span className="text-xs text-red-500 font-medium">
+                                {item.lost_carrier_count_7days} drops
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <p className="text-gray-700">{formatDate(item.last_check_at)}</p>
+                            {item.critical_events_24h > 0 && (
+                              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                {item.critical_events_24h} critical
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-circleTel-orange hover:text-orange-700 hover:bg-orange-50"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/admin/diagnostics/${item.customer_service_id}`)
+                            }}
+                          >
+                            View
+                            <ArrowRight className="w-4 h-4 ml-1" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
               {/* Pagination */}
               {data.pagination.total_pages > 1 && (
-                <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
                   <p className="text-sm text-gray-500">
-                    Showing {((page - 1) * 20) + 1} to {Math.min(page * 20, data.pagination.total)} of {data.pagination.total} subscribers
+                    Showing{' '}
+                    <span className="font-medium text-gray-700">
+                      {(page - 1) * 20 + 1}
+                    </span>{' '}
+                    to{' '}
+                    <span className="font-medium text-gray-700">
+                      {Math.min(page * 20, data.pagination.total)}
+                    </span>{' '}
+                    of{' '}
+                    <span className="font-medium text-gray-700">{data.pagination.total}</span>{' '}
+                    subscribers
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -450,6 +561,7 @@ export default function DiagnosticsPage() {
                       size="sm"
                       onClick={() => setPage(page - 1)}
                       disabled={page === 1}
+                      className="border-gray-200 hover:bg-gray-50"
                     >
                       Previous
                     </Button>
@@ -458,6 +570,7 @@ export default function DiagnosticsPage() {
                       size="sm"
                       onClick={() => setPage(page + 1)}
                       disabled={page >= data.pagination.total_pages}
+                      className="border-gray-200 hover:bg-gray-50"
                     >
                       Next
                     </Button>
@@ -466,8 +579,8 @@ export default function DiagnosticsPage() {
               )}
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
