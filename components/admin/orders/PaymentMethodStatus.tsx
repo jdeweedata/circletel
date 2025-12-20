@@ -621,18 +621,26 @@ export function PaymentMethodStatus({
         )}
 
         {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2 pt-2">
-          <Button size="sm" variant="outline" onClick={fetchPaymentMethodStatus}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Status
-          </Button>
+        <div className="space-y-3 pt-2 border-t border-gray-100">
+          {/* Header with Refresh button */}
+          <div className="flex items-center justify-between pt-3">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</h4>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2 text-gray-500 hover:text-gray-700"
+              onClick={fetchPaymentMethodStatus}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
 
-          {/* Approve Validation - for when NetCash 102 Validation email is received */}
+          {/* Primary Action - Approve Validation */}
           {paymentMethod.status === 'pending' && (
             <Button
               size="sm"
               variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              className="w-full bg-green-600 hover:bg-green-700 h-10"
               onClick={approveValidation}
               disabled={approvingValidation}
               title="Use this when you receive the NetCash '102 Validation return' email confirming successful bank validation"
@@ -640,7 +648,7 @@ export function PaymentMethodStatus({
               {approvingValidation ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Approving...
+                  Approving Validation...
                 </>
               ) : (
                 <>
@@ -651,80 +659,78 @@ export function PaymentMethodStatus({
             </Button>
           )}
 
-          {/* Resend Mandate - show for pending/sent/resent statuses */}
+          {/* Secondary Actions Row - Customer Follow-up */}
           {paymentMethod.status === 'pending' && emandateRequest &&
            ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
-            <Button
-              size="sm"
-              variant="default"
-              className="bg-circleTel-orange hover:bg-circleTel-orange/90"
-              onClick={resendMandate}
-              disabled={resendingMandate}
-            >
-              {resendingMandate ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Resending...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Resend Mandate
-                </>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                onClick={resendMandate}
+                disabled={resendingMandate}
+              >
+                {resendingMandate ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-1.5" />
+                    Resend
+                  </>
+                )}
+              </Button>
+
+              {!expired && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={sendReminder}
+                  disabled={sendingNotification}
+                >
+                  {sendingNotification ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-1.5" />
+                      Remind
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+            </div>
           )}
 
-          {/* Send SMS via Clickatell (with delivery tracking) - only show if we have the signing URL */}
-          {paymentMethod.status === 'pending' && emandateRequest && 
+          {/* SMS via Clickatell - only show if we have the signing URL */}
+          {paymentMethod.status === 'pending' && emandateRequest &&
            emandateRequest.netcash_short_url &&
            ['pending', 'sent', 'resent', 'customer_notified', 'viewed'].includes(emandateRequest.status) && (
             <Button
               size="sm"
               variant="outline"
-              className="border-green-500 text-green-700 hover:bg-green-50"
+              className="w-full border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
               onClick={sendClickatellSMS}
               disabled={sendingClickatellSMS}
             >
               {sendingClickatellSMS ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending...
+                  Sending SMS...
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  Send SMS (Clickatell)
+                  Send SMS via Clickatell
                 </>
               )}
             </Button>
           )}
 
-          {paymentMethod.status === 'pending' && emandateRequest && !expired && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={sendReminder}
-              disabled={sendingNotification}
-            >
-              {sendingNotification ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Reminder
-                </>
-              )}
-            </Button>
-          )}
-
+          {/* View Mandate PDF - for active payment methods */}
           {paymentMethod.netcash_mandate_pdf_link && paymentMethod.status === 'active' && (
             <Button
               size="sm"
               variant="outline"
+              className="w-full"
               onClick={() => window.open(paymentMethod.netcash_mandate_pdf_link, '_blank')}
             >
               <FileText className="h-4 w-4 mr-2" />
@@ -732,10 +738,15 @@ export function PaymentMethodStatus({
             </Button>
           )}
 
+          {/* Retry Request - for failed payment methods */}
           {paymentMethod.status === 'failed' && onRequestPaymentMethod && (
-            <Button size="sm" onClick={onRequestPaymentMethod} className="bg-circleTel-orange hover:bg-orange-600">
+            <Button
+              size="sm"
+              className="w-full bg-circleTel-orange hover:bg-orange-600"
+              onClick={onRequestPaymentMethod}
+            >
               <CreditCard className="h-4 w-4 mr-2" />
-              Retry Request
+              Retry Payment Method Request
             </Button>
           )}
         </div>
