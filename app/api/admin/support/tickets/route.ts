@@ -1,138 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request: NextRequest) {
+export const runtime = 'nodejs';
+export const maxDuration = 15;
+
+export async function GET() {
   try {
-    const supabase = await createClient();
-    const body = await request.json();
-
-    const {
-      ticket_number,
-      customer_id,
-      subject,
-      description,
-      priority,
-      category,
-      agent_id,
-      status,
-      attachments,
-    } = body;
-
-    // Validate required fields
-    if (!customer_id || !subject) {
-      return NextResponse.json(
-        { error: 'Customer and subject are required' },
-        { status: 400 }
-      );
-    }
-
-    // Create ticket in database
-    const { data: ticket, error } = await supabase
-      .from('support_tickets')
-      .insert({
-        ticket_number,
-        customer_id,
-        subject,
-        description: description || null,
-        priority: priority || 'low',
-        category: category || 'general',
-        assigned_agent_id: agent_id || null,
-        status: status || 'open',
-        attachments: attachments || [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating support ticket:', error);
-      // If table doesn't exist, return mock success for now
-      if (error.code === '42P01') {
-        return NextResponse.json({
-          success: true,
-          data: {
-            id: `mock-${Date.now()}`,
-            ticket_number,
-            customer_id,
-            subject,
-            status: 'open',
-          },
-          message: 'Ticket created (mock - table not yet created)',
-        });
+    // Use service role client to bypass RLS
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
-      return NextResponse.json(
-        { error: 'Failed to create ticket', details: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: ticket,
-      message: 'Support ticket created successfully',
-    });
-  } catch (error) {
-    console.error('Error in POST /api/admin/support/tickets:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
     );
-  }
-}
 
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
-    
-    const customerId = searchParams.get('customer_id');
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
-    let query = supabase
+    // Fetch tickets with customer info
+    const { data: tickets, error } = await supabase
       .from('support_tickets')
-      .select('*, customers(first_name, last_name, email)')
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (customerId) {
-      query = query.eq('customer_id', customerId);
-    }
-
-    if (status && status !== 'all') {
-      query = query.eq('status', status);
-    }
-
-    const { data: tickets, error, count } = await query;
+      .select(`
+        *,
+        customers (
+          id,
+          first_name,
+          last_name,
+          email,
+          phone,
+          account_number
+        )
+      `)
+      .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching support tickets:', error);
-      // Return empty array if table doesn't exist
-      if (error.code === '42P01') {
-        return NextResponse.json({
-          success: true,
-          data: [],
-          total: 0,
-          message: 'No tickets (table not yet created)',
-        });
-      }
+      console.error('[Support Tickets API] Error:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch tickets' },
+        { success: false, error: 'Failed to fetch tickets', details: error.message },
         { status: 500 }
       );
     }
+
+    // Calculate stats
+    const total = tickets?.length || 0;
+    const open = tickets?.filter(t => t.status === 'open').length || 0;
+    const pending = tickets?.filter(t => t.status === 'pending').length || 0;
+    const resolved = tickets?.filter(t => t.status === 'resolved').length || 0;
+    const closed = tickets?.filter(t => t.status === 'closed').length || 0;
 
     return NextResponse.json({
       success: true,
       data: tickets || [],
-      total: count || 0,
+      stats: {
+        total,
+        open,
+        pending,
+        resolved,
+        closed
+      }
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/support/tickets:', error);
+    console.error('[Support Tickets API] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
