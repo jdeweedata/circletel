@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Clock, User, Tag, FileText, Image, File, Download, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ArrowLeft, Clock, User, Tag, FileText, Image, File, Download, ExternalLink, Ticket, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 interface Attachment {
@@ -113,15 +113,18 @@ export default function TicketDetailPage() {
   if (!ticket) {
     return (
       <div className="p-6">
-        <Card>
-          <CardContent className="p-8 text-center">
+        <div className={cn(
+          'relative overflow-hidden border border-gray-200 bg-white',
+          'shadow-sm transition-all duration-200 rounded-lg'
+        )}>
+          <div className="p-8 text-center">
             <p className="text-gray-600 mb-4">Ticket not found</p>
             <Button variant="outline" onClick={() => router.back()}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -164,25 +167,42 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Ticket Details */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg mb-6'
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Ticket className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Ticket Details</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="flex items-start gap-3">
-              <User className="w-5 h-5 text-gray-400 mt-0.5" />
+              <div className="h-9 w-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
               <div>
                 <p className="text-xs text-gray-500">Customer</p>
                 <p className="text-sm font-medium text-gray-900">{ticket.customer_name || 'N/A'}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Tag className="w-5 h-5 text-gray-400 mt-0.5" />
+              <div className="h-9 w-9 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <Tag className="w-4 h-4 text-purple-600" />
+              </div>
               <div>
                 <p className="text-xs text-gray-500">Category</p>
                 <p className="text-sm font-medium text-gray-900 capitalize">{ticket.category}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
+              <div className="h-9 w-9 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <Clock className="w-4 h-4 text-green-600" />
+              </div>
               <div>
                 <p className="text-xs text-gray-500">Created</p>
                 <p className="text-sm font-medium text-gray-900">{formatDate(ticket.created_at)}</p>
@@ -191,15 +211,15 @@ export default function TicketDetailPage() {
           </div>
 
           <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Description</h3>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+            <h4 className="text-sm font-semibold text-gray-900 mb-3">Description</h4>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
               {ticket.description || 'No description provided.'}
             </p>
           </div>
 
           {ticket.attachments && ticket.attachments.length > 0 && (
             <div className="border-t border-gray-100 pt-6 mt-6">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Attachments ({ticket.attachments.length})</h3>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Attachments ({ticket.attachments.length})</h4>
               <div className="space-y-2">
                 {ticket.attachments.map((attachment, index) => {
                   const getIcon = () => {
@@ -207,7 +227,7 @@ export default function TicketDetailPage() {
                     if (attachment.type.includes('pdf') || attachment.type.includes('document')) return <FileText className="w-4 h-4 text-red-500" />;
                     return <File className="w-4 h-4 text-gray-500" />;
                   };
-                  
+
                   const formatSize = (bytes: number) => {
                     if (bytes < 1024) return `${bytes} B`;
                     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -215,8 +235,8 @@ export default function TicketDetailPage() {
                   };
 
                   return (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
@@ -253,13 +273,23 @@ export default function TicketDetailPage() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Actions */}
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-sm font-medium text-gray-900 mb-4">Actions</h3>
+      <div className={cn(
+        'relative overflow-hidden border border-gray-200 bg-white',
+        'shadow-sm transition-all duration-200 rounded-lg'
+      )}>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Settings className="h-5 w-5 text-circleTel-orange" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Actions</h3>
+          </div>
+        </div>
+        <div className="p-6">
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm">
               Assign Agent
@@ -271,8 +301,8 @@ export default function TicketDetailPage() {
               Add Note
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
