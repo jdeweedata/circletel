@@ -1,0 +1,6 @@
+# Context files are session-specific, don't commit
+current-task.md
+blockers.md
+
+# Keep decisions for historical reference
+!decisions.md

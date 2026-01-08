@@ -1,0 +1,6 @@
+# Scratch files are temporary, never commit
+*
+!.gitignore
+!tool-outputs/
+tool-outputs/*
+!tool-outputs/.gitignore
