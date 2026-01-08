@@ -113,7 +113,8 @@ export default function PaymentMonitoringDashboard() {
       'netcash': 'NetCash Pay Now',
       'zoho_billing': 'ZOHO Billing',
       'payfast': 'PayFast',
-      'paygate': 'PayGate'
+      'paygate': 'PayGate',
+      'mock': 'Mock Provider'
     };
     return names[provider] || provider;
   };

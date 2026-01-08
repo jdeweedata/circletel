@@ -5,8 +5,6 @@
  * Tests /api/activation/activate-service endpoint
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-
 describe('Service Activation API', () => {
   const mockOrder = {
     id: 'order-123',
@@ -48,7 +46,7 @@ describe('Service Activation API', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('1. Pre-Activation Validation', () => {

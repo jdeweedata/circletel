@@ -4,8 +4,8 @@
  * Tests the complete workflow from request analysis to execution
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SonnetOrchestrator } from '@/lib/agents/core/sonnet-orchestrator';
+import type { UserRequest, QualityGateResult } from '@/lib/agents/core/types';
 import { WorkflowEngine } from '@/lib/agents/core/workflow-engine';
 import { AutoDetector } from '@/lib/agents/core/auto-detector';
 import { ContextManager } from '@/lib/agents/core/context-manager';
@@ -19,9 +19,9 @@ describe('SonnetOrchestrator', () => {
 
   describe('Task Analysis', () => {
     it('should analyze simple request correctly', async () => {
-      const request = {
-        userPrompt: 'Fix typo in header',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Fix typo in header',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -32,9 +32,9 @@ describe('SonnetOrchestrator', () => {
     });
 
     it('should analyze complex feature correctly', async () => {
-      const request = {
-        userPrompt: 'Implement customer referral program with tracking and rewards',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Implement customer referral program with tracking and rewards',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -46,9 +46,9 @@ describe('SonnetOrchestrator', () => {
     });
 
     it('should detect database layer', async () => {
-      const request = {
-        userPrompt: 'Create schema migration for user profiles',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Create schema migration for user profiles',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -58,9 +58,9 @@ describe('SonnetOrchestrator', () => {
     });
 
     it('should detect multiple layers', async () => {
-      const request = {
-        userPrompt: 'Add admin dashboard with analytics charts and API endpoints',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Add admin dashboard with analytics charts and API endpoints',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -72,9 +72,9 @@ describe('SonnetOrchestrator', () => {
 
   describe('DAG Construction', () => {
     it('should create valid execution order', async () => {
-      const request = {
-        userPrompt: 'Build payment system with Stripe integration',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Build payment system with Stripe integration',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -85,9 +85,9 @@ describe('SonnetOrchestrator', () => {
     });
 
     it('should handle dependencies correctly', async () => {
-      const request = {
-        userPrompt: 'Create full-stack feature with database, API, and UI',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Create full-stack feature with database, API, and UI',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
@@ -95,12 +95,12 @@ describe('SonnetOrchestrator', () => {
       // Database should come before API
       const dbTaskIndex = plan.dag.executionOrder.findIndex((id) => {
         const task = plan.dag.tasks.find((t) => t.id === id);
-        return task?.worker === 'database';
+        return task?.workerType === 'database';
       });
 
       const apiTaskIndex = plan.dag.executionOrder.findIndex((id) => {
         const task = plan.dag.tasks.find((t) => t.id === id);
-        return task?.worker === 'api';
+        return task?.workerType === 'api';
       });
 
       if (dbTaskIndex >= 0 && apiTaskIndex >= 0) {
@@ -109,9 +109,9 @@ describe('SonnetOrchestrator', () => {
     });
 
     it('should detect circular dependencies', async () => {
-      const request = {
-        userPrompt: 'Test circular dependency detection',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Test circular dependency detection',
+        timestamp: new Date(),
       };
 
       // This should not throw - orchestrator prevents circular deps
@@ -121,26 +121,26 @@ describe('SonnetOrchestrator', () => {
 
   describe('Quality Gates', () => {
     it('should define quality gates for complex features', async () => {
-      const request = {
-        userPrompt: 'Build admin user management system',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Build admin user management system',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
 
       expect(plan.qualityGates.length).toBeGreaterThan(0);
-      expect(plan.qualityGates.some((g) => g.type === 'typescript')).toBe(true);
+      expect(plan.qualityGates.some((g) => g.name.toLowerCase().includes('typescript'))).toBe(true);
     });
 
     it('should include RBAC gate for admin features', async () => {
-      const request = {
-        userPrompt: 'Create admin analytics dashboard',
-        context: { projectPath: process.cwd() },
+      const request: UserRequest = {
+        message: 'Create admin analytics dashboard',
+        timestamp: new Date(),
       };
 
       const plan = await orchestrator.analyzeAndPlan(request);
 
-      expect(plan.qualityGates.some((g) => g.type === 'rbac')).toBe(true);
+      expect(plan.qualityGates.some((g) => g.name.toLowerCase().includes('rbac'))).toBe(true);
     });
   });
 });
@@ -156,9 +156,9 @@ describe('WorkflowEngine', () => {
     it('should execute simple plan', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Add comment field to user table',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Add comment field to user table',
+        timestamp: new Date(),
+      } as UserRequest);
 
       const result = await workflowEngine.execute(plan, { stopOnError: true });
 
@@ -170,14 +170,14 @@ describe('WorkflowEngine', () => {
     it('should track progress', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Create user profile page',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Create user profile page',
+        timestamp: new Date(),
+      } as UserRequest);
 
       const progressCalls: number[] = [];
 
       await workflowEngine.execute(plan, {
-        onProgress: (progress) => {
+        onProgress: (progress: { progress: number }) => {
           progressCalls.push(progress.progress);
         },
         stopOnError: true,
@@ -190,16 +190,16 @@ describe('WorkflowEngine', () => {
     it('should stop on error when configured', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Test error handling',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Test error handling',
+        timestamp: new Date(),
+      } as UserRequest);
 
       // Mock a worker to fail
       const originalWorker = workflowEngine['workers'].get('database');
       if (originalWorker) {
         const mockWorker = {
           ...originalWorker,
-          executeWithRetries: vi.fn().mockRejectedValue(new Error('Test error')),
+          executeWithRetries: jest.fn().mockRejectedValue(new Error('Test error')),
         };
         workflowEngine['workers'].set('database', mockWorker as any);
       }
@@ -215,9 +215,9 @@ describe('WorkflowEngine', () => {
     it('should run all quality gates', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Build feature with quality checks',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Build feature with quality checks',
+        timestamp: new Date(),
+      } as UserRequest);
 
       const result = await workflowEngine.execute(plan);
 
@@ -227,21 +227,20 @@ describe('WorkflowEngine', () => {
     it('should validate TypeScript', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Create TypeScript component',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Create TypeScript component',
+        timestamp: new Date(),
+      } as UserRequest);
 
       // Add TypeScript quality gate
       plan.qualityGates.push({
-        type: 'typescript',
         name: 'TypeScript Validation',
         description: 'No type errors',
-        enforced: true,
+        required: true,
       });
 
       const result = await workflowEngine.execute(plan);
 
-      const tsGate = result.qualityResults.find((r) => r.gateName === 'TypeScript Validation');
+      const tsGate = result.qualityResults.find((r: QualityGateResult) => r.gateName === 'TypeScript Validation');
       expect(tsGate).toBeDefined();
     });
   });
@@ -250,9 +249,9 @@ describe('WorkflowEngine', () => {
     it('should aggregate files from all workers', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Create multi-file feature',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Create multi-file feature',
+        timestamp: new Date(),
+      } as UserRequest);
 
       const result = await workflowEngine.execute(plan);
 
@@ -263,9 +262,9 @@ describe('WorkflowEngine', () => {
     it('should generate summary markdown', async () => {
       const orchestrator = new SonnetOrchestrator({ verbose: false });
       const plan = await orchestrator.analyzeAndPlan({
-        userPrompt: 'Test summary generation',
-        context: { projectPath: process.cwd() },
-      });
+        message: 'Test summary generation',
+        timestamp: new Date(),
+      } as UserRequest);
 
       const result = await workflowEngine.execute(plan);
 

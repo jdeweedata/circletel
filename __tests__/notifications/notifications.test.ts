@@ -4,7 +4,6 @@
  * Tests notification API endpoints and business logic
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createMocks } from 'node-mocks-http';
 import { GET as getNotifications, POST as createNotification } from '@/app/api/notifications/route';
 import { PATCH as updateNotification, DELETE as deleteNotification } from '@/app/api/notifications/[id]/route';
@@ -13,11 +12,11 @@ import { GET as getPreferences, PUT as updatePreferences } from '@/app/api/notif
 import { createClient } from '@/lib/supabase/server';
 
 // Mock Supabase client
-vi.mock('@/lib/supabase/server');
+jest.mock('@/lib/supabase/server');
 
 describe('Notification API - GET /api/notifications', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('returns user notifications with pagination', async () => {
@@ -37,17 +36,17 @@ describe('Notification API - GET /api/notifications', () => {
 
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            is: vi.fn().mockReturnValue({
-              order: vi.fn().mockReturnValue({
-                range: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            is: jest.fn().mockReturnValue({
+              order: jest.fn().mockReturnValue({
+                range: jest.fn().mockResolvedValue({
                   data: mockNotifications,
                   error: null,
                   count: 1,
@@ -78,7 +77,7 @@ describe('Notification API - GET /api/notifications', () => {
   it('returns 401 for unauthenticated requests', async () => {
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: null },
           error: { message: 'Not authenticated' },
         }),
@@ -104,17 +103,17 @@ describe('Notification API - GET /api/notifications', () => {
 
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnThis(),
-          is: vi.fn().mockReturnThis(),
-          order: vi.fn().mockReturnThis(),
-          range: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnThis(),
+          is: jest.fn().mockReturnThis(),
+          order: jest.fn().mockReturnThis(),
+          range: jest.fn().mockResolvedValue({
             data: mockNotifications,
             error: null,
             count: 1,
@@ -141,7 +140,7 @@ describe('Notification API - GET /api/notifications', () => {
 
 describe('Notification API - POST /api/notifications', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('creates notification with valid data', async () => {
@@ -157,17 +156,17 @@ describe('Notification API - POST /api/notifications', () => {
 
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockImplementation((table) => {
+      from: jest.fn().mockImplementation((table) => {
         if (table === 'admin_users') {
           return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
                   data: { id: 'user-123' },
                   error: null,
                 }),
@@ -177,9 +176,9 @@ describe('Notification API - POST /api/notifications', () => {
         }
         if (table === 'notifications') {
           return {
-            insert: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
+            insert: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                single: jest.fn().mockResolvedValue({
                   data: mockNotification,
                   error: null,
                 }),
@@ -214,15 +213,15 @@ describe('Notification API - POST /api/notifications', () => {
   it('returns 400 for invalid request body', async () => {
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
               data: { id: 'user-123' },
               error: null,
             }),
@@ -252,7 +251,7 @@ describe('Notification API - POST /api/notifications', () => {
 
 describe('Notification API - PATCH /api/notifications/[id]', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('marks notification as read', async () => {
@@ -265,26 +264,26 @@ describe('Notification API - PATCH /api/notifications/[id]', () => {
 
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            is: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            is: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
                 data: { id: '123', user_id: 'user-123' },
                 error: null,
               }),
             }),
           }),
         }),
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
                 data: mockNotification,
                 error: null,
               }),
@@ -313,16 +312,16 @@ describe('Notification API - PATCH /api/notifications/[id]', () => {
   it('returns 403 for unauthorized access', async () => {
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            is: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            is: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({
                 data: { id: '123', user_id: 'user-456' }, // Different user
                 error: null,
               }),
@@ -350,23 +349,23 @@ describe('Notification API - PATCH /api/notifications/[id]', () => {
 
 describe('Notification API - POST /api/notifications/mark-read', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('marks multiple notifications as read', async () => {
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        update: vi.fn().mockReturnValue({
-          in: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              is: vi.fn().mockReturnValue({
-                select: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        update: jest.fn().mockReturnValue({
+          in: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              is: jest.fn().mockReturnValue({
+                select: jest.fn().mockResolvedValue({
                   data: [{ id: '1' }, { id: '2' }],
                   error: null,
                 }),
@@ -397,7 +396,7 @@ describe('Notification API - POST /api/notifications/mark-read', () => {
 
 describe('Notification Preferences API', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('creates default preferences for new users', async () => {
@@ -408,22 +407,22 @@ describe('Notification Preferences API', () => {
 
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockImplementation(() => ({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            order: vi.fn().mockResolvedValue({
+      from: jest.fn().mockImplementation(() => ({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            order: jest.fn().mockResolvedValue({
               data: [],
               error: null,
             }),
           }),
         }),
-        insert: vi.fn().mockReturnValue({
-          select: vi.fn().mockResolvedValue({
+        insert: jest.fn().mockReturnValue({
+          select: jest.fn().mockResolvedValue({
             data: mockPreferences,
             error: null,
           }),
@@ -446,14 +445,14 @@ describe('Notification Preferences API', () => {
   it('updates user preferences', async () => {
     const mockSupabase = {
       auth: {
-        getUser: vi.fn().mockResolvedValue({
+        getUser: jest.fn().mockResolvedValue({
           data: { user: { id: 'user-123' } },
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        upsert: vi.fn().mockReturnValue({
-          select: vi.fn().mockResolvedValue({
+      from: jest.fn().mockReturnValue({
+        upsert: jest.fn().mockReturnValue({
+          select: jest.fn().mockResolvedValue({
             data: [
               { notification_type: 'product_approval', in_app_enabled: false, email_enabled: true },
             ],

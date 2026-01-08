@@ -45,7 +45,8 @@ export type PaymentProviderType =
   | 'netcash'
   | 'zoho_billing'
   | 'payfast'           // Future: Alternative SA provider
-  | 'paygate';          // Future: Alternative SA provider
+  | 'paygate'           // Future: Alternative SA provider
+  | 'mock';             // For testing purposes
 
 // ============================================================================
 // Payment Initiation
@@ -373,7 +374,7 @@ export function isPaymentMethod(value: unknown): value is PaymentMethod {
  */
 export function isPaymentProviderType(value: unknown): value is PaymentProviderType {
   return typeof value === 'string' && [
-    'netcash', 'zoho_billing', 'payfast', 'paygate'
+    'netcash', 'zoho_billing', 'payfast', 'paygate', 'mock'
   ].includes(value);
 }
 

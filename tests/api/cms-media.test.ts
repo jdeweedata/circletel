@@ -23,12 +23,13 @@ let authToken: string;
 let testMediaIds: string[] = [];
 
 // Create a test image buffer
-function createTestImage(): Buffer {
-  // Create a simple 1x1 PNG
-  return Buffer.from(
+function createTestImage(): Uint8Array {
+  // Create a simple 1x1 PNG (return as Uint8Array for Blob compatibility)
+  const buffer = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
     'base64'
   );
+  return new Uint8Array(buffer);
 }
 
 describe('CMS Media API', () => {
@@ -114,8 +115,8 @@ describe('CMS Media API', () => {
     });
 
     it('should reject files exceeding size limit', async () => {
-      // Create a buffer larger than 20MB
-      const largeBuffer = Buffer.alloc(21 * 1024 * 1024); // 21MB
+      // Create a buffer larger than 20MB (convert to Uint8Array for Blob compatibility)
+      const largeBuffer = new Uint8Array(21 * 1024 * 1024); // 21MB
 
       const formData = new FormData();
       const blob = new Blob([largeBuffer], { type: 'image/png' });
@@ -475,8 +476,8 @@ describe('CMS Media API', () => {
     });
 
     it('should validate file content matches extension', async () => {
-      // Try to upload an executable disguised as an image
-      const maliciousContent = Buffer.from('MZ\x90\x00'); // DOS header
+      // Try to upload an executable disguised as an image (use Uint8Array for Blob compatibility)
+      const maliciousContent = new Uint8Array(Buffer.from('MZ\x90\x00')); // DOS header
       const formData = new FormData();
       const blob = new Blob([maliciousContent], { type: 'image/png' });
       formData.append('file', blob, 'fake-image.png');

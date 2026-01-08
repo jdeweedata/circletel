@@ -33,9 +33,9 @@ describe('PaymentReceiptEmail', () => {
       }).not.toThrow();
     });
 
-    it('should render with default props', () => {
+    it('should render with all required props', () => {
       expect(() => {
-        create(<PaymentReceiptEmail />);
+        create(<PaymentReceiptEmail {...defaultProps} />);
       }).not.toThrow();
     });
 
