@@ -477,6 +477,7 @@ See `.env.example` for complete list.
 #### Utility Skills
 | Skill | Purpose | Command |
 |-------|---------|---------|
+| **filesystem-context** 🆕 | Session continuity & context persistence | See `.claude/context/`, `.claude/memory/` |
 | **project-sync** 🆕 | Check local vs remote git alignment | `powershell -File .claude/skills/project-sync/check-sync.ps1` |
 | **session-checker** 🆕 | Interstellio PPPoE session status | `powershell -File .claude/skills/session-checker/check-session.ps1` |
 | **sql-assistant** | Natural language to SQL | See `.claude/skills/sql-assistant/` |
