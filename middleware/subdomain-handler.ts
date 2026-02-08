@@ -6,9 +6,7 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { logger } from '@/lib/logging';
 
-const middlewareLogger = logger;
 
 interface SubdomainConfig {
   prefix: string;
@@ -74,11 +72,11 @@ export function handleSubdomainRouting(request: NextRequest): NextResponse | nul
     ? matchedSubdomain.rewriteTo
     : `${matchedSubdomain.rewriteTo}${url.pathname}`;
 
-  middlewareLogger.debug('Subdomain rewrite', {
-    hostname,
-    originalPath: url.pathname,
-    newPath,
-  });
+  // console.log('Subdomain rewrite', {
+  //   hostname,
+  //   originalPath: url.pathname,
+  //   newPath,
+  // });
 
   url.pathname = newPath;
   return NextResponse.rewrite(url);

@@ -7,7 +7,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
-import { authLogger } from '@/lib/logging';
+
+// Note: Using console.log in middleware as @/lib/logging may not work in edge runtime
 
 /**
  * Public admin routes that don't require authentication
@@ -45,7 +46,7 @@ export async function getSessionUser(
   const { data: { session }, error } = await supabase.auth.getSession();
 
   if (error) {
-    authLogger.warn('Session retrieval error', { error: error.message });
+    console.warn('Session retrieval error', { error: error.message });
   }
 
   return session?.user || null;
@@ -71,12 +72,8 @@ export async function handleAdminAuth(
   const pathname = request.nextUrl.pathname;
   const user = await getSessionUser(supabase);
 
-  authLogger.debug('Admin auth check', {
-    pathname,
-    hasUser: !!user,
-    userId: user?.id,
-    isPublicRoute: isPublicAdminRoute(pathname),
-  });
+  // Debug logging removed - middleware edge runtime constraints
+  // console.debug('Admin auth check', { pathname, hasUser: !!user, userId: user?.id });
 
   // Not an admin route - no auth needed
   if (!isAdminRoute(pathname)) {
@@ -92,7 +89,7 @@ export async function handleAdminAuth(
 
   // Protected admin route without authentication
   if (!user) {
-    authLogger.info('Unauthenticated access to admin route', { pathname });
+    // console.log('Unauthenticated access to admin route', { pathname });
 
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/admin/login';
