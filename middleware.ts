@@ -12,11 +12,9 @@
  */
 
 import { type NextRequest } from 'next/server';
-import {
-  handleSubdomainRouting,
-  createMiddlewareSupabaseClient,
-  handleAdminAuth,
-} from './middleware';
+import { handleSubdomainRouting } from './middleware/subdomain-handler';
+import { createMiddlewareSupabaseClient } from './middleware/supabase-client';
+import { handleAdminAuth } from './middleware/admin-auth';
 
 export async function middleware(request: NextRequest) {
   // Step 1: Handle subdomain routing
