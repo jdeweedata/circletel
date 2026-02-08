@@ -1,0 +1,954 @@
+openapi: 3.1.0
+info:
+  title: CircleTel API
+  description: |
+    CircleTel B2B/B2C ISP Platform API
+
+    This API provides access to CircleTel's fibre connectivity services including:
+    - Coverage checking and package selection
+    - Order management and payment processing
+    - Customer dashboard and service management
+    - Admin operations and reporting
+
+    ## Authentication
+
+    The API uses different authentication methods depending on the context:
+
+    ### Consumer/Partner Authentication
+    - Uses Supabase Auth with JWT tokens
+    - Token passed via `Authorization: Bearer <token>` header
+    - Session cookies as fallback for SSR
+
+    ### Admin Authentication
+    - Requires admin user with appropriate RBAC permissions
+    - Uses service role for cross-table operations
+
+    ### Webhook Authentication
+    - HMAC-SHA256 signature verification
+    - IP whitelist validation
+
+    ## Rate Limiting
+
+    Standard rate limits apply:
+    - 100 requests/minute for authenticated users
+    - 20 requests/minute for unauthenticated endpoints
+
+    ## Error Responses
+
+    All errors follow the standard format:
+    ```json
+    {
+      "success": false,
+      "error": "ErrorType",
+      "message": "Human-readable message",
+      "code": "ERR_CODE",
+      "details": {}
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: CircleTel Development Team
+    email: dev@circletel.co.za
+    url: https://www.circletel.co.za
+  license:
+    name: Proprietary
+    url: https://www.circletel.co.za/terms
+
+servers:
+  - url: https://www.circletel.co.za/api
+    description: Production
+  - url: https://circletel-staging.vercel.app/api
+    description: Staging
+  - url: http://localhost:3000/api
+    description: Local Development
+
+tags:
+  - name: Coverage
+    description: Coverage checking and package availability
+  - name: Orders
+    description: Order creation and management
+  - name: Payments
+    description: Payment processing and billing
+  - name: Dashboard
+    description: Customer dashboard operations
+  - name: Admin
+    description: Admin panel operations
+  - name: Webhooks
+    description: Webhook endpoints for external services
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth JWT token
+
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-access-token
+      description: Supabase session cookie
+
+    webhookSignature:
+      type: apiKey
+      in: header
+      name: X-Webhook-Signature
+      description: HMAC-SHA256 signature of request body
+
+  schemas:
+    # Common Response Types
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+        message:
+          type: string
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - message
+        - code
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error type name
+        message:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Error code (e.g., AUTH_001, VAL_002)
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        perPage:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    # Coverage Types
+    CoverageCheckRequest:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          description: Full address to check coverage
+          example: "123 Main Street, Sandton, Johannesburg, 2196"
+        latitude:
+          type: number
+          format: double
+          example: -26.1076
+        longitude:
+          type: number
+          format: double
+          example: 28.0567
+        unitNumber:
+          type: string
+          example: "Unit 5"
+
+    CoverageResult:
+      type: object
+      properties:
+        hasCoverage:
+          type: boolean
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderCoverage'
+        address:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+
+    ProviderCoverage:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum: [mtn, vumatel, openserve, frogfoot]
+        status:
+          type: string
+          enum: [available, coming_soon, not_available]
+        technology:
+          type: string
+          enum: [fibre, wireless, lte]
+        maxSpeed:
+          type: integer
+          description: Maximum speed in Mbps
+
+    # Package Types
+    ServicePackage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "SkyFibre 100Mbps"
+        speed_down:
+          type: integer
+          example: 100
+        speed_up:
+          type: integer
+          example: 50
+        price:
+          type: number
+          format: decimal
+          example: 799.00
+        installation_fee:
+          type: number
+          format: decimal
+          example: 1500.00
+        service_type:
+          type: string
+          enum: [fibre_consumer, fibre_business, wireless, lte]
+        provider:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+
+    # Order Types
+    CreateOrderRequest:
+      type: object
+      required:
+        - package_id
+        - first_name
+        - last_name
+        - email
+        - phone
+        - id_number
+        - installation_address
+      properties:
+        package_id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: '^\+27[0-9]{9}$'
+        id_number:
+          type: string
+          pattern: '^\d{13}$'
+        installation_address:
+          type: string
+        unit_number:
+          type: string
+        complex_name:
+          type: string
+
+    ConsumerOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order_number:
+          type: string
+          example: "ORD-2025-0001"
+        status:
+          type: string
+          enum:
+            - pending
+            - payment_method_registered
+            - payment_received
+            - kyc_pending
+            - kyc_approved
+            - scheduled
+            - in_progress
+            - completed
+            - active
+            - cancelled
+        payment_status:
+          type: string
+          enum: [unpaid, paid, refunded]
+        customer_id:
+          type: string
+          format: uuid
+        package_id:
+          type: string
+          format: uuid
+        package_name:
+          type: string
+        package_price:
+          type: number
+        installation_fee:
+          type: number
+        total_paid:
+          type: number
+        installation_address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Payment Types
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_number:
+          type: string
+          example: "INV-2025-0001"
+        customer_id:
+          type: string
+          format: uuid
+        order_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [initial, recurring, prorata, credit_note]
+        amount:
+          type: number
+          description: Amount before VAT
+        vat_amount:
+          type: number
+        total_amount:
+          type: number
+        status:
+          type: string
+          enum: [unpaid, paid, overdue, void, refunded]
+        due_date:
+          type: string
+          format: date
+        line_items:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              amount:
+                type: number
+
+    PaymentMethod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customer_id:
+          type: string
+          format: uuid
+        method_type:
+          type: string
+          enum: [debit_order, card, eft]
+        display_name:
+          type: string
+          example: "Debit Order - FNB ***6789"
+        last_four:
+          type: string
+        is_primary:
+          type: boolean
+        is_active:
+          type: boolean
+        mandate_id:
+          type: string
+        mandate_status:
+          type: string
+          enum: [pending, active, cancelled, expired]
+
+    # Customer Types
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        account_number:
+          type: string
+          example: "CT-2025-00001"
+        id_number:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Webhook Types
+    NetCashWebhookPayload:
+      type: object
+      required:
+        - TransactionAccepted
+        - Amount
+        - Reference
+        - RequestTrace
+      properties:
+        TransactionAccepted:
+          type: string
+          enum: ['true', 'false']
+        Amount:
+          type: string
+          description: Amount in cents
+        Reference:
+          type: string
+          description: Invoice number
+        Extra1:
+          type: string
+          description: Invoice ID
+        Extra2:
+          type: string
+          description: Order ID
+        Extra3:
+          type: string
+          description: Customer ID
+        RequestTrace:
+          type: string
+        ResponseCode:
+          type: string
+        ResponseDescription:
+          type: string
+
+paths:
+  # Coverage Endpoints
+  /coverage/check:
+    post:
+      tags:
+        - Coverage
+      summary: Check coverage at an address
+      description: |
+        Checks fibre and wireless coverage availability at the specified address.
+        Uses a 4-layer fallback system:
+        1. MTN WMS API
+        2. MTN Consumer API
+        3. Other provider APIs
+        4. Mock data (development only)
+      operationId: checkCoverage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageCheckRequest'
+      responses:
+        '200':
+          description: Coverage check successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CoverageResult'
+        '400':
+          description: Invalid address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /coverage/packages:
+    get:
+      tags:
+        - Coverage
+      summary: Get available packages for a lead
+      description: Retrieves available service packages based on coverage lead information
+      operationId: getPackages
+      parameters:
+        - name: leadId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Coverage lead ID from previous coverage check
+      responses:
+        '200':
+          description: Packages retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          packages:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ServicePackage'
+        '404':
+          description: Lead not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Order Endpoints
+  /orders/create:
+    post:
+      tags:
+        - Orders
+      summary: Create a new consumer order
+      description: Creates a new order for fibre installation
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ConsumerOrder'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get order details
+      description: Retrieves details for a specific order
+      operationId: getOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ConsumerOrder'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Payment Endpoints
+  /payment/emandate/initiate:
+    post:
+      tags:
+        - Payments
+      summary: Initiate eMandate registration
+      description: |
+        Initiates a NetCash eMandate (debit order) registration.
+        Returns a signature URL where the customer must sign the mandate.
+      operationId: initiateEmandate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - bank_details
+              properties:
+                order_id:
+                  type: string
+                  format: uuid
+                bank_details:
+                  type: object
+                  required:
+                    - bank_name
+                    - branch_code
+                    - account_number
+                    - account_type
+                    - account_holder
+                  properties:
+                    bank_name:
+                      type: string
+                    branch_code:
+                      type: string
+                      pattern: '^\d{6}$'
+                    account_number:
+                      type: string
+                    account_type:
+                      type: string
+                      enum: [cheque, savings, transmission]
+                    account_holder:
+                      type: string
+                debit_day:
+                  type: integer
+                  minimum: 1
+                  maximum: 28
+                  default: 1
+      responses:
+        '200':
+          description: eMandate initiated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          mandate_id:
+                            type: string
+                          signature_url:
+                            type: string
+                            format: uri
+                          expires_at:
+                            type: string
+                            format: date-time
+        '400':
+          description: Invalid bank details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /pay/{invoiceNumber}:
+    get:
+      tags:
+        - Payments
+      summary: Get payment page
+      description: Initiates NetCash Pay Now payment for an invoice
+      operationId: initiatePayment
+      parameters:
+        - name: invoiceNumber
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "INV-2025-0001"
+      responses:
+        '302':
+          description: Redirect to NetCash payment page
+        '404':
+          description: Invoice not found
+
+  # Dashboard Endpoints
+  /dashboard/summary:
+    get:
+      tags:
+        - Dashboard
+      summary: Get customer dashboard summary
+      description: Retrieves summary data for the customer dashboard
+      operationId: getDashboardSummary
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          customer:
+                            $ref: '#/components/schemas/Customer'
+                          services:
+                            type: array
+                            items:
+                              type: object
+                          invoices:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Invoice'
+                          balance:
+                            type: number
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /dashboard/services:
+    get:
+      tags:
+        - Dashboard
+      summary: Get customer services
+      description: Retrieves all services for the authenticated customer
+      operationId: getCustomerServices
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Services retrieved successfully
+
+  /dashboard/invoices:
+    get:
+      tags:
+        - Dashboard
+      summary: Get customer invoices
+      description: Retrieves invoice history for the authenticated customer
+      operationId: getCustomerInvoices
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [unpaid, paid, overdue, all]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Invoices retrieved successfully
+
+  /dashboard/payment-methods:
+    get:
+      tags:
+        - Dashboard
+      summary: Get customer payment methods
+      description: Retrieves saved payment methods for the authenticated customer
+      operationId: getPaymentMethods
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Payment methods retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PaymentMethod'
+
+  # Webhook Endpoints
+  /webhooks/netcash/payment:
+    post:
+      tags:
+        - Webhooks
+      summary: NetCash payment webhook
+      description: |
+        Receives payment notifications from NetCash.
+        Validates HMAC signature and processes payment.
+      operationId: netcashPaymentWebhook
+      security:
+        - webhookSignature: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NetCashWebhookPayload'
+      responses:
+        '200':
+          description: Webhook processed successfully
+        '400':
+          description: Invalid signature or payload
+        '500':
+          description: Processing error
+
+  /webhooks/netcash/emandate:
+    post:
+      tags:
+        - Webhooks
+      summary: NetCash eMandate webhook
+      description: Receives eMandate status updates from NetCash
+      operationId: netcashEmandateWebhook
+      security:
+        - webhookSignature: []
+      responses:
+        '200':
+          description: Webhook processed successfully
+
+  # Admin Endpoints
+  /admin/orders:
+    get:
+      tags:
+        - Admin
+      summary: List all orders
+      description: Retrieves paginated list of orders with filtering
+      operationId: adminListOrders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Orders retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+
+  /admin/orders/{orderId}:
+    get:
+      tags:
+        - Admin
+      summary: Get order details
+      description: Retrieves detailed order information for admin view
+      operationId: adminGetOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order retrieved successfully
+        '404':
+          description: Order not found
+
+  /admin/stats:
+    get:
+      tags:
+        - Admin
+      summary: Get dashboard statistics
+      description: Retrieves aggregated statistics for admin dashboard
+      operationId: adminGetStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          orders:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              pending:
+                                type: integer
+                              active:
+                                type: integer
+                          revenue:
+                            type: object
+                            properties:
+                              mtd:
+                                type: number
+                              ytd:
+                                type: number
+                          customers:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              active:
+                                type: integer

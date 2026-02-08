@@ -43,8 +43,8 @@ export interface NetcashWebhookPayload {
   Extra2?: string;
   Extra3?: string;
 
-  // Raw data for verification
-  [key: string]: any;
+  // Raw data for verification - allows additional fields from NetCash
+  [key: string]: string | undefined;
 }
 
 export interface WebhookValidationResult {
@@ -192,7 +192,7 @@ export function validateURLEncodedSignature(
 /**
  * Parse and validate Netcash webhook payload
  */
-export function parseWebhookPayload(body: any): WebhookValidationResult {
+export function parseWebhookPayload(body: unknown): WebhookValidationResult {
   const errors: string[] = [];
 
   try {
@@ -421,7 +421,7 @@ export function extractOrderIdFromReference(reference: string): string | null {
 /**
  * Sanitize webhook payload for logging (remove sensitive data)
  */
-export function sanitizePayloadForLogging(payload: NetcashWebhookPayload): Record<string, any> {
+export function sanitizePayloadForLogging(payload: NetcashWebhookPayload): Record<string, unknown> {
   const sanitized = { ...payload };
 
   // Mask card number

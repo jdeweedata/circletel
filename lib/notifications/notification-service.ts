@@ -1,6 +1,12 @@
 /**
  * Notification Service
  * Handles Email and SMS notifications for customer journey events
+ *
+ * Architecture:
+ * - This file provides backward-compatible high-level notification methods
+ * - Actual sending is delegated to channels: ./channels/email-channel.ts, ./channels/sms-channel.ts
+ * - Template rendering uses utilities from: ./templates/base-template.ts
+ * - Unified routing available via: ./notification-router.ts
  */
 
 import type {
@@ -11,6 +17,12 @@ import type {
   QuoteStatus,
   NotificationMethod,
 } from '@/lib/types/customer-journey';
+
+// Import new modular channel services
+import { EmailChannel, type NotificationResult as ChannelNotificationResult } from './channels/email-channel';
+import { SmsChannel } from './channels/sms-channel';
+import { getOrdinalSuffix as getOrdinalSuffixUtil } from './templates/base-template';
+import { notificationLogger } from '@/lib/logging';
 
 // =============================================================================
 // TYPES
@@ -102,91 +114,26 @@ export interface NotificationResult {
 // =============================================================================
 
 export class EmailNotificationService {
-  private static apiKey = process.env.RESEND_API_KEY;
-  private static fromEmail = 'noreply@notifications.circletelsa.co.za'; // Verified Resend domain
-  private static fromName = 'CircleTel';
+  // Base URL for email links (used in templates)
   private static baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
 
   /**
-   * Generate List-Unsubscribe header for Microsoft/Gmail compliance
-   * RFC 8058 compliant one-click unsubscribe
-   */
-  private static generateUnsubscribeHeaders(email: string): {
-    'List-Unsubscribe': string;
-    'List-Unsubscribe-Post': string;
-  } {
-    const encodedEmail = encodeURIComponent(email);
-    const token = Buffer.from(`${email}:${Date.now()}`).toString('base64url');
-    
-    return {
-      'List-Unsubscribe': `<${this.baseUrl}/unsubscribe?email=${encodedEmail}&token=${token}>, <mailto:unsubscribe@circletel.co.za?subject=Unsubscribe%20${encodedEmail}>`,
-      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-    };
-  }
-
-  /**
-   * Send email using Resend API
+   * Send email using Resend API (delegates to EmailChannel)
    */
   static async send(input: EmailNotificationInput): Promise<NotificationResult> {
-    try {
-      if (!this.apiKey) {
-        console.warn('RESEND_API_KEY not configured, skipping email notification');
-        return {
-          success: false,
-          error: 'Email service not configured',
-        };
-      }
+    const html = this.renderTemplate(input.template, input.data);
 
-      const html = this.renderTemplate(input.template, input.data);
-
-      // Build request body with optional tags
-      const requestBody: Record<string, unknown> = {
-        from: input.from || `${this.fromName} <${this.fromEmail}>`,
-        to: input.to,
-        subject: input.subject,
-        html,
-        cc: input.cc,
-        bcc: input.bcc,
-      };
-
-      // Add tags if provided (for webhook tracking)
-      if (input.tags && Object.keys(input.tags).length > 0) {
-        requestBody.tags = input.tags;
-      }
-
-      // Add List-Unsubscribe headers for marketing emails (required by Microsoft/Gmail)
-      // This significantly improves deliverability to Microsoft 365, Outlook, and Hotmail
-      if (input.isMarketingEmail) {
-        requestBody.headers = this.generateUnsubscribeHeaders(input.to);
-      }
-
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send email');
-      }
-
-      const result = await response.json();
-
-      return {
-        success: true,
-        message_id: result.id,
-      };
-    } catch (error: any) {
-      console.error('Error sending email notification:', error);
-      return {
-        success: false,
-        error: error.message || 'Unknown error',
-      };
-    }
+    // Delegate to EmailChannel for actual sending
+    return EmailChannel.send({
+      to: input.to,
+      subject: input.subject,
+      html,
+      cc: input.cc,
+      bcc: input.bcc,
+      from: input.from,
+      tags: input.tags,
+      isMarketingEmail: input.isMarketingEmail,
+    });
   }
 
   /**
@@ -2310,11 +2257,10 @@ export class EmailNotificationService {
 
 /**
  * Get ordinal suffix for a number (1st, 2nd, 3rd, 4th, etc.)
+ * @deprecated Use getOrdinalSuffix from ./templates/base-template instead
  */
 function getOrdinalSuffix(n: number): string {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
+  return getOrdinalSuffixUtil(n);
 }
 
 // =============================================================================
@@ -2322,59 +2268,19 @@ function getOrdinalSuffix(n: number): string {
 // =============================================================================
 
 export class SmsNotificationService {
-  private static apiEndpoint = process.env.SMS_API_ENDPOINT;
-  private static apiKey = process.env.SMS_API_KEY;
-  private static senderId = 'CircleTel';
-
   /**
-   * Send SMS notification
+   * Send SMS notification (delegates to SmsChannel)
    */
   static async send(input: SmsNotificationInput): Promise<NotificationResult> {
-    try {
-      if (!this.apiEndpoint || !this.apiKey) {
-        console.warn('SMS service not configured, skipping SMS notification');
-        return {
-          success: false,
-          error: 'SMS service not configured',
-        };
-      }
+    const message = input.template
+      ? this.renderTemplate(input.template, input.data || {})
+      : input.message;
 
-      const message = input.template
-        ? this.renderTemplate(input.template, input.data || {})
-        : input.message;
-
-      // Example SMS API call (adjust based on your SMS provider)
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: input.to,
-          from: this.senderId,
-          message,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send SMS');
-      }
-
-      const result = await response.json();
-
-      return {
-        success: true,
-        message_id: result.message_id,
-      };
-    } catch (error: any) {
-      console.error('Error sending SMS notification:', error);
-      return {
-        success: false,
-        error: error.message || 'Unknown error',
-      };
-    }
+    // Delegate to SmsChannel for actual sending
+    return SmsChannel.send({
+      to: input.to,
+      message,
+    });
   }
 
   /**

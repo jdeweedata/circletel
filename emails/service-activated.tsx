@@ -1,8 +1,10 @@
 /**
  * Service Activated Email Template
  * Sent when RICA is approved and service is fully activated
- * 
+ *
  * Triggers: Service activation complete → Credentials generated
+ *
+ * @see emails/types.ts for context interfaces
  */
 
 import {
@@ -16,35 +18,37 @@ import {
   Hr,
   Img,
 } from '@react-email/components';
+import {
+  type ServiceActivatedEmailProps,
+  formatDate,
+  createDefaultCustomer,
+  createDefaultOrder,
+  createDefaultService,
+  createDefaultPackage,
+} from './types';
 
-interface ServiceActivatedEmailProps {
-  customerName: string;
-  orderNumber: string;
-  accountNumber: string;
-  packageName: string;
-  packageSpeed: string;
-  username: string;
-  temporaryPassword: string;
-  supportUrl: string;
-  installationDate: string;
-}
+// Default props for email preview in development
+const defaultProps: ServiceActivatedEmailProps = {
+  customer: createDefaultCustomer(),
+  order: createDefaultOrder(),
+  service: createDefaultService(),
+  package: createDefaultPackage(),
+  installation: { date: '2025-11-01' },
+  support: { portalUrl: 'https://circletel.co.za/customer/support' },
+};
 
-export default function ServiceActivatedEmail({
-  customerName = 'John Doe',
-  orderNumber = 'ORD-2025-001',
-  accountNumber = 'ACC-2025-ABC123',
-  packageName = '100Mbps Fibre',
-  packageSpeed = '100Mbps',
-  username = 'john.doe@circletel.co.za',
-  temporaryPassword = 'TempPass123!',
-  supportUrl = 'https://circletel.co.za/customer/support',
-  installationDate = '2025-11-01',
-}: ServiceActivatedEmailProps) {
-  const formattedDate = new Date(installationDate).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+export default function ServiceActivatedEmail(props: Partial<ServiceActivatedEmailProps>) {
+  // Merge with defaults for preview mode
+  const {
+    customer,
+    order,
+    service,
+    package: pkg,
+    installation,
+    support,
+  } = { ...defaultProps, ...props } as ServiceActivatedEmailProps;
+
+  const formattedDate = installation.date ? formatDate(installation.date) : '';
 
   return (
     <Html>
@@ -71,7 +75,7 @@ export default function ServiceActivatedEmail({
 
           {/* Main Content */}
           <Section style={content}>
-            <Text style={paragraph}>Hi {customerName},</Text>
+            <Text style={paragraph}>Hi {customer.name},</Text>
             
             <Text style={paragraph}>
               Congratulations! Your CircleTel internet service has been successfully
@@ -84,22 +88,22 @@ export default function ServiceActivatedEmail({
               
               <Section style={detailRow}>
                 <Text style={detailLabel}>Order Number:</Text>
-                <Text style={detailValue}>{orderNumber}</Text>
+                <Text style={detailValue}>{order.number}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Account Number:</Text>
-                <Text style={detailValue}>{accountNumber}</Text>
+                <Text style={detailValue}>{service.accountNumber}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Package:</Text>
-                <Text style={detailValue}>{packageName}</Text>
+                <Text style={detailValue}>{pkg.name}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Speed:</Text>
-                <Text style={detailValue}>{packageSpeed}</Text>
+                <Text style={detailValue}>{pkg.speed}</Text>
               </Section>
 
               <Section style={detailRow}>
@@ -116,12 +120,12 @@ export default function ServiceActivatedEmail({
               
               <Section style={credentialItem}>
                 <Text style={credentialLabel}>Username:</Text>
-                <Text style={credentialCode}>{username}</Text>
+                <Text style={credentialCode}>{service.username}</Text>
               </Section>
 
               <Section style={credentialItem}>
                 <Text style={credentialLabel}>Temporary Password:</Text>
-                <Text style={credentialCode}>{temporaryPassword}</Text>
+                <Text style={credentialCode}>{service.temporaryPassword}</Text>
               </Section>
 
               <Section style={warningBox}>
@@ -165,7 +169,7 @@ export default function ServiceActivatedEmail({
 
             {/* CTA Buttons */}
             <Section style={buttonRow}>
-              <Button style={primaryButton} href={supportUrl}>
+              <Button style={primaryButton} href={support.portalUrl}>
                 Access Customer Portal
               </Button>
               <Button style={secondaryButton} href="https://circletel.co.za/support">
@@ -227,7 +231,7 @@ export default function ServiceActivatedEmail({
               📞 <a href="tel:+27211234567" style={link}>+27 21 123 4567</a>
             </Text>
             <Text style={footerText}>
-              💬 <a href={supportUrl} style={link}>Live Chat Support</a>
+              💬 <a href={support.portalUrl} style={link}>Live Chat Support</a>
             </Text>
             <Text style={footerText}>
               📱 <a href="https://wa.me/27211234567" style={link}>WhatsApp: +27 21 123 4567</a>

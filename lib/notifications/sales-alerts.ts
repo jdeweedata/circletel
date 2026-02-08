@@ -5,7 +5,9 @@
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { SmsChannel } from '@/lib/notifications/channels/sms-channel';
 import { createClient } from '@/lib/supabase/server';
+import { notificationLogger } from '@/lib/logging';
 
 // Helper to get Supabase client (lazy initialization)
 async function getSupabase() {
@@ -72,7 +74,7 @@ export async function sendCoverageLeadAlert(
 ): Promise<SalesAlertResult> {
   // Skip in development unless explicitly enabled
   if (IS_DEVELOPMENT && !ENABLE_SALES_ALERTS) {
-    console.log('[DEV MODE] Sales alert skipped:', leadData.email);
+    notificationLogger.debug('DEV MODE: Sales alert skipped', { email: leadData.email });
     return {
       success: true,
       emailSent: false,
@@ -153,23 +155,35 @@ export async function sendCoverageLeadAlert(
       if (!emailResult.success) {
         result.errors?.push(`Email failed: ${emailResult.error}`);
       }
-    } catch (error: any) {
-      console.error('Email alert error:', error);
-      result.errors?.push(`Email exception: ${error.message}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      notificationLogger.error('Email alert error', { error: errorMessage });
+      result.errors?.push(`Email exception: ${errorMessage}`);
     }
 
     // Step 3: Send SMS Alert (if configured)
     if (SALES_TEAM_PHONE && SALES_TEAM_PHONE !== '+27123456789') {
       try {
-        // TODO: Implement SMS via ClickaTell or Twilio
-        // For now, just log
-        console.log(`[SMS] Would send to ${SALES_TEAM_PHONE}:`, {
-          message: `New ${getCustomerTypeLabel(leadData.customer_type)} lead: ${leadData.first_name} ${leadData.last_name} - ${leadData.phone}`,
+        const customerTypeLabel = getCustomerTypeLabel(leadData.customer_type);
+        const message = `CircleTel: New ${customerTypeLabel} lead - ${leadData.first_name} ${leadData.last_name} (${leadData.phone}). Coverage: ${leadData.coverage_available ? 'Yes' : 'No'}. Check email for details.`;
+
+        const smsResult = await SmsChannel.send({
+          to: SALES_TEAM_PHONE,
+          message,
         });
-        result.smsSent = false; // Set to true when SMS is implemented
-      } catch (error: any) {
-        console.error('SMS alert error:', error);
-        result.errors?.push(`SMS exception: ${error.message}`);
+
+        result.smsSent = smsResult.success;
+
+        if (!smsResult.success) {
+          notificationLogger.warn('SMS alert failed', { error: smsResult.error, phone: SALES_TEAM_PHONE });
+          result.errors?.push(`SMS failed: ${smsResult.error}`);
+        } else {
+          notificationLogger.info('SMS alert sent', { phone: SALES_TEAM_PHONE });
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        notificationLogger.error('SMS alert exception', { error: errorMessage });
+        result.errors?.push(`SMS exception: ${errorMessage}`);
       }
     }
 
@@ -191,9 +205,10 @@ export async function sendCoverageLeadAlert(
             : undefined,
         });
         result.slackSent = true;
-      } catch (error: any) {
-        console.error('Slack notification error:', error);
-        result.errors?.push(`Slack exception: ${error.message}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        notificationLogger.error('Slack notification error', { error: errorMessage });
+        result.errors?.push(`Slack exception: ${errorMessage}`);
       }
     }
 
@@ -201,11 +216,12 @@ export async function sendCoverageLeadAlert(
     result.success = result.emailSent || !!result.zohoLeadId;
 
     return result;
-  } catch (error: any) {
-    console.error('Sales alert error:', error);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    notificationLogger.error('Sales alert error', { error: errorMessage });
     return {
       success: false,
-      errors: [`Fatal error: ${error.message}`],
+      errors: [`Fatal error: ${errorMessage}`],
     };
   }
 }
@@ -219,7 +235,7 @@ export async function sendBusinessQuoteAlert(
 ): Promise<SalesAlertResult> {
   // Skip in development unless explicitly enabled
   if (IS_DEVELOPMENT && !ENABLE_SALES_ALERTS) {
-    console.log('[DEV MODE] Business quote alert skipped:', quoteData.email);
+    notificationLogger.debug('DEV MODE: Business quote alert skipped', { email: quoteData.email });
     return {
       success: true,
       emailSent: false,
@@ -260,24 +276,38 @@ export async function sendBusinessQuoteAlert(
     }
 
     // Send urgent SMS for high-priority quotes
-    if (quoteData.urgency === 'high' && SALES_TEAM_PHONE) {
+    if (quoteData.urgency === 'high' && SALES_TEAM_PHONE && SALES_TEAM_PHONE !== '+27123456789') {
       try {
-        // TODO: Implement SMS
-        console.log(`[SMS] URGENT quote request from ${quoteData.company_name}`);
-        result.smsSent = false;
-      } catch (error: any) {
-        console.error('SMS alert error:', error);
-        result.errors?.push(`SMS exception: ${error.message}`);
+        const message = `CircleTel URGENT: Business quote from ${quoteData.company_name} (${quoteData.contact_name}). Budget: ${quoteData.budget || 'TBD'}. Call ${quoteData.phone} NOW!`;
+
+        const smsResult = await SmsChannel.send({
+          to: SALES_TEAM_PHONE,
+          message,
+        });
+
+        result.smsSent = smsResult.success;
+
+        if (!smsResult.success) {
+          notificationLogger.warn('Urgent SMS alert failed', { error: smsResult.error });
+          result.errors?.push(`SMS failed: ${smsResult.error}`);
+        } else {
+          notificationLogger.info('Urgent SMS alert sent', { company: quoteData.company_name });
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        notificationLogger.error('Urgent SMS alert exception', { error: errorMessage });
+        result.errors?.push(`SMS exception: ${errorMessage}`);
       }
     }
 
     result.success = result.emailSent;
     return result;
-  } catch (error: any) {
-    console.error('Business quote alert error:', error);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    notificationLogger.error('Business quote alert error', { error: errorMessage });
     return {
       success: false,
-      errors: [`Fatal error: ${error.message}`],
+      errors: [`Fatal error: ${errorMessage}`],
     };
   }
 }
@@ -361,11 +391,12 @@ Coverage Check ID: ${leadData.id}
       success: false,
       error: response.error || 'Failed to create lead',
     };
-  } catch (error: any) {
-    console.error('Zoho CRM lead creation error:', error);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    notificationLogger.error('Zoho CRM lead creation error', { error: errorMessage });
     return {
       success: false,
-      error: error.message || 'Unknown error',
+      error: errorMessage,
     };
   }
 }

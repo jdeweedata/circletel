@@ -18,7 +18,11 @@ export function usePermissions() {
   const hasPermission = useMemo(
     () => (permission: Permission): boolean => {
       if (!user) {
-        console.warn('[usePermissions] No user found, denying permission:', permission)
+        // Only log in development to avoid noise in production
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('[usePermissions] No user found, denying permission:', permission)
+        }
         return false
       }
 

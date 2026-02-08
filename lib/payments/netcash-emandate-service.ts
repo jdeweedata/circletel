@@ -8,6 +8,7 @@
  */
 
 import { parseStringPromise, Builder } from 'xml2js';
+import { paymentLogger } from '@/lib/logging';
 
 // ============================================================================
 // TYPES
@@ -198,7 +199,7 @@ export class NetCashEMandateService {
     this.isTestMode = process.env.NETCASH_TEST_MODE === 'true';
 
     if (!this.serviceKey) {
-      console.warn('NetCash Debit Order Service Key not configured');
+      paymentLogger.warn('NetCash Debit Order Service Key not configured');
     }
   }
 
@@ -221,7 +222,7 @@ export class NetCashEMandateService {
       const soapEnvelope = this.buildSoapEnvelope(fullRequest);
 
       // Log request details (without sensitive data)
-      console.log('[eMandate] Calling NetCash API:', {
+      paymentLogger.info('eMandate calling NetCash API', {
         url: this.webServiceUrl,
         accountReference: fullRequest.AccountReference,
         mandateName: fullRequest.MandateName,
@@ -247,11 +248,11 @@ export class NetCashEMandateService {
       });
 
       // Log response status
-      console.log('[eMandate] NetCash API response status:', response.status, response.statusText);
+      paymentLogger.info('eMandate NetCash API response', { status: response.status, statusText: response.statusText });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error('[eMandate] NetCash API error response:', errorBody.substring(0, 500));
+        paymentLogger.error('eMandate NetCash API error response', { errorBody: errorBody.substring(0, 500) });
         throw new Error(`NetCash API returned ${response.status}: ${response.statusText}`);
       }
 
@@ -261,7 +262,7 @@ export class NetCashEMandateService {
 
       return parsedResponse;
     } catch (error) {
-      console.error('NetCash eMandate createMandate error:', error);
+      paymentLogger.error('NetCash eMandate createMandate error', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -434,47 +435,47 @@ export class NetCashEMandateService {
   private async parseSoapResponse(xmlResponse: string): Promise<EMandateResponse> {
     try {
       // Log raw response for debugging
-      console.log('[eMandate] Raw response (first 1000 chars):', xmlResponse.substring(0, 1000));
+      paymentLogger.debug('eMandate raw response', { preview: xmlResponse.substring(0, 1000) });
 
       const parsed = await parseStringPromise(xmlResponse);
-      
+
       // Log parsed structure
-      console.log('[eMandate] Parsed response keys:', JSON.stringify(Object.keys(parsed)));
+      paymentLogger.debug('eMandate parsed response keys', { keys: Object.keys(parsed) });
 
       // Try different SOAP envelope formats (s:Envelope vs soap:Envelope)
       const envelope = parsed['soap:Envelope'] || parsed['s:Envelope'] || parsed['SOAP-ENV:Envelope'];
       if (!envelope) {
-        console.error('[eMandate] Unknown envelope format. Keys:', Object.keys(parsed));
+        paymentLogger.error('eMandate unknown envelope format', { keys: Object.keys(parsed) });
         throw new Error('Unknown SOAP envelope format');
       }
 
       const body = envelope['soap:Body']?.[0] || envelope['s:Body']?.[0] || envelope['SOAP-ENV:Body']?.[0];
       if (!body) {
-        console.error('[eMandate] Unknown body format. Envelope keys:', Object.keys(envelope));
+        paymentLogger.error('eMandate unknown body format', { envelopeKeys: Object.keys(envelope) });
         throw new Error('Unknown SOAP body format');
       }
 
       // Try different response element names
       const responseWrapper = body['AddMandateResponse'] || body['tem:AddMandateResponse'];
       if (!responseWrapper) {
-        console.error('[eMandate] No AddMandateResponse found. Body keys:', Object.keys(body));
+        paymentLogger.error('eMandate no AddMandateResponse found', { bodyKeys: Object.keys(body) });
         throw new Error('AddMandateResponse not found in response');
       }
 
       const result = responseWrapper[0]['AddMandateResult']?.[0] || responseWrapper[0]['tem:AddMandateResult']?.[0];
       if (!result) {
-        console.error('[eMandate] No AddMandateResult found. Response keys:', Object.keys(responseWrapper[0]));
+        paymentLogger.error('eMandate no AddMandateResult found', { responseKeys: Object.keys(responseWrapper[0]) });
         throw new Error('AddMandateResult not found in response');
       }
 
-      console.log('[eMandate] Result keys:', Object.keys(result));
+      paymentLogger.debug('eMandate result keys', { keys: Object.keys(result) });
 
       const errorCode = result['ErrorCode']?.[0] || result['a:ErrorCode']?.[0] || '999';
       const mandateUrl = result['MandateUrl']?.[0] || result['a:MandateUrl']?.[0];
       const errors = result['Errors']?.[0]?.['StringArray'] || result['a:Errors']?.[0]?.['b:string'] || [];
       const warnings = result['Warnings']?.[0]?.['StringArray'] || result['a:Warnings']?.[0]?.['b:string'] || [];
 
-      console.log('[eMandate] Parsed result:', { errorCode, mandateUrl, errorsCount: errors.length });
+      paymentLogger.info('eMandate parsed result', { errorCode, mandateUrl, errorsCount: errors.length });
 
       return {
         ErrorCode: errorCode,
@@ -483,8 +484,10 @@ export class NetCashEMandateService {
         Warnings: warnings,
       };
     } catch (error) {
-      console.error('Error parsing SOAP response:', error);
-      console.error('Raw XML:', xmlResponse.substring(0, 500));
+      paymentLogger.error('Error parsing SOAP response', {
+        error: error instanceof Error ? error.message : String(error),
+        rawXml: xmlResponse.substring(0, 500),
+      });
       throw new Error('Failed to parse NetCash response');
     }
   }
@@ -495,7 +498,7 @@ export class NetCashEMandateService {
   static parsePostback(formData: Record<string, string>): EMandatePostback {
     // Runtime validation for required fields
     if (!formData.MandateSuccessful || !formData.AccountRef) {
-      console.error('Invalid postback data received:', Object.keys(formData));
+      paymentLogger.error('Invalid postback data received', { keys: Object.keys(formData) });
       throw new Error('Invalid postback data: missing required fields (MandateSuccessful, AccountRef)');
     }
     return formData as unknown as EMandatePostback;

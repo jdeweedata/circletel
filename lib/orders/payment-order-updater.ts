@@ -6,6 +6,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { paymentLogger } from '@/lib/logging';
 
 interface PaymentOrderUpdateResult {
   success: boolean;
@@ -42,7 +44,7 @@ export async function updateOrderFromPayment(
   );
 
   try {
-    console.log('[OrderPaymentUpdate] Processing payment for reference:', transactionReference);
+    paymentLogger.info('Processing payment', { transactionReference });
 
     // Find the order by reference (could be order_number or order_id)
     const { data: orders, error: searchError } = await supabase
@@ -56,7 +58,7 @@ export async function updateOrderFromPayment(
     }
 
     if (!orders || orders.length === 0) {
-      console.warn('[OrderPaymentUpdate] No order found for reference:', transactionReference);
+      paymentLogger.warn('No order found for reference', { transactionReference });
       return {
         success: false,
         error: `No order found for reference: ${transactionReference}`
@@ -64,7 +66,7 @@ export async function updateOrderFromPayment(
     }
 
     const order = orders[0];
-    console.log('[OrderPaymentUpdate] Found order:', order.order_number, 'Status:', order.status);
+    paymentLogger.debug('Found order', { orderNumber: order.order_number, status: order.status });
 
     // Determine new order status based on current status
     let newStatus = order.status;
@@ -80,16 +82,16 @@ export async function updateOrderFromPayment(
       newStatus = 'payment_method_registered';
       updates.status = newStatus;
       updates.payment_status = 'paid';
-      console.log('[OrderPaymentUpdate] Advancing order to payment_method_registered');
+      paymentLogger.debug('Advancing order to payment_method_registered');
     } else if (order.status === 'payment_pending') {
       newStatus = 'payment_received';
       updates.status = newStatus;
       updates.payment_status = 'paid';
-      console.log('[OrderPaymentUpdate] Marking payment as received');
+      paymentLogger.debug('Marking payment as received');
     } else {
       // Just update payment info, don't change status
       updates.payment_status = 'paid';
-      console.log('[OrderPaymentUpdate] Updating payment info without status change');
+      paymentLogger.debug('Updating payment info without status change');
     }
 
     // Update the order
@@ -120,16 +122,69 @@ export async function updateOrderFromPayment(
       });
     }
 
-    // TODO: Send customer notification
-    // TODO: Update customer dashboard cache
-    // TODO: Notify admin of payment received
+    // Send customer notification
+    try {
+      await EmailNotificationService.send({
+        to: order.email,
+        subject: `Payment Received - ${order.order_number}`,
+        template: 'payment_received',
+        data: {
+          customer_name: `${order.first_name} ${order.last_name}`,
+          order_number: order.order_number,
+          amount: amount,
+          package_name: order.package_name,
+          payment_date: new Date().toLocaleDateString('en-ZA'),
+        },
+        tags: {
+          order_id: order.id,
+          notification_type: 'payment_received',
+        },
+      });
+      paymentLogger.info('Customer payment notification sent', { orderId: order.id });
+    } catch (notifyError) {
+      // Log but don't fail the update
+      paymentLogger.warn('Failed to send customer payment notification', {
+        orderId: order.id,
+        error: notifyError instanceof Error ? notifyError.message : 'Unknown error',
+      });
+    }
 
-    console.log('[OrderPaymentUpdate] Order updated successfully:', {
-      order_id: order.id,
-      order_number: order.order_number,
-      old_status: order.status,
-      new_status: newStatus,
-      amount
+    // Notify admin of payment received
+    try {
+      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@circletel.co.za';
+      await EmailNotificationService.send({
+        to: adminEmail,
+        subject: `Payment Received - ${order.order_number} (R${amount.toFixed(2)})`,
+        template: 'admin_payment_received',
+        data: {
+          order_number: order.order_number,
+          customer_name: `${order.first_name} ${order.last_name}`,
+          customer_email: order.email,
+          amount: amount,
+          package_name: order.package_name,
+          old_status: order.status,
+          new_status: newStatus,
+          transaction_reference: transactionReference,
+        },
+        tags: {
+          order_id: order.id,
+          notification_type: 'admin_payment_alert',
+        },
+      });
+      paymentLogger.info('Admin payment notification sent', { orderId: order.id });
+    } catch (adminNotifyError) {
+      paymentLogger.warn('Failed to send admin payment notification', {
+        orderId: order.id,
+        error: adminNotifyError instanceof Error ? adminNotifyError.message : 'Unknown error',
+      });
+    }
+
+    paymentLogger.info('Order updated successfully', {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      oldStatus: order.status,
+      newStatus,
+      amount,
     });
 
     return {
@@ -141,7 +196,10 @@ export async function updateOrderFromPayment(
     };
 
   } catch (error) {
-    console.error('[OrderPaymentUpdate] Error:', error);
+    paymentLogger.error('Order payment update error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      transactionReference,
+    });
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

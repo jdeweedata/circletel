@@ -4,6 +4,100 @@ import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
 import { CoverageLogger } from '@/lib/analytics/coverage-logger';
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface CoverageLead {
+  id: string;
+  address: string;
+  coordinates: {
+    type?: string;
+    coordinates?: [number, number];
+    lat?: number;
+    lng?: number;
+  } | null;
+  customer_type?: string;
+}
+
+interface CoverageAreaRecord {
+  area_name: string;
+  city?: string;
+  service_type: string;
+  status: string;
+}
+
+interface ServiceTypeMapping {
+  technical_type: string;
+  product_category: string;
+  active: boolean;
+  priority: number;
+}
+
+interface ServicePackage {
+  id: string;
+  name: string;
+  service_type: string;
+  product_category?: string;
+  speed_down?: number;
+  speed_up?: number;
+  price: number;
+  promotion_price?: number;
+  promotion_months?: number;
+  description?: string;
+  features?: string[];
+  compatible_providers?: string[];
+  active: boolean;
+}
+
+interface NetworkProvider {
+  provider_code: string;
+  display_name: string;
+  logo_url?: string;
+  logo_dark_url?: string;
+  logo_light_url?: string;
+  logo_format?: string;
+  logo_aspect_ratio?: string;
+  priority: number;
+  active: boolean;
+}
+
+interface PackageWithProvider extends Omit<ServicePackage, 'compatible_providers' | 'active'> {
+  provider: {
+    code: string;
+    name: string;
+    logo_url?: string;
+    logo_dark_url?: string;
+    logo_light_url?: string;
+    logo_format?: string;
+    logo_aspect_ratio?: string;
+  } | null;
+}
+
+interface CoverageMetadata {
+  providers: {
+    mtn: { confidence: number; servicesFound: number } | null;
+    dfa: { confidence: number; servicesFound: number } | null;
+  };
+  lastUpdated?: string;
+  totalServicesFound: number;
+  wholesaleDebug?: unknown;
+}
+
+interface CoverageServiceMetadata {
+  coverageType?: string;
+  distance?: number;
+}
+
+interface CoverageService {
+  available: boolean;
+  metadata?: CoverageServiceMetadata;
+}
+
+interface PostGISCoverageResult {
+  service_type: string;
+}
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
@@ -39,8 +133,8 @@ export async function GET(request: NextRequest) {
     // Check coverage using real-time MTN coverage validation
     let coverageAvailable = false;
     let availableServices: string[] = [];
-    let availablePackages: any[] = [];
-    let coverageMetadata: any = null;
+    let availablePackages: PackageWithProvider[] = [];
+    let coverageMetadata: CoverageMetadata | null = null;
     let fibreCoverage: 'connected' | 'near-net' | 'none' | 'unknown' = 'unknown';
     let fibreNearNetDistance: number | null = null;
     let hasLicensedWireless = false;
@@ -95,7 +189,7 @@ export async function GET(request: NextRequest) {
           const dfaProvider = coverageResult.providers.dfa;
           
           // Get aggregation metadata including wholesale debug info
-          const aggMeta = (coverageResult as any)?.metadata;
+          const aggMeta = (coverageResult as { metadata?: CoverageServiceMetadata & { wholesaleDebug?: unknown } })?.metadata;
 
           coverageMetadata = {
             providers: {
@@ -115,7 +209,7 @@ export async function GET(request: NextRequest) {
           };
           if (aggMeta && typeof aggMeta === 'object') {
             if (typeof aggMeta.coverageType === 'string') {
-              fibreCoverage = aggMeta.coverageType as any;
+              fibreCoverage = aggMeta.coverageType as typeof fibreCoverage;
             }
             if (typeof aggMeta.distance === 'number') {
               fibreNearNetDistance = aggMeta.distance;
@@ -126,9 +220,9 @@ export async function GET(request: NextRequest) {
           if ((fibreCoverage === 'unknown' || fibreCoverage === 'none') && dfaProvider) {
             const dfaServices = Array.isArray(dfaProvider.services) ? dfaProvider.services : [];
             if (dfaServices.length > 0) {
-              const ct = dfaServices.map((s: any) => s?.metadata?.coverageType).find((v: any) => typeof v === 'string');
+              const ct = dfaServices.map((s: CoverageService) => s?.metadata?.coverageType).find((v: string | undefined): v is string => typeof v === 'string');
               if (ct === 'connected' || ct === 'near-net') {
-                fibreCoverage = ct as any;
+                fibreCoverage = ct;
               } else {
                 // Presence of DFA fibre services implies some availability; default to connected when unknown
                 fibreCoverage = 'connected';
@@ -156,7 +250,7 @@ export async function GET(request: NextRequest) {
 
         if (!coverageError && coverageData && coverageData.length > 0) {
           coverageAvailable = true;
-          availableServices = [...new Set(coverageData.map((item: any) => item.service_type).filter((type: any): type is string => typeof type === 'string'))] as string[];
+          availableServices = [...new Set(coverageData.map((item: PostGISCoverageResult) => item.service_type).filter((type: string | undefined): type is string => typeof type === 'string'))] as string[];
 
           console.log('Fallback to PostGIS coverage check:', {
             availableServices
@@ -174,7 +268,7 @@ export async function GET(request: NextRequest) {
 
       if (!areasError && areas) {
         const addressLower = lead.address.toLowerCase();
-        const matchingAreas = areas.filter((area: any) => {
+        const matchingAreas = areas.filter((area: CoverageAreaRecord) => {
           const areaName = area.area_name.toLowerCase();
           const cityName = area.city?.toLowerCase() || '';
           return addressLower.includes(areaName) ||
@@ -185,7 +279,7 @@ export async function GET(request: NextRequest) {
 
         if (matchingAreas.length > 0) {
           coverageAvailable = true;
-          availableServices = [...new Set(matchingAreas.map((area: any) => area.service_type))];
+          availableServices = [...new Set(matchingAreas.map((area: CoverageAreaRecord) => area.service_type))];
 
           console.log('Fallback to area name matching:', {
             availableServices
@@ -218,7 +312,7 @@ export async function GET(request: NextRequest) {
       let productCategories: string[];
       if (mappings && mappings.length > 0) {
         // Services were technical types, successfully mapped to product categories
-        productCategories = [...new Set(mappings.map((m: any) => m.product_category))];
+        productCategories = [...new Set(mappings.map((m: ServiceTypeMapping) => m.product_category))];
       } else {
         // No mappings found - services are already product categories (from legacy coverage_areas table)
         productCategories = packageableServices;
@@ -255,7 +349,7 @@ export async function GET(request: NextRequest) {
 
       console.log('[Packages API] Query result:', {
         packagesFound: packages?.length || 0,
-        packageNames: packages?.map((p: any) => p.name).slice(0, 5) || [],
+        packageNames: packages?.map((p: ServicePackage) => p.name).slice(0, 5) || [],
         error: packagesError?.message
       });
 
@@ -267,16 +361,16 @@ export async function GET(request: NextRequest) {
           .eq('active', true);
 
         // Create provider lookup map
-        const providerMap = new Map();
+        const providerMap = new Map<string, NetworkProvider>();
         if (!providersError && providers) {
-          providers.forEach((provider: any) => {
+          providers.forEach((provider: NetworkProvider) => {
             providerMap.set(provider.provider_code, provider);
           });
         }
 
-        availablePackages = packages.map((pkg: any) => {
+        availablePackages = packages.map((pkg: ServicePackage): PackageWithProvider => {
           // Get provider info from compatible_providers array
-          let providerData = null;
+          let providerData: PackageWithProvider['provider'] = null;
           if (pkg.compatible_providers && pkg.compatible_providers.length > 0) {
             // Get the first (highest priority) compatible provider
             const providerCode = pkg.compatible_providers[0];
@@ -311,17 +405,17 @@ export async function GET(request: NextRequest) {
           };
         });
 
-        const isBizFibre = (pkg: any) => pkg.service_type === 'BizFibreConnect' || pkg.product_category === 'fibre_business';
+        const isBizFibre = (pkg: PackageWithProvider) => pkg.service_type === 'BizFibreConnect' || pkg.product_category === 'fibre_business';
         if (!lat || !lng) {
-          availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+          availablePackages = availablePackages.filter((pkg: PackageWithProvider) => !isBizFibre(pkg));
         } else {
           if (fibreCoverage === 'none' || fibreCoverage === 'unknown') {
-            availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+            availablePackages = availablePackages.filter((pkg: PackageWithProvider) => !isBizFibre(pkg));
           } else if (fibreCoverage === 'near-net') {
             // Frontend: hide BizFibre for near-net; near-net details are for admin module only
-            availablePackages = availablePackages.filter((pkg: any) => !isBizFibre(pkg));
+            availablePackages = availablePackages.filter((pkg: PackageWithProvider) => !isBizFibre(pkg));
           } else if (fibreCoverage === 'connected') {
-            availablePackages = availablePackages.map((pkg: any) => {
+            availablePackages = availablePackages.map((pkg: PackageWithProvider) => {
               if (isBizFibre(pkg)) {
                 const features = Array.isArray(pkg.features) ? pkg.features.slice() : [];
                 const note = 'Connected building: ready for standard installation (5–10 business days).';

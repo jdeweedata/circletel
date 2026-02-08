@@ -6,6 +6,38 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface ServicePackageRecord {
+  price: number | string | null;
+  status: string | null;
+  active: boolean | null;
+}
+
+interface BusinessQuoteRecord {
+  status: string | null;
+  total_monthly: number | string | null;
+  created_at: string | null;
+}
+
+interface ConsumerOrderRecord {
+  status: string | null;
+  total_paid: number | string | null;
+  created_at: string | null;
+}
+
+interface CustomerRecord {
+  id: string;
+  created_at: string | null;
+}
+
+interface CoverageLeadRecord {
+  id: string;
+  created_at: string | null;
+}
+
 // Vercel configuration: Allow longer execution for stats aggregation
 export const runtime = 'nodejs';
 export const maxDuration = 15; // Allow up to 15 seconds for stats queries
@@ -63,59 +95,59 @@ export async function GET() {
     }
 
     // Products stats (service_packages schema - Epic 1.6)
-    const products = productsResult.data || [];
+    const products = (productsResult.data || []) as ServicePackageRecord[];
     const totalProducts = products.length;
-    const activeProducts = products.filter((p: any) => p.status === 'active' || p.active === true);
+    const activeProducts = products.filter((p) => p.status === 'active' || p.active === true);
     const approvedProducts = activeProducts.length;
-    const pendingProducts = products.filter((p: any) => p.status === 'pending' || p.status === 'draft').length;
+    const pendingProducts = products.filter((p) => p.status === 'pending' || p.status === 'draft').length;
 
     // Calculate product revenue potential
     // service_packages uses 'price' field (number) instead of 'pricing.monthly' (JSONB)
-    const productRevenue = activeProducts.reduce((sum: number, p: any) => {
+    const productRevenue = activeProducts.reduce((sum: number, p) => {
       const price = parseFloat(p.price?.toString() || '0');
       return sum + (Number.isFinite(price) ? price : 0);
     }, 0);
 
     // Quotes stats
-    const quotes = quotesResult.data || [];
+    const quotes = (quotesResult.data || []) as BusinessQuoteRecord[];
     const totalQuotes = quotes.length;
-    const pendingQuotes = quotes.filter((q: any) => q.status === 'pending_approval').length;
-    const acceptedQuotes = quotes.filter((q: any) => q.status === 'accepted').length;
+    const pendingQuotes = quotes.filter((q) => q.status === 'pending_approval').length;
+    const acceptedQuotes = quotes.filter((q) => q.status === 'accepted').length;
 
     // Calculate quote revenue (accepted quotes only)
     const quoteRevenue = quotes
-      .filter((q: any) => q.status === 'accepted')
-      .reduce((sum: number, q: any) => sum + (parseFloat(q.total_monthly) || 0), 0);
+      .filter((q) => q.status === 'accepted')
+      .reduce((sum: number, q) => sum + (parseFloat(String(q.total_monthly)) || 0), 0);
 
     // Orders stats
-    const orders = ordersResult.data || [];
+    const orders = (ordersResult.data || []) as ConsumerOrderRecord[];
     const totalOrders = orders.length;
-    const pendingOrders = orders.filter((o: any) => o.status === 'pending').length;
-    const activeOrders = orders.filter((o: any) => o.status === 'active').length;
+    const pendingOrders = orders.filter((o) => o.status === 'pending').length;
+    const activeOrders = orders.filter((o) => o.status === 'active').length;
 
     // Calculate order revenue
     const orderRevenue = orders
-      .filter((o: any) => o.status === 'active')
-      .reduce((sum: number, o: any) => sum + (parseFloat(o.total_paid) || 0), 0);
+      .filter((o) => o.status === 'active')
+      .reduce((sum: number, o) => sum + (parseFloat(String(o.total_paid)) || 0), 0);
 
     // Customers stats
-    const customers = customersResult.data || [];
+    const customers = (customersResult.data || []) as CustomerRecord[];
     const totalCustomers = customers.length;
 
     // New customers this month
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const newCustomersThisMonth = customers.filter((c: any) =>
-      new Date(c.created_at) >= startOfMonth
+    const newCustomersThisMonth = customers.filter((c) =>
+      c.created_at ? new Date(c.created_at) >= startOfMonth : false
     ).length;
 
     // Coverage Leads stats
-    const leads = leadsResult.data || [];
+    const leads = (leadsResult.data || []) as CoverageLeadRecord[];
     const totalLeads = leads.length;
 
     // New leads this month
-    const newLeadsThisMonth = leads.filter((l: any) =>
-      new Date(l.created_at) >= startOfMonth
+    const newLeadsThisMonth = leads.filter((l) =>
+      l.created_at ? new Date(l.created_at) >= startOfMonth : false
     ).length;
 
     // Total revenue (orders + quotes)

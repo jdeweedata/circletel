@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createCustomerAccount } from './customer-onboarding';
+import { activationLogger } from '@/lib/logging';
 
 /**
  * Activate Service After RICA Approval
@@ -23,7 +24,7 @@ import { createCustomerAccount } from './customer-onboarding';
 export async function activateService(orderId: string): Promise<void> {
   const supabase = await createClient();
 
-  console.log('[Service Activator] Starting activation for order:', orderId);
+  activationLogger.info('Starting service activation', { orderId });
 
   // 1. Fetch order details with contract
   const { data: order, error: orderError } = await supabase
@@ -39,10 +40,10 @@ export async function activateService(orderId: string): Promise<void> {
     throw new Error(`Order not found: ${orderId}`);
   }
 
-  console.log('[Service Activator] Order loaded:', {
+  activationLogger.info('Order loaded', {
     orderNumber: order.order_number,
     contractId: order.contract_id,
-    customerId: order.customer_id
+    customerId: order.customer_id,
   });
 
   // 2. Update consumer_orders.status to 'active'
@@ -55,11 +56,11 @@ export async function activateService(orderId: string): Promise<void> {
     .eq('id', orderId);
 
   if (orderUpdateError) {
-    console.error('[Service Activator] Failed to update order status:', orderUpdateError);
+    activationLogger.error('Failed to update order status', { error: orderUpdateError.message });
     throw new Error('Failed to activate order');
   }
 
-  console.log('[Service Activator] Order status updated to active');
+  activationLogger.info('Order status updated to active');
 
   // 3. Update contracts.status to 'active'
   if (order.contract_id) {
@@ -69,10 +70,10 @@ export async function activateService(orderId: string): Promise<void> {
       .eq('id', order.contract_id);
 
     if (contractUpdateError) {
-      console.error('[Service Activator] Failed to update contract status:', contractUpdateError);
+      activationLogger.error('Failed to update contract status', { error: contractUpdateError.message });
       // Don't throw - contract update is not critical
     } else {
-      console.log('[Service Activator] Contract status updated to active');
+      activationLogger.info('Contract status updated to active');
     }
   }
 
@@ -91,21 +92,21 @@ export async function activateService(orderId: string): Promise<void> {
   });
 
   if (billingError) {
-    console.error('[Service Activator] Failed to create billing cycle:', billingError);
+    activationLogger.error('Failed to create billing cycle', { error: billingError.message });
     // Don't throw - billing can be created manually
   } else {
-    console.log('[Service Activator] Billing cycle created:', {
+    activationLogger.info('Billing cycle created', {
       start: cycleStartDate.toISOString().split('T')[0],
-      end: cycleEndDate.toISOString().split('T')[0]
+      end: cycleEndDate.toISOString().split('T')[0],
     });
   }
 
   // 5. Create customer account (if doesn't exist)
   try {
     const accountResult = await createCustomerAccount(order.customer_id);
-    console.log('[Service Activator] Customer account created:', accountResult.email);
+    activationLogger.info('Customer account created', { email: accountResult.email });
   } catch (error) {
-    console.error('[Service Activator] Failed to create customer account:', error);
+    activationLogger.error('Failed to create customer account', { error: error instanceof Error ? error.message : String(error) });
     // Don't throw - account can be created manually
   }
 
@@ -116,13 +117,13 @@ export async function activateService(orderId: string): Promise<void> {
     .eq('order_id', orderId);
 
   if (slaError) {
-    console.error('[Service Activator] Failed to update SLA tracking:', slaError);
+    activationLogger.error('Failed to update SLA tracking', { error: slaError.message });
     // Don't throw - SLA tracking is not critical
   } else {
-    console.log('[Service Activator] SLA tracking updated');
+    activationLogger.info('SLA tracking updated');
   }
 
-  console.log('[Service Activator] ✅ Service activation complete for order:', orderId);
+  activationLogger.info('Service activation complete', { orderId });
 }
 
 /**
@@ -139,14 +140,14 @@ export async function deactivateService(
 ): Promise<void> {
   const supabase = await createClient();
 
-  console.log('[Service Activator] Deactivating service:', orderId, 'Reason:', reason);
+  activationLogger.info('Deactivating service', { orderId, reason });
 
   // Update order status
   const { error: orderError } = await supabase
     .from('consumer_orders')
     .update({
       status: reason,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', orderId);
 
@@ -161,7 +162,7 @@ export async function deactivateService(
     .eq('id', orderId); // Assuming contract_id matches order_id
 
   if (contractError) {
-    console.error('[Service Activator] Failed to update contract:', contractError);
+    activationLogger.error('Failed to update contract', { error: contractError.message });
   }
 
   // Close active billing cycles
@@ -169,14 +170,14 @@ export async function deactivateService(
     .from('billing_cycles')
     .update({
       status: 'closed',
-      cycle_end_date: new Date().toISOString().split('T')[0]
+      cycle_end_date: new Date().toISOString().split('T')[0],
     })
     .eq('contract_id', orderId)
     .eq('status', 'active');
 
   if (billingError) {
-    console.error('[Service Activator] Failed to close billing cycles:', billingError);
+    activationLogger.error('Failed to close billing cycles', { error: billingError.message });
   }
 
-  console.log('[Service Activator] ✅ Service deactivated');
+  activationLogger.info('Service deactivated', { orderId });
 }

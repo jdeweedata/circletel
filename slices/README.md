@@ -36,9 +36,10 @@ We'll create these 6 essential slices:
 - **Fields:** section_title, testimonials (repeatable: quote, author, role, image, logo)
 - **Style:** Auto-rotating carousel with CircleTel branding
 
-## Old Slices (Archived)
+## Old Slices
 
-Previous slices (16 days old) moved to: `archive/old-cms/slices-old/`
+Previous custom CMS slices have been removed as part of tech debt cleanup (2026-02-08).
+See ADR: `docs/architecture/adr/ADR-001-cms-migration-to-prismic.md`
 
 ---
 

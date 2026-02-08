@@ -6,6 +6,20 @@ import { DevAuthService } from '@/lib/auth/dev-auth-service'
 import { ProdAuthService } from '@/lib/auth/prod-auth-service'
 import { isDevelopmentMode } from '@/lib/auth/constants'
 
+// Client-side logger (only logs in development)
+const authLog = {
+  debug: (msg: string, ctx?: object) => {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log(`[useAdminAuth] ${msg}`, ctx || '')
+    }
+  },
+  error: (msg: string, ctx?: object) => {
+    // eslint-disable-next-line no-console
+    console.error(`[useAdminAuth] ${msg}`, ctx || '')
+  },
+}
+
 interface AdminAuthState {
   user: AdminUser | null
   isLoading: boolean
@@ -81,7 +95,7 @@ export function useAdminAuth() {
         error: null
       })
     } catch (err) {
-      console.error('Logout error:', err)
+      authLog.error('Logout error', { error: err instanceof Error ? err.message : String(err) })
       // Still clear state on logout error
       SessionStorage.clearSession()
       setState({
@@ -100,7 +114,7 @@ export function useAdminAuth() {
       const stored = SessionStorage.getSession()
 
       if (!stored) {
-        console.log('[useAdminAuth] No session found in localStorage')
+        authLog.debug('No session found in localStorage')
         setState({
           user: null,
           isLoading: false,
@@ -109,10 +123,10 @@ export function useAdminAuth() {
         return
       }
 
-      console.log('[useAdminAuth] Found session in localStorage:', {
+      authLog.debug('Found session in localStorage', {
         email: stored.user.email,
         role: stored.user.role,
-        hasPermissions: !!stored.user.permissions
+        hasPermissions: !!stored.user.permissions,
       })
 
       // In production, trust the localStorage session (it was set by the API login)
@@ -123,7 +137,7 @@ export function useAdminAuth() {
         error: null
       })
     } catch (err) {
-      console.error('[useAdminAuth] Session validation error:', err)
+      authLog.error('Session validation error', { error: err instanceof Error ? err.message : String(err) })
       SessionStorage.clearSession()
       setState({
         user: null,

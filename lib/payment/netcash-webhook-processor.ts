@@ -28,6 +28,18 @@ export interface OrderUpdateData {
   payment_error?: string;
 }
 
+/** Order data structure for email notifications */
+export interface OrderForEmail {
+  id: string;
+  customer_email: string;
+  customer_name: string;
+  payment_reference: string;
+  package_name?: string;
+  total_amount?: number;
+  installation_address?: string;
+  payment_status?: string;
+}
+
 // ==================================================================
 // INITIALIZATION
 // ==================================================================
@@ -378,7 +390,7 @@ export async function processChargeback(
 /**
  * Send order confirmation email
  */
-async function sendOrderConfirmationEmail(order: any): Promise<void> {
+async function sendOrderConfirmationEmail(order: OrderForEmail): Promise<void> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Webhook Processor] Resend API key not configured, skipping email');
     return;
@@ -434,7 +446,7 @@ async function sendOrderConfirmationEmail(order: any): Promise<void> {
 /**
  * Send payment failure notification
  */
-async function sendPaymentFailureEmail(order: any, errorMessage: string): Promise<void> {
+async function sendPaymentFailureEmail(order: OrderForEmail, errorMessage: string): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
 
   try {
@@ -477,7 +489,7 @@ async function sendPaymentFailureEmail(order: any, errorMessage: string): Promis
 /**
  * Send refund notification
  */
-async function sendRefundNotificationEmail(order: any, refundAmount: number): Promise<void> {
+async function sendRefundNotificationEmail(order: OrderForEmail, refundAmount: number): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
 
   try {
@@ -517,7 +529,7 @@ async function sendRefundNotificationEmail(order: any, refundAmount: number): Pr
 /**
  * Send chargeback alert to finance team
  */
-async function sendChargebackAlert(order: any, payload: NetcashWebhookPayload): Promise<void> {
+async function sendChargebackAlert(order: OrderForEmail, payload: NetcashWebhookPayload): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
 
   try {
@@ -567,7 +579,7 @@ async function sendChargebackAlert(order: any, payload: NetcashWebhookPayload): 
 async function createWebhookAudit(
   webhookId: string,
   eventType: string,
-  eventData: any
+  eventData: Record<string, unknown>
 ): Promise<void> {
   try {
     await supabase

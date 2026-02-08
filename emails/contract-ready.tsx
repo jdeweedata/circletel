@@ -1,8 +1,10 @@
 /**
  * Contract Ready for Signature Email Template
  * Sent when contract PDF is generated and ready to sign via Zoho Sign
- * 
+ *
  * Triggers: Contract generation complete → Zoho Sign session created
+ *
+ * @see emails/types.ts for context interfaces
  */
 
 import {
@@ -16,31 +18,34 @@ import {
   Hr,
   Img,
 } from '@react-email/components';
+import {
+  type ContractReadyEmailProps,
+  formatDate,
+  formatPrice,
+  createDefaultCustomer,
+  createDefaultContract,
+  createDefaultPackage,
+  createDefaultPricing,
+} from './types';
 
-interface ContractReadyEmailProps {
-  customerName: string;
-  contractNumber: string;
-  zohoSignUrl: string;
-  packageName: string;
-  monthlyPrice: number;
-  installationFee: number;
-  expiresAt: string; // Signature link expiry
-}
+// Default props for email preview in development
+const defaultProps: ContractReadyEmailProps = {
+  customer: createDefaultCustomer(),
+  contract: createDefaultContract(),
+  package: createDefaultPackage(),
+  pricing: createDefaultPricing(),
+};
 
-export default function ContractReadyEmail({
-  customerName = 'John Doe',
-  contractNumber = 'CT-2025-001',
-  zohoSignUrl = 'https://sign.zoho.com/sign/xyz123',
-  packageName = '100Mbps Fibre',
-  monthlyPrice = 799.0,
-  installationFee = 699.0,
-  expiresAt = '2025-11-08',
-}: ContractReadyEmailProps) {
-  const expiryDate = new Date(expiresAt).toLocaleDateString('en-ZA', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+export default function ContractReadyEmail(props: Partial<ContractReadyEmailProps>) {
+  // Merge with defaults for preview mode
+  const {
+    customer,
+    contract,
+    package: pkg,
+    pricing,
+  } = { ...defaultProps, ...props } as ContractReadyEmailProps;
+
+  const expiryDate = formatDate(contract.expiresAt);
 
   return (
     <Html>
@@ -67,10 +72,10 @@ export default function ContractReadyEmail({
 
           {/* Main Content */}
           <Section style={content}>
-            <Text style={paragraph}>Hi {customerName},</Text>
-            
+            <Text style={paragraph}>Hi {customer.name},</Text>
+
             <Text style={paragraph}>
-              Your contract <strong>{contractNumber}</strong> has been prepared and is
+              Your contract <strong>{contract.number}</strong> has been prepared and is
               ready for your digital signature.
             </Text>
 
@@ -80,22 +85,22 @@ export default function ContractReadyEmail({
               
               <Section style={detailRow}>
                 <Text style={detailLabel}>Contract Number:</Text>
-                <Text style={detailValue}>{contractNumber}</Text>
+                <Text style={detailValue}>{contract.number}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Service Package:</Text>
-                <Text style={detailValue}>{packageName}</Text>
+                <Text style={detailValue}>{pkg.name}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Monthly Fee:</Text>
-                <Text style={detailValue}>R {monthlyPrice.toFixed(2)}</Text>
+                <Text style={detailValue}>{formatPrice(pricing.monthlyFee)}</Text>
               </Section>
 
               <Section style={detailRow}>
                 <Text style={detailLabel}>Installation Fee:</Text>
-                <Text style={detailValue}>R {installationFee.toFixed(2)}</Text>
+                <Text style={detailValue}>{formatPrice(pricing.installationFee)}</Text>
               </Section>
 
               <Hr style={detailDivider} />
@@ -103,7 +108,7 @@ export default function ContractReadyEmail({
               <Section style={detailRow}>
                 <Text style={totalLabel}>First Invoice Total:</Text>
                 <Text style={totalValue}>
-                  R {(monthlyPrice + installationFee).toFixed(2)}
+                  {formatPrice(pricing.monthlyFee + pricing.installationFee)}
                 </Text>
               </Section>
             </Section>
@@ -121,7 +126,7 @@ export default function ContractReadyEmail({
 
             {/* CTA Button */}
             <Section style={buttonContainer}>
-              <Button style={button} href={zohoSignUrl}>
+              <Button style={button} href={contract.signUrl}>
                 Review & Sign Contract
               </Button>
             </Section>

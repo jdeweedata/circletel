@@ -8,6 +8,8 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { encrypt, decryptToObject, isEncryptedData, type EncryptedData } from '@/lib/security/encryption';
+import { paymentLogger } from '@/lib/logging';
 import type {
   PaymentMethodType,
   PaymentMethodDisplay,
@@ -35,28 +37,51 @@ export interface AddPaymentMethodParams {
 export class PaymentMethodService {
   
   /**
-   * Encrypt sensitive payment details
-   * 
-   * NOTE: This is a placeholder. In production, use proper encryption:
-   * - AWS KMS
-   * - Azure Key Vault
-   * - Google Cloud KMS
-   * - Or field-level encryption in Supabase
-   * 
+   * Encrypt sensitive payment details using AES-256-GCM
+   *
+   * Uses lib/security/encryption.ts with environment-based key management.
+   * Requires PAYMENT_ENCRYPTION_KEY environment variable.
+   *
    * @param details - Payment method details
-   * @returns Encrypted JSON string
+   * @returns Encrypted data object for JSONB storage
    */
-  private static encryptDetails(details: BankAccountDetails | CardDetails): any {
-    // TODO: Implement proper encryption before production
-    // For now, we'll just return the details as JSONB
-    // DO NOT use this in production without proper encryption!
-    
-    // Production should use:
-    // const encrypted = await encrypt(JSON.stringify(details), encryptionKey);
-    // return encrypted;
-    
-    console.warn('WARNING: Payment details are not encrypted. Implement encryption before production!');
-    return details;
+  private static encryptDetails(details: BankAccountDetails | CardDetails): EncryptedData {
+    try {
+      return encrypt(details);
+    } catch (error) {
+      paymentLogger.error('Failed to encrypt payment details', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw new Error('Failed to secure payment details. Please contact support.');
+    }
+  }
+
+  /**
+   * Decrypt payment details (for internal processing only)
+   *
+   * WARNING: Only use when necessary for payment processing.
+   * Never expose decrypted details to API responses.
+   *
+   * @param encrypted - Encrypted data from database
+   * @returns Decrypted payment details
+   */
+  private static decryptDetails<T extends BankAccountDetails | CardDetails>(
+    encrypted: EncryptedData | unknown
+  ): T {
+    if (!isEncryptedData(encrypted)) {
+      // Legacy unencrypted data - log warning and return as-is
+      paymentLogger.warn('Encountered unencrypted payment details - consider migration');
+      return encrypted as T;
+    }
+
+    try {
+      return decryptToObject<T>(encrypted);
+    } catch (error) {
+      paymentLogger.error('Failed to decrypt payment details', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw new Error('Failed to retrieve payment details. Please contact support.');
+    }
   }
   
   /**

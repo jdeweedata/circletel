@@ -1,9 +1,14 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+/**
+ * Aceternity UI Utilities
+ *
+ * Animation and random generation helpers for Aceternity-style UI components.
+ * Note: cn() is re-exported from @/lib/utils for convenience.
+ *
+ * @module lib/utils/aceternity
+ */
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+// Re-export cn from the canonical source
+export { cn } from '@/lib/utils';
 
 // Aceternity-style utility functions
 export const generateRandomString = (length: number): string => {

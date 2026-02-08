@@ -6,6 +6,8 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { activationLogger } from '@/lib/logging';
 import * as crypto from 'crypto';
 
 /**
@@ -26,7 +28,7 @@ export async function createCustomerAccount(customerId: string): Promise<{
 }> {
   const supabase = await createClient();
 
-  console.log('[Customer Onboarding] Starting account creation for customer:', customerId);
+  activationLogger.info('Starting account creation', { customerId });
 
   // 1. Fetch customer details
   const { data: customer, error: customerError } = await supabase
@@ -39,27 +41,27 @@ export async function createCustomerAccount(customerId: string): Promise<{
     throw new Error(`Customer not found: ${customerId}`);
   }
 
-  console.log('[Customer Onboarding] Customer loaded:', customer.email);
+  activationLogger.debug('Customer loaded', { email: customer.email });
 
   // 2. Check if customer account already exists
   const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
 
   if (listError) {
-    console.error('[Customer Onboarding] Failed to list users:', listError);
+    activationLogger.error('Failed to list users', { error: listError.message });
     throw new Error('Failed to check existing accounts');
   }
 
   const userExists = existingUsers.users.some(u => u.email === customer.email);
 
   if (userExists) {
-    console.log('[Customer Onboarding] Account already exists:', customer.email);
+    activationLogger.info('Account already exists', { email: customer.email });
     return { email: customer.email, temporaryPassword: '' };
   }
 
   // 3. Generate temporary password (8 characters, alphanumeric)
   const temporaryPassword = crypto.randomBytes(4).toString('hex');
 
-  console.log('[Customer Onboarding] Temporary password generated (length:', temporaryPassword.length, ')');
+  activationLogger.debug('Temporary password generated', { length: temporaryPassword.length });
 
   // 4. Create customer portal account via Supabase Auth
   const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
@@ -76,20 +78,55 @@ export async function createCustomerAccount(customerId: string): Promise<{
   });
 
   if (createError) {
-    console.error('[Customer Onboarding] Failed to create user:', createError);
+    activationLogger.error('Failed to create user', { error: createError.message });
     throw new Error(`Failed to create customer account: ${createError.message}`);
   }
 
-  console.log('[Customer Onboarding] ✅ Account created:', newUser.user?.email);
+  activationLogger.info('Account created', { email: newUser.user?.email });
 
-  // 5. Send welcome email with credentials (Task Group 14 will implement this)
-  // TODO: await sendWelcomeEmail(customer.email, temporaryPassword);
-  console.log('[Customer Onboarding] ⚠️ Welcome email not yet implemented (Task Group 14)');
+  // 5. Send welcome email with portal credentials
+  try {
+    await sendWelcomeEmail(customer.email, customer.name || 'Valued Customer', temporaryPassword);
+    activationLogger.info('Welcome email sent', { email: customer.email });
+  } catch (emailError) {
+    // Log but don't fail - account was created successfully
+    activationLogger.warn('Welcome email failed but account created', {
+      email: customer.email,
+      error: emailError instanceof Error ? emailError.message : 'Unknown error'
+    });
+  }
 
   return {
     email: customer.email,
     temporaryPassword
   };
+}
+
+/**
+ * Send welcome email with portal credentials
+ */
+async function sendWelcomeEmail(
+  email: string,
+  customerName: string,
+  temporaryPassword: string
+): Promise<void> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+  await EmailNotificationService.send({
+    to: email,
+    subject: 'Welcome to Your CircleTel Customer Portal',
+    template: 'order_activated', // Reuses the activation template which includes login details
+    data: {
+      customer_name: customerName,
+      temporary_password: temporaryPassword,
+      portal_url: `${baseUrl}/account/login`,
+      support_email: 'support@circletel.co.za',
+      support_phone: '0860 CIRCLE (0860 247 253)',
+    },
+    tags: {
+      notification_type: 'welcome_email',
+    },
+  });
 }
 
 /**
@@ -104,12 +141,12 @@ export async function resetCustomerPassword(customerId: string): Promise<{
 }> {
   const supabase = await createClient();
 
-  console.log('[Customer Onboarding] Resetting password for customer:', customerId);
+  activationLogger.info('Resetting password', { customerId });
 
   // Fetch customer details
   const { data: customer, error: customerError } = await supabase
     .from('customers')
-    .select('email')
+    .select('email, name')
     .eq('id', customerId)
     .single();
 
@@ -136,14 +173,52 @@ export async function resetCustomerPassword(customerId: string): Promise<{
     throw new Error(`Failed to reset password: ${updateError.message}`);
   }
 
-  console.log('[Customer Onboarding] ✅ Password reset for:', customer.email);
+  activationLogger.info('Password reset', { email: customer.email });
 
-  // TODO: Send password reset email (Task Group 14)
+  // Send password reset email
+  try {
+    await sendPasswordResetEmail(customer.email, customer.name || 'Valued Customer', temporaryPassword);
+    activationLogger.info('Password reset email sent', { email: customer.email });
+  } catch (emailError) {
+    activationLogger.warn('Password reset email failed', {
+      email: customer.email,
+      error: emailError instanceof Error ? emailError.message : 'Unknown error'
+    });
+  }
 
   return {
     email: customer.email,
     temporaryPassword
   };
+}
+
+/**
+ * Send password reset email with new temporary password
+ */
+async function sendPasswordResetEmail(
+  email: string,
+  customerName: string,
+  temporaryPassword: string
+): Promise<void> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+
+  await EmailNotificationService.send({
+    to: email,
+    subject: 'Your CircleTel Password Has Been Reset',
+    template: 'kyc_approved', // Reuses a simple notification template
+    data: {
+      customer_name: customerName,
+      order_number: '', // Not applicable for password reset
+      temporary_password: temporaryPassword,
+      portal_url: `${baseUrl}/account/login`,
+      message: `Your password has been reset. Please use the temporary password below to log in, then change your password immediately.`,
+      support_email: 'support@circletel.co.za',
+      support_phone: '0860 CIRCLE (0860 247 253)',
+    },
+    tags: {
+      notification_type: 'password_reset',
+    },
+  });
 }
 
 /**
@@ -154,7 +229,7 @@ export async function resetCustomerPassword(customerId: string): Promise<{
 export async function suspendCustomerAccount(customerId: string): Promise<void> {
   const supabase = await createClient();
 
-  console.log('[Customer Onboarding] Suspending account for customer:', customerId);
+  activationLogger.info('Suspending account', { customerId });
 
   // Fetch customer email
   const { data: customer } = await supabase
@@ -172,20 +247,20 @@ export async function suspendCustomerAccount(customerId: string): Promise<void> 
   const user = users.users.find(u => u.email === customer.email);
 
   if (!user) {
-    console.warn('[Customer Onboarding] User account not found:', customer.email);
+    activationLogger.warn('User account not found for suspension', { email: customer.email });
     return;
   }
 
   // Ban user (suspends account)
   const { error } = await supabase.auth.admin.updateUserById(user.id, {
-    ban_duration: 'indefinite' as any // Suspend indefinitely
+    ban_duration: 'indefinite' as unknown as string // Suspend indefinitely
   });
 
   if (error) {
     throw new Error(`Failed to suspend account: ${error.message}`);
   }
 
-  console.log('[Customer Onboarding] ✅ Account suspended:', customer.email);
+  activationLogger.info('Account suspended', { email: customer.email });
 }
 
 /**
@@ -196,7 +271,7 @@ export async function suspendCustomerAccount(customerId: string): Promise<void> 
 export async function reactivateCustomerAccount(customerId: string): Promise<void> {
   const supabase = await createClient();
 
-  console.log('[Customer Onboarding] Reactivating account for customer:', customerId);
+  activationLogger.info('Reactivating account', { customerId });
 
   // Fetch customer email
   const { data: customer } = await supabase
@@ -219,12 +294,12 @@ export async function reactivateCustomerAccount(customerId: string): Promise<voi
 
   // Unban user (reactivate account)
   const { error } = await supabase.auth.admin.updateUserById(user.id, {
-    ban_duration: 'none' as any
+    ban_duration: 'none' as unknown as string
   });
 
   if (error) {
     throw new Error(`Failed to reactivate account: ${error.message}`);
   }
 
-  console.log('[Customer Onboarding] ✅ Account reactivated:', customer.email);
+  activationLogger.info('Account reactivated', { email: customer.email });
 }

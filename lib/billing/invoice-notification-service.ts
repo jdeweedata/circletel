@@ -46,6 +46,44 @@ export interface InvoiceNotificationResult {
   errors: string[];
 }
 
+/** Customer data as returned from Supabase join */
+interface InvoiceCustomer {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  account_number: string | null;
+  business_name: string | null;
+  zoho_billing_customer_id?: string | null;
+}
+
+/** Invoice line item structure */
+interface InvoiceLineItemData {
+  description: string;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+  type?: string;
+}
+
+/** Invoice with customer data as returned from Supabase */
+interface InvoiceWithCustomer {
+  id: string;
+  invoice_number: string;
+  customer_id: string;
+  total_amount: number;
+  subtotal: number;
+  tax_amount?: number;
+  vat_amount?: number;
+  invoice_date: string;
+  due_date: string;
+  status: string;
+  line_items: InvoiceLineItemData[] | null;
+  zoho_invoice_id?: string | null;
+  customer: InvoiceCustomer | null;
+}
+
 // =============================================================================
 // INVOICE NOTIFICATION SERVICE
 // =============================================================================
@@ -149,9 +187,9 @@ export class InvoiceNotificationService {
           } else {
             errors.push(`Zoho sync failed: ${zohoResult.error}`);
           }
-        } catch (zohoError: any) {
-          errors.push(`Zoho sync error: ${zohoError.message}`);
-          console.error('[InvoiceNotification] Zoho sync error:', zohoError);
+        } catch (zohoError: unknown) {
+          const errorMsg = zohoError instanceof Error ? zohoError.message : 'Unknown error';
+          errors.push(`Zoho sync error: ${errorMsg}`);
         }
       }
 
@@ -183,9 +221,9 @@ export class InvoiceNotificationService {
           } else {
             errors.push(`Email failed: ${emailResult.error}`);
           }
-        } catch (emailError: any) {
-          errors.push(`Email error: ${emailError.message}`);
-          console.error('[InvoiceNotification] Email error:', emailError);
+        } catch (emailError: unknown) {
+          const errorMsg = emailError instanceof Error ? emailError.message : 'Unknown error';
+          errors.push(`Email error: ${errorMsg}`);
         }
       }
 
@@ -209,13 +247,13 @@ export class InvoiceNotificationService {
         email_verified,
         errors,
       };
-    } catch (error: any) {
-      console.error('[InvoiceNotification] Error:', error);
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
         zoho_synced: false,
         email_sent: false,
-        errors: [error.message],
+        errors: [errorMsg],
       };
     }
   }
@@ -223,7 +261,7 @@ export class InvoiceNotificationService {
   /**
    * Sync invoice to Zoho Billing
    */
-  private static async syncToZoho(invoice: any): Promise<{
+  private static async syncToZoho(invoice: InvoiceWithCustomer): Promise<{
     success: boolean;
     zoho_invoice_id?: string;
     error?: string;
@@ -247,24 +285,21 @@ export class InvoiceNotificationService {
       const billingClient = new ZohoBillingClient();
 
       // Build Zoho invoice payload
-      const rawLineItems = invoice.line_items || [];
-      console.log('[InvoiceNotification] Raw line items:', JSON.stringify(rawLineItems));
-      
+      const rawLineItems: InvoiceLineItemData[] = invoice.line_items || [];
+
       if (!rawLineItems || rawLineItems.length === 0) {
         return {
           success: false,
           error: 'Invoice has no line items to sync',
         };
       }
-      
-      const lineItems = rawLineItems.map((item: any) => ({
+
+      const lineItems = rawLineItems.map((item) => ({
         name: item.description || 'Service',
         description: item.description || '',
         quantity: Number(item.quantity) || 1,
         price: Number(item.unit_price) || Number(item.amount) || 0, // Zoho uses 'price' not 'rate'
       }));
-
-      console.log('[InvoiceNotification] Zoho line items:', JSON.stringify(lineItems));
 
       const zohoPayload = {
         customer_id: customer.zoho_billing_customer_id,
@@ -280,19 +315,17 @@ export class InvoiceNotificationService {
         reference_number: invoice.invoice_number,
       };
 
-      console.log('[InvoiceNotification] Zoho payload:', JSON.stringify(zohoPayload));
-
-      const zohoInvoice = await billingClient.createInvoice(zohoPayload as any);
+      const zohoInvoice = await billingClient.createInvoice(zohoPayload);
 
       return {
         success: true,
         zoho_invoice_id: zohoInvoice.invoice_id,
       };
-    } catch (error: any) {
-      console.error('[InvoiceNotification] Zoho sync error:', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
     }
   }
@@ -300,7 +333,7 @@ export class InvoiceNotificationService {
   /**
    * Send invoice email via Resend
    */
-  private static async sendInvoiceEmail(invoice: any, testEmail?: string): Promise<{
+  private static async sendInvoiceEmail(invoice: InvoiceWithCustomer, testEmail?: string): Promise<{
     success: boolean;
     message_id?: string;
     error?: string;
@@ -308,7 +341,7 @@ export class InvoiceNotificationService {
     try {
       const customer = invoice.customer;
       const recipientEmail = testEmail || customer?.email;
-      
+
       if (!recipientEmail) {
         return {
           success: false,
@@ -319,36 +352,35 @@ export class InvoiceNotificationService {
       const customerName = `${customer?.first_name || ''} ${customer?.last_name || ''}`.trim() || 'Customer';
 
       // Parse line items
-      const lineItems = (invoice.line_items || []).map((item: any) => ({
+      const rawItems: InvoiceLineItemData[] = invoice.line_items || [];
+      const lineItems = rawItems.map((item) => ({
         description: item.description,
         quantity: item.quantity || 1,
         unit_price: item.unit_price || item.amount,
         amount: item.amount,
       }));
 
-      console.log(`[InvoiceNotification] Sending email to: ${recipientEmail}${testEmail ? ' (TEST)' : ''}`);
-
       const result = await sendInvoiceGenerated({
         invoice_id: invoice.id,
         customer_id: customer?.id || 'test',
         email: recipientEmail,
         customer_name: customerName,
-        company_name: customer?.business_name,
+        company_name: customer?.business_name ?? undefined,
         invoice_number: invoice.invoice_number,
         total_amount: invoice.total_amount,
         subtotal: invoice.subtotal,
         vat_amount: invoice.tax_amount || invoice.vat_amount || 0,
         due_date: invoice.due_date,
-        account_number: customer?.account_number,
+        account_number: customer?.account_number ?? undefined,
         line_items: lineItems,
       });
 
       return result;
-    } catch (error: any) {
-      console.error('[InvoiceNotification] Email error:', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
     }
   }
