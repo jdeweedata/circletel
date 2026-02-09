@@ -14,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
+import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
 // TYPES
@@ -126,7 +127,7 @@ export class InvoiceNotificationService {
       if (!force_send && send_email) {
         const isDuplicate = await this.checkDuplicateNotification(invoice_id, trigger);
         if (isDuplicate) {
-          console.log(`[InvoiceNotification] Skipping duplicate ${trigger} for invoice ${invoice_id}`);
+          billingLogger.info(`Skipping duplicate ${trigger} for invoice ${invoice_id}`);
           return {
             success: true,
             zoho_synced: false,
@@ -138,7 +139,7 @@ export class InvoiceNotificationService {
       }
 
       // 2. Fetch invoice with customer details
-      console.log(`[InvoiceNotification] Fetching invoice: ${invoice_id}`);
+      billingLogger.debug(`Fetching invoice: ${invoice_id}`);
       
       const { data: invoice, error: invoiceError } = await supabase
         .from('customer_invoices')
@@ -158,7 +159,7 @@ export class InvoiceNotificationService {
         .single();
 
       if (invoiceError) {
-        console.error(`[InvoiceNotification] Query error:`, invoiceError);
+        billingLogger.error(`Invoice query failed`, { invoiceId: invoice_id, error: invoiceError.message });
         throw new Error(`Invoice query failed: ${invoiceError.message}`);
       }
       
@@ -166,9 +167,9 @@ export class InvoiceNotificationService {
         throw new Error(`Invoice not found: ${invoice_id}`);
       }
       
-      console.log(`[InvoiceNotification] Found invoice:`, invoice.invoice_number, 'Customer:', invoice.customer?.email);
+      billingLogger.debug(`Found invoice ${invoice.invoice_number}`, { customerEmail: invoice.customer?.email });
 
-      console.log(`[InvoiceNotification] Processing ${trigger} for invoice ${invoice.invoice_number}`);
+      billingLogger.info(`Processing ${trigger} for invoice ${invoice.invoice_number}`);
 
       // 2. Sync to Zoho Billing
       if (sync_to_zoho) {
@@ -177,7 +178,7 @@ export class InvoiceNotificationService {
           if (zohoResult.success) {
             zoho_invoice_id = zohoResult.zoho_invoice_id;
             zoho_synced = true;
-            console.log(`[InvoiceNotification] Synced to Zoho: ${zoho_invoice_id}`);
+            billingLogger.info(`Synced to Zoho: ${zoho_invoice_id}`);
 
             // Update invoice with Zoho ID
             await supabase
@@ -201,14 +202,14 @@ export class InvoiceNotificationService {
           if (emailResult.success) {
             email_sent = true;
             email_message_id = emailResult.message_id;
-            console.log(`[InvoiceNotification] Email sent: ${email_message_id}`);
+            billingLogger.info(`Email sent: ${email_message_id}`);
 
             // 5. Verify email delivery (async check after short delay)
             if (email_message_id) {
               // Wait 2 seconds for email to be processed
               await new Promise(resolve => setTimeout(resolve, 2000));
               email_verified = await this.verifyEmailDelivery(email_message_id);
-              console.log(`[InvoiceNotification] Email verified: ${email_verified}`);
+              billingLogger.debug(`Email verified: ${email_verified}`);
             }
 
             // Update invoice status to 'sent' if it was 'draft'
@@ -411,7 +412,7 @@ export class InvoiceNotificationService {
 
       return !!(existing && existing.length > 0);
     } catch (error) {
-      console.error('[InvoiceNotification] Error checking duplicate:', error);
+      billingLogger.error('Error checking duplicate notification', { invoiceId: invoiceId, error });
       // If check fails, allow the notification to proceed
       return false;
     }
@@ -434,7 +435,7 @@ export class InvoiceNotificationService {
       });
 
       if (!response.ok) {
-        console.error('[InvoiceNotification] Failed to verify email:', response.statusText);
+        billingLogger.error('Failed to verify email', { messageId, status: response.statusText });
         return false;
       }
 
@@ -444,11 +445,11 @@ export class InvoiceNotificationService {
       const successStatuses = ['sent', 'delivered'];
       const isDelivered = successStatuses.includes(data.last_event);
       
-      console.log(`[InvoiceNotification] Email ${messageId} status: ${data.last_event}`);
-      
+      billingLogger.debug(`Email ${messageId} status: ${data.last_event}`);
+
       return isDelivered;
     } catch (error) {
-      console.error('[InvoiceNotification] Error verifying email:', error);
+      billingLogger.error('Error verifying email', { messageId, error });
       return false;
     }
   }
@@ -483,7 +484,7 @@ export class InvoiceNotificationService {
         created_at: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('[InvoiceNotification] Failed to log notification:', error);
+      billingLogger.error('Failed to log notification', { invoiceId, error });
       // Don't fail the main process if logging fails
     }
   }

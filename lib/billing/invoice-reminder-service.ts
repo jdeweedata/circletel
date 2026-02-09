@@ -11,6 +11,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
+import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
 // Types
@@ -382,7 +383,7 @@ export class InvoiceReminderService {
     for (const invoice of invoices) {
       if (dryRun) {
         // Dry run - just log what would be sent
-        console.log(`[DRY RUN] Would send reminder for invoice ${invoice.invoice_number} to ${invoice.customer?.email}`);
+        billingLogger.info(`[DRY RUN] Would send reminder for invoice ${invoice.invoice_number} to ${invoice.customer?.email}`);
         results.push({
           invoice_id: invoice.id,
           invoice_number: invoice.invoice_number,

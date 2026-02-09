@@ -16,6 +16,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { generateInvoicePDF, buildInvoiceData, COMPANY_DETAILS } from '@/lib/invoices/invoice-pdf-generator';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
 // Types
@@ -255,10 +256,10 @@ export class CompliantBillingService {
             notification_type: 'billing'
           }
         });
-        console.log(`📧 Invoice email sent to ${invoice.customer.email} for ${invoice.invoice_number}`);
+        billingLogger.info(`Invoice email sent to ${invoice.customer.email} for ${invoice.invoice_number}`);
       } catch (emailError) {
         // Log error but don't fail the invoice send process
-        console.error(`Failed to send invoice email to ${invoice.customer.email}:`, emailError);
+        billingLogger.error(`Failed to send invoice email`, { email: invoice.customer.email, invoiceNumber: invoice.invoice_number, error: emailError });
       }
     }
 

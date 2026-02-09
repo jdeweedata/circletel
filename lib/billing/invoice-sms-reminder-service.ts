@@ -10,6 +10,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
+import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
 // Types
@@ -507,7 +508,7 @@ export class InvoiceSmsReminderService {
 
       if (dryRun) {
         // Dry run - just log what would be sent
-        console.log(
+        billingLogger.info(
           `[DRY RUN] Would send SMS reminder for invoice ${invoice.invoice_number} to ${invoice.customer?.phone}`
         );
         results.push({

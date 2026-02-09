@@ -8,6 +8,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { billingLogger } from '@/lib/logging';
 
 // =============================================================================
 // Types
@@ -113,14 +114,14 @@ export class NotificationTrackingService {
         .single();
 
       if (error) {
-        console.error('[NotificationTracking] Failed to log notification:', error);
+        billingLogger.error('Failed to log notification', { error: error.message });
         return { success: false, error: error.message };
       }
 
       return { success: true, id: data.id };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      console.error('[NotificationTracking] Error:', message);
+      billingLogger.error('NotificationTracking error', { error: message });
       return { success: false, error: message };
     }
   }
@@ -180,13 +181,13 @@ export class NotificationTrackingService {
         .single();
 
       if (error) {
-        console.error('[NotificationTracking] Failed to get AR summary:', error);
+        billingLogger.error('Failed to get AR summary', { error: error.message });
         return null;
       }
 
       return data as ARAgingSummary;
     } catch (error) {
-      console.error('[NotificationTracking] Error getting AR summary:', error);
+      billingLogger.error('Error getting AR summary', { error });
       return null;
     }
   }
@@ -209,13 +210,13 @@ export class NotificationTrackingService {
         .order('date', { ascending: false });
 
       if (error) {
-        console.error('[NotificationTracking] Failed to get analytics:', error);
+        billingLogger.error('Failed to get notification analytics', { error: error.message });
         return [];
       }
 
       return (data || []) as NotificationAnalytics[];
     } catch (error) {
-      console.error('[NotificationTracking] Error getting analytics:', error);
+      billingLogger.error('Error getting notification analytics', { error });
       return [];
     }
   }
@@ -284,7 +285,7 @@ export class NotificationTrackingService {
         collection_effectiveness_index: Math.round(cei * 100) / 100,
       };
     } catch (error) {
-      console.error('[NotificationTracking] Error calculating DSO:', error);
+      billingLogger.error('Error calculating DSO', { error });
       return null;
     }
   }
@@ -349,7 +350,7 @@ export class NotificationTrackingService {
         response_rate: Math.round(responseRate * 100) / 100,
       };
     } catch (error) {
-      console.error('[NotificationTracking] Error getting collection effectiveness:', error);
+      billingLogger.error('Error getting collection effectiveness', { error });
       return null;
     }
   }
@@ -368,13 +369,13 @@ export class NotificationTrackingService {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('[NotificationTracking] Failed to get invoice history:', error);
+        billingLogger.error('Failed to get invoice history', { invoiceId, error: error.message });
         return [];
       }
 
       return (data || []) as NotificationLogEntry[];
     } catch (error) {
-      console.error('[NotificationTracking] Error getting invoice history:', error);
+      billingLogger.error('Error getting invoice history', { invoiceId, error });
       return [];
     }
   }
