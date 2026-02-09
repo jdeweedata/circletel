@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Get pending orders for the authenticated customer
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (ordersError) {
-      console.error('Error fetching pending orders:', ordersError);
+      apiLogger.error('Error fetching pending orders', { error: ordersError });
       return NextResponse.json(
         {
           success: false,
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Unexpected error fetching pending orders:', error);
+    apiLogger.error('Unexpected error fetching pending orders', { error });
     return NextResponse.json(
       {
         success: false,

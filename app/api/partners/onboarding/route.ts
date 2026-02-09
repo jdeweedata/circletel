@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { apiLogger } from '@/lib/logging';
 
 // Partner registration schema (matches frontend validation)
 const partnerRegistrationSchema = z.object({
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('Error checking existing partner:', checkError);
+      apiLogger.error('Error checking existing partner', { error: checkError });
       return NextResponse.json(
         { success: false, error: 'Failed to check existing registration' },
         { status: 500 }
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (emailError && emailError.code !== 'PGRST116') {
-      console.error('Error checking email:', emailError);
+      apiLogger.error('Error checking email', { error: emailError });
       return NextResponse.json(
         { success: false, error: 'Failed to validate email' },
         { status: 500 }
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Error creating partner:', insertError);
+      apiLogger.error('Error creating partner', { error: insertError });
       return NextResponse.json(
         { success: false, error: 'Failed to create partner registration. Please try again.' },
         { status: 500 }
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
         business_type: data.businessType,
       });
     } catch (emailError) {
-      console.error('Failed to send partner welcome email:', emailError);
+      apiLogger.error('Failed to send partner welcome email', { error: emailError });
       // Don't fail the registration if email fails
     }
 
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
         postal_code: data.postalCode,
       });
     } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError);
+      apiLogger.error('Failed to send admin notification', { error: emailError });
       // Don't fail the registration if email fails
     }
 
@@ -198,7 +199,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Partner registration error:', error);
+    apiLogger.error('Partner registration error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -232,7 +233,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (partnerError && partnerError.code !== 'PGRST116') {
-      console.error('Error fetching partner:', partnerError);
+      apiLogger.error('Error fetching partner', { error: partnerError });
       return NextResponse.json(
         { success: false, error: 'Failed to retrieve partner information' },
         { status: 500 }
@@ -260,7 +261,7 @@ export async function GET(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Partner fetch error:', error);
+    apiLogger.error('Partner fetch error', { error });
     return NextResponse.json(
       {
         success: false,

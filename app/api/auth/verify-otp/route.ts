@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (fetchError) {
-      console.error('Database error:', fetchError);
+      apiLogger.error('Database error', { error: fetchError });
       return NextResponse.json(
         { success: false, error: 'Failed to verify OTP' },
         { status: 500 }
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       .eq('id', otpRecord.id);
 
     if (updateError) {
-      console.error('Update error:', updateError);
+      apiLogger.error('Update error', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to verify OTP' },
         { status: 500 }
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       message: 'Email verified successfully',
     });
   } catch (error) {
-    console.error('Verify OTP error:', error);
+    apiLogger.error('Verify OTP error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

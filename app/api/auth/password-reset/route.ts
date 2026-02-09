@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { render } from '@react-email/render';
 import PasswordResetEmail from '@/emails/templates/consumer/password-reset';
+import { apiLogger } from '@/lib/logging';
 
 // Initialize Supabase Admin client
 const supabaseAdmin = createClient(
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (userError) {
-      console.error('Error listing users:', userError);
+      apiLogger.error('Error listing users', { error: userError });
       // Don't reveal if user exists or not for security
       return NextResponse.json({ 
         success: true, 
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // Don't reveal if user exists - return success anyway
-      console.log(`Password reset requested for non-existent email: ${email}`);
+      apiLogger.info('Password reset requested for non-existent email', { email });
       return NextResponse.json({ 
         success: true, 
         message: 'If an account exists with this email, a password reset link will be sent.' 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (customerError) {
-      console.error('Error fetching customer:', customerError);
+      apiLogger.error('Error fetching customer', { error: customerError });
     }
 
     const firstName = customer?.first_name || 'Customer';
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (linkError) {
-      console.error('Error generating reset link:', linkError);
+      apiLogger.error('Error generating reset link', { error: linkError });
       return NextResponse.json(
         { error: 'Failed to generate reset link. Please try again.' },
         { status: 500 }
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the full response for debugging
-    console.log('generateLink response:', JSON.stringify(linkData, null, 2));
+    apiLogger.info('generateLink response', { linkData });
 
     // The action_link goes through Supabase's verify endpoint
     // We need to extract the token and build our own URL that goes through /auth/confirm
@@ -116,14 +117,14 @@ export async function POST(request: NextRequest) {
       try {
         const actionUrl = new URL(actionLink);
         tokenHash = actionUrl.searchParams.get('token') || undefined;
-        console.log('Extracted token_hash from action_link:', tokenHash ? 'Found' : 'Not found');
+        apiLogger.info('Extracted token_hash from action_link', { found: !!tokenHash });
       } catch (e) {
-        console.error('Failed to parse action_link:', e);
+        apiLogger.error('Failed to parse action_link', { error: e });
       }
     }
 
     if (!actionLink && !tokenHash) {
-      console.error('No action_link or hashed_token in response:', linkData);
+      apiLogger.error('No action_link or hashed_token in response', { linkData });
       return NextResponse.json(
         { error: 'Failed to generate reset link. Please try again.' },
         { status: 500 }
@@ -137,14 +138,14 @@ export async function POST(request: NextRequest) {
     if (tokenHash) {
       // Use our confirm endpoint with the token hash
       resetUrl = `${baseUrl}/auth/confirm?token_hash=${tokenHash}&type=recovery`;
-      console.log('Using custom /auth/confirm route with token_hash');
+      apiLogger.info('Using custom /auth/confirm route with token_hash');
     } else {
       // Fallback to the action_link from Supabase (should not happen with extraction above)
-      console.warn('Falling back to Supabase action_link - token extraction failed');
+      apiLogger.warn('Falling back to Supabase action_link - token extraction failed');
       resetUrl = actionLink!;
     }
     
-    console.log('Reset URL being sent:', resetUrl);
+    apiLogger.info('Reset URL being sent', { resetUrl });
 
     // Render the email template
     const emailHtml = await render(
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
 
     // Send email via Resend
     if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY not configured');
+      apiLogger.error('RESEND_API_KEY not configured');
       return NextResponse.json(
         { error: 'Email service not configured' },
         { status: 500 }
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
 
     if (!resendResponse.ok) {
       const errorData = await resendResponse.json();
-      console.error('Resend API error:', errorData);
+      apiLogger.error('Resend API error', { errorData });
       return NextResponse.json(
         { error: 'Failed to send email. Please try again.' },
         { status: 500 }
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
     }
 
     const resendResult = await resendResponse.json();
-    console.log(`Password reset email sent to ${email}, message_id: ${resendResult.id}`);
+    apiLogger.info('Password reset email sent', { email, messageId: resendResult.id });
 
     return NextResponse.json({
       success: true,
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Password reset error:', error);
+    apiLogger.error('Password reset error', { error });
     return NextResponse.json(
       { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }

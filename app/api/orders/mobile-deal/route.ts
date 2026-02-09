@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // POST /api/orders/mtn-deal - Create order for MTN dealer deal
 export async function POST(request: NextRequest) {
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
         .single();
       
       if (customerError) {
-        console.error('[MTN Deal Order] Customer creation error:', customerError);
+        apiLogger.error('[MTN Deal Order] Customer creation error', { error: customerError });
         // Continue without customer ID - will be linked later
       } else {
         customerId = newCustomer.id;
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
       .single();
     
     if (orderError) {
-      console.error('[MTN Deal Order] Order creation error:', orderError);
+      apiLogger.error('[MTN Deal Order] Order creation error', { error: orderError });
       
       // Fallback: store in a generic orders table or return partial success
       return NextResponse.json({
@@ -171,7 +172,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('[MTN Deal Order] Error:', error);
+    apiLogger.error('[MTN Deal Order] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to create order' },
       { status: 500 }

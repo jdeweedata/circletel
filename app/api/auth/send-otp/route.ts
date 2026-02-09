@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // Helper to get Resend client (lazy initialization)
 function getResend() {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      apiLogger.error('Database error', { error: dbError });
       return NextResponse.json(
         { success: false, error: 'Failed to store OTP' },
         { status: 500 }
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (emailError) {
-        console.error('Resend error:', emailError);
+        apiLogger.error('Resend error', { error: emailError });
         return NextResponse.json(
           { success: false, error: 'Failed to send email' },
           { status: 500 }
@@ -116,14 +117,14 @@ export async function POST(request: NextRequest) {
         emailId: emailData?.id,
       });
     } catch (emailError) {
-      console.error('Email sending error:', emailError);
+      apiLogger.error('Email sending error', { error: emailError });
       return NextResponse.json(
         { success: false, error: 'Failed to send email' },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Send OTP error:', error);
+    apiLogger.error('Send OTP error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

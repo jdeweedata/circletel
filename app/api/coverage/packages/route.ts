@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates } from '@/lib/coverage/types';
 import { CoverageLogger } from '@/lib/analytics/coverage-logger';
+import { apiLogger } from '@/lib/logging';
 
 // ============================================================================
 // TYPES
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('Packages API called with:', { leadId, coverageType });
+    apiLogger.info('Packages API called with', { leadId, coverageType });
 
     // Get lead information
     const { data: lead, error: leadError } = await supabase
@@ -232,14 +233,14 @@ export async function GET(request: NextRequest) {
             }
           }
 
-          console.log('Real-time MTN coverage check:', {
+          apiLogger.info('Real-time MTN coverage check', {
             coordinates,
             availableServices,
             metadata: coverageMetadata
           });
         }
       } catch (error) {
-        console.error('Real-time coverage check failed (using PostGIS fallback):', error);
+        apiLogger.error('Real-time coverage check failed (using PostGIS fallback)', { error });
 
         // Fallback to legacy PostGIS query if real-time check fails
         const { data: coverageData, error: coverageError } = await supabase
@@ -252,7 +253,7 @@ export async function GET(request: NextRequest) {
           coverageAvailable = true;
           availableServices = [...new Set(coverageData.map((item: PostGISCoverageResult) => item.service_type).filter((type: string | undefined): type is string => typeof type === 'string'))] as string[];
 
-          console.log('Fallback to PostGIS coverage check:', {
+          apiLogger.info('Fallback to PostGIS coverage check', {
             availableServices
           });
         }
@@ -281,7 +282,7 @@ export async function GET(request: NextRequest) {
           coverageAvailable = true;
           availableServices = [...new Set(matchingAreas.map((area: CoverageAreaRecord) => area.service_type))];
 
-          console.log('Fallback to area name matching:', {
+          apiLogger.info('Fallback to area name matching', {
             availableServices
           });
         }
@@ -305,7 +306,7 @@ export async function GET(request: NextRequest) {
         .order('priority', { ascending: true });
 
       if (mappingError) {
-        console.error('Mapping error:', mappingError);
+        apiLogger.error('Mapping error', { error: mappingError });
       }
 
       // Get unique product categories from mappings, or use services directly if they're already product categories
@@ -326,7 +327,7 @@ export async function GET(request: NextRequest) {
       // coverage_leads.customer_type is ENUM with values: 'consumer', 'smme', 'enterprise'
       const packageCustomerType = coverageType === 'business' ? 'business' : 'consumer';
 
-      console.log('[Packages API] Querying packages with:', {
+      apiLogger.info('[Packages API] Querying packages with', {
         packageCustomerType,
         productCategories,
         usingMappings: !!(mappings && mappings.length > 0),
@@ -347,10 +348,10 @@ export async function GET(request: NextRequest) {
         .eq('active', true)
         .order('price', { ascending: true });
 
-      console.log('[Packages API] Query result:', {
+      apiLogger.info('[Packages API] Query result', {
         packagesFound: packages?.length || 0,
         packageNames: packages?.map((p: ServicePackage) => p.name).slice(0, 5) || [],
-        error: packagesError?.message
+        queryError: packagesError?.message
       });
 
       if (!packagesError && packages) {
@@ -429,7 +430,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Log for debugging
-      console.log('Coverage check:', {
+      apiLogger.info('Coverage check', {
         coverageType,
         packageCustomerType,
         availableServices,
@@ -487,7 +488,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Coverage check error:', error);
+    apiLogger.error('Coverage check error', { error });
     
     // Log error
     const responseTime = Date.now() - startTime;

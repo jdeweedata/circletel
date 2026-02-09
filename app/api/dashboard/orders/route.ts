@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const dynamic = 'force-dynamic';
 // Vercel configuration: Allow longer execution for customer orders
@@ -8,7 +9,7 @@ export const maxDuration = 15; // Allow up to 15 seconds
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Customer Orders API] ⏱️ Request started');
+  apiLogger.info('[Customer Orders API] Request started');
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    console.log('[Customer Orders API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Customer Orders API] Supabase client created', { durationMs: Date.now() - startTime });
 
     // Get authenticated user
     const authHeader = request.headers.get('authorization');
@@ -73,9 +74,9 @@ export async function GET(request: NextRequest) {
       const result = await Promise.race([queryPromise, timeoutPromise]);
       orders = result.data;
       ordersError = result.error;
-      console.log('[Customer Orders API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${orders?.length || 0} orders)`);
+      apiLogger.info('[Customer Orders API] Query completed', { durationMs: Date.now() - startTime, ordersCount: orders?.length || 0 });
     } catch (timeoutError) {
-      console.error('[Customer Orders API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Customer Orders API] Query timeout', { durationMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Dashboard orders error:', error);
+    apiLogger.error('Dashboard orders error', { error });
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch orders',

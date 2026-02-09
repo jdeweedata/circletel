@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging'
 
 /**
  * GET /api/partners/leads/[id]
@@ -68,7 +69,7 @@ export async function GET(
       .order('created_at', { ascending: false })
 
     if (activitiesError) {
-      console.error('Error fetching activities:', activitiesError)
+      apiLogger.error('Error fetching activities', { error: activitiesError })
     }
 
     return NextResponse.json({
@@ -77,7 +78,7 @@ export async function GET(
       activities: activities || [],
     })
   } catch (error) {
-    console.error('Error in lead detail API:', error)
+    apiLogger.error('Error in lead detail API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -161,7 +162,7 @@ export async function PATCH(
       .single()
 
     if (updateError) {
-      console.error('Error updating lead:', updateError)
+      apiLogger.error('Error updating lead', { error: updateError })
       return NextResponse.json(
         { error: 'Failed to update lead' },
         { status: 500 }
@@ -173,7 +174,7 @@ export async function PATCH(
       lead: updatedLead,
     })
   } catch (error) {
-    console.error('Error in lead update API:', error)
+    apiLogger.error('Error in lead update API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration: Allow longer execution for comprehensive dashboard queries
 export const runtime = 'nodejs';
@@ -28,7 +29,7 @@ export const maxDuration = 20; // Allow up to 20 seconds for multiple table quer
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Dashboard Summary API] ⏱️ Request started');
+  apiLogger.info('[Dashboard Summary API] Request started');
 
   try {
     // Check Authorization header first (for client-side fetch requests)
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     
     if (token) {
       // Use token from Authorization header
-      console.log('[Dashboard Summary API] Using token from Authorization header');
+      apiLogger.info('[Dashboard Summary API] Using token from Authorization header');
       const supabase = createSupabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
       const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
       
       if (tokenError || !tokenUser) {
-        console.log('[Dashboard Summary API] ❌ Invalid token:', tokenError?.message);
+        apiLogger.info('[Dashboard Summary API] Invalid token', { error: tokenError?.message });
         return NextResponse.json(
           {
             success: false,
@@ -60,15 +61,15 @@ export async function GET(request: NextRequest) {
       }
       
       user = tokenUser;
-      console.log('[Dashboard Summary API] ✅ Token validated for user:', user.id);
+      apiLogger.info('[Dashboard Summary API] Token validated for user', { userId: user.id });
     } else {
       // Fall back to cookies (for SSR/middleware scenarios)
-      console.log('[Dashboard Summary API] No Authorization header, checking cookies');
+      apiLogger.info('[Dashboard Summary API] No Authorization header, checking cookies');
       const sessionClient = await createClientWithSession();
       const { data: { session }, error: authError } = await sessionClient.auth.getSession();
 
       if (authError || !session?.user) {
-        console.log('[Dashboard Summary API] ❌ No session in cookies');
+        apiLogger.info('[Dashboard Summary API] No session in cookies');
         return NextResponse.json(
           {
             success: false,
@@ -80,14 +81,14 @@ export async function GET(request: NextRequest) {
       }
       
       user = session.user;
-      console.log('[Dashboard Summary API] ✅ Session from cookies for user:', user.id);
+      apiLogger.info('[Dashboard Summary API] Session from cookies for user', { userId: user.id });
     }
 
-    console.log('[Dashboard Summary API] ⏱️ User authenticated:', Date.now() - startTime, 'ms', `(user_id: ${user.id})`);
+    apiLogger.info('[Dashboard Summary API] User authenticated', { durationMs: Date.now() - startTime, userId: user.id });
 
     // Use service role client for database queries to bypass RLS
     const supabase = await createClient();
-    console.log('[Dashboard Summary API] ⏱️ Service role client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Dashboard Summary API] Service role client created', { durationMs: Date.now() - startTime });
 
     // Get customer details using service role
     let { data: customer, error: customerError } = await supabase
@@ -96,11 +97,11 @@ export async function GET(request: NextRequest) {
       .eq('auth_user_id', user.id)
       .single();
 
-    console.log('[Dashboard Summary API] ⏱️ Customer fetched:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Dashboard Summary API] Customer fetched', { durationMs: Date.now() - startTime });
 
     // If customer doesn't exist, auto-create one from auth user data
     if (customerError || !customer) {
-      console.log('[Dashboard Summary API] Customer not found, auto-creating for user:', user.id);
+      apiLogger.info('[Dashboard Summary API] Customer not found, auto-creating for user', { userId: user.id });
       
       // Generate account number
       const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
         .single();
       
       if (createError || !newCustomer) {
-        console.error('[Dashboard Summary API] ❌ Failed to create customer:', createError?.message);
+        apiLogger.error('[Dashboard Summary API] Failed to create customer', { error: createError?.message });
         return NextResponse.json(
           {
             success: false,
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
         );
       }
       
-      console.log('[Dashboard Summary API] ✅ Customer auto-created:', newCustomer.id);
+      apiLogger.info('[Dashboard Summary API] Customer auto-created', { customerId: newCustomer.id });
       customer = newCustomer;
     }
     
@@ -205,9 +206,9 @@ export async function GET(request: NextRequest) {
     try {
       const results = await Promise.race([parallelQueriesPromise, timeoutPromise]);
       [servicesResult, billingResult, ordersResult, invoicesResult, transactionsResult, snapshotResult] = results;
-      console.log('[Dashboard Summary API] ⏱️ All queries completed:', Date.now() - startTime, 'ms');
+      apiLogger.info('[Dashboard Summary API] All queries completed', { durationMs: Date.now() - startTime });
     } catch (timeoutError) {
-      console.error('[Dashboard Summary API] ❌ Queries timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Dashboard Summary API] Queries timeout', { durationMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -351,7 +352,7 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log('[Dashboard Summary API] ✅ Summary built successfully:', Date.now() - startTime, 'ms', `(${services.length} services, ${orders.length} orders, ${invoices.length} invoices)`);
+    apiLogger.info('[Dashboard Summary API] Summary built successfully', { durationMs: Date.now() - startTime, servicesCount: services.length, ordersCount: orders.length, invoicesCount: invoices.length });
 
     return NextResponse.json({
       success: true,
@@ -359,7 +360,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Unexpected error:', error);
+    apiLogger.error('Unexpected error', { error });
     return NextResponse.json(
       { 
         success: false,

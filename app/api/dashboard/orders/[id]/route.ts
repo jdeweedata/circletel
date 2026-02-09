@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -10,7 +11,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const startTime = Date.now();
-  console.log('[Customer Order Detail API] ⏱️ Request started');
+  apiLogger.info('[Customer Order Detail API] Request started');
 
   try {
     const { id } = await context.params;
@@ -23,7 +24,7 @@ export async function GET(
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    console.log('[Customer Order Detail API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Customer Order Detail API] Supabase client created', { durationMs: Date.now() - startTime });
 
     // Get authenticated user
     const authHeader = request.headers.get('authorization');
@@ -78,9 +79,9 @@ export async function GET(
       const result = await Promise.race([queryPromise, timeoutPromise]);
       order = result.data;
       orderError = result.error;
-      console.log('[Customer Order Detail API] ⏱️ Query completed:', Date.now() - startTime, 'ms');
+      apiLogger.info('[Customer Order Detail API] Query completed', { durationMs: Date.now() - startTime });
     } catch (timeoutError) {
-      console.error('[Customer Order Detail API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Customer Order Detail API] Query timeout', { durationMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -114,7 +115,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Dashboard order detail error:', error);
+    apiLogger.error('Dashboard order detail error', { error });
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch order details',

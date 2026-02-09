@@ -6,6 +6,7 @@ import {
   isComplianceComplete,
 } from '@/lib/partners/compliance-requirements';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       .eq('partner_id', partner.id);
 
     if (docsError) {
-      console.error('Error fetching documents:', docsError);
+      apiLogger.error('Error fetching documents', { error: docsError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch uploaded documents' },
         { status: 500 }
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       .eq('id', partner.id);
 
     if (updateError) {
-      console.error('Error updating compliance status:', updateError);
+      apiLogger.error('Error updating compliance status', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to submit for review' },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
         documents_submitted: documentNames,
       });
     } catch (emailError) {
-      console.error('Failed to send partner compliance email:', emailError);
+      apiLogger.error('Failed to send partner compliance email', { error: emailError });
       // Don't fail the submission if email fails
     }
 
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
         documents_submitted: documentNames,
       });
     } catch (emailError) {
-      console.error('Failed to send admin compliance notification:', emailError);
+      apiLogger.error('Failed to send admin compliance notification', { error: emailError });
       // Don't fail the submission if email fails
     }
 
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Submit for review error:', error);
+    apiLogger.error('Submit for review error', { error });
     return NextResponse.json(
       {
         success: false,

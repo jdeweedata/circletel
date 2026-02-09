@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration: Allow longer execution for services with usage data
 export const runtime = 'nodejs';
@@ -24,7 +25,7 @@ export const maxDuration = 20; // Allow up to 20 seconds for complex usage calcu
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Customer Services API] ⏱️ Request started');
+  apiLogger.info('[Customer Services API] Request started');
 
   try {
     // Check Authorization header first (for client-side fetch requests)
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (token) {
       // Use token from Authorization header
-      console.log('[Customer Services API] Using token from Authorization header');
+      apiLogger.info('[Customer Services API] Using token from Authorization header');
       const supabase = createSupabaseClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(token);
 
       if (tokenError || !tokenUser) {
-        console.log('[Customer Services API] ❌ Invalid token:', tokenError?.message);
+        apiLogger.info('[Customer Services API] Invalid token', { error: tokenError?.message });
         return NextResponse.json(
           {
             success: false,
@@ -56,15 +57,15 @@ export async function GET(request: NextRequest) {
       }
 
       user = tokenUser;
-      console.log('[Customer Services API] ✅ Token validated for user:', user.id);
+      apiLogger.info('[Customer Services API] Token validated for user', { userId: user.id });
     } else {
       // Fall back to cookies (for SSR/middleware scenarios)
-      console.log('[Customer Services API] No Authorization header, checking cookies');
+      apiLogger.info('[Customer Services API] No Authorization header, checking cookies');
       const sessionClient = await createClientWithSession();
       const { data: { session }, error: authError } = await sessionClient.auth.getSession();
 
       if (authError || !session?.user) {
-        console.log('[Customer Services API] ❌ No session in cookies');
+        apiLogger.info('[Customer Services API] No session in cookies');
         return NextResponse.json(
           {
             success: false,
@@ -76,14 +77,14 @@ export async function GET(request: NextRequest) {
       }
 
       user = session.user;
-      console.log('[Customer Services API] ✅ Session from cookies for user:', user.id);
+      apiLogger.info('[Customer Services API] Session from cookies for user', { userId: user.id });
     }
 
-    console.log('[Customer Services API] ⏱️ User authenticated:', Date.now() - startTime, 'ms', `(user_id: ${user.id})`);
+    apiLogger.info('[Customer Services API] User authenticated', { durationMs: Date.now() - startTime, userId: user.id });
 
     // Use service role client for database queries to bypass RLS
     const supabase = await createClient();
-    console.log('[Customer Services API] ⏱️ Service role client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Customer Services API] Service role client created', { durationMs: Date.now() - startTime });
 
     // Get customer_id from auth_user_id using service role
     const { data: customer, error: customerError } = await supabase
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      console.error('[Customer Services API] ❌ Customer not found for user:', user.id, customerError?.message);
+      apiLogger.error('[Customer Services API] Customer not found for user', { userId: user.id, error: customerError?.message });
       return NextResponse.json(
         {
           success: false,
@@ -123,9 +124,9 @@ export async function GET(request: NextRequest) {
       const result = await Promise.race([servicesQueryPromise, timeoutPromise]);
       services = result.data;
       servicesError = result.error;
-      console.log('[Customer Services API] ⏱️ Services query completed:', Date.now() - startTime, 'ms', `(${services?.length || 0} services)`);
+      apiLogger.info('[Customer Services API] Services query completed', { durationMs: Date.now() - startTime, servicesCount: services?.length || 0 });
     } catch (timeoutError) {
-      console.error('[Customer Services API] ❌ Services query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Customer Services API] Services query timeout', { durationMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (servicesError) {
-      console.error('Error fetching services:', servicesError);
+      apiLogger.error('Error fetching services', { error: servicesError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch services' },
         { status: 500 }
@@ -209,7 +210,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Unexpected error:', error);
+    apiLogger.error('Unexpected error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

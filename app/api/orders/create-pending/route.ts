@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // UUID validation regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -14,11 +15,11 @@ function isValidUUID(value: unknown): boolean {
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('[create-pending] Starting order creation...');
+    apiLogger.info('[create-pending] Starting order creation...');
 
     // Use service role client for database operations (bypasses RLS)
     const supabase = await createClient();
-    console.log('[create-pending] Supabase client created');
+    apiLogger.info('[create-pending] Supabase client created');
 
     // Get authenticated user - check BOTH Authorization header AND cookies
     // (session may be in localStorage on client, sent via Authorization header)
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabase.auth.getUser(token);
       user = data?.user || null;
       authError = error;
-      console.log('[create-pending] Auth via header:', user ? `Authenticated (${user.email})` : 'Not authenticated');
+      apiLogger.info('[create-pending] Auth via header', { authenticated: !!user, email: user?.email });
     }
 
     // Fallback to cookie-based session if no header
@@ -41,10 +42,10 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabaseWithSession.auth.getUser();
       user = data?.user || null;
       authError = error;
-      console.log('[create-pending] Auth via cookies:', user ? `Authenticated (${user.email})` : 'Not authenticated');
+      apiLogger.info('[create-pending] Auth via cookies', { authenticated: !!user, email: user?.email });
     }
 
-    console.log('[create-pending] Final auth status:', user ? `Authenticated (${user.email})` : 'Not authenticated', authError ? `Error: ${authError.message}` : '');
+    apiLogger.info('[create-pending] Final auth status', { authenticated: !!user, email: user?.email, error: authError?.message });
 
     // If authenticated, get customer record
     let customerId = null;
@@ -57,12 +58,12 @@ export async function POST(request: NextRequest) {
       
       if (customer) {
         customerId = customer.id;
-        console.log('[create-pending] Found customer:', customerId);
+        apiLogger.info('[create-pending] Found customer', { customerId });
       }
     }
 
     const body = await request.json();
-    console.log('[create-pending] Request body received:', {
+    apiLogger.info('[create-pending] Request body received', {
       hasEmail: !!body.email,
       hasPackageName: !!body.package_name,
       hasInstallationAddress: !!body.installation_address
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     // Check for existing pending/active orders with same email, address, and package
     // This prevents duplicate orders for the same service at the same address
-    console.log('[create-pending] Checking for duplicate orders...');
+    apiLogger.info('[create-pending] Checking for duplicate orders...');
     const { data: existingOrders, error: duplicateCheckError } = await supabase
       .from('consumer_orders')
       .select('id, order_number, status, payment_status, package_name, installation_address, service_package_id, created_at')
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
       .limit(10);
 
     if (duplicateCheckError) {
-      console.error('[create-pending] Error checking for duplicates:', duplicateCheckError);
+      apiLogger.error('[create-pending] Error checking for duplicates', { error: duplicateCheckError });
       // Continue with order creation if check fails - don't block the user
     }
 
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (matchingOrder) {
-        console.log('[create-pending] Existing order found:', matchingOrder.order_number);
+        apiLogger.info('[create-pending] Existing order found', { orderNumber: matchingOrder.order_number });
 
         return NextResponse.json({
           success: true,
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('[create-pending] No duplicate found, proceeding with order creation');
+    apiLogger.info('[create-pending] No duplicate found, proceeding with order creation');
 
     // Generate order number
     const orderNumber = await generateOrderNumber(supabase);
@@ -229,7 +230,7 @@ export async function POST(request: NextRequest) {
       internal_notes: null,
     };
 
-    console.log('Creating pending order:', orderData);
+    apiLogger.info('Creating pending order', { orderData });
 
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
@@ -238,7 +239,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError) {
-      console.error('Order creation error:', orderError);
+      apiLogger.error('Order creation error', { error: orderError });
       return NextResponse.json(
         {
           success: false,
@@ -249,7 +250,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Pending order created successfully:', order);
+    apiLogger.info('Pending order created successfully', { orderId: order.id, orderNumber: order.order_number });
 
     return NextResponse.json({
       success: true,
@@ -263,7 +264,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Unexpected error creating pending order:', error);
+    apiLogger.error('Unexpected error creating pending order', { error });
     return NextResponse.json(
       {
         success: false,

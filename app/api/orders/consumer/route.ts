@@ -4,6 +4,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
+import { apiLogger } from '@/lib/logging';
 
 // Service role client for public order lookup (bypasses RLS)
 function createServiceClient() {
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database error creating order:', dbError);
+      apiLogger.error('Database error creating order', { error: dbError });
       return NextResponse.json(
         { success: false, error: 'Failed to create order in database', details: dbError.message },
         { status: 500 }
@@ -129,32 +130,32 @@ export async function POST(request: NextRequest) {
     EmailNotificationService.sendOrderConfirmation(order as ConsumerOrder)
       .then((emailResult) => {
         if (emailResult.success) {
-          console.log('Order confirmation email sent to:', order.email);
+          apiLogger.info('Order confirmation email sent', { email: order.email });
         } else {
-          console.error('Failed to send confirmation email:', emailResult.error);
+          apiLogger.error('Failed to send confirmation email', { error: emailResult.error });
         }
       })
       .catch((error) => {
-        console.error('Email send error:', error);
+        apiLogger.error('Email send error', { error });
       });
 
     // Send admin notifications (async, don't block response)
     AdminNotificationService.notifyNewOrder(order as ConsumerOrder)
       .then((adminResults) => {
         if (adminResults.sales.success) {
-          console.log(`[AdminNotifications] Sales team notified (MessageID: ${adminResults.sales.message_id})`);
+          apiLogger.info('[AdminNotifications] Sales team notified', { messageId: adminResults.sales.message_id });
         } else {
-          console.error('[AdminNotifications] Failed to notify sales team:', adminResults.sales.error);
+          apiLogger.error('[AdminNotifications] Failed to notify sales team', { error: adminResults.sales.error });
         }
 
         if (adminResults.serviceDelivery.success) {
-          console.log(`[AdminNotifications] Service delivery team notified (MessageID: ${adminResults.serviceDelivery.message_id})`);
+          apiLogger.info('[AdminNotifications] Service delivery team notified', { messageId: adminResults.serviceDelivery.message_id });
         } else {
-          console.error('[AdminNotifications] Failed to notify service delivery team:', adminResults.serviceDelivery.error);
+          apiLogger.error('[AdminNotifications] Failed to notify service delivery team', { error: adminResults.serviceDelivery.error });
         }
       })
       .catch((error) => {
-        console.error('[AdminNotifications] Error sending admin notifications:', error);
+        apiLogger.error('[AdminNotifications] Error sending admin notifications', { error });
       });
 
     // TODO: Sync to Zoho CRM (optional)
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
       message: 'Order created successfully',
     });
   } catch (error) {
-    console.error('Order creation error:', error);
+    apiLogger.error('Order creation error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -294,7 +295,7 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('Order fetch error:', error);
+    apiLogger.error('Order fetch error', { error });
     return NextResponse.json(
       {
         success: false,

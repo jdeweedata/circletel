@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { syncCustomerToZohoBilling } from '@/lib/integrations/zoho/customer-sync-service';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * API Route: Create Customer Record (Server-side with Service Role)
@@ -54,18 +55,18 @@ export async function POST(request: NextRequest) {
       authUserError = result.error;
 
       if (authUser?.user) {
-        console.log(`[Create Customer] Auth user found on attempt ${attempt}`);
+        apiLogger.info('[Create Customer] Auth user found', { attempt });
         break;
       }
 
       if (attempt < maxRetries) {
-        console.log(`[Create Customer] Auth user not found, retrying in ${retryDelay}ms (attempt ${attempt}/${maxRetries})`);
+        apiLogger.info('[Create Customer] Auth user not found, retrying', { retryDelay, attempt, maxRetries });
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
     }
 
     if (authUserError || !authUser?.user) {
-      console.error('Auth user not found after retries:', authUserError);
+      apiLogger.error('Auth user not found after retries:', { error: authUserError });
       return NextResponse.json(
         {
           success: false,
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError) {
-      console.error('Failed to create customer record:', customerError);
+      apiLogger.error('Failed to create customer record', { error: customerError });
       return NextResponse.json(
         {
           success: false,
@@ -113,13 +114,13 @@ export async function POST(request: NextRequest) {
       syncCustomerToZohoBilling(customer.id)
         .then((result) => {
           if (result.success) {
-            console.log('[ZOHO Trigger] Customer synced to ZOHO Billing:', result.zoho_customer_id);
+            apiLogger.info('[ZOHO Trigger] Customer synced to ZOHO Billing', { zohoCustomerId: result.zoho_customer_id });
           } else {
-            console.error('[ZOHO Trigger] Customer sync failed:', result.error);
+            apiLogger.error('[ZOHO Trigger] Customer sync failed', { error: result.error });
           }
         })
         .catch((error) => {
-          console.error('[ZOHO Trigger] Customer sync error:', error);
+          apiLogger.error('[ZOHO Trigger] Customer sync error', { error });
         });
     }
 
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Create customer API error:', error);
+    apiLogger.error('Create customer API error', { error });
     return NextResponse.json(
       {
         success: false,

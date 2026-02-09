@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Check for existing pending/active orders with same email, address, and package
     // This prevents duplicate orders for the same service at the same address
-    console.log('[orders/create] Checking for duplicate orders...');
+    apiLogger.info('[orders/create] Checking for duplicate orders...');
     const { data: existingOrders, error: duplicateCheckError } = await supabase
       .from('consumer_orders')
       .select('id, order_number, status, payment_status, package_name, installation_address, service_package_id, created_at')
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       .limit(10);
 
     if (duplicateCheckError) {
-      console.error('[orders/create] Error checking for duplicates:', duplicateCheckError);
+      apiLogger.error('[orders/create] Error checking for duplicates', { error: duplicateCheckError });
       // Continue with order creation if check fails - don't block the user
     }
 
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (matchingOrder) {
-        console.log('[orders/create] Existing order found:', matchingOrder.order_number);
+        apiLogger.info('[orders/create] Existing order found', { orderNumber: matchingOrder.order_number });
         return NextResponse.json({
           success: true,
           existing_order: true,
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('[orders/create] No duplicate found, proceeding with order creation');
+    apiLogger.info('[orders/create] No duplicate found, proceeding with order creation');
 
     // Generate order number and payment reference
     const orderNumber = await generateOrderNumber(supabase);
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database error creating order:', dbError);
+      apiLogger.error('Database error creating order', { error: dbError });
       return NextResponse.json(
         { success: false, error: 'Failed to create order in database', details: dbError.message },
         { status: 500 }
@@ -171,13 +172,13 @@ export async function POST(request: NextRequest) {
     EmailNotificationService.sendOrderConfirmation(order as ConsumerOrder)
       .then((emailResult) => {
         if (emailResult.success) {
-          console.log('Order confirmation email sent to:', order.email);
+          apiLogger.info('Order confirmation email sent', { email: order.email });
         } else {
-          console.error('Failed to send confirmation email:', emailResult.error);
+          apiLogger.error('Failed to send confirmation email', { error: emailResult.error });
         }
       })
       .catch((error) => {
-        console.error('Email send error:', error);
+        apiLogger.error('Email send error', { error });
       });
 
     // TODO: Send notification to admin (optional)
@@ -200,7 +201,7 @@ export async function POST(request: NextRequest) {
       message: 'Order created successfully',
     });
   } catch (error) {
-    console.error('Order creation error:', error);
+    apiLogger.error('Order creation error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -318,7 +319,7 @@ export async function GET(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('Order fetch error:', error);
+    apiLogger.error('Order fetch error', { error });
     return NextResponse.json(
       {
         success: false,

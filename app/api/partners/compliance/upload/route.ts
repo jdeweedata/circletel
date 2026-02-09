@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { DocumentCategory } from '@/lib/partners/compliance-requirements';
+import { apiLogger } from '@/lib/logging';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ALLOWED_MIME_TYPES = [
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
+      apiLogger.error('Storage upload error', { error: uploadError });
       return NextResponse.json(
         { success: false, error: 'Failed to upload file to storage' },
         { status: 500 }
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database insert error:', dbError);
+      apiLogger.error('Database insert error', { error: dbError });
 
       // Clean up uploaded file
       await supabase.storage
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Document upload error:', error);
+    apiLogger.error('Document upload error', { error });
     return NextResponse.json(
       {
         success: false,
