@@ -1,7 +1,7 @@
 # Technical Debt Register
 
 **Project:** CircleTel B2B/B2C ISP Platform
-**Last Updated:** 2026-02-08
+**Last Updated:** 2026-02-09
 **Maintained By:** Development Team + Claude Code
 **Analysis Tool:** tech-debt-analyzer skill
 
@@ -94,13 +94,33 @@ Critical due to information leakage risk and log pollution affecting debugging.
   - `compliant-billing-service.ts` (2 statements)
   - `invoice-reminder-service.ts` (1 statement)
   - `invoice-sms-reminder-service.ts` (1 statement)
-- [ ] Migrate remaining ~2,770 console statements (ongoing - prioritized by module)
+- [x] Migrated `lib/integrations/zoho/` module (292 statements across 19 files):
+  - `billing-client.ts` (91 statements)
+  - `daily-sync-service.ts` (43 statements)
+  - `sync-service.ts` (19 statements)
+  - `auth-service.ts` (15 statements)
+  - `crm-service.ts` (13 statements)
+  - `crm-webhook-handler.ts` (16 statements)
+  - `sign-webhook-handler.ts` (16 statements)
+  - `sign-service.ts` (10 statements)
+  - `sync-retry-service.ts` (11 statements)
+  - `payment-sync-service.ts` (10 statements)
+  - `invoice-sync-service.ts` (9 statements)
+  - `subscription-sync-service.ts` (9 statements)
+  - `zoho-activation-service.ts` (8 statements)
+  - `billing-sync-service.ts` (7 statements)
+  - `customer-sync-service.ts` (5 statements)
+  - `product-sync-service.ts` (5 statements)
+  - `desk-service.ts` (2 statements)
+  - `rate-limiter.ts` (1 statement)
+  - `billing-sync-logger.ts` (2 statements)
+- [ ] Migrate remaining ~2,478 console statements (ongoing - prioritized by module)
 
 **Migration Priority:**
 1. ~~Payment modules~~ (DONE: payment-processor, emandate-service)
 2. ~~Activation modules~~ (DONE: service-activator)
 3. ~~Billing modules~~ (DONE: 5 files, 27 statements)
-4. Zoho integrations (high count: daily-sync-service has 43)
+4. ~~Zoho integrations~~ (DONE: 19 files, 292 statements)
 5. API routes (1,676 statements across 373 files)
 
 **Assignee:** Unassigned

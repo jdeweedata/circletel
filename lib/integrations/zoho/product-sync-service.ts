@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createZohoAuthService } from './auth-service';
 import rateLimiter from './rate-limiter';
+import { zohoLogger } from '@/lib/logging';
 import type { Product as ServicePackage } from '@/lib/types/products';
 
 // Rate limit protection delays
@@ -104,7 +105,7 @@ async function upsertProductIntegrationRow(params: {
     );
 
   if (error) {
-    console.error('[ZohoProductSync] Failed to upsert product_integrations row:', error);
+    zohoLogger.error('[ZohoProductSync] Failed to upsert product_integrations row:', error);
   }
 }
 
@@ -142,7 +143,7 @@ async function upsertZohoCRMProduct(
         }
       }
     } catch (error) {
-      console.warn('[ZohoProductSync] Zoho product search failed, will attempt create:', error);
+      zohoLogger.warn('[ZohoProductSync] Zoho product search failed, will attempt create:', error);
     }
   }
 
@@ -222,7 +223,7 @@ export async function syncServicePackageToZohoCRM(
       const message = error instanceof Error ? error.message : '';
 
       if (message.includes('401')) {
-        console.warn(
+        zohoLogger.warn(
           '[ZohoProductSync] Received 401 from Zoho CRM, forcing token refresh and retrying once'
         );
         accessToken = await auth.forceRefresh();
@@ -247,7 +248,7 @@ export async function syncServicePackageToZohoCRM(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error during Zoho CRM sync';
 
-    console.error('[ZohoProductSync] Failed to sync service package to Zoho CRM:', error);
+    zohoLogger.error('[ZohoProductSync] Failed to sync service package to Zoho CRM:', error);
 
     try {
       await upsertProductIntegrationRow({
@@ -258,7 +259,7 @@ export async function syncServicePackageToZohoCRM(
         error: message,
       });
     } catch (dbError) {
-      console.error('[ZohoProductSync] Additionally failed to record sync failure in product_integrations:', dbError);
+      zohoLogger.error('[ZohoProductSync] Additionally failed to record sync failure in product_integrations:', dbError);
     }
 
     return {

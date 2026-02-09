@@ -12,6 +12,8 @@
  * API Documentation: https://desk.zoho.com/DeskAPIDocument
  */
 
+import { zohoLogger } from '@/lib/logging';
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -113,7 +115,7 @@ export class ZohoDeskService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`[ZOHO Desk] API error ${response.status}:`, errorText);
+        zohoLogger.error(`[ZOHO Desk] API error ${response.status}:`, errorText);
         return {
           success: false,
           error: `API request failed: ${response.status} ${response.statusText}`,
@@ -127,7 +129,7 @@ export class ZohoDeskService {
         data: responseData,
       };
     } catch (error) {
-      console.error('[ZOHO Desk] Request failed:', error);
+      zohoLogger.error('[ZOHO Desk] Request failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',

@@ -9,6 +9,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { zohoLogger } from '@/lib/logging';
 import type { ZohoWebhookPayload } from './types';
 
 // =============================================================================
@@ -49,7 +50,7 @@ export async function processZohoCRMWebhook(
 ): Promise<WebhookProcessingResult> {
   const { module, operation, record_id, record_data } = payload;
 
-  console.log(`[ZOHO CRM Webhook] Received ${operation} event for ${module} record ${record_id}`);
+  zohoLogger.info(`[ZOHO CRM Webhook] Received ${operation} event for ${module} record ${record_id}`);
 
   try {
     // Route to appropriate handler based on module
@@ -64,14 +65,14 @@ export async function processZohoCRMWebhook(
         return await handleQuoteWebhook(operation, record_id, record_data);
 
       default:
-        console.warn(`[ZOHO CRM Webhook] Unsupported module: ${module}`);
+        zohoLogger.warn(`[ZOHO CRM Webhook] Unsupported module: ${module}`);
         return {
           success: true,
           message: `Module ${module} not handled`,
         };
     }
   } catch (error) {
-    console.error('[ZOHO CRM Webhook] Processing failed:', error);
+    zohoLogger.error('[ZOHO CRM Webhook] Processing failed:', error);
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -99,7 +100,7 @@ async function handleDealWebhook(
     .single();
 
   if (!mapping) {
-    console.warn(`[ZOHO CRM Webhook] No mapping found for Deal ${zohoId}`);
+    zohoLogger.warn(`[ZOHO CRM Webhook] No mapping found for Deal ${zohoId}`);
     return {
       success: true,
       message: 'Deal not mapped to CircleTel entity',
@@ -116,11 +117,11 @@ async function handleDealWebhook(
 
     case 'delete':
       // Don't delete contract in CircleTel, just log it
-      console.log(`[ZOHO CRM Webhook] Deal ${zohoId} deleted in ZOHO (contract ${contractId} preserved)`);
+      zohoLogger.info(`[ZOHO CRM Webhook] Deal ${zohoId} deleted in ZOHO (contract ${contractId} preserved)`);
       break;
 
     default:
-      console.log(`[ZOHO CRM Webhook] Deal operation ${operation} not handled`);
+      zohoLogger.info(`[ZOHO CRM Webhook] Deal operation ${operation} not handled`);
   }
 
   return {
@@ -147,19 +148,19 @@ async function handleDealUpdate(contractId: string, data: DealWebhookData): Prom
     const mappedStatus = mapDealStageToContractStatus(data.Stage);
     if (mappedStatus) {
       updates.status = mappedStatus;
-      console.log(`[ZOHO CRM Webhook] Deal stage '${data.Stage}' → Contract status '${mappedStatus}'`);
+      zohoLogger.info(`[ZOHO CRM Webhook] Deal stage '${data.Stage}' → Contract status '${mappedStatus}'`);
     }
   }
 
   // 2. Sync custom fields (if changed in ZOHO)
   if (data.KYC_Status) {
     // Note: This is informational - CircleTel is source of truth for KYC
-    console.log(`[ZOHO CRM Webhook] Deal KYC_Status updated to: ${data.KYC_Status}`);
+    zohoLogger.info(`[ZOHO CRM Webhook] Deal KYC_Status updated to: ${data.KYC_Status}`);
   }
 
   if (data.RICA_Status) {
     // Note: This is informational - CircleTel is source of truth for RICA
-    console.log(`[ZOHO CRM Webhook] Deal RICA_Status updated to: ${data.RICA_Status}`);
+    zohoLogger.info(`[ZOHO CRM Webhook] Deal RICA_Status updated to: ${data.RICA_Status}`);
   }
 
   // 3. Apply updates if any
@@ -172,13 +173,13 @@ async function handleDealUpdate(contractId: string, data: DealWebhookData): Prom
       .eq('id', contractId);
 
     if (error) {
-      console.error('[ZOHO CRM Webhook] Failed to update contract:', error);
+      zohoLogger.error('[ZOHO CRM Webhook] Failed to update contract:', error);
       throw error;
     }
 
-    console.log(`[ZOHO CRM Webhook] Contract ${contractId} updated from ZOHO`);
+    zohoLogger.info(`[ZOHO CRM Webhook] Contract ${contractId} updated from ZOHO`);
   } else {
-    console.log('[ZOHO CRM Webhook] No actionable updates for contract');
+    zohoLogger.info('[ZOHO CRM Webhook] No actionable updates for contract');
   }
 }
 
@@ -191,7 +192,7 @@ async function handleContactWebhook(
   zohoId: string,
   data: Record<string, unknown>
 ): Promise<WebhookProcessingResult> {
-  console.log(`[ZOHO CRM Webhook] Contact ${operation} event (not yet implemented)`);
+  zohoLogger.info(`[ZOHO CRM Webhook] Contact ${operation} event (not yet implemented)`);
 
   return {
     success: true,
@@ -208,7 +209,7 @@ async function handleQuoteWebhook(
   zohoId: string,
   data: Record<string, unknown>
 ): Promise<WebhookProcessingResult> {
-  console.log(`[ZOHO CRM Webhook] Quote ${operation} event (not yet implemented)`);
+  zohoLogger.info(`[ZOHO CRM Webhook] Quote ${operation} event (not yet implemented)`);
 
   return {
     success: true,
@@ -347,9 +348,9 @@ export async function logWebhookEvent(
       response_payload: result as unknown as Record<string, unknown>,
     });
 
-    console.log('[ZOHO CRM Webhook] Event logged successfully');
+    zohoLogger.info('[ZOHO CRM Webhook] Event logged successfully');
   } catch (error) {
-    console.error('[ZOHO CRM Webhook] Failed to log event:', error);
+    zohoLogger.error('[ZOHO CRM Webhook] Failed to log event:', error);
     // Don't throw - logging failure shouldn't break webhook processing
   }
 }

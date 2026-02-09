@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { zohoLogger } from '@/lib/logging';
 
 export interface SyncLogParams {
   entity_type: 'customer' | 'subscription' | 'invoice' | 'payment';
@@ -41,11 +42,11 @@ export async function logZohoSync(params: SyncLogParams): Promise<void> {
       });
 
     if (error) {
-      console.error('[ZohoBillingLogger] Failed to log sync:', error);
+      zohoLogger.error('[ZohoBillingLogger] Failed to log sync:', error);
       // Don't throw - logging failure shouldn't break sync
     }
   } catch (error) {
-    console.error('[ZohoBillingLogger] Error logging sync:', error);
+    zohoLogger.error('[ZohoBillingLogger] Error logging sync:', error);
     // Don't throw - logging failure shouldn't break sync
   }
 }

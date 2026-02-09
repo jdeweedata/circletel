@@ -8,6 +8,7 @@
 import axios from 'axios';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
+import { zohoLogger } from '@/lib/logging';
 
 // =============================================================================
 // CONSTANTS
@@ -171,7 +172,7 @@ export async function sendContractForSignature(
       .eq('id', contractId);
 
     if (updateError) {
-      console.error('Failed to update contract with ZOHO Sign request ID:', updateError);
+      zohoLogger.error('Failed to update contract with ZOHO Sign request ID:', updateError);
       // Don't throw - request was successful, just log the error
     }
 
@@ -181,7 +182,7 @@ export async function sendContractForSignature(
       customerSigningUrl,
     };
   } catch (error: any) {
-    console.error('[ZOHO Sign Service Error]', error);
+    zohoLogger.error('[ZOHO Sign Service Error]', error);
     throw new Error(`Failed to send contract for signature: ${error.message}`);
   }
 }
@@ -225,7 +226,7 @@ async function downloadPdfAsBase64(pdfUrl: string): Promise<string> {
     const buffer = Buffer.from(response.data);
     return buffer.toString('base64');
   } catch (error: any) {
-    console.error('Failed to download PDF for ZOHO Sign:', error);
+    zohoLogger.error('Failed to download PDF for ZOHO Sign:', error);
     throw new Error('Failed to download contract PDF');
   }
 }
@@ -253,7 +254,7 @@ export async function processZohoSignWebhook(
       .single();
 
     if (findError || !contract) {
-      console.error(`Contract not found for ZOHO Sign request ${requestId}`);
+      zohoLogger.error(`Contract not found for ZOHO Sign request ${requestId}`);
       return;
     }
 
@@ -269,7 +270,7 @@ export async function processZohoSignWebhook(
           })
           .eq('id', contract.id);
 
-        console.log(`Contract ${contract.id} fully signed`);
+        zohoLogger.info(`Contract ${contract.id} fully signed`);
 
         // TODO: Trigger invoice generation (Task Group 10)
         // await triggerInvoiceGeneration(contract.id);
@@ -282,7 +283,7 @@ export async function processZohoSignWebhook(
           .update({ status: 'partially_signed' })
           .eq('id', contract.id);
 
-        console.log(`Contract ${contract.id} partially signed`);
+        zohoLogger.info(`Contract ${contract.id} partially signed`);
         break;
 
       case 'request.declined':
@@ -292,7 +293,7 @@ export async function processZohoSignWebhook(
           .update({ status: 'draft' })
           .eq('id', contract.id);
 
-        console.log(`Contract ${contract.id} signature declined`);
+        zohoLogger.info(`Contract ${contract.id} signature declined`);
         break;
 
       case 'request.expired':
@@ -302,14 +303,14 @@ export async function processZohoSignWebhook(
           .update({ status: 'draft' })
           .eq('id', contract.id);
 
-        console.log(`Contract ${contract.id} signature request expired`);
+        zohoLogger.info(`Contract ${contract.id} signature request expired`);
         break;
 
       default:
-        console.log(`[ZOHO Sign Webhook] Unknown event type: ${eventType}`);
+        zohoLogger.debug(`[ZOHO Sign Webhook] Unknown event type: ${eventType}`);
     }
   } catch (error: any) {
-    console.error('[ZOHO Sign Webhook Processing Error]', error);
+    zohoLogger.error('[ZOHO Sign Webhook Processing Error]', error);
     throw error;
   }
 }

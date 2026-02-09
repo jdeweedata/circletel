@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { zohoLogger } from '@/lib/logging';
 
 // =============================================================================
 // TYPES
@@ -56,16 +57,16 @@ export async function handleSignatureComplete(
       .eq('id', contractId);
 
     if (error) {
-      console.error('[handleSignatureComplete] Update error:', error);
+      zohoLogger.error('[handleSignatureComplete] Update error:', error);
       throw new Error(`Failed to update contract ${contractId}: ${error.message}`);
     }
 
-    console.log(`[handleSignatureComplete] Contract ${contractId} fully signed`);
+    zohoLogger.info(`[handleSignatureComplete] Contract ${contractId} fully signed`);
 
     // TODO: Trigger invoice generation (Task Group 10)
     // await triggerInvoiceGeneration(contractId);
   } catch (error: any) {
-    console.error('[handleSignatureComplete] Error:', error);
+    zohoLogger.error('[handleSignatureComplete] Error:', error);
     throw error;
   }
 }
@@ -90,7 +91,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
       .single();
 
     if (findError || !contract) {
-      console.error(`[processSignWebhook] Contract not found for request ${request_id}`);
+      zohoLogger.error(`[processSignWebhook] Contract not found for request ${request_id}`);
       return false;
     }
 
@@ -102,7 +103,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
       case 'request.completed':
         // Both signers have signed
         if (!signed_document_url) {
-          console.error('[processSignWebhook] Missing signed_document_url for completed event');
+          zohoLogger.error('[processSignWebhook] Missing signed_document_url for completed event');
           return false;
         }
 
@@ -137,11 +138,11 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
           .eq('id', contractId);
 
         if (updateError) {
-          console.error('[processSignWebhook] Partial signature update error:', updateError);
+          zohoLogger.error('[processSignWebhook] Partial signature update error:', updateError);
           return false;
         }
 
-        console.log(`[processSignWebhook] Contract ${contractId} partially signed`);
+        zohoLogger.info(`[processSignWebhook] Contract ${contractId} partially signed`);
         break;
 
       case 'request.declined':
@@ -151,7 +152,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
           .update({ status: 'draft' })
           .eq('id', contractId);
 
-        console.log(`[processSignWebhook] Contract ${contractId} signature declined`);
+        zohoLogger.info(`[processSignWebhook] Contract ${contractId} signature declined`);
         break;
 
       case 'request.expired':
@@ -161,17 +162,17 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
           .update({ status: 'draft' })
           .eq('id', contractId);
 
-        console.log(`[processSignWebhook] Contract ${contractId} signature request expired`);
+        zohoLogger.info(`[processSignWebhook] Contract ${contractId} signature request expired`);
         break;
 
       default:
-        console.log(`[processSignWebhook] Unknown event type: ${event_type}`);
+        zohoLogger.info(`[processSignWebhook] Unknown event type: ${event_type}`);
         return false;
     }
 
     return true;
   } catch (error: any) {
-    console.error('[processSignWebhook] Processing error:', error);
+    zohoLogger.error('[processSignWebhook] Processing error:', error);
     throw error;
   }
 }
@@ -194,7 +195,7 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
       .single();
 
     if (error || !contract) {
-      console.error('[checkAndMarkFullySigned] Contract fetch error:', error);
+      zohoLogger.error('[checkAndMarkFullySigned] Contract fetch error:', error);
       return false;
     }
 
@@ -213,17 +214,17 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
         .eq('id', contractId);
 
       if (updateError) {
-        console.error('[checkAndMarkFullySigned] Update error:', updateError);
+        zohoLogger.error('[checkAndMarkFullySigned] Update error:', updateError);
         return false;
       }
 
-      console.log(`[checkAndMarkFullySigned] Contract ${contractId} marked fully signed`);
+      zohoLogger.info(`[checkAndMarkFullySigned] Contract ${contractId} marked fully signed`);
       return true;
     }
 
     return false;
   } catch (error: any) {
-    console.error('[checkAndMarkFullySigned] Error:', error);
+    zohoLogger.error('[checkAndMarkFullySigned] Error:', error);
     return false;
   }
 }
@@ -253,7 +254,7 @@ export function verifyWebhookSignature(
       Buffer.from(expectedSignature)
     );
   } catch (error) {
-    console.error('[verifyWebhookSignature] Error:', error);
+    zohoLogger.error('[verifyWebhookSignature] Error:', error);
     return false;
   }
 }

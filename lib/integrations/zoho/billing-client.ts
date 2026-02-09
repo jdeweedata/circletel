@@ -10,6 +10,7 @@
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import rateLimiter from './rate-limiter';
+import { zohoLogger } from '@/lib/logging';
 import type {
   ZohoBillingPlan,
   CreatePlanPayload,
@@ -42,7 +43,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     this.organizationId = process.env.ZOHO_ORG_ID || '';
 
     if (!this.organizationId) {
-      console.warn('[ZohoBillingClient] ZOHO_ORG_ID not configured');
+      zohoLogger.warn(' ZOHO_ORG_ID not configured');
     }
   }
 
@@ -98,14 +99,14 @@ export class ZohoBillingClient extends ZohoAPIClient {
       options.body = JSON.stringify(body);
     }
 
-    console.log(`[ZohoBillingClient] ${method} ${endpoint}`);
+    zohoLogger.debug(`[ZohoBillingClient] ${method} ${endpoint}`);
 
     const response = await fetch(url, options);
     const data = await response.json();
 
     if (!response.ok) {
       const error = data as ZohoBillingError;
-      console.error('[ZohoBillingClient] API Error:', {
+      zohoLogger.error(' API Error:', {
         status: response.status,
         code: error.code,
         message: error.message,
@@ -138,7 +139,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return null;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error searching plans:', error);
+      zohoLogger.error(' Error searching plans:', error);
       throw error;
     }
   }
@@ -161,7 +162,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.plan;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting plan:', error);
+      zohoLogger.error(' Error getting plan:', error);
       throw error;
     }
   }
@@ -182,7 +183,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
       const plan = response.plans.find((p: any) => p.plan_id === planId);
       return plan || null;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting plan by ID:', error);
+      zohoLogger.error(' Error getting plan by ID:', error);
       throw error;
     }
   }
@@ -198,12 +199,12 @@ export class ZohoBillingClient extends ZohoAPIClient {
         currency_code: payload.currency_code || 'ZAR',
       };
 
-      console.log('[ZohoBillingClient] Creating plan:', {
+      zohoLogger.debug(' Creating plan:', {
         plan_code: planData.plan_code,
         recurring_price: planData.recurring_price,
       });
 
-      console.log('[ZohoBillingClient] Full plan payload:', JSON.stringify(planData, null, 2));
+      zohoLogger.debug(' Full plan payload:', JSON.stringify(planData, null, 2));
 
       const response = await this.request<any>(
         '/plans',
@@ -216,10 +217,10 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create plan - no plan_id returned');
       }
 
-      console.log('[ZohoBillingClient] Plan created:', response.plan.plan_id);
+      zohoLogger.debug(' Plan created:', response.plan.plan_id);
       return response.plan.plan_id;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating plan:', error);
+      zohoLogger.error(' Error creating plan:', error);
       throw error;
     }
   }
@@ -230,8 +231,8 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async updatePlan(planCode: string, payload: UpdatePlanPayload): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Updating plan:', planCode);
-      console.log('[ZohoBillingClient] Update payload:', JSON.stringify(payload, null, 2));
+      zohoLogger.debug(' Updating plan:', planCode);
+      zohoLogger.debug(' Update payload:', JSON.stringify(payload, null, 2));
 
       // Zoho Billing uses plan_code in the path, not plan_id
       await this.request<any>(
@@ -240,9 +241,9 @@ export class ZohoBillingClient extends ZohoAPIClient {
         payload
       );
 
-      console.log('[ZohoBillingClient] Plan updated successfully');
+      zohoLogger.debug(' Plan updated successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error updating plan:', error);
+      zohoLogger.error(' Error updating plan:', error);
       throw error;
     }
   }
@@ -255,7 +256,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     try {
       await this.updatePlan(planCode, { status: 'inactive' });
     } catch (error) {
-      console.error('[ZohoBillingClient] Error inactivating plan:', error);
+      zohoLogger.error(' Error inactivating plan:', error);
       throw error;
     }
   }
@@ -268,7 +269,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
       const existingPlan = await this.searchPlans(planCode);
 
       if (existingPlan) {
-        console.log('[ZohoBillingClient] Plan exists, updating:', existingPlan.plan_id);
+        zohoLogger.debug(' Plan exists, updating:', existingPlan.plan_id);
 
         // Zoho Billing requires plan_code, name, recurring_price, and interval for updates
         const updatePayload: UpdatePlanPayload = {
@@ -287,11 +288,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
         await this.updatePlan(payload.plan_code, updatePayload);
         return existingPlan.plan_id;
       } else {
-        console.log('[ZohoBillingClient] Plan does not exist, creating new');
+        zohoLogger.debug(' Plan does not exist, creating new');
         return await this.createPlan(payload);
       }
     } catch (error) {
-      console.error('[ZohoBillingClient] Error upserting plan:', error);
+      zohoLogger.error(' Error upserting plan:', error);
       throw error;
     }
   }
@@ -316,7 +317,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return null;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error searching items:', error);
+      zohoLogger.error(' Error searching items:', error);
       throw error;
     }
   }
@@ -337,7 +338,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.item;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting item:', error);
+      zohoLogger.error(' Error getting item:', error);
       throw error;
     }
   }
@@ -347,7 +348,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async createItem(payload: CreateItemPayload): Promise<string> {
     try {
-      console.log('[ZohoBillingClient] Creating item:', {
+      zohoLogger.debug(' Creating item:', {
         sku: payload.sku,
         name: payload.name,
         rate: payload.rate,
@@ -364,10 +365,10 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create item - no item_id returned');
       }
 
-      console.log('[ZohoBillingClient] Item created:', response.item.item_id);
+      zohoLogger.debug(' Item created:', response.item.item_id);
       return response.item.item_id;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating item:', error);
+      zohoLogger.error(' Error creating item:', error);
       throw error;
     }
   }
@@ -377,7 +378,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async updateItem(itemId: string, payload: UpdateItemPayload): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Updating item:', itemId);
+      zohoLogger.debug(' Updating item:', itemId);
 
       await this.request<any>(
         `/items/${itemId}`,
@@ -385,9 +386,9 @@ export class ZohoBillingClient extends ZohoAPIClient {
         payload
       );
 
-      console.log('[ZohoBillingClient] Item updated successfully');
+      zohoLogger.debug(' Item updated successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error updating item:', error);
+      zohoLogger.error(' Error updating item:', error);
       throw error;
     }
   }
@@ -399,7 +400,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     try {
       await this.updateItem(itemId, { status: 'inactive' });
     } catch (error) {
-      console.error('[ZohoBillingClient] Error inactivating item:', error);
+      zohoLogger.error(' Error inactivating item:', error);
       throw error;
     }
   }
@@ -412,7 +413,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
       const existingItem = await this.searchItems(sku);
 
       if (existingItem) {
-        console.log('[ZohoBillingClient] Item exists, updating:', existingItem.item_id);
+        zohoLogger.debug(' Item exists, updating:', existingItem.item_id);
 
         // Extract updateable fields
         const updatePayload: UpdateItemPayload = {
@@ -427,11 +428,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
         await this.updateItem(existingItem.item_id, updatePayload);
         return existingItem.item_id;
       } else {
-        console.log('[ZohoBillingClient] Item does not exist, creating new');
+        zohoLogger.debug(' Item does not exist, creating new');
         return await this.createItem(payload);
       }
     } catch (error) {
-      console.error('[ZohoBillingClient] Error upserting item:', error);
+      zohoLogger.error(' Error upserting item:', error);
       throw error;
     }
   }
@@ -461,7 +462,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return null;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error searching products:', error);
+      zohoLogger.error(' Error searching products:', error);
       throw error;
     }
   }
@@ -482,7 +483,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.product;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting product:', error);
+      zohoLogger.error(' Error getting product:', error);
       throw error;
     }
   }
@@ -492,7 +493,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async createProduct(payload: CreateProductPayload): Promise<string> {
     try {
-      console.log('[ZohoBillingClient] Creating product:', {
+      zohoLogger.debug(' Creating product:', {
         name: payload.name,
       });
 
@@ -502,17 +503,17 @@ export class ZohoBillingClient extends ZohoAPIClient {
         payload
       );
 
-      console.log('[ZohoBillingClient] Product creation response:', JSON.stringify(response, null, 2));
+      zohoLogger.debug(' Product creation response:', JSON.stringify(response, null, 2));
 
       // Response structure: { code, message, product: { product_id, ... } }
       if (!response.product?.product_id) {
         throw new Error(`Failed to create product - no product_id returned. Response: ${JSON.stringify(response)}`);
       }
 
-      console.log('[ZohoBillingClient] Product created:', response.product.product_id);
+      zohoLogger.debug(' Product created:', response.product.product_id);
       return response.product.product_id;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating product:', error);
+      zohoLogger.error(' Error creating product:', error);
       throw error;
     }
   }
@@ -522,7 +523,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async updateProduct(productId: string, payload: UpdateProductPayload): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Updating product:', productId);
+      zohoLogger.debug(' Updating product:', productId);
 
       await this.request<ZohoBillingApiResponse<ZohoBillingProduct>>(
         `/products/${productId}`,
@@ -530,9 +531,9 @@ export class ZohoBillingClient extends ZohoAPIClient {
         payload
       );
 
-      console.log('[ZohoBillingClient] Product updated successfully');
+      zohoLogger.debug(' Product updated successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error updating product:', error);
+      zohoLogger.error(' Error updating product:', error);
       throw error;
     }
   }
@@ -546,7 +547,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
       const existingProduct = await this.searchProducts(name);
 
       if (existingProduct) {
-        console.log('[ZohoBillingClient] Product exists, updating:', existingProduct.product_id);
+        zohoLogger.debug(' Product exists, updating:', existingProduct.product_id);
 
         // Extract updateable fields
         const updatePayload: UpdateProductPayload = {
@@ -559,11 +560,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
         await this.updateProduct(existingProduct.product_id, updatePayload);
         return existingProduct.product_id;
       } else {
-        console.log('[ZohoBillingClient] Product does not exist, creating new');
+        zohoLogger.debug(' Product does not exist, creating new');
         return await this.createProduct(payload);
       }
     } catch (error) {
-      console.error('[ZohoBillingClient] Error upserting product:', error);
+      zohoLogger.error(' Error upserting product:', error);
       throw error;
     }
   }
@@ -578,7 +579,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async createSubscription(payload: CreateSubscriptionPayload): Promise<string> {
     try {
-      console.log('[ZohoBillingClient] Creating subscription:', {
+      zohoLogger.debug(' Creating subscription:', {
         customer_id: payload.customer_id,
         plan_id: payload.plan_id,
       });
@@ -593,10 +594,10 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create subscription - no subscription_id returned');
       }
 
-      console.log('[ZohoBillingClient] Subscription created:', response.data.subscription_id);
+      zohoLogger.debug(' Subscription created:', response.data.subscription_id);
       return response.data.subscription_id;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating subscription:', error);
+      zohoLogger.error(' Error creating subscription:', error);
       throw error;
     }
   }
@@ -616,7 +617,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.data;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting subscription:', error);
+      zohoLogger.error(' Error getting subscription:', error);
       throw error;
     }
   }
@@ -642,7 +643,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return null;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error searching customers:', error);
+      zohoLogger.error(' Error searching customers:', error);
       throw error;
     }
   }
@@ -663,7 +664,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.customer;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting customer:', error);
+      zohoLogger.error(' Error getting customer:', error);
       throw error;
     }
   }
@@ -673,7 +674,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async createCustomer(payload: any): Promise<string> {
     try {
-      console.log('[ZohoBillingClient] Creating customer:', {
+      zohoLogger.debug(' Creating customer:', {
         email: payload.email,
         display_name: payload.display_name,
       });
@@ -689,10 +690,10 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create customer - no customer_id returned');
       }
 
-      console.log('[ZohoBillingClient] Customer created:', response.customer.customer_id);
+      zohoLogger.debug(' Customer created:', response.customer.customer_id);
       return response.customer.customer_id;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating customer:', error);
+      zohoLogger.error(' Error creating customer:', error);
       throw error;
     }
   }
@@ -702,7 +703,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async updateCustomer(customerId: string, payload: any): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Updating customer:', customerId);
+      zohoLogger.debug(' Updating customer:', customerId);
 
       await this.request<any>(
         `/customers/${customerId}`,
@@ -710,9 +711,9 @@ export class ZohoBillingClient extends ZohoAPIClient {
         payload
       );
 
-      console.log('[ZohoBillingClient] Customer updated successfully');
+      zohoLogger.debug(' Customer updated successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error updating customer:', error);
+      zohoLogger.error(' Error updating customer:', error);
       throw error;
     }
   }
@@ -728,7 +729,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       if (existingCustomer) {
         // Update existing customer
-        console.log('[ZohoBillingClient] Customer exists, updating:', existingCustomer.customer_id);
+        zohoLogger.debug(' Customer exists, updating:', existingCustomer.customer_id);
 
         const updatePayload: any = {
           display_name: payload.display_name,
@@ -749,11 +750,11 @@ export class ZohoBillingClient extends ZohoAPIClient {
         return existingCustomer.customer_id;
       } else {
         // Create new customer
-        console.log('[ZohoBillingClient] Customer does not exist, creating new');
+        zohoLogger.debug(' Customer does not exist, creating new');
         return await this.createCustomer(payload);
       }
     } catch (error) {
-      console.error('[ZohoBillingClient] Error upserting customer:', error);
+      zohoLogger.error(' Error upserting customer:', error);
       throw error;
     }
   }
@@ -768,7 +769,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async createSubscription(payload: any): Promise<any> {
     try {
-      console.log('[ZohoBillingClient] Creating subscription:', {
+      zohoLogger.debug(' Creating subscription:', {
         customer_id: payload.customer_id,
         plan: payload.plan,
       });
@@ -784,7 +785,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create subscription');
       }
 
-      console.log('[ZohoBillingClient] Subscription created:', {
+      zohoLogger.debug(' Subscription created:', {
         subscription_id: response.subscription.subscription_id,
         subscription_number: response.subscription.subscription_number,
         status: response.subscription.status,
@@ -792,7 +793,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.subscription;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating subscription:', error);
+      zohoLogger.error(' Error creating subscription:', error);
       throw error;
     }
   }
@@ -813,7 +814,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.subscription;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting subscription:', error);
+      zohoLogger.error(' Error getting subscription:', error);
       throw error;
     }
   }
@@ -826,7 +827,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     cancelAtEnd: boolean = false
   ): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Cancelling subscription:', subscriptionId, {
+      zohoLogger.debug(' Cancelling subscription:', subscriptionId, {
         cancel_at_end: cancelAtEnd,
       });
 
@@ -836,9 +837,9 @@ export class ZohoBillingClient extends ZohoAPIClient {
         { cancel_at_end: cancelAtEnd }
       );
 
-      console.log('[ZohoBillingClient] Subscription cancelled successfully');
+      zohoLogger.debug(' Subscription cancelled successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error cancelling subscription:', error);
+      zohoLogger.error(' Error cancelling subscription:', error);
       throw error;
     }
   }
@@ -859,7 +860,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
       // Response structure: { code, message, invoices: [...] }
       return response.invoices || [];
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting subscription invoices:', error);
+      zohoLogger.error(' Error getting subscription invoices:', error);
       throw error;
     }
   }
@@ -880,7 +881,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.invoice;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting invoice:', error);
+      zohoLogger.error(' Error getting invoice:', error);
       throw error;
     }
   }
@@ -911,7 +912,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     try {
       // Handle both 'line_items' and 'invoice_items' field names
       const itemCount = payload.line_items?.length || (payload as any).invoice_items?.length || 0;
-      console.log('[ZohoBillingClient] Creating invoice:', {
+      zohoLogger.debug(' Creating invoice:', {
         customer_id: payload.customer_id,
         items: itemCount,
       });
@@ -934,7 +935,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to create invoice');
       }
 
-      console.log('[ZohoBillingClient] Invoice created successfully:', {
+      zohoLogger.debug(' Invoice created successfully:', {
         invoice_id: response.invoice.invoice_id,
         invoice_number: response.invoice.invoice_number,
         total: response.invoice.total,
@@ -942,7 +943,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.invoice;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error creating invoice:', error);
+      zohoLogger.error(' Error creating invoice:', error);
       throw error;
     }
   }
@@ -968,7 +969,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     }>;
   }): Promise<any> {
     try {
-      console.log('[ZohoBillingClient] Recording payment:', {
+      zohoLogger.debug(' Recording payment:', {
         customer_id: payload.customer_id,
         amount: payload.amount,
         payment_mode: payload.payment_mode,
@@ -986,7 +987,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to record payment');
       }
 
-      console.log('[ZohoBillingClient] Payment recorded:', {
+      zohoLogger.debug(' Payment recorded:', {
         payment_id: response.payment.payment_id,
         payment_number: response.payment.payment_number,
         amount: response.payment.amount,
@@ -994,7 +995,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.payment;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error recording payment:', error);
+      zohoLogger.error(' Error recording payment:', error);
       throw error;
     }
   }
@@ -1015,7 +1016,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.payment;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error getting payment:', error);
+      zohoLogger.error(' Error getting payment:', error);
       throw error;
     }
   }
@@ -1025,16 +1026,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async deletePayment(paymentId: string): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Deleting payment:', paymentId);
+      zohoLogger.debug(' Deleting payment:', paymentId);
 
       await this.request<any>(
         `/payments/${paymentId}`,
         'DELETE'
       );
 
-      console.log('[ZohoBillingClient] Payment deleted successfully');
+      zohoLogger.debug(' Payment deleted successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error deleting payment:', error);
+      zohoLogger.error(' Error deleting payment:', error);
       throw error;
     }
   }
@@ -1044,16 +1045,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async deleteInvoice(invoiceId: string): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Deleting invoice:', invoiceId);
+      zohoLogger.debug(' Deleting invoice:', invoiceId);
 
       await this.request<any>(
         `/invoices/${invoiceId}`,
         'DELETE'
       );
 
-      console.log('[ZohoBillingClient] Invoice deleted successfully');
+      zohoLogger.debug(' Invoice deleted successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error deleting invoice:', error);
+      zohoLogger.error(' Error deleting invoice:', error);
       throw error;
     }
   }
@@ -1063,16 +1064,16 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async deleteCustomer(customerId: string): Promise<void> {
     try {
-      console.log('[ZohoBillingClient] Deleting customer:', customerId);
+      zohoLogger.debug(' Deleting customer:', customerId);
 
       await this.request<any>(
         `/customers/${customerId}`,
         'DELETE'
       );
 
-      console.log('[ZohoBillingClient] Customer deleted successfully');
+      zohoLogger.debug(' Customer deleted successfully');
     } catch (error) {
-      console.error('[ZohoBillingClient] Error deleting customer:', error);
+      zohoLogger.error(' Error deleting customer:', error);
       throw error;
     }
   }
@@ -1091,7 +1092,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async updatePlan(planId: string, updates: Partial<any>): Promise<any> {
     try {
-      console.log(`[ZohoBillingClient] Updating plan ${planId}:`, updates);
+      zohoLogger.debug(`[ZohoBillingClient] Updating plan ${planId}:`, updates);
 
       const response = await this.request<any>(
         `/plans/${planId}`,
@@ -1104,7 +1105,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
         throw new Error('Failed to update plan');
       }
 
-      console.log('[ZohoBillingClient] Plan updated successfully:', {
+      zohoLogger.debug(' Plan updated successfully:', {
         plan_id: response.plan.plan_id,
         plan_code: response.plan.plan_code,
         recurring_price: response.plan.recurring_price,
@@ -1112,7 +1113,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
 
       return response.plan;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error updating plan:', error);
+      zohoLogger.error(' Error updating plan:', error);
       throw error;
     }
   }
@@ -1127,21 +1128,21 @@ export class ZohoBillingClient extends ZohoAPIClient {
    */
   async markInvoiceAsSent(invoiceId: string): Promise<any> {
     try {
-      console.log('[ZohoBillingClient] Marking invoice as sent:', invoiceId);
+      zohoLogger.debug(' Marking invoice as sent:', invoiceId);
 
       const response = await this.request<any>(
         `/invoices/${invoiceId}/status/sent`,
         'POST'
       );
 
-      console.log('[ZohoBillingClient] Invoice marked as sent:', {
+      zohoLogger.debug(' Invoice marked as sent:', {
         invoice_id: invoiceId,
         response: response,
       });
 
       return response;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error marking invoice as sent:', error);
+      zohoLogger.error(' Error marking invoice as sent:', error);
       throw error;
     }
   }
@@ -1156,7 +1157,7 @@ export class ZohoBillingClient extends ZohoAPIClient {
     body?: string;
   }): Promise<any> {
     try {
-      console.log('[ZohoBillingClient] Emailing invoice:', invoiceId);
+      zohoLogger.debug(' Emailing invoice:', invoiceId);
 
       const response = await this.request<any>(
         `/invoices/${invoiceId}/email`,
@@ -1164,13 +1165,13 @@ export class ZohoBillingClient extends ZohoAPIClient {
         options || {}
       );
 
-      console.log('[ZohoBillingClient] Invoice emailed successfully:', {
+      zohoLogger.debug(' Invoice emailed successfully:', {
         invoice_id: invoiceId,
       });
 
       return response;
     } catch (error) {
-      console.error('[ZohoBillingClient] Error emailing invoice:', error);
+      zohoLogger.error(' Error emailing invoice:', error);
       throw error;
     }
   }

@@ -10,6 +10,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { syncServicePackageToZohoCRM } from './product-sync-service';
+import { zohoLogger } from '@/lib/logging';
 import type { Product as ServicePackage } from '@/lib/types/products';
 
 const MAX_RETRY_ATTEMPTS = 5;
@@ -125,7 +126,7 @@ async function updateRetryStatus(params: {
     );
 
   if (error) {
-    console.error('[ZohoRetryService] Failed to update retry status:', error);
+    zohoLogger.error('[ZohoRetryService] Failed to update retry status:', error);
   }
 }
 
@@ -142,20 +143,20 @@ export async function syncWithRetry(
   servicePackage: ServicePackage,
   currentAttempt: number = 0
 ): Promise<{ success: boolean; zohoProductId?: string; error?: string }> {
-  console.log(`[ZohoRetryService] Syncing product ${servicePackage.id} (attempt ${currentAttempt + 1}/${MAX_RETRY_ATTEMPTS})`);
+  zohoLogger.info(`[ZohoRetryService] Syncing product ${servicePackage.id} (attempt ${currentAttempt + 1}/${MAX_RETRY_ATTEMPTS})`);
 
   try {
     // Call the base sync function
     const result = await syncServicePackageToZohoCRM(servicePackage);
 
     if (result.success) {
-      console.log(`[ZohoRetryService] ✓ Sync successful for ${servicePackage.id}`);
+      zohoLogger.info(`[ZohoRetryService] ✓ Sync successful for ${servicePackage.id}`);
       return result;
     }
 
     throw new Error(result.error || 'Sync failed without error message');
   } catch (error) {
-    console.error(`[ZohoRetryService] ✗ Sync failed for ${servicePackage.id}:`, error);
+    zohoLogger.error(`[ZohoRetryService] ✗ Sync failed for ${servicePackage.id}:`, error);
 
     const structuredError = buildStructuredError(error, currentAttempt, servicePackage);
     const nextRetryAt = calculateNextRetryAt(currentAttempt);
@@ -170,12 +171,12 @@ export async function syncWithRetry(
     });
 
     if (nextRetryAt) {
-      console.log(
+      zohoLogger.info(
         `[ZohoRetryService] ⏰ Retry scheduled for ${servicePackage.id} at ${nextRetryAt.toISOString()} ` +
         `(attempt ${currentAttempt + 1}/${MAX_RETRY_ATTEMPTS})`
       );
     } else {
-      console.error(
+      zohoLogger.error(
         `[ZohoRetryService] ⚠️ Max retries reached for ${servicePackage.id}. No more retries will be attempted.`
       );
     }
@@ -218,7 +219,7 @@ export async function getRetryQueue(): Promise<ServicePackage[]> {
     .in('id', packageIds);
 
   if (pkgError || !packages) {
-    console.error('[ZohoRetryService] Failed to fetch service packages for retry:', pkgError);
+    zohoLogger.error('[ZohoRetryService] Failed to fetch service packages for retry:', pkgError);
     return [];
   }
 
@@ -242,16 +243,16 @@ export async function processRetryQueue(): Promise<{
   succeeded: number;
   failed: number;
 }> {
-  console.log('[ZohoRetryService] 🔄 Processing retry queue...');
+  zohoLogger.info('[ZohoRetryService] 🔄 Processing retry queue...');
 
   const queue = await getRetryQueue();
 
   if (queue.length === 0) {
-    console.log('[ZohoRetryService] No products in retry queue');
+    zohoLogger.info('[ZohoRetryService] No products in retry queue');
     return { processed: 0, succeeded: 0, failed: 0 };
   }
 
-  console.log(`[ZohoRetryService] Found ${queue.length} products to retry`);
+  zohoLogger.info(`[ZohoRetryService] Found ${queue.length} products to retry`);
 
   let succeeded = 0;
   let failed = 0;
@@ -270,7 +271,7 @@ export async function processRetryQueue(): Promise<{
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  console.log(
+  zohoLogger.info(
     `[ZohoRetryService] ✅ Retry queue processed: ${succeeded} succeeded, ${failed} failed`
   );
 

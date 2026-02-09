@@ -3,6 +3,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createZohoCRMService } from './crm-service';
+import { zohoLogger } from '@/lib/logging';
 import type {
   QuoteDataForSync,
   ContractDataForSync,
@@ -48,7 +49,7 @@ export class ZohoSyncService {
         if (!options?.forceSync) {
           const existingMapping = await this.getMapping('quote', quoteId);
           if (existingMapping) {
-            console.log('[ZohoSync] Quote already synced, skipping');
+            zohoLogger.debug('[ZohoSync] Quote already synced, skipping');
             return {
               success: true,
               zohoEntityId: existingMapping.zoho_id,
@@ -92,7 +93,7 @@ export class ZohoSyncService {
         if (!options?.forceSync) {
           const existingMapping = await this.getMapping('contract', contractId);
           if (existingMapping) {
-            console.log('[ZohoSync] Contract already synced, skipping');
+            zohoLogger.debug('[ZohoSync] Contract already synced, skipping');
             return {
               success: true,
               zohoEntityId: existingMapping.zoho_id,
@@ -153,7 +154,7 @@ export class ZohoSyncService {
         .single();
 
       if (!contract) {
-        console.warn('[ZohoSync] No contract found for KYC session, skipping Deal update');
+        zohoLogger.warn('[ZohoSync] No contract found for KYC session, skipping Deal update');
         return { success: false, error: 'No associated contract found' };
       }
 
@@ -180,7 +181,7 @@ export class ZohoSyncService {
       // 5. Update last_synced_at in mapping
       await this.updateMappingTimestamp('contract', contract.id);
 
-      console.log(`[ZohoSync] KYC status synced to Deal ${zohoId}`);
+      zohoLogger.info(`[ZohoSync] KYC status synced to Deal ${zohoId}`);
 
       return {
         success: true,
@@ -188,7 +189,7 @@ export class ZohoSyncService {
         zohoEntityType: 'Deals',
       };
     } catch (error) {
-      console.error('[ZohoSync] Failed to sync KYC status:', error);
+      zohoLogger.error('[ZohoSync] Failed to sync KYC status:', error);
       throw error;
     }
   }
@@ -232,7 +233,7 @@ export class ZohoSyncService {
       }
 
       if (!contractId) {
-        console.warn('[ZohoSync] No contract found for RICA submission, skipping Deal update');
+        zohoLogger.warn('[ZohoSync] No contract found for RICA submission, skipping Deal update');
         return { success: false, error: 'No associated contract found' };
       }
 
@@ -252,7 +253,7 @@ export class ZohoSyncService {
       // 5. Update last_synced_at
       await this.updateMappingTimestamp('contract', contractId);
 
-      console.log(`[ZohoSync] RICA status synced to Deal ${mapping.zoho_id}`);
+      zohoLogger.info(`[ZohoSync] RICA status synced to Deal ${mapping.zoho_id}`);
 
       return {
         success: true,
@@ -260,7 +261,7 @@ export class ZohoSyncService {
         zohoEntityType: 'Deals',
       };
     } catch (error) {
-      console.error('[ZohoSync] Failed to sync RICA status:', error);
+      zohoLogger.error('[ZohoSync] Failed to sync RICA status:', error);
       throw error;
     }
   }
@@ -289,7 +290,7 @@ export class ZohoSyncService {
 
     for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
       try {
-        console.log(`[ZohoSync] Attempt ${attempt}/${config.maxAttempts} for ${entityType} ${entityId}`);
+        zohoLogger.debug(`[ZohoSync] Attempt ${attempt}/${config.maxAttempts} for ${entityType} ${entityId}`);
 
         // Log attempt start
         syncLogId = await this.logSyncAttempt(entityType, entityId, attempt, 'pending');
@@ -303,7 +304,7 @@ export class ZohoSyncService {
         return { ...result, syncLogId } as T & { syncLogId?: string };
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.error(`[ZohoSync] Attempt ${attempt} failed:`, lastError.message);
+        zohoLogger.error(`[ZohoSync] Attempt ${attempt} failed:`, lastError.message);
 
         // Log retry or failure
         if (attempt < config.maxAttempts) {
@@ -311,7 +312,7 @@ export class ZohoSyncService {
 
           // Exponential backoff: 1s, 2s, 4s
           const delayMs = config.initialDelayMs * Math.pow(config.backoffMultiplier, attempt - 1);
-          console.log(`[ZohoSync] Retrying in ${delayMs}ms...`);
+          zohoLogger.debug(`[ZohoSync] Retrying in ${delayMs}ms...`);
           await this.sleep(delayMs);
         } else {
           await this.logSyncFailure(syncLogId!, entityType, entityId, attempt, lastError);
@@ -351,7 +352,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      console.error('[ZohoSync] Failed to fetch quote:', error);
+      zohoLogger.error('[ZohoSync] Failed to fetch quote:', error);
       return null;
     }
 
@@ -398,7 +399,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      console.error('[ZohoSync] Failed to fetch contract:', error);
+      zohoLogger.error('[ZohoSync] Failed to fetch contract:', error);
       return null;
     }
 
@@ -465,11 +466,11 @@ export class ZohoSyncService {
     });
 
     if (error) {
-      console.error('[ZohoSync] Failed to create mapping:', error);
+      zohoLogger.error('[ZohoSync] Failed to create mapping:', error);
       throw error;
     }
 
-    console.log(`[ZohoSync] Mapping created: ${circletelType}:${circletelId} → ${zohoType}:${zohoId}`);
+    zohoLogger.debug(`[ZohoSync] Mapping created: ${circletelType}:${circletelId} → ${zohoType}:${zohoId}`);
   }
 
   /**
@@ -535,7 +536,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      console.error('[ZohoSync] Failed to log attempt:', error);
+      zohoLogger.error('[ZohoSync] Failed to log attempt:', error);
       return '';
     }
 
@@ -559,7 +560,7 @@ export class ZohoSyncService {
       })
       .eq('id', syncLogId);
 
-    console.log(`[ZohoSync] Success: ${entityType}:${entityId} (attempt ${attemptNumber})`);
+    zohoLogger.info(`[ZohoSync] Success: ${entityType}:${entityId} (attempt ${attemptNumber})`);
   }
 
   private async logSyncRetry(
@@ -579,7 +580,7 @@ export class ZohoSyncService {
       })
       .eq('id', syncLogId);
 
-    console.log(`[ZohoSync] Retrying: ${entityType}:${entityId} (attempt ${attemptNumber})`);
+    zohoLogger.debug(`[ZohoSync] Retrying: ${entityType}:${entityId} (attempt ${attemptNumber})`);
   }
 
   private async logSyncFailure(
@@ -599,7 +600,7 @@ export class ZohoSyncService {
       })
       .eq('id', syncLogId);
 
-    console.error(`[ZohoSync] Failed: ${entityType}:${entityId} after ${attemptNumber} attempts`);
+    zohoLogger.error(`[ZohoSync] Failed: ${entityType}:${entityId} after ${attemptNumber} attempts`);
   }
 
   /**

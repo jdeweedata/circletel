@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from './billing-client';
 import { syncCustomerToZohoBilling } from './customer-sync-service';
 import { logZohoSync } from './billing-sync-logger';
+import { zohoLogger } from '@/lib/logging';
 
 export interface SubscriptionSyncResult {
   success: boolean;
@@ -34,7 +35,7 @@ export async function syncSubscriptionToZohoBilling(
   const supabase = await createClient();
 
   try {
-    console.log('[SubscriptionSync] Starting sync for service:', service_id);
+    zohoLogger.debug('[SubscriptionSync] Starting sync for service:', service_id);
 
     // Update sync status to 'syncing'
     await supabase
@@ -67,7 +68,7 @@ export async function syncSubscriptionToZohoBilling(
 
     // Check if already synced
     if (service.zoho_subscription_id) {
-      console.log('[SubscriptionSync] Service already synced:', service.zoho_subscription_id);
+      zohoLogger.debug('[SubscriptionSync] Service already synced:', service.zoho_subscription_id);
       return {
         success: true,
         zoho_subscription_id: service.zoho_subscription_id
@@ -75,9 +76,9 @@ export async function syncSubscriptionToZohoBilling(
     }
 
     // Prerequisite 1: Ensure customer is synced to ZOHO
-    console.log('[SubscriptionSync] Checking customer sync status...');
+    zohoLogger.debug('[SubscriptionSync] Checking customer sync status...');
     if (!service.customer?.zoho_billing_customer_id) {
-      console.log('[SubscriptionSync] Customer not synced, syncing now...');
+      zohoLogger.debug('[SubscriptionSync] Customer not synced, syncing now...');
       const customerSyncResult = await syncCustomerToZohoBilling(service.customer_id);
       if (!customerSyncResult.success || !customerSyncResult.zoho_customer_id) {
         throw new Error(`Failed to sync customer: ${customerSyncResult.error}`);
@@ -111,7 +112,7 @@ export async function syncSubscriptionToZohoBilling(
       );
     }
 
-    console.log('[SubscriptionSync] Prerequisites met:', {
+    zohoLogger.debug('[SubscriptionSync] Prerequisites met:', {
       customer_id: service.customer.zoho_billing_customer_id,
       plan_id: planId
     });
@@ -125,7 +126,7 @@ export async function syncSubscriptionToZohoBilling(
       throw new Error(`Could not fetch plan_code for plan_id: ${planId}`);
     }
     
-    console.log('[SubscriptionSync] Fetched plan_code:', planCode);
+    zohoLogger.debug('[SubscriptionSync] Fetched plan_code:', planCode);
 
     // Build ZOHO Billing subscription payload
     // Zoho requires plan_code (string), not plan_id
@@ -154,7 +155,7 @@ export async function syncSubscriptionToZohoBilling(
       }
     });
 
-    console.log('[SubscriptionSync] Creating ZOHO subscription:', {
+    zohoLogger.debug('[SubscriptionSync] Creating ZOHO subscription:', {
       service_id,
       customer_email: service.customer.email,
       plan_id: planId
@@ -165,7 +166,7 @@ export async function syncSubscriptionToZohoBilling(
 
     const zoho_subscription_id = zohoSubscription.subscription_id;
 
-    console.log('[SubscriptionSync] Successfully created ZOHO subscription:', {
+    zohoLogger.debug('[SubscriptionSync] Successfully created ZOHO subscription:', {
       subscription_id: zoho_subscription_id,
       subscription_number: zohoSubscription.subscription_number,
       status: zohoSubscription.status
@@ -200,7 +201,7 @@ export async function syncSubscriptionToZohoBilling(
     };
 
   } catch (error) {
-    console.error('[SubscriptionSync] Error syncing subscription:', error);
+    zohoLogger.error('[SubscriptionSync] Error syncing subscription:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

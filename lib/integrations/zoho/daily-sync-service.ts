@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { syncServicePackageToZohoCRM } from './product-sync-service';
 import { syncServicePackageToZohoBilling, type BillingSyncResult } from './billing-sync-service';
 import rateLimiter from './rate-limiter';
+import { zohoLogger } from '@/lib/logging';
 
 // Configuration
 const BATCH_SIZE = 20; // Products per batch
@@ -86,7 +87,7 @@ export async function getSyncCandidates(limit: number = MAX_PRODUCTS_PER_RUN): P
 
   if (error) {
     // Fallback to manual query if RPC doesn't exist
-    console.warn('[DailySync] RPC function not found, using fallback query');
+    zohoLogger.warn('[DailySync] RPC function not found, using fallback query');
     return await getSyncCandidatesFallback(limit);
   }
 
@@ -207,7 +208,7 @@ async function updateBillingSyncStatus(
     .eq('service_package_id', servicePackageId);
 
   if (error) {
-    console.error('[DailySync] Failed to update Billing sync status:', error.message);
+    zohoLogger.error('[DailySync] Failed to update Billing sync status:', error.message);
   }
 }
 
@@ -225,7 +226,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
 
   // 1. Sync to CRM
   try {
-    console.log(`[DailySync] Syncing ${candidate.sku} to CRM...`);
+    zohoLogger.info(`[DailySync] Syncing ${candidate.sku} to CRM...`);
     const crmResult = await syncServicePackageToZohoCRM({
       id: candidate.id,
       sku: candidate.sku,
@@ -239,7 +240,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
     }
   } catch (error) {
     result.crmError = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[DailySync] CRM sync failed for ${candidate.sku}:`, error);
+    zohoLogger.error(`[DailySync] CRM sync failed for ${candidate.sku}:`, error);
   }
 
   // Small delay between CRM and Billing
@@ -247,7 +248,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
 
   // 2. Sync to Billing
   try {
-    console.log(`[DailySync] Syncing ${candidate.sku} to Billing...`);
+    zohoLogger.info(`[DailySync] Syncing ${candidate.sku} to Billing...`);
     const billingResult = await syncServicePackageToZohoBilling({
       id: candidate.id,
       sku: candidate.sku,
@@ -265,7 +266,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
 
   } catch (error) {
     result.billingError = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[DailySync] Billing sync failed for ${candidate.sku}:`, error);
+    zohoLogger.error(`[DailySync] Billing sync failed for ${candidate.sku}:`, error);
 
     // Update product_integrations with failure
     await updateBillingSyncStatus(candidate.id, {
@@ -287,25 +288,25 @@ export async function runDailySync(options: {
   const startTime = Date.now();
   const maxProducts = options.maxProducts || MAX_PRODUCTS_PER_RUN;
 
-  console.log('[DailySync] ═══════════════════════════════════════════════════════════');
-  console.log('[DailySync]   Zoho Daily Sync Starting');
-  console.log('[DailySync] ═══════════════════════════════════════════════════════════');
-  console.log(`[DailySync]   Mode: ${options.dryRun ? 'DRY RUN' : 'LIVE'}`);
-  console.log(`[DailySync]   Max Products: ${maxProducts}`);
-  console.log(`[DailySync]   Batch Size: ${BATCH_SIZE}`);
-  console.log('[DailySync] ═══════════════════════════════════════════════════════════\n');
+  zohoLogger.info('[DailySync] ═══════════════════════════════════════════════════════════');
+  zohoLogger.info('[DailySync]   Zoho Daily Sync Starting');
+  zohoLogger.info('[DailySync] ═══════════════════════════════════════════════════════════');
+  zohoLogger.info(`[DailySync]   Mode: ${options.dryRun ? 'DRY RUN' : 'LIVE'}`);
+  zohoLogger.info(`[DailySync]   Max Products: ${maxProducts}`);
+  zohoLogger.info(`[DailySync]   Batch Size: ${BATCH_SIZE}`);
+  zohoLogger.info('[DailySync] ═══════════════════════════════════════════════════════════\n');
 
   // 1. Get sync candidates
-  console.log('[DailySync] Step 1: Getting sync candidates...');
+  zohoLogger.info('[DailySync] Step 1: Getting sync candidates...');
   const candidates = await getSyncCandidates(maxProducts);
 
-  console.log(`[DailySync] Found ${candidates.length} products needing sync:\n`);
-  console.log(`[DailySync]   - Failed: ${candidates.filter(c => c.sync_status === 'failed').length}`);
-  console.log(`[DailySync]   - Never synced: ${candidates.filter(c => !c.last_synced_at).length}`);
-  console.log(`[DailySync]   - Stale: ${candidates.filter(c => c.last_synced_at && c.sync_status !== 'failed').length}\n`);
+  zohoLogger.info(`[DailySync] Found ${candidates.length} products needing sync:\n`);
+  zohoLogger.info(`[DailySync]   - Failed: ${candidates.filter(c => c.sync_status === 'failed').length}`);
+  zohoLogger.info(`[DailySync]   - Never synced: ${candidates.filter(c => !c.last_synced_at).length}`);
+  zohoLogger.info(`[DailySync]   - Stale: ${candidates.filter(c => c.last_synced_at && c.sync_status !== 'failed').length}\n`);
 
   if (candidates.length === 0) {
-    console.log('[DailySync] ✅ No products need syncing. All up to date!\n');
+    zohoLogger.info('[DailySync] ✅ No products need syncing. All up to date!\n');
     return {
       totalCandidates: 0,
       processed: 0,
@@ -320,11 +321,11 @@ export async function runDailySync(options: {
   }
 
   if (options.dryRun) {
-    console.log('[DailySync] DRY RUN MODE - Would sync these products:');
+    zohoLogger.info('[DailySync] DRY RUN MODE - Would sync these products:');
     candidates.forEach((c, i) => {
-      console.log(`[DailySync]   ${i + 1}. ${c.sku} - ${c.name}`);
+      zohoLogger.info(`[DailySync]   ${i + 1}. ${c.sku} - ${c.name}`);
     });
-    console.log();
+    zohoLogger.debug('');
     return {
       totalCandidates: candidates.length,
       processed: 0,
@@ -339,7 +340,7 @@ export async function runDailySync(options: {
   }
 
   // 2. Process in batches
-  console.log('[DailySync] Step 2: Processing products in batches...\n');
+  zohoLogger.info('[DailySync] Step 2: Processing products in batches...\n');
 
   const batches: SyncCandidate[][] = [];
   for (let i = 0; i < candidates.length; i += BATCH_SIZE) {
@@ -351,13 +352,13 @@ export async function runDailySync(options: {
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
     const batch = batches[batchIndex];
-    console.log(`[DailySync] Batch ${batchIndex + 1}/${batches.length} (${batch.length} products)\n`);
+    zohoLogger.info(`[DailySync] Batch ${batchIndex + 1}/${batches.length} (${batch.length} products)\n`);
 
     for (let i = 0; i < batch.length; i++) {
       const candidate = batch[i];
       const productNum = processed + 1;
 
-      console.log(`[DailySync] [${productNum}/${candidates.length}] ${candidate.sku} - ${candidate.name}`);
+      zohoLogger.info(`[DailySync] [${productNum}/${candidates.length}] ${candidate.sku} - ${candidate.name}`);
 
       const result = await syncProduct(candidate);
       results.push(result);
@@ -366,16 +367,16 @@ export async function runDailySync(options: {
       // Log result
       const crmIcon = result.crmSuccess ? '✅' : '❌';
       const billingIcon = result.billingSuccess ? '✅' : '❌';
-      console.log(`[DailySync]   CRM: ${crmIcon} | Billing: ${billingIcon}`);
+      zohoLogger.info(`[DailySync]   CRM: ${crmIcon} | Billing: ${billingIcon}`);
 
       if (result.crmError) {
-        console.log(`[DailySync]   CRM Error: ${result.crmError}`);
+        zohoLogger.info(`[DailySync]   CRM Error: ${result.crmError}`);
       }
       if (result.billingError) {
-        console.log(`[DailySync]   Billing Error: ${result.billingError}`);
+        zohoLogger.info(`[DailySync]   Billing Error: ${result.billingError}`);
       }
 
-      console.log(); // Empty line for readability
+      zohoLogger.debug(''); // Empty line for readability
 
       // Delay between products (rate limiting)
       if (i < batch.length - 1) {
@@ -385,7 +386,7 @@ export async function runDailySync(options: {
 
     // Delay between batches
     if (batchIndex < batches.length - 1) {
-      console.log(`[DailySync] ⏸️  Waiting ${BATCH_DELAY_MS / 1000}s before next batch...\n`);
+      zohoLogger.info(`[DailySync] ⏸️  Waiting ${BATCH_DELAY_MS / 1000}s before next batch...\n`);
       await sleep(BATCH_DELAY_MS);
     }
   }
@@ -405,22 +406,22 @@ export async function runDailySync(options: {
   };
 
   // Print summary
-  console.log('\n[DailySync] ═══════════════════════════════════════════════════════════');
-  console.log('[DailySync]   Daily Sync Summary');
-  console.log('[DailySync] ═══════════════════════════════════════════════════════════\n');
-  console.log(`[DailySync]   Total Candidates: ${summary.totalCandidates}`);
-  console.log(`[DailySync]   Processed: ${summary.processed}`);
-  console.log(`[DailySync]   CRM: ✅ ${summary.crmSucceeded} | ❌ ${summary.crmFailed}`);
-  console.log(`[DailySync]   Billing: ✅ ${summary.billingSucceeded} | ❌ ${summary.billingFailed}`);
-  console.log(`[DailySync]   Duration: ${(summary.duration / 1000).toFixed(1)}s`);
-  console.log('[DailySync] ═══════════════════════════════════════════════════════════\n');
+  zohoLogger.info('\n[DailySync] ═══════════════════════════════════════════════════════════');
+  zohoLogger.info('[DailySync]   Daily Sync Summary');
+  zohoLogger.info('[DailySync] ═══════════════════════════════════════════════════════════\n');
+  zohoLogger.info(`[DailySync]   Total Candidates: ${summary.totalCandidates}`);
+  zohoLogger.info(`[DailySync]   Processed: ${summary.processed}`);
+  zohoLogger.info(`[DailySync]   CRM: ✅ ${summary.crmSucceeded} | ❌ ${summary.crmFailed}`);
+  zohoLogger.info(`[DailySync]   Billing: ✅ ${summary.billingSucceeded} | ❌ ${summary.billingFailed}`);
+  zohoLogger.info(`[DailySync]   Duration: ${(summary.duration / 1000).toFixed(1)}s`);
+  zohoLogger.info('[DailySync] ═══════════════════════════════════════════════════════════\n');
 
   // Log rate limiter stats
   const stats = rateLimiter.getStats();
-  console.log('[DailySync] Rate Limiter Stats:');
-  console.log(`[DailySync]   OAuth: ${stats.oauth.current}/${stats.oauth.limit} (${stats.oauth.remaining} remaining)`);
-  console.log(`[DailySync]   CRM: ${stats.crm.current}/${stats.crm.limit} (${stats.crm.remaining} remaining)`);
-  console.log(`[DailySync]   Billing: ${stats.billing.current}/${stats.billing.limit} (${stats.billing.remaining} remaining)\n`);
+  zohoLogger.info('[DailySync] Rate Limiter Stats:');
+  zohoLogger.info(`[DailySync]   OAuth: ${stats.oauth.current}/${stats.oauth.limit} (${stats.oauth.remaining} remaining)`);
+  zohoLogger.info(`[DailySync]   CRM: ${stats.crm.current}/${stats.crm.limit} (${stats.crm.remaining} remaining)`);
+  zohoLogger.info(`[DailySync]   Billing: ${stats.billing.current}/${stats.billing.limit} (${stats.billing.remaining} remaining)\n`);
 
   return summary;
 }

@@ -16,6 +16,8 @@
  * ```
  */
 
+import { zohoLogger } from '@/lib/logging';
+
 export type ZohoAPIType = 'oauth' | 'crm' | 'billing';
 
 interface RateLimitConfig {
@@ -75,7 +77,7 @@ class ZohoRateLimiter {
       // Rate limit reached, calculate wait time
       const waitTimeMs = this.calculateWaitTime(api);
 
-      console.warn(`[RateLimiter] ${api} rate limit reached (${currentCount}/${config.maxRequests}). Waiting ${waitTimeMs}ms...`);
+      zohoLogger.warn(`[RateLimiter] ${api} rate limit reached (${currentCount}/${config.maxRequests}). Waiting ${waitTimeMs}ms...`);
 
       await this.sleep(waitTimeMs);
     }

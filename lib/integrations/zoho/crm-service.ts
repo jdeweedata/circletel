@@ -3,6 +3,7 @@
 // Includes KYC custom fields for CircleTel compliance workflow
 
 import { createZohoAuthService } from './auth-service';
+import { zohoLogger } from '@/lib/logging';
 import type {
   ZohoEstimateData,
   ZohoDealData,
@@ -61,7 +62,7 @@ export class ZohoCRMService {
         });
       }
 
-      console.log('[ZohoCRM] Creating Estimate:', estimateData.Subject);
+      zohoLogger.debug('[ZohoCRM] Creating Estimate:', estimateData.Subject);
 
       const response = await fetch(`${this.baseUrl}/Quotes`, {
         method: 'POST',
@@ -80,13 +81,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        console.log('[ZohoCRM] Estimate created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Estimate created successfully:', zohoId);
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      console.error('[ZohoCRM] Failed to create Estimate:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Estimate:', error);
       throw error;
     }
   }
@@ -119,7 +120,7 @@ export class ZohoCRMService {
         Contract_Signed_Date: contractData.signed_date,
       };
 
-      console.log('[ZohoCRM] Creating Deal:', dealData.Deal_Name);
+      zohoLogger.debug('[ZohoCRM] Creating Deal:', dealData.Deal_Name);
 
       const response = await fetch(`${this.baseUrl}/Deals`, {
         method: 'POST',
@@ -138,13 +139,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        console.log('[ZohoCRM] Deal created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Deal created successfully:', zohoId);
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      console.error('[ZohoCRM] Failed to create Deal:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Deal:', error);
       throw error;
     }
   }
@@ -156,7 +157,7 @@ export class ZohoCRMService {
     try {
       const accessToken = await this.auth.getAccessToken();
 
-      console.log('[ZohoCRM] Updating Deal:', dealId);
+      zohoLogger.debug('[ZohoCRM] Updating Deal:', dealId);
 
       const response = await fetch(`${this.baseUrl}/Deals/${dealId}`, {
         method: 'PUT',
@@ -177,9 +178,9 @@ export class ZohoCRMService {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
 
-      console.log('[ZohoCRM] Deal updated successfully');
+      zohoLogger.debug('[ZohoCRM] Deal updated successfully');
     } catch (error) {
-      console.error('[ZohoCRM] Failed to update Deal:', error);
+      zohoLogger.error('[ZohoCRM] Failed to update Deal:', error);
       throw error;
     }
   }
@@ -191,7 +192,7 @@ export class ZohoCRMService {
     try {
       const accessToken = await this.auth.getAccessToken();
 
-      console.log('[ZohoCRM] Creating Contact:', contactData.Email);
+      zohoLogger.debug('[ZohoCRM] Creating Contact:', contactData.Email);
 
       const response = await fetch(`${this.baseUrl}/Contacts`, {
         method: 'POST',
@@ -210,13 +211,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        console.log('[ZohoCRM] Contact created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Contact created successfully:', zohoId);
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      console.error('[ZohoCRM] Failed to create Contact:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Contact:', error);
       throw error;
     }
   }
@@ -250,7 +251,7 @@ export class ZohoCRMService {
 
       return null;
     } catch (error) {
-      console.error('[ZohoCRM] Search failed:', error);
+      zohoLogger.error('[ZohoCRM] Search failed:', error);
       return null;
     }
   }

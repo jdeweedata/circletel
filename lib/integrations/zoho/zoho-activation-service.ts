@@ -12,6 +12,7 @@
  */
 
 import { ZohoAPIClient } from '@/lib/zoho-api-client';
+import { zohoLogger } from '@/lib/logging';
 
 // =============================================================================
 // TYPES
@@ -115,7 +116,7 @@ export class ZohoActivationService {
   constructor() {
     // Initialize Zoho API client from environment variables
     if (!process.env.ZOHO_CLIENT_ID || !process.env.ZOHO_CLIENT_SECRET || !process.env.ZOHO_REFRESH_TOKEN) {
-      console.warn('Zoho credentials not configured. Activation service will fail gracefully.');
+      zohoLogger.warn('Zoho credentials not configured. Activation service will fail gracefully.');
     }
 
     this.zohoClient = new ZohoAPIClient({
@@ -143,7 +144,7 @@ export class ZohoActivationService {
         const crmContact = await this.createOrUpdateCRMContact(input);
         result.crmContactId = crmContact.id;
       } catch (error: any) {
-        console.error('Failed to create CRM contact:', error);
+        zohoLogger.error('Failed to create CRM contact:', error);
         result.errors!.crm = error.message;
       }
 
@@ -152,7 +153,7 @@ export class ZohoActivationService {
         const booksCustomer = await this.createBooksCustomer(input);
         result.booksCustomerId = booksCustomer.contact_id;
       } catch (error: any) {
-        console.error('Failed to create Books customer:', error);
+        zohoLogger.error('Failed to create Books customer:', error);
         result.errors!.books = error.message;
       }
 
@@ -165,7 +166,7 @@ export class ZohoActivationService {
           result.invoiceTotal = invoice.total;
           result.invoicePdfUrl = invoice.invoice_url;
         } catch (error: any) {
-          console.error('Failed to generate Books invoice:', error);
+          zohoLogger.error('Failed to generate Books invoice:', error);
           result.errors!.books = error.message;
         }
       }
@@ -176,7 +177,7 @@ export class ZohoActivationService {
           const subscription = await this.createBillingSubscription(input, result.booksCustomerId);
           result.billingSubscriptionId = subscription.subscription_id;
         } catch (error: any) {
-          console.error('Failed to create Billing subscription:', error);
+          zohoLogger.error('Failed to create Billing subscription:', error);
           result.errors!.billing = error.message;
         }
       }
@@ -186,7 +187,7 @@ export class ZohoActivationService {
         try {
           await this.sendInvoiceEmail(input, result.invoicePdfUrl);
         } catch (error: any) {
-          console.error('Failed to send invoice email:', error);
+          zohoLogger.error('Failed to send invoice email:', error);
           result.errors!.mail = error.message;
         }
       }
@@ -209,7 +210,7 @@ export class ZohoActivationService {
       return result;
 
     } catch (error: any) {
-      console.error('Zoho activation service error:', error);
+      zohoLogger.error('Zoho activation service error:', error);
       return {
         success: false,
         message: 'Service activation failed',
@@ -498,7 +499,7 @@ export class ZohoActivationService {
         return await fn();
       } catch (error: any) {
         lastError = error;
-        console.warn(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
+        zohoLogger.warn(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
 
         if (attempt < maxRetries) {
           await new Promise(resolve => setTimeout(resolve, delayMs * attempt));

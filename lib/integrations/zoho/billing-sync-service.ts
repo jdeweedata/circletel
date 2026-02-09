@@ -10,6 +10,7 @@
 
 import { ZohoBillingClient } from './billing-client';
 import rateLimiter from './rate-limiter';
+import { zohoLogger } from '@/lib/logging';
 import type {
   CreatePlanPayload,
   CreateItemPayload,
@@ -209,7 +210,7 @@ export async function syncServicePackageToZohoBilling(
   const client = new ZohoBillingClient();
 
   try {
-    console.log('[BillingSync] Syncing service_package to Zoho Billing:', {
+    zohoLogger.debug('[BillingSync] Syncing service_package to Zoho Billing:', {
       id: servicePackage.id,
       sku: servicePackage.sku,
       name: servicePackage.name,
@@ -221,7 +222,7 @@ export async function syncServicePackageToZohoBilling(
     const productId = await client.upsertProduct(servicePackage.name, productPayload);
     await sleep(BILLING_API_DELAY_MS);
 
-    console.log('[BillingSync] Product synced:', {
+    zohoLogger.debug('[BillingSync] Product synced:', {
       product_id: productId,
       name: servicePackage.name,
     });
@@ -232,7 +233,7 @@ export async function syncServicePackageToZohoBilling(
     const planId = await client.upsertPlan(servicePackage.sku, planPayload);
     await sleep(BILLING_API_DELAY_MS);
 
-    console.log('[BillingSync] Plan synced:', {
+    zohoLogger.debug('[BillingSync] Plan synced:', {
       plan_id: planId,
       plan_code: servicePackage.sku,
       recurring_price: planPayload.recurring_price,
@@ -247,7 +248,7 @@ export async function syncServicePackageToZohoBilling(
     );
     await sleep(BILLING_API_DELAY_MS);
 
-    console.log('[BillingSync] Installation item synced:', {
+    zohoLogger.debug('[BillingSync] Installation item synced:', {
       item_id: installationItemId,
       sku: installationPayload.sku,
       rate: installationPayload.rate,
@@ -262,7 +263,7 @@ export async function syncServicePackageToZohoBilling(
       hardwareItemId = await client.upsertItem(hardwarePayload.sku!, hardwarePayload);
       await sleep(BILLING_API_DELAY_MS);
 
-      console.log('[BillingSync] Hardware item synced:', {
+      zohoLogger.debug('[BillingSync] Hardware item synced:', {
         item_id: hardwareItemId,
         sku: hardwarePayload.sku,
         rate: hardwarePayload.rate,
@@ -277,7 +278,7 @@ export async function syncServicePackageToZohoBilling(
       hardwareItemId,
     };
   } catch (error) {
-    console.error('[BillingSync] Error syncing to Zoho Billing:', error);
+    zohoLogger.error('[BillingSync] Error syncing to Zoho Billing:', error);
 
     return {
       success: false,
@@ -323,7 +324,7 @@ export async function getBillingSyncStatus(servicePackage: ServicePackage): Prom
       hardwareItemId: hardwareItem?.item_id,
     };
   } catch (error) {
-    console.error('[BillingSync] Error checking sync status:', error);
+    zohoLogger.error('[BillingSync] Error checking sync status:', error);
     throw error;
   }
 }

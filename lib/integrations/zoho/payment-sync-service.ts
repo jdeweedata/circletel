@@ -16,6 +16,7 @@ import { ZohoBillingClient } from './billing-client';
 import { syncCustomerToZohoBilling } from './customer-sync-service';
 import { syncInvoiceToZohoBilling } from './invoice-sync-service';
 import { logZohoSync } from './billing-sync-logger';
+import { zohoLogger } from '@/lib/logging';
 
 export interface PaymentSyncResult {
   success: boolean;
@@ -35,7 +36,7 @@ export async function syncPaymentToZohoBilling(
   const supabase = await createClient();
 
   try {
-    console.log('[PaymentSync] Starting sync for payment:', payment_id);
+    zohoLogger.debug('[PaymentSync] Starting sync for payment:', payment_id);
 
     // Update sync status to 'syncing'
     await supabase
@@ -65,7 +66,7 @@ export async function syncPaymentToZohoBilling(
 
     // Check if already synced
     if (payment.zoho_payment_id) {
-      console.log('[PaymentSync] Payment already synced:', payment.zoho_payment_id);
+      zohoLogger.debug('[PaymentSync] Payment already synced:', payment.zoho_payment_id);
       return {
         success: true,
         zoho_payment_id: payment.zoho_payment_id
@@ -73,9 +74,9 @@ export async function syncPaymentToZohoBilling(
     }
 
     // Prerequisite 1: Ensure customer is synced to ZOHO
-    console.log('[PaymentSync] Checking customer sync status...');
+    zohoLogger.debug('[PaymentSync] Checking customer sync status...');
     if (!payment.customer?.zoho_billing_customer_id) {
-      console.log('[PaymentSync] Customer not synced, syncing now...');
+      zohoLogger.debug('[PaymentSync] Customer not synced, syncing now...');
       const customerSyncResult = await syncCustomerToZohoBilling(payment.customer_id);
       if (!customerSyncResult.success || !customerSyncResult.zoho_customer_id) {
         throw new Error(`Failed to sync customer: ${customerSyncResult.error}`);
@@ -92,9 +93,9 @@ export async function syncPaymentToZohoBilling(
     // Prerequisite 2: If payment is for an invoice, ensure invoice is synced
     let zoho_invoice_id: string | undefined = undefined;
     if (payment.invoice_id && payment.invoice) {
-      console.log('[PaymentSync] Checking invoice sync status...');
+      zohoLogger.debug('[PaymentSync] Checking invoice sync status...');
       if (!payment.invoice.zoho_billing_invoice_id) {
-        console.log('[PaymentSync] Invoice not synced, syncing now...');
+        zohoLogger.debug('[PaymentSync] Invoice not synced, syncing now...');
         const invoiceSyncResult = await syncInvoiceToZohoBilling(payment.invoice_id);
         if (!invoiceSyncResult.success || !invoiceSyncResult.zoho_invoice_id) {
           throw new Error(`Failed to sync invoice: ${invoiceSyncResult.error}`);
@@ -110,7 +111,7 @@ export async function syncPaymentToZohoBilling(
       zoho_invoice_id = payment.invoice.zoho_billing_invoice_id;
     }
 
-    console.log('[PaymentSync] Prerequisites met:', {
+    zohoLogger.debug('[PaymentSync] Prerequisites met:', {
       customer_id: payment.customer.zoho_billing_customer_id,
       invoice_id: zoho_invoice_id || 'none'
     });
@@ -149,7 +150,7 @@ export async function syncPaymentToZohoBilling(
       }
     });
 
-    console.log('[PaymentSync] Recording ZOHO payment:', {
+    zohoLogger.debug('[PaymentSync] Recording ZOHO payment:', {
       payment_id,
       customer_email: payment.customer.email,
       amount: payment.amount,
@@ -162,7 +163,7 @@ export async function syncPaymentToZohoBilling(
 
     const zoho_payment_id = zohoPayment.payment_id;
 
-    console.log('[PaymentSync] Successfully recorded ZOHO payment:', {
+    zohoLogger.debug('[PaymentSync] Successfully recorded ZOHO payment:', {
       payment_id: zoho_payment_id,
       payment_number: zohoPayment.payment_number,
       amount: zohoPayment.amount
@@ -197,7 +198,7 @@ export async function syncPaymentToZohoBilling(
     };
 
   } catch (error) {
-    console.error('[PaymentSync] Error syncing payment:', error);
+    zohoLogger.error('[PaymentSync] Error syncing payment:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

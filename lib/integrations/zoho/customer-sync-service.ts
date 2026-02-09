@@ -10,6 +10,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from './billing-client';
 import { logZohoSync } from './billing-sync-logger';
+import { zohoLogger } from '@/lib/logging';
 
 export interface CustomerSyncResult {
   success: boolean;
@@ -29,7 +30,7 @@ export async function syncCustomerToZohoBilling(
   const supabase = await createClient();
 
   try {
-    console.log('[CustomerSync] Starting sync for customer:', customer_id);
+    zohoLogger.debug('[CustomerSync] Starting sync for customer:', customer_id);
 
     // Update sync status to 'syncing'
     await supabase
@@ -50,7 +51,7 @@ export async function syncCustomerToZohoBilling(
 
     // Check if already synced
     if (customer.zoho_billing_customer_id) {
-      console.log('[CustomerSync] Customer already synced:', customer.zoho_billing_customer_id);
+      zohoLogger.debug('[CustomerSync] Customer already synced:', customer.zoho_billing_customer_id);
       return {
         success: true,
         zoho_customer_id: customer.zoho_billing_customer_id
@@ -86,7 +87,7 @@ export async function syncCustomerToZohoBilling(
       }
     });
 
-    console.log('[CustomerSync] Syncing to ZOHO Billing:', {
+    zohoLogger.debug('[CustomerSync] Syncing to ZOHO Billing:', {
       customer_id,
       email: customer.email,
       display_name: zohoPayload.display_name
@@ -99,7 +100,7 @@ export async function syncCustomerToZohoBilling(
       zohoPayload
     );
 
-    console.log('[CustomerSync] Successfully synced to ZOHO:', zoho_customer_id);
+    zohoLogger.info('[CustomerSync] Successfully synced to ZOHO:', zoho_customer_id);
 
     // Update customer with ZOHO ID and sync status
     await supabase
@@ -130,7 +131,7 @@ export async function syncCustomerToZohoBilling(
     };
 
   } catch (error) {
-    console.error('[CustomerSync] Error syncing customer:', error);
+    zohoLogger.error('[CustomerSync] Error syncing customer:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
