@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { BusinessJourneyService } from '@/lib/business/journey-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET() {
   try {
@@ -31,7 +32,7 @@ export async function GET() {
       .single();
 
     if (customerError && customerError.code !== 'PGRST116') {
-      console.error('Error fetching business customer:', customerError);
+      apiLogger.error('Error fetching business customer', { error: customerError });
     }
 
     // If no business customer found, return minimal data
@@ -160,7 +161,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error fetching business dashboard summary:', error);
+    apiLogger.error('Error fetching business dashboard summary', { error });
     return NextResponse.json(
       { error: 'Failed to fetch dashboard data' },
       { status: 500 }

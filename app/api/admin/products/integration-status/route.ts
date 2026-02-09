@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 10;
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('[Integration Status API] Query failed:', error);
+      apiLogger.error('[Integration Status API] Query failed', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch integration status' },
         { status: 500 }
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
       data: statusMap,
     });
   } catch (error: any) {
-    console.error('[Integration Status API] Error:', error);
+    apiLogger.error('[Integration Status API] Error', { error });
     return NextResponse.json(
       {
         success: false,

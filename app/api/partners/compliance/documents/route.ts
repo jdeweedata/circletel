@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
       .order('uploaded_at', { ascending: false });
 
     if (docsError) {
-      console.error('Error fetching documents:', docsError);
+      apiLogger.error('Error fetching documents', { error: docsError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch documents' },
         { status: 500 }
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Documents fetch error:', error);
+    apiLogger.error('Documents fetch error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -77,3 +78,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

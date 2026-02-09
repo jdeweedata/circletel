@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+import { billingLogger } from '@/lib/logging/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const provider = getPaymentProvider();
 
     if (!provider.isConfigured()) {
-      console.error('[Dashboard Invoice Payment] Payment gateway not configured');
+      billingLogger.error('[Dashboard Invoice Payment] Payment gateway not configured');
       return NextResponse.json(
         { error: 'Payment gateway not available' },
         { status: 503 }
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!paymentResult.success || !paymentResult.paymentUrl) {
-      console.error('[Dashboard Invoice Payment] Failed:', paymentResult.error);
+      billingLogger.error('[Dashboard Invoice Payment] Failed', { error: paymentResult.error });
       return NextResponse.json(
         { error: 'Failed to initiate payment', details: paymentResult.error },
         { status: 500 }
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       created_at: new Date().toISOString(),
     });
 
-    console.log('[Dashboard Invoice Payment] Payment initiated:', {
+    billingLogger.info('[Dashboard Invoice Payment] Payment initiated', {
       invoiceNumber: invoice.invoice_number,
       amount: amountDue,
       customerId: customer.id,
@@ -191,10 +192,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       amount: amountDue,
     });
   } catch (error) {
-    console.error('[Dashboard Invoice Payment] Error:', error);
+    billingLogger.error('[Dashboard Invoice Payment] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
 }
+

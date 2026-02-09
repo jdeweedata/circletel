@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * GET /api/partners/leads
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
     const { data: leads, error: leadsError, count } = await query
 
     if (leadsError) {
-      console.error('Error fetching leads:', leadsError)
+      apiLogger.error('Error fetching leads', { error: leadsError });
       return NextResponse.json(
         { error: 'Failed to fetch leads' },
         { status: 500 }
@@ -93,10 +94,11 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in partners leads API:', error)
+    apiLogger.error('Error in partners leads API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

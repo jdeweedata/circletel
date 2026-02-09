@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 // Vercel configuration: Allow longer execution for product queries
 export const runtime = 'nodejs';
@@ -12,11 +13,11 @@ export const maxDuration = 15; // Allow up to 15 seconds for product queries wit
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Products API] ⏱️ Request started');
+  apiLogger.debug('[Products API] Request started');
 
   try {
     const supabase = await createClient();
-    console.log('[Products API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.debug('[Products API] Supabase client created', { durationMs: Date.now() - startTime });
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
@@ -160,9 +161,9 @@ export async function GET(request: NextRequest) {
       products = result.data;
       error = result.error;
       count = result.count;
-      console.log('[Products API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${count} total products)`);
+      apiLogger.debug('[Products API] Query completed', { durationMs: Date.now() - startTime, count });
     } catch (timeoutError) {
-      console.error('[Products API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Products API] Query timeout', { durationMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -174,7 +175,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (error) {
-      console.error('Error fetching products:', error);
+      apiLogger.error('Error fetching products', { error });
       return NextResponse.json(
         {
           success: false,
@@ -215,7 +216,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/products:', error);
+    apiLogger.error('Error in GET /api/admin/products', { error });
     return NextResponse.json(
       {
         success: false,

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitRICAWithDiditData } from '@/lib/compliance/rica-paired-submission';
 import { createClient } from '@/lib/supabase/server';
+import { activationLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/activation/rica-submit
@@ -31,7 +32,7 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('[RICA Submit API] Received submission request');
+    activationLogger.info('[RICA Submit API] Received submission request');
 
     // Parse request body
     const body = await request.json();
@@ -48,12 +49,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[RICA Submit API] Submitting RICA for order:', orderId);
+    activationLogger.info('[RICA Submit API] Submitting RICA for order', { orderId });
 
     // Submit RICA with Didit KYC data
     const result = await submitRICAWithDiditData(kycSessionId, orderId, serviceLines);
 
-    console.log('[RICA Submit API] ✅ Submission successful:', result.icasaTrackingId);
+    activationLogger.info('[RICA Submit API] ✅ Submission successful', { trackingId: result.icasaTrackingId });
 
     return NextResponse.json({
       success: true,
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[RICA Submit API] Submission failed:', error);
+    activationLogger.error('[RICA Submit API] Submission failed', { error });
 
     return NextResponse.json(
       {
@@ -119,7 +120,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[RICA Submit API] Status check failed:', error);
+    activationLogger.error('[RICA Submit API] Status check failed', { error });
 
     return NextResponse.json(
       {

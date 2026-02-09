@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * POST /api/partners/leads/[id]/activities
@@ -84,7 +85,7 @@ export async function POST(
       .single()
 
     if (activityError) {
-      console.error('Error creating activity:', activityError)
+      apiLogger.error('Error creating activity', { error: activityError })
       return NextResponse.json(
         { error: 'Failed to create activity' },
         { status: 500 }
@@ -105,10 +106,11 @@ export async function POST(
       activity,
     })
   } catch (error) {
-    console.error('Error in create activity API:', error)
+    apiLogger.error('Error in create activity API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

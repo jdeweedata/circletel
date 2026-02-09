@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * GET /api/partners/profile
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       partner: sanitizedPartner,
     })
   } catch (error) {
-    console.error('Error in profile API:', error)
+    apiLogger.error('Error in profile API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -132,7 +133,7 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error('Error updating profile:', updateError)
+      apiLogger.error('Error updating profile', { error: updateError })
       return NextResponse.json(
         { error: 'Failed to update profile' },
         { status: 500 }
@@ -145,7 +146,7 @@ export async function PATCH(request: NextRequest) {
       message: 'Profile updated successfully',
     })
   } catch (error) {
-    console.error('Error in profile update API:', error)
+    apiLogger.error('Error in profile update API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

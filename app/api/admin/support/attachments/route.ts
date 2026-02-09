@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 const BUCKET_NAME = 'support-attachments';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -8,10 +9,10 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const formData = await request.formData();
-    
+
     const file = formData.get('file') as File | null;
     const ticketId = formData.get('ticketId') as string | null;
-    
+
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Generate unique file path
     const timestamp = Date.now();
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filePath = ticketId 
+    const filePath = ticketId
       ? `tickets/${ticketId}/${timestamp}-${sanitizedName}`
       : `temp/${timestamp}-${sanitizedName}`;
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (error) {
-      console.error('Supabase storage upload error:', error);
+      apiLogger.error('Supabase storage upload error', { error });
       return NextResponse.json(
         { error: 'Failed to upload file', details: error.message },
         { status: 500 }
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in POST /api/admin/support/attachments:', error);
+    apiLogger.error('Error in POST /api/admin/support/attachments', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -97,7 +98,7 @@ export async function DELETE(request: NextRequest) {
       .remove([filePath]);
 
     if (error) {
-      console.error('Supabase storage delete error:', error);
+      apiLogger.error('Supabase storage delete error', { error });
       return NextResponse.json(
         { error: 'Failed to delete file', details: error.message },
         { status: 500 }
@@ -109,13 +110,14 @@ export async function DELETE(request: NextRequest) {
       message: 'File deleted successfully',
     });
   } catch (error) {
-    console.error('Error in DELETE /api/admin/support/attachments:', error);
+    apiLogger.error('Error in DELETE /api/admin/support/attachments', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+
 
 // Get signed URL for downloading a file
 export async function GET(request: NextRequest) {
@@ -136,7 +138,7 @@ export async function GET(request: NextRequest) {
       .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
 
     if (error) {
-      console.error('Supabase storage signed URL error:', error);
+      apiLogger.error('Supabase storage signed URL error', { error });
       return NextResponse.json(
         { error: 'Failed to get file URL', details: error.message },
         { status: 500 }
@@ -150,7 +152,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/support/attachments:', error);
+    apiLogger.error('Error in GET /api/admin/support/attachments', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

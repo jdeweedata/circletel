@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -42,7 +43,7 @@ export async function GET(
       .single();
 
     if (error || !technician) {
-      console.error('Error fetching technician:', error);
+      apiLogger.error('Error fetching technician', { error });
       return NextResponse.json(
         { success: false, error: 'Technician not found' },
         { status: 404 }
@@ -65,7 +66,7 @@ export async function GET(
       data: mappedTechnician,
     });
   } catch (error: any) {
-    console.error('Technician fetch error:', error);
+    apiLogger.error('Technician fetch error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -173,7 +174,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error('Error updating technician:', updateError);
+      apiLogger.error('Error updating technician', { error: updateError });
       return NextResponse.json(
         {
           success: false,
@@ -197,7 +198,7 @@ export async function PATCH(
       message: 'Technician updated successfully',
     });
   } catch (error: any) {
-    console.error('Technician update error:', error);
+    apiLogger.error('Technician update error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -250,7 +251,7 @@ export async function DELETE(
       .single();
 
     if (error) {
-      console.error('Error deleting technician:', error);
+      apiLogger.error('Error deleting technician', { error });
       return NextResponse.json(
         {
           success: false,
@@ -267,7 +268,7 @@ export async function DELETE(
       message: 'Technician deactivated successfully',
     });
   } catch (error: any) {
-    console.error('Technician delete error:', error);
+    apiLogger.error('Technician delete error', { error });
     return NextResponse.json(
       {
         success: false,

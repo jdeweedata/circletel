@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 // GET /api/admin/products/[id]/audit-logs - Get audit trail for a product
 export async function GET(
@@ -39,7 +40,7 @@ export async function GET(
     const { data: auditLogs, error, count } = await query;
 
     if (error) {
-      console.error('Error fetching audit logs:', error);
+      apiLogger.error('Error fetching audit logs', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch audit logs' },
         { status: 500 }
@@ -84,13 +85,14 @@ export async function GET(
       }
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/products/[id]/audit-logs:', error);
+    apiLogger.error('Error in GET /api/admin/products/[id]/audit-logs', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+
 
 // GET /api/admin/products/[id]/audit-logs/summary - Get summary of changes
 export async function POST(
@@ -131,10 +133,10 @@ export async function POST(
 
     const uniqueContributors = contributors
       ? Array.from(
-          new Map(
-            contributors.map(c => [c.changed_by_email, c])
-          ).values()
-        )
+        new Map(
+          contributors.map(c => [c.changed_by_email, c])
+        ).values()
+      )
       : [];
 
     // Get price change history for trend analysis
@@ -156,7 +158,7 @@ export async function POST(
       }
     });
   } catch (error) {
-    console.error('Error in POST /api/admin/products/[id]/audit-logs/summary:', error);
+    apiLogger.error('Error in POST /api/admin/products/[id]/audit-logs/summary', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

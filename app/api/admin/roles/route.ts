@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import type { CreateRoleInput } from '@/lib/types/role';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/roles
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
     const { data: roles, error: rolesError } = await query;
 
     if (rolesError) {
-      console.error('Error fetching roles:', rolesError);
+      apiLogger.error('Error fetching roles', { error: rolesError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch roles', details: rolesError.message },
         { status: 500 }
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
       data: roles,
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/roles:', error);
+    apiLogger.error('Error in GET /api/admin/roles', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -191,7 +192,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Error creating role:', insertError);
+      apiLogger.error('Error creating role', { error: insertError });
       return NextResponse.json(
         { success: false, error: 'Failed to create role', details: insertError.message },
         { status: 500 }
@@ -214,14 +215,14 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    console.log(`✅ Role '${newRole.name}' created successfully by ${adminUser.role}`);
+    apiLogger.info(`Role '${newRole.name}' created successfully by ${adminUser.role}`);
 
     return NextResponse.json({
       success: true,
       data: newRole,
     }, { status: 201 });
   } catch (error) {
-    console.error('Error in POST /api/admin/roles:', error);
+    apiLogger.error('Error in POST /api/admin/roles', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

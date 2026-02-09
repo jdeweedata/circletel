@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
+import { billingLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/dashboard/invoices/[id]/pdf
@@ -60,14 +61,14 @@ export async function GET(
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
-    
+
     if (!customer) {
       return NextResponse.json(
         { error: 'Customer not found' },
         { status: 404 }
       );
     }
-    
+
     // Verify customer owns this invoice
     const { data: invoice, error: invoiceError } = await supabase
       .from('customer_invoices')
@@ -75,14 +76,14 @@ export async function GET(
       .eq('id', id)
       .eq('customer_id', customer.id)
       .single();
-    
+
     if (invoiceError || !invoice) {
       return NextResponse.json(
         { error: 'Invoice not found' },
         { status: 404 }
       );
     }
-    
+
     // Check if PDF exists
     if (!invoice.pdf_url) {
       return NextResponse.json(
@@ -90,7 +91,7 @@ export async function GET(
         { status: 404 }
       );
     }
-    
+
     // Extract storage path from URL
     // pdf_url format: https://xxx.supabase.co/storage/v1/object/public/customer-invoices/...
     const urlParts = invoice.pdf_url.split('/storage/v1/object/public/');
@@ -100,32 +101,32 @@ export async function GET(
         { status: 500 }
       );
     }
-    
+
     const [bucket, ...pathParts] = urlParts[1].split('/');
     const path = pathParts.join('/');
-    
+
     // Download PDF from Supabase Storage
     const { data: pdfData, error: downloadError } = await supabase
       .storage
       .from(bucket)
       .download(path);
-    
+
     if (downloadError || !pdfData) {
-      console.error('Error downloading PDF:', downloadError);
+      billingLogger.error('Error downloading PDF', { error: downloadError });
       return NextResponse.json(
         { error: 'Failed to download PDF' },
         { status: 500 }
       );
     }
-    
+
     // Convert blob to buffer
     const buffer = await pdfData.arrayBuffer();
-    
+
     // Determine disposition (inline for viewing, attachment for download)
     const disposition = request.nextUrl.searchParams.get('download') === 'true'
       ? 'attachment'
       : 'inline';
-    
+
     // Return PDF with proper headers
     return new NextResponse(buffer, {
       headers: {
@@ -134,12 +135,13 @@ export async function GET(
         'Cache-Control': 'private, max-age=3600' // Cache for 1 hour
       }
     });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    billingLogger.error('Unexpected error in invoice PDF API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

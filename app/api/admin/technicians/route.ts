@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     const { data: technicians, error } = await query;
 
     if (error) {
-      console.error('Error fetching technicians:', error);
+      apiLogger.error('Error fetching technicians', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch technicians', details: error.message },
         { status: 500 }
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
       data: mappedTechnicians,
     });
   } catch (error: any) {
-    console.error('Admin technicians fetch error:', error);
+    apiLogger.error('Admin technicians fetch error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating technician:', error);
+      apiLogger.error('Error creating technician', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to create technician', details: error.message },
         { status: 500 }
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
       message: 'Technician created successfully',
     });
   } catch (error: any) {
-    console.error('Admin technician create error:', error);
+    apiLogger.error('Admin technician create error', { error });
     return NextResponse.json(
       {
         success: false,

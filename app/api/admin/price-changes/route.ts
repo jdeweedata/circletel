@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/price-changes
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
     const { data: priceChanges, error } = await query;
 
     if (error) {
-      console.error('[GET /api/admin/price-changes] Query error:', error);
+      apiLogger.error('[GET /api/admin/price-changes] Query error', { error });
       return NextResponse.json(
         { error: 'Failed to fetch price changes' },
         { status: 500 }
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
       count: priceChanges.length,
     });
   } catch (error) {
-    console.error('[GET /api/admin/price-changes] Error:', error);
+    apiLogger.error('[GET /api/admin/price-changes] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -301,7 +302,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (createError) {
-      console.error('[POST /api/admin/price-changes] Create error:', createError);
+      apiLogger.error('[POST /api/admin/price-changes] Create error', { error: createError });
       return NextResponse.json(
         { error: 'Failed to create price change' },
         { status: 500 }
@@ -314,7 +315,7 @@ export async function POST(request: NextRequest) {
       message: 'Price change created successfully (draft status)',
     });
   } catch (error) {
-    console.error('[POST /api/admin/price-changes] Error:', error);
+    apiLogger.error('[POST /api/admin/price-changes] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

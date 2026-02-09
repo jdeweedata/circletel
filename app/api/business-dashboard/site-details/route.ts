@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server';
 import { BusinessJourneyService } from '@/lib/business/journey-service';
 import { SiteDetailsService } from '@/lib/business/site-details-service';
 import { SiteDetailsFormData, SitePhoto, validateSiteDetailsForSubmission } from '@/types/site-details';
+import { apiLogger } from '@/lib/logging/logger';
 
 // ============================================================================
 // GET - Fetch site details
@@ -60,7 +61,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error fetching site details:', error);
+    apiLogger.error('Error fetching site details', { error });
     return NextResponse.json(
       { error: 'Failed to fetch site details' },
       { status: 500 }
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
       message: 'Site details saved as draft',
     });
   } catch (error) {
-    console.error('Error creating site details:', error);
+    apiLogger.error('Error creating site details', { error });
     return NextResponse.json(
       { error: 'Failed to create site details' },
       { status: 500 }
@@ -265,7 +266,7 @@ export async function PUT(request: NextRequest) {
       message: 'Site details updated',
     });
   } catch (error) {
-    console.error('Error updating site details:', error);
+    apiLogger.error('Error updating site details', { error });
     return NextResponse.json(
       { error: 'Failed to update site details' },
       { status: 500 }

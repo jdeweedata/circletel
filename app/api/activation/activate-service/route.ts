@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { activateService, deactivateService } from '@/lib/activation/service-activator';
 import { createClient } from '@/lib/supabase/server';
+import { activationLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/activation/activate-service
@@ -30,7 +31,7 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Activate Service API] Received activation request');
+    activationLogger.info('[Activate Service API] Received activation request');
 
     // Parse request body
     const body = await request.json();
@@ -75,13 +76,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[Activate Service API] Processing action:', action, 'for order:', order.order_number);
+    activationLogger.info('[Activate Service API] Processing action', { action, orderNumber: order.order_number });
 
     if (action === 'activate') {
       // Activate service
       await activateService(orderId);
 
-      console.log('[Activate Service API] ✅ Service activated');
+      activationLogger.info('[Activate Service API] ✅ Service activated');
 
       return NextResponse.json({
         success: true,
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       // Deactivate service
       await deactivateService(orderId, reason as 'cancelled' | 'suspended' | 'expired');
 
-      console.log('[Activate Service API] ✅ Service deactivated:', reason);
+      activationLogger.info('[Activate Service API] ✅ Service deactivated', { reason });
 
       return NextResponse.json({
         success: true,
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('[Activate Service API] Processing failed:', error);
+    activationLogger.error('[Activate Service API] Processing failed', { error });
 
     return NextResponse.json(
       {
@@ -180,7 +181,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Activate Service API] Status check failed:', error);
+    activationLogger.error('[Activate Service API] Status check failed', { error });
 
     return NextResponse.json(
       {

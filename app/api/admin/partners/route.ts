@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
 interface PartnerStats {
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
     const { data: partners, error, count } = await query;
 
     if (error) {
-      console.error('[Admin Partners API] Query error:', error);
+      apiLogger.error('[Admin Partners API] Query error', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch partners', details: error.message },
         { status: 500 }
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[Admin Partners API] Unexpected error:', error);
+    apiLogger.error('[Admin Partners API] Unexpected error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -144,3 +145,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

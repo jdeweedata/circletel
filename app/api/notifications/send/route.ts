@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { QuoteNotificationService } from '@/lib/notifications/quote-notifications';
 import type { NotificationEvent } from '@/lib/notifications/types';
+import { notificationLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error in POST /api/notifications/send:', error);
+    notificationLogger.error('Error in POST /api/notifications/send', { error });
     return NextResponse.json(
       {
         success: false,
@@ -84,3 +85,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

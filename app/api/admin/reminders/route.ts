@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/reminders
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in GET /api/admin/reminders:', error);
+    apiLogger.error('Error in GET /api/admin/reminders', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -96,7 +97,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, reminder });
 
   } catch (error: any) {
-    console.error('Error in POST /api/admin/reminders:', error);
+    apiLogger.error('Error in POST /api/admin/reminders', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

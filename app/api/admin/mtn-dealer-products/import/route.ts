@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { MTNDealerTechnology, MTNDealerContractTerm } from '@/lib/types/mtn-dealer-products';
+import { apiLogger } from '@/lib/logging/logger';
 
 interface ImportPromo {
   deal_id: string;
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const body = await request.json();
-    
+
     const { promos, source_file, filters } = body as {
       promos: ImportPromo[];
       source_file: string;
@@ -87,14 +88,14 @@ export async function POST(request: NextRequest) {
         current_deals_only?: boolean;
       };
     };
-    
+
     if (!promos || !Array.isArray(promos)) {
       return NextResponse.json(
         { success: false, error: 'Invalid promos data' },
         { status: 400 }
       );
     }
-    
+
     // Create import batch
     const batch_id = `IMPORT-${Date.now()}`;
     const { data: batch, error: batchError } = await supabase
@@ -110,24 +111,24 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single();
-    
+
     if (batchError) {
-      console.error('[MTN Import] Batch creation error:', batchError);
+      apiLogger.error('[MTN Import] Batch creation error', { error: batchError });
     }
-    
+
     let imported = 0;
     let skipped = 0;
     let errors: { deal_id: string; error: string }[] = [];
-    
+
     // Apply filters
     let filteredPromos = promos;
-    
+
     if (filters) {
       if (filters.contract_terms && filters.contract_terms.length > 0) {
         filteredPromos = filteredPromos.filter(p => filters.contract_terms!.includes(p.contract_term));
       }
       if (filters.has_device !== undefined) {
-        filteredPromos = filteredPromos.filter(p => 
+        filteredPromos = filteredPromos.filter(p =>
           filters.has_device ? p.oem_and_device !== 'Use Your Own' : p.oem_and_device === 'Use Your Own'
         );
       }
@@ -145,21 +146,21 @@ export async function POST(request: NextRequest) {
       }
       if (filters.current_deals_only) {
         const today = new Date().toISOString().split('T')[0];
-        filteredPromos = filteredPromos.filter(p => 
-          p.promo_start_date_mm_dd_yyyy <= today && 
+        filteredPromos = filteredPromos.filter(p =>
+          p.promo_start_date_mm_dd_yyyy <= today &&
           (!p.promo_end_date_mm_dd_yyyy || p.promo_end_date_mm_dd_yyyy >= today)
         );
       }
     }
-    
+
     // Process in batches of 100
     const batchSize = 100;
     for (let i = 0; i < filteredPromos.length; i += batchSize) {
       const promoBatch = filteredPromos.slice(i, i + batchSize);
-      
+
       const productsToInsert = promoBatch.map(promo => {
         const hasDevice = promo.oem_and_device !== 'Use Your Own';
-        
+
         return {
           deal_id: promo.deal_id,
           eppix_package: promo.eppix_package || null,
@@ -206,7 +207,7 @@ export async function POST(request: NextRequest) {
           source_file: source_file || 'Unknown',
         };
       });
-      
+
       // Upsert products (update if deal_id exists, insert if not)
       const { data: insertedProducts, error: insertError } = await supabase
         .from('mtn_dealer_products')
@@ -215,17 +216,17 @@ export async function POST(request: NextRequest) {
           ignoreDuplicates: false,
         })
         .select('id, deal_id');
-      
+
       if (insertError) {
-        console.error('[MTN Import] Batch insert error:', insertError);
+        apiLogger.error('[MTN Import] Batch insert error', { error: insertError });
         errors.push(...promoBatch.map(p => ({ deal_id: p.deal_id, error: insertError.message })));
       } else {
         imported += insertedProducts?.length || 0;
       }
     }
-    
+
     skipped = promos.length - filteredPromos.length;
-    
+
     // Update batch status
     if (batch) {
       await supabase
@@ -240,7 +241,7 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', batch.id);
     }
-    
+
     // Log audit
     await supabase.from('mtn_dealer_product_audit_log').insert({
       action: 'import',
@@ -255,7 +256,7 @@ export async function POST(request: NextRequest) {
         filters,
       },
     });
-    
+
     return NextResponse.json({
       success: true,
       data: {
@@ -269,7 +270,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[MTN Import] Error:', error);
+    apiLogger.error('[MTN Import] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

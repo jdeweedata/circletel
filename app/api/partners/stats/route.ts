@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -74,10 +75,11 @@ export async function GET(request: NextRequest) {
       stats,
     })
   } catch (error) {
-    console.error('Error fetching partner stats:', error)
+    apiLogger.error('Error fetching partner stats', { error })
     return NextResponse.json(
       { success: false, error: 'Failed to fetch partner stats' },
       { status: 500 }
     )
   }
 }
+

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createKYCSessionForKYBSubject } from '@/lib/integrations/didit/session-manager';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(
   request: NextRequest,
@@ -42,7 +43,7 @@ export async function POST(
         );
       }
 
-      console.error('[API] Director KYB session creation failed:', error);
+      apiLogger.error('[API] Director KYB session creation failed', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to create KYB KYC session' },
         { status: 500 }
@@ -59,7 +60,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('[API] Unexpected error in Director start-kyc:', error);
+    apiLogger.error('[API] Unexpected error in Director start-kyc', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

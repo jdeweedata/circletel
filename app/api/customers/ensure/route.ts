@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/customers/ensure
@@ -41,10 +42,10 @@ export async function POST(request: NextRequest) {
         authError = error;
       } catch (e) {
         // Cookie reading failed, continue with null user
-        console.log('[API/customers/ensure] Cookie auth failed:', e);
+        apiLogger.warn('[API/customers/ensure] Cookie auth failed', { error: e });
       }
     }
-    
+
     // If we have auth_user_id in body, use that (allows creating customer without session)
     if (body.auth_user_id) {
       // Check if customer exists
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
         .select('*')
         .eq('auth_user_id', body.auth_user_id)
         .single();
-      
+
       if (existingCustomer) {
         return NextResponse.json({
           success: true,
@@ -61,10 +62,10 @@ export async function POST(request: NextRequest) {
           message: 'Customer already exists'
         });
       }
-      
+
       // Create customer from provided data
       const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
-      
+
       const { data: customer, error: createError } = await supabase
         .from('customers')
         .insert({
@@ -79,35 +80,35 @@ export async function POST(request: NextRequest) {
         })
         .select('*')
         .single();
-      
+
       if (createError) {
         return NextResponse.json(
           { success: false, error: createError.message },
           { status: 500 }
         );
       }
-      
+
       return NextResponse.json({
         success: true,
         customer,
         message: 'Customer created from provided data'
       });
     }
-    
+
     if (authError || !user) {
       // No auth and no body data
       const bodyData = body;
-      
+
       if (!body.auth_user_id || !body.email) {
         return NextResponse.json(
           { success: false, error: 'Not authenticated and no user data provided' },
           { status: 401 }
         );
       }
-      
+
       // Create customer from provided data
       const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
-      
+
       const { data: customer, error: createError } = await supabase
         .from('customers')
         .insert({
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
         })
         .select('*')
         .single();
-      
+
       if (createError) {
         // Check if customer already exists
         if (createError.code === '23505') {
@@ -131,34 +132,34 @@ export async function POST(request: NextRequest) {
             .select('*')
             .eq('auth_user_id', body.auth_user_id)
             .single();
-          
+
           return NextResponse.json({
             success: true,
             customer: existingCustomer,
             message: 'Customer already exists'
           });
         }
-        
+
         return NextResponse.json(
           { success: false, error: createError.message },
           { status: 500 }
         );
       }
-      
+
       return NextResponse.json({
         success: true,
         customer,
         message: 'Customer created from provided data'
       });
     }
-    
+
     // Check if customer exists
     const { data: existingCustomer } = await supabase
       .from('customers')
       .select('*')
       .eq('auth_user_id', user.id)
       .single();
-    
+
     if (existingCustomer) {
       return NextResponse.json({
         success: true,
@@ -166,10 +167,10 @@ export async function POST(request: NextRequest) {
         message: 'Customer already exists'
       });
     }
-    
+
     // Create customer from auth user
     const accountNumber = `CT-${Date.now().toString().slice(-8)}`;
-    
+
     const { data: customer, error: createError } = await supabase
       .from('customers')
       .insert({
@@ -184,22 +185,22 @@ export async function POST(request: NextRequest) {
       })
       .select('*')
       .single();
-    
+
     if (createError) {
       return NextResponse.json(
         { success: false, error: createError.message },
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
       customer,
       message: 'Customer created'
     });
-    
+
   } catch (error) {
-    console.error('Error ensuring customer:', error);
+    apiLogger.error('Error ensuring customer', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

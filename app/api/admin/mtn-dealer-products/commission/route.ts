@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { calculateCommission, MTN_COMMISSION_TIERS } from '@/lib/types/mtn-dealer-products';
+import { apiLogger } from '@/lib/logging/logger';
 
 // GET /api/admin/mtn-dealer-products/commission - Get commission tiers and calculate
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // If deal_id is provided, calculate for specific deal
     const deal_id = searchParams.get('deal_id');
     const price = searchParams.get('price') ? parseFloat(searchParams.get('price')!) : null;
     const contract_term = searchParams.get('contract_term') ? parseInt(searchParams.get('contract_term')!) : 24;
     const quantity = searchParams.get('quantity') ? parseInt(searchParams.get('quantity')!) : 1;
-    
+
     if (deal_id) {
       const supabase = await createClient();
       const { data: product, error } = await supabase
@@ -20,21 +21,21 @@ export async function GET(request: NextRequest) {
         .select('*')
         .eq('deal_id', deal_id)
         .single();
-      
+
       if (error || !product) {
         return NextResponse.json(
           { success: false, error: 'Product not found' },
           { status: 404 }
         );
       }
-      
+
       const commission = calculateCommission(
         product.mtn_price_incl_vat,
         product.contract_term,
         quantity,
         product.circletel_commission_share
       );
-      
+
       return NextResponse.json({
         success: true,
         data: {
@@ -49,11 +50,11 @@ export async function GET(request: NextRequest) {
         },
       });
     }
-    
+
     // If price is provided, calculate for that price
     if (price !== null) {
       const commission = calculateCommission(price, contract_term, quantity);
-      
+
       return NextResponse.json({
         success: true,
         data: {
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
         },
       });
     }
-    
+
     // Return commission tiers
     return NextResponse.json({
       success: true,
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[MTN Commission API] Error:', error);
+    apiLogger.error('[MTN Commission API] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -101,25 +102,25 @@ export async function POST(request: NextRequest) {
         quantity?: number;
       }>;
     };
-    
+
     if (!deals || !Array.isArray(deals)) {
       return NextResponse.json(
         { success: false, error: 'Invalid deals data' },
         { status: 400 }
       );
     }
-    
+
     const supabase = await createClient();
     const results = [];
     let totalCommission = 0;
     let totalContractValue = 0;
-    
+
     for (const deal of deals) {
       let price = deal.price;
       let contractTerm = deal.contract_term || 24;
       let quantity = deal.quantity || 1;
       let productInfo = null;
-      
+
       // If deal_id provided, fetch product details
       if (deal.deal_id) {
         const { data: product } = await supabase
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
           .select('deal_id, price_plan, device_name, mtn_price_incl_vat, contract_term, circletel_commission_share')
           .eq('deal_id', deal.deal_id)
           .single();
-        
+
         if (product) {
           price = product.mtn_price_incl_vat;
           contractTerm = product.contract_term;
@@ -138,12 +139,12 @@ export async function POST(request: NextRequest) {
           };
         }
       }
-      
+
       if (price !== undefined && price !== null) {
         const commission = calculateCommission(price, contractTerm, quantity);
         totalCommission += commission.total_circletel_commission;
         totalContractValue += commission.total_contract_value * quantity;
-        
+
         results.push({
           ...productInfo,
           price,
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
         });
       }
     }
-    
+
     return NextResponse.json({
       success: true,
       data: {
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[MTN Commission API] Error:', error);
+    apiLogger.error('[MTN Commission API] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

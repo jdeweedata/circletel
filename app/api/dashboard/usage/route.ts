@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/dashboard/usage
@@ -91,18 +92,18 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
     const service_id = searchParams.get('service_id');
-    
+
     if (!service_id) {
       return NextResponse.json(
         { error: 'Missing required parameter: service_id' },
         { status: 400 }
       );
     }
-    
+
     // Verify service ownership
     const { data: service, error: serviceError } = await supabase
       .from('customer_services')
@@ -110,27 +111,27 @@ export async function GET(request: NextRequest) {
       .eq('id', service_id)
       .eq('customer_id', customer.id)
       .single();
-    
+
     if (serviceError || !service) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
       );
     }
-    
+
     // Determine date range
     let start_date = searchParams.get('start_date');
     let end_date = searchParams.get('end_date');
-    
+
     // Default to current billing cycle
     if (!start_date) {
       start_date = service.last_billing_date || service.activation_date || new Date().toISOString().split('T')[0];
     }
-    
+
     if (!end_date) {
       end_date = new Date().toISOString().split('T')[0];
     }
-    
+
     // Fetch usage data
     const { data: usageRecords, error: usageError } = await supabase
       .from('usage_history')
@@ -139,15 +140,15 @@ export async function GET(request: NextRequest) {
       .gte('date', start_date)
       .lte('date', end_date)
       .order('date', { ascending: true });
-    
+
     if (usageError) {
-      console.error('Error fetching usage data:', usageError);
+      apiLogger.error('Error fetching usage data', { error: usageError });
       return NextResponse.json(
         { error: 'Failed to fetch usage data' },
         { status: 500 }
       );
     }
-    
+
     // Calculate totals
     const totals = (usageRecords || []).reduce((sum, record) => {
       return {
@@ -156,11 +157,11 @@ export async function GET(request: NextRequest) {
         total_mb: sum.total_mb + (record.total_mb || 0)
       };
     }, { upload_mb: 0, download_mb: 0, total_mb: 0 });
-    
+
     // Calculate usage percentage (for capped services)
     let usage_percentage = null;
     let data_cap_mb = null;
-    
+
     if (service.data_cap && service.data_cap !== 'Unlimited') {
       // Parse data cap (e.g., "500GB" -> 500000 MB)
       const capMatch = service.data_cap.match(/(\d+)\s*(GB|MB)/i);
@@ -168,19 +169,19 @@ export async function GET(request: NextRequest) {
         const capValue = parseInt(capMatch[1]);
         const capUnit = capMatch[2].toUpperCase();
         data_cap_mb = capUnit === 'GB' ? capValue * 1024 : capValue;
-        
+
         if (data_cap_mb > 0) {
           usage_percentage = Math.round((totals.total_mb / data_cap_mb) * 100);
         }
       }
     }
-    
+
     // Get billing cycle dates
     const billing_cycle = {
       start: service.last_billing_date || service.activation_date,
       end: service.next_billing_date
     };
-    
+
     return NextResponse.json({
       service: {
         id: service.id,
@@ -208,12 +209,14 @@ export async function GET(request: NextRequest) {
         critical_95: usage_percentage && usage_percentage >= 95
       }
     });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    apiLogger.error('Unexpected error in usage API', { error });
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

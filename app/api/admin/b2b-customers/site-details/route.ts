@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('Error fetching site details:', error);
+      apiLogger.error('Error fetching site details', { error });
       return NextResponse.json(
         { error: 'Failed to fetch site details' },
         { status: 500 }
@@ -97,17 +98,17 @@ export async function GET(request: NextRequest) {
         business_customer_id: item.business_customer_id,
         company_name: customerData.company_name,
         account_number: customerData.account_number,
-      premises_ownership: item.premises_ownership,
-      property_type: item.property_type,
-      room_name: item.room_name,
-      rfi_status: item.rfi_status,
-      status: item.status,
-      has_rack_facility: item.has_rack_facility,
-      has_access_control: item.has_access_control,
-      has_air_conditioning: item.has_air_conditioning,
-      has_ac_power: item.has_ac_power,
-      submitted_at: item.submitted_at,
-      created_at: item.created_at,
+        premises_ownership: item.premises_ownership,
+        property_type: item.property_type,
+        room_name: item.room_name,
+        rfi_status: item.rfi_status,
+        status: item.status,
+        has_rack_facility: item.has_rack_facility,
+        has_access_control: item.has_access_control,
+        has_air_conditioning: item.has_air_conditioning,
+        has_ac_power: item.has_ac_power,
+        submitted_at: item.submitted_at,
+        created_at: item.created_at,
       };
     });
 
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in admin site details API:', error);
+    apiLogger.error('Error in admin site details API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

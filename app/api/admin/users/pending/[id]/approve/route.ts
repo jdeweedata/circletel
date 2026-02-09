@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClientWithSession, createClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * POST /api/admin/users/pending/[id]/approve
@@ -63,9 +64,9 @@ export async function POST(
           .single()
 
         if (fetchError || !data) {
-          console.error('Dev inline approval: error fetching pending request', {
+          apiLogger.error('Dev inline approval: error fetching pending request', {
             id,
-            fetchError,
+            error: fetchError,
           })
           return NextResponse.json(
             { error: 'Request not found or already processed', details: fetchError?.message },
@@ -93,13 +94,14 @@ export async function POST(
       if (authError) {
         // Check if user already exists
         if (authError.message?.includes('already been registered') || authError.message?.includes('User already registered')) {
-          console.log('Auth user already exists, looking up existing user...')
+          apiLogger.info('Auth user already exists, looking up existing user...')
+
 
           // Get the existing user by email
           const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers()
 
           if (listError) {
-            console.error('Error listing users:', listError)
+            apiLogger.error('Error listing users', { error: listError })
             return NextResponse.json(
               { error: 'Failed to find existing auth user' },
               { status: 500 }
@@ -109,7 +111,7 @@ export async function POST(
           const existingUser = existingUsers.users.find(u => u.email === pendingRequest.email)
 
           if (!existingUser) {
-            console.error('User exists but could not be found')
+            apiLogger.error('User exists but could not be found')
             return NextResponse.json(
               { error: 'Auth user exists but could not be located' },
               { status: 500 }
@@ -126,23 +128,23 @@ export async function POST(
           )
 
           if (updateError) {
-            console.error('Error updating password for existing user:', updateError)
+            apiLogger.error('Error updating password for existing user', { error: updateError })
           } else {
-            console.log('Password updated and email confirmed for existing user')
+            apiLogger.info('Password updated and email confirmed for existing user')
           }
 
           authUserId = existingUser.id
           authUser = { user: existingUser }
-          console.log('Using existing auth user:', authUserId)
+          apiLogger.info('Using existing auth user', { authUserId })
         } else {
-          console.error('Error creating auth user:', authError)
+          apiLogger.error('Error creating auth user', { error: authError })
           return NextResponse.json(
             { error: authError.message || 'Failed to create auth user' },
             { status: 500 }
           )
         }
       } else if (!createdUser?.user) {
-        console.error('No user returned from createUser')
+        apiLogger.error('No user returned from createUser')
         return NextResponse.json(
           { error: 'Failed to create auth user' },
           { status: 500 }
@@ -150,7 +152,7 @@ export async function POST(
       } else {
         authUserId = createdUser.user.id
         authUser = createdUser
-        console.log('Created new auth user:', authUserId)
+        apiLogger.info('Created new auth user', { authUserId })
       }
 
       const roleTemplateId = pendingRequest.requested_role_template_id || pendingRequest.requested_role
@@ -172,7 +174,8 @@ export async function POST(
         .single()
 
       if (adminInsertError) {
-        console.error('Error creating admin user (dev inline approval):', adminInsertError)
+        apiLogger.error('Error creating admin user (dev inline approval)', { error: adminInsertError })
+
 
         // Only rollback if we just created the auth user (not if it already existed)
         if (authUser && createdUser) {
@@ -196,7 +199,7 @@ export async function POST(
         .eq('id', id)
 
       if (updateError) {
-        console.error('Error updating pending request (dev inline approval):', updateError)
+        apiLogger.error('Error updating pending request (dev inline approval)', { error: updateError })
       }
 
       // Log audit trail
@@ -229,13 +232,12 @@ export async function POST(
         });
 
         if (!emailResult.success) {
-          console.error('Failed to send approval email:', emailResult.error);
+          apiLogger.error('Failed to send approval email', { error: emailResult.error });
         } else {
-          console.log('✅ Approval email sent successfully to:', pendingRequest.email);
-          console.log('   Email ID:', emailResult.emailId);
+          apiLogger.info('Approval email sent successfully', { email: pendingRequest.email, emailId: emailResult.emailId });
         }
       } catch (emailError) {
-        console.error('Error sending notification email:', emailError);
+        apiLogger.error('Error sending notification email', { error: emailError });
         // Don't fail the approval if email fails
       }
 
@@ -250,13 +252,14 @@ export async function POST(
       })
     }
   } catch (error) {
-    console.error('Error in POST /api/admin/users/pending/[id]/approve:', error)
+    apiLogger.error('Error in POST /api/admin/users/pending/[id]/approve', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+
 
 function generateStrongPassword(length: number): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*()_-+=';

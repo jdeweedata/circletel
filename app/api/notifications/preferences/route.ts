@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
 import { z } from 'zod';
+import { notificationLogger } from '@/lib/logging/logger';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       .order('notification_type');
 
     if (fetchError) {
-      console.error('Error fetching notification preferences:', fetchError);
+      notificationLogger.error('Error fetching notification preferences', { error: fetchError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch preferences' },
         { status: 500 }
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
         .select();
 
       if (createError) {
-        console.error('Error creating default preferences:', createError);
+        notificationLogger.error('Error creating default preferences', { error: createError });
         return NextResponse.json(
           { success: false, error: 'Failed to create default preferences' },
           { status: 500 }
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       data: preferences,
     });
   } catch (error) {
-    console.error('Error in GET /api/notifications/preferences:', error);
+    notificationLogger.error('Error in GET /api/notifications/preferences', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -159,7 +160,7 @@ export async function PUT(request: NextRequest) {
       .select();
 
     if (upsertError) {
-      console.error('Error updating notification preferences:', upsertError);
+      notificationLogger.error('Error updating notification preferences', { error: upsertError });
       return NextResponse.json(
         { success: false, error: 'Failed to update preferences' },
         { status: 500 }
@@ -179,10 +180,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    console.error('Error in PUT /api/notifications/preferences:', error);
+    notificationLogger.error('Error in PUT /api/notifications/preferences', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

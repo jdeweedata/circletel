@@ -13,6 +13,7 @@ import {
   verifyRICAWebhookSignature,
   type RICAWebhookPayload
 } from '@/lib/compliance/rica-webhook-handler';
+import { activationLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/activation/rica-webhook
@@ -38,7 +39,7 @@ import {
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('[RICA Webhook] Received webhook');
+    activationLogger.info('[RICA Webhook] Received webhook');
 
     // Get raw body for signature verification
     const rawBody = await request.text();
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     const isValid = verifyRICAWebhookSignature(rawBody, signature);
 
     if (!isValid) {
-      console.error('[RICA Webhook] ❌ Invalid signature');
+      activationLogger.error('[RICA Webhook] ❌ Invalid signature');
       return NextResponse.json(
         {
           success: false,
@@ -58,12 +59,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[RICA Webhook] ✅ Signature verified');
+    activationLogger.info('[RICA Webhook] ✅ Signature verified');
 
     // Parse webhook payload
     const payload: RICAWebhookPayload = JSON.parse(rawBody);
 
-    console.log('[RICA Webhook] Event:', payload.event, 'Order:', payload.order_id);
+    activationLogger.info('[RICA Webhook] Event', { event: payload.event, orderId: payload.order_id });
 
     // Validate payload structure
     if (!payload.event || !payload.order_id || !payload.icasa_tracking_id) {
@@ -80,15 +81,15 @@ export async function POST(request: NextRequest) {
     const result = await processRICAWebhook(payload);
 
     if (result.success) {
-      console.log('[RICA Webhook] ✅ Processing complete:', result.message);
+      activationLogger.info('[RICA Webhook] ✅ Processing complete', { message: result.message });
     } else {
-      console.error('[RICA Webhook] ❌ Processing failed:', result.message);
+      activationLogger.error('[RICA Webhook] ❌ Processing failed', { message: result.message });
     }
 
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('[RICA Webhook] Error processing webhook:', error);
+    activationLogger.error('[RICA Webhook] Error processing webhook', { error });
 
     return NextResponse.json(
       {

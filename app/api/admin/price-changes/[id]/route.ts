@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/price-changes/[id]
@@ -91,7 +92,7 @@ export async function GET(
       data: priceChange,
     });
   } catch (error) {
-    console.error('[GET /api/admin/price-changes/[id]] Error:', error);
+    apiLogger.error('[GET /api/admin/price-changes/[id]] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -241,7 +242,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('[PUT /api/admin/price-changes/[id]] Update error:', updateError);
+      apiLogger.error('[PUT /api/admin/price-changes/[id]] Update error', { error: updateError });
       return NextResponse.json(
         { error: 'Failed to update price change' },
         { status: 500 }
@@ -254,7 +255,7 @@ export async function PUT(
       message: 'Price change updated successfully',
     });
   } catch (error) {
-    console.error('[PUT /api/admin/price-changes/[id]] Error:', error);
+    apiLogger.error('[PUT /api/admin/price-changes/[id]] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -337,7 +338,7 @@ export async function DELETE(
       .eq('id', id);
 
     if (deleteError) {
-      console.error('[DELETE /api/admin/price-changes/[id]] Delete error:', deleteError);
+      apiLogger.error('[DELETE /api/admin/price-changes/[id]] Delete error', { error: deleteError });
       return NextResponse.json(
         { error: 'Failed to delete price change' },
         { status: 500 }
@@ -349,7 +350,7 @@ export async function DELETE(
       message: 'Price change deleted successfully',
     });
   } catch (error) {
-    console.error('[DELETE /api/admin/price-changes/[id]] Error:', error);
+    apiLogger.error('[DELETE /api/admin/price-changes/[id]] Error', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getTechnicians, createTechnician } from '@/lib/services/technician-service';
 import { CreateTechnicianInput } from '@/lib/types/technician-tracking';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(technicians);
   } catch (error) {
-    console.error('[Admin Technicians API] Error:', error);
+    apiLogger.error('[Admin Technicians API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(technician, { status: 201 });
   } catch (error) {
-    console.error('[Admin Technicians API] Error:', error);
+    apiLogger.error('[Admin Technicians API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

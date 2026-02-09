@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { generateInvoicePDF, buildInvoiceData } from '@/lib/invoices/invoice-pdf-generator';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(
   request: NextRequest,
@@ -153,7 +154,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error('Invoice PDF generation failed:', error);
+    apiLogger.error('Invoice PDF generation failed', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

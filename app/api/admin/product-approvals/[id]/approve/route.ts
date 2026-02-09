@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/admin/product-approvals/[id]/approve
@@ -66,7 +67,7 @@ export async function POST(
         .single();
 
       if (packageError) {
-        console.error('Error creating service package:', packageError);
+        apiLogger.error('Error creating service package', { error: packageError });
         return NextResponse.json({ success: false, error: packageError.message }, { status: 500 });
       }
 
@@ -86,7 +87,7 @@ export async function POST(
       .eq('id', id);
 
     if (updateError) {
-      console.error('Error updating approval:', updateError);
+      apiLogger.error('Error updating approval', { error: updateError });
       return NextResponse.json({ success: false, error: updateError.message }, { status: 500 });
     }
 
@@ -127,7 +128,8 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Error in POST /api/admin/product-approvals/[id]/approve:', error);
+    apiLogger.error('Error in POST /api/admin/product-approvals/[id]/approve', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

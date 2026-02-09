@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * GET /api/partners/commissions
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     const { data: transactions, error: transactionsError, count } = await query
 
     if (transactionsError) {
-      console.error('Error fetching commissions:', transactionsError)
+      apiLogger.error('Error fetching commissions', { error: transactionsError })
       return NextResponse.json(
         { error: 'Failed to fetch commissions' },
         { status: 500 }
@@ -71,6 +72,10 @@ export async function GET(request: NextRequest) {
       .from('partner_commission_transactions')
       .select('status, amount')
       .eq('partner_id', partner.id)
+
+    if (summaryError) {
+      apiLogger.warn('Error fetching commission summary', { error: summaryError })
+    }
 
     let summary = {
       total_earned: partner.total_commission_earned || 0,
@@ -106,10 +111,11 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error in commissions API:', error)
+    apiLogger.error('Error in commissions API', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

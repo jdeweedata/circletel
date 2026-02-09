@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 // ============================================================================
 // TYPES
@@ -44,12 +45,12 @@ export const maxDuration = 15; // Allow up to 15 seconds for stats queries
 
 export async function GET() {
   const startTime = Date.now();
-  console.log('[Stats API] ⏱️ Request started');
+  apiLogger.info('[Stats API] ⏱️ Request started');
 
   try {
     // Use service role client to bypass RLS for admin stats
     const supabase = await createClient();
-    console.log('[Stats API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.info(`[Stats API] ⏱️ Supabase client created: ${Date.now() - startTime}ms`);
 
     // Fetch all stats in parallel for performance with timeout protection
     const QUERY_TIMEOUT = 10000; // 10 second timeout for all queries
@@ -81,9 +82,9 @@ export async function GET() {
     try {
       [productsResult, quotesResult, ordersResult, customersResult, leadsResult] =
         await Promise.race([queriesPromise, timeoutPromise]);
-      console.log('[Stats API] ⏱️ All queries completed:', Date.now() - startTime, 'ms');
+      apiLogger.info(`[Stats API] ⏱️ All queries completed: ${Date.now() - startTime}ms`);
     } catch (timeoutError) {
-      console.error('[Stats API] ❌ Queries timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error(`[Stats API] ❌ Queries timeout: ${Date.now() - startTime}ms`);
       return NextResponse.json(
         {
           success: false,
@@ -187,15 +188,15 @@ export async function GET() {
       lastUpdated: new Date().toISOString()
     };
 
-    console.log('[Stats API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
-    console.log(`✅ Stats calculated successfully: ${totalOrders} orders, ${totalCustomers} customers`);
+    apiLogger.info(`[Stats API] ⏱️ Total request time: ${Date.now() - startTime}ms`);
+    apiLogger.info(`✅ Stats calculated successfully: ${totalOrders} orders, ${totalCustomers} customers`);
 
     return NextResponse.json({
       success: true,
       data: stats
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/stats:', error);
+    apiLogger.error('Error in GET /api/admin/stats', { error });
     return NextResponse.json(
       {
         success: false,

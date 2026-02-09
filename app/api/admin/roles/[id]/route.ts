@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
 import type { UpdateRoleInput } from '@/lib/types/role';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/roles/[id]
@@ -72,7 +73,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error(`Error in GET /api/admin/roles/[id]:`, error);
+    apiLogger.error(`Error in GET /api/admin/roles/[id]`, { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -178,7 +179,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('Error updating role:', updateError);
+      apiLogger.error('Error updating role', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to update role', details: updateError.message },
         { status: 500 }
@@ -199,9 +200,9 @@ export async function PUT(
       timestamp: new Date().toISOString(),
     });
 
-    console.log(`✅ Role '${updatedRole.name}' updated successfully by ${adminUser.role}`);
+    apiLogger.info(`Role '${updatedRole.name}' updated successfully by ${adminUser.role}`);
     if (userCount && userCount > 0) {
-      console.log(`   ⚠️ This role is assigned to ${userCount} active users`);
+      apiLogger.warn(`This role is assigned to ${userCount} active users`);
     }
 
     return NextResponse.json({
@@ -212,7 +213,7 @@ export async function PUT(
       },
     });
   } catch (error) {
-    console.error(`Error in PUT /api/admin/roles/[id]:`, error);
+    apiLogger.error(`Error in PUT /api/admin/roles/[id]`, { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -304,7 +305,7 @@ export async function DELETE(
       .eq('id', id);
 
     if (deleteError) {
-      console.error('Error deleting role:', deleteError);
+      apiLogger.error('Error deleting role', { error: deleteError });
       return NextResponse.json(
         { success: false, error: 'Failed to delete role', details: deleteError.message },
         { status: 500 }
@@ -325,14 +326,14 @@ export async function DELETE(
       timestamp: new Date().toISOString(),
     });
 
-    console.log(`✅ Role '${existingRole.name}' deleted successfully by ${adminUser.role}`);
+    apiLogger.info(`Role '${existingRole.name}' deleted successfully by ${adminUser.role}`);
 
     return NextResponse.json({
       success: true,
       message: `Role '${existingRole.name}' has been deactivated`,
     });
   } catch (error) {
-    console.error(`Error in DELETE /api/admin/roles/[id]:`, error);
+    apiLogger.error(`Error in DELETE /api/admin/roles/[id]`, { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

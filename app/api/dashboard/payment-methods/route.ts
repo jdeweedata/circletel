@@ -11,6 +11,7 @@ import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
 import type { PaymentMethodType } from '@/lib/billing/types';
+import { paymentLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/dashboard/payment-methods
@@ -84,16 +85,16 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Get payment methods (masked)
     const methods = await PaymentMethodService.getPaymentMethods(customer.id);
-    
+
     return NextResponse.json({
       payment_methods: methods
     });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    paymentLogger.error('Unexpected error in payment methods API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -194,11 +195,11 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Parse request body
     const body = await request.json();
     const { method_type, details, is_primary = false } = body;
-    
+
     // Validate required fields
     if (!method_type || !details) {
       return NextResponse.json(
@@ -206,7 +207,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate method_type
     if (!['debit_order', 'card', 'eft'].includes(method_type)) {
       return NextResponse.json(
@@ -214,7 +215,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate details based on method_type
     if (method_type === 'debit_order') {
       const required = ['bank_name', 'account_number', 'account_type', 'branch_code', 'account_holder'];
@@ -235,7 +236,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    
+
     // Add payment method
     const paymentMethod = await PaymentMethodService.addPaymentMethod({
       customer_id: customer.id,
@@ -243,14 +244,14 @@ export async function POST(request: NextRequest) {
       details,
       is_primary
     });
-    
+
     return NextResponse.json({
       payment_method: paymentMethod,
       message: 'Payment method added successfully'
     }, { status: 201 });
-    
+
   } catch (error: any) {
-    console.error('Error adding payment method:', error);
+    paymentLogger.error('Error adding payment method', { error: error.message || error });
     return NextResponse.json(
       { error: error.message || 'Failed to add payment method' },
       { status: 500 }

@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const DEFAULT_FROM_EMAIL = 'support@circletel.co.za';
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
     const result = await response.json();
 
     if (!response.ok) {
-      console.error('[Support Email] Resend API error:', result);
+      apiLogger.error('[Support Email] Resend API error', { result });
       return NextResponse.json(
         { error: result.message || 'Failed to send email', details: result },
         { status: response.status }
@@ -183,7 +184,7 @@ export async function POST(request: NextRequest) {
       ticketId: body.ticketId,
     });
 
-    console.log(`[Support Email] Sent to ${toRecipients.join(', ')} by ${adminUser.full_name}`);
+    apiLogger.info(`[Support Email] Sent to ${toRecipients.join(', ')} by ${adminUser.full_name}`);
 
     return NextResponse.json({
       success: true,
@@ -197,7 +198,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[Support Email] Error:', error);
+    apiLogger.error('[Support Email] Error', { error });
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -235,7 +236,7 @@ async function logSupportEmail(
     });
   } catch (error) {
     // Don't fail the request if logging fails
-    console.warn('[Support Email] Failed to log email:', error);
+    apiLogger.warn('[Support Email] Failed to log email', { error });
   }
 }
 

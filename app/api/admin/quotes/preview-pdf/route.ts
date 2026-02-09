@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateQuotePDF } from '@/lib/quotes/pdf-generator-v2';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,9 +14,9 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!body.company_name || !body.contact_name || !body.items || body.items.length === 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Missing required fields: company_name, contact_name, and items' 
+        {
+          success: false,
+          error: 'Missing required fields: company_name, contact_name, and items'
         },
         { status: 400 }
       );
@@ -128,10 +129,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error generating PDF preview:', error);
+    apiLogger.error('Error generating PDF preview', { error });
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to generate PDF preview',
         details: error instanceof Error ? error.message : 'Unknown error'
       },

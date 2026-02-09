@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { billingLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -191,7 +192,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Billing API error:', error);
+    billingLogger.error('Billing dashboard API error', { error });
     return NextResponse.json(
       {
         success: false,

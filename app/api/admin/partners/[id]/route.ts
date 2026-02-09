@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { z } from 'zod';
 
@@ -52,7 +53,7 @@ export async function GET(
       .order('uploaded_at', { ascending: false });
 
     if (docsError) {
-      console.error('[Admin Partner Details] Error fetching documents:', docsError);
+      apiLogger.error('[Admin Partner Details] Error fetching documents', { error: docsError });
     }
 
     // Get leads assigned to this partner
@@ -64,7 +65,7 @@ export async function GET(
       .limit(10);
 
     if (leadsError) {
-      console.error('[Admin Partner Details] Error fetching leads:', leadsError);
+      apiLogger.error('[Admin Partner Details] Error fetching leads', { error: leadsError });
     }
 
     // Get commission transactions
@@ -76,7 +77,7 @@ export async function GET(
       .limit(10);
 
     if (commissionsError) {
-      console.error('[Admin Partner Details] Error fetching commissions:', commissionsError);
+      apiLogger.error('[Admin Partner Details] Error fetching commissions', { error: commissionsError });
     }
 
     // Mask sensitive banking info
@@ -102,7 +103,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[Admin Partner Details] Unexpected error:', error);
+    apiLogger.error('[Admin Partner Details] Unexpected error', { error });
     return NextResponse.json(
       {
         success: false,
@@ -113,6 +114,7 @@ export async function GET(
     );
   }
 }
+
 
 export async function PUT(
   request: NextRequest,
@@ -188,7 +190,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('[Admin Partner Details] Update error:', updateError);
+      apiLogger.error('[Admin Partner Details] Update error', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to update partner', details: updateError.message },
         { status: 500 }
@@ -201,7 +203,7 @@ export async function PUT(
       data: updatedPartner,
     });
   } catch (error) {
-    console.error('[Admin Partner Details] Unexpected error:', error);
+    apiLogger.error('[Admin Partner Details] Unexpected error', { error });
     return NextResponse.json(
       {
         success: false,

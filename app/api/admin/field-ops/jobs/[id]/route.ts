@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getFieldJobById, updateFieldJob, assignJob } from '@/lib/services/technician-service';
 import { UpdateFieldJobInput } from '@/lib/types/technician-tracking';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(
   request: NextRequest,
@@ -30,7 +31,7 @@ export async function GET(
 
     return NextResponse.json(job);
   } catch (error) {
-    console.error('[Admin Job API] Error:', error);
+    apiLogger.error('[Admin Job API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
@@ -62,7 +63,7 @@ export async function PUT(
     const job = await updateFieldJob(id, body);
     return NextResponse.json(job);
   } catch (error) {
-    console.error('[Admin Job API] Error:', error);
+    apiLogger.error('[Admin Job API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
@@ -88,7 +89,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, job });
   } catch (error) {
-    console.error('[Admin Job API] Error:', error);
+    apiLogger.error('[Admin Job API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

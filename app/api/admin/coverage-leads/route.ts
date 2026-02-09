@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { CreateCoverageLeadInput } from '@/lib/types/customer-journey';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/coverage-leads
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     const { data: leads, error, count } = await query;
 
     if (error) {
-      console.error('Error fetching coverage leads:', error);
+      apiLogger.error('Error fetching coverage leads', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error: any) {
-    console.error('Error in GET /api/admin/coverage-leads:', error);
+    apiLogger.error('Error in GET /api/admin/coverage-leads', { error });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating coverage lead:', error);
+      apiLogger.error('Error creating coverage lead', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
       lead,
     }, { status: 201 });
   } catch (error: any) {
-    console.error('Error in POST /api/admin/coverage-leads:', error);
+    apiLogger.error('Error in POST /api/admin/coverage-leads', { error });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

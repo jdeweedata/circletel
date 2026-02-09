@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
+import { apiLogger } from '@/lib/logging/logger';
 
 interface SyncResult {
   invoice_id: string;
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     for (const invoice of invoices) {
       const zohoInvoiceId = invoice.zoho_billing_invoice_id || invoice.zoho_invoice_id;
-      
+
       if (!zohoInvoiceId) {
         results.push({
           invoice_id: invoice.id,
@@ -143,7 +144,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[InvoiceSync] Error:', error);
+    apiLogger.error('[InvoiceSync] Error', { error });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[InvoiceSync] Error:', error);
+    apiLogger.error('[InvoiceSync] Error', { error });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

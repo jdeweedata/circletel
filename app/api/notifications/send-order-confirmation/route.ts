@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
+import { notificationLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error sending order notification:', error);
+    notificationLogger.error('Error sending order notification', { error });
     return NextResponse.json(
       {
         success: false,
@@ -83,3 +84,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

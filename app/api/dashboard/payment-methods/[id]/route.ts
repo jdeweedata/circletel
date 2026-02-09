@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { PaymentMethodService } from '@/lib/billing/payment-method-service';
+import { paymentLogger } from '@/lib/logging/logger';
 
 /**
  * PATCH /api/dashboard/payment-methods/[id]
@@ -93,27 +94,27 @@ export async function PATCH(
         { status: 404 }
       );
     }
-    
+
     // Parse request body
     const body = await request.json();
     const { is_primary } = body;
-    
+
     if (is_primary !== true) {
       return NextResponse.json(
         { error: 'Only is_primary: true is supported for PATCH' },
         { status: 400 }
       );
     }
-    
+
     // Set as primary
     await PaymentMethodService.setPrimaryMethod(id, customer.id);
-    
+
     return NextResponse.json({
       message: 'Payment method set as primary successfully'
     });
-    
+
   } catch (error: any) {
-    console.error('Error updating payment method:', error);
+    paymentLogger.error('Error updating payment method', { error: error.message || error, id: (await context.params).id });
     return NextResponse.json(
       { error: error.message || 'Failed to update payment method' },
       { status: 500 }
@@ -201,17 +202,17 @@ export async function DELETE(
         { status: 404 }
       );
     }
-    
+
     // Remove payment method (soft delete)
     await PaymentMethodService.removePaymentMethod(id, customer.id);
-    
+
     return NextResponse.json({
       message: 'Payment method removed successfully'
     });
-    
+
   } catch (error: any) {
-    console.error('Error removing payment method:', error);
-    
+    paymentLogger.error('Error removing payment method', { error: error.message || error, id: (await context.params).id });
+
     // Check for specific error messages
     if (error.message.includes('outstanding balance')) {
       return NextResponse.json(
@@ -219,7 +220,7 @@ export async function DELETE(
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: error.message || 'Failed to remove payment method' },
       { status: 500 }

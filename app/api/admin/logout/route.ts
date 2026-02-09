@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * Admin Logout API with Audit Logging
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
           severity: 'low',
         });
 
-        console.log(`Admin logout successful: ${adminUser.email} from IP: ${ipAddress}`);
+        apiLogger.info(`Admin logout successful: ${adminUser.email} from IP: ${ipAddress}`);
       }
     } else {
       // No user session, still sign out to be safe
@@ -71,14 +72,14 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin logout error:', error);
+    apiLogger.error('Admin logout error', { error });
 
     // Still try to sign out even on error
     try {
       const supabase = await createClient();
       await supabase.auth.signOut();
     } catch (signOutError) {
-      console.error('Sign out error:', signOutError);
+      apiLogger.error('Sign out error', { error: signOutError });
     }
 
     return NextResponse.json(

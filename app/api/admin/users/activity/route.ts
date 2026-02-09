@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createAdminClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * Admin User Activity API
@@ -41,8 +42,8 @@ export async function GET(request: NextRequest) {
 
     // Only Super Admins can view activity logs
     const isSuperAdmin = adminUser.role === 'super_admin' ||
-                        adminUser.role_template_id === 'super_admin' ||
-                        adminUser.role_template_id === 'super-admin';
+      adminUser.role_template_id === 'super_admin' ||
+      adminUser.role_template_id === 'super-admin';
 
     if (!isSuperAdmin) {
       return NextResponse.json(
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
     const { data: logs, error: logsError, count } = await query;
 
     if (logsError) {
-      console.error('Error fetching activity logs:', logsError);
+      apiLogger.error('Error fetching activity logs', { error: logsError });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch activity logs' },
         { status: 500 }
@@ -154,10 +155,11 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin activity API error:', error);
+    apiLogger.error('Admin activity API error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

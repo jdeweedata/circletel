@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * Admin Password Reset Request API
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     // Step 2: Check if account is active
     if (!adminUser.is_active) {
       // Log the attempt for inactive account
-      console.warn(`Password reset attempted for inactive admin account: ${normalizedEmail}`);
+      apiLogger.warn(`Password reset attempted for inactive admin account: ${normalizedEmail}`);
 
       // Still return success message (don't reveal account status)
       return NextResponse.json({
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (resetError) {
-      console.error('Error sending password reset email:', resetError);
+      apiLogger.error('Error sending password reset email', { error: resetError });
 
       // Don't expose internal error to user
       return NextResponse.json({
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
       severity: 'medium',
     });
 
-    console.log(`Password reset requested for admin: ${normalizedEmail} (ID: ${adminUser.id}) from IP: ${ipAddress}`);
+    apiLogger.info(`Password reset requested for admin: ${normalizedEmail} (ID: ${adminUser.id}) from IP: ${ipAddress}`);
 
     return NextResponse.json({
       success: true,
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Admin password reset error:', error);
+    apiLogger.error('Admin password reset error', { error });
 
     return NextResponse.json(
       {

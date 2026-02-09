@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        apiLogger.error('Error updating customer:', error);
+        apiLogger.error('Error updating customer', { error });
         return NextResponse.json(
           { success: false, error: 'Failed to update customer' },
           { status: 500 }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('Error creating customer:', error);
+      apiLogger.error('Error creating customer', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to create customer' },
         { status: 500 }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       message: 'Customer created successfully',
     });
   } catch (error) {
-    apiLogger.error('Error in customer API:', error);
+    apiLogger.error('Error in customer API', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
           { status: 404 }
         );
       }
-      apiLogger.error('Error fetching customer:', error);
+      apiLogger.error('Error fetching customer', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch customer' },
         { status: 500 }
@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
       customer: data,
     });
   } catch (error) {
-    apiLogger.error('Error in customer API:', error);
+    apiLogger.error('Error in customer API', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -145,7 +145,7 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = await createClient();
     apiLogger.info('[API PUT /customers] Request received');
-    
+
     // Get the request body
     const body = await request.json();
     const { first_name, last_name, phone, business_name, business_registration, tax_number } = body;
@@ -153,8 +153,8 @@ export async function PUT(request: NextRequest) {
 
     // Get the authorization header
     const authHeader = request.headers.get('authorization');
-    apiLogger.info('[API PUT /customers] Auth header present:', !!authHeader);
-    
+    apiLogger.info('[API PUT /customers] Auth header present', { present: !!authHeader });
+
     if (!authHeader) {
       apiLogger.error('[API PUT /customers] No authorization header');
       return NextResponse.json(
@@ -165,21 +165,21 @@ export async function PUT(request: NextRequest) {
 
     // Extract token from Bearer header
     const token = authHeader.replace('Bearer ', '');
-    apiLogger.info('[API PUT /customers] Token extracted, length:', token.length);
-    
+    apiLogger.info('[API PUT /customers] Token extracted', { length: token.length });
+
     // Verify user session
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     apiLogger.info('[API PUT /customers] Auth verification:', { hasUser: !!user, authError: authError?.message });
-    
+
     if (authError || !user) {
-      apiLogger.error('[API PUT /customers] Auth failed:', authError);
+      apiLogger.error('[API PUT /customers] Auth failed', { error: authError });
       return NextResponse.json(
         { success: false, error: `Invalid session: ${authError?.message || 'No user'}` },
         { status: 401 }
       );
     }
 
-    apiLogger.info('[API PUT /customers] User authenticated:', user.id);
+    apiLogger.info('[API PUT /customers] User authenticated', { userId: user.id });
 
     // Get customer record
     const { data: customer, error: customerError } = await supabase
@@ -191,14 +191,14 @@ export async function PUT(request: NextRequest) {
     apiLogger.info('[API PUT /customers] Customer lookup:', { found: !!customer, error: customerError?.message });
 
     if (customerError || !customer) {
-      apiLogger.error('[API PUT /customers] Customer not found:', customerError);
+      apiLogger.error('[API PUT /customers] Customer not found', { error: customerError });
       return NextResponse.json(
         { success: false, error: `Customer not found: ${customerError?.message || 'No record'}` },
         { status: 404 }
       );
     }
 
-    apiLogger.info('[API PUT /customers] Updating customer:', customer.id);
+    apiLogger.info('[API PUT /customers] Updating customer', { customerId: customer.id });
 
     // Update customer record
     const { data: updatedCustomer, error: updateError } = await supabase
@@ -217,7 +217,7 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (updateError) {
-      apiLogger.error('[API PUT /customers] Update failed:', updateError);
+      apiLogger.error('[API PUT /customers] Update failed', { error: updateError });
       return NextResponse.json(
         { success: false, error: `Failed to update profile: ${updateError.message}` },
         { status: 500 }
@@ -233,7 +233,7 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('[API PUT /customers] Unexpected error:', error);
+    apiLogger.error('[API PUT /customers] Unexpected error', { error });
     return NextResponse.json(
       { success: false, error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown'}` },
       { status: 500 }

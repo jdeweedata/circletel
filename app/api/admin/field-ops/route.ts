@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getAdminFieldOpsData } from '@/lib/services/technician-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[Admin Field Ops API] Error:', error);
+    apiLogger.error('[Admin Field Ops API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

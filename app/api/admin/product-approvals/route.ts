@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/product-approvals
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: approvals, error } = await query;
 
     if (error) {
-      console.error('Error fetching approvals:', error);
+      apiLogger.error('Error fetching approvals', { error });
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
@@ -52,7 +53,8 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in GET /api/admin/product-approvals:', error);
+    apiLogger.error('Error in GET /api/admin/product-approvals', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

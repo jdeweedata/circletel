@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * PATCH /api/products/mtn-deals/[id]
@@ -35,21 +36,21 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error('[MTN Deals API] Error updating deal visibility:', error);
+      apiLogger.error('[MTN Deals API] Error updating deal visibility', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
       );
     }
 
-    console.log(`[MTN Deals API] Deal ${id} visibility updated to: ${is_visible_on_frontend}`);
+    apiLogger.info(`[MTN Deals API] Deal ${id} visibility updated`, { is_visible_on_frontend });
 
     return NextResponse.json({
       success: true,
       deal: data,
     });
   } catch (error) {
-    console.error('[MTN Deals API] Error in PATCH handler:', error);
+    apiLogger.error('[MTN Deals API] Error in PATCH handler', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -76,7 +77,7 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('[MTN Deals API] Error fetching deal:', error);
+      apiLogger.error('[MTN Deals API] Error fetching deal', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -95,10 +96,11 @@ export async function GET(
       deal: data,
     });
   } catch (error) {
-    console.error('[MTN Deals API] Error in GET handler:', error);
+    apiLogger.error('[MTN Deals API] Error in GET handler', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

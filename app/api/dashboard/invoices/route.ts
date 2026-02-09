@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { billingLogger } from '@/lib/logging/logger';
 
 // Vercel configuration: Allow longer execution for invoice queries
 export const runtime = 'nodejs';
@@ -28,7 +29,7 @@ export const maxDuration = 15; // Allow up to 15 seconds
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Customer Invoices API] ⏱️ Request started');
+  billingLogger.debug('[Customer Invoices API] Request started');
 
   try {
     // Check Authorization header first (for client-side fetch requests)
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     // Use service role client for database queries to bypass RLS
     const supabase = await createClient();
-    console.log('[Customer Invoices API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    billingLogger.debug('[Customer Invoices API] Supabase client created', { duration: Date.now() - startTime });
 
     // Get customer_id from auth_user_id
     const { data: customer } = await supabase
@@ -103,19 +104,19 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Build query
     let query = supabase
       .from('customer_invoices')
       .select('*', { count: 'exact' })
       .eq('customer_id', customer.id)
       .order('invoice_date', { ascending: false });
-    
+
     // Apply status filter if provided
     if (status) {
       query = query.eq('status', status);
     }
-    
+
     // Apply pagination
     query = query.range(offset, offset + limit - 1);
 
@@ -133,9 +134,9 @@ export async function GET(request: NextRequest) {
       invoices = result.data;
       error = result.error;
       count = result.count;
-      console.log('[Customer Invoices API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${invoices?.length || 0} invoices)`);
+      billingLogger.info('[Customer Invoices API] Query completed', { duration: Date.now() - startTime, count: invoices?.length || 0 });
     } catch (timeoutError) {
-      console.error('[Customer Invoices API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      billingLogger.error('[Customer Invoices API] Query timeout', { duration: Date.now() - startTime });
       return NextResponse.json(
         {
           error: 'Invoices query is taking too long. Please try again.',
@@ -146,17 +147,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (error) {
-      console.error('Error fetching invoices:', error);
+      billingLogger.error('Error fetching invoices', { error });
       return NextResponse.json(
         { error: 'Failed to fetch invoices' },
         { status: 500 }
       );
     }
-    
+
     // Calculate pagination info
     const total = count || 0;
     const has_more = offset + limit < total;
-    
+
     return NextResponse.json({
       invoices: invoices || [],
       pagination: {
@@ -166,9 +167,9 @@ export async function GET(request: NextRequest) {
         has_more
       }
     });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    billingLogger.error('Unexpected error in invoices API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

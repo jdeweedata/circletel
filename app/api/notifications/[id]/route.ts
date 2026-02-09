@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
 import { z } from 'zod';
+import { notificationLogger } from '@/lib/logging/logger';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -90,7 +91,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error('Error updating notification:', updateError);
+      notificationLogger.error('Error updating notification', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to update notification' },
         { status: 500 }
@@ -110,7 +111,7 @@ export async function PATCH(
       );
     }
 
-    console.error('Error in PATCH /api/notifications/[id]:', error);
+    notificationLogger.error('Error in PATCH /api/notifications/[id]', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -183,7 +184,7 @@ export async function DELETE(
       .eq('id', id);
 
     if (deleteError) {
-      console.error('Error deleting notification:', deleteError);
+      notificationLogger.error('Error deleting notification', { error: deleteError });
       return NextResponse.json(
         { success: false, error: 'Failed to delete notification' },
         { status: 500 }
@@ -195,10 +196,11 @@ export async function DELETE(
       message: 'Notification deleted successfully',
     });
   } catch (error) {
-    console.error('Error in DELETE /api/notifications/[id]:', error);
+    notificationLogger.error('Error in DELETE /api/notifications/[id]', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

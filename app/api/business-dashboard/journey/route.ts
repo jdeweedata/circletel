@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { BusinessJourneyService } from '@/lib/business/journey-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET() {
   try {
@@ -64,7 +65,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error fetching journey status:', error);
+    apiLogger.error('Error fetching journey status', { error });
     return NextResponse.json(
       { error: 'Failed to fetch journey status' },
       { status: 500 }

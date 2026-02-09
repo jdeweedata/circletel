@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { assignPartnerNumber } from '@/lib/partners/partner-number'
+import { apiLogger } from '@/lib/logging/logger'
 import { EmailNotificationService } from '@/lib/notifications/notification-service'
 import { z } from 'zod'
 
@@ -197,7 +198,7 @@ export async function POST(
     )
 
   } catch (error) {
-    console.error('Error processing partner approval:', error)
+    apiLogger.error('Error processing partner approval', { error })
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

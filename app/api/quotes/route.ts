@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error } = await query;
 
     if (error) {
-      apiLogger.error('Error fetching quotes:', error);
+      apiLogger.error('Error fetching quotes', { error });
       return NextResponse.json(
         {
           success: false,
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Error in GET /api/quotes:', error);
+    apiLogger.error('Error in GET /api/quotes', { error });
     return NextResponse.json(
       {
         success: false,

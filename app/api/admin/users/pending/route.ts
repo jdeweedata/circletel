@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClientWithSession, createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * GET /api/admin/users/pending
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (requestsError) {
-      console.error('Error fetching pending requests:', requestsError)
+      apiLogger.error('Error fetching pending requests', { error: requestsError })
       return NextResponse.json(
         { error: 'Failed to fetch pending requests', details: requestsError.message },
         { status: 500 }
@@ -66,10 +67,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: enrichedRequests })
   } catch (error) {
-    console.error('Error in GET /api/admin/users/pending:', error)
+    apiLogger.error('Error in GET /api/admin/users/pending', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

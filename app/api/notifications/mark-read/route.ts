@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
 import { z } from 'zod';
+import { notificationLogger } from '@/lib/logging/logger';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       .select('id');
 
     if (updateError) {
-      console.error('Error marking notifications as read:', updateError);
+      notificationLogger.error('Error marking notifications as read', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to mark notifications as read' },
         { status: 500 }
@@ -78,10 +79,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Error in POST /api/notifications/mark-read:', error);
+    notificationLogger.error('Error in POST /api/notifications/mark-read', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 15;
@@ -35,7 +36,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[Support Tickets API] Error:', error);
+      apiLogger.error('[Support Tickets API] Error', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch tickets', details: error.message },
         { status: 500 }
@@ -61,7 +62,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('[Support Tickets API] Error:', error);
+    apiLogger.error('[Support Tickets API] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

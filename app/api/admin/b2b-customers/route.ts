@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { BusinessJourneyService } from '@/lib/business/journey-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching B2B customers:', error);
+    apiLogger.error('Error fetching B2B customers', { error });
     return NextResponse.json(
       { error: 'Failed to fetch B2B customers' },
       { status: 500 }

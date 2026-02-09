@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/field-ops/schedulable-orders
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching schedulable orders:', error);
+      apiLogger.error('Error fetching schedulable orders', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch orders' },
         { status: 500 }
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in schedulable-orders API:', error);
+    apiLogger.error('Error in schedulable-orders API', { error });
     return NextResponse.json(
       {
         success: false,

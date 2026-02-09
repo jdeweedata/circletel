@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { getFieldJobs, createFieldJob } from '@/lib/services/technician-service';
 import { CreateFieldJobInput, FieldJobStatus } from '@/lib/types/technician-tracking';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(jobs);
   } catch (error) {
-    console.error('[Admin Jobs API] Error:', error);
+    apiLogger.error('[Admin Jobs API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {
-    console.error('[Admin Jobs API] Error:', error);
+    apiLogger.error('[Admin Jobs API] Error', { error });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

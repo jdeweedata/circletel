@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { 
-  MTNDealerProduct, 
-  MTNDealerProductFilters, 
-  MTNDealerProductFormData 
+import {
+  MTNDealerProduct,
+  MTNDealerProductFilters,
+  MTNDealerProductFormData
 } from '@/lib/types/mtn-dealer-products';
+import { apiLogger } from '@/lib/logging/logger';
 
 // GET /api/admin/mtn-dealer-products - List products with filtering
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
-    
+
     // Parse filters
     const filters: MTNDealerProductFilters = {
       technology: searchParams.get('technology') as any || undefined,
@@ -27,21 +28,21 @@ export async function GET(request: NextRequest) {
       promo_end_date: searchParams.get('promo_end_date') || undefined,
       device_status: searchParams.get('device_status') as any || undefined,
     };
-    
+
     // Pagination
     const page = parseInt(searchParams.get('page') || '1');
     const per_page = parseInt(searchParams.get('per_page') || '50');
     const offset = (page - 1) * per_page;
-    
+
     // Sort
     const sort_by = searchParams.get('sort_by') || 'mtn_price_incl_vat';
     const sort_order = searchParams.get('sort_order') === 'desc' ? false : true;
-    
+
     // Build query
     let query = supabase
       .from('mtn_dealer_products')
       .select('*', { count: 'exact' });
-    
+
     // Apply filters
     if (filters.technology) {
       query = query.eq('technology', filters.technology);
@@ -82,22 +83,22 @@ export async function GET(request: NextRequest) {
     if (filters.search) {
       query = query.or(`deal_id.ilike.%${filters.search}%,price_plan.ilike.%${filters.search}%,device_name.ilike.%${filters.search}%`);
     }
-    
+
     // Apply sorting and pagination
     query = query
       .order(sort_by, { ascending: sort_order })
       .range(offset, offset + per_page - 1);
-    
+
     const { data: products, error, count } = await query;
-    
+
     if (error) {
-      console.error('[MTN Dealer Products API] Error:', error);
+      apiLogger.error('[MTN Dealer Products API] Error', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
       data: {
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[MTN Dealer Products API] Error:', error);
+    apiLogger.error('[MTN Dealer Products API] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const body: MTNDealerProductFormData = await request.json();
-    
+
     // Validate required fields
     if (!body.deal_id || !body.price_plan || !body.technology || body.contract_term === undefined) {
       return NextResponse.json(
@@ -130,27 +131,27 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Check for duplicate deal_id
     const { data: existing } = await supabase
       .from('mtn_dealer_products')
       .select('id')
       .eq('deal_id', body.deal_id)
       .single();
-    
+
     if (existing) {
       return NextResponse.json(
         { success: false, error: `Deal ID ${body.deal_id} already exists` },
         { status: 409 }
       );
     }
-    
+
     // Parse bundle values to numeric
     const data_bundle_gb = body.data_bundle ? parseFloat(body.data_bundle.replace(/[^0-9.]/g, '')) || null : null;
     const anytime_minutes_value = body.anytime_minutes ? parseInt(body.anytime_minutes.replace(/[^0-9]/g, '')) || null : null;
     const on_net_minutes_value = body.on_net_minutes ? parseInt(body.on_net_minutes.replace(/[^0-9]/g, '')) || null : null;
     const sms_bundle_value = body.sms_bundle ? parseInt(body.sms_bundle.replace(/[^0-9]/g, '')) || null : null;
-    
+
     const { data: product, error } = await supabase
       .from('mtn_dealer_products')
       .insert({
@@ -163,15 +164,15 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single();
-    
+
     if (error) {
-      console.error('[MTN Dealer Products API] Create error:', error);
+      apiLogger.error('[MTN Dealer Products API] Create error', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
       );
     }
-    
+
     // Log audit
     await supabase.from('mtn_dealer_product_audit_log').insert({
       product_id: product.id,
@@ -179,13 +180,13 @@ export async function POST(request: NextRequest) {
       action: 'create',
       new_values: product,
     });
-    
+
     return NextResponse.json({
       success: true,
       data: product,
     });
   } catch (error) {
-    console.error('[MTN Dealer Products API] Error:', error);
+    apiLogger.error('[MTN Dealer Products API] Error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

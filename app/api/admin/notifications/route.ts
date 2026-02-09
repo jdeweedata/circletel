@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/notifications
@@ -44,7 +45,8 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in GET /api/admin/notifications:', error);
+    apiLogger.error('Error in GET /api/admin/notifications', { error });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

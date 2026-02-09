@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 // GET /api/admin/products/[id]/cost-components - Get all cost components for a product
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
       .order('sort_order', { ascending: true });
 
     if (error) {
-      console.error('[Cost Components API] Error fetching:', error);
+      apiLogger.error('[Cost Components API] Error fetching', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -26,13 +27,14 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: components || [] });
   } catch (error) {
-    console.error('[Cost Components API] Unexpected error:', error);
+    apiLogger.error('[Cost Components API] Unexpected error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+
 
 // POST /api/admin/products/[id]/cost-components - Create a new cost component
 export async function POST(
@@ -80,7 +82,7 @@ export async function POST(
       .single();
 
     if (error) {
-      console.error('[Cost Components API] Error creating:', error);
+      apiLogger.error('[Cost Components API] Error creating', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -89,7 +91,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, data: component });
   } catch (error) {
-    console.error('[Cost Components API] Unexpected error:', error);
+    apiLogger.error('[Cost Components API] Unexpected error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

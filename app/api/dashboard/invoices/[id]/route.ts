@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { billingLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/dashboard/invoices/[id]
@@ -91,7 +92,7 @@ export async function GET(
         { status: 404 }
       );
     }
-    
+
     // Fetch invoice with related data
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
@@ -115,21 +116,22 @@ export async function GET(
       .eq('id', id)
       .eq('customer_id', customer.id)
       .single();
-    
+
     if (error || !invoice) {
       return NextResponse.json(
         { error: 'Invoice not found' },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({ invoice });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    billingLogger.error('Unexpected error in invoice detail API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

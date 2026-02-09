@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(
   request: NextRequest,
@@ -44,7 +45,7 @@ export async function POST(
       );
     }
 
-    console.log('[SendInvoice] Processing invoice:', {
+    apiLogger.info('[SendInvoice] Processing invoice', {
       id,
       invoice_number: invoice.invoice_number,
       zoho_invoice_id: zohoInvoiceId,
@@ -53,23 +54,23 @@ export async function POST(
 
     // Mark as sent in Zoho Billing
     const billingClient = new ZohoBillingClient();
-    
+
     try {
       if (send_email) {
         // Send via email (this also marks as sent)
         await billingClient.emailInvoice(zohoInvoiceId, {
           to_mail_ids: [invoice.customer?.email],
         });
-        console.log('[SendInvoice] Invoice emailed to:', invoice.customer?.email);
+        apiLogger.info('[SendInvoice] Invoice emailed to', { email: invoice.customer?.email });
       } else {
         // Just mark as sent without emailing
         await billingClient.markInvoiceAsSent(zohoInvoiceId);
-        console.log('[SendInvoice] Invoice marked as sent in Zoho');
+        apiLogger.info('[SendInvoice] Invoice marked as sent in Zoho');
       }
     } catch (zohoError: any) {
       // Log the error but continue to update local status
       // Invoice may already be sent in Zoho, which is fine
-      console.log('[SendInvoice] Zoho API response (may be already sent):', zohoError.message);
+      apiLogger.info('[SendInvoice] Zoho API response (may be already sent)', { message: zohoError.message });
     }
 
     // Update local invoice status
@@ -84,8 +85,8 @@ export async function POST(
       updateData.email_attempts = (invoice.email_attempts || 0) + 1;
     }
 
-    console.log('[SendInvoice] Updating local invoice:', { id, updateData });
-    
+    apiLogger.info('[SendInvoice] Updating local invoice', { id, updateData });
+
     const { data: updatedInvoice, error: updateError } = await supabase
       .from('customer_invoices')
       .update(updateData)
@@ -94,20 +95,20 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('[SendInvoice] Failed to update local invoice:', updateError);
+      apiLogger.error('[SendInvoice] Failed to update local invoice', { error: updateError });
       // Return error since local update failed
       return NextResponse.json({
         success: false,
         error: `Failed to update local invoice: ${updateError.message}`,
       }, { status: 500 });
     }
-    
-    console.log('[SendInvoice] Local invoice updated:', updatedInvoice);
+
+    apiLogger.info('[SendInvoice] Local invoice updated', { updatedInvoice });
 
     return NextResponse.json({
       success: true,
-      message: send_email 
-        ? `Invoice sent to ${invoice.customer?.email}` 
+      message: send_email
+        ? `Invoice sent to ${invoice.customer?.email}`
         : 'Invoice marked as sent',
       invoice: {
         id,
@@ -118,7 +119,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('[SendInvoice] Error:', error);
+    apiLogger.error('[SendInvoice] Error', { error });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

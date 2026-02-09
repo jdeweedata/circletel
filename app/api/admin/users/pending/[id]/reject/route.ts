@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging/logger'
 
 /**
  * POST /api/admin/users/pending/[id]/reject
@@ -55,7 +56,7 @@ export async function POST(
       })
 
     if (rejectError) {
-      console.error('Error rejecting user request:', rejectError)
+      apiLogger.error('Error rejecting user request', { error: rejectError })
       return NextResponse.json(
         { error: 'Failed to reject request' },
         { status: 500 }
@@ -93,10 +94,11 @@ export async function POST(
       message: 'Request rejected successfully'
     })
   } catch (error) {
-    console.error('Error in POST /api/admin/users/pending/[id]/reject:', error)
+    apiLogger.error('Error in POST /api/admin/users/pending/[id]/reject', { error })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+

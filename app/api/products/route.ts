@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/products
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const { data: products, error } = await query;
 
     if (error) {
-      console.error('Error fetching products:', error);
+      apiLogger.error('Error fetching products', { error });
       return NextResponse.json(
         { error: 'Failed to fetch products' },
         { status: 500 }
@@ -72,10 +73,11 @@ export async function GET(request: NextRequest) {
       count: processedProducts.length,
     });
   } catch (error) {
-    console.error('Error in products API:', error);
+    apiLogger.error('Error in products API', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

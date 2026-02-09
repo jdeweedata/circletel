@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/dashboard/services/[id]
@@ -90,7 +91,7 @@ export async function GET(
         { status: 404 }
       );
     }
-    
+
     // Fetch service (verify ownership)
     const { data: service, error: serviceError } = await supabase
       .from('customer_services')
@@ -98,25 +99,25 @@ export async function GET(
       .eq('id', id)
       .eq('customer_id', customer.id)
       .single();
-    
+
     if (serviceError || !service) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
       );
     }
-    
+
     // Get historical usage data (last 90 days)
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-    
+
     const { data: usageHistory } = await supabase
       .from('usage_history')
       .select('*')
       .eq('service_id', id)
       .gte('date', ninetyDaysAgo.toISOString().split('T')[0])
       .order('date', { ascending: false });
-    
+
     // Get recent audit logs (last 10 actions)
     const { data: auditLogs } = await supabase
       .from('service_action_log')
@@ -131,7 +132,7 @@ export async function GET(
       .eq('service_id', id)
       .order('created_at', { ascending: false })
       .limit(10);
-    
+
     // Get active suspension (if any)
     const { data: activeSuspension } = await supabase
       .from('service_suspensions')
@@ -141,19 +142,20 @@ export async function GET(
       .order('suspended_at', { ascending: false })
       .limit(1)
       .single();
-    
+
     return NextResponse.json({
       service,
       usage_history: usageHistory || [],
       recent_actions: auditLogs || [],
       active_suspension: activeSuspension || null
     });
-    
+
   } catch (error) {
-    console.error('Unexpected error:', error);
+    apiLogger.error('Unexpected error in service dashboard API', { error, serviceId: (await context.params).id });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
+

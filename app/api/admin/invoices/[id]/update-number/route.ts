@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function PATCH(
   request: NextRequest,
@@ -28,7 +29,7 @@ export async function PATCH(
     // Update the invoice number
     const { data, error } = await supabase
       .from('customer_invoices')
-      .update({ 
+      .update({
         invoice_number,
         updated_at: new Date().toISOString()
       })
@@ -50,7 +51,7 @@ export async function PATCH(
     });
 
   } catch (error) {
-    console.error('[UpdateInvoiceNumber] Error:', error);
+    apiLogger.error('[UpdateInvoiceNumber] Error', { error });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

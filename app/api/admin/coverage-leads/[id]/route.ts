@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/admin/coverage-leads/[id]
@@ -27,7 +28,7 @@ export async function GET(
         );
       }
 
-      console.error('Error fetching coverage lead:', error);
+      console.error('Error fetching coverage lead', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -39,7 +40,7 @@ export async function GET(
       lead,
     });
   } catch (error: any) {
-    console.error('Error in GET /api/admin/coverage-leads/[id]:', error);
+    apiLogger.error('Error in GET /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -68,7 +69,7 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error('Error updating coverage lead:', error);
+      apiLogger.error('Error updating coverage lead', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -80,7 +81,7 @@ export async function PATCH(
       lead,
     });
   } catch (error: any) {
-    console.error('Error in PATCH /api/admin/coverage-leads/[id]:', error);
+    apiLogger.error('Error in PATCH /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -106,7 +107,7 @@ export async function DELETE(
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting coverage lead:', error);
+      apiLogger.error('Error deleting coverage lead', { error });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -118,7 +119,7 @@ export async function DELETE(
       message: 'Coverage lead deleted successfully',
     });
   } catch (error: any) {
-    console.error('Error in DELETE /api/admin/coverage-leads/[id]:', error);
+    apiLogger.error('Error in DELETE /api/admin/coverage-leads/[id]', { error });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
