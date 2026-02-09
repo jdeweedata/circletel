@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { netcashService } from '@/lib/payments/netcash-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/invoices/initiate-payment
@@ -60,8 +61,10 @@ export async function POST(request: NextRequest) {
     // Initiate payment for invoice
     const paymentData = await netcashService.initiatePaymentForInvoice(invoiceId);
 
-    console.log('[Invoice Payment API] Payment initiated for invoice:', invoiceId);
-    console.log('[Invoice Payment API] Transaction reference:', paymentData.transactionReference);
+    apiLogger.info('[Invoice Payment API] Payment initiated for invoice', {
+      invoiceId,
+      transactionReference: paymentData.transactionReference
+    });
 
     // Return payment URL and details
     return NextResponse.json({
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[Invoice Payment API] Error initiating payment:', error);
+    apiLogger.error('[Invoice Payment API] Error initiating payment', { error });
 
     return NextResponse.json(
       {

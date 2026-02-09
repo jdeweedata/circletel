@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { SalesAgentFilters, CreateSalesAgentRequest } from '@/lib/sales-agents/types';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * GET /api/sales-agents
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const { data: agents, error } = await query;
 
     if (error) {
-      console.error('Error fetching sales agents:', error);
+      apiLogger.error('Error fetching sales agents', { error });
       return NextResponse.json(
         {
           success: false,
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in GET /api/sales-agents:', error);
+    apiLogger.error('Error in GET /api/sales-agents', { error });
     return NextResponse.json(
       {
         success: false,
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating sales agent:', error);
+      apiLogger.error('Error creating sales agent', { error });
       return NextResponse.json(
         {
           success: false,
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Error in POST /api/sales-agents:', error);
+    apiLogger.error('Error in POST /api/sales-agents', { error });
     return NextResponse.json(
       {
         success: false,

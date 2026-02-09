@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { PPPoECredentialService } from '@/lib/pppoe'
+import { apiLogger } from '@/lib/logging/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error('PPPoE credentials list error:', error)
+    apiLogger.error('PPPoE credentials list error', { error })
     return NextResponse.json(
       { error: 'Failed to fetch credentials', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
       message: 'PPPoE credentials created successfully',
     })
   } catch (error) {
-    console.error('PPPoE credentials create error:', error)
+    apiLogger.error('PPPoE credentials create error', { error })
     return NextResponse.json(
       { error: 'Failed to create credentials', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

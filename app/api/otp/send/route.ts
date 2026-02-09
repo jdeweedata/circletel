@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { otpService } from '@/lib/integrations/clickatell/otp-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,11 +51,11 @@ export async function POST(request: NextRequest) {
       message: 'OTP sent successfully',
     });
   } catch (error) {
-    console.error('Error in OTP send route:', error);
+    apiLogger.error('Error in OTP send route', { error });
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to send OTP' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send OTP'
       },
       { status: 500 }
     );

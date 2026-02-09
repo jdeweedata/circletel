@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError) {
-      console.error('Failed to fetch order:', orderError);
+      apiLogger.error('Failed to fetch order', { error: orderError });
     }
 
     // Update document status
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
       .eq('id', documentId);
 
     if (updateError) {
-      console.error('Update error:', updateError);
+      apiLogger.error('Update error', { error: updateError });
       return NextResponse.json(
         { success: false, error: 'Failed to update document' },
         { status: 500 }
@@ -130,10 +131,10 @@ export async function POST(request: NextRequest) {
               emailError = emailResult.error;
 
               if (!emailSent) {
-                console.error('Failed to send KYC approval email:', emailError);
+                apiLogger.error('Failed to send KYC approval email', { error: emailError });
               }
             } catch (error: any) {
-              console.error('Error sending KYC approval email:', error);
+              apiLogger.error('Error sending KYC approval email', { error });
               emailError = error.message;
             }
           }
@@ -159,10 +160,10 @@ export async function POST(request: NextRequest) {
           emailError = emailResult.error;
 
           if (!emailSent) {
-            console.error('Failed to send KYC rejection email:', emailError);
+            apiLogger.error('Failed to send KYC rejection email', { error: emailError });
           }
         } catch (error: any) {
-          console.error('Error sending KYC rejection email:', error);
+          apiLogger.error('Error sending KYC rejection email', { error });
           emailError = error.message;
         }
       }
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
       emailError,
     });
   } catch (error: any) {
-    console.error('API error:', error);
+    apiLogger.error('API error', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

@@ -35,8 +35,9 @@ This analysis of the CircleTel codebase reveals **22,096 total issues** across 1
   - Admin/Invoices/MTN: Migrated to apiLogger
   - Auth/Quotes/Customers: Migrated/Verified
   - Activation/Business/Payments: Migrated/Verified
+  - **All API Routes Migrated**: Sales, Leads, Support, OTP, Products, and remaining Admin routes completed.
   - **Deployed to production**: Commit `8d42f173` (85 files, 639 insertions)
-  - Only residual console statements remaining in less critical routes
+  - All critical console statements in API routes have been migrated.
 
 ### Recent Fixes (2026-02-08)
 - **DEBT-001**: Added ESLint `no-console` rule and created `lib/logging/` utility
@@ -88,7 +89,7 @@ Debug statements left in during rapid development; no automated enforcement.
 **Priority Justification:**
 Critical due to information leakage risk and log pollution affecting debugging.
 
-**Status:** Partially Resolved (75% of API routes complete)
+**Status:** Resolved (Production Verification Pending)
 
 **Resolution Progress:**
 - [x] Added ESLint `no-console` rule with warning level (`.eslintrc.json`)
@@ -169,7 +170,7 @@ Critical due to information leakage risk and log pollution affecting debugging.
 5. ~~API routes - Cron~~ (DONE: 16 files, 173 statements)
 6. ~~API routes - Payments/Webhooks~~ (DONE: 17 files, 216 statements)
 7. ~~API routes - Core Admin~~ (DONE: 161 files, ~650 statements)
-8. API routes - Remaining (~100 statements across remaining files)
+8. ~~API routes - Remaining~~ (DONE: Sales, Leads, Support, OTP, Products, Invoices)
 
 **Assignee:** Unassigned
 

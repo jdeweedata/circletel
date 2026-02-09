@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
       .createSignedUrl(path, 3600);
 
     if (error) {
-      console.error('Signed URL error:', error);
+      apiLogger.error('Signed URL error', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to get document URL' },
         { status: 500 }
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
       url: data.signedUrl,
     });
   } catch (error: any) {
-    console.error('API error:', error);
+    apiLogger.error('API error', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

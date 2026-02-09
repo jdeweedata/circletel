@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createZohoDeskService } from '@/lib/integrations/zoho/desk-service';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!result.success) {
-      console.error('[Create Ticket] ZOHO Desk error:', result.error);
+      apiLogger.error('[Create Ticket] ZOHO Desk error', { error: result.error });
       return NextResponse.json(
         { error: 'Failed to create ticket', details: result.error },
         { status: 500 }
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       ticket: result.ticket,
     });
   } catch (error) {
-    console.error('[Create Ticket] Unexpected error:', error);
+    apiLogger.error('[Create Ticket] Unexpected error', { error });
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown' },
       { status: 500 }

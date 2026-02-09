@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { otpService } from '@/lib/integrations/clickatell/otp-service';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,10 +34,10 @@ export async function POST(request: NextRequest) {
       .eq('phone', phone);
 
     if (updateError) {
-      console.error('[OTP Verify] Failed to update phone_verified_at:', updateError);
+      apiLogger.error('[OTP Verify] Failed to update phone_verified_at', { error: updateError });
       // Non-blocking - continue with success since OTP was verified
     } else {
-      console.log('[OTP Verify] Phone verified and customer record updated:', phone);
+      apiLogger.info('[OTP Verify] Phone verified and customer record updated', { phone });
     }
 
     return NextResponse.json({
@@ -45,11 +46,11 @@ export async function POST(request: NextRequest) {
       phoneVerified: true,
     });
   } catch (error) {
-    console.error('Error in OTP verify route:', error);
+    apiLogger.error('Error in OTP verify route', { error });
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to verify OTP' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to verify OTP'
       },
       { status: 500 }
     );

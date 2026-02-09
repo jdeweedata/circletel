@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     const { data: sessions, error } = await query;
 
     if (error) {
-      console.error('Database error:', error);
+      apiLogger.error('Database error', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch KYC sessions' },
         { status: 500 }
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
       sessions: enrichedSessions,
     });
   } catch (error: any) {
-    console.error('API error:', error);
+    apiLogger.error('API error', { error });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

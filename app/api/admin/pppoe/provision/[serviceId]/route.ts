@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { PPPoECredentialService } from '@/lib/pppoe'
+import { apiLogger } from '@/lib/logging/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +34,7 @@ export async function POST(
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -97,7 +98,7 @@ export async function POST(
       status: 'provisioned',
     })
   } catch (error) {
-    console.error('PPPoE provision error:', error)
+    apiLogger.error('PPPoE provision error', { error })
     return NextResponse.json(
       { error: 'Failed to provision', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -126,7 +127,7 @@ export async function DELETE(
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -188,7 +189,7 @@ export async function DELETE(
       status: 'deprovisioned',
     })
   } catch (error) {
-    console.error('PPPoE deprovision error:', error)
+    apiLogger.error('PPPoE deprovision error', { error })
     return NextResponse.json(
       { error: 'Failed to deprovision', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

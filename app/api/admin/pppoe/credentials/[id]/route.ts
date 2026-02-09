@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { PPPoECredentialService } from '@/lib/pppoe'
+import { apiLogger } from '@/lib/logging/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +34,7 @@ export async function GET(
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -71,7 +72,7 @@ export async function GET(
 
     return NextResponse.json({ credential })
   } catch (error) {
-    console.error('PPPoE credential get error:', error)
+    apiLogger.error('PPPoE credential get error', { error })
     return NextResponse.json(
       { error: 'Failed to fetch credential', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -100,7 +101,7 @@ export async function DELETE(
           getAll() {
             return request.cookies.getAll()
           },
-          setAll() {},
+          setAll() { },
         },
       }
     )
@@ -140,7 +141,7 @@ export async function DELETE(
     if (credential.interstellioSubscriberId) {
       const deprovisionResult = await PPPoECredentialService.deprovision(id, user.id)
       if (!deprovisionResult.success) {
-        console.warn('Failed to deprovision from Interstellio:', deprovisionResult.error)
+        apiLogger.warn('Failed to deprovision from Interstellio', { error: deprovisionResult.error })
         // Continue with deletion anyway
       }
     }
@@ -157,7 +158,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Credential deleted successfully' })
   } catch (error) {
-    console.error('PPPoE credential delete error:', error)
+    apiLogger.error('PPPoE credential delete error', { error })
     return NextResponse.json(
       { error: 'Failed to delete credential', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

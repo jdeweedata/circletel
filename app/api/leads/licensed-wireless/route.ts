@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (leadError) {
-        console.error('Error creating coverage lead:', leadError);
+        apiLogger.error('Error creating coverage lead', { error: leadError });
         return NextResponse.json(
           { error: 'Failed to create coverage lead' },
           { status: 500 }
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (businessError) {
-      console.error('Error updating business lead:', businessError);
+      apiLogger.error('Error updating business lead', { error: businessError });
       return NextResponse.json(
         { error: 'Failed to save business details' },
         { status: 500 }
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
     // TODO: Create task in CRM (Zoho)
     // TODO: Send confirmation email to customer
 
-    console.log('Licensed wireless quote request received:', {
+    apiLogger.info('Licensed wireless quote request received', {
       leadId,
       companyName,
       email,
@@ -121,7 +122,8 @@ export async function POST(request: NextRequest) {
       message: 'Quote request submitted successfully',
     });
   } catch (error) {
-    console.error('Error processing licensed wireless lead:', error);
+  } catch (error) {
+    apiLogger.error('Error processing licensed wireless lead', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

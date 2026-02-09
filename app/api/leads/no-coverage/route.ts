@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 interface NoCoverageLeadData {
   full_name: string;
@@ -47,8 +48,8 @@ export async function POST(request: NextRequest) {
     // Get client metadata
     const userAgent = request.headers.get('user-agent') || 'unknown';
     const ipAddress = request.headers.get('x-forwarded-for') ||
-                      request.headers.get('x-real-ip') ||
-                      'unknown';
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Prepare lead data
     const leadData = {
@@ -78,14 +79,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[No Coverage Lead API] Database error:', error);
+      apiLogger.error('[No Coverage Lead API] Database error', { error });
       return NextResponse.json(
         { success: false, error: 'Failed to save lead' },
         { status: 500 }
       );
     }
 
-    console.log('[No Coverage Lead API] Lead captured:', {
+    apiLogger.info('[No Coverage Lead API] Lead captured', {
       id: data.id,
       email: data.email,
       address: data.address,
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[No Coverage Lead API] Unexpected error:', error);
+    apiLogger.error('[No Coverage Lead API] Unexpected error', { error });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

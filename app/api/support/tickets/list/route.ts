@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createZohoDeskService } from '@/lib/integrations/zoho/desk-service';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     const result = await deskService.listCustomerTickets(email, limit);
 
     if (!result.success) {
-      console.error('[List Tickets] ZOHO Desk error:', result.error);
+      apiLogger.error('[List Tickets] ZOHO Desk error', { error: result.error });
       return NextResponse.json(
         { error: 'Failed to fetch tickets', details: result.error },
         { status: 500 }
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
       tickets: result.tickets || [],
     });
   } catch (error) {
-    console.error('[List Tickets] Unexpected error:', error);
+    apiLogger.error('[List Tickets] Unexpected error', { error });
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown' },
       { status: 500 }

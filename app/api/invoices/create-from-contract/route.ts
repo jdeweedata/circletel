@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createInvoiceFromContract } from '@/lib/invoices/invoice-generator';
 import { generateInvoicePDF } from '@/lib/invoices/pdf-generator';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
  * POST /api/invoices/create-from-contract
@@ -51,12 +52,12 @@ export async function POST(request: NextRequest) {
     // Create invoice from contract
     const invoice = await createInvoiceFromContract(contractId);
 
-    console.log('[Invoice API] Invoice created:', invoice.invoiceNumber);
+    apiLogger.info('[Invoice API] Invoice created', { invoiceNumber: invoice.invoiceNumber });
 
     // Generate PDF for invoice
     const pdfUrl = await generateInvoicePDF(invoice.invoiceId);
 
-    console.log('[Invoice API] PDF generated:', pdfUrl);
+    apiLogger.info('[Invoice API] PDF generated', { pdfUrl });
 
     // Return invoice details
     return NextResponse.json({
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[Invoice API] Error creating invoice:', error);
+    apiLogger.error('[Invoice API] Error creating invoice', { error });
 
     return NextResponse.json(
       {
