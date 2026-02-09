@@ -16,13 +16,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { buildPaymentMethodDescription } from '@/lib/payments/description-builder';
+import { paymentLogger } from '@/lib/logging';
 
 /**
  * POST handler - Initiate payment method validation
  */
 export async function POST(request: NextRequest) {
   const requestStart = Date.now();
-  console.log('[Payment Method Initiate] Starting...');
+  paymentLogger.info('[Payment Method Initiate] Starting...');
 
   try {
     // 1. Get authenticated user - check BOTH Authorization header AND cookies
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data?.user) {
         user = data.user;
-        console.log('[Payment Method Initiate] Auth via header:', user.email);
+        paymentLogger.info('[Payment Method Initiate] Auth via header:', user.email);
       }
     }
 
@@ -46,12 +47,12 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabaseWithSession.auth.getUser();
       if (!error && data?.user) {
         user = data.user;
-        console.log('[Payment Method Initiate] Auth via cookies:', user.email);
+        paymentLogger.info('[Payment Method Initiate] Auth via cookies:', user.email);
       }
     }
 
     if (!user) {
-      console.log('[Payment Method Initiate] No authenticated user found');
+      paymentLogger.info('[Payment Method Initiate] No authenticated user found');
       return NextResponse.json(
         { success: false, error: 'Authentication required. Please log in to add a payment method.' },
         { status: 401 }
@@ -66,20 +67,20 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      console.error('[Payment Method Initiate] Customer not found:', customerError);
+      paymentLogger.error('[Payment Method Initiate] Customer not found:', customerError);
       return NextResponse.json(
         { success: false, error: 'Customer record not found. Please contact support.' },
         { status: 404 }
       );
     }
 
-    console.log('[Payment Method Initiate] Customer found:', customer.id, customer.email);
+    paymentLogger.info('[Payment Method Initiate] Customer found:', customer.id, customer.email);
 
     // 3. Get payment provider
     const provider = getPaymentProvider();
 
     if (!provider.isConfigured()) {
-      console.error('[Payment Method Initiate] Payment gateway not configured');
+      paymentLogger.error('[Payment Method Initiate] Payment gateway not configured');
       return NextResponse.json(
         { success: false, error: 'Payment gateway not configured. Please contact support.' },
         { status: 500 }
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
     const customerIdPrefix = customer.id.slice(0, 8);
     const reference = `PM-VAL-${customerIdPrefix}-${timestamp}`;
 
-    console.log('[Payment Method Initiate] Generated reference:', reference);
+    paymentLogger.info('[Payment Method Initiate] Generated reference:', reference);
 
     // 5. Get base URL for redirects
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
@@ -120,13 +121,13 @@ export async function POST(request: NextRequest) {
     });
 
     const initiateEnd = Date.now();
-    console.log('[Payment Method Initiate] Provider.initiate completed', {
+    paymentLogger.info('[Payment Method Initiate] Provider.initiate completed', {
       duration_ms: initiateEnd - initiateStart,
       success: paymentResult.success
     });
 
     if (!paymentResult.success) {
-      console.error('[Payment Method Initiate] Failed:', paymentResult.error);
+      paymentLogger.error('[Payment Method Initiate] Failed:', paymentResult.error);
       return NextResponse.json(
         { success: false, error: paymentResult.error || 'Failed to initiate payment validation' },
         { status: 500 }
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
       finalPaymentUrl = `${paymentResult.paymentUrl}?${params.toString()}`;
     }
 
-    console.log('[Payment Method Initiate] Payment URL generated');
+    paymentLogger.info('[Payment Method Initiate] Payment URL generated');
 
     // 8. Create payment transaction record for webhook to process later
     const dbInsertStart = Date.now();
@@ -168,18 +169,18 @@ export async function POST(request: NextRequest) {
       });
 
     const dbInsertEnd = Date.now();
-    console.log('[Payment Method Initiate] Transaction insert completed', {
+    paymentLogger.info('[Payment Method Initiate] Transaction insert completed', {
       duration_ms: dbInsertEnd - dbInsertStart,
       hasError: !!transactionError
     });
 
     if (transactionError) {
-      console.error('[Payment Method Initiate] Transaction record error:', transactionError);
+      paymentLogger.error('[Payment Method Initiate] Transaction record error:', transactionError);
       // Continue anyway - payment can still work, webhook will handle it
     }
 
     const totalMs = Date.now() - requestStart;
-    console.log('[Payment Method Initiate] Success', {
+    paymentLogger.info('[Payment Method Initiate] Success', {
       transaction_id: paymentResult.transactionId,
       reference,
       total_ms: totalMs
@@ -198,7 +199,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Payment Method Initiate] Error:', {
+    paymentLogger.error('[Payment Method Initiate] Error:', {
       error,
       total_ms: Date.now() - requestStart
     });

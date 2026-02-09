@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { netcashPciVaultService, TokenizationCallbackData } from '@/lib/payments/netcash-pci-vault-service';
 import { createClient } from '@supabase/supabase-js';
+import { paymentLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     const returnUrl = searchParams.get('return_url') || '/dashboard/billing/payment-methods';
     const source = searchParams.get('source') || 'dashboard'; // dashboard, checkout, reverify
 
-    console.log('[Tokenization Callback] Received:', {
+    paymentLogger.info('[Tokenization Callback] Received:', {
       successful: callbackData.Successful,
       hasToken: !!callbackData.Token,
       customerId,
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // Validate customer ID
     if (!customerId) {
-      console.error('[Tokenization Callback] Missing customer_id');
+      paymentLogger.error('[Tokenization Callback] Missing customer_id');
       return NextResponse.redirect(
         new URL(`${returnUrl}?error=missing_customer_id`, request.url)
       );
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenData.success) {
-      console.error('[Tokenization Callback] Tokenization failed:', tokenData.error);
+      paymentLogger.error('[Tokenization Callback] Tokenization failed:', tokenData.error);
       const errorUrl = new URL(returnUrl, request.url);
       errorUrl.searchParams.set('error', 'tokenization_failed');
       errorUrl.searchParams.set('message', tokenData.error || 'Card tokenization failed');
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
     const storeResult = await netcashPciVaultService.storeToken(tokenData, customerId);
 
     if (!storeResult.success) {
-      console.error('[Tokenization Callback] Failed to store token:', storeResult.error);
+      paymentLogger.error('[Tokenization Callback] Failed to store token:', storeResult.error);
       const errorUrl = new URL(returnUrl, request.url);
       errorUrl.searchParams.set('error', 'storage_failed');
       errorUrl.searchParams.set('message', 'Failed to save card details');
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
       .eq('id', customerId)
       .is('preferred_payment_method', null); // Only update if not already set
 
-    console.log('[Tokenization Callback] Token stored successfully:', {
+    paymentLogger.info('[Tokenization Callback] Token stored successfully:', {
       customerId,
       paymentMethodId: storeResult.paymentMethodId,
       cardType: tokenData.cardType,
@@ -121,7 +122,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(successUrl);
 
   } catch (error) {
-    console.error('[Tokenization Callback] Error:', error);
+    paymentLogger.error('[Tokenization Callback] Error:', error);
     return NextResponse.redirect(
       new URL('/dashboard/billing/payment-methods?error=system_error', request.url)
     );

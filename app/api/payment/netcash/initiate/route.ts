@@ -4,6 +4,7 @@ import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { buildOrderDescription } from '@/lib/payments/description-builder';
 import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
 import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { paymentLogger } from '@/lib/logging';
 
 interface InitiatePaymentRequest {
   orderId: string;
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       suburb: order.suburb,
     });
 
-    console.log('[Payment Initiate] Building payment with description:', description);
+    paymentLogger.info('[Payment Initiate] Building payment with description:', description);
 
     // Initiate payment via provider
     const paymentResult = await provider.initiate({
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResult.success) {
-      console.error('[Payment Initiate] Failed:', paymentResult.error);
+      paymentLogger.error('[Payment Initiate] Failed:', paymentResult.error);
       return NextResponse.json(
         {
           success: false,
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
       .eq('id', orderId);
 
     if (updateError) {
-      console.error('Failed to update order status:', updateError);
+      paymentLogger.error('Failed to update order status:', updateError);
     }
 
     // Log payment initiation in audit table
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (auditError) {
-      console.error('Failed to log payment initiation:', auditError);
+      paymentLogger.error('Failed to log payment initiation:', auditError);
     }
 
     // Log consents if provided
@@ -160,14 +161,14 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        console.error('Failed to log payment consents:', consentLog.error);
+        paymentLogger.error('Failed to log payment consents:', consentLog.error);
         // Don't fail the payment if consent logging fails
       } else {
-        console.log('Payment consents logged successfully:', consentLog.consent_id);
+        paymentLogger.info('Payment consents logged successfully:', consentLog.consent_id);
       }
     }
 
-    console.log('[Payment Initiate] Success:', {
+    paymentLogger.info('[Payment Initiate] Success:', {
       orderId,
       paymentReference,
       amount,
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Payment initiation error:', error);
+    paymentLogger.error('Payment initiation error:', error);
     return NextResponse.json(
       {
         success: false,

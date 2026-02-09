@@ -15,6 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { paymentLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const reason = formData.get('Reason');
     const reference = formData.get('Reference') || formData.get('Extra1');
 
-    console.log('[NetCash Redirect] Received POST:', {
+    paymentLogger.info('[NetCash Redirect] Received POST:', {
       transactionAccepted,
       reason,
       reference,
@@ -44,20 +45,20 @@ export async function POST(request: NextRequest) {
       if (reference) {
         redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;
       }
-      console.log('[NetCash Redirect] Payment successful, redirecting to:', redirectUrl);
+      paymentLogger.info('[NetCash Redirect] Payment successful, redirecting to:', redirectUrl);
     } else {
       redirectUrl = `${baseUrl}/payment/callback?payment_method=cancelled`;
       if (reason) {
         redirectUrl += `&reason=${encodeURIComponent(String(reason))}`;
       }
-      console.log('[NetCash Redirect] Payment cancelled/failed, redirecting to:', redirectUrl);
+      paymentLogger.info('[NetCash Redirect] Payment cancelled/failed, redirecting to:', redirectUrl);
     }
 
     // Redirect user to callback page via GET
     return NextResponse.redirect(redirectUrl, { status: 303 }); // 303 See Other for POST->GET redirect
 
   } catch (error) {
-    console.error('[NetCash Redirect] Error processing redirect:', error);
+    paymentLogger.error('[NetCash Redirect] Error processing redirect:', error);
 
     // On error, redirect to callback page with error status
     const errorUrl = `${baseUrl}/payment/callback?payment_method=error`;
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
   const reason = searchParams.get('Reason');
   const reference = searchParams.get('Reference') || searchParams.get('Extra1');
 
-  console.log('[NetCash Redirect] Received GET:', {
+  paymentLogger.info('[NetCash Redirect] Received GET:', {
     transactionAccepted,
     reason,
     reference

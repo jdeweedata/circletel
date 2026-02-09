@@ -18,6 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
+import { webhookLogger } from '@/lib/logging';
 
 /**
  * Verify NetCash webhook signature (HMAC-SHA256)
@@ -41,13 +42,13 @@ function verifyWebhookSignature(
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[NetCash Zoho Webhook] Received payment notification');
+    webhookLogger.info('[NetCash Zoho Webhook] Received payment notification');
 
     // 1. Get webhook signature from header
     const signature = request.headers.get('x-netcash-signature');
 
     if (!signature) {
-      console.error('[NetCash Zoho Webhook] Missing signature header');
+      webhookLogger.error('[NetCash Zoho Webhook] Missing signature header');
       return NextResponse.json(
         { error: 'Missing webhook signature' },
         { status: 401 }
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     const webhookSecret = process.env.NETCASH_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      console.error('[NetCash Zoho Webhook] NETCASH_WEBHOOK_SECRET not configured');
+      webhookLogger.error('[NetCash Zoho Webhook] NETCASH_WEBHOOK_SECRET not configured');
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
         { status: 500 }
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!verifyWebhookSignature(payload, signature, webhookSecret)) {
-      console.error('[NetCash Zoho Webhook] Invalid webhook signature');
+      webhookLogger.error('[NetCash Zoho Webhook] Invalid webhook signature');
       return NextResponse.json(
         { error: 'Invalid webhook signature' },
         { status: 401 }
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
     // 4. Parse webhook payload
     const webhookData = JSON.parse(payload);
 
-    console.log('[NetCash Zoho Webhook] Webhook data:', {
+    webhookLogger.info('[NetCash Zoho Webhook] Webhook data:', {
       transaction_id: webhookData.TransactionID,
       amount: webhookData.Amount,
       reference: webhookData.Reference,
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Validate payment status (only process successful payments)
     if (webhookData.Status !== 'PAID' && webhookData.Status !== 'COMPLETE') {
-      console.log('[NetCash Zoho Webhook] Payment not successful, status:', webhookData.Status);
+      webhookLogger.info('[NetCash Zoho Webhook] Payment not successful, status:', webhookData.Status);
       return NextResponse.json(
         { message: 'Payment not successful, skipping' },
         { status: 200 }
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     // Convert amount from cents to rands
     const amount = parseFloat((amountCents / 100).toFixed(2));
 
-    console.log('[NetCash Zoho Webhook] Processing payment:', {
+    webhookLogger.info('[NetCash Zoho Webhook] Processing payment:', {
       transactionId,
       amount,
       reference,
@@ -125,20 +126,20 @@ export async function POST(request: NextRequest) {
     if (reference.startsWith('INV-')) {
       // Direct invoice payment
       // Search for invoice by invoice number
-      console.log('[NetCash Zoho Webhook] Looking up invoice:', reference);
+      webhookLogger.info('[NetCash Zoho Webhook] Looking up invoice:', reference);
 
       // Note: Zoho Billing doesn't have a direct search by invoice_number
       // In production, you'd need to maintain a mapping table or use custom_field
       throw new Error('Direct invoice payment not yet implemented - use subscription reference');
     } else if (reference.startsWith('SUB-')) {
       // Subscription payment - get latest invoice
-      console.log('[NetCash Zoho Webhook] Looking up subscription:', reference);
+      webhookLogger.info('[NetCash Zoho Webhook] Looking up subscription:', reference);
 
       // For MVP, we'll use the subscription number stored in CircleTel database
       // In production, implement proper reference mapping
       throw new Error('Subscription lookup not yet implemented - requires CircleTel DB integration');
     } else {
-      console.error('[NetCash Zoho Webhook] Invalid reference format:', reference);
+      webhookLogger.error('[NetCash Zoho Webhook] Invalid reference format:', reference);
       return NextResponse.json(
         { error: 'Invalid payment reference format' },
         { status: 400 }
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    console.log('[NetCash Zoho Webhook] Payment recorded in Zoho:', {
+    webhookLogger.info('[NetCash Zoho Webhook] Payment recorded in Zoho:', {
       payment_id: payment.payment_id,
       payment_number: payment.payment_number,
     });
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[NetCash Zoho Webhook] Error processing webhook:', error);
+    webhookLogger.error('[NetCash Zoho Webhook] Error processing webhook:', error);
 
     return NextResponse.json(
       {

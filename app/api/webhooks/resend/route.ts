@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+import { webhookLogger } from '@/lib/logging';
 
 // =============================================================================
 // TYPES
@@ -79,7 +80,7 @@ function verifyWebhookSignature(
     const signatureHash = signatureParts.find(p => p.startsWith('v1='))?.split('=')[1];
 
     if (!timestamp || !signatureHash) {
-      console.error('Invalid signature format');
+      webhookLogger.error('Invalid signature format');
       return false;
     }
 
@@ -87,7 +88,7 @@ function verifyWebhookSignature(
     const currentTime = Math.floor(Date.now() / 1000);
     const signatureTime = parseInt(timestamp);
     if (currentTime - signatureTime > 300) {
-      console.error('Signature timestamp too old');
+      webhookLogger.error('Signature timestamp too old');
       return false;
     }
 
@@ -106,7 +107,7 @@ function verifyWebhookSignature(
       Buffer.from(expectedSignature)
     );
   } catch (error) {
-    console.error('Signature verification error:', error);
+    webhookLogger.error('Signature verification error:', error);
     return false;
   }
 }
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
     const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      console.warn('RESEND_WEBHOOK_SECRET not configured - skipping signature verification');
+      webhookLogger.warn('RESEND_WEBHOOK_SECRET not configured - skipping signature verification');
     }
 
     // Get raw body for signature verification
@@ -148,7 +149,7 @@ export async function POST(request: NextRequest) {
       const signature = request.headers.get('resend-signature');
 
       if (!signature) {
-        console.error('Missing resend-signature header');
+        webhookLogger.error('Missing resend-signature header');
         return NextResponse.json(
           { error: 'Missing signature' },
           { status: 401 }
@@ -158,7 +159,7 @@ export async function POST(request: NextRequest) {
       const isValid = verifyWebhookSignature(rawBody, signature, webhookSecret);
 
       if (!isValid) {
-        console.error('Invalid webhook signature');
+        webhookLogger.error('Invalid webhook signature');
         return NextResponse.json(
           { error: 'Invalid signature' },
           { status: 401 }
@@ -169,7 +170,7 @@ export async function POST(request: NextRequest) {
     // Parse webhook payload
     const event: ResendWebhookEvent = JSON.parse(rawBody);
 
-    console.log('📧 Resend webhook received:', {
+    webhookLogger.info('Resend webhook received:', {
       type: event.type,
       email_id: event.data.email_id,
       to: event.data.to,
@@ -231,7 +232,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (insertError) {
-      console.error('Failed to insert notification tracking:', insertError);
+      webhookLogger.error('Failed to insert notification tracking:', insertError);
       // Don't return error - we still want to acknowledge the webhook
     }
 
@@ -265,18 +266,18 @@ export async function POST(request: NextRequest) {
         );
 
         if (metricsError) {
-          console.error('Failed to update template metrics:', metricsError);
+          webhookLogger.error('Failed to update template metrics:', metricsError);
         }
       }
     }
 
     // Log important events
     if (event.type === 'email.opened') {
-      console.log(`✅ Email opened: ${recipientEmail} (${event.data.email_id})`);
+      webhookLogger.info(`Email opened: ${recipientEmail} (${event.data.email_id})`);
     } else if (event.type === 'email.clicked') {
-      console.log(`🔗 Link clicked: ${event.data.link} by ${recipientEmail}`);
+      webhookLogger.info(`Link clicked: ${event.data.link} by ${recipientEmail}`);
     } else if (event.type === 'email.bounced') {
-      console.warn(`⚠️ Email bounced: ${recipientEmail} (${event.data.bounce_type})`);
+      webhookLogger.warn(`Email bounced: ${recipientEmail} (${event.data.bounce_type})`);
     }
 
     // Return success response to Resend
@@ -286,7 +287,7 @@ export async function POST(request: NextRequest) {
       message_id: event.data.email_id,
     });
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    webhookLogger.error('Webhook processing error:', error);
 
     // Return 200 to prevent Resend from retrying
     // (Log error for debugging but acknowledge receipt)

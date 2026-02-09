@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
+import { webhookLogger } from '@/lib/logging';
 
 /**
  * Payment Webhook Handler
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
 
     if (!signature) {
-      console.error('[Payment Webhook] Missing signature');
+      webhookLogger.error('[Payment Webhook] Missing signature');
       return NextResponse.json(
         { error: 'Missing signature' },
         { status: 401 }
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     const webhookResult = await provider.processWebhook(payload, signature);
 
     if (!webhookResult.success) {
-      console.error('[Payment Webhook] Processing failed:', webhookResult.error);
+      webhookLogger.error('[Payment Webhook] Processing failed:', webhookResult.error);
       return NextResponse.json(
         { error: webhookResult.error || 'Webhook processing failed' },
         { status: 400 }
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       metadata
     } = webhookResult;
 
-    console.log('[Payment Webhook] Received event:', {
+    webhookLogger.info('[Payment Webhook] Received event:', {
       provider: provider.name,
       transactionId,
       status,
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingWebhook) {
-      console.log('[Payment Webhook] Duplicate webhook, ignoring');
+      webhookLogger.info('[Payment Webhook] Duplicate webhook, ignoring');
       return NextResponse.json({ message: 'Webhook already processed' });
     }
 
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          console.log('[Payment Webhook] Invoice marked as paid:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as paid:', invoiceId);
 
           // 10. AUTO-CREATE ORDER on successful payment
           const { data: contract } = await supabase
@@ -196,9 +197,9 @@ export async function POST(request: NextRequest) {
               .single();
 
             if (orderError) {
-              console.error('[Payment Webhook] Failed to create order:', orderError);
+              webhookLogger.error('[Payment Webhook] Failed to create order:', orderError);
             } else {
-              console.log('[Payment Webhook] Order created:', order.order_number);
+              webhookLogger.info('[Payment Webhook] Order created:', order.order_number);
 
               // 11. TRIGGER RICA SUBMISSION (if KYC approved)
               if (contract.kyc_session?.verification_result === 'approved') {
@@ -226,12 +227,12 @@ export async function POST(request: NextRequest) {
                   );
 
                   if (ricaResponse.ok) {
-                    console.log('[Payment Webhook] RICA submission triggered');
+                    webhookLogger.info('[Payment Webhook] RICA submission triggered');
                   } else {
-                    console.error('[Payment Webhook] RICA submission failed');
+                    webhookLogger.error('[Payment Webhook] RICA submission failed');
                   }
                 } catch (ricaError) {
-                  console.error('[Payment Webhook] RICA submission error:', ricaError);
+                  webhookLogger.error('[Payment Webhook] RICA submission error:', ricaError);
                 }
               }
 
@@ -254,7 +255,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          console.log('[Payment Webhook] Invoice marked as failed:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as failed:', invoiceId);
         } else if (status === 'pending' || status === 'processing') {
           await supabase
             .from('invoices')
@@ -264,7 +265,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          console.log('[Payment Webhook] Invoice marked as pending:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as pending:', invoiceId);
         }
       }
     }
@@ -281,7 +282,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', paymentTransaction.order_id);
 
-        console.log('[Payment Webhook] Order marked as paid:', paymentTransaction.order_id);
+        webhookLogger.info('[Payment Webhook] Order marked as paid:', paymentTransaction.order_id);
       } else if (status === 'failed') {
         await supabase
           .from('consumer_orders')
@@ -291,7 +292,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', paymentTransaction.order_id);
 
-        console.log('[Payment Webhook] Order marked as failed:', paymentTransaction.order_id);
+        webhookLogger.info('[Payment Webhook] Order marked as failed:', paymentTransaction.order_id);
       }
     }
 
@@ -304,7 +305,7 @@ export async function POST(request: NextRequest) {
       provider: provider.name
     });
   } catch (error) {
-    console.error('[Payment Webhook] Error processing webhook:', error);
+    webhookLogger.error('[Payment Webhook] Error processing webhook:', error);
     return NextResponse.json(
       {
         success: false,

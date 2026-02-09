@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { netcashPciVaultService } from '@/lib/payments/netcash-pci-vault-service';
 import { createClient } from '@/lib/supabase/server';
+import { paymentLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Check if PCI Vault is configured
     if (!netcashPciVaultService.isConfigured()) {
-      console.error('[Tokenize] PCI Vault not configured');
+      paymentLogger.error('[Tokenize] PCI Vault not configured');
       return NextResponse.redirect(
         new URL(`${returnPath}?error=gateway_not_configured`, request.url)
       );
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.error('[Tokenize] User not authenticated:', authError);
+      paymentLogger.error('[Tokenize] User not authenticated:', authError);
       // Redirect to auth login, with return to the verify-card page (not the API route)
       return NextResponse.redirect(
         new URL(`/auth/login?redirect=${encodeURIComponent('/dashboard/billing/verify-card')}`, request.url)
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      console.error('[Tokenize] Customer not found:', customerError);
+      paymentLogger.error('[Tokenize] Customer not found:', customerError);
       return NextResponse.redirect(
         new URL(`${returnPath}?error=customer_not_found`, request.url)
       );
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log('[Tokenize] Redirecting to NetCash PCI Vault:', {
+    paymentLogger.info('[Tokenize] Redirecting to NetCash PCI Vault:', {
       customerId: customer.id,
       source,
       reference,
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(tokenizationUrl);
 
   } catch (error) {
-    console.error('[Tokenize] Error:', error);
+    paymentLogger.error('[Tokenize] Error:', error);
     return NextResponse.redirect(
       new URL('/dashboard/billing/payment-methods?error=system_error', request.url)
     );

@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { buildPaymentMethodDescription } from '@/lib/payments/description-builder';
+import { paymentLogger } from '@/lib/logging';
 
 /**
  * POST handler - Initiate test payment
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Get payment provider
     const provider = getPaymentProvider();
     const providerResolvedAt = Date.now();
-    console.log('[Test Payment] Provider resolved', {
+    paymentLogger.info('[Test Payment] Provider resolved', {
       provider: provider.name,
       ms_since_start: providerResolvedAt - requestStart
     });
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[Test Payment] Initiating payment:', {
+    paymentLogger.info('[Test Payment] Initiating payment:', {
       amount,
       currency,
       reference,
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       }
     });
     const initiateEnd = Date.now();
-    console.log('[Test Payment] Provider.initiate completed', {
+    paymentLogger.info('[Test Payment] Provider.initiate completed', {
       duration_ms: initiateEnd - initiateStart,
       total_ms: initiateEnd - requestStart,
       provider: provider.name,
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResult.success) {
-      console.error('[Test Payment] Failed:', paymentResult.error);
+      paymentLogger.error('[Test Payment] Failed:', paymentResult.error);
       return NextResponse.json(
         {
           success: false,
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
       finalPaymentUrl = `${paymentResult.paymentUrl}?${params.toString()}`;
     }
 
-    console.log('[Test Payment] Success:', {
+    paymentLogger.info('[Test Payment] Success:', {
       transactionId: paymentResult.transactionId,
       paymentUrl: finalPaymentUrl,
       hasFormData: !!paymentResult.formData
@@ -137,14 +138,14 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       });
     const dbInsertEnd = Date.now();
-    console.log('[Test Payment] Transaction insert completed', {
+    paymentLogger.info('[Test Payment] Transaction insert completed', {
       duration_ms: dbInsertEnd - dbInsertStart,
       total_ms: dbInsertEnd - requestStart,
       hasError: !!transactionError
     });
 
     if (transactionError) {
-      console.error('[Test Payment] Transaction record error:', transactionError);
+      paymentLogger.error('[Test Payment] Transaction record error:', transactionError);
       // Continue anyway - payment can still work
     }
 
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Test Payment] Error:', {
+    paymentLogger.error('[Test Payment] Error:', {
       error,
       total_ms: Date.now() - requestStart
     });

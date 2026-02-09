@@ -24,6 +24,7 @@ import {
   terminateCauseToEventType,
 } from '@/lib/diagnostics/types'
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications'
+import { webhookLogger } from '@/lib/logging'
 
 // Webhook secret for signature verification (optional - Interstellio may not sign)
 const WEBHOOK_SECRET = process.env.INTERSTELLIO_WEBHOOK_SECRET
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
       payload = JSON.parse(rawBody)
     } catch {
-      console.error('[Interstellio Webhook] Invalid JSON payload')
+      webhookLogger.error('[Interstellio Webhook] Invalid JSON payload')
       return NextResponse.json(
         { error: 'Invalid JSON payload' },
         { status: 400 }
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                        request.headers.get('x-webhook-signature')
 
       if (!signature || !verifySignature(rawBody, signature, WEBHOOK_SECRET)) {
-        console.error('[Interstellio Webhook] Invalid signature')
+        webhookLogger.error('[Interstellio Webhook] Invalid signature')
         return NextResponse.json(
           { error: 'Invalid signature' },
           { status: 401 }
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Validate required fields
     if (!payload.subscriber?.id || !payload.trigger) {
-      console.error('[Interstellio Webhook] Missing required fields')
+      webhookLogger.error('[Interstellio Webhook] Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields: subscriber.id and trigger' },
         { status: 400 }
@@ -84,26 +85,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Rate limiting check
     const subscriberId = payload.subscriber.id
     if (!checkRateLimit(subscriberId)) {
-      console.warn(`[Interstellio Webhook] Rate limit exceeded for ${subscriberId}`)
+      webhookLogger.warn(`[Interstellio Webhook] Rate limit exceeded for ${subscriberId}`)
       return NextResponse.json(
         { error: 'Rate limit exceeded' },
         { status: 429 }
       )
     }
 
-    console.log(`[Interstellio Webhook] Received ${payload.trigger} for ${subscriberId}`)
+    webhookLogger.info(`[Interstellio Webhook] Received ${payload.trigger} for ${subscriberId}`)
 
     // Process the webhook
     const result = await processWebhook(payload, rawBody)
 
     const duration = Date.now() - startTime
-    console.log(
+    webhookLogger.info(
       `[Interstellio Webhook] Processed ${payload.trigger} in ${duration}ms: ${result.action}`
     )
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error('[Interstellio Webhook] Error:', error)
+    webhookLogger.error('[Interstellio Webhook] Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -132,7 +133,7 @@ async function processWebhook(
   )
 
   if (!serviceData || serviceData.length === 0) {
-    console.log(
+    webhookLogger.info(
       `[Interstellio Webhook] Unknown subscriber ${subscriberId}, ignoring`
     )
     return {
@@ -182,7 +183,7 @@ async function processWebhook(
     .single()
 
   if (eventError) {
-    console.error('[Interstellio Webhook] Failed to insert event:', eventError)
+    webhookLogger.error('[Interstellio Webhook] Failed to insert event:', eventError)
     return {
       success: false,
       action: 'error',
@@ -348,7 +349,7 @@ async function sendAlertNotification(
       .map(a => `[${a.severity.toUpperCase()}] ${a.message}`)
       .join('\n')
 
-    console.log(
+    webhookLogger.info(
       `[Interstellio Webhook] Alert notification for ${service.customer_name}:`,
       alertMessages
     )
@@ -357,7 +358,7 @@ async function sendAlertNotification(
     // For now, just log it
     // await AdminNotificationService.notifyDiagnosticsAlert({ ... })
   } catch (error) {
-    console.error('[Interstellio Webhook] Failed to send alert:', error)
+    webhookLogger.error('[Interstellio Webhook] Failed to send alert:', error)
   }
 }
 

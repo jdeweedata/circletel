@@ -17,6 +17,7 @@ import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-s
 import { updateOrderFromPayment } from '@/lib/orders/payment-order-updater';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { formatPaymentMethod } from '@/lib/payments/types';
+import { webhookLogger } from '@/lib/logging';
 
 /**
  * Verify NetCash webhook signature
@@ -46,7 +47,7 @@ function verifyWebhookSignature(
       Buffer.from(expectedSignature)
     );
   } catch (error) {
-    console.error('[NetCash Webhook] Signature verification error:', error);
+    webhookLogger.error('[NetCash Webhook] Signature verification error:', error);
     return false;
   }
 }
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
     const sourceIp = headers['x-forwarded-for'] || headers['x-real-ip'] || 'unknown';
     const userAgent = headers['user-agent'] || 'unknown';
 
-    console.log('[NetCash Webhook] Received webhook from:', sourceIp);
+    webhookLogger.info('[NetCash Webhook] Received webhook from:', sourceIp);
 
     // 2. Parse payload - NetCash sends form data (application/x-www-form-urlencoded), NOT JSON
     let bodyParsed: Record<string, unknown> = {};
@@ -76,37 +77,37 @@ export async function POST(request: NextRequest) {
       if (contentType.includes('application/json')) {
         // JSON payload
         bodyParsed = JSON.parse(rawBody);
-        console.log('[NetCash Webhook] Parsed as JSON');
+        webhookLogger.info('[NetCash Webhook] Parsed as JSON');
       } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
         // Form data payload (NetCash default format)
         const params = new URLSearchParams(rawBody);
         params.forEach((value, key) => {
           bodyParsed[key] = value;
         });
-        console.log('[NetCash Webhook] Parsed as form data');
+        webhookLogger.info('[NetCash Webhook] Parsed as form data');
       } else {
         // Try JSON first, then form data as fallback
         try {
           bodyParsed = JSON.parse(rawBody);
-          console.log('[NetCash Webhook] Parsed as JSON (no content-type)');
+          webhookLogger.info('[NetCash Webhook] Parsed as JSON (no content-type)');
         } catch {
           const params = new URLSearchParams(rawBody);
           params.forEach((value, key) => {
             bodyParsed[key] = value;
           });
-          console.log('[NetCash Webhook] Parsed as form data (fallback)');
+          webhookLogger.info('[NetCash Webhook] Parsed as form data (fallback)');
         }
       }
     } catch (parseError) {
-      console.error('[NetCash Webhook] Failed to parse payload:', parseError);
-      console.error('[NetCash Webhook] Raw body:', rawBody.substring(0, 500));
+      webhookLogger.error('[NetCash Webhook] Failed to parse payload:', parseError);
+      webhookLogger.error('[NetCash Webhook] Raw body:', rawBody.substring(0, 500));
       return NextResponse.json(
         { error: 'Invalid payload format' },
         { status: 400 }
       );
     }
 
-    console.log('[NetCash Webhook] Parsed body:', JSON.stringify(bodyParsed).substring(0, 500));
+    webhookLogger.info('[NetCash Webhook] Parsed body:', JSON.stringify(bodyParsed).substring(0, 500));
 
     // 3. Extract webhook data - NetCash uses various field names
     const webhookId = (bodyParsed.webhook_id as string) || crypto.randomUUID();
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
                      (bodyParsed.reference as string) ||
                      (bodyParsed.Extra1 as string) || '';
 
-    console.log('[NetCash Webhook] Processing:', {
+    webhookLogger.info('[NetCash Webhook] Processing:', {
       webhookId,
       eventType,
       transactionId,
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
       signatureVerified = verifyWebhookSignature(rawBody, signature, webhookSecret);
 
       if (!signatureVerified) {
-        console.warn('[NetCash Webhook] Invalid signature!');
+        webhookLogger.warn('[NetCash Webhook] Invalid signature!');
 
         // Log failed webhook
         await supabase.from('payment_webhook_logs').insert({
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      console.warn('[NetCash Webhook] No signature verification (webhook secret not configured)');
+      webhookLogger.warn('[NetCash Webhook] No signature verification (webhook secret not configured)');
     }
 
     // 5. Start processing
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
       paymentStatus = 'completed';
     }
 
-    console.log('[NetCash Webhook] Payment status:', paymentStatus, {
+    webhookLogger.info('[NetCash Webhook] Payment status:', paymentStatus, {
       transactionAccepted,
       responseCode,
       reason
@@ -223,7 +224,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingWebhook) {
-      console.log('[NetCash Webhook] Duplicate webhook, ignoring');
+      webhookLogger.info('[NetCash Webhook] Duplicate webhook, ignoring');
       return NextResponse.json({
         success: true,
         message: 'Webhook already processed'
@@ -256,7 +257,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (webhookError) {
-      console.error('[NetCash Webhook] Failed to log webhook:', webhookError);
+      webhookLogger.error('[NetCash Webhook] Failed to log webhook:', webhookError);
     }
 
     // 9. Update or create payment transaction
@@ -270,7 +271,7 @@ export async function POST(request: NextRequest) {
     // If not found by transaction_id (RequestTrace), try matching transaction_id column against Reference field
     // NetCash sends our full transaction reference (CT-PM-VAL-xxx) in the Reference field
     if (!existingTransaction && reference) {
-      console.log('[NetCash Webhook] Transaction not found by RequestTrace, trying transaction_id column with Reference:', reference);
+      webhookLogger.info('[NetCash Webhook] Transaction not found by RequestTrace, trying transaction_id column with Reference:', reference);
       const { data: txByTxIdRef } = await supabase
         .from('payment_transactions')
         .select('*')
@@ -279,13 +280,13 @@ export async function POST(request: NextRequest) {
 
       if (txByTxIdRef) {
         existingTransaction = txByTxIdRef;
-        console.log('[NetCash Webhook] Found transaction by transaction_id column:', existingTransaction.id);
+        webhookLogger.info('[NetCash Webhook] Found transaction by transaction_id column:', existingTransaction.id);
       }
     }
 
     // Try by reference column
     if (!existingTransaction && reference) {
-      console.log('[NetCash Webhook] Trying by reference column:', reference);
+      webhookLogger.info('[NetCash Webhook] Trying by reference column:', reference);
       const { data: txByRef } = await supabase
         .from('payment_transactions')
         .select('*')
@@ -294,7 +295,7 @@ export async function POST(request: NextRequest) {
 
       if (txByRef) {
         existingTransaction = txByRef;
-        console.log('[NetCash Webhook] Found transaction by reference:', existingTransaction.id);
+        webhookLogger.info('[NetCash Webhook] Found transaction by reference:', existingTransaction.id);
       }
     }
 
@@ -308,7 +309,7 @@ export async function POST(request: NextRequest) {
         parts.pop(); // Remove duplicate timestamp
       }
       const cleanedRef = parts.join('-');
-      console.log('[NetCash Webhook] Trying cleaned reference:', cleanedRef);
+      webhookLogger.info('[NetCash Webhook] Trying cleaned reference:', cleanedRef);
       const { data: txByCleanedRef } = await supabase
         .from('payment_transactions')
         .select('*')
@@ -317,7 +318,7 @@ export async function POST(request: NextRequest) {
 
       if (txByCleanedRef) {
         existingTransaction = txByCleanedRef;
-        console.log('[NetCash Webhook] Found transaction by cleaned reference:', existingTransaction.id);
+        webhookLogger.info('[NetCash Webhook] Found transaction by cleaned reference:', existingTransaction.id);
       }
     }
 
@@ -334,10 +335,10 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', existingTransaction.id);
 
-      console.log('[NetCash Webhook] Transaction updated:', existingTransaction.id);
+      webhookLogger.info('[NetCash Webhook] Transaction updated:', existingTransaction.id);
     } else {
       // Create new transaction (fallback - this shouldn't normally happen for payment method validations)
-      console.log('[NetCash Webhook] No existing transaction found, creating new one');
+      webhookLogger.info('[NetCash Webhook] No existing transaction found, creating new one');
       await supabase
         .from('payment_transactions')
         .insert({
@@ -354,7 +355,7 @@ export async function POST(request: NextRequest) {
           completed_at: paymentStatus === 'completed' ? new Date().toISOString() : null
         });
 
-      console.log('[NetCash Webhook] New transaction created:', transactionId);
+      webhookLogger.info('[NetCash Webhook] New transaction created:', transactionId);
     }
 
     // Process completed payments
@@ -367,7 +368,7 @@ export async function POST(request: NextRequest) {
         const txMetadata = paymentTransaction.metadata as Record<string, unknown> || {};
 
         if (txMetadata.type === 'payment_method_validation') {
-          console.log('[Payment Method Validation] Processing successful validation');
+          webhookLogger.info('[Payment Method Validation] Processing successful validation');
 
           const customerId = paymentTransaction.customer_id || txMetadata.customer_id as string;
 
@@ -420,19 +421,19 @@ export async function POST(request: NextRequest) {
                 });
 
               if (pmError) {
-                console.error('[Payment Method Validation] Failed to store payment method:', pmError);
+                webhookLogger.error('[Payment Method Validation] Failed to store payment method:', pmError);
               } else {
-                console.log('[Payment Method Validation] Payment method stored successfully', {
+                webhookLogger.info('[Payment Method Validation] Payment method stored successfully', {
                   customer_id: customerId,
                   method_type: methodType,
                   is_primary: shouldBePrimary
                 });
               }
             } catch (storageError) {
-              console.error('[Payment Method Validation] Error storing payment method:', storageError);
+              webhookLogger.error('[Payment Method Validation] Error storing payment method:', storageError);
             }
           } else {
-            console.warn('[Payment Method Validation] No customer_id found in transaction');
+            webhookLogger.warn('[Payment Method Validation] No customer_id found in transaction');
           }
 
           // Mark webhook as processed and return early (don't process as invoice/order)
@@ -459,7 +460,7 @@ export async function POST(request: NextRequest) {
         // Check if this is an invoice payment (reference starts with INV-)
         if (reference.startsWith('INV-')) {
           // Update invoice status to paid
-          console.log('[Invoice Payment] Updating invoice:', reference);
+          webhookLogger.info('[Invoice Payment] Updating invoice:', reference);
 
           // Get invoice and customer data for email
           const { data: invoice, error: invoiceFetchError } = await supabase
@@ -481,7 +482,7 @@ export async function POST(request: NextRequest) {
             .single();
 
           if (invoiceFetchError || !invoice) {
-            console.error('[Invoice Payment] Invoice not found:', reference);
+            webhookLogger.error('[Invoice Payment] Invoice not found:', reference);
           } else {
             // Extract customer from relationship (Supabase returns array for relations)
             const customer = Array.isArray(invoice.customer) ? invoice.customer[0] : invoice.customer;
@@ -504,9 +505,9 @@ export async function POST(request: NextRequest) {
               .eq('invoice_number', reference);
 
             if (invoiceUpdateError) {
-              console.error('[Invoice Payment] Failed to update invoice:', invoiceUpdateError);
+              webhookLogger.error('[Invoice Payment] Failed to update invoice:', invoiceUpdateError);
             } else {
-              console.log('[Invoice Payment] Invoice updated:', {
+              webhookLogger.info('[Invoice Payment] Invoice updated:', {
                 invoice_number: reference,
                 status: newStatus,
                 amount_paid: newAmountPaid,
@@ -531,33 +532,33 @@ export async function POST(request: NextRequest) {
                 })
                   .then((result) => {
                     if (result.success) {
-                      console.log('[Invoice Payment] Payment receipt email sent:', result.message_id);
+                      webhookLogger.info('[Invoice Payment] Payment receipt email sent:', result.message_id);
                     } else {
-                      console.error('[Invoice Payment] Payment receipt email failed:', result.error);
+                      webhookLogger.error('[Invoice Payment] Payment receipt email failed:', result.error);
                     }
                   })
                   .catch((error) => {
-                    console.error('[Invoice Payment] Payment receipt email error:', error);
+                    webhookLogger.error('[Invoice Payment] Payment receipt email error:', error);
                   });
               }
             }
           }
         } else {
           // 1. Update associated order (if any)
-          console.log('[Payment Processing] Updating order for reference:', reference);
+          webhookLogger.info('[Payment Processing] Updating order for reference:', reference);
           updateOrderFromPayment(reference, paymentTransaction.id, amount)
             .then((orderResult) => {
               if (orderResult.success) {
-                console.log('[Order Update] Order updated successfully:', {
+                webhookLogger.info('[Order Update] Order updated successfully:', {
                   order_number: orderResult.order_number,
                   status_change: `${orderResult.old_status} → ${orderResult.new_status}`
                 });
               } else {
-                console.log('[Order Update] No order update needed:', orderResult.error);
+                webhookLogger.info('[Order Update] No order update needed:', orderResult.error);
               }
             })
             .catch((error) => {
-              console.error('[Order Update] Error updating order:', error);
+              webhookLogger.error('[Order Update] Error updating order:', error);
             });
         }
 
@@ -566,13 +567,13 @@ export async function POST(request: NextRequest) {
         syncPaymentToZohoBilling(paymentTransaction.id)
           .then((result) => {
             if (result.success) {
-              console.log('[ZOHO Trigger] Payment synced to ZOHO Billing:', result.zoho_payment_id);
+              webhookLogger.info('[ZOHO Trigger] Payment synced to ZOHO Billing:', result.zoho_payment_id);
             } else {
-              console.error('[ZOHO Trigger] Payment sync failed:', result.error);
+              webhookLogger.error('[ZOHO Trigger] Payment sync failed:', result.error);
             }
           })
           .catch((error) => {
-            console.error('[ZOHO Trigger] Payment sync error:', error);
+            webhookLogger.error('[ZOHO Trigger] Payment sync error:', error);
           });
 
         // Note: Customer notification is sent above for invoice payments
@@ -599,7 +600,7 @@ export async function POST(request: NextRequest) {
         .eq('id', webhookLog.id);
     }
 
-    console.log('[NetCash Webhook] Processing completed in', processingDuration, 'ms');
+    webhookLogger.info('[NetCash Webhook] Processing completed in', processingDuration, 'ms');
 
     // 11. Return success
     return NextResponse.json({
@@ -611,7 +612,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[NetCash Webhook] Error:', error);
+    webhookLogger.error('[NetCash Webhook] Error:', error);
 
     // Try to log error to database
     try {
@@ -629,7 +630,7 @@ export async function POST(request: NextRequest) {
         received_at: new Date().toISOString()
       });
     } catch (logError) {
-      console.error('[NetCash Webhook] Failed to log error:', logError);
+      webhookLogger.error('[NetCash Webhook] Failed to log error:', logError);
     }
 
     return NextResponse.json(

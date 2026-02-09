@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateService, EMandatePostback } from '@/lib/payments/netcash-emandate-service';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
+import { webhookLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
       postbackData[key] = value.toString();
     });
 
-    console.log('NetCash eMandate postback received:', {
+    webhookLogger.info('NetCash eMandate postback received:', {
       accountRef: postbackData.AccountRef,
       mandateSuccessful: postbackData.MandateSuccessful,
     });
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     const customerId = parsedPostback.Field3;
 
     if (!orderId || !orderNumber) {
-      console.error('Missing order reference in postback:', parsedPostback);
+      webhookLogger.error('Missing order reference in postback:', parsedPostback);
       return NextResponse.json(
         { error: 'Missing order reference in postback' },
         { status: 400 }
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (findError) {
-      console.error('Error finding emandate request:', findError);
+      webhookLogger.error('Error finding emandate request:', findError);
       return NextResponse.json(
         { error: 'Failed to process postback' },
         { status: 500 }
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!emandateRequest) {
-      console.warn('No matching emandate request found for postback:', {
+      webhookLogger.warn('No matching emandate request found for postback:', {
         orderId,
         accountRef: parsedPostback.AccountRef,
       });
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       .eq('id', emandateRequest.id);
 
     if (updateError) {
-      console.error('Error updating emandate request:', updateError);
+      webhookLogger.error('Error updating emandate request:', updateError);
       // Continue processing despite error
     }
 
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.payment_method_id);
 
       if (pmUpdateError) {
-        console.error('Error updating payment method:', pmUpdateError);
+        webhookLogger.error('Error updating payment method:', pmUpdateError);
       }
 
       // Update or create customer_billing record with primary payment method
@@ -175,9 +176,9 @@ export async function POST(request: NextRequest) {
           });
 
         if (billingError) {
-          console.error('Error updating customer_billing:', billingError);
+          webhookLogger.error('Error updating customer_billing:', billingError);
         } else {
-          console.log('Customer billing updated with debit order:', {
+          webhookLogger.info('Customer billing updated with debit order:', {
             customerId,
             billingDate,
           });
@@ -193,7 +194,7 @@ export async function POST(request: NextRequest) {
         .eq('id', orderId);
 
       if (orderUpdateError) {
-        console.error('Error updating order status:', orderUpdateError);
+        webhookLogger.error('Error updating order status:', orderUpdateError);
       }
 
       // Log status change in order history
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
         status_changed_at: new Date().toISOString(),
       });
 
-      console.log('Payment method registered successfully:', {
+      webhookLogger.info('Payment method registered successfully:', {
         orderId,
         paymentMethodId: emandateRequest.payment_method_id,
         bankName: parsedPostback.BankName,
@@ -237,11 +238,11 @@ export async function POST(request: NextRequest) {
           package_name: order.package_name,
         }).then((result) => {
           if (result.success) {
-            console.log('Customer payment method confirmation email sent:', result.message_id);
+            webhookLogger.info('Customer payment method confirmation email sent:', result.message_id);
           } else {
-            console.error('Failed to send customer confirmation:', result.error);
+            webhookLogger.error('Failed to send customer confirmation:', result.error);
           }
-        }).catch((err) => console.error('Email error:', err));
+        }).catch((err) => webhookLogger.error('Email error:', err));
 
         // Send admin notification (async, don't block)
         AdminNotificationService.notifyPaymentMethodRegistered({
@@ -257,11 +258,11 @@ export async function POST(request: NextRequest) {
           monthly_amount: order.package_price,
         }).then((result) => {
           if (result.success) {
-            console.log('Admin payment method notification sent:', result.message_id);
+            webhookLogger.info('Admin payment method notification sent:', result.message_id);
           } else {
-            console.error('Failed to send admin notification:', result.error);
+            webhookLogger.error('Failed to send admin notification:', result.error);
           }
-        }).catch((err) => console.error('Admin notification error:', err));
+        }).catch((err) => webhookLogger.error('Admin notification error:', err));
 
         // Update order_status_history to mark customer was notified
         await supabase
@@ -285,10 +286,10 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.payment_method_id);
 
       if (pmFailError) {
-        console.error('Error updating failed payment method:', pmFailError);
+        webhookLogger.error('Error updating failed payment method:', pmFailError);
       }
 
-      console.log('Payment method registration failed:', {
+      webhookLogger.info('Payment method registration failed:', {
         orderId,
         reason: parsedPostback.ReasonForDecline,
       });
@@ -322,9 +323,9 @@ export async function POST(request: NextRequest) {
             <p><strong>Action Required:</strong> Contact customer to retry payment method setup or use alternative payment method.</p>
           `,
         }).then(() => {
-          console.log('Admin notified of failed mandate:', failedOrder.order_number);
+          webhookLogger.info('Admin notified of failed mandate:', failedOrder.order_number);
         }).catch((err) => {
-          console.error('Failed to notify admin of mandate failure:', err);
+          webhookLogger.error('Failed to notify admin of mandate failure:', err);
         });
       }
     }
@@ -336,7 +337,7 @@ export async function POST(request: NextRequest) {
       mandateSuccessful,
     });
   } catch (error: any) {
-    console.error('Error processing NetCash eMandate postback:', error);
+    webhookLogger.error('Error processing NetCash eMandate postback:', error);
 
     // Return 200 even on error to prevent NetCash retries flooding our system
     // Log error for manual review

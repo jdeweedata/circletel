@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { webhookLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    console.log('[Clickatell Webhook] Received callback:', JSON.stringify(body, null, 2));
+    webhookLogger.info('[Clickatell Webhook] Received callback:', JSON.stringify(body, null, 2));
 
     // Clickatell can send single or batch callbacks
     const callbacks: ClickatellCallback[] = Array.isArray(body) ? body : [body];
@@ -50,14 +51,14 @@ export async function POST(request: NextRequest) {
       const { messageId, statusCode, status, statusDescription, timestamp } = callback;
 
       if (!messageId) {
-        console.warn('[Clickatell Webhook] Missing messageId in callback');
+        webhookLogger.warn('[Clickatell Webhook] Missing messageId in callback');
         continue;
       }
 
       // Map Clickatell status to our simplified status
       const deliveryStatus = mapClickatellStatus(statusCode);
 
-      console.log(`[Clickatell Webhook] MessageId: ${messageId}, Status: ${status} (${statusCode}) -> ${deliveryStatus}`);
+      webhookLogger.info(`[Clickatell Webhook] MessageId: ${messageId}, Status: ${status} (${statusCode}) -> ${deliveryStatus}`);
 
       // Find and update the emandate request
       const { data: emandateRequest, error: findError } = await supabase
@@ -67,12 +68,12 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (findError) {
-        console.error('[Clickatell Webhook] Error finding emandate request:', findError);
+        webhookLogger.error('[Clickatell Webhook] Error finding emandate request:', findError);
         continue;
       }
 
       if (!emandateRequest) {
-        console.warn(`[Clickatell Webhook] No emandate request found for messageId: ${messageId}`);
+        webhookLogger.warn(`[Clickatell Webhook] No emandate request found for messageId: ${messageId}`);
         continue;
       }
 
@@ -96,11 +97,11 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.id);
 
       if (updateError) {
-        console.error('[Clickatell Webhook] Error updating emandate request:', updateError);
+        webhookLogger.error('[Clickatell Webhook] Error updating emandate request:', updateError);
         continue;
       }
 
-      console.log(`[Clickatell Webhook] Updated emandate request ${emandateRequest.id} with status: ${deliveryStatus}`);
+      webhookLogger.info(`[Clickatell Webhook] Updated emandate request ${emandateRequest.id} with status: ${deliveryStatus}`);
 
       // Log the status change
       await supabase.from('order_status_history').insert({
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, processed: callbacks.length });
 
   } catch (error: any) {
-    console.error('[Clickatell Webhook] Error:', error);
+    webhookLogger.error('[Clickatell Webhook] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

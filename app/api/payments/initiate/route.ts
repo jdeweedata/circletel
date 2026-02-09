@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getPaymentProvider } from '@/lib/payments/payment-provider-factory';
 import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
 import type { PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { paymentLogger } from '@/lib/logging';
 
 /**
  * POST /api/payments/initiate
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Validate consents (optional but recommended)
     if (!consents) {
-      console.warn('Payment initiated without consents - consider updating client to send consents');
+      paymentLogger.warn('Payment initiated without consents - consider updating client to send consents');
     }
 
     // Get payment provider (uses factory pattern)
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (transactionError) {
-      console.error('Error creating payment transaction:', transactionError);
+      paymentLogger.error('Error creating payment transaction:', transactionError);
       // Continue anyway - payment can still work even if we don't track it perfectly
     }
 
@@ -155,10 +156,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        console.error('Failed to log payment consents:', consentLog.error);
+        paymentLogger.error('Failed to log payment consents:', consentLog.error);
         // Don't fail the payment if consent logging fails
       } else {
-        console.log('Payment consents logged successfully:', consentLog.consent_id);
+        paymentLogger.info('Payment consents logged successfully:', consentLog.consent_id);
       }
     }
 
@@ -178,7 +179,7 @@ export async function POST(request: NextRequest) {
       message: 'Payment initiated successfully'
     });
   } catch (error) {
-    console.error('Payment initiation error:', error);
+    paymentLogger.error('Payment initiation error:', error);
     return NextResponse.json(
       {
         success: false,
