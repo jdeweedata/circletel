@@ -106,7 +106,7 @@ export async function PATCH(
     const body: UpdateSalesAgentRequest = await request.json();
 
     // Build update object
-    const updates: any = {};
+    const updates: Record<string, unknown> = {};
 
     if (body.full_name !== undefined) updates.full_name = body.full_name;
     if (body.phone !== undefined) updates.phone = body.phone;
@@ -123,44 +123,43 @@ export async function PATCH(
       .single();
 
     if (error) {
-      if (error) {
-        apiLogger.error('Error updating sales agent', { error });
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Failed to update sales agent'
-          },
-          { status: 500 }
-        );
-      }
-
-      if (!agent) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Sales agent not found'
-          },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        agent,
-        message: 'Sales agent updated successfully'
-      });
-
-    } catch (error) {
-      apiLogger.error('Error in PATCH /api/sales-agents/[id]', { error });
+      apiLogger.error('Error updating sales agent', { error });
       return NextResponse.json(
         {
           success: false,
-          error: 'Internal server error'
+          error: 'Failed to update sales agent'
         },
         { status: 500 }
       );
     }
+
+    if (!agent) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Sales agent not found'
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      agent,
+      message: 'Sales agent updated successfully'
+    });
+
+  } catch (error) {
+    apiLogger.error('Error in PATCH /api/sales-agents/[id]', { error });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error'
+      },
+      { status: 500 }
+    );
   }
+}
 
 /**
  * DELETE /api/sales-agents/[id]
@@ -168,57 +167,56 @@ export async function PATCH(
  * Deactivate sales agent (soft delete)
  */
 export async function DELETE(
-    request: NextRequest,
-    context: { params: Promise<{ id: string }> }
-  ) {
-    try {
-      const { id } = await context.params;
-      const supabase = await createClient();
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+    const supabase = await createClient();
 
-      // Deactivate agent (soft delete)
-      const { data: agent, error } = await supabase
-        .from('sales_agents')
-        .update({ status: 'inactive' })
-        .eq('id', id)
-        .select()
-        .single();
+    // Deactivate agent (soft delete)
+    const { data: agent, error } = await supabase
+      .from('sales_agents')
+      .update({ status: 'inactive' })
+      .eq('id', id)
+      .select()
+      .single();
 
-      if (error) {
-        if (error) {
-          apiLogger.error('Error deactivating sales agent', { error });
-          return NextResponse.json(
-            {
-              success: false,
-              error: 'Failed to deactivate sales agent'
-            },
-            { status: 500 }
-          );
-        }
-
-        if (!agent) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: 'Sales agent not found'
-            },
-            { status: 404 }
-          );
-        }
-
-        return NextResponse.json({
-          success: true,
-          agent,
-          message: 'Sales agent deactivated successfully'
-        });
-
-      } catch (error) {
-        apiLogger.error('Error in DELETE /api/sales-agents/[id]', { error });
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Internal server error'
-          },
-          { status: 500 }
-        );
-      }
+    if (error) {
+      apiLogger.error('Error deactivating sales agent', { error });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to deactivate sales agent'
+        },
+        { status: 500 }
+      );
     }
+
+    if (!agent) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Sales agent not found'
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      agent,
+      message: 'Sales agent deactivated successfully'
+    });
+
+  } catch (error) {
+    apiLogger.error('Error in DELETE /api/sales-agents/[id]', { error });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error'
+      },
+      { status: 500 }
+    );
+  }
+}

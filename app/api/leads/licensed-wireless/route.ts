@@ -122,7 +122,6 @@ export async function POST(request: NextRequest) {
       message: 'Quote request submitted successfully',
     });
   } catch (error) {
-  } catch (error) {
     apiLogger.error('Error processing licensed wireless lead', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
