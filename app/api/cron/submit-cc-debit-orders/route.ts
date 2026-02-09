@@ -22,6 +22,7 @@ import {
   netcashCCDebitBatchService,
   CreditCardDebitItem,
 } from '@/lib/payments/netcash-cc-debit-batch-service';
+import { cronLogger } from '@/lib/logging';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySupabaseClient = SupabaseClient<any, any, any>;
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     const result = await submitCCDebitOrders();
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[CC Debit Cron] Error:', error);
+    cronLogger.error('[CC Debit Cron] Error:', error);
     return NextResponse.json(
       {
         error: 'Submission failed',
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     const result = await submitCCDebitOrders(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[CC Debit Cron] Error:', error);
+    cronLogger.error('[CC Debit Cron] Error:', error);
     return NextResponse.json(
       {
         error: 'Submission failed',
@@ -94,7 +95,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   const billingDate = customDate || new Date();
   const dateStr = billingDate.toISOString().split('T')[0];
 
-  console.log(`[CC Debit Cron] Starting CC debit order submission for ${dateStr}`);
+  cronLogger.info(`[CC Debit Cron] Starting CC debit order submission for ${dateStr}`);
 
   const result: CCSubmissionResult = {
     date: dateStr,
@@ -144,7 +145,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   const customerIds = Array.from(new Set((invoices || []).map((inv) => inv.customer_id)));
 
   if (customerIds.length === 0) {
-    console.log('[CC Debit Cron] No credit card invoices due today');
+    cronLogger.info('[CC Debit Cron] No credit card invoices due today');
     result.totalEligible = 0;
     await logExecution(supabase, result, 'completed');
     return result;
@@ -244,12 +245,12 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   result.totalEligible = eligibleItems.length + result.skipped;
 
   if (eligibleItems.length === 0) {
-    console.log('[CC Debit Cron] No eligible CC debit orders to submit');
+    cronLogger.info('[CC Debit Cron] No eligible CC debit orders to submit');
     await logExecution(supabase, result, 'completed');
     return result;
   }
 
-  console.log(`[CC Debit Cron] Found ${eligibleItems.length} eligible CC debit orders`);
+  cronLogger.info(`[CC Debit Cron] Found ${eligibleItems.length} eligible CC debit orders`);
 
   // ============================================================================
   // 5. Submit batch to NetCash
@@ -269,7 +270,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   result.submitted = batchResult.itemsSubmitted;
   result.warnings.push(...batchResult.warnings);
 
-  console.log(`[CC Debit Cron] Batch submitted: ${batchResult.batchId}`);
+  cronLogger.info(`[CC Debit Cron] Batch submitted: ${batchResult.batchId}`);
 
   // ============================================================================
   // 6. Authorise the batch
@@ -280,9 +281,9 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
 
     if (!authResult.success) {
       result.errors.push(`Batch authorisation failed: ${authResult.error}`);
-      console.warn('[CC Debit Cron] Batch not authorised:', authResult.error);
+      cronLogger.warn('[CC Debit Cron] Batch not authorised:', authResult.error);
     } else {
-      console.log(`[CC Debit Cron] Batch ${batchResult.batchId} authorised`);
+      cronLogger.info(`[CC Debit Cron] Batch ${batchResult.batchId} authorised`);
     }
   }
 
@@ -320,7 +321,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
     result.errors.length > 0 ? 'completed_with_errors' : 'completed'
   );
 
-  console.log(
+  cronLogger.info(
     `[CC Debit Cron] Complete: ${result.submitted} submitted, ${result.skipped} skipped`
   );
 
@@ -373,7 +374,7 @@ async function recordBatchSubmission(
 
     await supabase.from('debit_order_batch_items').insert(batchItems);
   } catch (error) {
-    console.error('[CC Debit Cron] Failed to record batch:', error);
+    cronLogger.error('[CC Debit Cron] Failed to record batch:', error);
   }
 }
 
@@ -402,6 +403,6 @@ async function logExecution(
       },
     });
   } catch (error) {
-    console.error('[CC Debit Cron] Failed to log execution:', error);
+    cronLogger.error('[CC Debit Cron] Failed to log execution:', error);
   }
 }

@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkAllIntegrationsHealth } from '@/lib/integrations/health-check-service';
 import { differenceInHours } from 'date-fns';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * GET /api/cron/integrations-health-check
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('[IntegrationsHealthCheck] CRON_SECRET not configured');
+      cronLogger.error('[IntegrationsHealthCheck] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -53,28 +54,28 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[IntegrationsHealthCheck] Invalid authorization');
+      cronLogger.error('[IntegrationsHealthCheck] Invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
-    console.log('[IntegrationsHealthCheck]   Starting Health Check Job');
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
-    console.log(`[IntegrationsHealthCheck]   Timestamp: ${new Date().toISOString()}`);
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[IntegrationsHealthCheck]   Starting Health Check Job');
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[IntegrationsHealthCheck]   Timestamp: ${new Date().toISOString()}`);
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Run Health Checks on All Integrations
     // =========================================================================
     const healthCheckResult = await checkAllIntegrationsHealth();
 
-    console.log('[IntegrationsHealthCheck] Health check complete:');
-    console.log(`  - Total integrations: ${healthCheckResult.totalIntegrations}`);
-    console.log(`  - Healthy: ${healthCheckResult.healthy}`);
-    console.log(`  - Degraded: ${healthCheckResult.degraded}`);
-    console.log(`  - Down: ${healthCheckResult.down}`);
-    console.log(`  - Unknown: ${healthCheckResult.unknown}`);
-    console.log(`  - Duration: ${healthCheckResult.duration}ms\n`);
+    cronLogger.info('[IntegrationsHealthCheck] Health check complete:');
+    cronLogger.info(`  - Total integrations: ${healthCheckResult.totalIntegrations}`);
+    cronLogger.info(`  - Healthy: ${healthCheckResult.healthy}`);
+    cronLogger.info(`  - Degraded: ${healthCheckResult.degraded}`);
+    cronLogger.info(`  - Down: ${healthCheckResult.down}`);
+    cronLogger.info(`  - Unknown: ${healthCheckResult.unknown}`);
+    cronLogger.info(`  - Duration: ${healthCheckResult.duration}ms\n`);
 
     // =========================================================================
     // Process Results - Track Consecutive Failures & Send Alerts
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (!integration) {
-        console.warn(`[IntegrationsHealthCheck] Integration not found: ${result.integrationSlug}`);
+        cronLogger.warn(`[IntegrationsHealthCheck] Integration not found: ${result.integrationSlug}`);
         continue;
       }
 
@@ -152,22 +153,22 @@ export async function GET(request: NextRequest) {
           .eq('slug', result.integrationSlug);
       }
 
-      console.log(`[IntegrationsHealthCheck] ${result.integrationSlug}: ${result.healthStatus} (failures: ${newConsecutiveFailures})`);
+      cronLogger.info(`[IntegrationsHealthCheck] ${result.integrationSlug}: ${result.healthStatus} (failures: ${newConsecutiveFailures})`);
     }
 
     // =========================================================================
     // Send Alerts
     // =========================================================================
     if (alertsToSend.length > 0) {
-      console.log(`\n[IntegrationsHealthCheck] Sending ${alertsToSend.length} alert(s)...`);
+      cronLogger.info(`\n[IntegrationsHealthCheck] Sending ${alertsToSend.length} alert(s)...`);
 
       for (const alert of alertsToSend) {
         await sendIntegrationAlert(alert);
       }
 
-      console.log('[IntegrationsHealthCheck] ✅ Alerts sent\n');
+      cronLogger.info('[IntegrationsHealthCheck] ✅ Alerts sent\n');
     } else {
-      console.log('[IntegrationsHealthCheck] No alerts to send\n');
+      cronLogger.info('[IntegrationsHealthCheck] No alerts to send\n');
     }
 
     // =========================================================================
@@ -175,12 +176,12 @@ export async function GET(request: NextRequest) {
     // =========================================================================
     const duration = Date.now() - startTime;
 
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
-    console.log('[IntegrationsHealthCheck]   Health Check Complete');
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
-    console.log(`[IntegrationsHealthCheck]   Duration: ${duration}ms`);
-    console.log(`[IntegrationsHealthCheck]   Alerts sent: ${alertsToSend.length}`);
-    console.log('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[IntegrationsHealthCheck]   Health Check Complete');
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[IntegrationsHealthCheck]   Duration: ${duration}ms`);
+    cronLogger.info(`[IntegrationsHealthCheck]   Alerts sent: ${alertsToSend.length}`);
+    cronLogger.info('[IntegrationsHealthCheck] ═══════════════════════════════════════════════════════════\n');
 
     return NextResponse.json({
       success: true,
@@ -196,7 +197,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[IntegrationsHealthCheck] Error running health check:', error);
+    cronLogger.error('[IntegrationsHealthCheck] Error running health check:', error);
 
     return NextResponse.json(
       {
@@ -223,7 +224,7 @@ async function sendIntegrationAlert(alert: {
   consecutiveFailures: number;
 }): Promise<void> {
   try {
-    console.log(`[IntegrationsHealthCheck] Sending alert for ${alert.integrationSlug}...`);
+    cronLogger.info(`[IntegrationsHealthCheck] Sending alert for ${alert.integrationSlug}...`);
 
     // Get admin users who should receive alerts
     const supabase = await createClient();
@@ -234,14 +235,14 @@ async function sendIntegrationAlert(alert: {
       .eq('role', 'super_admin'); // Only send to super admins
 
     if (!adminUsers || adminUsers.length === 0) {
-      console.warn('[IntegrationsHealthCheck] No admin users found to send alert');
+      cronLogger.warn('[IntegrationsHealthCheck] No admin users found to send alert');
       return;
     }
 
     // Send email using Resend
     const resendApiKey = process.env.RESEND_API_KEY;
     if (!resendApiKey) {
-      console.error('[IntegrationsHealthCheck] RESEND_API_KEY not configured');
+      cronLogger.error('[IntegrationsHealthCheck] RESEND_API_KEY not configured');
       return;
     }
 
@@ -285,15 +286,15 @@ This is an automated alert from CircleTel Integration Monitoring System
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error(
+          cronLogger.error(
             `[IntegrationsHealthCheck] Failed to send email to ${admin.email}:`,
             errorData
           );
         } else {
-          console.log(`[IntegrationsHealthCheck] ✅ Alert sent to ${admin.email}`);
+          cronLogger.info(`[IntegrationsHealthCheck] ✅ Alert sent to ${admin.email}`);
         }
       } catch (emailError) {
-        console.error(
+        cronLogger.error(
           `[IntegrationsHealthCheck] Error sending email to ${admin.email}:`,
           emailError
         );
@@ -314,6 +315,6 @@ This is an automated alert from CircleTel Integration Monitoring System
       },
     });
   } catch (error) {
-    console.error('[IntegrationsHealthCheck] Error sending alert:', error);
+    cronLogger.error('[IntegrationsHealthCheck] Error sending alert:', error);
   }
 }

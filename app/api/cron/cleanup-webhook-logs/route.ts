@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * GET /api/cron/cleanup-webhook-logs
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('[WebhookLogsCleanup] CRON_SECRET not configured');
+      cronLogger.error('[WebhookLogsCleanup] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[WebhookLogsCleanup] Invalid authorization');
+      cronLogger.error('[WebhookLogsCleanup] Invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -58,13 +59,13 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get('retentionDays')!, 10)
       : 90; // Default: 90 days
 
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
-    console.log('[WebhookLogsCleanup]   Starting Webhook Logs Cleanup Job');
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
-    console.log(`[WebhookLogsCleanup]   Timestamp: ${new Date().toISOString()}`);
-    console.log(`[WebhookLogsCleanup]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
-    console.log(`[WebhookLogsCleanup]   Retention: ${retentionDays} days`);
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[WebhookLogsCleanup]   Starting Webhook Logs Cleanup Job');
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[WebhookLogsCleanup]   Timestamp: ${new Date().toISOString()}`);
+    cronLogger.info(`[WebhookLogsCleanup]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
+    cronLogger.info(`[WebhookLogsCleanup]   Retention: ${retentionDays} days`);
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Calculate Cutoff Date
@@ -72,8 +73,8 @@ export async function GET(request: NextRequest) {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
 
-    console.log(`[WebhookLogsCleanup] Cutoff date: ${cutoffDate.toISOString()}`);
-    console.log(`[WebhookLogsCleanup] Deleting logs older than ${retentionDays} days...\n`);
+    cronLogger.info(`[WebhookLogsCleanup] Cutoff date: ${cutoffDate.toISOString()}`);
+    cronLogger.info(`[WebhookLogsCleanup] Deleting logs older than ${retentionDays} days...\n`);
 
     // =========================================================================
     // Count Logs to Delete (for reporting)
@@ -86,14 +87,14 @@ export async function GET(request: NextRequest) {
       .lt('received_at', cutoffDate.toISOString());
 
     if (countError) {
-      console.error('[WebhookLogsCleanup] Error counting logs:', countError);
+      cronLogger.error('[WebhookLogsCleanup] Error counting logs:', countError);
       throw new Error('Failed to count webhook logs');
     }
 
-    console.log(`[WebhookLogsCleanup] Found ${logsToDelete || 0} logs to delete\n`);
+    cronLogger.info(`[WebhookLogsCleanup] Found ${logsToDelete || 0} logs to delete\n`);
 
     if (logsToDelete === 0 || logsToDelete === null) {
-      console.log('[WebhookLogsCleanup] No logs to delete. Job complete.\n');
+      cronLogger.info('[WebhookLogsCleanup] No logs to delete. Job complete.\n');
 
       return NextResponse.json({
         success: true,
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
     let logsDeleted = 0;
 
     if (!dryRun) {
-      console.log('[WebhookLogsCleanup] Deleting logs...');
+      cronLogger.info('[WebhookLogsCleanup] Deleting logs...');
 
       const { error: deleteError, count: deletedCount } = await supabase
         .from('integration_webhook_logs')
@@ -122,15 +123,15 @@ export async function GET(request: NextRequest) {
         .lt('received_at', cutoffDate.toISOString());
 
       if (deleteError) {
-        console.error('[WebhookLogsCleanup] Error deleting logs:', deleteError);
+        cronLogger.error('[WebhookLogsCleanup] Error deleting logs:', deleteError);
         throw new Error('Failed to delete webhook logs');
       }
 
       logsDeleted = deletedCount || 0;
 
-      console.log(`[WebhookLogsCleanup] ✅ Deleted ${logsDeleted} logs\n`);
+      cronLogger.info(`[WebhookLogsCleanup] ✅ Deleted ${logsDeleted} logs\n`);
     } else {
-      console.log('[WebhookLogsCleanup] 🧪 DRY RUN - No logs deleted\n');
+      cronLogger.info('[WebhookLogsCleanup] 🧪 DRY RUN - No logs deleted\n');
       logsDeleted = logsToDelete;
     }
 
@@ -139,13 +140,13 @@ export async function GET(request: NextRequest) {
     // =========================================================================
     const duration = Date.now() - startTime;
 
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
-    console.log('[WebhookLogsCleanup]   Cleanup Complete');
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
-    console.log(`[WebhookLogsCleanup]   Logs deleted: ${logsDeleted}`);
-    console.log(`[WebhookLogsCleanup]   Duration: ${duration}ms`);
-    console.log(`[WebhookLogsCleanup]   Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
-    console.log('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[WebhookLogsCleanup]   Cleanup Complete');
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[WebhookLogsCleanup]   Logs deleted: ${logsDeleted}`);
+    cronLogger.info(`[WebhookLogsCleanup]   Duration: ${duration}ms`);
+    cronLogger.info(`[WebhookLogsCleanup]   Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
+    cronLogger.info('[WebhookLogsCleanup] ═══════════════════════════════════════════════════════════\n');
 
     return NextResponse.json({
       success: true,
@@ -159,7 +160,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[WebhookLogsCleanup] Error running cleanup:', error);
+    cronLogger.error('[WebhookLogsCleanup] Error running cleanup:', error);
 
     return NextResponse.json(
       {

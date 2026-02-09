@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { NotificationTrackingService } from '@/lib/billing/notification-tracking-service';
+import { cronLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -24,19 +25,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('[AR Snapshot] Creating daily snapshot...');
+    cronLogger.info('[AR Snapshot] Creating daily snapshot...');
 
     const result = await NotificationTrackingService.createDailySnapshot();
 
     if (!result.success) {
-      console.error('[AR Snapshot] Failed:', result.error);
+      cronLogger.error('[AR Snapshot] Failed:', result.error);
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 500 }
       );
     }
 
-    console.log('[AR Snapshot] Daily snapshot created successfully');
+    cronLogger.info('[AR Snapshot] Daily snapshot created successfully');
 
     return NextResponse.json({
       success: true,
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       date: new Date().toISOString().split('T')[0],
     });
   } catch (error) {
-    console.error('[AR Snapshot] Error:', error);
+    cronLogger.error('[AR Snapshot] Error:', error);
     return NextResponse.json(
       {
         success: false,

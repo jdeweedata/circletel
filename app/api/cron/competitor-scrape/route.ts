@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/server';
 import { inngest } from '@/lib/inngest';
 import { isProviderSupported } from '@/lib/competitor-analysis';
 import type { CompetitorProvider } from '@/lib/competitor-analysis/types';
+import { cronLogger } from '@/lib/logging';
 
 // =============================================================================
 // CRON CONFIGURATION
@@ -31,11 +32,11 @@ export async function GET(request: Request) {
   // Verify the request is from Vercel Cron
   const authHeader = request.headers.get('authorization');
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
-    console.error('[CronCompetitorScrape] Unauthorized request');
+    cronLogger.error('[CronCompetitorScrape] Unauthorized request');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log('[CronCompetitorScrape] Starting scheduled competitor scrape via Inngest...');
+  cronLogger.info('[CronCompetitorScrape] Starting scheduled competitor scrape via Inngest...');
 
   try {
     const supabase = await createClient();
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
       .eq('is_active', true);
 
     if (providerError) {
-      console.error('[CronCompetitorScrape] Failed to fetch providers:', providerError);
+      cronLogger.error('[CronCompetitorScrape] Failed to fetch providers:', providerError);
       return NextResponse.json(
         { error: 'Failed to fetch providers', details: providerError.message },
         { status: 500 }
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
     }
 
     if (!providers || providers.length === 0) {
-      console.log('[CronCompetitorScrape] No active providers found');
+      cronLogger.info('[CronCompetitorScrape] No active providers found');
       return NextResponse.json({ message: 'No active providers to scrape', results: [] });
     }
 
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
     const providersToScrape = filterByFrequency(providers as CompetitorProvider[]);
 
     if (providersToScrape.length === 0) {
-      console.log('[CronCompetitorScrape] No providers due for scraping');
+      cronLogger.info('[CronCompetitorScrape] No providers due for scraping');
       return NextResponse.json({
         message: 'No providers due for scraping',
         checked: providers.length,
@@ -75,7 +76,7 @@ export async function GET(request: Request) {
     const supportedProviders = providersToScrape.filter((p) => isProviderSupported(p.slug));
 
     if (supportedProviders.length === 0) {
-      console.log('[CronCompetitorScrape] No supported providers to scrape');
+      cronLogger.info('[CronCompetitorScrape] No supported providers to scrape');
       return NextResponse.json({
         message: 'No supported providers to scrape',
         checked: providersToScrape.length,
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log(`[CronCompetitorScrape] Queueing ${supportedProviders.length} providers for scraping`);
+    cronLogger.info(`[CronCompetitorScrape] Queueing ${supportedProviders.length} providers for scraping`);
 
     // Create scrape log entries and queue Inngest events
     const scrapeLogIds: string[] = [];
@@ -111,7 +112,7 @@ export async function GET(request: Request) {
         .single();
 
       if (logError) {
-        console.error(`[CronCompetitorScrape] Failed to create log for ${provider.name}:`, logError);
+        cronLogger.error(`[CronCompetitorScrape] Failed to create log for ${provider.name}:`, logError);
         continue;
       }
 
@@ -134,9 +135,9 @@ export async function GET(request: Request) {
     if (inngestEvents.length > 0) {
       try {
         await inngest.send(inngestEvents);
-        console.log(`[CronCompetitorScrape] Sent ${inngestEvents.length} jobs to Inngest`);
+        cronLogger.info(`[CronCompetitorScrape] Sent ${inngestEvents.length} jobs to Inngest`);
       } catch (inngestError) {
-        console.error('[CronCompetitorScrape] Failed to send to Inngest:', inngestError);
+        cronLogger.error('[CronCompetitorScrape] Failed to send to Inngest:', inngestError);
         
         // Mark jobs as failed
         for (const logId of scrapeLogIds) {
@@ -166,7 +167,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[CronCompetitorScrape] Error:', message);
+    cronLogger.error('[CronCompetitorScrape] Error:', message);
     return NextResponse.json({ error: 'Failed to trigger scrapes', details: message }, { status: 500 });
   }
 }

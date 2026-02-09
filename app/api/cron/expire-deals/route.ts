@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * Cron job to automatically expire MTN deals
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
       .lt('promo_end_date', today);
     
     if (fetchError) {
-      console.error('Error fetching expired deals:', fetchError);
+      cronLogger.error('Error fetching expired deals:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch expired deals' },
         { status: 500 }
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       .in('id', expiredDeals.map(d => d.id));
     
     if (updateError) {
-      console.error('Error updating deals:', updateError);
+      cronLogger.error('Error updating deals:', updateError);
       return NextResponse.json(
         { success: false, error: 'Failed to expire deals' },
         { status: 500 }
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Log the expiry
-    console.log(`Expired ${expiredDeals.length} MTN deals:`, expiredDeals.map(d => d.deal_id));
+    cronLogger.info(`Expired ${expiredDeals.length} MTN deals:`, expiredDeals.map(d => d.deal_id));
     
     return NextResponse.json({
       success: true,
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Error in expire-deals cron:', error);
+    cronLogger.error('Error in expire-deals cron:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

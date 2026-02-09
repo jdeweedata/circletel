@@ -19,6 +19,7 @@ import type {
   HealthCheckResult,
   HealthAlert,
 } from '@/lib/diagnostics/types'
+import { cronLogger } from '@/lib/logging'
 
 // Cron secret for authentication
 const CRON_SECRET = process.env.CRON_SECRET
@@ -42,11 +43,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Verify cron secret
   const authHeader = request.headers.get('authorization')
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
-    console.error('[Diagnostics Cron] Unauthorized request')
+    cronLogger.error('[Diagnostics Cron] Unauthorized request')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  console.log('[Diagnostics Cron] Starting health check run...')
+  cronLogger.info('[Diagnostics Cron] Starting health check run...')
 
   try {
     const supabase = await createClient()
@@ -60,14 +61,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .not('connection_id', 'eq', '')
 
     if (servicesError) {
-      console.error('[Diagnostics Cron] Failed to fetch services:', servicesError)
+      cronLogger.error('[Diagnostics Cron] Failed to fetch services:', servicesError)
       return NextResponse.json(
         { error: 'Failed to fetch services' },
         { status: 500 }
       )
     }
 
-    console.log(`[Diagnostics Cron] Found ${services?.length || 0} active services to check`)
+    cronLogger.info(`[Diagnostics Cron] Found ${services?.length || 0} active services to check`)
 
     if (!services || services.length === 0) {
       return NextResponse.json({
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     for (let i = 0; i < services.length; i += BATCH_SIZE) {
       const batch = services.slice(i, i + BATCH_SIZE)
 
-      console.log(
+      cronLogger.info(
         `[Diagnostics Cron] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(services.length / BATCH_SIZE)}`
       )
 
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           allAlerts.push(...result.value.alerts)
         } else {
           errors.push(`${service.id}: ${result.reason}`)
-          console.error(
+          cronLogger.error(
             `[Diagnostics Cron] Failed to check ${service.id}:`,
             result.reason
           )
@@ -146,7 +147,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const duration = Date.now() - startTime
 
-    console.log(
+    cronLogger.info(
       `[Diagnostics Cron] Completed in ${duration}ms:`,
       `${stats.healthy} healthy, ${stats.warning} warning, ${stats.critical} critical, ${stats.offline} offline`,
       `(${stats.tickets_created} tickets created, ${stats.errors} errors)`
@@ -181,7 +182,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   } catch (error) {
     const duration = Date.now() - startTime
-    console.error('[Diagnostics Cron] Error:', error)
+    cronLogger.error('[Diagnostics Cron] Error:', error)
 
     return NextResponse.json(
       {
@@ -251,9 +252,9 @@ View full details at: ${process.env.NEXT_PUBLIC_BASE_URL}/admin/diagnostics
       text: body,
     })
 
-    console.log('[Diagnostics Cron] Summary email sent to', supportEmail)
+    cronLogger.info('[Diagnostics Cron] Summary email sent to', supportEmail)
   } catch (error) {
-    console.error('[Diagnostics Cron] Failed to send summary email:', error)
+    cronLogger.error('[Diagnostics Cron] Failed to send summary email:', error)
   }
 }
 

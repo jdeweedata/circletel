@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
+import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
 export const runtime = 'nodejs';
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     const result = await runReconciliation();
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Reconciliation cron error:', error);
+    cronLogger.error('Reconciliation cron error:', error);
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     const result = await runReconciliation(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Reconciliation error:', error);
+    cronLogger.error('Reconciliation error:', error);
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -70,7 +71,7 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   const reconciliationDate = customDate || new Date(Date.now() - 24 * 60 * 60 * 1000);
   const dateStr = reconciliationDate.toISOString().split('T')[0];
 
-  console.log(`Starting payment reconciliation for ${dateStr}`);
+  cronLogger.info(`Starting payment reconciliation for ${dateStr}`);
 
   const result: ReconciliationResult = {
     date: dateStr,
@@ -108,11 +109,11 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   }
 
   if (!pendingInvoices || pendingInvoices.length === 0) {
-    console.log('No pending invoices to reconcile');
+    cronLogger.info('No pending invoices to reconcile');
     return result;
   }
 
-  console.log(`Found ${pendingInvoices.length} pending invoices to reconcile`);
+  cronLogger.info(`Found ${pendingInvoices.length} pending invoices to reconcile`);
 
   // Get pending orders with debit order payment method
   const { data: pendingOrders, error: orderError } = await supabase
@@ -168,7 +169,7 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   // Find matching debit order results
   const debitResults = netcashStatementService.findDebitOrderResults(statement, references);
 
-  console.log(`Found ${debitResults.length} matching transactions in statement`);
+  cronLogger.info(`Found ${debitResults.length} matching transactions in statement`);
 
   // Process each result
   for (const debitResult of debitResults) {
@@ -209,7 +210,7 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
   // Log the reconciliation
   await logReconciliation(supabase, result);
 
-  console.log(`Reconciliation complete: ${result.successful} successful, ${result.unpaid} unpaid, ${result.notFound} not found`);
+  cronLogger.info(`Reconciliation complete: ${result.successful} successful, ${result.unpaid} unpaid, ${result.notFound} not found`);
 
   return result;
 }
@@ -330,6 +331,6 @@ async function logReconciliation(
         result: result,
       });
   } catch (error) {
-    console.error('Failed to log reconciliation:', error);
+    cronLogger.error('Failed to log reconciliation:', error);
   }
 }

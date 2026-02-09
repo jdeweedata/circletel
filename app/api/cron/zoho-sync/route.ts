@@ -24,6 +24,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { runDailySync } from '@/lib/integrations/zoho/daily-sync-service';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * GET /api/cron/zoho-sync
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('[Zoho Sync Cron] CRON_SECRET not configured');
+      cronLogger.error('[Zoho Sync Cron] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[Zoho Sync Cron] Invalid authorization');
+      cronLogger.error('[Zoho Sync Cron] Invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -66,13 +67,13 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get('maxProducts')!, 10)
       : 100; // Default: 100 products (safety limit)
 
-    console.log('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
-    console.log('[Zoho Sync Cron]   Starting Zoho Daily Sync Job');
-    console.log('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
-    console.log(`[Zoho Sync Cron]   Timestamp: ${new Date().toISOString()}`);
-    console.log(`[Zoho Sync Cron]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
-    console.log(`[Zoho Sync Cron]   Max Products: ${maxProducts}`);
-    console.log('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[Zoho Sync Cron]   Starting Zoho Daily Sync Job');
+    cronLogger.info('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[Zoho Sync Cron]   Timestamp: ${new Date().toISOString()}`);
+    cronLogger.info(`[Zoho Sync Cron]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
+    cronLogger.info(`[Zoho Sync Cron]   Max Products: ${maxProducts}`);
+    cronLogger.info('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Run Daily Sync
@@ -84,15 +85,15 @@ export async function GET(request: NextRequest) {
 
     const duration = Date.now() - startTime;
 
-    console.log('\n[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
-    console.log('[Zoho Sync Cron]   Daily Sync Job Completed');
-    console.log('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
-    console.log(`[Zoho Sync Cron]   Total Candidates: ${summary.totalCandidates}`);
-    console.log(`[Zoho Sync Cron]   Processed: ${summary.processed}`);
-    console.log(`[Zoho Sync Cron]   CRM: ✅ ${summary.crmSucceeded} | ❌ ${summary.crmFailed}`);
-    console.log(`[Zoho Sync Cron]   Billing: ✅ ${summary.billingSucceeded} | ❌ ${summary.billingFailed}`);
-    console.log(`[Zoho Sync Cron]   Duration: ${(duration / 1000).toFixed(1)}s`);
-    console.log('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('\n[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[Zoho Sync Cron]   Daily Sync Job Completed');
+    cronLogger.info('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[Zoho Sync Cron]   Total Candidates: ${summary.totalCandidates}`);
+    cronLogger.info(`[Zoho Sync Cron]   Processed: ${summary.processed}`);
+    cronLogger.info(`[Zoho Sync Cron]   CRM: ✅ ${summary.crmSucceeded} | ❌ ${summary.crmFailed}`);
+    cronLogger.info(`[Zoho Sync Cron]   Billing: ✅ ${summary.billingSucceeded} | ❌ ${summary.billingFailed}`);
+    cronLogger.info(`[Zoho Sync Cron]   Duration: ${(duration / 1000).toFixed(1)}s`);
+    cronLogger.info('[Zoho Sync Cron] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Log Execution to Database
@@ -121,12 +122,12 @@ export async function GET(request: NextRequest) {
       });
 
       if (logError) {
-        console.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
+        cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
       } else {
-        console.log('[Zoho Sync Cron] ✅ Execution logged to database');
+        cronLogger.info('[Zoho Sync Cron] ✅ Execution logged to database');
       }
     } catch (logError: any) {
-      console.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
+      cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
     }
 
     // =========================================================================
@@ -138,7 +139,7 @@ export async function GET(request: NextRequest) {
       );
 
       if (failedResults.length > 0) {
-        console.log(`[Zoho Sync Cron] Logging ${failedResults.length} failed products to zoho_sync_logs...`);
+        cronLogger.info(`[Zoho Sync Cron] Logging ${failedResults.length} failed products to zoho_sync_logs...`);
 
         const supabase = await createClient();
 
@@ -178,14 +179,14 @@ export async function GET(request: NextRequest) {
               });
             }
           } catch (logError: any) {
-            console.warn(
+            cronLogger.warn(
               `[Zoho Sync Cron] Failed to log error for ${result.sku}:`,
               logError.message
             );
           }
         }
 
-        console.log('[Zoho Sync Cron] ✅ Failed products logged to zoho_sync_logs');
+        cronLogger.info('[Zoho Sync Cron] ✅ Failed products logged to zoho_sync_logs');
       }
     }
 
@@ -213,8 +214,8 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    console.error('[Zoho Sync Cron] ❌ Fatal error:', error);
-    console.error('[Zoho Sync Cron] Stack:', error.stack);
+    cronLogger.error('[Zoho Sync Cron] ❌ Fatal error:', error);
+    cronLogger.error('[Zoho Sync Cron] Stack:', error.stack);
 
     // Try to log fatal error to database
     try {
@@ -230,7 +231,7 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (logError) {
-      console.error('[Zoho Sync Cron] Failed to log fatal error:', logError);
+      cronLogger.error('[Zoho Sync Cron] Failed to log fatal error:', logError);
     }
 
     return NextResponse.json(

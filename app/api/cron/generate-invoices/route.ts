@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { BillingService } from '@/lib/billing/billing-service';
 import { sendInvoiceGenerated } from '@/lib/emails/enhanced-notification-service';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * POST /api/cron/generate-invoices
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
     
     if (!cronSecret) {
-      console.error('CRON_SECRET not configured');
+      cronLogger.error('CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
     
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('Invalid cron secret');
+      cronLogger.error('Invalid cron secret');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -60,8 +61,8 @@ export async function POST(request: NextRequest) {
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
     
-    console.log(`Invoice generation job started at ${executionStart.toISOString()}`);
-    console.log(`Looking for services with next_billing_date = ${sevenDaysFromNow.toISOString().split('T')[0]}`);
+    cronLogger.info(`Invoice generation job started at ${executionStart.toISOString()}`);
+    cronLogger.info(`Looking for services with next_billing_date = ${sevenDaysFromNow.toISOString().split('T')[0]}`);
     
     // Get active services where next_billing_date is exactly 7 days from now
     const targetDate = sevenDaysFromNow.toISOString().split('T')[0];
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to fetch services: ${servicesError.message}`);
     }
     
-    console.log(`Found ${services?.length || 0} services to process`);
+    cronLogger.info(`Found ${services?.length || 0} services to process`);
     
     if (!services || services.length === 0) {
       // Log execution with no records
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
           .single();
         
         if (existingInvoice) {
-          console.log(`Invoice already exists for service ${service.id}, skipping`);
+          cronLogger.info(`Invoice already exists for service ${service.id}, skipping`);
           recordsSkipped++;
           continue;
         }
@@ -179,11 +180,11 @@ export async function POST(request: NextRequest) {
           line_items: lineItems,
         });
         
-        console.log(`Generated invoice ${invoice.invoice_number} for service ${service.id}`);
+        cronLogger.info(`Generated invoice ${invoice.invoice_number} for service ${service.id}`);
         recordsProcessed++;
         
       } catch (error: any) {
-        console.error(`Failed to process service ${service.id}:`, error);
+        cronLogger.error(`Failed to process service ${service.id}:`, error);
         errors.push(`Service ${service.id}: ${error.message}`);
         recordsFailed++;
       }
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    console.log(`Invoice generation completed: ${recordsProcessed} processed, ${recordsFailed} failed, ${recordsSkipped} skipped`);
+    cronLogger.info(`Invoice generation completed: ${recordsProcessed} processed, ${recordsFailed} failed, ${recordsSkipped} skipped`);
     
     return NextResponse.json({
       message: 'Invoice generation completed',
@@ -219,7 +220,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Invoice generation job failed:', error);
+    cronLogger.error('Invoice generation job failed:', error);
     
     // Log failed execution
     const supabase = await createClient();
@@ -278,7 +279,7 @@ async function logExecution(
       environment: process.env.NODE_ENV || 'production'
     });
   } catch (error) {
-    console.error('Failed to log execution:', error);
+    cronLogger.error('Failed to log execution:', error);
   }
 }
 
@@ -315,7 +316,7 @@ async function sendInvoiceNotifications(
   try {
     // Skip if no email
     if (!customer.email) {
-      console.warn(`[Invoice Notification] No email for customer ${customer.id}`);
+      cronLogger.warn(`[Invoice Notification] No email for customer ${customer.id}`);
       return false;
     }
 
@@ -335,9 +336,9 @@ async function sendInvoiceNotifications(
     });
 
     if (emailResult.success) {
-      console.log(`[Invoice Notification] Email sent to ${customer.email} for ${invoice.invoice_number}`);
+      cronLogger.info(`[Invoice Notification] Email sent to ${customer.email} for ${invoice.invoice_number}`);
     } else {
-      console.error(`[Invoice Notification] Email failed for ${invoice.invoice_number}:`, emailResult.error);
+      cronLogger.error(`[Invoice Notification] Email failed for ${invoice.invoice_number}:`, emailResult.error);
     }
 
     // Note: SMS reminders for overdue invoices are handled by /api/cron/invoice-sms-reminders
@@ -345,7 +346,7 @@ async function sendInvoiceNotifications(
 
     return emailResult.success;
   } catch (error) {
-    console.error('[Invoice Notification] Failed to send notifications:', error);
+    cronLogger.error('[Invoice Notification] Failed to send notifications:', error);
     // Don't throw - notifications are non-critical
     return false;
   }

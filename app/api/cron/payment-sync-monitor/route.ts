@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { cronLogger } from '@/lib/logging';
 
 // Environment configuration
 const ALERT_EMAIL = process.env.PAYMENT_ALERT_EMAIL || process.env.ALERT_EMAIL_TO || 'dev@circletel.co.za';
@@ -186,7 +187,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    console.error('Payment sync monitoring error:', error);
+    cronLogger.error('Payment sync monitoring error:', error);
 
     return NextResponse.json(
       {
@@ -212,7 +213,7 @@ async function sendAlerts(result: MonitoringResult): Promise<{ email: boolean; w
       const emailSent = await sendEmailAlert(result);
       alerts.email = emailSent;
     } catch (error) {
-      console.error('Failed to send email alert:', error);
+      cronLogger.error('Failed to send email alert:', error);
     }
   }
 
@@ -222,7 +223,7 @@ async function sendAlerts(result: MonitoringResult): Promise<{ email: boolean; w
       const webhookSent = await sendWebhookAlert(result);
       alerts.webhook = webhookSent;
     } catch (error) {
-      console.error('Failed to send webhook alert:', error);
+      cronLogger.error('Failed to send webhook alert:', error);
     }
   }
 
@@ -366,7 +367,7 @@ async function logMonitoringResult(
       duration_ms: processingTimeMs,
     });
   } catch (error) {
-    console.error('Failed to log monitoring result:', error);
+    cronLogger.error('Failed to log monitoring result:', error);
   }
 }
 

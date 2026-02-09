@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ZohoBillingClient } from '@/lib/integrations/zoho/billing-client';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * GET /api/cron/price-changes
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('[Price Changes Cron] CRON_SECRET not configured');
+      cronLogger.error('[Price Changes Cron] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -43,17 +44,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[Price Changes Cron] Invalid authorization');
+      cronLogger.error('[Price Changes Cron] Invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[Price Changes Cron] Starting price change job...');
+    cronLogger.info('[Price Changes Cron] Starting price change job...');
 
     // =========================================================================
     // Get Today's Date (YYYY-MM-DD)
     // =========================================================================
     const today = new Date().toISOString().split('T')[0];
-    console.log('[Price Changes Cron] Checking for price changes effective on:', today);
+    cronLogger.info('[Price Changes Cron] Checking for price changes effective on:', today);
 
     // =========================================================================
     // Find Price Changes to Make Effective
@@ -78,14 +79,14 @@ export async function GET(request: NextRequest) {
       .eq('effective_date', today);
 
     if (queryError) {
-      console.error('[Price Changes Cron] Query error:', queryError);
+      cronLogger.error('[Price Changes Cron] Query error:', queryError);
       return NextResponse.json(
         { error: 'Failed to fetch price changes' },
         { status: 500 }
       );
     }
 
-    console.log(`[Price Changes Cron] Found ${priceChanges.length} price changes to process`);
+    cronLogger.info(`[Price Changes Cron] Found ${priceChanges.length} price changes to process`);
 
     if (priceChanges.length === 0) {
       return NextResponse.json({
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
       };
 
       try {
-        console.log(
+        cronLogger.info(
           `[Price Changes Cron] Processing: ${change.service_package?.name} (${change.id})`
         );
 
@@ -132,7 +133,7 @@ export async function GET(request: NextRequest) {
           throw new Error(`Failed to update package price: ${updatePriceError.message}`);
         }
 
-        console.log(
+        cronLogger.info(
           `[Price Changes Cron] ✅ Updated package price: R${change.old_price} → R${change.new_price}`
         );
 
@@ -149,11 +150,11 @@ export async function GET(request: NextRequest) {
               recurring_price: change.new_price,
             });
 
-            console.log(
+            cronLogger.info(
               `[Price Changes Cron] ✅ Updated Zoho Billing Plan: ${zohoPlanId}`
             );
           } catch (zohoError: any) {
-            console.error(
+            cronLogger.error(
               `[Price Changes Cron] ⚠️  Zoho Billing update failed (non-fatal):`,
               zohoError
             );
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest) {
             // Don't fail the entire operation - price is updated in Supabase
           }
         } else {
-          console.log(
+          cronLogger.info(
             `[Price Changes Cron] ⚠️  No Zoho Plan ID - skipping Zoho update`
           );
         }
@@ -183,7 +184,7 @@ export async function GET(request: NextRequest) {
           );
         }
 
-        console.log(
+        cronLogger.info(
           `[Price Changes Cron] ✅ Updated price_changes status to 'effective'`
         );
 
@@ -218,13 +219,13 @@ export async function GET(request: NextRequest) {
           .eq('id', change.service_package_id);
 
         if (historyError) {
-          console.error(
+          cronLogger.error(
             `[Price Changes Cron] ⚠️  Failed to update price_history:`,
             historyError
           );
           // Don't fail - history is supplementary
         } else {
-          console.log(`[Price Changes Cron] ✅ Updated price_history`);
+          cronLogger.info(`[Price Changes Cron] ✅ Updated price_history`);
         }
 
         // =====================================================================
@@ -233,7 +234,7 @@ export async function GET(request: NextRequest) {
         result.success = true;
         result.message = `Price change made effective: R${change.old_price} → R${change.new_price}`;
 
-        console.log(
+        cronLogger.info(
           `[Price Changes Cron] ✅ Price change ${change.id} completed successfully`
         );
       } catch (error: any) {
@@ -243,7 +244,7 @@ export async function GET(request: NextRequest) {
         result.success = false;
         result.error = error.message;
 
-        console.error(
+        cronLogger.error(
           `[Price Changes Cron] ❌ Failed to process price change ${change.id}:`,
           error
         );
@@ -259,7 +260,7 @@ export async function GET(request: NextRequest) {
             attempt_number: 1,
           });
         } catch (logError) {
-          console.error('[Price Changes Cron] Failed to log error:', logError);
+          cronLogger.error('[Price Changes Cron] Failed to log error:', logError);
         }
       }
 
@@ -272,7 +273,7 @@ export async function GET(request: NextRequest) {
     const successCount = results.filter((r) => r.success).length;
     const failureCount = results.filter((r) => !r.success).length;
 
-    console.log(
+    cronLogger.info(
       `[Price Changes Cron] Job completed: ${successCount} succeeded, ${failureCount} failed`
     );
 
@@ -286,7 +287,7 @@ export async function GET(request: NextRequest) {
       results,
     });
   } catch (error: any) {
-    console.error('[Price Changes Cron] Fatal error:', error);
+    cronLogger.error('[Price Changes Cron] Fatal error:', error);
 
     return NextResponse.json(
       {

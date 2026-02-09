@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { retryFailedPaymentSyncs, getPaymentSyncStats } from '@/lib/payments/payment-sync-service';
+import { cronLogger } from '@/lib/logging';
 
 /**
  * GET /api/cron/payment-sync-retry
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('[Payment Sync Retry] CRON_SECRET not configured');
+      cronLogger.error('[Payment Sync Retry] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[Payment Sync Retry] Invalid authorization');
+      cronLogger.error('[Payment Sync Retry] Invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -59,19 +60,19 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get('limit')!, 10)
       : 50; // Default: 50 payments per run
 
-    console.log('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
-    console.log('[Payment Sync Retry]   Starting Payment Sync Retry Job');
-    console.log('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
-    console.log(`[Payment Sync Retry]   Timestamp: ${new Date().toISOString()}`);
-    console.log(`[Payment Sync Retry]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
-    console.log(`[Payment Sync Retry]   Limit: ${limit} payments`);
-    console.log('[Payment Sync Retry] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[Payment Sync Retry]   Starting Payment Sync Retry Job');
+    cronLogger.info('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[Payment Sync Retry]   Timestamp: ${new Date().toISOString()}`);
+    cronLogger.info(`[Payment Sync Retry]   Mode: ${dryRun ? '🧪 DRY RUN' : '🚀 LIVE'}`);
+    cronLogger.info(`[Payment Sync Retry]   Limit: ${limit} payments`);
+    cronLogger.info('[Payment Sync Retry] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Get Current Stats
     // =========================================================================
     const beforeStats = await getPaymentSyncStats();
-    console.log('[Payment Sync Retry] Current sync stats:', beforeStats);
+    cronLogger.info('[Payment Sync Retry] Current sync stats:', beforeStats);
 
     // =========================================================================
     // Skip if dry run
@@ -100,14 +101,14 @@ export async function GET(request: NextRequest) {
     // =========================================================================
     const afterStats = await getPaymentSyncStats();
 
-    console.log('\n[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
-    console.log('[Payment Sync Retry]   Payment Sync Retry Job Completed');
-    console.log('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
-    console.log(`[Payment Sync Retry]   Processed: ${result.processed}`);
-    console.log(`[Payment Sync Retry]   Succeeded: ${result.succeeded}`);
-    console.log(`[Payment Sync Retry]   Failed: ${result.failed}`);
-    console.log(`[Payment Sync Retry]   Duration: ${(duration / 1000).toFixed(1)}s`);
-    console.log('[Payment Sync Retry] ═══════════════════════════════════════════════════════════\n');
+    cronLogger.info('\n[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
+    cronLogger.info('[Payment Sync Retry]   Payment Sync Retry Job Completed');
+    cronLogger.info('[Payment Sync Retry] ═══════════════════════════════════════════════════════════');
+    cronLogger.info(`[Payment Sync Retry]   Processed: ${result.processed}`);
+    cronLogger.info(`[Payment Sync Retry]   Succeeded: ${result.succeeded}`);
+    cronLogger.info(`[Payment Sync Retry]   Failed: ${result.failed}`);
+    cronLogger.info(`[Payment Sync Retry]   Duration: ${(duration / 1000).toFixed(1)}s`);
+    cronLogger.info('[Payment Sync Retry] ═══════════════════════════════════════════════════════════\n');
 
     // =========================================================================
     // Log Execution to Database
@@ -133,12 +134,12 @@ export async function GET(request: NextRequest) {
       });
 
       if (logError) {
-        console.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
+        cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
       } else {
-        console.log('[Payment Sync Retry] Execution logged to database');
+        cronLogger.info('[Payment Sync Retry] Execution logged to database');
       }
     } catch (logError: any) {
-      console.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
+      cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
     }
 
     // =========================================================================
@@ -160,8 +161,8 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    console.error('[Payment Sync Retry] Fatal error:', error);
-    console.error('[Payment Sync Retry] Stack:', error.stack);
+    cronLogger.error('[Payment Sync Retry] Fatal error:', error);
+    cronLogger.error('[Payment Sync Retry] Stack:', error.stack);
 
     // Try to log fatal error to database
     try {
@@ -177,7 +178,7 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (logError) {
-      console.error('[Payment Sync Retry] Failed to log fatal error:', logError);
+      cronLogger.error('[Payment Sync Retry] Failed to log fatal error:', logError);
     }
 
     return NextResponse.json(

@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { InvoiceSmsReminderService } from '@/lib/billing/invoice-sms-reminder-service';
+import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
 export const runtime = 'nodejs';
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const result = await runSmsReminders();
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Invoice SMS reminders cron error:', error);
+    cronLogger.error('Invoice SMS reminders cron error:', error);
     return NextResponse.json(
       {
         error: 'SMS reminders failed',
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     const result = await runSmsReminders(minDaysOverdue, maxDaysOverdue);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Invoice SMS reminders error:', error);
+    cronLogger.error('Invoice SMS reminders error:', error);
     return NextResponse.json(
       {
         error: 'SMS reminders failed',
@@ -87,7 +88,7 @@ async function runSmsReminders(
   const supabase = await createClient();
   const today = new Date().toISOString().split('T')[0];
 
-  console.log(`Starting invoice SMS reminders for ${today}`);
+  cronLogger.info(`Starting invoice SMS reminders for ${today}`);
 
   const errors: string[] = [];
 
@@ -124,7 +125,7 @@ async function runSmsReminders(
     // Log the cron execution
     await logCronExecution(supabase, cronResult);
 
-    console.log(
+    cronLogger.info(
       `SMS reminders complete: ${result.sent} sent, ${result.failed} failed, ${result.skipped} skipped`
     );
 
@@ -165,6 +166,6 @@ async function logCronExecution(
       result,
     });
   } catch (error) {
-    console.error('Failed to log cron execution:', error);
+    cronLogger.error('Failed to log cron execution:', error);
   }
 }

@@ -18,10 +18,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { 
-  netcashDebitBatchService, 
-  DebitOrderItem 
+import {
+  netcashDebitBatchService,
+  DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
+import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
 export const runtime = 'nodejs';
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     const result = await submitDebitOrders();
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Debit order submission cron error:', error);
+    cronLogger.error('Debit order submission cron error:', error);
     return NextResponse.json(
       { error: 'Submission failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     const result = await submitDebitOrders(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Debit order submission error:', error);
+    cronLogger.error('Debit order submission error:', error);
     return NextResponse.json(
       { error: 'Submission failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -83,7 +84,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   const billingDay = billingDate.getDate();
   const dateStr = billingDate.toISOString().split('T')[0];
 
-  console.log(`Starting debit order submission for billing day ${billingDay} (${dateStr})`);
+  cronLogger.info(`Starting debit order submission for billing day ${billingDay} (${dateStr})`);
 
   const result: SubmissionResult = {
     date: dateStr,
@@ -187,7 +188,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
         });
       } else {
         result.skipped++;
-        console.log(`Skipping invoice ${invoice.invoice_number}: No active mandate`);
+        cronLogger.info(`Skipping invoice ${invoice.invoice_number}: No active mandate`);
       }
     }
   }
@@ -215,7 +216,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
         });
       } else {
         result.skipped++;
-        console.log(`Skipping order ${order.order_number}: No active mandate`);
+        cronLogger.info(`Skipping order ${order.order_number}: No active mandate`);
       }
     }
   }
@@ -248,12 +249,12 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   result.totalEligible = eligibleItems.length + result.skipped;
 
   if (eligibleItems.length === 0) {
-    console.log('No eligible debit orders to submit');
+    cronLogger.info('No eligible debit orders to submit');
     await logExecution(supabase, result, 'completed');
     return result;
   }
 
-  console.log(`Found ${eligibleItems.length} eligible debit orders to submit`);
+  cronLogger.info(`Found ${eligibleItems.length} eligible debit orders to submit`);
 
   // ============================================================================
   // 4. Submit batch to NetCash
@@ -271,7 +272,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   result.batchId = batchResult.batchId;
   result.submitted = batchResult.itemsSubmitted;
 
-  console.log(`Batch submitted successfully: ${batchResult.batchId}`);
+  cronLogger.info(`Batch submitted successfully: ${batchResult.batchId}`);
 
   // ============================================================================
   // 5. Authorise the batch
@@ -283,9 +284,9 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     if (!authResult.success) {
       result.errors.push(`Batch authorisation failed: ${authResult.error}`);
       // Don't fail the whole job - batch is submitted, just not authorised
-      console.warn('Batch submitted but not authorised:', authResult.error);
+      cronLogger.warn('Batch submitted but not authorised:', authResult.error);
     } else {
-      console.log(`Batch ${batchResult.batchId} authorised successfully`);
+      cronLogger.info(`Batch ${batchResult.batchId} authorised successfully`);
     }
   }
 
@@ -309,7 +310,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   // Log execution
   await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
 
-  console.log(`Debit order submission complete: ${result.submitted} submitted, ${result.skipped} skipped`);
+  cronLogger.info(`Debit order submission complete: ${result.submitted} submitted, ${result.skipped} skipped`);
 
   return result;
 }
@@ -385,7 +386,7 @@ async function recordBatchSubmission(
       .insert(batchItems);
 
   } catch (error) {
-    console.error('Failed to record batch submission:', error);
+    cronLogger.error('Failed to record batch submission:', error);
     // Don't throw - this is non-critical logging
   }
 }
@@ -415,7 +416,7 @@ async function updateNextBillingDates(
           .eq('id', item.orderId);
       }
     } catch (error) {
-      console.error(`Failed to update next billing date for ${item.accountReference}:`, error);
+      cronLogger.error(`Failed to update next billing date for ${item.accountReference}:`, error);
     }
   }
 }
@@ -446,6 +447,6 @@ async function logExecution(
         },
       });
   } catch (error) {
-    console.error('Failed to log execution:', error);
+    cronLogger.error('Failed to log execution:', error);
   }
 }

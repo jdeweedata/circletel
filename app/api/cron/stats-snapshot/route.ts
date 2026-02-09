@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { cronLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120; // 2 minutes for processing all customers
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
   const snapshotDate = new Date().toISOString().split('T')[0];
 
   try {
-    console.log('[Stats Snapshot] Starting daily snapshot for', snapshotDate);
+    cronLogger.info('[Stats Snapshot] Starting daily snapshot for', snapshotDate);
 
     const supabase = await createClient();
 
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!customers || customers.length === 0) {
-      console.log('[Stats Snapshot] No active customers found');
+      cronLogger.info('[Stats Snapshot] No active customers found');
       return NextResponse.json({
         success: true,
         message: 'No active customers to snapshot',
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.log(`[Stats Snapshot] Processing ${customers.length} customers`);
+    cronLogger.info(`[Stats Snapshot] Processing ${customers.length} customers`);
 
     let processed = 0;
     let failed = 0;
@@ -209,7 +210,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log(
+    cronLogger.info(
       `[Stats Snapshot] Completed: ${processed} processed, ${failed} failed, ${duration}ms`
     );
 
@@ -225,7 +226,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error('[Stats Snapshot] Error:', error);
+    cronLogger.error('[Stats Snapshot] Error:', error);
 
     // Log failed execution
     const supabase = await createClient();
