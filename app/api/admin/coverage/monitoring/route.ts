@@ -1,5 +1,6 @@
 // Admin API: Coverage Monitoring Endpoint
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { mtnCoverageMonitor } from '@/lib/coverage/mtn/monitoring';
 import { mtnCoverageCache } from '@/lib/coverage/mtn/cache';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.error('[Monitoring API] Auth error:', authError);
+      apiLogger.error('[Monitoring API] Auth error:', authError);
       return NextResponse.json({ error: 'Unauthorized', details: authError?.message }, { status: 401 });
     }
 
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(monitoringData);
 
   } catch (error) {
-    console.error('Monitoring API error:', error);
+    apiLogger.error('Monitoring API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch monitoring data' },
       { status: 500 }
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Monitoring action error:', error);
+    apiLogger.error('Monitoring action error:', error);
     return NextResponse.json(
       { error: 'Failed to execute action' },
       { status: 500 }

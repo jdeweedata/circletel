@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@supabase/supabase-js';
 import type { PageStatus, ContentType } from '@/lib/cms/types';
 
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     const { data: pages, error, count } = await query;
 
     if (error) {
-      console.error('Failed to fetch pages:', error);
+      apiLogger.error('Failed to fetch pages:', error);
       return NextResponse.json({ error: 'Failed to fetch pages' }, { status: 500 });
     }
 
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
-    console.error('Pages API error:', error);
+    apiLogger.error('Pages API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -124,13 +125,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Failed to create page:', error);
+      apiLogger.error('Failed to create page:', error);
       return NextResponse.json({ error: 'Failed to create page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page }, { status: 201 });
   } catch (error) {
-    console.error('Create page error:', error);
+    apiLogger.error('Create page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -172,13 +173,13 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Failed to update page:', error);
+      apiLogger.error('Failed to update page:', error);
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    console.error('Update page error:', error);
+    apiLogger.error('Update page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

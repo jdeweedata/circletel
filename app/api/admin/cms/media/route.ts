@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 import type { CMSMedia } from '@/lib/cms/types';
 
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
     const { data: media, error, count } = await query;
 
     if (error) {
-      console.error('Failed to fetch media:', error);
+      apiLogger.error('Failed to fetch media:', error);
       return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
     }
 
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
       folders: Object.entries(folderCounts).map(([name, count]) => ({ name, count })),
     });
   } catch (error) {
-    console.error('Media API error:', error);
+    apiLogger.error('Media API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
+      apiLogger.error('Storage upload error:', uploadError);
       return NextResponse.json(
         { error: 'Failed to upload file to storage' },
         { status: 500 }
@@ -211,7 +212,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Failed to insert media record:', insertError);
+      apiLogger.error('Failed to insert media record:', insertError);
       // Try to clean up the uploaded file
       await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
       return NextResponse.json(
@@ -225,7 +226,7 @@ export async function POST(request: NextRequest) {
       media,
     }, { status: 201 });
   } catch (error) {
-    console.error('Media upload error:', error);
+    apiLogger.error('Media upload error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

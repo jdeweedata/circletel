@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET() {
   const start = Date.now();
 
   try {
-    console.log('[Test API] Starting...');
+    apiLogger.info('[Test API] Starting...');
 
     // Check env var
     const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log('[Test API] Has service key:', hasServiceKey);
+    apiLogger.info('[Test API] Has service key:', hasServiceKey);
 
     // Create client
     const supabase = await createClient();
-    console.log('[Test API] Client created');
+    apiLogger.info('[Test API] Client created');
 
     // Simple count query
     const { count, error } = await supabase
@@ -21,10 +22,10 @@ export async function GET() {
       .select('*', { count: 'exact', head: true });
 
     const elapsed = Date.now() - start;
-    console.log(`[Test API] Query completed in ${elapsed}ms`);
+    apiLogger.info(`[Test API] Query completed in ${elapsed}ms`);
 
     if (error) {
-      console.error('[Test API] Error:', error);
+      apiLogger.error('[Test API] Error:', error);
       return NextResponse.json({
         success: false,
         error: error.message,
@@ -40,7 +41,7 @@ export async function GET() {
     });
   } catch (error) {
     const elapsed = Date.now() - start;
-    console.error('[Test API] Exception:', error);
+    apiLogger.error('[Test API] Exception:', error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

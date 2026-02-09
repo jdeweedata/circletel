@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateContractPDF } from '@/lib/contracts/pdf-generator';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Download contract PDF
@@ -44,7 +45,7 @@ export async function GET(
       .single();
 
     if (contractError || !contract) {
-      console.error('[ContractPDFAPI] Contract not found:', contractError);
+      apiLogger.error('[ContractPDFAPI] Contract not found:', contractError);
       return NextResponse.json(
         {
           success: false,
@@ -58,11 +59,11 @@ export async function GET(
 
     // 3. Generate PDF if it doesn't exist
     if (!pdfUrl) {
-      console.log('[ContractPDFAPI] PDF not found, generating...');
+      apiLogger.info('[ContractPDFAPI] PDF not found, generating...');
       try {
         pdfUrl = await generateContractPDF(contractId);
       } catch (pdfError) {
-        console.error('[ContractPDFAPI] PDF generation failed:', pdfError);
+        apiLogger.error('[ContractPDFAPI] PDF generation failed:', pdfError);
         return NextResponse.json(
           {
             success: false,
@@ -80,7 +81,7 @@ export async function GET(
       .download(fileName);
 
     if (downloadError || !pdfData) {
-      console.error('[ContractPDFAPI] PDF download failed:', downloadError);
+      apiLogger.error('[ContractPDFAPI] PDF download failed:', downloadError);
       return NextResponse.json(
         {
           success: false,
@@ -103,7 +104,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[ContractPDFAPI] Error downloading PDF:', error);
+    apiLogger.error('[ContractPDFAPI] Error downloading PDF:', error);
     return NextResponse.json(
       {
         success: false,

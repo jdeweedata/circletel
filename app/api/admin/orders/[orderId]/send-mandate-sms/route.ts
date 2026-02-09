@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
 import { MandateSMSService } from '@/lib/integrations/clickatell/mandate-sms-service';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -101,7 +102,7 @@ export async function POST(
     // If no signing URL stored, we cannot send via Clickatell
     // The signing URL is only available when NetCash sends it (sendMandate=1)
     if (!mandateUrl) {
-      console.log('[Mandate SMS] No mandate signing URL available');
+      apiLogger.info('[Mandate SMS] No mandate signing URL available');
       
       // Option 1: Use "Resend Mandate" via NetCash instead (which auto-sends the correct URL)
       // Option 2: Check if there's a mandate URL pattern we can use
@@ -179,7 +180,7 @@ export async function POST(
       created_at: new Date().toISOString(),
     });
 
-    console.log(`[Mandate SMS] Successfully sent to ${phoneNumber}. MessageId: ${smsResult.messageId}`);
+    apiLogger.info(`[Mandate SMS] Successfully sent to ${phoneNumber}. MessageId: ${smsResult.messageId}`);
 
     return NextResponse.json({
       success: true,
@@ -193,7 +194,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('[Mandate SMS] Error:', error);
+    apiLogger.error('[Mandate SMS] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }
@@ -306,7 +307,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error('[Mandate SMS Status] Error:', error);
+    apiLogger.error('[Mandate SMS Status] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

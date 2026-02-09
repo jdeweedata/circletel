@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAuthenticatedUser } from '@/lib/auth/api-auth';
+import { apiLogger } from '@/lib/logging';
 
 // GET /api/admin/products/[id] - Get single product details
 export async function GET(
@@ -14,7 +15,7 @@ export async function GET(
     const { id } = await context.params;
     productId = id;
     
-    console.log('[Product Detail API] Fetching product:', id);
+    apiLogger.info('[Product Detail API] Fetching product:', id);
     
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -40,7 +41,7 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('[Product Detail API] Database error:', {
+      apiLogger.error('[Product Detail API] Database error:', {
         error,
         productId: id,
         errorCode: error.code,
@@ -84,14 +85,14 @@ export async function GET(
     }
 
     if (!product) {
-      console.warn('[Product Detail API] Product not found:', id);
+      apiLogger.warn('[Product Detail API] Product not found:', id);
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    console.log('[Product Detail API] Product found:', {
+    apiLogger.info('[Product Detail API] Product found:', {
       id: product.id,
       name: product.name,
       hasMetadata: !!product.metadata,
@@ -123,12 +124,12 @@ export async function GET(
         promo_code: promoData.promo_code || null,
       };
 
-      console.log('[Product Detail API] Successfully mapped product');
+      apiLogger.info('[Product Detail API] Successfully mapped product');
       
       // Return mapped fields - frontend uses database field names
       return NextResponse.json({ success: true, data: mappedProduct });
     } catch (mappingError) {
-      console.error('[Product Detail API] Error mapping product data:', {
+      apiLogger.error('[Product Detail API] Error mapping product data:', {
         mappingError,
         productKeys: Object.keys(product),
         productData: product
@@ -137,7 +138,7 @@ export async function GET(
     }
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error('[Product Detail API] Unexpected error:', {
+    apiLogger.error('[Product Detail API] Unexpected error:', {
       error,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
       errorStack: error instanceof Error ? error.stack : undefined,
@@ -193,7 +194,7 @@ export async function PUT(
     const supabase = await createClient();
     const body = await request.json();
 
-    console.log('[Product Update API] Request received:', {
+    apiLogger.info('[Product Update API] Request received:', {
       productId: id,
       bodyKeys: Object.keys(body),
       bodySize: JSON.stringify(body).length
@@ -208,7 +209,7 @@ export async function PUT(
 
     const changeReason = body.change_reason;
 
-    console.log('[Product Update API] Auth info:', {
+    apiLogger.info('[Product Update API] Auth info:', {
       userEmail,
       userName,
       hasChangeReason: !!changeReason
@@ -327,7 +328,7 @@ export async function PUT(
     }
 
     // Update the product in service_packages (single source of truth)
-    console.log('[Product Update API] Updating product:', {
+    apiLogger.info('[Product Update API] Updating product:', {
       productId: id,
       updateDataKeys: Object.keys(updateData),
       updateData: JSON.stringify(updateData, null, 2),
@@ -345,7 +346,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('[Product Update API] Database error:', {
+      apiLogger.error('[Product Update API] Database error:', {
         error: updateError,
         code: updateError.code,
         message: updateError.message,
@@ -380,14 +381,14 @@ export async function PUT(
       .limit(1);
 
     if (auditError) {
-      console.warn('Failed to update audit log with user info:', auditError);
+      apiLogger.warn('Failed to update audit log with user info:', auditError);
       // Don't fail the request if audit update fails
     }
 
-    console.log('[Product Update API] Update successful');
+    apiLogger.info('[Product Update API] Update successful');
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
-    console.error('[Product Update API] Unexpected error:', {
+    apiLogger.error('[Product Update API] Unexpected error:', {
       error,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
       errorStack: error instanceof Error ? error.stack : undefined,
@@ -443,7 +444,7 @@ export async function DELETE(
       .single();
 
     if (error) {
-      console.error('Error deleting product:', error);
+      apiLogger.error('Error deleting product:', error);
       return NextResponse.json(
         { success: false, error: 'Failed to delete product' },
         { status: 500 }
@@ -466,7 +467,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
-    console.error('Error in DELETE /api/admin/products/[id]:', error);
+    apiLogger.error('Error in DELETE /api/admin/products/[id]:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

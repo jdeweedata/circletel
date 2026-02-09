@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(
   request: NextRequest,
@@ -131,7 +132,7 @@ export async function POST(
       message: 'OAuth token refreshed successfully',
     });
   } catch (error) {
-    console.error('[OAuth Refresh API] Unexpected error:', error);
+    apiLogger.error('[OAuth Refresh API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

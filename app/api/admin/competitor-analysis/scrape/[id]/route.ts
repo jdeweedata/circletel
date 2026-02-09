@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest, context: RouteParams) {
       duration_ms: durationMs,
     });
   } catch (error) {
-    console.error('[Scrape Status API] GET error:', error);
+    apiLogger.error('[Scrape Status API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch scrape status' },
       { status: 500 }

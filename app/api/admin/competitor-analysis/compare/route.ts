@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import type { PriceComparisonResult, CircleTelProductType } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('[Compare API] Query error:', error);
+      apiLogger.error('[Compare API] Query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch comparison data' },
         { status: 500 }
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
       has_more: (count || 0) > offset + limit,
     });
   } catch (error) {
-    console.error('[Compare API] GET error:', error);
+    apiLogger.error('[Compare API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch comparison data' },
       { status: 500 }

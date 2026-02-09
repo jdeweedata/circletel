@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch (error) {
-          console.log('Geocoding failed or timed out:', error instanceof Error ? error.message : 'Unknown error');
+          apiLogger.info('Geocoding failed or timed out:', error instanceof Error ? error.message : 'Unknown error');
           // Continue without coordinates - not critical for lead creation
         }
       }
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('❌ Database error creating coverage lead:', {
+      apiLogger.error('❌ Database error creating coverage lead:', {
         message: error.message,
         details: error.details,
         hint: error.hint,
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Lead creation error:', error);
+    apiLogger.error('Lead creation error:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -151,7 +152,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error('Lead retrieval error:', error);
+    apiLogger.error('Lead retrieval error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

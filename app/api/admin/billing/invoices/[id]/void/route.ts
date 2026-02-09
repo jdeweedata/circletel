@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { CompliantBillingService } from '@/lib/billing/compliant-billing-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(
   request: NextRequest,
@@ -77,7 +78,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Void invoice failed:', error);
+    apiLogger.error('Void invoice failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to void invoice' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration: allow longer execution for single order queries
 export const runtime = 'nodejs';
@@ -38,7 +39,7 @@ export async function GET(
       .single();
 
     if (error || !order) {
-      console.error('Error fetching order by ID:', error);
+      apiLogger.error('Error fetching order by ID:', error);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -80,7 +81,7 @@ export async function GET(
       data: enrichedOrder,
     });
   } catch (error: any) {
-    console.error('Admin single order fetch error:', error);
+    apiLogger.error('Admin single order fetch error:', error);
     return NextResponse.json(
       {
         success: false,

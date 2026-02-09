@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 import type { ZohoWebhookPayload } from '@/lib/integrations/zoho/types';
+import { webhookLogger } from '@/lib/logging';
 
 /**
  * POST /api/integrations/zoho/webhook
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
       const isValid = verifyWebhookSignature(body, signature, webhookSecret);
 
       if (!isValid) {
-        console.error('[ZOHO Webhook] Invalid signature');
+        webhookLogger.error('[ZOHO Webhook] Invalid signature');
         return NextResponse.json(
           {
             success: false,
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       return await processWebhook(payload);
     }
   } catch (error) {
-    console.error('[ZOHO Webhook] Error:', error);
+    webhookLogger.error('[ZOHO Webhook] Error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -61,14 +62,14 @@ export async function POST(request: NextRequest) {
  */
 async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse> {
   try {
-    console.log('[ZOHO Webhook] Received:', payload.operation, payload.module, payload.record_id);
+    webhookLogger.info('[ZOHO Webhook] Received:', payload.operation, payload.module, payload.record_id);
 
     const supabase = await createClient();
 
     // Find corresponding CircleTel entity
     const zohoType = mapModuleToZohoType(payload.module);
     if (!zohoType) {
-      console.warn('[ZOHO Webhook] Unknown module:', payload.module);
+      webhookLogger.warn('[ZOHO Webhook] Unknown module:', payload.module);
       return NextResponse.json({
         success: true,
         message: 'Module not tracked',
@@ -83,7 +84,7 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
       .single();
 
     if (!mapping) {
-      console.warn('[ZOHO Webhook] No mapping found for:', zohoType, payload.record_id);
+      webhookLogger.warn('[ZOHO Webhook] No mapping found for:', zohoType, payload.record_id);
       return NextResponse.json({
         success: true,
         message: 'No mapping found',
@@ -100,10 +101,10 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
         break;
       case 'insert':
         // Usually we create from CircleTel → ZOHO, not the other way
-        console.log('[ZOHO Webhook] Insert operation (no action needed)');
+        webhookLogger.info('[ZOHO Webhook] Insert operation (no action needed)');
         break;
       default:
-        console.warn('[ZOHO Webhook] Unknown operation:', payload.operation);
+        webhookLogger.warn('[ZOHO Webhook] Unknown operation:', payload.operation);
     }
 
     return NextResponse.json({
@@ -111,7 +112,7 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
       message: 'Webhook processed',
     });
   } catch (error) {
-    console.error('[ZOHO Webhook] Processing error:', error);
+    webhookLogger.error('[ZOHO Webhook] Processing error:', error);
     throw error;
   }
 }
@@ -125,7 +126,7 @@ async function handleUpdate(
 ): Promise<void> {
   const supabase = await createClient();
 
-  console.log(`[ZOHO Webhook] Update: ${mapping.circletel_type}:${mapping.circletel_id}`);
+  webhookLogger.info(`[ZOHO Webhook] Update: ${mapping.circletel_type}:${mapping.circletel_id}`);
 
   // Update last_synced_at timestamp
   await supabase
@@ -160,7 +161,7 @@ async function handleDelete(
 ): Promise<void> {
   const supabase = await createClient();
 
-  console.log(`[ZOHO Webhook] Delete: ${mapping.circletel_type}:${mapping.circletel_id}`);
+  webhookLogger.info(`[ZOHO Webhook] Delete: ${mapping.circletel_type}:${mapping.circletel_id}`);
 
   // Option 1: Delete mapping (ZOHO record deleted)
   // await supabase
@@ -178,7 +179,7 @@ async function handleDelete(
     response_payload: { deleted_at: payload.timestamp },
   });
 
-  console.log('[ZOHO Webhook] Delete logged (mapping preserved for audit)');
+  webhookLogger.info('[ZOHO Webhook] Delete logged (mapping preserved for audit)');
 }
 
 /**
@@ -194,7 +195,7 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
     // Timing-safe comparison
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
   } catch (error) {
-    console.error('[ZOHO Webhook] Signature verification error:', error);
+    webhookLogger.error('[ZOHO Webhook] Signature verification error:', error);
     return false;
   }
 }

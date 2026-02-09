@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@supabase/supabase-js';
 import type { PageStatus } from '@/lib/cms/types';
 
@@ -52,7 +53,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    console.error('Get page error:', error);
+    apiLogger.error('Get page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -111,7 +112,7 @@ export async function PUT(
       .single();
 
     if (error) {
-      console.error('Failed to update page:', error);
+      apiLogger.error('Failed to update page:', error);
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
@@ -119,7 +120,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    console.error('Update page error:', error);
+    apiLogger.error('Update page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -156,13 +157,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error('Failed to patch page:', error);
+      apiLogger.error('Failed to patch page:', error);
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    console.error('Patch page error:', error);
+    apiLogger.error('Patch page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -185,7 +186,7 @@ export async function DELETE(
       const { error } = await supabase.from('pb_pages').delete().eq('id', id);
 
       if (error) {
-        console.error('Failed to delete page:', error);
+        apiLogger.error('Failed to delete page:', error);
         return NextResponse.json({ error: 'Failed to delete page' }, { status: 500 });
       }
     } else {
@@ -199,14 +200,14 @@ export async function DELETE(
         .eq('id', id);
 
       if (error) {
-        console.error('Failed to archive page:', error);
+        apiLogger.error('Failed to archive page:', error);
         return NextResponse.json({ error: 'Failed to archive page' }, { status: 500 });
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete page error:', error);
+    apiLogger.error('Delete page error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

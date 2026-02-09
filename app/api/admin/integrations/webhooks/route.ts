@@ -23,6 +23,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/webhooks
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
     const { data: webhookLogs, error: logsError, count } = await query;
 
     if (logsError) {
-      console.error('[WebhooksAPI] Error fetching webhook logs:', logsError);
+      apiLogger.error('[WebhooksAPI] Error fetching webhook logs:', logsError);
       return NextResponse.json(
         { error: 'Failed to fetch webhook logs' },
         { status: 500 }
@@ -165,7 +166,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[WebhooksAPI] Error:', error);
+    apiLogger.error('[WebhooksAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { BillingService } from '@/lib/billing/billing-service';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/admin/billing/generate-invoices-now
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     const { data: services, error: servicesError } = await query;
     
     if (servicesError) {
-      console.error('Error fetching services:', servicesError);
+      apiLogger.error('Error fetching services:', servicesError);
       return NextResponse.json(
         { error: 'Failed to fetch services' },
         { status: 500 }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
         const periodEnd = service.next_billing_date;
         
         if (!periodStart || !periodEnd) {
-          console.log(`Service ${service.id} missing billing dates, skipping`);
+          apiLogger.info(`Service ${service.id} missing billing dates, skipping`);
           skipped++;
           continue;
         }
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
           .single();
         
         if (existingInvoice) {
-          console.log(`Invoice already exists for service ${service.id}, skipping`);
+          apiLogger.info(`Invoice already exists for service ${service.id}, skipping`);
           skipped++;
           continue;
         }
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
         generated++;
         
       } catch (error: any) {
-        console.error(`Failed to generate invoice for service ${service.id}:`, error);
+        apiLogger.error(`Failed to generate invoice for service ${service.id}:`, error);
         errors.push(`Service ${service.id}: ${error.message}`);
         failed++;
       }
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Manual invoice generation failed:', error);
+    apiLogger.error('Manual invoice generation failed:', error);
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

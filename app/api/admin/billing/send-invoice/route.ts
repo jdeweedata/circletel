@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { processInvoiceNotification, resendInvoiceEmail } from '@/lib/billing/invoice-notification-service';
+import { apiLogger } from '@/lib/logging';
 
 interface SendInvoiceRequest {
   invoice_id: string;
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error: any) {
-    console.error('[SendInvoice API] Error:', error);
+    apiLogger.error('[SendInvoice API] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

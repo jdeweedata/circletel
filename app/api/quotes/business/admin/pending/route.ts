@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/quotes/business/admin/pending
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error fetching pending quotes:', error);
+    apiLogger.error('Error fetching pending quotes:', error);
     return NextResponse.json(
       {
         success: false,

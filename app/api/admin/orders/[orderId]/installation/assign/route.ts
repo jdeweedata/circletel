@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -43,7 +44,7 @@ export async function POST(
       .maybeSingle();
 
     if (fetchError) {
-      console.error('Error fetching installation task:', fetchError);
+      apiLogger.error('Error fetching installation task:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch installation task', details: fetchError.message },
         { status: 500 }
@@ -82,7 +83,7 @@ export async function POST(
         .single();
 
       if (error) {
-        console.error('Error updating installation task:', error);
+        apiLogger.error('Error updating installation task:', error);
         return NextResponse.json(
           { success: false, error: 'Failed to assign technician', details: error.message },
           { status: 500 }
@@ -151,7 +152,7 @@ export async function POST(
         .single();
 
       if (error) {
-        console.error('Error creating installation task:', error);
+        apiLogger.error('Error creating installation task:', error);
         return NextResponse.json(
           { success: false, error: 'Failed to create installation task', details: error.message },
           { status: 500 }
@@ -177,7 +178,7 @@ export async function POST(
       message: existingTask ? 'Technician reassigned successfully' : 'Installation scheduled and technician assigned',
     });
   } catch (error: any) {
-    console.error('Error in POST /api/admin/orders/[orderId]/installation/assign:', error);
+    apiLogger.error('Error in POST /api/admin/orders/[orderId]/installation/assign:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }
@@ -247,7 +248,7 @@ export async function DELETE(
       message: 'Technician unassigned successfully',
     });
   } catch (error: any) {
-    console.error('Error in DELETE /api/admin/orders/[orderId]/installation/assign:', error);
+    apiLogger.error('Error in DELETE /api/admin/orders/[orderId]/installation/assign:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }

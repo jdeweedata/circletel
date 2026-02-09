@@ -1,6 +1,7 @@
 // MTN Configuration API Endpoint
 import { NextRequest, NextResponse } from 'next/server';
 import { MTN_CONFIGS, SERVICE_TYPE_MAPPING } from '@/lib/coverage/mtn/types';
+import { apiLogger } from '@/lib/logging';
 
 interface ConfigResponse {
   success: boolean;
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ConfigResp
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    console.error('MTN configs API error:', error);
+    apiLogger.error('MTN configs API error:', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -170,7 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfigRes
     }
 
   } catch (error) {
-    console.error('MTN connectivity test error:', error);
+    apiLogger.error('MTN connectivity test error:', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'

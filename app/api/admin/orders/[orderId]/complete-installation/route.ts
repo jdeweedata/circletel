@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { AdminNotificationService } from '@/lib/notifications/admin-notifications';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -75,7 +76,7 @@ export async function POST(
       .single();
 
     if (fetchError || !order) {
-      console.error('Error fetching order:', fetchError);
+      apiLogger.error('Error fetching order:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -113,7 +114,7 @@ export async function POST(
         });
 
       if (uploadError) {
-        console.error('Error uploading document:', uploadError);
+        apiLogger.error('Error uploading document:', uploadError);
         return NextResponse.json(
           {
             success: false,
@@ -157,7 +158,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('Error updating order:', updateError);
+      apiLogger.error('Error updating order:', updateError);
       // Try to delete the uploaded file
       if (filePath) {
         await supabase.storage
@@ -192,7 +193,7 @@ export async function POST(
       });
 
     if (historyError) {
-      console.error('Error logging status history:', historyError);
+      apiLogger.error('Error logging status history:', historyError);
       // Don't fail the request if history logging fails
     }
 
@@ -221,7 +222,7 @@ export async function POST(
       });
     } catch (notificationError) {
       // Log but don't fail the request
-      console.error('[CompleteInstallation] Failed to send SDM notification:', notificationError);
+      apiLogger.error('[CompleteInstallation] Failed to send SDM notification:', notificationError);
     }
 
     return NextResponse.json({
@@ -231,7 +232,7 @@ export async function POST(
       documentUrl: publicUrl,
     });
   } catch (error: any) {
-    console.error('Error completing installation:', error);
+    apiLogger.error('Error completing installation:', error);
     return NextResponse.json(
       {
         success: false,

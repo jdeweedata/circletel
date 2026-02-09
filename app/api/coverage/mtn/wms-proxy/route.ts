@@ -1,6 +1,7 @@
 // MTN WMS Proxy for Map Tiles
 import { NextRequest, NextResponse } from 'next/server';
 import { MTN_CONFIGS } from '@/lib/coverage/mtn/types';
+import { apiLogger } from '@/lib/logging';
 
 interface WMSProxyRequest {
   configId: 'business' | 'consumer';
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!wmsResponse.ok) {
-      console.error(`WMS request failed: ${wmsResponse.status} ${wmsResponse.statusText}`);
+      apiLogger.error(`WMS request failed: ${wmsResponse.status} ${wmsResponse.statusText}`);
       return NextResponse.json({
         error: `WMS service error: ${wmsResponse.status}`
       }, { status: 502 });
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (contentType.includes('xml') || contentType.includes('json')) {
       const errorText = await wmsResponse.text();
       if (errorText.toLowerCase().includes('error') || errorText.toLowerCase().includes('exception')) {
-        console.error('WMS service returned error:', errorText);
+        apiLogger.error('WMS service returned error:', errorText);
         return NextResponse.json({
           error: 'WMS service returned an error'
         }, { status: 502 });
@@ -119,7 +120,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    console.error('WMS proxy error:', error);
+    apiLogger.error('WMS proxy error:', error);
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 });
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return GET(getRequest);
 
   } catch (error) {
-    console.error('WMS proxy POST error:', error);
+    apiLogger.error('WMS proxy POST error:', error);
     return NextResponse.json({
       error: 'Invalid JSON body'
     }, { status: 400 });

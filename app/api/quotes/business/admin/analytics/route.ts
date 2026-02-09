@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/quotes/business/admin/analytics
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error: quotesError } = await query;
 
     if (quotesError) {
-      console.error('Analytics fetch error:', quotesError);
+      apiLogger.error('Analytics fetch error:', quotesError);
       return NextResponse.json(
         {
           success: false,
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error fetching analytics:', error);
+    apiLogger.error('Error fetching analytics:', error);
     return NextResponse.json(
       {
         success: false,

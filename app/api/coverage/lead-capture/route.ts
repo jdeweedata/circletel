@@ -3,6 +3,7 @@ import { createClient } from '@/integrations/supabase/server';
 import { sendCoverageLeadAlert } from '@/lib/notifications/sales-alerts';
 import { EmailNotificationService } from '@/lib/notifications/notification-service';
 import type { CreateCoverageLeadInput } from '@/lib/types/customer-journey';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database error creating lead:', dbError);
+      apiLogger.error('Database error creating lead:', dbError);
       return NextResponse.json(
         { success: false, error: 'Failed to create lead in database' },
         { status: 500 }
@@ -83,16 +84,16 @@ export async function POST(request: NextRequest) {
     })
       .then((salesResult) => {
         if (salesResult.success) {
-          console.log('Sales alert sent successfully:', {
+          apiLogger.info('Sales alert sent successfully:', {
             emailSent: salesResult.emailSent,
             zohoLeadId: salesResult.zohoLeadId,
           });
         } else {
-          console.error('Sales alert failed:', salesResult.errors);
+          apiLogger.error('Sales alert failed:', salesResult.errors);
         }
       })
       .catch((error) => {
-        console.error('Sales alert error:', error);
+        apiLogger.error('Sales alert error:', error);
       });
 
     // Send confirmation email (async, don't block response)
@@ -109,13 +110,13 @@ export async function POST(request: NextRequest) {
     })
       .then((emailResult) => {
         if (emailResult.success) {
-          console.log('Confirmation email sent to:', lead.email);
+          apiLogger.info('Confirmation email sent to:', lead.email);
         } else {
-          console.error('Failed to send email:', emailResult.error);
+          apiLogger.error('Failed to send email:', emailResult.error);
         }
       })
       .catch((error) => {
-        console.error('Email send error:', error);
+        apiLogger.error('Email send error:', error);
       });
 
     return NextResponse.json({
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
       message: 'Lead captured successfully. You will be notified when service is available.',
     });
   } catch (error) {
-    console.error('Lead capture error:', error);
+    apiLogger.error('Lead capture error:', error);
     return NextResponse.json(
       {
         success: false,

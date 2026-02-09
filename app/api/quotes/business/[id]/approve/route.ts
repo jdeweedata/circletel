@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateStatusTransition } from '@/lib/quotes/quote-validator';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/quotes/business/:id/approve
@@ -76,7 +77,7 @@ export async function POST(
       message: 'Quote approved successfully'
     });
   } catch (error) {
-    console.error('Error approving quote:', error);
+    apiLogger.error('Error approving quote:', error);
     return NextResponse.json(
       {
         success: false,

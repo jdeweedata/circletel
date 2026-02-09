@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Get contract by ID with related data
@@ -79,7 +80,7 @@ export async function GET(
       .single();
 
     if (contractError || !contract) {
-      console.error('[ContractAPI] Contract not found:', contractError);
+      apiLogger.error('[ContractAPI] Contract not found:', contractError);
       return NextResponse.json(
         {
           success: false,
@@ -158,7 +159,7 @@ export async function GET(
       data: responseData,
     });
   } catch (error) {
-    console.error('[ContractAPI] Error fetching contract:', error);
+    apiLogger.error('[ContractAPI] Error fetching contract:', error);
     return NextResponse.json(
       {
         success: false,

@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       expiresAt,
     });
   } catch (error) {
-    console.error('Preview token generation error:', error);
+    apiLogger.error('Preview token generation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    console.error('Preview fetch error:', error);
+    apiLogger.error('Preview fetch error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -141,7 +142,7 @@ export async function DELETE() {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Preview clear error:', error);
+    apiLogger.error('Preview clear error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

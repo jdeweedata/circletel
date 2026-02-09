@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClientWithSession } from '@/lib/supabase/server';
 import {
   generateBlockContent,
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
       rateLimitStatus: updatedRateLimit,
     });
   } catch (error) {
-    console.error('AI Generation API error:', error);
+    apiLogger.error('AI Generation API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -193,7 +194,7 @@ export async function GET(request: NextRequest) {
       usageStats,
     });
   } catch (error) {
-    console.error('AI Usage API error:', error);
+    apiLogger.error('AI Usage API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/compliance/approve
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       .eq('id', sessionId);
 
     if (updateError) {
-      console.error('Error updating KYC session:', updateError);
+      apiLogger.error('Error updating KYC session:', updateError);
       return NextResponse.json(
         { error: 'Failed to approve KYC session' },
         { status: 500 }
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
       .eq('id', session.quote_id);
 
     if (quoteError) {
-      console.error('Error updating quote status:', quoteError);
+      apiLogger.error('Error updating quote status:', quoteError);
       // Don't fail the request, KYC is already approved
     }
 
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in approve endpoint:', error);
+    apiLogger.error('Error in approve endpoint:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

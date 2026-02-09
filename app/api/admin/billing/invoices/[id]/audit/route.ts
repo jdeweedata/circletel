@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { CompliantBillingService } from '@/lib/billing/compliant-billing-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(
   request: NextRequest,
@@ -53,7 +54,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error('Get audit history failed:', error);
+    apiLogger.error('Get audit history failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to get audit history' },
       { status: 500 }

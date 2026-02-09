@@ -20,6 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
 import { subHours, subDays, startOfDay, endOfDay } from 'date-fns';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/health/[slug]
@@ -298,7 +299,7 @@ export async function GET(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[HealthDetailAPI] Error:', error);
+    apiLogger.error('[HealthDetailAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

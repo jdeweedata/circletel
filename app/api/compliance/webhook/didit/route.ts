@@ -31,6 +31,7 @@ import {
   processDiditWebhook,
 } from '@/lib/integrations/didit/webhook-handler';
 import type { DiditWebhookPayload } from '@/lib/integrations/didit/types';
+import { webhookLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-signature');
 
     if (!signature) {
-      console.error('[Webhook API] Missing X-Didit-Signature header');
+      webhookLogger.error('[Webhook API] Missing X-Didit-Signature header');
       return NextResponse.json(
         {
           success: false,
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
     try {
       isValidSignature = verifyDiditWebhook(rawBody, signature);
     } catch (error) {
-      console.error('[Webhook API] Signature verification error:', error);
+      webhookLogger.error('[Webhook API] Signature verification error:', error);
       return NextResponse.json(
         {
           success: false,
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isValidSignature) {
-      console.error('[Webhook API] Invalid webhook signature');
+      webhookLogger.error('[Webhook API] Invalid webhook signature');
       return NextResponse.json(
         {
           success: false,
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
     try {
       webhookPayload = JSON.parse(rawBody);
     } catch (error) {
-      console.error('[Webhook API] Failed to parse webhook payload:', error);
+      webhookLogger.error('[Webhook API] Failed to parse webhook payload:', error);
       return NextResponse.json(
         {
           success: false,
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(
+    webhookLogger.info(
       `[Webhook API] Processing ${webhookPayload.event} for session ${webhookPayload.sessionId}`
     );
 
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     const result = await processDiditWebhook(webhookPayload);
 
     if (!result.valid) {
-      console.error('[Webhook API] Webhook processing failed:', result.error);
+      webhookLogger.error('[Webhook API] Webhook processing failed:', result.error);
       return NextResponse.json(
         {
           success: false,
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Return success response
-    console.log(
+    webhookLogger.info(
       `[Webhook API] Webhook processed successfully: ${webhookPayload.event}`
     );
 
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    console.error('[Webhook API] Unexpected error:', error);
+    webhookLogger.error('[Webhook API] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,

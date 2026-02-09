@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
+import { apiLogger } from '@/lib/logging'
 
 export const dynamic = 'force-dynamic'
 
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
       lastCheckedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Interstellio dashboard error:', error)
+    apiLogger.error('Interstellio dashboard error:', error)
 
     // Check if it's an Interstellio API error
     if (error instanceof Error && 'status' in error) {

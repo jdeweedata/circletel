@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import type { PriceHistoryFilter } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
     const { data: history, error: historyError } = await historyQuery;
 
     if (historyError) {
-      console.error('[History API] Query error:', historyError);
+      apiLogger.error('[History API] Query error:', historyError);
       return NextResponse.json(
         { error: 'Failed to fetch price history' },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[History API] GET error:', error);
+    apiLogger.error('[History API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch price history' },
       { status: 500 }

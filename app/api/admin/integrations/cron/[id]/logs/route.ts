@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/cron/[id]/logs
@@ -90,7 +91,7 @@ export async function GET(
       .range(offset, offset + limit - 1);
 
     if (logsError) {
-      console.error('[Cron Logs API] Error fetching logs:', logsError);
+      apiLogger.error('[Cron Logs API] Error fetching logs:', logsError);
       return NextResponse.json(
         { error: 'Failed to fetch cron logs', details: logsError.message },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function GET(
       .eq('integration_slug', cronJob.integration_slug);
 
     if (countError) {
-      console.error('[Cron Logs API] Error counting logs:', countError);
+      apiLogger.error('[Cron Logs API] Error counting logs:', countError);
     }
 
     const total = totalCount || 0;
@@ -151,7 +152,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[Cron Logs API] Error:', error);
+    apiLogger.error('[Cron Logs API] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

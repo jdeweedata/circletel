@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error } = await query;
 
     if (error) {
-      console.error('Error fetching quotes:', error);
+      apiLogger.error('Error fetching quotes:', error);
       return NextResponse.json(
         {
           success: false,
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in GET /api/quotes:', error);
+    apiLogger.error('Error in GET /api/quotes:', error);
     return NextResponse.json(
       {
         success: false,

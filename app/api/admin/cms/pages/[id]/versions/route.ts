@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -48,7 +49,7 @@ export async function GET(
       .order('version', { ascending: false });
 
     if (error) {
-      console.error('Versions fetch error:', error);
+      apiLogger.error('Versions fetch error:', error);
       return NextResponse.json({ error: 'Failed to fetch versions' }, { status: 500 });
     }
 
@@ -58,7 +59,7 @@ export async function GET(
       versions: versions || [],
     });
   } catch (error) {
-    console.error('Versions GET error:', error);
+    apiLogger.error('Versions GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

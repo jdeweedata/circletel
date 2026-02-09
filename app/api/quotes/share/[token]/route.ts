@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(
   request: NextRequest,
@@ -60,7 +61,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error('Share token resolution error:', error);
+    apiLogger.error('Share token resolution error:', error);
     return NextResponse.json(
       {
         success: false,

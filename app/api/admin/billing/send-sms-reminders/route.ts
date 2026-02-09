@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { InvoiceSmsReminderService } from '@/lib/billing/invoice-sms-reminder-service';
+import { apiLogger } from '@/lib/logging';
 
 interface SendSmsRemindersRequest {
   invoice_ids?: string[];
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Send SMS reminders failed:', errorMessage);
+    apiLogger.error('Send SMS reminders failed:', errorMessage);
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
@@ -172,7 +173,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Get pending SMS reminders failed:', errorMessage);
+    apiLogger.error('Get pending SMS reminders failed:', errorMessage);
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }

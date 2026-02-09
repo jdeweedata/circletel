@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { QuoteRequestData } from '@/lib/sales-agents/types';
 import { QuoteNotificationService } from '@/lib/notifications/quote-notifications';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
         if (insertError) {
           // Check if it's a duplicate key error (code 23505 for PostgreSQL unique violation)
           if (insertError.code === '23505' && insertError.message.includes('quote_number')) {
-            console.log(`Quote number collision detected, retry ${retryCount + 1}/${maxRetries}`);
+            apiLogger.info(`Quote number collision detected, retry ${retryCount + 1}/${maxRetries}`);
             retryCount++;
             // Wait a small random time before retrying
             await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
@@ -213,7 +214,7 @@ export async function POST(request: NextRequest) {
         // Success!
         quote = data;
       } catch (error) {
-        console.error('Error creating quote:', error);
+        apiLogger.error('Error creating quote:', error);
         return NextResponse.json(
           {
             success: false,
@@ -225,7 +226,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!quote) {
-      console.error('Failed to create quote after maximum retries');
+      apiLogger.error('Failed to create quote after maximum retries');
       return NextResponse.json(
         {
           success: false,
@@ -247,7 +248,7 @@ export async function POST(request: NextRequest) {
       );
 
     if (itemsError) {
-      console.error('Error creating quote items:', itemsError);
+      apiLogger.error('Error creating quote items:', itemsError);
       // Rollback quote creation
       await supabase.from('business_quotes').delete().eq('id', quote.id);
       return NextResponse.json(
@@ -261,7 +262,7 @@ export async function POST(request: NextRequest) {
 
     // Send notification (async, don't wait for result)
     QuoteNotificationService.sendForQuoteEvent('quote_created', quote.id).catch(err => {
-      console.error('Failed to send quote_created notification:', err);
+      apiLogger.error('Failed to send quote_created notification:', err);
       // Don't fail the request if notification fails
     });
 
@@ -284,7 +285,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Error submitting quote request:', error);
+    apiLogger.error('Error submitting quote request:', error);
     return NextResponse.json(
       {
         success: false,

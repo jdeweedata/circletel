@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
+import { apiLogger } from '@/lib/logging';
 
 interface RouteContext {
   params: Promise<{
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       .maybeSingle();
 
     if (emandateError) {
-      console.error('Error fetching emandate request:', emandateError);
+      apiLogger.error('Error fetching emandate request:', emandateError);
     }
 
     // Check if we have a mandate URL
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         results.email.error = emailResult.error || 'Unknown error';
       }
     } catch (emailError: any) {
-      console.error('Failed to send email:', emailError);
+      apiLogger.error('Failed to send email:', emailError);
       results.email.error = emailError.message;
     }
 
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         results.sms.error = smsResult.error || 'Unknown error';
       }
     } catch (smsError: any) {
-      console.error('Failed to send SMS:', smsError);
+      apiLogger.error('Failed to send SMS:', smsError);
       results.sms.error = smsError.message;
     }
 
@@ -164,9 +165,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         },
       ]);
 
-      console.log('✅ Communication logged:', logResult);
+      apiLogger.info('✅ Communication logged:', logResult);
     } catch (logError) {
-      console.warn('⚠️ Failed to log communication (table may not exist):', logError);
+      apiLogger.warn('⚠️ Failed to log communication (table may not exist):', logError);
     }
 
     // Return results
@@ -184,7 +185,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         : 'Failed to send notifications',
     });
   } catch (error: any) {
-    console.error('Error sending payment method notification:', error);
+    apiLogger.error('Error sending payment method notification:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -61,7 +62,7 @@ export async function GET(
       .single();
 
     if (error || !order) {
-      console.error('Error fetching order status:', error);
+      apiLogger.error('Error fetching order status:', error);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -78,7 +79,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    console.error('Error fetching allowed statuses:', error);
+    apiLogger.error('Error fetching allowed statuses:', error);
     return NextResponse.json(
       {
         success: false,
@@ -137,7 +138,7 @@ export async function PATCH(
       .single();
 
     if (fetchError || !order) {
-      console.error('Error fetching order:', fetchError);
+      apiLogger.error('Error fetching order:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -211,7 +212,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error('Error updating order status:', updateError);
+      apiLogger.error('Error updating order status:', updateError);
       return NextResponse.json(
         {
           success: false,
@@ -239,7 +240,7 @@ export async function PATCH(
       });
 
     if (historyError) {
-      console.error('Error logging status history:', historyError);
+      apiLogger.error('Error logging status history:', historyError);
       // Don't fail the request if history logging fails
     }
 
@@ -252,7 +253,7 @@ export async function PATCH(
       message: `Order status updated to ${newStatus}`,
     });
   } catch (error: any) {
-    console.error('Error updating order status:', error);
+    apiLogger.error('Error updating order status:', error);
     return NextResponse.json(
       {
         success: false,

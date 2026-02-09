@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { checkIntegrationHealth } from '@/lib/integrations/health-check-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(
   request: NextRequest,
@@ -81,7 +82,7 @@ export async function POST(
       result: healthCheckResult,
     });
   } catch (error) {
-    console.error('[Integration Health Check API] Error:', error);
+    apiLogger.error('[Integration Health Check API] Error:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

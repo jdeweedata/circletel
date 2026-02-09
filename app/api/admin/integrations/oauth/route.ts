@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { differenceInDays } from 'date-fns';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/oauth
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       .order('integration_slug', { ascending: true });
 
     if (tokensError) {
-      console.error('[OAuth API] Error fetching tokens:', tokensError);
+      apiLogger.error('[OAuth API] Error fetching tokens:', tokensError);
       // Don't fail completely, continue with empty array
     }
 
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (zohoError && zohoError.code !== 'PGRST116') {
-      console.error('[OAuth API] Error fetching Zoho token:', zohoError);
+      apiLogger.error('[OAuth API] Error fetching Zoho token:', zohoError);
     }
 
     // =========================================================================
@@ -149,7 +150,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[OAuth API] Error:', error);
+    apiLogger.error('[OAuth API] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

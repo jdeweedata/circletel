@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -101,7 +102,7 @@ export async function POST(
       });
 
     if (uploadError) {
-      console.error('Error uploading document:', uploadError);
+      apiLogger.error('Error uploading document:', uploadError);
       return NextResponse.json(
         {
           success: false,
@@ -165,7 +166,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Error uploading document:', error);
+    apiLogger.error('Error uploading document:', error);
     return NextResponse.json(
       {
         success: false,

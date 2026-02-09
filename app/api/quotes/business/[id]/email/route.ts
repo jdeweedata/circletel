@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 import { chromium } from 'playwright-core';
 import chromiumPkg from '@sparticuz/chromium';
+import { apiLogger } from '@/lib/logging';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -298,10 +299,10 @@ export async function POST(
       ]
     });
 
-    console.log('Resend API result:', JSON.stringify(emailResult, null, 2));
+    apiLogger.info('Resend API result:', JSON.stringify(emailResult, null, 2));
 
     if (!emailResult.data || emailResult.error) {
-      console.error('Resend error:', emailResult.error);
+      apiLogger.error('Resend error:', emailResult.error);
       throw new Error(emailResult.error?.message || 'Failed to send email');
     }
 
@@ -335,7 +336,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Email sending error:', error);
+    apiLogger.error('Email sending error:', error);
     return NextResponse.json(
       {
         success: false,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       .select('id, order_id');
 
     if (updateError) {
-      console.error('Error updating installation tasks:', updateError);
+      apiLogger.error('Error updating installation tasks:', updateError);
       return NextResponse.json(
         { success: false, error: 'Failed to reschedule installations', details: updateError.message },
         { status: 500 }
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
         .in('id', orderIds);
 
       if (orderUpdateError) {
-        console.warn('⚠️ Failed to update some orders:', orderUpdateError);
+        apiLogger.warn('⚠️ Failed to update some orders:', orderUpdateError);
         // Don't fail the request if order updates fail
       }
     }
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
       message: `Successfully rescheduled ${updatedTasks?.length || 0} installation(s)`,
     });
   } catch (error: any) {
-    console.error('Error in POST /api/admin/orders/installations/bulk-reschedule:', error);
+    apiLogger.error('Error in POST /api/admin/orders/installations/bulk-reschedule:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }

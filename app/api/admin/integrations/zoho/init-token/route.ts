@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const ZOHO_CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[ZohoInit] Refreshing access token...');
+    apiLogger.info('[ZohoInit] Refreshing access token...');
 
     // Refresh the access token using the refresh token
     const tokenResponse = await fetch(`${ZOHO_ACCOUNTS_URL}/oauth/v2/token`, {
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      console.error('[ZohoInit] Token refresh failed:', tokenData);
+      apiLogger.error('[ZohoInit] Token refresh failed:', tokenData);
       return NextResponse.json(
         { 
           success: false, 
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[ZohoInit] Token refresh successful, storing in database...');
+    apiLogger.info('[ZohoInit] Token refresh successful, storing in database...');
 
     // Calculate expiry time (Zoho tokens expire in 1 hour)
     const expiresAt = new Date(Date.now() + (tokenData.expires_in || 3600) * 1000);
@@ -78,14 +79,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[ZohoInit] Failed to store token:', error);
+      apiLogger.error('[ZohoInit] Failed to store token:', error);
       return NextResponse.json(
         { success: false, error: `Failed to store token: ${error.message}` },
         { status: 500 }
       );
     }
 
-    console.log('[ZohoInit] Token stored successfully, expires at:', expiresAt.toISOString());
+    apiLogger.info('[ZohoInit] Token stored successfully, expires at:', expiresAt.toISOString());
 
     return NextResponse.json({
       success: true,
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ZohoInit] Error:', error);
+    apiLogger.error('[ZohoInit] Error:', error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ZohoInit] Error checking status:', error);
+    apiLogger.error('[ZohoInit] Error checking status:', error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

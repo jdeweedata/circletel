@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -103,7 +104,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('Publish error:', updateError);
+      apiLogger.error('Publish error:', updateError);
       return NextResponse.json({ error: 'Failed to update page status' }, { status: 500 });
     }
 
@@ -113,7 +114,7 @@ export async function POST(
       message: `Page ${action === 'publish' ? 'published' : action === 'unpublish' ? 'unpublished' : 'archived'} successfully`,
     });
   } catch (error) {
-    console.error('Publish POST error:', error);
+    apiLogger.error('Publish POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

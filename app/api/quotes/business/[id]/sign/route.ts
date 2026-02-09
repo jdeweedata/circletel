@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateSignQuoteRequest, canSignQuote } from '@/lib/quotes/quote-validator';
 import type { SignQuoteRequest } from '@/lib/quotes/types';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/quotes/business/:id/sign
@@ -134,7 +135,7 @@ export async function POST(
       message: 'Quote signed successfully'
     });
   } catch (error) {
-    console.error('Error signing quote:', error);
+    apiLogger.error('Error signing quote:', error);
     return NextResponse.json(
       {
         success: false,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -56,7 +57,7 @@ export async function GET(
       .single();
 
     if (orderError || !order) {
-      console.error('Error fetching order:', orderError);
+      apiLogger.error('Error fetching order:', orderError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -74,7 +75,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (statusError) {
-      console.error('Error fetching status history:', statusError);
+      apiLogger.error('Error fetching status history:', statusError);
     } else if (statusHistory) {
       statusHistory.forEach((change) => {
         timeline.push({
@@ -103,7 +104,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (commError) {
-      console.error('Error fetching communications:', commError);
+      apiLogger.error('Error fetching communications:', commError);
     } else if (communications) {
       communications.forEach((comm) => {
         let title = '';
@@ -160,7 +161,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (installError) {
-      console.error('Error fetching installations:', installError);
+      apiLogger.error('Error fetching installations:', installError);
     } else if (installations) {
       installations.forEach((task) => {
         // Installation scheduled event
@@ -257,7 +258,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    console.error('Error fetching order timeline:', error);
+    apiLogger.error('Error fetching order timeline:', error);
     return NextResponse.json(
       {
         success: false,

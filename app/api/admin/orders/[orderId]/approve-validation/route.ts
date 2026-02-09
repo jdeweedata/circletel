@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/admin/orders/[orderId]/approve-validation
@@ -60,7 +61,7 @@ export async function POST(
       .maybeSingle();
 
     if (emError) {
-      console.error('Error finding emandate request:', emError);
+      apiLogger.error('Error finding emandate request:', emError);
       return NextResponse.json(
         { success: false, error: 'Failed to find payment method request' },
         { status: 500 }
@@ -93,7 +94,7 @@ export async function POST(
       .eq('id', emandateRequest.id);
 
     if (emUpdateError) {
-      console.error('Error updating emandate request:', emUpdateError);
+      apiLogger.error('Error updating emandate request:', emUpdateError);
       return NextResponse.json(
         { success: false, error: 'Failed to update emandate request' },
         { status: 500 }
@@ -116,7 +117,7 @@ export async function POST(
       .eq('id', emandateRequest.payment_method_id);
 
     if (pmUpdateError) {
-      console.error('Error updating payment method:', pmUpdateError);
+      apiLogger.error('Error updating payment method:', pmUpdateError);
       return NextResponse.json(
         { success: false, error: 'Failed to update payment method' },
         { status: 500 }
@@ -135,7 +136,7 @@ export async function POST(
         .eq('id', orderId);
 
       if (orderUpdateError) {
-        console.error('Error updating order status:', orderUpdateError);
+        apiLogger.error('Error updating order status:', orderUpdateError);
       }
     }
 
@@ -151,7 +152,7 @@ export async function POST(
       status_changed_at: now,
     });
 
-    console.log('Payment method validation approved:', {
+    apiLogger.info('Payment method validation approved:', {
       orderId,
       orderNumber: order.order_number,
       paymentMethodId: emandateRequest.payment_method_id,
@@ -168,7 +169,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('Error approving payment method validation:', error);
+    apiLogger.error('Error approving payment method validation:', error);
     return NextResponse.json(
       {
         success: false,

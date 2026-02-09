@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel serverless function configuration
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     const sort_by = searchParams.get('sort_by') || 'created_at';
     const sort_order = searchParams.get('sort_order') || 'desc';
 
-    console.log('[Quotes API] Fetching quotes with params:', { limit, offset, status, customer_type, search });
+    apiLogger.info('[Quotes API] Fetching quotes with params:', { limit, offset, status, customer_type, search });
 
     // Build query
     let query = supabase
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error: quotesError, count } = await query;
 
     if (quotesError) {
-      console.error('[Quotes API] Error fetching quotes:', quotesError);
+      apiLogger.error('[Quotes API] Error fetching quotes:', quotesError);
       return NextResponse.json(
         {
           success: false,
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log(`[Quotes API] Found ${quotes?.length || 0} quotes in ${Date.now() - startTime}ms`);
+    apiLogger.info(`[Quotes API] Found ${quotes?.length || 0} quotes in ${Date.now() - startTime}ms`);
 
     if (!quotes || quotes.length === 0) {
       return NextResponse.json({
@@ -106,7 +107,7 @@ export async function GET(request: NextRequest) {
 
     // OPTIMIZATION: Batch fetch item counts for all quotes in one query
     const quoteIds = quotes.map(q => q.id);
-    console.log(`[Quotes API] Fetching item counts for ${quoteIds.length} quotes...`);
+    apiLogger.info(`[Quotes API] Fetching item counts for ${quoteIds.length} quotes...`);
 
     const { data: itemCounts, error: itemCountsError } = await supabase
       .from('business_quote_items')
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
       .in('quote_id', quoteIds);
 
     if (itemCountsError) {
-      console.error('[Quotes API] Error fetching item counts:', itemCountsError);
+      apiLogger.error('[Quotes API] Error fetching item counts:', itemCountsError);
     }
 
     // Create a map of quote_id -> item count
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     // OPTIMIZATION: Batch fetch admin users in one query
     const creatorIds = [...new Set(quotes.map(q => q.created_by).filter(Boolean))];
-    console.log(`[Quotes API] Fetching ${creatorIds.length} unique admin users...`);
+    apiLogger.info(`[Quotes API] Fetching ${creatorIds.length} unique admin users...`);
 
     const { data: admins, error: adminsError } = await supabase
       .from('admin_users')
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
       .in('id', creatorIds);
 
     if (adminsError) {
-      console.error('[Quotes API] Error fetching admins:', adminsError);
+      apiLogger.error('[Quotes API] Error fetching admins:', adminsError);
     }
 
     // Create a map of admin_id -> admin details
@@ -148,7 +149,7 @@ export async function GET(request: NextRequest) {
     }));
 
     const totalTime = Date.now() - startTime;
-    console.log(`[Quotes API] ✅ Successfully fetched ${quotesWithDetails.length} quotes with details in ${totalTime}ms`);
+    apiLogger.info(`[Quotes API] ✅ Successfully fetched ${quotesWithDetails.length} quotes with details in ${totalTime}ms`);
 
     return NextResponse.json({
       success: true,
@@ -169,7 +170,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`[Quotes API] ❌ Error after ${totalTime}ms:`, error);
+    apiLogger.error(`[Quotes API] ❌ Error after ${totalTime}ms:`, error);
     return NextResponse.json(
       {
         success: false,

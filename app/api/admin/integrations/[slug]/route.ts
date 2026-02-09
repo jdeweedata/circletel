@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { checkIntegrationHealth } from '@/lib/integrations/health-check-service';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/[slug]
@@ -171,7 +172,7 @@ export async function GET(
       activityLogs: activityLogs || [],
     });
   } catch (error) {
-    console.error('[Integration Detail API] Unexpected error:', error);
+    apiLogger.error('[Integration Detail API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -268,7 +269,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error('[Integration Update API] Failed to update integration:', updateError);
+      apiLogger.error('[Integration Update API] Failed to update integration:', updateError);
       return NextResponse.json({ error: 'Failed to update integration' }, { status: 500 });
     }
 
@@ -285,7 +286,7 @@ export async function PATCH(
 
     return NextResponse.json({ integration: updatedIntegration });
   } catch (error) {
-    console.error('[Integration Update API] Unexpected error:', error);
+    apiLogger.error('[Integration Update API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

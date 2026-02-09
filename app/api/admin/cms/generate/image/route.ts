@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClientWithSession } from '@/lib/supabase/server';
 import { generateImage } from '@/lib/cms/ai-service';
 import { checkRateLimit } from '@/lib/cms/usage-tracking';
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
       rateLimitStatus: updatedRateLimit,
     });
   } catch (error) {
-    console.error('Image Generation API error:', error);
+    apiLogger.error('Image Generation API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

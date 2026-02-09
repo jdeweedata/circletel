@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MTNMapClient, MTNMapType } from '@/lib/coverage/mtn/map-client';
 import { MTNMapScraper } from '@/lib/coverage/mtn/map-scraper';
 import { Coordinates } from '@/lib/coverage/types';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * MTN Map Coverage Check API
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
       { status: 501 }
     );
   } catch (error) {
-    console.error('MTN map coverage check error:', error);
+    apiLogger.error('MTN map coverage check error:', error);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',

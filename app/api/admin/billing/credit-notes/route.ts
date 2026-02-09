@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { CompliantBillingService, CreditNoteReason } from '@/lib/billing/compliant-billing-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Create credit note failed:', error);
+    apiLogger.error('Create credit note failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to create credit note' },
       { status: 500 }
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('List credit notes failed:', error);
+    apiLogger.error('List credit notes failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to list credit notes' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration: Allow longer execution for order queries
 export const runtime = 'nodejs';
@@ -7,7 +8,7 @@ export const maxDuration = 15; // Allow up to 15 seconds for order queries
 
 export async function GET() {
   const startTime = Date.now();
-  console.log('[Orders API] ⏱️ Request started');
+  apiLogger.info('[Orders API] ⏱️ Request started');
 
   try {
     // Use service role client to bypass RLS
@@ -21,7 +22,7 @@ export async function GET() {
         }
       }
     );
-    console.log('[Orders API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Orders API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
 
     // Execute query with timeout protection
     const QUERY_TIMEOUT = 12000; // 12 second timeout
@@ -41,9 +42,9 @@ export async function GET() {
       const result = await Promise.race([queryPromise, timeoutPromise]);
       orders = result.data;
       error = result.error;
-      console.log('[Orders API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${orders?.length || 0} orders)`);
+      apiLogger.info('[Orders API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${orders?.length || 0} orders)`);
     } catch (timeoutError) {
-      console.error('[Orders API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Orders API] ❌ Query timeout:', Date.now() - startTime, 'ms');
       return NextResponse.json(
         {
           success: false,
@@ -55,7 +56,7 @@ export async function GET() {
     }
 
     if (error) {
-      console.error('Error fetching orders:', error);
+      apiLogger.error('Error fetching orders:', error);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch orders', details: error.message },
         { status: 500 }
@@ -68,7 +69,7 @@ export async function GET() {
       count: orders?.length || 0
     });
   } catch (error) {
-    console.error('Orders fetch error:', error);
+    apiLogger.error('Orders fetch error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

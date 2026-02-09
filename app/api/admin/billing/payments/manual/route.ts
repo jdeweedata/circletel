@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (paymentError) {
-      console.error('[Manual Payment] Failed to record payment:', paymentError);
+      apiLogger.error('[Manual Payment] Failed to record payment:', paymentError);
       return NextResponse.json(
         { error: 'Failed to record payment', details: paymentError.message },
         { status: 500 }
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
       .eq('id', invoice_id);
 
     if (updateError) {
-      console.error('[Manual Payment] Failed to update invoice:', updateError);
+      apiLogger.error('[Manual Payment] Failed to update invoice:', updateError);
       return NextResponse.json(
         { error: 'Failed to update invoice', details: updateError.message },
         { status: 500 }
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (balanceError) {
-        console.warn('[Manual Payment] Failed to update balance:', balanceError);
+        apiLogger.warn('[Manual Payment] Failed to update balance:', balanceError);
         // Don't fail the request, payment was recorded successfully
       }
     }
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     });
 
-    console.log('[Manual Payment] Payment recorded:', {
+    apiLogger.info('[Manual Payment] Payment recorded:', {
       invoice: invoice.invoice_number,
       amount,
       payment_method,
@@ -205,7 +206,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[Manual Payment] Error:', error);
+    apiLogger.error('[Manual Payment] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

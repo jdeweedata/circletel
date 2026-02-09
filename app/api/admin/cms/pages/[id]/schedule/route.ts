@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -56,7 +57,7 @@ export async function POST(
         .single();
 
       if (updateError) {
-        console.error('Cancel schedule error:', updateError);
+        apiLogger.error('Cancel schedule error:', updateError);
         return NextResponse.json({ error: 'Failed to cancel scheduling' }, { status: 500 });
       }
 
@@ -120,7 +121,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('Schedule error:', updateError);
+      apiLogger.error('Schedule error:', updateError);
       return NextResponse.json({ error: 'Failed to schedule page' }, { status: 500 });
     }
 
@@ -130,7 +131,7 @@ export async function POST(
       message: `Page scheduled for ${scheduleDate.toLocaleString()}`,
     });
   } catch (error) {
-    console.error('Schedule POST error:', error);
+    apiLogger.error('Schedule POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

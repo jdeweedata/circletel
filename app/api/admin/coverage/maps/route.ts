@@ -1,5 +1,6 @@
 // Coverage Maps Management API
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
@@ -72,7 +73,7 @@ async function extractKMLMetadata(kmlContent: string): Promise<MapMetadata> {
       description
     };
   } catch (error) {
-    console.error('Error parsing KML:', error);
+    apiLogger.error('Error parsing KML:', error);
     return {
       name: 'Unknown',
       featureCount: 0
@@ -98,7 +99,7 @@ async function extractKMLFromKMZ(buffer: Buffer): Promise<string> {
 
     return kmlEntry.getData().toString('utf8');
   } catch (error) {
-    console.error('Error extracting KMZ:', error);
+    apiLogger.error('Error extracting KMZ:', error);
     throw new Error('Failed to extract KML from KMZ file');
   }
 }
@@ -210,7 +211,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      apiLogger.error('Database error:', dbError);
       return NextResponse.json(
         { success: false, error: 'Failed to save to database', details: dbError.message },
         { status: 500 }
@@ -240,7 +241,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response, { status: 201 });
 
   } catch (error) {
-    console.error('Error uploading coverage map:', error);
+    apiLogger.error('Error uploading coverage map:', error);
     return NextResponse.json(
       {
         success: false,
@@ -262,7 +263,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Database error:', error);
+      apiLogger.error('Database error:', error);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch maps from database', details: error.message },
         { status: 500 }
@@ -294,7 +295,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    console.error('Error fetching coverage maps:', error);
+    apiLogger.error('Error fetching coverage maps:', error);
     return NextResponse.json(
       {
         success: false,

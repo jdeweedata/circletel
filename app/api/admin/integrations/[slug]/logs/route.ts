@@ -22,6 +22,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 interface UnifiedLog {
   id: string;
@@ -302,7 +303,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Integration logs API error:', error);
+    apiLogger.error('Integration logs API error:', error);
     return NextResponse.json(
       {
         success: false,

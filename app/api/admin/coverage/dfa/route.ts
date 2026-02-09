@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { dfaCoverageClient } from '@/lib/coverage/providers/dfa';
 
 export const dynamic = 'force-dynamic';
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: payload });
   } catch (error) {
-    console.error('[Admin DFA Coverage] Error:', error);
+    apiLogger.error('[Admin DFA Coverage] Error:', error);
     return NextResponse.json(
       { success: false, error: 'internal_error', message: 'Failed to check DFA coverage' },
       { status: 500 }

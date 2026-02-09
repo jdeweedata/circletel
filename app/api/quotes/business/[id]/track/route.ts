@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
+import { apiLogger } from '@/lib/logging';
 
 interface TrackingRequest {
   event_type: 'view' | 'email_sent' | 'shared' | 'downloaded';
@@ -81,7 +82,7 @@ export async function POST(
       .single();
 
     if (trackingError) {
-      console.error('Tracking error:', trackingError);
+      apiLogger.error('Tracking error:', trackingError);
       // Don't fail the request if tracking fails
       return NextResponse.json({
         success: true,
@@ -96,7 +97,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Tracking error:', error);
+    apiLogger.error('Tracking error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -148,7 +149,7 @@ export async function GET(
       .single();
 
     if (analyticsError && analyticsError.code !== 'PGRST116') {
-      console.error('Analytics error:', analyticsError);
+      apiLogger.error('Analytics error:', analyticsError);
     }
 
     const analyticsData = analyticsRow || ({} as any);
@@ -172,7 +173,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error('Error fetching tracking data:', error);
+    apiLogger.error('Error fetching tracking data:', error);
     return NextResponse.json(
       {
         success: false,

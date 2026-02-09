@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateStatusTransition } from '@/lib/quotes/quote-validator';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/quotes/business/:id/reject
@@ -63,7 +64,7 @@ export async function POST(
       .single();
 
     if (updateError || !updatedQuote) {
-      console.error('Quote rejection error:', updateError);
+      apiLogger.error('Quote rejection error:', updateError);
       return NextResponse.json(
         {
           success: false,
@@ -79,7 +80,7 @@ export async function POST(
       message: 'Quote rejected successfully'
     });
   } catch (error) {
-    console.error('Error rejecting quote:', error);
+    apiLogger.error('Error rejecting quote:', error);
     return NextResponse.json(
       {
         success: false,

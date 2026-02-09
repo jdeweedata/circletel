@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateQuotePDFBlob } from '@/lib/quotes/pdf-generator';
 import type { QuoteDetails } from '@/lib/quotes/types';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(
   request: NextRequest,
@@ -72,7 +73,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    console.error('PDF generation error:', error);
+    apiLogger.error('PDF generation error:', error);
     return NextResponse.json(
       { 
         success: false, 

@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
+import { apiLogger } from '@/lib/logging';
 
 export async function DELETE(
   request: NextRequest,
@@ -79,7 +80,7 @@ export async function DELETE(
       .eq('id', token.id);
 
     if (revokeError) {
-      console.error('[OAuth Revoke API] Failed to revoke token:', revokeError);
+      apiLogger.error('[OAuth Revoke API] Failed to revoke token:', revokeError);
       return NextResponse.json({ error: 'Failed to revoke OAuth token' }, { status: 500 });
     }
 
@@ -108,7 +109,7 @@ export async function DELETE(
       message: 'OAuth token revoked successfully',
     });
   } catch (error) {
-    console.error('[OAuth Revoke API] Unexpected error:', error);
+    apiLogger.error('[OAuth Revoke API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

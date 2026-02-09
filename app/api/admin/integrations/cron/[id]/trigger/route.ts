@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/admin/integrations/cron/[id]/trigger
@@ -102,7 +103,7 @@ export async function POST(
     // =========================================================================
     const cronSecret = process.env.CRON_SECRET;
     if (!cronSecret) {
-      console.error('[CronTriggerAPI] CRON_SECRET not configured');
+      apiLogger.error('[CronTriggerAPI] CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured - cannot trigger cron job' },
         { status: 500 }
@@ -115,9 +116,9 @@ export async function POST(
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const cronUrl = `${baseUrl}${cronJob.url}`;
 
-    console.log(`[CronTriggerAPI] Manually triggering cron job: ${cronJob.name}`);
-    console.log(`[CronTriggerAPI] URL: ${cronUrl}`);
-    console.log(`[CronTriggerAPI] Triggered by admin: ${user.id}`);
+    apiLogger.info(`[CronTriggerAPI] Manually triggering cron job: ${cronJob.name}`);
+    apiLogger.info(`[CronTriggerAPI] URL: ${cronUrl}`);
+    apiLogger.info(`[CronTriggerAPI] Triggered by admin: ${user.id}`);
 
     const startTime = Date.now();
     let triggerResult: {
@@ -166,7 +167,7 @@ export async function POST(
 
     const executionDuration = Date.now() - startTime;
 
-    console.log(
+    apiLogger.info(
       `[CronTriggerAPI] Cron job ${id} execution ${triggerResult.success ? 'succeeded' : 'failed'} in ${executionDuration}ms`
     );
 
@@ -210,7 +211,7 @@ export async function POST(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[CronTriggerAPI] Error:', error);
+    apiLogger.error('[CronTriggerAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

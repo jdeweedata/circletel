@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { apiLogger } from '@/lib/logging'
 
 /**
  * POST /api/admin/signup
@@ -8,16 +9,16 @@ import { createClient } from '@/lib/supabase/server'
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('[Admin Signup] Processing request...')
+    apiLogger.info('[Admin Signup] Processing request...')
 
     const body = await request.json()
     const { email, full_name, requested_role_template_id, reason } = body
 
-    console.log('[Admin Signup] Request data:', { email, full_name, requested_role_template_id })
+    apiLogger.info('[Admin Signup] Request data:', { email, full_name, requested_role_template_id })
 
     // Validate required fields
     if (!email || !full_name || !requested_role_template_id) {
-      console.log('[Admin Signup] Validation failed: missing required fields')
+      apiLogger.info('[Admin Signup] Validation failed: missing required fields')
       return NextResponse.json(
         {
           success: false,
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      console.log('[Admin Signup] Validation failed: invalid email format')
+      apiLogger.info('[Admin Signup] Validation failed: invalid email format')
       return NextResponse.json(
         {
           success: false,
@@ -40,12 +41,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[Admin Signup] Creating Supabase client...')
+    apiLogger.info('[Admin Signup] Creating Supabase client...')
     const supabase = await createClient()
-    console.log('[Admin Signup] Supabase client created successfully')
+    apiLogger.info('[Admin Signup] Supabase client created successfully')
 
     // Check if email already exists in admin_users
-    console.log('[Admin Signup] Checking for existing admin...')
+    apiLogger.info('[Admin Signup] Checking for existing admin...')
     const { data: existingAdmin, error: adminCheckError } = await supabase
       .from('admin_users')
       .select('id')
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (adminCheckError && adminCheckError.code !== 'PGRST116') {
-      console.error('[Admin Signup] Error checking existing admin:', adminCheckError)
+      apiLogger.error('[Admin Signup] Error checking existing admin:', adminCheckError)
       return NextResponse.json(
         {
           success: false,
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    console.log('[Admin Signup] Existing admin check complete:', { exists: !!existingAdmin })
+    apiLogger.info('[Admin Signup] Existing admin check complete:', { exists: !!existingAdmin })
 
     if (existingAdmin) {
       return NextResponse.json(
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if pending request already exists
-    console.log('[Admin Signup] Checking for existing pending request...')
+    apiLogger.info('[Admin Signup] Checking for existing pending request...')
     const { data: existingRequest, error: requestCheckError } = await supabase
       .from('pending_admin_users')
       .select('id, status')
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (requestCheckError && requestCheckError.code !== 'PGRST116') {
-      console.error('[Admin Signup] Error checking existing request:', requestCheckError)
+      apiLogger.error('[Admin Signup] Error checking existing request:', requestCheckError)
       return NextResponse.json(
         {
           success: false,
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    console.log('[Admin Signup] Pending request check complete:', { exists: !!existingRequest, status: existingRequest?.status })
+    apiLogger.info('[Admin Signup] Pending request check complete:', { exists: !!existingRequest, status: existingRequest?.status })
 
     if (existingRequest) {
       if (existingRequest.status === 'pending') {
@@ -115,13 +116,13 @@ export async function POST(request: NextRequest) {
           .eq('id', existingRequest.id)
 
         if (deleteError) {
-          console.error('Error deleting rejected request:', deleteError)
+          apiLogger.error('Error deleting rejected request:', deleteError)
         }
       }
     }
 
     // Create pending admin user request
-    console.log('[Admin Signup] Creating pending request...')
+    apiLogger.info('[Admin Signup] Creating pending request...')
     const { data: pendingUser, error: insertError } = await supabase
       .from('pending_admin_users')
       .insert({
@@ -136,8 +137,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('[Admin Signup] Error creating pending user:', JSON.stringify(insertError, null, 2))
-      console.error('[Admin Signup] Insert error details:', {
+      apiLogger.error('[Admin Signup] Error creating pending user:', JSON.stringify(insertError, null, 2))
+      apiLogger.error('[Admin Signup] Insert error details:', {
         message: insertError.message,
         code: insertError.code,
         details: insertError.details,
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    console.log('[Admin Signup] Pending request created successfully:', pendingUser.id)
+    apiLogger.info('[Admin Signup] Pending request created successfully:', pendingUser.id)
 
     // TODO: Send notification email to super admins about new access request
     // This can be implemented later when email service is set up
@@ -164,8 +165,8 @@ export async function POST(request: NextRequest) {
       request_id: pendingUser.id
     })
   } catch (error) {
-    console.error('[Admin Signup] Uncaught error:', error)
-    console.error('[Admin Signup] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    apiLogger.error('[Admin Signup] Uncaught error:', error)
+    apiLogger.error('[Admin Signup] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
       {
         success: false,

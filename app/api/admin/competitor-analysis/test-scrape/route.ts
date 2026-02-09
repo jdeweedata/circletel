@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import { createProvider } from '@/lib/competitor-analysis/providers';
 import type { CompetitorProvider } from '@/lib/competitor-analysis/types';
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[TestScrape] Starting test scrape for: ${provider_slug}`);
+    apiLogger.info(`[TestScrape] Starting test scrape for: ${provider_slug}`);
 
     const supabase = await createClient();
 
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[TestScrape] Provider found: ${provider.name}`);
-    console.log(`[TestScrape] Scrape URLs: ${provider.scrape_urls?.join(', ')}`);
+    apiLogger.info(`[TestScrape] Provider found: ${provider.name}`);
+    apiLogger.info(`[TestScrape] Scrape URLs: ${provider.scrape_urls?.join(', ')}`);
 
     // Optionally limit URLs for testing
     let providerToUse = provider as CompetitorProvider;
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
         ...provider,
         scrape_urls: provider.scrape_urls.slice(0, limit_urls),
       };
-      console.log(`[TestScrape] Limited to ${limit_urls} URL(s)`);
+      apiLogger.info(`[TestScrape] Limited to ${limit_urls} URL(s)`);
     }
 
     // Create provider instance
@@ -68,19 +69,19 @@ export async function POST(request: NextRequest) {
     const rawProducts = await providerInstance.scrape();
     const scrapeTime = Date.now() - startTime;
 
-    console.log(`[TestScrape] Scraped ${rawProducts.length} raw products in ${scrapeTime}ms`);
+    apiLogger.info(`[TestScrape] Scraped ${rawProducts.length} raw products in ${scrapeTime}ms`);
 
     // Normalize products
     const normalizedProducts = rawProducts.map((raw) => {
       try {
         return providerInstance.normalizeProduct(raw);
       } catch (e) {
-        console.error(`[TestScrape] Failed to normalize: ${raw.name}`, e);
+        apiLogger.error(`[TestScrape] Failed to normalize: ${raw.name}`, e);
         return null;
       }
     }).filter(Boolean);
 
-    console.log(`[TestScrape] Normalized ${normalizedProducts.length} products`);
+    apiLogger.info(`[TestScrape] Normalized ${normalizedProducts.length} products`);
 
     return NextResponse.json({
       success: true,
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[TestScrape] Error:', error);
+    apiLogger.error('[TestScrape] Error:', error);
     return NextResponse.json(
       {
         error: 'Scrape failed',

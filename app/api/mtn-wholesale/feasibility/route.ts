@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mtnSSOAuth } from '@/lib/services/mtn-sso-auth';
 import { geocodeAddress, isCoordinateInSouthAfrica } from '@/lib/services/google-geocoding';
+import { apiLogger } from '@/lib/logging';
 
 const MTN_API_BASE = 'https://asp-feasibility.mtnbusiness.co.za';
 const MTN_API_KEY = 'bdaacbcae8ab77672e545649df54d0df';
@@ -25,7 +26,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       return response;
     } catch (error) {
       lastError = error as Error;
-      console.log(`Attempt ${i + 1}/${maxRetries} failed, retrying...`, error);
+      apiLogger.info(`Attempt ${i + 1}/${maxRetries} failed, retrying...`, error);
 
       // Exponential backoff
       if (i < maxRetries - 1) {
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[MTN Feasibility] Processing feasibility request:', {
+    apiLogger.info('[MTN Feasibility] Processing feasibility request:', {
       locations: body.inputs.length,
       products: body.product_names.length,
       requestor: body.requestor
@@ -78,19 +79,19 @@ export async function POST(request: NextRequest) {
           const lng = parseFloat(input.longitude);
 
           if (!isNaN(lat) && !isNaN(lng) && isCoordinateInSouthAfrica(lat, lng)) {
-            console.log('[MTN Feasibility] Using provided coordinates for:', input.address);
+            apiLogger.info('[MTN Feasibility] Using provided coordinates for:', input.address);
             return input;
           } else {
-            console.log('[MTN Feasibility] Invalid coordinates provided, will geocode:', input.address);
+            apiLogger.info('[MTN Feasibility] Invalid coordinates provided, will geocode:', input.address);
           }
         }
 
         // Geocode the address
-        console.log('[MTN Feasibility] Geocoding address:', input.address);
+        apiLogger.info('[MTN Feasibility] Geocoding address:', input.address);
         const geocodeResult = await geocodeAddress(input.address);
 
         if (!geocodeResult.success) {
-          console.error('[MTN Feasibility] Geocoding failed for:', input.address, geocodeResult.error);
+          apiLogger.error('[MTN Feasibility] Geocoding failed for:', input.address, geocodeResult.error);
           throw new Error(`Failed to geocode address "${input.address}": ${geocodeResult.error}`);
         }
 
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
           throw new Error(`Address "${input.address}" is outside South Africa`);
         }
 
-        console.log('[MTN Feasibility] Successfully geocoded:', {
+        apiLogger.info('[MTN Feasibility] Successfully geocoded:', {
           original: input.address,
           formatted: geocodeResult.formatted_address,
           coordinates: { lat: geocodeResult.latitude, lng: geocodeResult.longitude }
@@ -121,14 +122,14 @@ export async function POST(request: NextRequest) {
       inputs: geocodedInputs
     };
 
-    console.log('[MTN Feasibility] Sending request to MTN API with geocoded coordinates');
+    apiLogger.info('[MTN Feasibility] Sending request to MTN API with geocoded coordinates');
 
     // Get authenticated session
-    console.log('[MTN Feasibility] Authenticating with SSO...');
+    apiLogger.info('[MTN Feasibility] Authenticating with SSO...');
     const authResult = await mtnSSOAuth.getAuthSession();
 
     if (!authResult.success || !authResult.cookies) {
-      console.error('[MTN Feasibility] Authentication failed:', authResult.error);
+      apiLogger.error('[MTN Feasibility] Authentication failed:', authResult.error);
       return NextResponse.json(
         {
           error: 'Authentication failed',
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[MTN Feasibility] Authentication successful, session ID:', authResult.sessionId);
+    apiLogger.info('[MTN Feasibility] Authentication successful, session ID:', authResult.sessionId);
 
     // Get cookie header
     const cookieHeader = await mtnSSOAuth.getCookieHeader();
@@ -172,11 +173,11 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[MTN Feasibility] MTN API Error:', response.status, errorText);
+      apiLogger.error('[MTN Feasibility] MTN API Error:', response.status, errorText);
 
       // If 401/403, session might be invalid - clear cache
       if (response.status === 401 || response.status === 403) {
-        console.log('[MTN Feasibility] Session appears invalid, clearing cache...');
+        apiLogger.info('[MTN Feasibility] Session appears invalid, clearing cache...');
         await mtnSSOAuth.clearSession();
       }
 
@@ -187,14 +188,14 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('[MTN Feasibility] MTN API Response:', {
+    apiLogger.info('[MTN Feasibility] MTN API Response:', {
       error_code: data.error_code,
       outputs_count: data.outputs?.length || 0
     });
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error in MTN feasibility check:', error);
+    apiLogger.error('Error in MTN feasibility check:', error);
     return NextResponse.json(
       { error: 'Failed to check feasibility with MTN API', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

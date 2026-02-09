@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
+import { apiLogger } from '@/lib/logging'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,7 +98,7 @@ export async function GET(
       count: sessions.length,
     })
   } catch (error) {
-    console.error('Interstellio sessions error:', error)
+    apiLogger.error('Interstellio sessions error:', error)
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }
@@ -172,7 +173,7 @@ export async function DELETE(
     await client.disconnectAllSessions(subscriberId)
 
     // Log the action
-    console.log(`[Interstellio] Admin ${adminUser.email} disconnected all sessions for subscriber ${subscriberId}`)
+    apiLogger.info(`[Interstellio] Admin ${adminUser.email} disconnected all sessions for subscriber ${subscriberId}`)
 
     return NextResponse.json({
       success: true,
@@ -182,7 +183,7 @@ export async function DELETE(
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Interstellio disconnect all error:', error)
+    apiLogger.error('Interstellio disconnect all error:', error)
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

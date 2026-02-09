@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { Coordinates, ServiceType, CoverageProvider } from '@/lib/coverage/types';
+import { apiLogger } from '@/lib/logging';
 
 interface AggregationRequest {
   address?: string;
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Aggregati
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    console.error('Coverage aggregation error:', error);
+    apiLogger.error('Coverage aggregation error:', error);
 
     return NextResponse.json({
       success: false,

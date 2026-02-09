@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,7 +45,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (customersError) {
-      console.error('Error fetching customers:', customersError);
+      apiLogger.error('Error fetching customers:', customersError);
       return NextResponse.json(
         { error: 'Failed to fetch customers' },
         { status: 500 }
@@ -111,7 +112,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error in billing customers API:', error);
+    apiLogger.error('Error in billing customers API:', error);
     return NextResponse.json(
       { error: 'Failed to fetch customers' },
       { status: 500 }

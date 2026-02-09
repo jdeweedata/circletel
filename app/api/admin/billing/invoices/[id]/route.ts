@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,7 +83,7 @@ export async function GET(
       .order('completed_at', { ascending: false });
 
     if (paymentsError) {
-      console.error('[Invoice Detail] Error fetching payments:', paymentsError);
+      apiLogger.error('[Invoice Detail] Error fetching payments:', paymentsError);
     }
 
     // Get invoice line items if they exist
@@ -112,7 +113,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[Invoice Detail] Error:', error);
+    apiLogger.error('[Invoice Detail] Error:', error);
     return NextResponse.json(
       {
         success: false,

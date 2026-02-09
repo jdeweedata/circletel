@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import type { InvoiceLineItem } from '@/lib/billing/types';
+import { apiLogger } from '@/lib/logging';
 
 interface GenerateOrderInvoiceRequest {
   order_id: string;
@@ -103,10 +104,10 @@ export async function POST(request: NextRequest) {
         .eq('id', order_id);
 
       if (syncError) {
-        console.error('Failed to sync account number:', syncError);
+        apiLogger.error('Failed to sync account number:', syncError);
       } else {
         accountNumber = customerAccountNumber;
-        console.log(`[Invoice] Synced account number ${customerAccountNumber} to order ${order.order_number}`);
+        apiLogger.info(`[Invoice] Synced account number ${customerAccountNumber} to order ${order.order_number}`);
       }
     }
 
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (invoiceError) {
-      console.error('Failed to create invoice:', invoiceError);
+      apiLogger.error('Failed to create invoice:', invoiceError);
       return NextResponse.json(
         { success: false, error: `Failed to create invoice: ${invoiceError.message}` },
         { status: 500 }
@@ -280,7 +281,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Order invoice generation failed:', error);
+    apiLogger.error('Order invoice generation failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

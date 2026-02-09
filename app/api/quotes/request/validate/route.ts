@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
@@ -125,7 +126,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error validating quote request token:', error);
+    apiLogger.error('Error validating quote request token:', error);
     return NextResponse.json(
       {
         success: false,

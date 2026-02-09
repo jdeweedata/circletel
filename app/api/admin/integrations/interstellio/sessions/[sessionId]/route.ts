@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient } from '@/lib/interstellio'
+import { apiLogger } from '@/lib/logging'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,7 +74,7 @@ export async function DELETE(
     await client.disconnectSession(sessionId)
 
     // Log the action
-    console.log(`[Interstellio] Admin ${adminUser.email} disconnected session ${sessionId}${sessionInfo ? ` (user: ${sessionInfo.username}, IP: ${sessionInfo.framed_ip_address})` : ''}`)
+    apiLogger.info(`[Interstellio] Admin ${adminUser.email} disconnected session ${sessionId}${sessionInfo ? ` (user: ${sessionInfo.username}, IP: ${sessionInfo.framed_ip_address})` : ''}`)
 
     return NextResponse.json({
       success: true,
@@ -88,7 +89,7 @@ export async function DELETE(
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Interstellio disconnect session error:', error)
+    apiLogger.error('Interstellio disconnect session error:', error)
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

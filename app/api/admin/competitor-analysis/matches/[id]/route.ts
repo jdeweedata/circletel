@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest, context: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[Match API] GET error:', error);
+    apiLogger.error('[Match API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch match' },
       { status: 500 }
@@ -123,7 +124,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
       .single();
 
     if (error) {
-      console.error('[Match API] Update error:', error);
+      apiLogger.error('[Match API] Update error:', error);
       return NextResponse.json(
         { error: 'Failed to update match' },
         { status: 500 }
@@ -132,7 +133,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[Match API] PATCH error:', error);
+    apiLogger.error('[Match API] PATCH error:', error);
     return NextResponse.json(
       { error: 'Failed to update match' },
       { status: 500 }
@@ -166,7 +167,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       .eq('id', id);
 
     if (error) {
-      console.error('[Match API] Delete error:', error);
+      apiLogger.error('[Match API] Delete error:', error);
       return NextResponse.json(
         { error: 'Failed to delete match' },
         { status: 500 }
@@ -177,7 +178,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       message: 'Match deleted successfully',
     });
   } catch (error) {
-    console.error('[Match API] DELETE error:', error);
+    apiLogger.error('[Match API] DELETE error:', error);
     return NextResponse.json(
       { error: 'Failed to delete match' },
       { status: 500 }

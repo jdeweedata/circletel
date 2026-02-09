@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import { isProviderSupported } from '@/lib/competitor-analysis';
 import { inngest } from '@/lib/inngest';
 import type {
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('[Scrape API] Query error:', error);
+      apiLogger.error('[Scrape API] Query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch scrape logs' },
         { status: 500 }
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       total: data?.length || 0,
     });
   } catch (error) {
-    console.error('[Scrape API] GET error:', error);
+    apiLogger.error('[Scrape API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch scrape logs' },
       { status: 500 }
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (logError) {
-        console.error('[Scrape API] Failed to create log entry:', logError);
+        apiLogger.error('[Scrape API] Failed to create log entry:', logError);
         continue;
       }
 
@@ -197,9 +198,9 @@ export async function POST(request: NextRequest) {
     if (inngestEvents.length > 0) {
       try {
         await inngest.send(inngestEvents);
-        console.log(`[Scrape API] Sent ${inngestEvents.length} scrape jobs to Inngest`);
+        apiLogger.info(`[Scrape API] Sent ${inngestEvents.length} scrape jobs to Inngest`);
       } catch (inngestError) {
-        console.error('[Scrape API] Failed to send to Inngest:', inngestError);
+        apiLogger.error('[Scrape API] Failed to send to Inngest:', inngestError);
         // Fall back to marking jobs as failed
         for (const logId of scrapeLogIds) {
           await supabase
@@ -225,7 +226,7 @@ export async function POST(request: NextRequest) {
       queue: 'inngest',
     });
   } catch (error) {
-    console.error('[Scrape API] POST error:', error);
+    apiLogger.error('[Scrape API] POST error:', error);
     return NextResponse.json(
       { error: 'Failed to trigger scrape' },
       { status: 500 }

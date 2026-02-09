@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 // GET: Fetch all consumer orders for admin
 export async function GET(request: NextRequest) {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Database error fetching orders:', error);
+      apiLogger.error('Database error fetching orders:', error);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch orders', details: error.message },
         { status: 500 }
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
       count: orders.length,
     });
   } catch (error) {
-    console.error('Error fetching admin orders:', error);
+    apiLogger.error('Error fetching admin orders:', error);
     return NextResponse.json(
       {
         success: false,
@@ -119,7 +120,7 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Database error updating order:', error);
+      apiLogger.error('Database error updating order:', error);
       return NextResponse.json(
         { success: false, error: 'Failed to update order', details: error.message },
         { status: 500 }
@@ -134,7 +135,7 @@ export async function PATCH(request: NextRequest) {
       message: 'Order status updated successfully',
     });
   } catch (error) {
-    console.error('Error updating order:', error);
+    apiLogger.error('Error updating order:', error);
     return NextResponse.json(
       {
         success: false,

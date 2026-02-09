@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import crypto from 'crypto';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(
   request: NextRequest,
@@ -96,7 +97,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('Share link generation error:', error);
+    apiLogger.error('Share link generation error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -145,7 +146,7 @@ export async function DELETE(
     });
 
   } catch (error: any) {
-    console.error('Share link revocation error:', error);
+    apiLogger.error('Share link revocation error:', error);
     return NextResponse.json(
       {
         success: false,

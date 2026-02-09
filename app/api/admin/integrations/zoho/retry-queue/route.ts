@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { processRetryQueue } from '@/lib/integrations/zoho/sync-retry-service';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300; // 5 minutes for processing queue
@@ -67,11 +68,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[ZohoRetryQueue] Starting retry queue processing...');
+    apiLogger.info('[ZohoRetryQueue] Starting retry queue processing...');
 
     const result = await processRetryQueue();
 
-    console.log('[ZohoRetryQueue] Retry queue processing complete:', result);
+    apiLogger.info('[ZohoRetryQueue] Retry queue processing complete:', result);
 
     return NextResponse.json({
       success: true,
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[ZohoRetryQueue] Error processing retry queue:', error);
+    apiLogger.error('[ZohoRetryQueue] Error processing retry queue:', error);
 
     return NextResponse.json(
       {
@@ -179,7 +180,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[ZohoRetryQueue] Error getting retry queue status:', error);
+    apiLogger.error('[ZohoRetryQueue] Error getting retry queue status:', error);
 
     return NextResponse.json(
       {

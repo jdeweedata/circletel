@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Admin Login API with Audit Logging and Proper Cookie Management
@@ -12,7 +13,7 @@ export const maxDuration = 15; // Allow up to 15 seconds (our timeout is 10s)
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[Login API] ⏱️ Request started');
+  apiLogger.info('[Login API] ⏱️ Request started');
 
   // Store cookies that will be set by Supabase SSR client
   const cookiesToSet: Array<{ name: string; value: string; options?: any }> = [];
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    console.log('[Login API] ⏱️ Request parsed:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] ⏱️ Request parsed:', Date.now() - startTime, 'ms');
 
     // Get IP address and user agent
     const ipAddress =
@@ -46,13 +47,13 @@ export async function POST(request: NextRequest) {
         cookies: {
           getAll() {
             const cookies = request.cookies.getAll();
-            console.log('[Login API] Cookies from request count:', cookies.length);
+            apiLogger.info('[Login API] Cookies from request count:', cookies.length);
             return cookies;
           },
           setAll(cookies) {
-            console.log('[Login API] Capturing cookies to set, count:', cookies.length);
+            apiLogger.info('[Login API] Capturing cookies to set, count:', cookies.length);
             if (cookies.length > 0) {
-              console.log('[Login API] First cookie name:', cookies[0].name);
+              apiLogger.info('[Login API] First cookie name:', cookies[0].name);
             }
             // Store cookies to be set on final response
             cookiesToSet.push(...cookies);
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Service role client for admin_users check (bypasses RLS)
     const supabaseAdmin = await createClient();
-    console.log('[Login API] ⏱️ Supabase clients created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] ⏱️ Supabase clients created:', Date.now() - startTime, 'ms');
 
     // Step 1: Check if user exists in admin_users
     const { data: adminUser, error: adminError } = await supabaseAdmin
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       .select('id, email, full_name, is_active, role, role_template_id, permissions')
       .eq('email', normalizedEmail)
       .maybeSingle();
-    console.log('[Login API] ⏱️ Admin user lookup completed:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] ⏱️ Admin user lookup completed:', Date.now() - startTime, 'ms');
 
     if (adminError || !adminUser) {
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
     // Step 3: Authenticate with Supabase Auth using SSR client
     // This will automatically set the session cookies in the response
     // Add timeout wrapper to fail fast if Supabase Auth is slow
-    console.log('[Login API] ⏱️ Starting Supabase Auth...');
+    apiLogger.info('[Login API] ⏱️ Starting Supabase Auth...');
     
     const AUTH_TIMEOUT = 10000; // 10 second timeout
     const authPromise = supabaseSSR.auth.signInWithPassword({
@@ -133,9 +134,9 @@ export async function POST(request: NextRequest) {
       const result = await Promise.race([authPromise, timeoutPromise]);
       authData = result.data;
       authError = result.error;
-      console.log('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
+      apiLogger.info('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
     } catch (timeoutError) {
-      console.error('[Login API] ❌ Supabase Auth timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Login API] ❌ Supabase Auth timeout:', Date.now() - startTime, 'ms');
       
       // Log timeout issue
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    console.log('[Login API] ⏱️ Writing audit logs asynchronously...');
+    apiLogger.info('[Login API] ⏱️ Writing audit logs asynchronously...');
 
     // Write audit logs asynchronously (fire-and-forget) to avoid blocking the response
     // This prevents slow database writes from timing out the login
@@ -241,14 +242,14 @@ export async function POST(request: NextRequest) {
         user_agent: userAgent
       })
     ]).then(([auditResult, activityResult]) => {
-      console.log('[Login API] ⏱️ Audit logs completed (async):', Date.now() - startTime, 'ms');
-      if (auditResult.error) console.error('[Login API] Audit log error:', auditResult.error);
-      if (activityResult.error) console.error('[Login API] Activity log error:', activityResult.error);
+      apiLogger.info('[Login API] ⏱️ Audit logs completed (async):', Date.now() - startTime, 'ms');
+      if (auditResult.error) apiLogger.error('[Login API] Audit log error:', auditResult.error);
+      if (activityResult.error) apiLogger.error('[Login API] Activity log error:', activityResult.error);
     }).catch(error => {
-      console.error('[Login API] Audit logging failed (non-blocking):', error);
+      apiLogger.error('[Login API] Audit logging failed (non-blocking):', error);
     });
 
-    console.log(`✅ Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
+    apiLogger.info(`✅ Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
 
     // Create success response and set all cookies captured from Supabase SSR client
     const successResponse = NextResponse.json({
@@ -269,12 +270,12 @@ export async function POST(request: NextRequest) {
       successResponse.cookies.set(name, value, options);
     });
 
-    console.log('[Login API] Final response cookie count:', cookiesToSet.length);
-    console.log('[Login API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] Final response cookie count:', cookiesToSet.length);
+    apiLogger.info('[Login API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
 
     return successResponse;
   } catch (error) {
-    console.error('Admin login error:', error);
+    apiLogger.error('Admin login error:', error);
 
     return NextResponse.json(
       {

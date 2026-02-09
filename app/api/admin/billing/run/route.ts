@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Manual billing run failed:', error);
+    apiLogger.error('Manual billing run failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to run billing' },
       { status: 500 }
@@ -143,7 +144,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Get billing runs failed:', error);
+    apiLogger.error('Get billing runs failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to get billing runs' },
       { status: 500 }

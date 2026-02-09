@@ -12,6 +12,7 @@ import { createContractFromQuote } from '@/lib/contracts/contract-generator';
 import { generateContractPDF } from '@/lib/contracts/pdf-generator';
 import { createZohoSyncService } from '@/lib/integrations/zoho/sync-service';
 import type { ContractCreateRequest } from '@/lib/contracts/types';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Create contract from approved quote
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (kycError || !kycSession) {
-      console.error('[ContractAPI] KYC session not found:', kycError);
+      apiLogger.error('[ContractAPI] KYC session not found:', kycError);
       return NextResponse.json(
         {
           success: false,
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingContract) {
-      console.log('[ContractAPI] Contract already exists for quote:', quoteId);
+      apiLogger.info('[ContractAPI] Contract already exists for quote:', quoteId);
       return NextResponse.json({
         success: true,
         data: {
@@ -119,15 +120,15 @@ export async function POST(request: NextRequest) {
       kycSessionId
     );
 
-    console.log('[ContractAPI] Contract created:', contractNumber);
+    apiLogger.info('[ContractAPI] Contract created:', contractNumber);
 
     // 8. Generate contract PDF with KYC badge
     let pdfUrl: string | null = null;
     try {
       pdfUrl = await generateContractPDF(contractId);
-      console.log('[ContractAPI] PDF generated:', pdfUrl);
+      apiLogger.info('[ContractAPI] PDF generated:', pdfUrl);
     } catch (pdfError) {
-      console.error('[ContractAPI] PDF generation failed:', pdfError);
+      apiLogger.error('[ContractAPI] PDF generation failed:', pdfError);
       // Continue without PDF - can be regenerated later
     }
 
@@ -135,10 +136,10 @@ export async function POST(request: NextRequest) {
     try {
       const zohoSync = createZohoSyncService();
       zohoSync.syncContractToDeal(contractId, { forceSync: false }).catch((syncError) => {
-        console.error('[ContractAPI] ZOHO sync failed (non-blocking):', syncError);
+        apiLogger.error('[ContractAPI] ZOHO sync failed (non-blocking):', syncError);
       });
     } catch (syncError) {
-      console.error('[ContractAPI] ZOHO sync initialization failed:', syncError);
+      apiLogger.error('[ContractAPI] ZOHO sync initialization failed:', syncError);
       // Non-blocking - can be manually synced later
     }
 
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[ContractAPI] Error creating contract:', error);
+    apiLogger.error('[ContractAPI] Error creating contract:', error);
     return NextResponse.json(
       {
         success: false,

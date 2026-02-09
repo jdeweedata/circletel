@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (timeSeriesError) {
-      console.error('Time series error:', timeSeriesError);
+      apiLogger.error('Time series error:', timeSeriesError);
     }
 
     // Fetch province data
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
       .not('province', 'is', null);
 
     if (provinceError) {
-      console.error('Province error:', provinceError);
+      apiLogger.error('Province error:', provinceError);
     }
 
     // Fetch error distribution
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
       .not('error_type', 'is', null);
 
     if (errorError) {
-      console.error('Error data error:', errorError);
+      apiLogger.error('Error data error:', errorError);
     }
 
     // Fetch performance trends (last 7, 30, 90 days)
@@ -240,7 +241,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Analytics API error:', error);
+    apiLogger.error('Analytics API error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch analytics data',

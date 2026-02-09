@@ -24,6 +24,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { retryKYCSession } from '@/lib/integrations/didit/session-manager';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[API] Retrying KYC session for quote: ${quoteId}`);
+    apiLogger.info(`[API] Retrying KYC session for quote: ${quoteId}`);
 
     // 3. Retry KYC session using session manager
     let sessionResult;
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Other errors (Didit API failures, database errors)
-      console.error('[API] KYC retry failed:', error);
+      apiLogger.error('[API] KYC retry failed:', error);
       return NextResponse.json(
         {
           success: false,
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Return success response
-    console.log(
+    apiLogger.info(
       `[API] KYC session retry successful: ${sessionResult.sessionId}`
     );
 
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[API] Unexpected error in retry-kyc:', error);
+    apiLogger.error('[API] Unexpected error in retry-kyc:', error);
     return NextResponse.json(
       {
         success: false,

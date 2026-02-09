@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
 import { InvoiceReminderService } from '@/lib/billing/invoice-reminder-service';
+import { apiLogger } from '@/lib/logging';
 
 interface SendRemindersRequest {
   invoice_ids?: string[];
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Send reminders failed:', errorMessage);
+    apiLogger.error('Send reminders failed:', errorMessage);
 
     return NextResponse.json(
       { success: false, error: errorMessage },
@@ -165,7 +166,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Get pending reminders failed:', errorMessage);
+    apiLogger.error('Get pending reminders failed:', errorMessage);
 
     return NextResponse.json(
       { success: false, error: errorMessage },

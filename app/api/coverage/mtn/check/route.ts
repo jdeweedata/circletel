@@ -4,6 +4,7 @@ import { mtnWMSClient } from '@/lib/coverage/mtn/wms-client';
 import { MTNWMSParser } from '@/lib/coverage/mtn/wms-parser';
 import { Coordinates, ServiceType, CoverageError } from '@/lib/coverage/types';
 import { geographicValidator } from '@/lib/coverage/mtn/geo-validation';
+import { apiLogger } from '@/lib/logging';
 
 interface CoverageCheckRequest {
   address?: string;
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CoverageC
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    console.error('MTN coverage check error:', error);
+    apiLogger.error('MTN coverage check error:', error);
 
     if (error instanceof CoverageError) {
       return NextResponse.json({

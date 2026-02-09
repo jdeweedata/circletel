@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import type { CreateProviderRequest, ProviderStats } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('[Providers API] Query error:', error);
+      apiLogger.error('[Providers API] Query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch providers' },
         { status: 500 }
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       total: data?.length || 0,
     });
   } catch (error) {
-    console.error('[Providers API] GET error:', error);
+    apiLogger.error('[Providers API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch providers' },
       { status: 500 }
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[Providers API] Insert error:', error);
+      apiLogger.error('[Providers API] Insert error:', error);
       return NextResponse.json(
         { error: 'Failed to create provider' },
         { status: 500 }
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    console.error('[Providers API] POST error:', error);
+    apiLogger.error('[Providers API] POST error:', error);
     return NextResponse.json(
       { error: 'Failed to create provider' },
       { status: 500 }

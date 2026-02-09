@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -59,7 +60,7 @@ export async function POST(
       .single();
 
     if (orderError || !order) {
-      console.error('[Admin Payment Method] Order not found:', orderError);
+      apiLogger.error('[Admin Payment Method] Order not found:', orderError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -74,7 +75,7 @@ export async function POST(
       .single();
 
     if (customerError || !customer) {
-      console.error('[Admin Payment Method] Customer not found:', customerError);
+      apiLogger.error('[Admin Payment Method] Customer not found:', customerError);
       return NextResponse.json(
         { success: false, error: 'Customer not found for this order' },
         { status: 404 }
@@ -83,7 +84,7 @@ export async function POST(
 
     // Validate customer has account number
     if (!customer.account_number) {
-      console.error('[Admin Payment Method] Customer account number not assigned:', customer.id);
+      apiLogger.error('[Admin Payment Method] Customer account number not assigned:', customer.id);
       return NextResponse.json(
         { success: false, error: 'Customer account number not yet assigned. Please contact support.' },
         { status: 400 }
@@ -140,7 +141,7 @@ export async function POST(
       .single();
 
     if (pmError || !paymentMethod) {
-      console.error('[Admin Payment Method] Failed to create payment method:', pmError);
+      apiLogger.error('[Admin Payment Method] Failed to create payment method:', pmError);
       return NextResponse.json(
         { success: false, error: 'Failed to create payment method' },
         { status: 500 }
@@ -202,7 +203,7 @@ export async function POST(
       .single();
 
     if (erError || !emandateRecord) {
-      console.error('[Admin Payment Method] Failed to create emandate request:', erError);
+      apiLogger.error('[Admin Payment Method] Failed to create emandate request:', erError);
       await supabase.from('payment_methods').delete().eq('id', paymentMethod.id);
       return NextResponse.json(
         { success: false, error: 'Failed to create eMandate request' },
@@ -257,13 +258,13 @@ export async function POST(
         })
         .eq('id', paymentMethod.id);
 
-      console.log('[Admin Payment Method] Mandate batch submitted successfully:', {
+      apiLogger.info('[Admin Payment Method] Mandate batch submitted successfully:', {
         emandateRequestId: emandateRecord.id,
         paymentMethodId: paymentMethod.id,
         fileToken,
       });
     } catch (netcashError: any) {
-      console.error('[Admin Payment Method] NetCash API error:', netcashError);
+      apiLogger.error('[Admin Payment Method] NetCash API error:', netcashError);
 
       // Update records with error status
       await supabase
@@ -320,7 +321,7 @@ export async function POST(
       message: 'eMandate request created. Customer will receive email/SMS from NetCash to sign the mandate.',
     });
   } catch (error: any) {
-    console.error('[Admin Payment Method] Unexpected error:', error);
+    apiLogger.error('[Admin Payment Method] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,
@@ -370,7 +371,7 @@ export async function GET(
       .maybeSingle();
 
     if (emandateError) {
-      console.error('Error fetching emandate request:', emandateError);
+      apiLogger.error('Error fetching emandate request:', emandateError);
     }
 
     // Fetch payment method separately to avoid join issues
@@ -383,7 +384,7 @@ export async function GET(
         .single();
 
       if (pmError) {
-        console.error('Error fetching payment method:', pmError);
+        apiLogger.error('Error fetching payment method:', pmError);
       } else {
         paymentMethodData = pmData;
       }
@@ -402,7 +403,7 @@ export async function GET(
             .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
 
           if (urlError) {
-            console.error('Error creating signed URL:', urlError);
+            apiLogger.error('Error creating signed URL:', urlError);
             return null;
           }
           return urlData?.signedUrl || null;
@@ -411,7 +412,7 @@ export async function GET(
         // Return as-is if it's already a full URL
         return pdfLink;
       } catch (err) {
-        console.error('Exception in getSignedPdfUrl:', err);
+        apiLogger.error('Exception in getSignedPdfUrl:', err);
         return null;
       }
     };
@@ -482,7 +483,7 @@ export async function GET(
       .maybeSingle();
 
     if (pmError) {
-      console.error('Error fetching payment method:', pmError);
+      apiLogger.error('Error fetching payment method:', pmError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch payment method' },
         { status: 500 }
@@ -539,7 +540,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error in payment-method API:', error);
+    apiLogger.error('Error in payment-method API:', error);
     return NextResponse.json(
       {
         success: false,

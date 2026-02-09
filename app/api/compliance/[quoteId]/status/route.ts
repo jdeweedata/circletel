@@ -23,6 +23,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getKYCSessionStatus } from '@/lib/integrations/didit/session-manager';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * CRITICAL: Next.js 15 Async Params Pattern
@@ -48,14 +49,14 @@ export async function GET(
       );
     }
 
-    console.log(`[API] Fetching KYC status for quote: ${quoteId}`);
+    apiLogger.info(`[API] Fetching KYC status for quote: ${quoteId}`);
 
     // 3. Get KYC session status
     const sessionStatus = await getKYCSessionStatus(quoteId);
 
     // 4. Handle case where no KYC session exists
     if (!sessionStatus) {
-      console.log(`[API] No KYC session found for quote ${quoteId}`);
+      apiLogger.info(`[API] No KYC session found for quote ${quoteId}`);
       return NextResponse.json({
         success: true,
         data: {
@@ -69,7 +70,7 @@ export async function GET(
     }
 
     // 5. Return session status
-    console.log(
+    apiLogger.info(
       `[API] KYC status retrieved: ${sessionStatus.status} (${sessionStatus.verification_result})`
     );
 
@@ -84,7 +85,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[API] Error fetching KYC status:', error);
+    apiLogger.error('[API] Error fetching KYC status:', error);
     return NextResponse.json(
       {
         success: false,

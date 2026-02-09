@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
       .order('invoice_date', { ascending: false });
 
     if (invoicesError) {
-      console.error('Error fetching invoices:', invoicesError);
+      apiLogger.error('Error fetching invoices:', invoicesError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch invoices' },
         { status: 500 }
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Customer invoices fetch failed:', error);
+    apiLogger.error('Customer invoices fetch failed:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

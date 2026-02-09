@@ -17,6 +17,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientWithSession, createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     const { data: integrations, error } = await query;
 
     if (error) {
-      console.error('[Integrations API] Failed to fetch integrations:', error);
+      apiLogger.error('[Integrations API] Failed to fetch integrations:', error);
       return NextResponse.json({ error: 'Failed to fetch integrations' }, { status: 500 });
     }
 
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
       summary,
     });
   } catch (error) {
-    console.error('[Integrations API] Unexpected error:', error);
+    apiLogger.error('[Integrations API] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

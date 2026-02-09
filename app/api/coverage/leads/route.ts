@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * Coverage Leads API
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Failed to create coverage lead:', error);
+      apiLogger.error('Failed to create coverage lead:', error);
       return NextResponse.json(
         { error: 'Failed to create coverage lead', details: error.message },
         { status: 500 }
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       longitude: lead.longitude
     });
   } catch (error) {
-    console.error('Coverage lead creation error:', error);
+    apiLogger.error('Coverage lead creation error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

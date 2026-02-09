@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { generateCustomerInvoice, buildInvoiceLineItems } from '@/lib/invoices/invoice-generator';
 import { PPPoECredentialService } from '@/lib/pppoe';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -107,7 +108,7 @@ export async function POST(
       .single();
 
     if (fetchError || !order) {
-      console.error('Error fetching order:', fetchError);
+      apiLogger.error('Error fetching order:', fetchError);
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -146,7 +147,7 @@ export async function POST(
       .limit(1);
 
     if (pmError) {
-      console.error('Error fetching payment methods:', pmError);
+      apiLogger.error('Error fetching payment methods:', pmError);
       return NextResponse.json(
         {
           success: false,
@@ -262,7 +263,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('Error activating order:', updateError);
+      apiLogger.error('Error activating order:', updateError);
       return NextResponse.json(
         {
           success: false,
@@ -290,14 +291,14 @@ export async function POST(
       });
 
     if (historyError) {
-      console.error('Error logging status history:', historyError);
+      apiLogger.error('Error logging status history:', historyError);
       // Don't fail the request if history logging fails
     }
 
     // Create customer_services record for billing/invoice generation
     const serviceRecord = await createCustomerServiceRecord(supabase, order, updatedOrder, billing);
     if (!serviceRecord.success) {
-      console.error('Error creating customer service record:', serviceRecord.error);
+      apiLogger.error('Error creating customer service record:', serviceRecord.error);
       // Don't fail - order is activated, service record is supplementary
     }
 
@@ -321,17 +322,17 @@ export async function POST(
             username: pppoeResult.credential.pppoeUsername,
             password: pppoeResult.password,
           };
-          console.log('[Activation] PPPoE credentials created:', pppoeResult.credential.pppoeUsername);
+          apiLogger.info('[Activation] PPPoE credentials created:', pppoeResult.credential.pppoeUsername);
 
           // Provision to Interstellio (non-blocking)
           PPPoECredentialService.provision(pppoeResult.credential.id).catch((err) => {
-            console.error('[Activation] Failed to provision PPPoE to Interstellio:', err);
+            apiLogger.error('[Activation] Failed to provision PPPoE to Interstellio:', err);
           });
         } else {
-          console.warn('[Activation] Failed to create PPPoE credentials:', pppoeResult.error);
+          apiLogger.warn('[Activation] Failed to create PPPoE credentials:', pppoeResult.error);
         }
       } catch (pppoeError) {
-        console.error('[Activation] PPPoE credential creation error:', pppoeError);
+        apiLogger.error('[Activation] PPPoE credential creation error:', pppoeError);
         // Don't fail activation if PPPoE creation fails
       }
     }
@@ -364,9 +365,9 @@ export async function POST(
         });
 
         invoiceNumber = invoice.invoice_number;
-        console.log('[Activation] Pro-rata invoice generated:', invoice.invoice_number);
+        apiLogger.info('[Activation] Pro-rata invoice generated:', invoice.invoice_number);
       } catch (invoiceError) {
-        console.error('[Activation] Failed to generate pro-rata invoice:', invoiceError);
+        apiLogger.error('[Activation] Failed to generate pro-rata invoice:', invoiceError);
         // Don't fail activation if invoice generation fails
       }
     }
@@ -374,9 +375,9 @@ export async function POST(
     // Send activation notification to customer
     try {
       await sendActivationNotification(order, updatedOrder, billing, invoiceNumber);
-      console.log('[Activation] Notification sent to:', order.email);
+      apiLogger.info('[Activation] Notification sent to:', order.email);
     } catch (notifyError) {
-      console.error('[Activation] Failed to send notification:', notifyError);
+      apiLogger.error('[Activation] Failed to send notification:', notifyError);
       // Don't fail activation if notification fails
     }
 
@@ -402,7 +403,7 @@ export async function POST(
       },
     });
   } catch (error: any) {
-    console.error('Error activating order:', error);
+    apiLogger.error('Error activating order:', error);
     return NextResponse.json(
       {
         success: false,
@@ -440,7 +441,7 @@ async function createCustomerServiceRecord(
       .maybeSingle();
 
     if (existingService) {
-      console.log('Customer service record already exists:', existingService.id);
+      apiLogger.info('Customer service record already exists:', existingService.id);
       return { success: true, serviceId: existingService.id };
     }
 
@@ -510,14 +511,14 @@ async function createCustomerServiceRecord(
       .single();
 
     if (insertError) {
-      console.error('Error creating customer service record:', insertError);
+      apiLogger.error('Error creating customer service record:', insertError);
       return { success: false, error: insertError.message };
     }
 
-    console.log('Created customer service record:', newService.id);
+    apiLogger.info('Created customer service record:', newService.id);
     return { success: true, serviceId: newService.id };
   } catch (error) {
-    console.error('Error in createCustomerServiceRecord:', error);
+    apiLogger.error('Error in createCustomerServiceRecord:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

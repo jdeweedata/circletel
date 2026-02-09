@@ -3,6 +3,7 @@ import { createBusinessQuote, QuoteGenerationError } from '@/lib/quotes/quote-ge
 import type { CreateQuoteRequest } from '@/lib/quotes/types';
 import { logPaymentConsents, extractIpAddress, extractUserAgent } from '@/lib/payments/consent-logger';
 import type { B2BConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/quotes/business/create
@@ -31,10 +32,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        console.error('Failed to log quote consents:', consentLog.error);
+        apiLogger.error('Failed to log quote consents:', consentLog.error);
         // Don't fail the quote creation if consent logging fails
       } else {
-        console.log('Quote consents logged successfully:', consentLog.consent_id);
+        apiLogger.info('Quote consents logged successfully:', consentLog.consent_id);
       }
     }
 
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Error creating quote:', error);
+    apiLogger.error('Error creating quote:', error);
     return NextResponse.json(
       {
         success: false,

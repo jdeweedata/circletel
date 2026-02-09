@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateStatusTransition, canSendQuote } from '@/lib/quotes/quote-validator';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/quotes/business/:id/send
@@ -94,7 +95,7 @@ export async function POST(
       message: 'Quote sent successfully'
     });
   } catch (error) {
-    console.error('Error sending quote:', error);
+    apiLogger.error('Error sending quote:', error);
     return NextResponse.json(
       {
         success: false,

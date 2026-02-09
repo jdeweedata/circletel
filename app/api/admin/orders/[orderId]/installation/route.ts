@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -44,7 +45,7 @@ export async function GET(
       .maybeSingle();
 
     if (error) {
-      console.error('Error fetching installation task:', error);
+      apiLogger.error('Error fetching installation task:', error);
       return NextResponse.json(
         {
           success: false,
@@ -93,7 +94,7 @@ export async function GET(
       data: transformedTask,
     });
   } catch (error: any) {
-    console.error('Error fetching installation task:', error);
+    apiLogger.error('Error fetching installation task:', error);
     return NextResponse.json(
       {
         success: false,

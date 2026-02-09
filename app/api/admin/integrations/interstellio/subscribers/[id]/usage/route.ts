@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@supabase/ssr'
 import { getInterstellioClient, DataAggregation } from '@/lib/interstellio'
+import { apiLogger } from '@/lib/logging'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,7 +121,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Interstellio usage error:', error)
+    apiLogger.error('Interstellio usage error:', error)
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

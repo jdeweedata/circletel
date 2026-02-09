@@ -24,6 +24,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
 import cronstrue from 'cronstrue';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/cron
@@ -193,7 +194,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[CronJobsAPI] Error:', error);
+    apiLogger.error('[CronJobsAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

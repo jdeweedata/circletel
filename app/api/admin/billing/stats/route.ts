@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -151,7 +152,7 @@ export async function GET() {
       recentPayments,
     });
   } catch (error) {
-    console.error('Error fetching billing stats:', error);
+    apiLogger.error('Error fetching billing stats:', error);
     return NextResponse.json(
       { error: 'Failed to fetch billing stats' },
       { status: 500 }

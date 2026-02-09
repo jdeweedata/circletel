@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { FICADocumentType, RICADocumentType } from '@/lib/types/fica-rica'
+import { apiLogger } from '@/lib/logging'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('Database insert error:', insertError)
+      apiLogger.error('Database insert error:', insertError)
       return NextResponse.json(
         { error: 'Failed to save document metadata', details: insertError.message },
         { status: 500 }
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
       message: 'Document uploaded successfully',
     })
   } catch (error) {
-    console.error('Upload API error:', error)
+    apiLogger.error('Upload API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -186,7 +187,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (docsError) {
-      console.error('Database query error:', docsError)
+      apiLogger.error('Database query error:', docsError)
       return NextResponse.json(
         { error: 'Failed to fetch documents' },
         { status: 500 }
@@ -210,7 +211,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Get documents API error:', error)
+    apiLogger.error('Get documents API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -278,7 +279,7 @@ export async function DELETE(request: NextRequest) {
       .remove([document.file_path])
 
     if (storageError) {
-      console.error('Storage delete error:', storageError)
+      apiLogger.error('Storage delete error:', storageError)
       // Continue anyway - database record is more important
     }
 
@@ -289,7 +290,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', documentId)
 
     if (deleteError) {
-      console.error('Database delete error:', deleteError)
+      apiLogger.error('Database delete error:', deleteError)
       return NextResponse.json(
         { error: 'Failed to delete document' },
         { status: 500 }
@@ -301,7 +302,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Document deleted successfully',
     })
   } catch (error) {
-    console.error('Delete API error:', error)
+    apiLogger.error('Delete API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

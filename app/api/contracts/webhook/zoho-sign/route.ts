@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { processZohoSignWebhook } from '@/lib/integrations/zoho/sign-service';
+import { webhookLogger } from '@/lib/logging';
 
 const ZOHO_SIGN_WEBHOOK_SECRET = process.env.ZOHO_SIGN_WEBHOOK_SECRET;
 
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     // 1. Extract signature header
     const signature = request.headers.get('X-Zoho-Sign-Signature');
     if (!signature) {
-      console.warn('[ZOHO Sign Webhook] Missing signature header');
+      webhookLogger.warn('[ZOHO Sign Webhook] Missing signature header');
       return NextResponse.json(
         { success: false, error: 'Missing signature header' },
         { status: 401 }
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     // 3. Verify signature
     const isValid = verifyZohoSignWebhook(rawBody, signature);
     if (!isValid) {
-      console.warn('[ZOHO Sign Webhook] Invalid signature');
+      webhookLogger.warn('[ZOHO Sign Webhook] Invalid signature');
       return NextResponse.json(
         { success: false, error: 'Invalid signature' },
         { status: 401 }
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     const payload = JSON.parse(rawBody);
     const { event_type, request_id } = payload;
 
-    console.log(`[ZOHO Sign Webhook] Received event: ${event_type} for request ${request_id}`);
+    webhookLogger.info(`[ZOHO Sign Webhook] Received event: ${event_type} for request ${request_id}`);
 
     // 5. Validate required fields
     if (!event_type || !request_id) {
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       message: `Event ${event_type} processed successfully`,
     });
   } catch (error: any) {
-    console.error('[ZOHO Sign Webhook Error]', error);
+    webhookLogger.error('[ZOHO Sign Webhook Error]', error);
     return NextResponse.json(
       {
         success: false,

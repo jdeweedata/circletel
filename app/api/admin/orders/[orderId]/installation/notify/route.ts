@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ClickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { EnhancedEmailService } from '@/lib/emails/enhanced-notification-service';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel configuration
 export const runtime = 'nodejs';
@@ -55,7 +56,7 @@ export async function POST(
       .maybeSingle();
 
     if (installError) {
-      console.error('Error fetching installation task:', installError);
+      apiLogger.error('Error fetching installation task:', installError);
     }
 
     if (!installation || !installation.scheduled_date) {
@@ -109,7 +110,7 @@ export async function POST(
           results.sms.error = smsResult.error || 'Unknown error';
         }
       } catch (smsError: any) {
-        console.error('Failed to send SMS:', smsError);
+        apiLogger.error('Failed to send SMS:', smsError);
         results.sms.error = smsError.message;
       }
     }
@@ -139,7 +140,7 @@ export async function POST(
           results.email.error = emailResult.error || 'Unknown error';
         }
       } catch (emailError: any) {
-        console.error('Failed to send email:', emailError);
+        apiLogger.error('Failed to send email:', emailError);
         results.email.error = emailError.message;
       }
     }
@@ -188,7 +189,7 @@ export async function POST(
         await supabase.from('order_communications').insert(communications);
       }
     } catch (logError) {
-      console.warn('⚠️ Failed to log communication:', logError);
+      apiLogger.warn('⚠️ Failed to log communication:', logError);
     }
 
     // Return results
@@ -212,7 +213,7 @@ export async function POST(
         : 'Failed to send reminders',
     });
   } catch (error: any) {
-    console.error('Error sending installation notification:', error);
+    apiLogger.error('Error sending installation notification:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendContractForSignature } from '@/lib/integrations/zoho/sign-service';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(
   request: NextRequest,
@@ -18,7 +19,7 @@ export async function POST(
     // 1. Extract contract ID from params (Next.js 15 async pattern)
     const { id: contractId } = await context.params;
 
-    console.log(`[Send for Signature] Processing contract ${contractId}`);
+    apiLogger.info(`[Send for Signature] Processing contract ${contractId}`);
 
     // 2. Initialize Supabase client
     const supabase = await createClient();
@@ -31,7 +32,7 @@ export async function POST(
       .single();
 
     if (fetchError || !contract) {
-      console.error('[Send for Signature] Contract not found:', contractId);
+      apiLogger.error('[Send for Signature] Contract not found:', contractId);
       return NextResponse.json(
         { success: false, error: 'Contract not found' },
         { status: 404 }
@@ -50,7 +51,7 @@ export async function POST(
     }
 
     // 5. Send to ZOHO Sign
-    console.log(`[Send for Signature] Sending contract ${contract.contract_number} to ZOHO Sign`);
+    apiLogger.info(`[Send for Signature] Sending contract ${contract.contract_number} to ZOHO Sign`);
     const { requestId, customerSigningUrl } = await sendContractForSignature(contractId);
 
     // 6. Update contract status to 'pending_signature'
@@ -60,7 +61,7 @@ export async function POST(
       .eq('id', contractId);
 
     if (updateError) {
-      console.error('[Send for Signature] Failed to update contract status:', updateError);
+      apiLogger.error('[Send for Signature] Failed to update contract status:', updateError);
       // Don't throw - signature request was successful
     }
 
@@ -74,7 +75,7 @@ export async function POST(
       },
     });
   } catch (error: any) {
-    console.error('[Send for Signature Error]', error);
+    apiLogger.error('[Send for Signature Error]', error);
     return NextResponse.json(
       {
         success: false,

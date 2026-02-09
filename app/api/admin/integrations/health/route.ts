@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
 import { createClient as createServiceClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/health
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       .order('name', { ascending: true });
 
     if (integrationsError) {
-      console.error('[HealthAPI] Error fetching integrations:', integrationsError);
+      apiLogger.error('[HealthAPI] Error fetching integrations:', integrationsError);
       return NextResponse.json(
         { error: 'Failed to fetch integrations' },
         { status: 500 }
@@ -183,7 +184,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[HealthAPI] Error:', error);
+    apiLogger.error('[HealthAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/admin/integrations/webhooks/[id]/logs
@@ -142,7 +143,7 @@ export async function GET(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[WebhookLogDetailsAPI] Error:', error);
+    apiLogger.error('[WebhookLogDetailsAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

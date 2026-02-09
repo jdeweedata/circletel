@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
+import { apiLogger } from '@/lib/logging';
 
 // Vercel serverless function configuration
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
@@ -78,7 +79,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    console.error('Get quote error:', error);
+    apiLogger.error('Get quote error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },
       { status: 500 }
@@ -159,7 +160,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      console.error('Update quote error:', updateError);
+      apiLogger.error('Update quote error:', updateError);
       return NextResponse.json(
         { success: false, error: 'Failed to update quote' },
         { status: 500 }
@@ -181,7 +182,7 @@ export async function PUT(
           .eq('id', item.id);
 
         if (itemError) {
-          console.error('Update item error:', itemError);
+          apiLogger.error('Update item error:', itemError);
         }
       }
     }
@@ -217,7 +218,7 @@ export async function PUT(
       quote: updatedQuote
     });
   } catch (error: any) {
-    console.error('Update quote error:', error);
+    apiLogger.error('Update quote error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update quote' },
       { status: 500 }
@@ -294,7 +295,7 @@ export async function DELETE(
       message: 'Quote deleted successfully'
     });
   } catch (error: any) {
-    console.error('Delete quote error:', error);
+    apiLogger.error('Delete quote error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete quote' },
       { status: 500 }

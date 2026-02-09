@@ -1,6 +1,7 @@
 // MTN Coverage Monitoring API Endpoint
 import { NextRequest, NextResponse } from 'next/server';
 import { mtnCoverageMonitor } from '@/lib/coverage/mtn/monitoring';
+import { apiLogger } from '@/lib/logging';
 
 interface MonitoringQuery {
   action: 'stats' | 'health' | 'export' | 'reset';
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
   } catch (error) {
-    console.error('Monitoring API error:', error);
+    apiLogger.error('Monitoring API error:', error);
 
     return NextResponse.json({
       success: false,
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
   } catch (error) {
-    console.error('Monitoring POST API error:', error);
+    apiLogger.error('Monitoring POST API error:', error);
 
     return NextResponse.json({
       success: false,

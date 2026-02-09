@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: templates, error } = await query;
 
     if (error) {
-      console.error('Failed to fetch templates:', error);
+      apiLogger.error('Failed to fetch templates:', error);
       return NextResponse.json({ error: 'Failed to fetch templates' }, { status: 500 });
     }
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       templates: templates || [],
     });
   } catch (error) {
-    console.error('Templates API error:', error);
+    apiLogger.error('Templates API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

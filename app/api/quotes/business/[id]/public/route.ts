@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function GET(
   request: NextRequest,
@@ -66,7 +67,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    console.error('Get public quote error:', error);
+    apiLogger.error('Get public quote error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },
       { status: 500 }

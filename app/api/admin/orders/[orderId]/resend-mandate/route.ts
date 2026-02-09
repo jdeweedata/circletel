@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { NetCashEMandateBatchService, EMandateBatchRequest } from '@/lib/payments/netcash-emandate-batch-service';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -146,7 +147,7 @@ export async function POST(
     const batchResult = await emandateBatchService.submitMandate(emandateBatchRequest);
 
     if (!batchResult.success) {
-      console.error('[Resend Mandate] NetCash submission failed:', batchResult);
+      apiLogger.error('[Resend Mandate] NetCash submission failed:', batchResult);
       return NextResponse.json(
         { 
           success: false, 
@@ -181,7 +182,7 @@ export async function POST(
       created_at: new Date().toISOString(),
     });
 
-    console.log(`[Resend Mandate] Successfully resent mandate for order ${order.order_number} to ${customer.email}`);
+    apiLogger.info(`[Resend Mandate] Successfully resent mandate for order ${order.order_number} to ${customer.email}`);
 
     return NextResponse.json({
       success: true,
@@ -195,7 +196,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('[Resend Mandate] Error:', error);
+    apiLogger.error('[Resend Mandate] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

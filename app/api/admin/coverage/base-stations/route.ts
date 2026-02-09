@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data: stations, error, count } = await query;
 
     if (error) {
-      console.error('[BaseStations API] Database error:', error.message);
+      apiLogger.error('[BaseStations API] Database error:', error.message);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch base stations', details: error.message },
         { status: 500 }
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .select('active_connections, market');
 
     if (statsError) {
-      console.error('[BaseStations API] Stats error:', statsError.message);
+      apiLogger.error('[BaseStations API] Stats error:', statsError.message);
     }
 
     // Calculate stats
@@ -127,7 +128,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error('[BaseStations API] Unexpected error:', error);
+    apiLogger.error('[BaseStations API] Unexpected error:', error);
     return NextResponse.json(
       {
         success: false,

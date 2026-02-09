@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { apiLogger } from '@/lib/logging';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -75,7 +76,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error('Version restore error:', updateError);
+      apiLogger.error('Version restore error:', updateError);
       return NextResponse.json({ error: 'Failed to restore version' }, { status: 500 });
     }
 
@@ -85,7 +86,7 @@ export async function POST(
       message: `Restored to version ${version}`,
     });
   } catch (error) {
-    console.error('Restore POST error:', error);
+    apiLogger.error('Restore POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

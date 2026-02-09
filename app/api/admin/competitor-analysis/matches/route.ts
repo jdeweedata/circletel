@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 import type { CreateMatchRequest, CircleTelProductType } from '@/lib/competitor-analysis/types';
 
 export async function GET(request: NextRequest) {
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('[Matches API] Query error:', error);
+      apiLogger.error('[Matches API] Query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch matches' },
         { status: 500 }
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
       has_more: (count || 0) > offset + limit,
     });
   } catch (error) {
-    console.error('[Matches API] GET error:', error);
+    apiLogger.error('[Matches API] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch matches' },
       { status: 500 }
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('[Matches API] Insert error:', error);
+      apiLogger.error('[Matches API] Insert error:', error);
       return NextResponse.json(
         { error: 'Failed to create match' },
         { status: 500 }
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    console.error('[Matches API] POST error:', error);
+    apiLogger.error('[Matches API] POST error:', error);
     return NextResponse.json(
       { error: 'Failed to create match' },
       { status: 500 }

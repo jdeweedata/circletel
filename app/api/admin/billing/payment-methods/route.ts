@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
     const { data: paymentMethods, error, count } = await query;
 
     if (error) {
-      console.error('[Admin Payment Methods] Query error:', error);
+      apiLogger.error('[Admin Payment Methods] Query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch payment methods', details: error.message },
         { status: 500 }
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
       stats,
     });
   } catch (error) {
-    console.error('[Admin Payment Methods] Error:', error);
+    apiLogger.error('[Admin Payment Methods] Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

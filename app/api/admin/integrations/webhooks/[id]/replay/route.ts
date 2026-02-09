@@ -20,6 +20,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSSRClient } from '@/integrations/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * POST /api/admin/integrations/webhooks/[id]/replay
@@ -216,7 +217,7 @@ export async function POST(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[WebhookReplayAPI] Error:', error);
+    apiLogger.error('[WebhookReplayAPI] Error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',

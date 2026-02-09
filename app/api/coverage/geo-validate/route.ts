@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { geographicValidator } from '@/lib/coverage/mtn/geo-validation';
 import { Coordinates } from '@/lib/coverage/types';
+import { apiLogger } from '@/lib/logging';
 
 interface GeoValidationRequest {
   coordinates?: Coordinates;
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeoValida
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    console.error('Geographic validation error:', error);
+    apiLogger.error('Geographic validation error:', error);
 
     return NextResponse.json({
       success: false,

@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { apiLogger } from '@/lib/logging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,7 +52,7 @@ export async function GET() {
       .order('invoice_date', { ascending: false });
 
     if (invoicesError) {
-      console.error('Error fetching invoices:', invoicesError);
+      apiLogger.error('Error fetching invoices:', invoicesError);
       return NextResponse.json(
         { error: 'Failed to fetch invoices' },
         { status: 500 }
@@ -123,7 +124,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error in invoices API:', error);
+    apiLogger.error('Error in invoices API:', error);
     return NextResponse.json(
       { error: 'Failed to fetch invoices' },
       { status: 500 }

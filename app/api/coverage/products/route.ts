@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { coverageAggregationService } from '@/lib/coverage/aggregation-service';
 import { ProductRecommendationService } from '@/lib/coverage/product-recommendations';
+import { apiLogger } from '@/lib/logging';
 
 /**
  * GET /api/coverage/products
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('[Coverage Products API] Error:', error);
+    apiLogger.error('[Coverage Products API] Error:', error);
 
     return NextResponse.json(
       {
@@ -205,7 +206,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error('[Coverage Products API] Error:', error);
+    apiLogger.error('[Coverage Products API] Error:', error);
 
     return NextResponse.json(
       {

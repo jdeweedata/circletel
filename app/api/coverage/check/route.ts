@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiLogger } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,8 +50,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (leadError) {
-      console.error('Error creating coverage lead:', leadError);
-      console.error('Lead data attempted:', leadData);
+      apiLogger.error('Error creating coverage lead:', leadError);
+      apiLogger.error('Lead data attempted:', leadData);
       return NextResponse.json(
         { success: false, error: 'Failed to check coverage', details: leadError.message },
         { status: 500 }
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!lead) {
-      console.error('No lead returned from insert');
+      apiLogger.error('No lead returned from insert');
       return NextResponse.json(
         { success: false, error: 'Failed to create coverage lead' },
         { status: 500 }
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       .order('price', { ascending: true });
 
     if (packagesError) {
-      console.error('Error fetching packages:', packagesError);
+      apiLogger.error('Error fetching packages:', packagesError);
     }
 
     return NextResponse.json({
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Coverage check error:', error);
+    apiLogger.error('Coverage check error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
