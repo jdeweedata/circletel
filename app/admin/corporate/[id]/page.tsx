@@ -31,8 +31,14 @@ import {
   RefreshCw,
   Upload,
   Search,
-  ExternalLink,
   Pencil,
+  Target,
+  FileText,
+  Calendar,
+  Globe,
+  Shield,
+  Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -88,6 +94,113 @@ interface CredentialStats {
   provisioned: number;
   pending: number;
   failed: number;
+}
+
+// Stat Card Component with gradient styling
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  trend,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+  trend?: string;
+}) {
+  return (
+    <div className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 overflow-hidden">
+      {/* Subtle gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      <div className="relative flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-slate-500">{label}</p>
+          <p className="text-3xl font-bold text-slate-900 tracking-tight">{value}</p>
+          {trend && (
+            <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3 h-3" />
+              {trend}
+            </p>
+          )}
+        </div>
+        <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+          <Icon className={`w-6 h-6 ${iconColor}`} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Contact Card Component
+function ContactCard({
+  type,
+  name,
+  position,
+  email,
+  phone,
+  icon: Icon,
+  accentColor,
+}: {
+  type: string;
+  name: string;
+  position?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  icon: React.ElementType;
+  accentColor: string;
+}) {
+  return (
+    <div className="group relative bg-white rounded-xl p-5 border border-slate-100 hover:border-slate-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+      {/* Accent line */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentColor} opacity-60 group-hover:opacity-100 transition-opacity`} />
+
+      <div className="flex items-start gap-4">
+        <div className={`w-10 h-10 rounded-lg ${accentColor.replace('bg-', 'bg-').replace('-500', '-100')} flex items-center justify-center flex-shrink-0`}>
+          <Icon className={`w-5 h-5 ${accentColor.replace('bg-', 'text-')}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{type}</p>
+          <p className="font-semibold text-slate-900 truncate">{name}</p>
+          {position && <p className="text-sm text-slate-500">{position}</p>}
+          <div className="flex flex-col gap-1 mt-3">
+            {email && (
+              <a
+                href={`mailto:${email}`}
+                className="inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span className="truncate">{email}</span>
+              </a>
+            )}
+            {phone && (
+              <a
+                href={`tel:${phone}`}
+                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                {phone}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Info Row Component
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex justify-between items-center py-3 border-b border-slate-100 last:border-0">
+      <span className="text-sm text-slate-500">{label}</span>
+      <span className="font-medium text-slate-900 text-right">{value || '—'}</span>
+    </div>
+  );
 }
 
 export default function CorporateDetailPage() {
@@ -195,11 +308,9 @@ export default function CorporateDetailPage() {
 
       if (!response.ok) throw new Error('Failed to export credentials');
 
-      // Get filename from content-disposition header
       const contentDisposition = response.headers.get('content-disposition');
       const filename = contentDisposition?.match(/filename="(.+)"/)?.[1] || 'credentials.csv';
 
-      // Download the file
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -220,572 +331,655 @@ export default function CorporateDetailPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'provisioned':
-        return <Badge className="bg-blue-100 text-blue-800">Provisioned</Badge>;
-      case 'ready':
-        return <Badge className="bg-cyan-100 text-cyan-800">Ready</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'suspended':
-        return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
-      case 'decommissioned':
-        return <Badge className="bg-gray-100 text-gray-800">Decommissioned</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
+    const configs: Record<string, { bg: string; text: string; label: string }> = {
+      active: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Active' },
+      provisioned: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Provisioned' },
+      ready: { bg: 'bg-cyan-50', text: 'text-cyan-700', label: 'Ready' },
+      pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
+      suspended: { bg: 'bg-red-50', text: 'text-red-700', label: 'Suspended' },
+      decommissioned: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Decommissioned' },
+      archived: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Archived' },
+    };
+    const config = configs[status] || { bg: 'bg-slate-100', text: 'text-slate-600', label: status };
+    return (
+      <Badge className={`${config.bg} ${config.text} border-0 font-medium`}>
+        {config.label}
+      </Badge>
+    );
   };
 
+  // Loading State
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full mx-auto"></div>
-          <p className="text-gray-500 mt-4">Loading corporate details...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+              <Building2 className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-slate-500 mt-6 font-medium">Loading corporate details...</p>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Not Found State
   if (!corporate) {
     return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-red-300 mx-auto" />
-          <p className="text-gray-500 mt-4">Corporate account not found</p>
-          <Button variant="outline" className="mt-4" onClick={() => router.push('/admin/corporate')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to List
-          </Button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-10 w-10 text-red-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Corporate Not Found</h2>
+            <p className="text-slate-500 mb-6">The corporate account you're looking for doesn't exist.</p>
+            <Button onClick={() => router.push('/admin/corporate')} className="bg-orange-500 hover:bg-orange-600">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Corporates
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
+  const deploymentProgress = corporate.expectedSites
+    ? Math.round((corporate.totalSites / corporate.expectedSites) * 100)
+    : 0;
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/admin/corporate')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{corporate.companyName}</h1>
-              <span className="font-mono text-lg text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                {corporate.corporateCode}
-              </span>
-              {getStatusBadge(corporate.accountStatus)}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 relative">
+      {/* Subtle crosshatch pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10 p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/admin/corporate')}
+              className="rounded-xl hover:bg-white/80 shadow-sm border border-slate-100"
+            >
+              <ArrowLeft className="h-5 w-5 text-slate-600" />
+            </Button>
+            <div>
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 font-serif tracking-tight">
+                  {corporate.companyName}
+                </h1>
+                <span className="font-mono text-sm font-bold text-orange-600 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
+                  {corporate.corporateCode}
+                </span>
+                {getStatusBadge(corporate.accountStatus)}
+              </div>
+              {corporate.tradingName && (
+                <p className="text-slate-500">Trading as: {corporate.tradingName}</p>
+              )}
+              {corporate.industry && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Globe className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm text-slate-500">{corporate.industry}</span>
+                </div>
+              )}
             </div>
-            {corporate.tradingName && (
-              <p className="text-gray-500 mt-1">Trading as: {corporate.tradingName}</p>
-            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/admin/corporate/${corporateId}/edit`)}
+              className="bg-white hover:bg-slate-50 border-slate-200"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Details
+            </Button>
+            <Button
+              onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
+              className="bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/25"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Site
+            </Button>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Site
-          </Button>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Total Sites"
+            value={corporate.totalSites}
+            icon={MapPin}
+            iconBg="bg-gradient-to-br from-violet-500 to-purple-600"
+            iconColor="text-white"
+          />
+          <StatCard
+            label="Active Sites"
+            value={corporate.activeSites}
+            icon={CheckCircle}
+            iconBg="bg-gradient-to-br from-emerald-500 to-green-600"
+            iconColor="text-white"
+            trend={corporate.activeSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
+          />
+          <StatCard
+            label="Pending Sites"
+            value={corporate.pendingSites}
+            icon={Clock}
+            iconBg="bg-gradient-to-br from-amber-500 to-orange-500"
+            iconColor="text-white"
+          />
+          <StatCard
+            label="Target Sites"
+            value={corporate.expectedSites || '—'}
+            icon={Target}
+            iconBg="bg-gradient-to-br from-blue-500 to-indigo-600"
+            iconColor="text-white"
+            trend={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
+          />
         </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <MapPin className="h-6 w-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Sites</p>
-                <p className="text-2xl font-bold">{corporate.totalSites}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white shadow-sm border border-slate-100 p-1 rounded-xl">
+            <TabsTrigger
+              value="overview"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+            >
+              <Building2 className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger
+              value="sites"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              Sites ({corporate.totalSites})
+            </TabsTrigger>
+            <TabsTrigger
+              value="pppoe"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+            >
+              <Key className="w-4 h-4 mr-2" />
+              PPPoE Credentials
+            </TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Sites</p>
-                <p className="text-2xl font-bold">{corporate.activeSites}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Clock className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Pending Sites</p>
-                <p className="text-2xl font-bold">{corporate.pendingSites}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Target Sites</p>
-                <p className="text-2xl font-bold">{corporate.expectedSites || '-'}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="sites">Sites ({corporate.totalSites})</TabsTrigger>
-          <TabsTrigger value="pppoe">PPPoE Credentials</TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Company Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  Company Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Registration Number</p>
-                    <p className="font-medium">{corporate.registrationNumber || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">VAT Number</p>
-                    <p className="font-medium">{corporate.vatNumber || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Industry</p>
-                    <p className="font-medium">{corporate.industry || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Account Status</p>
-                    {getStatusBadge(corporate.accountStatus)}
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Company Details Card */}
+              <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">Company Details</h3>
+                      <p className="text-sm text-slate-500">Corporate registration and business info</p>
+                    </div>
                   </div>
                 </div>
-                {corporate.physicalAddress?.city && (
-                  <div>
-                    <p className="text-sm text-gray-500">Headquarters</p>
-                    <p className="font-medium">
-                      {[
-                        corporate.physicalAddress.street,
-                        corporate.physicalAddress.city,
-                        corporate.physicalAddress.province,
-                        corporate.physicalAddress.postal_code,
-                      ]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </p>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <InfoRow label="Registration Number" value={corporate.registrationNumber} />
+                      <InfoRow label="VAT Number" value={corporate.vatNumber} />
+                      <InfoRow label="Industry" value={corporate.industry} />
+                      <InfoRow label="Account Status" value={getStatusBadge(corporate.accountStatus)} />
+                    </div>
+                    <div className="space-y-1">
+                      <InfoRow label="Created" value={new Date(corporate.createdAt).toLocaleDateString()} />
+                      <InfoRow label="Last Updated" value={new Date(corporate.updatedAt).toLocaleDateString()} />
+                      <InfoRow label="Total Sites" value={corporate.totalSites} />
+                      <InfoRow label="Active Sites" value={corporate.activeSites} />
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
 
-            {/* Contacts */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Contacts
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Primary Contact */}
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Primary Contact</p>
-                  <p className="font-medium">{corporate.primaryContactName}</p>
-                  {corporate.primaryContactPosition && (
-                    <p className="text-sm text-gray-500">{corporate.primaryContactPosition}</p>
+                  {corporate.physicalAddress?.city && (
+                    <div className="mt-6 pt-6 border-t border-slate-100">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                          <MapPin className="w-4 h-4 text-orange-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-500 mb-1">Headquarters</p>
+                          <p className="text-slate-900">
+                            {[
+                              corporate.physicalAddress.street,
+                              corporate.physicalAddress.city,
+                              corporate.physicalAddress.province,
+                              corporate.physicalAddress.postal_code,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   )}
-                  <div className="flex gap-4 mt-2 text-sm">
-                    <a href={`mailto:${corporate.primaryContactEmail}`} className="flex items-center text-blue-600 hover:underline">
-                      <Mail className="h-4 w-4 mr-1" />
-                      {corporate.primaryContactEmail}
-                    </a>
-                    {corporate.primaryContactPhone && (
-                      <a href={`tel:${corporate.primaryContactPhone}`} className="flex items-center text-blue-600 hover:underline">
-                        <Phone className="h-4 w-4 mr-1" />
-                        {corporate.primaryContactPhone}
-                      </a>
-                    )}
-                  </div>
                 </div>
+              </div>
 
-                {/* Billing Contact */}
-                {corporate.billingContactName && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Billing Contact</p>
-                    <p className="font-medium">{corporate.billingContactName}</p>
-                    <div className="flex gap-4 mt-2 text-sm">
-                      {corporate.billingContactEmail && (
-                        <a href={`mailto:${corporate.billingContactEmail}`} className="flex items-center text-blue-600 hover:underline">
-                          <Mail className="h-4 w-4 mr-1" />
-                          {corporate.billingContactEmail}
-                        </a>
-                      )}
-                      {corporate.billingContactPhone && (
-                        <span className="flex items-center text-gray-600">
-                          <Phone className="h-4 w-4 mr-1" />
-                          {corporate.billingContactPhone}
-                        </span>
-                      )}
+              {/* Contract Info Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-orange-50 to-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">Contract</h3>
+                      <p className="text-sm text-slate-500">Agreement details</p>
                     </div>
                   </div>
-                )}
-
-                {/* Technical Contact */}
-                {corporate.technicalContactName && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs font-semibold text-gray-400 uppercase mb-2">Technical Contact</p>
-                    <p className="font-medium">{corporate.technicalContactName}</p>
-                    <div className="flex gap-4 mt-2 text-sm">
-                      {corporate.technicalContactEmail && (
-                        <a href={`mailto:${corporate.technicalContactEmail}`} className="flex items-center text-blue-600 hover:underline">
-                          <Mail className="h-4 w-4 mr-1" />
-                          {corporate.technicalContactEmail}
-                        </a>
-                      )}
-                      {corporate.technicalContactPhone && (
-                        <span className="flex items-center text-gray-600">
-                          <Phone className="h-4 w-4 mr-1" />
-                          {corporate.technicalContactPhone}
-                        </span>
-                      )}
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <Calendar className="w-5 h-5 text-slate-400" />
+                    <div>
+                      <p className="text-xs text-slate-500">Contract Period</p>
+                      <p className="font-medium text-slate-900">
+                        {corporate.contractStartDate
+                          ? new Date(corporate.contractStartDate).toLocaleDateString()
+                          : 'Not set'}
+                        {' — '}
+                        {corporate.contractEndDate
+                          ? new Date(corporate.contractEndDate).toLocaleDateString()
+                          : 'Ongoing'}
+                      </p>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
 
-            {/* Contract Info */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Contract Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Contract Start</p>
-                    <p className="font-medium">
-                      {corporate.contractStartDate
-                        ? new Date(corporate.contractStartDate).toLocaleDateString()
-                        : '-'}
-                    </p>
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                    <Target className="w-5 h-5 text-slate-400" />
+                    <div>
+                      <p className="text-xs text-slate-500">Target Deployment</p>
+                      <p className="font-medium text-slate-900">
+                        {corporate.expectedSites || '—'} sites
+                      </p>
+                    </div>
+                  </div>
+
+                  {corporate.expectedSites && (
+                    <div className="pt-2">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-slate-500">Deployment Progress</span>
+                        <span className="font-semibold text-orange-600">{deploymentProgress}%</span>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(deploymentProgress, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2">
+                        {corporate.totalSites} of {corporate.expectedSites} sites deployed
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Contacts Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Contract End</p>
-                    <p className="font-medium">
-                      {corporate.contractEndDate
-                        ? new Date(corporate.contractEndDate).toLocaleDateString()
-                        : '-'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Expected Sites</p>
-                    <p className="font-medium">{corporate.expectedSites || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Deployment Progress</p>
-                    <p className="font-medium">
-                      {corporate.expectedSites
-                        ? `${Math.round((corporate.totalSites / corporate.expectedSites) * 100)}%`
-                        : '-'}
-                    </p>
+                    <h3 className="font-semibold text-slate-900">Contacts</h3>
+                    <p className="text-sm text-slate-500">Key personnel for this corporate account</p>
                   </div>
                 </div>
-                {corporate.notes && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-gray-500">Notes</p>
-                    <p className="mt-1">{corporate.notes}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Sites Tab */}
-        <TabsContent value="sites" className="space-y-4 mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Sites</CardTitle>
-                  <CardDescription>{sites.length} sites found</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search sites..."
-                      value={siteSearch}
-                      onChange={(e) => setSiteSearch(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && fetchSites()}
-                      className="pl-10"
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <ContactCard
+                    type="Primary Contact"
+                    name={corporate.primaryContactName}
+                    position={corporate.primaryContactPosition}
+                    email={corporate.primaryContactEmail}
+                    phone={corporate.primaryContactPhone}
+                    icon={Shield}
+                    accentColor="bg-orange-500"
+                  />
+                  {corporate.billingContactName && (
+                    <ContactCard
+                      type="Billing Contact"
+                      name={corporate.billingContactName}
+                      email={corporate.billingContactEmail}
+                      phone={corporate.billingContactPhone}
+                      icon={FileText}
+                      accentColor="bg-emerald-500"
                     />
+                  )}
+                  {corporate.technicalContactName && (
+                    <ContactCard
+                      type="Technical Contact"
+                      name={corporate.technicalContactName}
+                      email={corporate.technicalContactEmail}
+                      phone={corporate.technicalContactPhone}
+                      icon={Key}
+                      accentColor="bg-blue-500"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Notes Section */}
+            {corporate.notes && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-slate-900">Notes</h3>
                   </div>
-                  <Button variant="outline" onClick={() => router.push(`/admin/corporate/${corporateId}/sites/bulk`)}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Bulk Import
-                  </Button>
-                  <Button onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}>
+                </div>
+                <div className="p-6">
+                  <p className="text-slate-700 whitespace-pre-wrap">{corporate.notes}</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Sites Tab */}
+          <TabsContent value="sites" className="space-y-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-100">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Sites Directory</h3>
+                    <p className="text-sm text-slate-500">{sites.length} sites registered</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        placeholder="Search sites..."
+                        value={siteSearch}
+                        onChange={(e) => setSiteSearch(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && fetchSites()}
+                        className="pl-10 w-64 bg-slate-50 border-slate-200 focus:bg-white"
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push(`/admin/corporate/${corporateId}/sites/bulk`)}
+                      className="bg-white"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Bulk Import
+                    </Button>
+                    <Button
+                      onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
+                      className="bg-orange-500 hover:bg-orange-600"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Site
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {sitesLoading ? (
+                <div className="text-center py-16">
+                  <div className="w-10 h-10 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+                  <p className="text-slate-500 mt-4">Loading sites...</p>
+                </div>
+              ) : sites.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-slate-300" />
+                  </div>
+                  <h3 className="font-medium text-slate-900 mb-1">No sites found</h3>
+                  <p className="text-slate-500 mb-4">Start by adding your first site</p>
+                  <Button
+                    onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Site
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {sitesLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin h-6 w-6 border-2 border-gray-300 border-t-blue-600 rounded-full mx-auto"></div>
-                </div>
-              ) : sites.length === 0 ? (
-                <div className="text-center py-8">
-                  <MapPin className="h-12 w-12 text-gray-300 mx-auto" />
-                  <p className="text-gray-500 mt-4">No sites found</p>
-                </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>#</TableHead>
-                      <TableHead>Account Number</TableHead>
-                      <TableHead>Site Name</TableHead>
-                      <TableHead>Province</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>PPPoE</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sites.map((site) => (
-                      <TableRow key={site.id}>
-                        <TableCell>{site.siteNumber}</TableCell>
-                        <TableCell>
-                          <span className="font-mono font-semibold text-blue-600">
-                            {site.accountNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">{site.siteName}</TableCell>
-                        <TableCell>{site.province || '-'}</TableCell>
-                        <TableCell>
-                          {site.siteContactName ? (
-                            <div className="text-sm">
-                              <p>{site.siteContactName}</p>
-                              {site.siteContactPhone && (
-                                <p className="text-gray-500">{site.siteContactPhone}</p>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {site.pppoeUsername ? (
-                            <span className="font-mono text-sm text-green-600">{site.pppoeUsername}</span>
-                          ) : (
-                            <span className="text-gray-400">Not generated</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(site.status)}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/admin/corporate/${corporateId}/sites/${site.id}`)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50">
+                        <TableHead className="font-semibold text-slate-600">#</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Account Number</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Site Name</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Province</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Contact</TableHead>
+                        <TableHead className="font-semibold text-slate-600">PPPoE</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Status</TableHead>
+                        <TableHead className="w-12"></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {sites.map((site) => (
+                        <TableRow
+                          key={site.id}
+                          className="hover:bg-orange-50/50 cursor-pointer transition-colors"
+                          onClick={() => router.push(`/admin/corporate/${corporateId}/sites/${site.id}`)}
+                        >
+                          <TableCell className="font-medium text-slate-500">{site.siteNumber}</TableCell>
+                          <TableCell>
+                            <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                              {site.accountNumber}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-medium text-slate-900">{site.siteName}</TableCell>
+                          <TableCell className="text-slate-600">{site.province || '—'}</TableCell>
+                          <TableCell>
+                            {site.siteContactName ? (
+                              <div className="text-sm">
+                                <p className="font-medium text-slate-900">{site.siteContactName}</p>
+                                {site.siteContactPhone && (
+                                  <p className="text-slate-500">{site.siteContactPhone}</p>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-slate-400">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {site.pppoeUsername ? (
+                              <span className="font-mono text-sm text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                {site.pppoeUsername}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-sm">Not generated</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(site.status)}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="hover:bg-orange-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/admin/corporate/${corporateId}/sites/${site.id}`);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 text-slate-500" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* PPPoE Tab */}
-        <TabsContent value="pppoe" className="space-y-4 mt-6">
-          {/* Credential Stats */}
-          {credentialStats && (
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500">Total Sites</p>
-                  <p className="text-2xl font-bold">{credentialStats.totalSites}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500">With Credentials</p>
-                  <p className="text-2xl font-bold text-blue-600">{credentialStats.withCredentials}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500">Provisioned</p>
-                  <p className="text-2xl font-bold text-green-600">{credentialStats.provisioned}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{credentialStats.pending}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500">Failed</p>
-                  <p className="text-2xl font-bold text-red-600">{credentialStats.failed}</p>
-                </CardContent>
-              </Card>
             </div>
-          )}
+          </TabsContent>
 
-          {/* Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Key className="h-5 w-5" />
-                PPPoE Credential Management
-              </CardTitle>
-              <CardDescription>
-                Generate and manage PPPoE credentials for all sites
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-4">
-                <Button
-                  onClick={handleGenerateCredentials}
-                  disabled={generatingCredentials}
-                >
-                  {generatingCredentials ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Key className="h-4 w-4 mr-2" />
-                      Generate Missing Credentials
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleExportCredentials}
-                  disabled={exportingCredentials || !credentialStats?.withCredentials}
-                >
-                  {exportingCredentials ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export Credentials CSV
-                    </>
-                  )}
-                </Button>
+          {/* PPPoE Tab */}
+          <TabsContent value="pppoe" className="space-y-6">
+            {/* Credential Stats */}
+            {credentialStats && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+                  <p className="text-sm text-slate-500 mb-1">Total Sites</p>
+                  <p className="text-2xl font-bold text-slate-900">{credentialStats.totalSites}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+                  <p className="text-sm text-slate-500 mb-1">With Credentials</p>
+                  <p className="text-2xl font-bold text-blue-600">{credentialStats.withCredentials}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+                  <p className="text-sm text-slate-500 mb-1">Provisioned</p>
+                  <p className="text-2xl font-bold text-emerald-600">{credentialStats.provisioned}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+                  <p className="text-sm text-slate-500 mb-1">Pending</p>
+                  <p className="text-2xl font-bold text-amber-600">{credentialStats.pending}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+                  <p className="text-sm text-slate-500 mb-1">Failed</p>
+                  <p className="text-2xl font-bold text-red-600">{credentialStats.failed}</p>
+                </div>
               </div>
+            )}
 
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Exported CSV contains decrypted passwords for router pre-configuration.
-                  Handle this file securely and delete after use.
-                </p>
+            {/* Actions Card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-green-50 to-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <Key className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">PPPoE Credential Management</h3>
+                    <p className="text-sm text-slate-500">Generate and export credentials for router configuration</p>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="p-6 space-y-4">
+                <div className="flex flex-wrap gap-4">
+                  <Button
+                    onClick={handleGenerateCredentials}
+                    disabled={generatingCredentials}
+                    className="bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25"
+                  >
+                    {generatingCredentials ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Generate Missing Credentials
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleExportCredentials}
+                    disabled={exportingCredentials || !credentialStats?.withCredentials}
+                    className="bg-white"
+                  >
+                    {exportingCredentials ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Exporting...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export Credentials CSV
+                      </>
+                    )}
+                  </Button>
+                </div>
 
-          {/* Sites with Credentials */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Credential Status by Site</CardTitle>
-            </CardHeader>
-            <CardContent>
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-amber-800 text-sm">Security Notice</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Exported CSV contains decrypted passwords for router pre-configuration.
+                      Handle this file securely and delete after use.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sites with Credentials Table */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-100">
+                <h3 className="font-semibold text-slate-900">Credential Status by Site</h3>
+              </div>
               {sitesLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin h-6 w-6 border-2 border-gray-300 border-t-blue-600 rounded-full mx-auto"></div>
+                <div className="text-center py-12">
+                  <div className="w-8 h-8 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Account Number</TableHead>
-                      <TableHead>Site Name</TableHead>
-                      <TableHead>PPPoE Username</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sites.map((site) => (
-                      <TableRow key={site.id}>
-                        <TableCell>
-                          <span className="font-mono font-semibold">{site.accountNumber}</span>
-                        </TableCell>
-                        <TableCell>{site.siteName}</TableCell>
-                        <TableCell>
-                          {site.pppoeUsername ? (
-                            <span className="font-mono text-sm">{site.pppoeUsername}</span>
-                          ) : (
-                            <span className="text-gray-400 italic">Not generated</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {site.pppoeCredentialId ? (
-                            <Badge className="bg-green-100 text-green-800">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Generated
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-gray-100 text-gray-600">
-                              <Clock className="h-3 w-3 mr-1" />
-                              Pending
-                            </Badge>
-                          )}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50">
+                        <TableHead className="font-semibold text-slate-600">Account Number</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Site Name</TableHead>
+                        <TableHead className="font-semibold text-slate-600">PPPoE Username</TableHead>
+                        <TableHead className="font-semibold text-slate-600">Status</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {sites.map((site) => (
+                        <TableRow key={site.id} className="hover:bg-slate-50/50">
+                          <TableCell>
+                            <span className="font-mono font-bold text-orange-600">{site.accountNumber}</span>
+                          </TableCell>
+                          <TableCell className="font-medium text-slate-900">{site.siteName}</TableCell>
+                          <TableCell>
+                            {site.pppoeUsername ? (
+                              <span className="font-mono text-sm text-slate-700">{site.pppoeUsername}</span>
+                            ) : (
+                              <span className="text-slate-400 italic">Not generated</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {site.pppoeCredentialId ? (
+                              <Badge className="bg-emerald-50 text-emerald-700 border-0">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Generated
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-slate-100 text-slate-600 border-0">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Pending
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
