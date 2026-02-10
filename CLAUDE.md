@@ -615,7 +615,14 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ---
 
-**Version**: 5.7 | **Updated**: 2025-11-29 | **Team**: Development + Claude Code
+**Version**: 5.8 | **Updated**: 2026-02-10 | **Team**: Development + Claude Code
+
+**Major Changes in v5.8**:
+- Added billing automation patterns (Pay Now, SMS, email)
+- Added lazy-load pattern for external services (prevents build errors)
+- Added external URL redirect pattern (use API routes)
+- Added Resend domain config (notify.circletel.co.za)
+- Added Billing Tables section to Database Schema
 
 **Major Changes in v5.7**:
 - Added Claude Code Business OS framework (Event Hooks, Custom Commands)
