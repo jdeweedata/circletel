@@ -106,3 +106,29 @@ wappalyzer*.js
 **/wappalyzer/**
 scripts/test-interstellio.ts
 scripts/get-interstellio-profiles.ts
+scripts/test-*.ts
+
+# Agent skill directories
+.agent/
+.agents/
+/skills/
+
+# User files and documents
+files/
+templates/
+
+# Screenshots (debug)
+screenshots/
+
+# Log output files
+logs_result*.json
+
+# MCP configuration (contains API tokens)
+.mcp.json
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Symlinked skills (point to .agents/)
+.claude/skills/vercel-*
+.claude/skills/web-design-guidelines

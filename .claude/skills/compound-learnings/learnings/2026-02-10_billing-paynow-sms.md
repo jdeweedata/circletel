@@ -176,3 +176,9 @@ curl -sI "https://www.circletel.co.za/api/paynow/CT-xxx-yyy" | grep -E "^HTTP|^l
 3. **Page redirect for external URLs**: Use API route with NextResponse.redirect()
 4. **Unverified email domain**: Check Resend dashboard before configuring from address
 5. **Long URLs in SMS**: Always use short URL redirect pattern
+
+## Related Patterns
+
+- `patterns/lazy-load-services.md` - Build-safe external service initialization
+- `patterns/supabase-mcp-setup.md` - Direct database access via MCP
+- `patterns/structured-logging.md` - Domain-based logging (billingLogger, etc.)
