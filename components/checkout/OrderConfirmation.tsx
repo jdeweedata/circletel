@@ -318,7 +318,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
               </Button>
 
               <Button variant="outline" className="w-full justify-start" asChild>
-                <a href="https://wa.me/27123456789" target="_blank">
+                <a href="https://wa.me/27824873900" target="_blank">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   WhatsApp Chat
                 </a>

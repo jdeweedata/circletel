@@ -175,6 +175,15 @@ const navigationSections: NavSection[] = [
         ]
       },
       {
+        name: 'Corporate Clients',
+        icon: Briefcase,
+        description: 'Enterprise multi-site accounts',
+        children: [
+          { name: 'All Corporates', href: '/admin/corporate', icon: Building2 },
+          { name: 'Add Corporate', href: '/admin/corporate/new', icon: Plus },
+        ]
+      },
+      {
         name: 'Suppliers',
         icon: Truck,
         children: [

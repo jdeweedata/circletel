@@ -213,7 +213,7 @@ export default function ServiceActivatedEmail(props: Partial<ServiceActivatedEma
               </Text>
               <Text style={troubleshootingContact}>
                 Still having issues?{' '}
-                <a href="tel:+27211234567" style={link}>Call us: +27 21 123 4567</a>
+                <a href="tel:+27824873900" style={link}>Call us: +27 82 487 3900</a>
               </Text>
             </Section>
           </Section>
@@ -228,13 +228,13 @@ export default function ServiceActivatedEmail(props: Partial<ServiceActivatedEma
               📧 <a href="mailto:support@circletel.co.za" style={link}>support@circletel.co.za</a>
             </Text>
             <Text style={footerText}>
-              📞 <a href="tel:+27211234567" style={link}>+27 21 123 4567</a>
+              📞 <a href="tel:+27824873900" style={link}>+27 82 487 3900</a>
             </Text>
             <Text style={footerText}>
               💬 <a href={support.portalUrl} style={link}>Live Chat Support</a>
             </Text>
             <Text style={footerText}>
-              📱 <a href="https://wa.me/27211234567" style={link}>WhatsApp: +27 21 123 4567</a>
+              📱 <a href="https://wa.me/27824873900" style={link}>WhatsApp: +27 82 487 3900</a>
             </Text>
           </Section>
 

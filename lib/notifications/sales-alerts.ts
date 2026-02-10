@@ -16,7 +16,7 @@ async function getSupabase() {
 
 // Sales team configuration from environment variables
 const SALES_TEAM_EMAIL = process.env.SALES_TEAM_EMAIL || 'sales@circletel.co.za';
-const SALES_TEAM_PHONE = process.env.SALES_TEAM_PHONE || '+27123456789';
+const SALES_TEAM_PHONE = process.env.SALES_TEAM_PHONE || '+27824873900';
 const SLACK_WEBHOOK_URL = process.env.SLACK_SALES_WEBHOOK_URL;
 const ENABLE_SALES_ALERTS = process.env.ENABLE_SALES_ALERTS !== 'false'; // Enabled by default
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
