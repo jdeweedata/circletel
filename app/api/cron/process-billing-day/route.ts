@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const dryRun = body.dryRun === true;
 
     const result = await processBillingDay(customDate, dryRun);
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, _version: 'v2-2026-02-10' });
   } catch (error) {
     cronLogger.error('Billing day processor error', { error });
     return NextResponse.json(
