@@ -128,7 +128,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
       status,
       payment_method
     `)
-    .eq('status', 'unpaid')
+    .in('status', ['draft', 'sent', 'partial', 'overdue'])
     .eq('due_date', dateStr)
     .in('payment_method', ['credit_card', 'Credit Card', 'card']);
 

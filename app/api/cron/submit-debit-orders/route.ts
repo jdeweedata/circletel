@@ -136,7 +136,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
         phone
       )
     `)
-    .eq('status', 'unpaid')
+    .in('status', ['draft', 'sent', 'partial', 'overdue'])
     .eq('due_date', dateStr)
     .in('payment_method', ['debit_order', 'Debit Order']);
 

@@ -146,7 +146,7 @@ async function processBillingDay(customDate?: Date, dryRun = false): Promise<Pro
       )
     `)
     .eq('due_date', dateStr)
-    .in('status', ['unpaid', 'draft', 'partial']);
+    .in('status', ['draft', 'sent', 'partial', 'overdue']);
 
   if (invoiceError) {
     result.errors.push(`Failed to fetch invoices: ${invoiceError.message}`);

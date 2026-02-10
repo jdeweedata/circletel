@@ -58,7 +58,7 @@ async function calculateCustomerStats(
     .from('customer_invoices')
     .select('*', { count: 'exact', head: true })
     .eq('customer_id', customerId)
-    .in('status', ['unpaid', 'partial'])
+    .in('status', ['sent', 'partial', 'overdue'])
     .lt('due_date', today.toISOString().split('T')[0]);
 
   // Get account balance from customer_billing

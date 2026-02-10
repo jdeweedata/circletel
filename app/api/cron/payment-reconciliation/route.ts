@@ -99,7 +99,7 @@ async function runReconciliation(customDate?: Date): Promise<ReconciliationResul
         email
       )
     `)
-    .in('status', ['unpaid', 'partial', 'overdue'])
+    .in('status', ['draft', 'sent', 'partial', 'overdue'])
     .lte('due_date', dateStr)
     .order('due_date', { ascending: true });
 
