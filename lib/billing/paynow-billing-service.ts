@@ -14,7 +14,7 @@
  * 4. Update invoice tracking fields
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { netcashService } from '@/lib/payments/netcash-service';
 import { clickatellService } from '@/lib/integrations/clickatell/sms-service';
 import { billingLogger } from '@/lib/logging';
@@ -121,10 +121,24 @@ export class PayNowBillingService {
     let notificationResult: PayNowNotificationResult | undefined;
 
     try {
-      const supabase = await createClient();
+      // Create Supabase client directly (same as admin routes)
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
+      );
 
       // Debug: Log Supabase client creation
-      billingLogger.info('PayNow: Supabase client created', { invoiceId });
+      billingLogger.info('PayNow: Supabase client created', {
+        invoiceId,
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      });
 
       // 1. Fetch invoice first (without join to avoid potential issues)
       const { data: invoiceData, error: invoiceError } = await supabase
@@ -666,7 +680,16 @@ export class PayNowBillingService {
    */
   static async hasActiveEmandate(customerId: string): Promise<boolean> {
     try {
-      const supabase = await createClient();
+      const supabase = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
+      );
 
       const { data: paymentMethod } = await supabase
         .from('customer_payment_methods')
