@@ -31,18 +31,27 @@ interface ClickatellResponse {
 }
 
 export class ClickatellService {
-  private config: ClickatellConfig;
+  private config: ClickatellConfig | null = null;
 
-  constructor() {
-    this.config = {
-      apiKey: process.env.CLICKATELL_API_KEY || '',
-      apiId: process.env.CLICKATELL_API_ID || '',
-      baseUrl: process.env.CLICKATELL_BASE_URL || 'https://platform.clickatell.com/v1/message',
-    };
-
-    if (!this.config.apiKey) {
-      throw new Error('Clickatell API key is not configured');
+  /**
+   * Get configuration lazily to avoid build-time errors
+   */
+  private getConfig(): ClickatellConfig {
+    if (!this.config) {
+      this.config = {
+        apiKey: process.env.CLICKATELL_API_KEY || '',
+        apiId: process.env.CLICKATELL_API_ID || '',
+        baseUrl: process.env.CLICKATELL_BASE_URL || 'https://platform.clickatell.com/v1/message',
+      };
     }
+    return this.config;
+  }
+
+  /**
+   * Check if the service is configured
+   */
+  isConfigured(): boolean {
+    return !!process.env.CLICKATELL_API_KEY;
   }
 
   /**
@@ -50,17 +59,26 @@ export class ClickatellService {
    */
   async sendSMS({ to, text }: SendSMSParams): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
+      const config = this.getConfig();
+
+      if (!config.apiKey) {
+        return {
+          success: false,
+          error: 'Clickatell API key is not configured',
+        };
+      }
+
       // Ensure phone number is in international format (remove leading 0, add country code)
       const formattedPhone = this.formatPhoneNumber(to);
 
       console.log(`[ClickaTell] Sending SMS to ${formattedPhone}`);
 
-      const response = await fetch(this.config.baseUrl, {
+      const response = await fetch(config.baseUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': this.config.apiKey, // Platform API uses direct API key, not Bearer
+          'Authorization': config.apiKey, // Platform API uses direct API key, not Bearer
         },
         body: JSON.stringify({
           messages: [

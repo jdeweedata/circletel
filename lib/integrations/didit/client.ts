@@ -14,20 +14,121 @@ import type {
   DiditFlowType,
 } from './types';
 
-// Didit API Configuration
+// Didit API Configuration (lazy loaded to avoid build-time errors)
 const DIDIT_API_BASE =
   process.env.DIDIT_API_URL || 'https://verification.didit.me/v2';
-const DIDIT_API_KEY = process.env.DIDIT_API_KEY;
 
-// Validate required environment variables
-if (!DIDIT_API_KEY) {
-  throw new Error(
-    'DIDIT_API_KEY environment variable is required. Please add it to your .env file.'
+/**
+ * Get Didit API client instance lazily
+ * This prevents build-time errors when env vars are not available
+ */
+let _diditClient: AxiosInstance | null = null;
+
+function setupInterceptors(client: AxiosInstance): void {
+  // Request Interceptor - Logs all outgoing requests for debugging
+  client.interceptors.request.use(
+    (config) => {
+      const method = config.method?.toUpperCase();
+      const url = config.url;
+      const timestamp = new Date().toISOString();
+
+      console.log(`[Didit API Request] ${timestamp} ${method} ${url}`);
+
+      // Log request body for debugging (exclude sensitive data)
+      if (config.data) {
+        const sanitizedData = { ...config.data };
+        // Don't log full extracted data (contains PII)
+        if (sanitizedData.extractedData) {
+          sanitizedData.extractedData = '[REDACTED]';
+        }
+        console.log(`[Didit API Request Body]`, JSON.stringify(sanitizedData, null, 2));
+      }
+
+      return config;
+    },
+    (error) => {
+      console.error('[Didit API Request Error]', error.message);
+      return Promise.reject(error);
+    }
+  );
+
+  // Response Interceptor - Logs all responses and handles errors gracefully
+  client.interceptors.response.use(
+    (response) => {
+      const method = response.config.method?.toUpperCase();
+      const url = response.config.url;
+      const status = response.status;
+      const timestamp = new Date().toISOString();
+
+      console.log(`[Didit API Response] ${timestamp} ${method} ${url} ${status}`);
+
+      return response;
+    },
+    (error: AxiosError) => {
+      const method = error.config?.method?.toUpperCase();
+      const url = error.config?.url;
+      const status = error.response?.status;
+      const timestamp = new Date().toISOString();
+
+      console.error(
+        `[Didit API Error] ${timestamp} ${method} ${url} ${status || 'NO_RESPONSE'}`
+      );
+
+      // Log error details
+      if (error.response?.data) {
+        console.error('[Didit API Error Response]', error.response.data);
+      } else if (error.message) {
+        console.error('[Didit API Error Message]', error.message);
+      }
+
+      // Handle specific error cases
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Didit API request timed out after 30 seconds');
+      }
+
+      if (error.response?.status === 401) {
+        throw new Error('Didit API authentication failed. Check DIDIT_API_KEY.');
+      }
+
+      if (error.response?.status === 429) {
+        throw new Error('Didit API rate limit exceeded. Try again later.');
+      }
+
+      if (error.response?.status === 500) {
+        throw new Error('Didit API server error. Please contact support.');
+      }
+
+      // Re-throw original error
+      throw error;
+    }
   );
 }
 
+export function getDiditClient(): AxiosInstance {
+  if (!_diditClient) {
+    const apiKey = process.env.DIDIT_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        'DIDIT_API_KEY environment variable is required. Please add it to your .env file.'
+      );
+    }
+    _diditClient = axios.create({
+      baseURL: DIDIT_API_BASE,
+      headers: {
+        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      timeout: 30000, // 30 seconds
+    });
+    setupInterceptors(_diditClient);
+  }
+  return _diditClient;
+}
+
 /**
- * Axios Instance for Didit API
+ * Axios Instance for Didit API (kept for backwards compatibility)
+ * Use getDiditClient() for lazy initialization
  *
  * Pre-configured with:
  * - Base URL
@@ -35,14 +136,10 @@ if (!DIDIT_API_KEY) {
  * - 30-second timeout (prevents hanging requests)
  * - Request/response logging for debugging
  */
-export const diditClient: AxiosInstance = axios.create({
-  baseURL: DIDIT_API_BASE,
-  headers: {
-    'x-api-key': DIDIT_API_KEY,
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  timeout: 30000, // 30 seconds
+export const diditClient: AxiosInstance = new Proxy({} as AxiosInstance, {
+  get(_, prop) {
+    return (getDiditClient() as Record<string, unknown>)[prop as string];
+  }
 });
 
 /**
@@ -116,92 +213,6 @@ function getWorkflowIdForFlow(flow: DiditFlowType): string {
 
   return workflowId;
 }
-
-/**
- * Request Interceptor
- *
- * Logs all outgoing requests for debugging
- */
-diditClient.interceptors.request.use(
-  (config) => {
-    const method = config.method?.toUpperCase();
-    const url = config.url;
-    const timestamp = new Date().toISOString();
-
-    console.log(`[Didit API Request] ${timestamp} ${method} ${url}`);
-
-    // Log request body for debugging (exclude sensitive data)
-    if (config.data) {
-      const sanitizedData = { ...config.data };
-      // Don't log full extracted data (contains PII)
-      if (sanitizedData.extractedData) {
-        sanitizedData.extractedData = '[REDACTED]';
-      }
-      console.log(`[Didit API Request Body]`, JSON.stringify(sanitizedData, null, 2));
-    }
-
-    return config;
-  },
-  (error) => {
-    console.error('[Didit API Request Error]', error.message);
-    return Promise.reject(error);
-  }
-);
-
-/**
- * Response Interceptor
- *
- * Logs all responses and handles errors gracefully
- */
-diditClient.interceptors.response.use(
-  (response) => {
-    const method = response.config.method?.toUpperCase();
-    const url = response.config.url;
-    const status = response.status;
-    const timestamp = new Date().toISOString();
-
-    console.log(`[Didit API Response] ${timestamp} ${method} ${url} ${status}`);
-
-    return response;
-  },
-  (error: AxiosError) => {
-    const method = error.config?.method?.toUpperCase();
-    const url = error.config?.url;
-    const status = error.response?.status;
-    const timestamp = new Date().toISOString();
-
-    console.error(
-      `[Didit API Error] ${timestamp} ${method} ${url} ${status || 'NO_RESPONSE'}`
-    );
-
-    // Log error details
-    if (error.response?.data) {
-      console.error('[Didit API Error Response]', error.response.data);
-    } else if (error.message) {
-      console.error('[Didit API Error Message]', error.message);
-    }
-
-    // Handle specific error cases
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Didit API request timed out after 30 seconds');
-    }
-
-    if (error.response?.status === 401) {
-      throw new Error('Didit API authentication failed. Check DIDIT_API_KEY.');
-    }
-
-    if (error.response?.status === 429) {
-      throw new Error('Didit API rate limit exceeded. Try again later.');
-    }
-
-    if (error.response?.status === 500) {
-      throw new Error('Didit API server error. Please contact support.');
-    }
-
-    // Re-throw original error
-    throw error;
-  }
-);
 
 /**
  * Didit API Service Methods
