@@ -123,8 +123,8 @@ export class PayNowBillingService {
     try {
       const supabase = await createClient();
 
-      // 1. Fetch invoice with customer details
-      const { data: invoice, error: fetchError } = await supabase
+      // 1. Fetch invoice first (without join to avoid potential issues)
+      const { data: invoiceData, error: invoiceError } = await supabase
         .from('customer_invoices')
         .select(`
           id,
@@ -135,24 +135,16 @@ export class PayNowBillingService {
           customer_id,
           paynow_url,
           paynow_transaction_ref,
-          paynow_sent_at,
-          customer:customers(
-            id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            account_number
-          )
+          paynow_sent_at
         `)
         .eq('id', invoiceId)
         .single();
 
-      if (fetchError || !invoice) {
-        const errorMsg = fetchError
-          ? `Invoice fetch error: ${fetchError.message} (code: ${fetchError.code})`
+      if (invoiceError || !invoiceData) {
+        const errorMsg = invoiceError
+          ? `Invoice fetch error: ${invoiceError.message} (code: ${invoiceError.code})`
           : `Invoice not found: ${invoiceId}`;
-        billingLogger.error('PayNow: Invoice fetch failed', { invoiceId, error: fetchError?.message, code: fetchError?.code });
+        billingLogger.error('PayNow: Invoice fetch failed', { invoiceId, error: invoiceError?.message, code: invoiceError?.code });
         return {
           success: false,
           invoiceId,
@@ -160,6 +152,19 @@ export class PayNowBillingService {
           errors: [errorMsg],
         };
       }
+
+      // 2. Fetch customer separately
+      const { data: customerData } = await supabase
+        .from('customers')
+        .select('id, first_name, last_name, email, phone, account_number')
+        .eq('id', invoiceData.customer_id)
+        .single();
+
+      // Combine invoice with customer
+      const invoice = {
+        ...invoiceData,
+        customer: customerData || null,
+      };
 
       billingLogger.info('PayNow: Processing invoice', {
         invoiceId,
