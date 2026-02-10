@@ -84,7 +84,7 @@ export default function CorporateListPage() {
   });
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState('all');
 
   React.useEffect(() => {
     fetchCorporates();
@@ -99,7 +99,7 @@ export default function CorporateListPage() {
         limit: pagination.limit.toString(),
       });
 
-      if (statusFilter) params.set('status', statusFilter);
+      if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);
       if (searchQuery) params.set('search', searchQuery);
 
       const response = await fetch(`/api/admin/corporate?${params}`);
@@ -264,7 +264,7 @@ export default function CorporateListPage() {
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="suspended">Suspended</SelectItem>
