@@ -30,7 +30,13 @@ import {
   Wifi,
   TrendingUp,
   ChevronRight,
-  Loader2
+  Loader2,
+  Zap,
+  Shield,
+  Eye,
+  Settings,
+  History,
+  Sparkles,
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { WorkflowStepper, WorkflowStep } from '@/components/admin/orders/WorkflowStepper';
@@ -46,23 +52,17 @@ interface Order {
   id: string;
   order_number: string;
   customer_id: string;
-
-  // Customer Information
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
   alternate_phone?: string;
-
-  // Installation Address
   installation_address: string;
   suburb?: string;
   city?: string;
   province?: string;
   postal_code?: string;
   special_instructions?: string;
-
-  // Residential Address (from KYC verification)
   residential_address?: string;
   residential_suburb?: string;
   residential_city?: string;
@@ -70,16 +70,12 @@ interface Order {
   residential_postal_code?: string;
   kyc_address_verified?: boolean;
   kyc_address_verified_at?: string;
-
-  // Billing Address
   billing_same_as_installation: boolean;
   billing_address?: string;
   billing_suburb?: string;
   billing_city?: string;
   billing_province?: string;
   billing_postal_code?: string;
-
-  // Product Selection
   service_package_id?: string;
   package_name: string;
   package_speed: string;
@@ -87,150 +83,192 @@ interface Order {
   installation_fee: number;
   router_included: boolean;
   router_rental_fee?: number;
-
-  // Payment Information
   payment_method?: string;
   payment_status: string;
   payment_reference?: string;
   payment_date?: string;
   total_paid: number;
-
-  // Order Status
   status: string;
-
-  // Installation Details
   preferred_installation_date?: string;
   installation_scheduled_date?: string;
   installation_time_slot?: string;
   installation_completed_date?: string;
   technician_notes?: string;
-
-  // Activation Details
   activation_date?: string;
   account_number?: string;
   connection_id?: string;
-
-  // Communication Preferences
   contact_preference: string;
   marketing_opt_in: boolean;
   whatsapp_opt_in: boolean;
-
-  // Order Source
   lead_source: string;
   source_campaign?: string;
   referral_code?: string;
   referred_by?: string;
-
-  // Metadata
   internal_notes?: string;
-
-  // Timestamps
   created_at: string;
   updated_at: string;
-
-  // Enriched Data from API
   payment_method_active?: boolean;
   payment_method_mandate_status?: string;
-
-  // Installation Documentation
   installation_document_url?: string;
   installation_document_name?: string;
   installation_completed_at?: string;
 }
 
-// Dashboard-style card component
-function DashboardCard({
-  children,
-  className,
-  onClick
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  return (
-    <div
-      className={cn(
-        'relative overflow-hidden border border-gray-200 bg-white',
-        'shadow-sm transition-all duration-200 rounded-lg',
-        onClick && 'cursor-pointer hover:shadow-lg hover:scale-[1.01] hover:border-circleTel-orange/30',
-        className
-      )}
-      onClick={onClick}
-    >
-      {children}
-    </div>
-  );
-}
-
-// Dashboard-style card header
-function DashboardCardHeader({
-  icon: Icon,
-  title,
-  badge,
-  action
-}: {
-  icon: React.ElementType;
-  title: string;
-  badge?: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="px-6 py-4 border-b border-gray-100">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-            <Icon className="h-5 w-5 text-circleTel-orange" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          {badge}
-          {action}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Dashboard-style stat card
-function OrderStatCard({
-  title,
+// Stat Card with gradient icon
+function StatCard({
+  label,
   value,
   subtitle,
   icon: Icon,
-  iconBg = 'bg-gray-100',
-  iconColor = 'text-gray-600',
+  iconBg,
+  trend,
 }: {
-  title: string;
+  label: string;
   value: string | number;
   subtitle?: string;
   icon: React.ElementType;
-  iconBg?: string;
-  iconColor?: string;
+  iconBg: string;
+  trend?: { label: string; positive?: boolean };
 }) {
   return (
-    <div className={cn(
-      'relative overflow-hidden border border-gray-200 bg-white',
-      'shadow-sm transition-all duration-200 rounded-lg p-6',
-      'hover:shadow-lg hover:scale-[1.02] hover:border-circleTel-orange/30'
-    )}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center', iconBg)}>
-            <Icon className={cn('h-5 w-5', iconColor)} />
+    <div className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative flex items-start justify-between">
+        <div className="space-y-1 flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-500">{label}</p>
+          <p className="text-2xl font-bold text-slate-900 tracking-tight truncate">{value}</p>
+          {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
+          {trend && (
+            <p className={cn(
+              "text-xs flex items-center gap-1 mt-1",
+              trend.positive ? "text-emerald-600" : "text-slate-500"
+            )}>
+              {trend.positive && <TrendingUp className="w-3 h-3" />}
+              {trend.label}
+            </p>
+          )}
+        </div>
+        <div className={cn(
+          "w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300 flex-shrink-0",
+          iconBg
+        )}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Section Card with gradient header
+function SectionCard({
+  icon: Icon,
+  title,
+  subtitle,
+  badge,
+  action,
+  children,
+  headerGradient = "from-slate-50 to-white",
+  iconGradient = "from-slate-600 to-slate-800",
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle?: string;
+  badge?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  headerGradient?: string;
+  iconGradient?: string;
+}) {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className={cn("p-5 border-b border-slate-100 bg-gradient-to-r", headerGradient)}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center", iconGradient)}>
+              <Icon className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">{title}</h3>
+              {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {badge}
+            {action}
           </div>
         </div>
       </div>
-      <div className="mb-1">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-      </div>
-      <div className="mb-1">
-        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
-      </div>
-      {subtitle && (
-        <p className="text-xs text-gray-500">{subtitle}</p>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+// Info Row Component
+function InfoRow({ label, value, className }: { label: string; value: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn("flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0", className)}>
+      <span className="text-sm text-slate-500">{label}</span>
+      <span className="font-medium text-slate-900 text-right">{value || '—'}</span>
+    </div>
+  );
+}
+
+// Workflow Step Component for custom stepper
+function WorkflowStepItem({
+  step,
+  isLast,
+}: {
+  step: WorkflowStep;
+  isLast: boolean;
+}) {
+  const Icon = step.icon;
+  const isCompleted = step.status === 'completed';
+  const isActive = step.status === 'active';
+
+  return (
+    <div className="flex-1 flex flex-col items-center relative group">
+      {/* Connector Line */}
+      {!isLast && (
+        <div className={cn(
+          "absolute top-5 left-[calc(50%+24px)] right-0 h-0.5 transition-colors",
+          isCompleted ? "bg-emerald-400" : "bg-slate-200"
+        )} />
       )}
+
+      {/* Step Circle */}
+      <div className={cn(
+        "w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all duration-300 border-2",
+        isCompleted && "bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/30",
+        isActive && "bg-orange-500 border-orange-500 shadow-lg shadow-orange-500/30 animate-pulse",
+        !isCompleted && !isActive && "bg-slate-100 border-slate-200"
+      )}>
+        {isCompleted ? (
+          <CheckCircle className="w-5 h-5 text-white" />
+        ) : (
+          <Icon className={cn(
+            "w-5 h-5",
+            isActive ? "text-white" : "text-slate-400"
+          )} />
+        )}
+      </div>
+
+      {/* Label */}
+      <div className="mt-2 text-center">
+        <p className={cn(
+          "text-xs font-semibold transition-colors",
+          isCompleted && "text-emerald-600",
+          isActive && "text-orange-600",
+          !isCompleted && !isActive && "text-slate-400"
+        )}>
+          {step.label}
+        </p>
+        <p className="text-[10px] text-slate-400 mt-0.5">{step.subLabel}</p>
+        {step.date && (
+          <p className="text-[10px] text-slate-500 mt-1 bg-slate-50 px-2 py-0.5 rounded-full">
+            {step.date}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -283,43 +321,33 @@ export default function AdminOrderDetailPage() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const isActive = status === 'active' || status === 'Service Active';
-    const isCompleted = status === 'completed' || status === 'Installation Complete' || status === 'installation_completed';
-    const isInProgress = status.includes('Progress') || status.includes('Installation');
-    const isPending = status === 'pending' || status === 'Payment Pending';
-    const isCancelled = status === 'cancelled' || status === 'Failed';
-
-    return (
-      <Badge className={cn(
-        'px-3 py-1 rounded-full text-sm font-semibold border',
-        isActive || isCompleted ? 'bg-green-100 text-green-700 border-green-200' :
-        isInProgress ? 'bg-blue-100 text-blue-700 border-blue-200' :
-        isPending ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-        isCancelled ? 'bg-red-100 text-red-700 border-red-200' :
-        'bg-gray-100 text-gray-700 border-gray-200'
-      )}>
-        {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </Badge>
-    );
+  const getStatusConfig = (status: string) => {
+    const configs: Record<string, { bg: string; text: string; label: string }> = {
+      active: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Active' },
+      completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Completed' },
+      installation_completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Installation Complete' },
+      installation_scheduled: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Installation Scheduled' },
+      installation_in_progress: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'In Progress' },
+      payment_method_registered: { bg: 'bg-cyan-50', text: 'text-cyan-700', label: 'Payment Registered' },
+      payment_method_pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Payment Pending' },
+      pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
+      cancelled: { bg: 'bg-red-50', text: 'text-red-700', label: 'Cancelled' },
+      failed: { bg: 'bg-red-50', text: 'text-red-700', label: 'Failed' },
+      suspended: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Suspended' },
+    };
+    return configs[status] || { bg: 'bg-slate-100', text: 'text-slate-600', label: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) };
   };
 
   const getPaymentBadge = (status: string) => {
-    const config: Record<string, { label: string; className: string }> = {
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-      paid: { label: 'Paid', className: 'bg-green-100 text-green-700 border-green-200' },
-      partial: { label: 'Partial', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-      failed: { label: 'Failed', className: 'bg-red-100 text-red-700 border-red-200' },
-      refunded: { label: 'Refunded', className: 'bg-gray-100 text-gray-700 border-gray-200' }
+    const configs: Record<string, { bg: string; text: string; label: string }> = {
+      pending: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Pending' },
+      paid: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Paid' },
+      partial: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Partial' },
+      failed: { bg: 'bg-red-50', text: 'text-red-700', label: 'Failed' },
+      refunded: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Refunded' },
     };
-
-    const { label, className } = config[status] || config.pending;
-
-    return (
-      <Badge className={cn('px-2.5 py-0.5 rounded-full text-xs font-semibold border', className)}>
-        {label}
-      </Badge>
-    );
+    const config = configs[status] || configs.pending;
+    return <Badge className={cn(config.bg, config.text, "border-0 font-medium")}>{config.label}</Badge>;
   };
 
   const getWorkflowSteps = (currentStatus: string): WorkflowStep[] => {
@@ -428,471 +456,479 @@ export default function AdminOrderDetailPage() {
     ];
   };
 
+  // Loading State
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+              <Package className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <p className="text-slate-500 mt-6 font-medium">Loading order details...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // Error/Not Found State
   if (error || !order) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/orders">
-            <Button variant="ghost" size="sm" className="gap-2 text-gray-600 hover:text-gray-900">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Orders
-            </Button>
-          </Link>
-        </div>
-        <DashboardCard className="p-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+        <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-10 w-10 text-red-400" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Order Not Found</h2>
-            <p className="text-gray-600 mb-6">{error || 'The order you are looking for does not exist.'}</p>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Order Not Found</h2>
+            <p className="text-slate-500 mb-6">{error || 'The order you are looking for does not exist.'}</p>
             <Link href="/admin/orders">
-              <Button className="bg-circleTel-orange hover:bg-orange-600">View All Orders</Button>
+              <Button className="bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/25">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Orders
+              </Button>
             </Link>
           </div>
-        </DashboardCard>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Clean Modern Header - Dashboard Style */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-4">
-          <Link
-            href="/admin/orders"
-            className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </Link>
+  const statusConfig = getStatusConfig(order.status);
 
-          <div className="flex-1">
-            <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Order #{order.order_number}
-              </h1>
-              {getStatusBadge(order.status)}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 relative">
+      {/* Subtle crosshatch pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10 p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <Link
+                href="/admin/orders"
+                className="mt-1 p-2.5 rounded-xl bg-white shadow-sm border border-slate-100 text-slate-500 hover:text-slate-900 hover:shadow-md transition-all"
+              >
+                <ArrowLeft size={20} />
+              </Link>
+
+              <div>
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 font-serif tracking-tight">
+                    Order #{order.order_number}
+                  </h1>
+                  <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-3 py-1")}>
+                    {statusConfig.label}
+                  </Badge>
+                </div>
+                <p className="text-slate-500">
+                  Created {new Date(order.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                  {order.account_number && (
+                    <span className="ml-3">
+                      Account: <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">{order.account_number}</span>
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-gray-500">
-              Created {new Date(order.created_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-              {order.account_number && (
-                <span className="ml-3">
-                  Account: <span className="font-medium text-circleTel-orange">{order.account_number}</span>
-                </span>
-              )}
-            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusActionButtons
+                currentStatus={order.status}
+                orderId={order.id}
+                orderNumber={order.order_number}
+                packagePrice={order.package_price}
+                firstName={order.first_name}
+                lastName={order.last_name}
+                onStatusUpdate={fetchOrder}
+              />
+              <div className="h-6 w-px bg-slate-200 mx-1 hidden lg:block" />
+              <SendEmailDialog
+                defaultTo={order.email}
+                defaultSubject={`RE: Order ${order.order_number}`}
+                defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
+                customerId={order.customer_id}
+                orderId={order.id}
+              />
+              <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 gap-2">
+                <Printer size={16} />
+                <span className="hidden lg:inline">Print</span>
+              </Button>
+              <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 gap-2">
+                <Download size={16} />
+                <span className="hidden lg:inline">Export</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 ml-12">
-          <StatusActionButtons
-            currentStatus={order.status}
-            orderId={order.id}
-            orderNumber={order.order_number}
-            packagePrice={order.package_price}
-            firstName={order.first_name}
-            lastName={order.last_name}
-            onStatusUpdate={fetchOrder}
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Package"
+            value={order.package_name}
+            subtitle={order.package_speed}
+            icon={Package}
+            iconBg="bg-gradient-to-br from-orange-500 to-orange-600"
           />
-          <div className="h-6 w-px bg-gray-200 mx-1 hidden lg:block" />
-          <SendEmailDialog
-            defaultTo={order.email}
-            defaultSubject={`RE: Order ${order.order_number}`}
-            defaultBody={`Hi ${order.first_name},\n\nThank you for choosing CircleTel.\n\n[Your message here]\n\nKind Regards,\nCircleTel Support`}
-            customerId={order.customer_id}
-            orderId={order.id}
+          <StatCard
+            label="Monthly Price"
+            value={`R${parseFloat(order.package_price as any).toFixed(2)}`}
+            subtitle="Per month"
+            icon={Banknote}
+            iconBg="bg-gradient-to-br from-emerald-500 to-green-600"
           />
-          <Button variant="outline" size="sm" className="gap-2 border-gray-200 hover:border-circleTel-orange/30">
-            <Printer size={16} />
-            <span className="hidden lg:inline">Print</span>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2 border-gray-200 hover:border-circleTel-orange/30">
-            <Download size={16} />
-            <span className="hidden lg:inline">Export</span>
-          </Button>
+          <StatCard
+            label="Payment Status"
+            value={order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+            subtitle={order.payment_date ? `Paid ${new Date(order.payment_date).toLocaleDateString()}` : 'Awaiting payment'}
+            icon={CreditCard}
+            iconBg={order.payment_status === 'paid'
+              ? "bg-gradient-to-br from-emerald-500 to-green-600"
+              : "bg-gradient-to-br from-amber-500 to-orange-500"}
+            trend={order.payment_status === 'paid' ? { label: 'Confirmed', positive: true } : undefined}
+          />
+          <StatCard
+            label="Lead Source"
+            value={order.lead_source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            subtitle={order.source_campaign || 'Direct'}
+            icon={TrendingUp}
+            iconBg="bg-gradient-to-br from-blue-500 to-indigo-600"
+          />
         </div>
-      </div>
 
-      {/* Quick Stats - Dashboard Style */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <OrderStatCard
-          title="Package"
-          value={order.package_name}
-          subtitle={order.package_speed}
-          icon={Package}
-          iconBg="bg-orange-100"
-          iconColor="text-circleTel-orange"
-        />
-        <OrderStatCard
-          title="Monthly Price"
-          value={`R${parseFloat(order.package_price as any).toFixed(2)}`}
-          subtitle="Per month"
-          icon={CreditCard}
-          iconBg="bg-green-100"
-          iconColor="text-green-600"
-        />
-        <OrderStatCard
-          title="Payment Status"
-          value={order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-          subtitle={order.payment_date ? `Paid ${new Date(order.payment_date).toLocaleDateString()}` : 'Awaiting payment'}
-          icon={Banknote}
-          iconBg={order.payment_status === 'paid' ? 'bg-green-100' : 'bg-yellow-100'}
-          iconColor={order.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'}
-        />
-        <OrderStatCard
-          title="Lead Source"
-          value={order.lead_source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-          subtitle={order.source_campaign || 'Direct'}
-          icon={TrendingUp}
-          iconBg="bg-blue-100"
-          iconColor="text-blue-600"
-        />
-      </div>
+        {/* Workflow Stepper */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 overflow-hidden">
+          <div className="flex items-center overflow-x-auto pb-2 min-w-max lg:min-w-0">
+            {getWorkflowSteps(order.status).map((step, index, arr) => (
+              <WorkflowStepItem
+                key={step.id}
+                step={step}
+                isLast={index === arr.length - 1}
+              />
+            ))}
+          </div>
+        </div>
 
-      {/* Workflow Stepper - Dashboard Card Style */}
-      <DashboardCard>
-        <WorkflowStepper steps={getWorkflowSteps(order.status)} currentStatus={order.status} />
-      </DashboardCard>
+        {/* Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="bg-white shadow-sm border border-slate-100 p-1 rounded-xl w-full grid grid-cols-2 md:grid-cols-4 gap-1">
+            <TabsTrigger
+              value="overview"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger
+              value="installation"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Installation
+            </TabsTrigger>
+            <TabsTrigger
+              value="financials"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+            >
+              <Banknote className="w-4 h-4 mr-2" />
+              Financials
+            </TabsTrigger>
+            <TabsTrigger
+              value="history"
+              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+            >
+              <History className="w-4 h-4 mr-2" />
+              History
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Tabs Interface - Dashboard Style */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white p-1.5 border border-gray-200 rounded-xl shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4 gap-1">
-          <TabsTrigger
-            value="overview"
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
-          >
-            Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="installation"
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
-          >
-            Installation & Service
-          </TabsTrigger>
-          <TabsTrigger
-            value="financials"
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
-          >
-            Financials
-          </TabsTrigger>
-          <TabsTrigger
-            value="history"
-            className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50"
-          >
-            History & Notes
-          </TabsTrigger>
-        </TabsList>
-
-        {/* OVERVIEW TAB */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Customer Information */}
-              <DashboardCard>
-                <DashboardCardHeader icon={User} title="Customer Information" />
-                <div className="p-6 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Full Name</label>
-                      <p className="text-base font-semibold text-gray-900 mt-1">
-                        {order.first_name} {order.last_name}
-                      </p>
-                    </div>
-                    {order.account_number && (
+          {/* OVERVIEW TAB */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                {/* Customer Information */}
+                <SectionCard
+                  icon={User}
+                  title="Customer Information"
+                  headerGradient="from-blue-50 to-white"
+                  iconGradient="from-blue-500 to-indigo-600"
+                >
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Account Number</label>
-                        <p className="text-base font-semibold text-circleTel-orange mt-1">
-                          {order.account_number}
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</p>
+                        <p className="font-semibold text-slate-900">{order.first_name} {order.last_name}</p>
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
-                      <div className="flex items-center gap-2 mt-1 min-w-0">
-                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      {order.account_number && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Account Number</p>
+                          <p className="font-mono font-bold text-orange-600">{order.account_number}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
                           <Mail className="h-4 w-4 text-blue-600" />
                         </div>
-                        <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate" title={order.email}>
-                          {order.email}
-                        </a>
+                        <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate">{order.email}</a>
                       </div>
-                    </div>
-                    <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Phone</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                          <Phone className="h-4 w-4 text-green-600" />
+                      <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <Phone className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <a href={`tel:${order.phone}`} className="text-sm text-blue-600 hover:underline">
-                          {order.phone}
-                        </a>
+                        <a href={`tel:${order.phone}`} className="text-sm text-slate-700 hover:text-slate-900">{order.phone}</a>
+                      </div>
+                    </div>
+                    <Separator className="my-4" />
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Contact Pref</p>
+                        <p className="text-sm text-slate-700 capitalize">{order.contact_preference}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Marketing</p>
+                        <p className="text-sm text-slate-700">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">WhatsApp</p>
+                        <p className="text-sm text-slate-700">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
                       </div>
                     </div>
                   </div>
-                  <Separator className="my-4" />
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Contact Pref</label>
-                      <p className="text-sm text-gray-900 mt-1 capitalize">{order.contact_preference}</p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Marketing</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">WhatsApp</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
-                    </div>
-                  </div>
-                </div>
-              </DashboardCard>
+                </SectionCard>
 
-              {/* Residential Address (KYC Verified) */}
-              {order.residential_address && (
-                <DashboardCard>
-                  <DashboardCardHeader
+                {/* Residential Address (KYC) */}
+                {order.residential_address && (
+                  <SectionCard
                     icon={MapPin}
                     title="Current Address"
+                    headerGradient="from-emerald-50 to-white"
+                    iconGradient="from-emerald-500 to-green-600"
                     badge={order.kyc_address_verified && (
-                      <Badge className="bg-green-100 text-green-700 border-green-200 gap-1">
-                        <CheckCircle className="h-3 w-3" />
+                      <Badge className="bg-emerald-50 text-emerald-700 border-0 gap-1">
+                        <Shield className="h-3 w-3" />
                         KYC Verified
                       </Badge>
                     )}
-                  />
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.residential_address}</p>
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
+                        <p className="text-slate-900">{order.residential_address}</p>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {order.residential_suburb && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
+                            <p className="text-sm text-slate-700">{order.residential_suburb}</p>
+                          </div>
+                        )}
+                        {order.residential_city && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
+                            <p className="text-sm text-slate-700">{order.residential_city}</p>
+                          </div>
+                        )}
+                        {order.residential_province && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
+                            <p className="text-sm text-slate-700">{order.residential_province}</p>
+                          </div>
+                        )}
+                        {order.residential_postal_code && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
+                            <p className="text-sm text-slate-700">{order.residential_postal_code}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {order.residential_suburb && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.residential_suburb}</p>
-                        </div>
-                      )}
-                      {order.residential_city && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.residential_city}</p>
-                        </div>
-                      )}
-                      {order.residential_province && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.residential_province}</p>
-                        </div>
-                      )}
-                      {order.residential_postal_code && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.residential_postal_code}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </DashboardCard>
-              )}
+                  </SectionCard>
+                )}
 
-              {/* Package Details */}
-              <DashboardCard>
-                <DashboardCardHeader icon={Package} title="Package Details" />
-                <div className="p-6">
+                {/* Package Details */}
+                <SectionCard
+                  icon={Package}
+                  title="Package Details"
+                  headerGradient="from-orange-50 to-white"
+                  iconGradient="from-orange-500 to-orange-600"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Package Name</label>
-                      <p className="text-base font-semibold text-gray-900 mt-1">{order.package_name}</p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Package Name</p>
+                      <p className="font-semibold text-slate-900">{order.package_name}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Speed</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.package_speed}</p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Speed</p>
+                      <p className="text-slate-700">{order.package_speed}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Monthly Price</label>
-                      <p className="text-xl font-bold text-gray-900 mt-1 tabular-nums">
-                        R{parseFloat(order.package_price as any).toFixed(2)}
-                      </p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Monthly Price</p>
+                      <p className="text-2xl font-bold text-slate-900">R{parseFloat(order.package_price as any).toFixed(2)}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Installation Fee</label>
-                      <p className="text-sm text-gray-900 mt-1">
-                        R{parseFloat(order.installation_fee as any).toFixed(2)}
-                      </p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Installation Fee</p>
+                      <p className="text-slate-700">R{parseFloat(order.installation_fee as any).toFixed(2)}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Router Included</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.router_included ? 'Yes' : 'No'}</p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Router Included</p>
+                      <p className="text-slate-700">{order.router_included ? 'Yes' : 'No'}</p>
                     </div>
                     {order.router_rental_fee && (
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Router Rental</label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Router Rental</p>
+                        <p className="text-slate-700">R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month</p>
                       </div>
                     )}
                   </div>
-                </div>
-              </DashboardCard>
+                </SectionCard>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Order Source */}
+                <SectionCard
+                  icon={TrendingUp}
+                  title="Order Source"
+                  headerGradient="from-violet-50 to-white"
+                  iconGradient="from-violet-500 to-purple-600"
+                >
+                  <div className="space-y-3">
+                    <InfoRow label="Lead Source" value={order.lead_source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} />
+                    {order.source_campaign && <InfoRow label="Campaign" value={order.source_campaign} />}
+                    {order.referral_code && (
+                      <InfoRow
+                        label="Referral Code"
+                        value={<span className="font-mono bg-slate-100 px-2 py-0.5 rounded">{order.referral_code}</span>}
+                      />
+                    )}
+                    {order.referred_by && <InfoRow label="Referred By" value={order.referred_by} />}
+                  </div>
+                </SectionCard>
+
+                {/* Timeline */}
+                <SectionCard
+                  icon={Clock}
+                  title="Timeline"
+                  headerGradient="from-cyan-50 to-white"
+                  iconGradient="from-cyan-500 to-blue-600"
+                >
+                  <div className="space-y-1">
+                    <InfoRow label="Created" value={new Date(order.created_at).toLocaleString()} />
+                    <InfoRow label="Last Updated" value={new Date(order.updated_at).toLocaleString()} />
+                    {order.payment_date && (
+                      <InfoRow label="Payment Date" value={new Date(order.payment_date).toLocaleString()} />
+                    )}
+                    {order.installation_scheduled_date && (
+                      <InfoRow label="Installation Scheduled" value={new Date(order.installation_scheduled_date).toLocaleString()} />
+                    )}
+                    {order.activation_date && (
+                      <InfoRow
+                        label="Activated"
+                        value={<span className="text-emerald-600 font-semibold">{new Date(order.activation_date).toLocaleString()}</span>}
+                      />
+                    )}
+                  </div>
+                </SectionCard>
+              </div>
             </div>
+          </TabsContent>
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Order Source */}
-              <DashboardCard>
-                <DashboardCardHeader icon={TrendingUp} title="Order Source" />
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Lead Source</label>
-                    <p className="text-sm text-gray-900 mt-1 capitalize">{order.lead_source.replace('_', ' ')}</p>
-                  </div>
-                  {order.source_campaign && (
+          {/* INSTALLATION TAB */}
+          <TabsContent value="installation" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <InstallationSection orderId={order.id} className="border border-slate-100 shadow-sm rounded-2xl" />
+              </div>
+              <div className="space-y-6">
+                {/* Installation Address */}
+                <SectionCard
+                  icon={MapPin}
+                  title="Installation Address"
+                  headerGradient="from-amber-50 to-white"
+                  iconGradient="from-amber-500 to-orange-500"
+                >
+                  <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Campaign</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.source_campaign}</p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
+                      <p className="text-slate-900">{order.installation_address}</p>
                     </div>
-                  )}
-                  {order.referral_code && (
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Referral Code</label>
-                      <p className="text-sm font-mono text-gray-900 mt-1 bg-gray-50 px-2 py-1 rounded inline-block">
-                        {order.referral_code}
-                      </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {order.suburb && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
+                          <p className="text-sm text-slate-700">{order.suburb}</p>
+                        </div>
+                      )}
+                      {order.city && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
+                          <p className="text-sm text-slate-700">{order.city}</p>
+                        </div>
+                      )}
+                      {order.province && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
+                          <p className="text-sm text-slate-700">{order.province}</p>
+                        </div>
+                      )}
+                      {order.postal_code && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
+                          <p className="text-sm text-slate-700">{order.postal_code}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {order.referred_by && (
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Referred By</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.referred_by}</p>
-                    </div>
-                  )}
-                </div>
-              </DashboardCard>
+                    {order.special_instructions && (
+                      <>
+                        <Separator />
+                        <div>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Special Instructions</p>
+                          <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl p-4">
+                            {order.special_instructions}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </SectionCard>
 
-              {/* Timestamps */}
-              <DashboardCard>
-                <DashboardCardHeader icon={Clock} title="Timeline" />
-                <div className="p-6 space-y-3">
-                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Created</span>
-                    <span className="text-sm font-medium text-gray-900">{new Date(order.created_at).toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">Last Updated</span>
-                    <span className="text-sm font-medium text-gray-900">{new Date(order.updated_at).toLocaleString()}</span>
-                  </div>
-                  {order.payment_date && (
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-600">Payment Date</span>
-                      <span className="text-sm font-medium text-gray-900">{new Date(order.payment_date).toLocaleString()}</span>
-                    </div>
-                  )}
-                  {order.installation_scheduled_date && (
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-600">Installation Scheduled</span>
-                      <span className="text-sm font-medium text-gray-900">{new Date(order.installation_scheduled_date).toLocaleString()}</span>
-                    </div>
-                  )}
-                  {order.activation_date && (
-                    <div className="flex items-center justify-between py-2">
-                      <span className="text-sm text-gray-600">Activated</span>
-                      <span className="text-sm font-medium text-green-600">{new Date(order.activation_date).toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-              </DashboardCard>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* INSTALLATION TAB */}
-        <TabsContent value="installation" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <InstallationSection orderId={order.id} className="border border-gray-200 shadow-sm rounded-lg" />
-            </div>
-            <div className="space-y-6">
-              {/* Installation Address */}
-              <DashboardCard>
-                <DashboardCardHeader icon={MapPin} title="Installation Address" />
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
-                    <p className="text-sm text-gray-900 mt-1">{order.installation_address}</p>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {order.suburb && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
-                        <p className="text-sm text-gray-900 mt-1">{order.suburb}</p>
-                      </div>
-                    )}
-                    {order.city && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
-                        <p className="text-sm text-gray-900 mt-1">{order.city}</p>
-                      </div>
-                    )}
-                    {order.province && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
-                        <p className="text-sm text-gray-900 mt-1">{order.province}</p>
-                      </div>
-                    )}
-                    {order.postal_code && (
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
-                        <p className="text-sm text-gray-900 mt-1">{order.postal_code}</p>
-                      </div>
-                    )}
-                  </div>
-                  {order.special_instructions && (
-                    <>
-                      <Separator />
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Special Instructions</label>
-                        <p className="text-sm text-gray-900 mt-1 bg-yellow-50 border border-yellow-100 rounded-lg p-3">
-                          {order.special_instructions}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </DashboardCard>
-
-              {/* Installation Documentation */}
-              {order.installation_document_url && (
-                <DashboardCard>
-                  <DashboardCardHeader icon={FileText} title="Installation Documentation" />
-                  <div className="p-6">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                {/* Installation Documentation */}
+                {order.installation_document_url && (
+                  <SectionCard
+                    icon={FileText}
+                    title="Installation Documentation"
+                    headerGradient="from-slate-50 to-white"
+                    iconGradient="from-slate-500 to-slate-700"
+                  >
+                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center">
+                        <div className="h-12 w-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center">
                           <FileText className="h-6 w-6 text-blue-600" />
                         </div>
                         <div className="overflow-hidden">
-                          <p className="font-medium text-sm text-gray-900 truncate max-w-[180px]" title={order.installation_document_name}>
+                          <p className="font-medium text-sm text-slate-900 truncate max-w-[180px]">
                             {order.installation_document_name || 'Installation Proof'}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-slate-500">
                             Uploaded {order.installation_completed_at ? new Date(order.installation_completed_at).toLocaleDateString() : ''}
                           </p>
                         </div>
@@ -900,7 +936,7 @@ export default function AdminOrderDetailPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2 border-gray-200 hover:border-circleTel-orange/30"
+                        className="bg-white gap-2"
                         onClick={() => {
                           const url = order.installation_document_url?.startsWith('http')
                             ? order.installation_document_url
@@ -912,176 +948,175 @@ export default function AdminOrderDetailPage() {
                         Download
                       </Button>
                     </div>
-                  </div>
-                </DashboardCard>
-              )}
+                  </SectionCard>
+                )}
+              </div>
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        {/* FINANCIALS TAB */}
-        <TabsContent value="financials" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              {/* Payment Information */}
-              <DashboardCard>
-                <DashboardCardHeader
+          {/* FINANCIALS TAB */}
+          <TabsContent value="financials" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                {/* Payment Information */}
+                <SectionCard
                   icon={CreditCard}
                   title="Payment Information"
+                  headerGradient="from-green-50 to-white"
+                  iconGradient="from-green-500 to-emerald-600"
                   badge={getPaymentBadge(order.payment_status)}
-                />
-                <div className="p-6 space-y-4">
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payment Method</label>
-                      <p className="text-sm text-gray-900 mt-1 capitalize">
-                        {order.payment_method || 'Not specified'}
-                      </p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Payment Method</p>
+                      <p className="text-slate-700 capitalize">{order.payment_method || 'Not specified'}</p>
                     </div>
                     {order.payment_reference && (
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Reference</label>
-                        <p className="text-sm font-mono text-gray-900 mt-1 bg-gray-50 px-2 py-1 rounded inline-block">
-                          {order.payment_reference}
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Reference</p>
+                        <p className="font-mono text-sm bg-slate-100 px-2 py-1 rounded inline-block">{order.payment_reference}</p>
                       </div>
                     )}
                     {order.payment_date && (
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payment Date</label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {new Date(order.payment_date).toLocaleDateString()}
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Payment Date</p>
+                        <p className="text-slate-700">{new Date(order.payment_date).toLocaleDateString()}</p>
                       </div>
                     )}
                     <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Paid</label>
-                      <p className="text-xl font-bold text-green-600 mt-1 tabular-nums">
-                        R{parseFloat(order.total_paid as any).toFixed(2)}
-                      </p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Paid</p>
+                      <p className="text-2xl font-bold text-emerald-600">R{parseFloat(order.total_paid as any).toFixed(2)}</p>
                     </div>
                   </div>
-                </div>
-              </DashboardCard>
+                </SectionCard>
 
-              {/* Payment Method Status */}
-              <PaymentMethodStatus
-                orderId={order.id}
-                onRequestPaymentMethod={() => setPaymentMethodModal(true)}
-              />
-            </div>
-            <div className="space-y-6">
-              {/* Invoices Section */}
-              <OrderInvoices
-                orderId={order.id}
-                customerId={order.customer_id}
-                packageName={order.package_name}
-                packagePrice={order.package_price}
-                routerFee={order.router_rental_fee}
-                accountNumber={order.account_number}
-                className="border border-gray-200 shadow-sm rounded-lg"
-              />
+                {/* Payment Method Status */}
+                <PaymentMethodStatus
+                  orderId={order.id}
+                  onRequestPaymentMethod={() => setPaymentMethodModal(true)}
+                />
+              </div>
+              <div className="space-y-6">
+                {/* Invoices Section */}
+                <OrderInvoices
+                  orderId={order.id}
+                  customerId={order.customer_id}
+                  packageName={order.package_name}
+                  packagePrice={order.package_price}
+                  routerFee={order.router_rental_fee}
+                  accountNumber={order.account_number}
+                  className="border border-slate-100 shadow-sm rounded-2xl"
+                />
 
-              {/* Billing Address */}
-              {!order.billing_same_as_installation && order.billing_address && (
-                <DashboardCard>
-                  <DashboardCardHeader icon={FileText} title="Billing Address" />
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Street Address</label>
-                      <p className="text-sm text-gray-900 mt-1">{order.billing_address}</p>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {order.billing_suburb && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Suburb</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.billing_suburb}</p>
-                        </div>
-                      )}
-                      {order.billing_city && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.billing_city}</p>
-                        </div>
-                      )}
-                      {order.billing_province && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Province</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.billing_province}</p>
-                        </div>
-                      )}
-                      {order.billing_postal_code && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Postal Code</label>
-                          <p className="text-sm text-gray-900 mt-1">{order.billing_postal_code}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </DashboardCard>
-              )}
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* HISTORY TAB */}
-        <TabsContent value="history" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              {/* Communication Timeline */}
-              <CommunicationTimeline orderId={order.id} />
-            </div>
-            <div className="space-y-6">
-              {/* Notes */}
-              {(order.technician_notes || order.internal_notes) && (
-                <DashboardCard>
-                  <DashboardCardHeader icon={FileText} title="Notes" />
-                  <div className="p-6 space-y-4">
-                    {order.technician_notes && (
+                {/* Billing Address */}
+                {!order.billing_same_as_installation && order.billing_address && (
+                  <SectionCard
+                    icon={FileText}
+                    title="Billing Address"
+                    headerGradient="from-slate-50 to-white"
+                    iconGradient="from-slate-500 to-slate-700"
+                  >
+                    <div className="space-y-4">
                       <div>
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Technician Notes</label>
-                        <p className="text-sm text-gray-900 mt-2 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-lg p-3">
-                          {order.technician_notes}
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
+                        <p className="text-slate-900">{order.billing_address}</p>
                       </div>
-                    )}
-                    {order.internal_notes && (
-                      <>
-                        {order.technician_notes && <Separator />}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {order.billing_suburb && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
+                            <p className="text-sm text-slate-700">{order.billing_suburb}</p>
+                          </div>
+                        )}
+                        {order.billing_city && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
+                            <p className="text-sm text-slate-700">{order.billing_city}</p>
+                          </div>
+                        )}
+                        {order.billing_province && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
+                            <p className="text-sm text-slate-700">{order.billing_province}</p>
+                          </div>
+                        )}
+                        {order.billing_postal_code && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
+                            <p className="text-sm text-slate-700">{order.billing_postal_code}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </SectionCard>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* HISTORY TAB */}
+          <TabsContent value="history" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                {/* Communication Timeline */}
+                <CommunicationTimeline orderId={order.id} />
+              </div>
+              <div className="space-y-6">
+                {/* Notes */}
+                {(order.technician_notes || order.internal_notes) && (
+                  <SectionCard
+                    icon={FileText}
+                    title="Notes"
+                    headerGradient="from-slate-50 to-white"
+                    iconGradient="from-slate-500 to-slate-700"
+                  >
+                    <div className="space-y-4">
+                      {order.technician_notes && (
                         <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Internal Notes</label>
-                          <p className="text-sm text-gray-900 mt-2 whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-3">
-                            {order.internal_notes}
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Technician Notes</p>
+                          <p className="text-sm text-blue-800 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-xl p-4">
+                            {order.technician_notes}
                           </p>
                         </div>
-                      </>
-                    )}
-                  </div>
-                </DashboardCard>
-              )}
+                      )}
+                      {order.internal_notes && (
+                        <>
+                          {order.technician_notes && <Separator />}
+                          <div>
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Internal Notes</p>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-xl p-4">
+                              {order.internal_notes}
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </SectionCard>
+                )}
+              </div>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
 
-      {/* Payment Method Registration Modal */}
-      <PaymentMethodRegistrationModal
-        open={paymentMethodModal}
-        onClose={() => setPaymentMethodModal(false)}
-        order={{
-          id: order.id,
-          order_number: order.order_number,
-          first_name: order.first_name,
-          last_name: order.last_name,
-          email: order.email,
-          phone: order.phone,
-          package_price: order.package_price,
-        }}
-        onSuccess={() => {
-          fetchOrder();
-          setPaymentMethodModal(false);
-        }}
-      />
+        {/* Payment Method Registration Modal */}
+        <PaymentMethodRegistrationModal
+          open={paymentMethodModal}
+          onClose={() => setPaymentMethodModal(false)}
+          order={{
+            id: order.id,
+            order_number: order.order_number,
+            first_name: order.first_name,
+            last_name: order.last_name,
+            email: order.email,
+            phone: order.phone,
+            package_price: order.package_price,
+          }}
+          onSuccess={() => {
+            fetchOrder();
+            setPaymentMethodModal(false);
+          }}
+        />
+      </div>
     </div>
   );
 }
