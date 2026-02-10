@@ -149,8 +149,10 @@ export class PayNowBillingService {
         .single();
 
       if (fetchError || !invoice) {
-        const errorMsg = `Invoice not found: ${invoiceId}`;
-        billingLogger.error('PayNow: Invoice fetch failed', { invoiceId, error: fetchError?.message });
+        const errorMsg = fetchError
+          ? `Invoice fetch error: ${fetchError.message} (code: ${fetchError.code})`
+          : `Invoice not found: ${invoiceId}`;
+        billingLogger.error('PayNow: Invoice fetch failed', { invoiceId, error: fetchError?.message, code: fetchError?.code });
         return {
           success: false,
           invoiceId,
