@@ -271,6 +271,28 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
 
 ## Common Debugging Patterns
 
+### Build-Time Errors from External Services
+
+Services that throw in constructor when env vars missing break Next.js builds. Use lazy-load:
+```typescript
+// ❌ BAD: Throws at module load
+constructor() { if (!process.env.API_KEY) throw new Error('Missing'); }
+
+// ✅ GOOD: Lazy-load, check at runtime
+private getConfig() {
+  if (!this.config) this.config = { apiKey: process.env.API_KEY || '' };
+  return this.config;
+}
+```
+
+### External URL Redirects
+
+Next.js `redirect()` in Server Components doesn't work for external URLs with query params. Use API route:
+```typescript
+// app/api/redirect/[ref]/route.ts
+return NextResponse.redirect(externalUrl); // Works for external URLs
+```
+
 ### Infinite Loading States
 
 ```typescript
@@ -396,11 +418,13 @@ const headers = {
 
 **Core Tables**: `service_packages`, `coverage_leads`, `customers`, `consumer_orders`, `admin_users`, `business_quotes`
 
-**B2B KYC Tables**: `kyc_sessions`, `contracts` (CT-YYYY-NNN), `invoices` (INV-YYYY-NNN), `rica_submissions`
+**B2B KYC Tables**: `kyc_sessions`, `contracts` (CT-YYYY-NNN), `rica_submissions`
+
+**Billing Tables**: `customer_invoices` (NOT `invoices`), `customer_payment_methods` - Always use `customer_invoices` for billing queries
 
 **Partner Tables**: `partners` (CTPL-YYYY-NNN), `partner_compliance_documents` (13 FICA/CIPC categories)
 
-**Customer Dashboard Tables**: `customer_services`, `customer_billing`, `customer_invoices`, `usage_history`
+**Customer Dashboard Tables**: `customer_services`, `customer_billing`, `usage_history`
 
 **Storage**: `partner-compliance-documents` (private, 20MB, PDF/JPG/PNG/ZIP)
 
@@ -415,6 +439,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<key>
 SUPABASE_SERVICE_ROLE_KEY=<key>
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<key>
 NETCASH_SERVICE_KEY=<key>
+
+# Email (Resend) - Verified domain: notify.circletel.co.za
+RESEND_API_KEY=<key>
+# Use: billing@notify.circletel.co.za (NOT circletel.co.za)
 
 # Optional
 ZOHO_CLIENT_ID=<id>
