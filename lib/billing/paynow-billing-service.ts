@@ -76,17 +76,26 @@ export interface InvoiceForPayNow {
 
 const SMS_TEMPLATES = {
   paymentDue: (name: string, invoiceNumber: string, amount: number, url: string) =>
-    `Hi ${name}, your CircleTel invoice ${invoiceNumber} for R${amount.toFixed(2)} is due today. Pay now: ${url}`,
+    `Hi ${name}, your CircleTel inv ${invoiceNumber} (R${amount.toFixed(2)}) is due. Pay: ${url}`,
 
   paymentReminder: (name: string, invoiceNumber: string, amount: number, url: string) =>
-    `Reminder: Your CircleTel invoice ${invoiceNumber} (R${amount.toFixed(2)}) is due. Pay securely: ${url}`,
+    `Reminder: CircleTel inv ${invoiceNumber} (R${amount.toFixed(2)}) is due. Pay: ${url}`,
 
   debitFailed: (name: string, invoiceNumber: string, amount: number, url: string) =>
-    `Hi ${name}, your debit order for CircleTel invoice ${invoiceNumber} (R${amount.toFixed(2)}) could not be processed. Please pay here: ${url}`,
+    `Hi ${name}, debit failed for inv ${invoiceNumber} (R${amount.toFixed(2)}). Pay here: ${url}`,
 
   emandatePending: (name: string, invoiceNumber: string, amount: number, url: string) =>
-    `Hi ${name}, your CircleTel invoice ${invoiceNumber} (R${amount.toFixed(2)}) is due. Your debit order is not yet active. Pay now: ${url} or complete your debit order setup at circletel.co.za/dashboard/billing`,
+    `Hi ${name}, inv ${invoiceNumber} (R${amount.toFixed(2)}) due. Pay: ${url} Setup debit order: circletel.co.za/billing`,
 };
+
+/**
+ * Generate short payment URL for SMS
+ * Uses circletel.co.za/pay/[ref] which redirects to full NetCash URL
+ */
+function getShortPaymentUrl(transactionRef: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
+  return `${baseUrl}/pay/${transactionRef}`;
+}
 
 // =============================================================================
 // PAYNOW BILLING SERVICE
@@ -268,6 +277,7 @@ export class PayNowBillingService {
             sendSms,
             smsTemplate,
             includeEmandateReminder,
+            transactionRef, // Pass for short SMS URLs
           }
         );
 
@@ -370,9 +380,10 @@ export class PayNowBillingService {
       sendSms?: boolean;
       smsTemplate?: 'paymentDue' | 'paymentReminder' | 'debitFailed' | 'emandatePending';
       includeEmandateReminder?: boolean;
+      transactionRef?: string; // For short SMS URLs
     } = {}
   ): Promise<PayNowNotificationResult> {
-    const { sendEmail = true, sendSms = true, smsTemplate = 'paymentDue', includeEmandateReminder = false } = options;
+    const { sendEmail = true, sendSms = true, smsTemplate = 'paymentDue', includeEmandateReminder = false, transactionRef } = options;
     const errors: string[] = [];
     let emailSent = false;
     let smsSent = false;
@@ -408,14 +419,19 @@ export class PayNowBillingService {
       errors.push('No email address available for customer');
     }
 
-    // Send SMS
+    // Send SMS (use short URL to stay within SMS character limits)
     if (sendSms && customer?.phone) {
       try {
+        // Use short URL for SMS to keep message under 160 characters
+        const smsUrl = transactionRef
+          ? getShortPaymentUrl(transactionRef)
+          : paymentUrl;
+
         const smsText = SMS_TEMPLATES[smsTemplate](
           customerName,
           invoice.invoice_number,
           invoice.total_amount,
-          paymentUrl
+          smsUrl
         );
 
         const smsResult = await clickatellService.sendSMS({
@@ -493,7 +509,7 @@ export class PayNowBillingService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'CircleTel Billing <billing@circletel.co.za>',
+          from: 'CircleTel Billing <billing@notify.circletel.co.za>',
           to: [customer.email],
           subject: `Payment Due Today - Invoice ${invoice.invoice_number}`,
           html: emailHtml,
