@@ -123,6 +123,9 @@ export class PayNowBillingService {
     try {
       const supabase = await createClient();
 
+      // Debug: Log Supabase client creation
+      billingLogger.info('PayNow: Supabase client created', { invoiceId });
+
       // 1. Fetch invoice first (without join to avoid potential issues)
       const { data: invoiceData, error: invoiceError } = await supabase
         .from('customer_invoices')
@@ -140,11 +143,28 @@ export class PayNowBillingService {
         .eq('id', invoiceId)
         .single();
 
+      // Debug: Log query results
+      billingLogger.info('PayNow: Invoice query result', {
+        invoiceId,
+        hasData: !!invoiceData,
+        hasError: !!invoiceError,
+        errorMessage: invoiceError?.message,
+        errorCode: invoiceError?.code,
+        errorDetails: invoiceError?.details,
+        errorHint: invoiceError?.hint,
+      });
+
       if (invoiceError || !invoiceData) {
         const errorMsg = invoiceError
-          ? `Invoice fetch error: ${invoiceError.message} (code: ${invoiceError.code})`
-          : `Invoice not found: ${invoiceId}`;
-        billingLogger.error('PayNow: Invoice fetch failed', { invoiceId, error: invoiceError?.message, code: invoiceError?.code });
+          ? `Invoice fetch error: ${invoiceError.message} (code: ${invoiceError.code}, hint: ${invoiceError.hint})`
+          : `Invoice not found (no error but no data): ${invoiceId}`;
+        billingLogger.error('PayNow: Invoice fetch failed', {
+          invoiceId,
+          error: invoiceError?.message,
+          code: invoiceError?.code,
+          details: invoiceError?.details,
+          hint: invoiceError?.hint,
+        });
         return {
           success: false,
           invoiceId,
