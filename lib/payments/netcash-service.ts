@@ -237,9 +237,9 @@ export class NetcashPaymentService {
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = await createClient();
 
-    // Fetch invoice details
+    // Fetch invoice details from customer_invoices table
     const { data: invoice, error } = await supabase
-      .from('invoices')
+      .from('customer_invoices')
       .select('*, customer:customers(*)')
       .eq('id', invoiceId)
       .single();
