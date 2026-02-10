@@ -32,8 +32,10 @@ import {
   Upload,
   Search,
   ExternalLink,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SiteEditSheet } from '@/components/admin/corporate/SiteEditSheet';
 
 interface CorporateAccount {
   id: string;
@@ -103,6 +105,8 @@ export default function CorporateDetailPage() {
   const [exportingCredentials, setExportingCredentials] = React.useState(false);
   const [siteSearch, setSiteSearch] = React.useState('');
   const [activeTab, setActiveTab] = React.useState('overview');
+  const [editingSite, setEditingSite] = React.useState<CorporateSite | null>(null);
+  const [editSheetOpen, setEditSheetOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (corporateId) {
@@ -617,8 +621,15 @@ export default function CorporateDetailPage() {
                         </TableCell>
                         <TableCell>{getStatusBadge(site.status)}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">
-                            <ExternalLink className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingSite(site);
+                              setEditSheetOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -781,6 +792,18 @@ export default function CorporateDetailPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Site Edit Sheet */}
+      <SiteEditSheet
+        site={editingSite}
+        corporateId={corporateId}
+        open={editSheetOpen}
+        onOpenChange={setEditSheetOpen}
+        onSaved={() => {
+          fetchSites();
+          fetchCorporate();
+        }}
+      />
     </div>
   );
 }

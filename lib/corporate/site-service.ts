@@ -424,6 +424,21 @@ export class CorporateSiteService {
   }
 
   /**
+   * Delete a corporate site
+   */
+  static async delete(id: string): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient()
+
+    const { error } = await supabase.from('corporate_sites').delete().eq('id', id)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    return { success: true }
+  }
+
+  /**
    * Mark site as installed
    */
   static async markInstalled(
