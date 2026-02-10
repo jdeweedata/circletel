@@ -90,11 +90,11 @@ const SMS_TEMPLATES = {
 
 /**
  * Generate short payment URL for SMS
- * Uses circletel.co.za/paynow/[ref] which redirects to full NetCash URL
+ * Uses circletel.co.za/api/paynow/[ref] which redirects to full NetCash URL
  */
 function getShortPaymentUrl(transactionRef: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.circletel.co.za';
-  return `${baseUrl}/paynow/${transactionRef}`;
+  return `${baseUrl}/api/paynow/${transactionRef}`;
 }
 
 // =============================================================================
