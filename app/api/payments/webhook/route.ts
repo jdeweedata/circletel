@@ -296,7 +296,90 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 14. Return success
+    // 14. Handle Pay Now payments for customer invoices (recurring billing flow)
+    // Look up customer_invoice by paynow_transaction_ref (stored when Pay Now link was generated)
+    const { data: customerInvoice } = await supabase
+      .from('customer_invoices')
+      .select('id, invoice_number, customer_id, total_amount, status')
+      .eq('paynow_transaction_ref', transactionId)
+      .single();
+
+    if (customerInvoice) {
+      webhookLogger.info('[Payment Webhook] Found customer invoice by Pay Now ref', {
+        invoiceNumber: customerInvoice.invoice_number,
+        transactionId,
+        status,
+      });
+
+      if (status === 'completed') {
+        // Update invoice to paid
+        await supabase
+          .from('customer_invoices')
+          .update({
+            status: 'paid',
+            paid_at: completedAt?.toISOString() || new Date().toISOString(),
+            payment_collection_method: 'paynow',
+            payment_reference: transactionId,
+            amount_paid: amount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', customerInvoice.id);
+
+        webhookLogger.info('[Payment Webhook] Customer invoice marked as paid', {
+          invoiceNumber: customerInvoice.invoice_number,
+          amount,
+        });
+
+        // Link payment transaction to customer invoice
+        if (paymentTransaction) {
+          await supabase
+            .from('payment_transactions')
+            .update({
+              customer_invoice_id: customerInvoice.id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('transaction_id', transactionId);
+        }
+
+        // Update customer billing balance
+        const { data: billing } = await supabase
+          .from('customer_billing')
+          .select('id, account_balance')
+          .eq('customer_id', customerInvoice.customer_id)
+          .single();
+
+        if (billing) {
+          const newBalance = (billing.account_balance || 0) - amount;
+          await supabase
+            .from('customer_billing')
+            .update({
+              account_balance: newBalance,
+              last_payment_amount: amount,
+              last_payment_date: completedAt?.toISOString() || new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', billing.id);
+
+          webhookLogger.info('[Payment Webhook] Customer balance updated', {
+            customerId: customerInvoice.customer_id,
+            newBalance,
+          });
+        }
+      } else if (status === 'failed') {
+        // Log payment failure but don't change invoice status
+        // The customer may retry payment via the same or different link
+        webhookLogger.warn('[Payment Webhook] Pay Now payment failed for invoice', {
+          invoiceNumber: customerInvoice.invoice_number,
+          reason: failureReason,
+        });
+      } else if (status === 'pending' || status === 'processing') {
+        webhookLogger.info('[Payment Webhook] Pay Now payment pending for invoice', {
+          invoiceNumber: customerInvoice.invoice_number,
+        });
+      }
+    }
+
+    // 15. Return success
     return NextResponse.json({
       success: true,
       message: 'Webhook processed successfully',

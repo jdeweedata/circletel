@@ -22,6 +22,7 @@ import {
   netcashDebitBatchService,
   DebitOrderItem
 } from '@/lib/payments/netcash-debit-batch-service';
+import { PayNowBillingService } from '@/lib/billing/paynow-billing-service';
 import { cronLogger } from '@/lib/logging';
 
 // Vercel cron configuration
@@ -33,8 +34,16 @@ interface SubmissionResult {
   totalEligible: number;
   submitted: number;
   skipped: number;
+  paynowSent: number; // Invoices sent Pay Now due to pending eMandate
   batchId?: string;
   errors: string[];
+}
+
+interface SkippedInvoice {
+  invoiceId: string;
+  invoiceNumber: string;
+  customerId: string;
+  reason: 'no_mandate' | 'mandate_pending';
 }
 
 export async function GET(request: NextRequest) {
@@ -91,8 +100,12 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     totalEligible: 0,
     submitted: 0,
     skipped: 0,
+    paynowSent: 0,
     errors: [],
   };
+
+  // Track invoices skipped due to pending/missing eMandate
+  const skippedInvoices: SkippedInvoice[] = [];
 
   // Check if service is configured
   if (!netcashDebitBatchService.isConfigured()) {
@@ -176,9 +189,9 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   if (invoices) {
     for (const invoice of invoices) {
       // Verify customer has active debit order mandate
-      const hasMandate = await verifyActiveMandate(supabase, invoice.customer_id);
-      
-      if (hasMandate) {
+      const mandateStatus = await checkMandateStatus(supabase, invoice.customer_id);
+
+      if (mandateStatus === 'active') {
         eligibleItems.push({
           accountReference: invoice.invoice_number,
           amount: invoice.total_amount,
@@ -188,7 +201,13 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
         });
       } else {
         result.skipped++;
-        cronLogger.info(`Skipping invoice ${invoice.invoice_number}: No active mandate`);
+        skippedInvoices.push({
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoice_number,
+          customerId: invoice.customer_id,
+          reason: mandateStatus === 'pending' ? 'mandate_pending' : 'no_mandate',
+        });
+        cronLogger.info(`Skipping invoice ${invoice.invoice_number}: ${mandateStatus === 'pending' ? 'Mandate pending authentication' : 'No active mandate'}`);
       }
     }
   }
@@ -198,15 +217,15 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     for (const order of orders) {
       // Check if already covered by an invoice
       const alreadyCovered = eligibleItems.some(
-        item => item.orderId === order.id || 
+        item => item.orderId === order.id ||
                 item.accountReference.includes(order.order_number)
       );
-      
+
       if (alreadyCovered) continue;
 
-      const hasMandate = await verifyActiveMandate(supabase, order.customer_id);
-      
-      if (hasMandate) {
+      const mandateStatus = await checkMandateStatus(supabase, order.customer_id);
+
+      if (mandateStatus === 'active') {
         eligibleItems.push({
           accountReference: `PAY-${order.order_number}`,
           amount: order.package_price,
@@ -216,7 +235,9 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
         });
       } else {
         result.skipped++;
-        cronLogger.info(`Skipping order ${order.order_number}: No active mandate`);
+        // Orders don't have invoice_id, so we can't send Pay Now directly
+        // They need to generate an invoice first
+        cronLogger.info(`Skipping order ${order.order_number}: ${mandateStatus === 'pending' ? 'Mandate pending authentication' : 'No active mandate'}`);
       }
     }
   }
@@ -304,24 +325,64 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
   // ============================================================================
   // 7. Update next billing dates
   // ============================================================================
-  
+
   await updateNextBillingDates(supabase, eligibleItems, billingDate);
+
+  // ============================================================================
+  // 8. Send Pay Now to customers with pending/missing eMandate
+  // ============================================================================
+
+  if (skippedInvoices.length > 0) {
+    cronLogger.info(`Processing ${skippedInvoices.length} invoices for Pay Now fallback`);
+
+    for (const skipped of skippedInvoices) {
+      try {
+        const paynowResult = await PayNowBillingService.processPayNowForInvoice(
+          skipped.invoiceId,
+          {
+            sendEmail: true,
+            sendSms: true,
+            smsTemplate: 'emandatePending',
+            includeEmandateReminder: true,
+          }
+        );
+
+        if (paynowResult.success) {
+          result.paynowSent++;
+          cronLogger.info(`Pay Now sent for ${skipped.invoiceNumber} (${skipped.reason})`);
+        } else {
+          cronLogger.warn(`Failed to send Pay Now for ${skipped.invoiceNumber}`, {
+            errors: paynowResult.errors,
+          });
+        }
+
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } catch (error) {
+        cronLogger.error(`Error sending Pay Now for ${skipped.invoiceNumber}`, { error });
+      }
+    }
+  }
 
   // Log execution
   await logExecution(supabase, result, result.errors.length > 0 ? 'completed_with_errors' : 'completed');
 
-  cronLogger.info(`Debit order submission complete: ${result.submitted} submitted, ${result.skipped} skipped`);
+  cronLogger.info(`Debit order submission complete: ${result.submitted} submitted, ${result.skipped} skipped, ${result.paynowSent} Pay Now sent`);
 
   return result;
 }
 
 /**
- * Verify customer has an active debit order mandate
+ * Check mandate status for a customer
+ * Returns: 'active' | 'pending' | 'none'
+ * - 'active': Mandate exists, verified, and ready for debit orders
+ * - 'pending': Mandate exists but awaiting customer authentication/approval
+ * - 'none': No debit order payment method found
  */
-async function verifyActiveMandate(
+async function checkMandateStatus(
   supabase: Awaited<ReturnType<typeof createClient>>,
   customerId: string
-): Promise<boolean> {
+): Promise<'active' | 'pending' | 'none'> {
   const { data: paymentMethod } = await supabase
     .from('customer_payment_methods')
     .select('id, method_type, mandate_status, is_active, encrypted_details')
@@ -330,16 +391,35 @@ async function verifyActiveMandate(
     .eq('method_type', 'debit_order')
     .maybeSingle();
 
-  if (!paymentMethod) return false;
+  if (!paymentMethod) return 'none';
 
   // Check mandate is active and verified
   const isVerified = paymentMethod.encrypted_details?.verified === true ||
                     paymentMethod.encrypted_details?.verified === 'true';
-  
-  const mandateActive = paymentMethod.mandate_status === 'active' || 
+
+  const mandateActive = paymentMethod.mandate_status === 'active' ||
                        paymentMethod.mandate_status === 'approved';
 
-  return isVerified && mandateActive;
+  // If both verified and active, mandate is ready
+  if (isVerified && mandateActive) {
+    return 'active';
+  }
+
+  // Payment method exists but mandate not complete
+  // This covers: awaiting_authentication, pending, submitted, etc.
+  return 'pending';
+}
+
+/**
+ * Verify customer has an active debit order mandate (legacy function)
+ * @deprecated Use checkMandateStatus() instead
+ */
+async function verifyActiveMandate(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  customerId: string
+): Promise<boolean> {
+  const status = await checkMandateStatus(supabase, customerId);
+  return status === 'active';
 }
 
 /**

@@ -102,6 +102,9 @@ export function OrderInvoices({
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+      // Billing date is when payment is due (1st of next month after period)
+      const billingDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
       const response = await fetch('/api/admin/billing/generate-order-invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -109,6 +112,7 @@ export function OrderInvoices({
           order_id: orderId,
           period_start: periodStart.toISOString().split('T')[0],
           period_end: periodEnd.toISOString().split('T')[0],
+          billing_date: billingDate.toISOString().split('T')[0],
           sync_account_number: true
         })
       });
@@ -183,8 +187,14 @@ export function OrderInvoices({
     })}`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-ZA', {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    // Check for invalid date or Unix epoch (1970)
+    if (isNaN(date.getTime()) || date.getFullYear() < 2000) {
+      return 'Invalid date';
+    }
+    return date.toLocaleDateString('en-ZA', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'

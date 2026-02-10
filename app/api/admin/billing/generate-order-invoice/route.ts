@@ -173,6 +173,20 @@ export async function POST(request: NextRequest) {
     const invoiceDate = new Date(dueDate);
     invoiceDate.setDate(invoiceDate.getDate() - invoice_days_before_billing);
 
+    // Validate dates to prevent Unix epoch or invalid dates
+    if (isNaN(dueDate.getTime()) || dueDate.getFullYear() < 2000) {
+      return NextResponse.json(
+        { success: false, error: `Invalid due_date: ${effectiveBillingDate}. Please provide a valid billing_date.` },
+        { status: 400 }
+      );
+    }
+    if (isNaN(invoiceDate.getTime()) || invoiceDate.getFullYear() < 2000) {
+      return NextResponse.json(
+        { success: false, error: `Invalid invoice_date calculated from billing_date: ${effectiveBillingDate}` },
+        { status: 400 }
+      );
+    }
+
     // 7. Generate unique invoice number (INV-YYYY-NNNNN format)
     const year = invoiceDate.getFullYear();
     const { count } = await supabase
