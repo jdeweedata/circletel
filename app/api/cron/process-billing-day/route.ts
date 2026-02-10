@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await processBillingDay();
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, _version: 'v2-2026-02-10' });
   } catch (error) {
     cronLogger.error('Billing day processor cron error', { error });
     return NextResponse.json(
