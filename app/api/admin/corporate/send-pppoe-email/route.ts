@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { adminLogger } from '@/lib/logging';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    adminLogger.info('Starting PPPoE email send');
-    const supabase = await createClient();
+    // Use direct Supabase client to avoid any issues with wrapper
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ success: false, error: 'Missing Supabase config' }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get sites from database
     const { data: sites, error } = await supabase
@@ -17,21 +23,29 @@ export async function POST(request: NextRequest) {
       .order('site_number');
 
     if (error) {
-      adminLogger.error('Error fetching sites', { error });
-      return NextResponse.json({ success: false, error: 'Failed to fetch sites' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Failed to fetch sites', details: error.message }, { status: 500 });
+    }
+
+    if (!sites || sites.length === 0) {
+      return NextResponse.json({ success: false, error: 'No sites found' }, { status: 404 });
     }
 
     // Build HTML table
-    const tableRows = sites.map(site => `
+    const tableRows = sites.map(site => {
+      const tech = site.installation_address && typeof site.installation_address === 'object'
+        ? (site.installation_address as Record<string, string>).technology || '-'
+        : '-';
+      return `
       <tr>
         <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.site_number}</td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.account_number}</td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.site_name}</td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.province}</td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB; font-family: monospace; background: #F9FAFB;"><strong>${site.pppoe_username}</strong></td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.installation_address && typeof site.installation_address === 'object' ? (site.installation_address as Record<string, string>).technology || '-' : '-'}</td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.account_number || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.site_name || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.province || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB; font-family: monospace; background: #F9FAFB;"><strong>${site.pppoe_username || '-'}</strong></td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB;">${tech}</td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -51,14 +65,10 @@ export async function POST(request: NextRequest) {
   <div class="header">
     <h1 style="margin: 0;">CircleTel - Unjani Clinics PPPoE Credentials</h1>
   </div>
-
   <div class="content">
     <p>Hi Jarryd,</p>
-
     <p>Please find below the PPPoE usernames for all <strong>${sites.length} Unjani Clinic sites</strong> that need to be created on Interstellio.</p>
-
     <p><strong>Action Required:</strong> Create these PPPoE credentials on the Interstellio portal with a secure password for each site.</p>
-
     <table>
       <thead>
         <tr>
@@ -74,7 +84,6 @@ export async function POST(request: NextRequest) {
         ${tableRows}
       </tbody>
     </table>
-
     <h3>Summary by Province:</h3>
     <ul>
       <li><strong>Gauteng:</strong> 14 sites</li>
@@ -84,13 +93,9 @@ export async function POST(request: NextRequest) {
       <li><strong>North West:</strong> 1 site</li>
       <li><strong>Free State:</strong> 1 site</li>
     </ul>
-
     <p>Please confirm once the credentials have been created, and we can proceed with the installation schedule.</p>
-
-    <p>Best regards,<br>
-    <strong>CircleTel Operations</strong></p>
+    <p>Best regards,<br><strong>CircleTel Operations</strong></p>
   </div>
-
   <div class="footer">
     <p>This is an automated message from CircleTel. For questions, contact operations@circletel.co.za</p>
   </div>
@@ -105,14 +110,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'RESEND_API_KEY not configured' }, { status: 500 });
     }
 
-    const response = await fetch('https://api.resend.com/emails', {
+    const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'CircleTel Operations <billing@notify.circletel.co.za>',
+        from: 'CircleTel Billing <billing@notify.circletel.co.za>',
         to: 'jarrydj@intelliview.co.za',
         cc: ['jeffrey.de.wee@circletel.co.za'],
         subject: `Unjani Clinics - PPPoE Credentials for Interstellio (${sites.length} Sites)`,
@@ -120,20 +125,17 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      adminLogger.error('Failed to send email', { status: response.status, error: errorText });
-      return NextResponse.json({ success: false, error: errorText || 'Failed to send email' }, { status: 500 });
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to send email',
+        details: errorText,
+        status: emailResponse.status
+      }, { status: 500 });
     }
 
-    const result = await response.json();
-
-    adminLogger.info('PPPoE credentials email sent', {
-      messageId: result.id,
-      to: 'jarrydj@intelliview.co.za',
-      cc: 'jeffrey.de.wee@circletel.co.za',
-      siteCount: sites.length,
-    });
+    const result = await emailResponse.json();
 
     return NextResponse.json({
       success: true,
@@ -143,12 +145,10 @@ export async function POST(request: NextRequest) {
       siteCount: sites.length,
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    adminLogger.error('Error sending PPPoE email', { error: errorMessage, stack: errorStack });
-    return NextResponse.json(
-      { success: false, error: errorMessage, stack: errorStack },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    }, { status: 500 });
   }
 }
