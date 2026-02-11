@@ -427,16 +427,16 @@ export default function AdminOrdersPageEnhanced() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-            <p className="text-gray-600 mt-1">Loading orders...</p>
+            <h1 className="page-title">Orders</h1>
+            <p className="muted-text mt-1">Loading orders...</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse bg-ui-card border-ui-border">
               <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-ui-bg rounded w-3/4 mb-4"></div>
+                <div className="h-8 bg-ui-bg rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -450,13 +450,13 @@ export default function AdminOrdersPageEnhanced() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customer Orders</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="page-title">Customer Orders</h1>
+          <p className="muted-text mt-1">
             Manage and track all customer orders
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-xs text-gray-500 mr-2">
+          <div className="muted-text-sm mr-2">
             Last updated: {lastRefreshed.toLocaleTimeString()}
           </div>
           <Button
@@ -485,14 +485,14 @@ export default function AdminOrdersPageEnhanced() {
         {statsCards.map((stat, index) => (
           <Card
             key={index}
-            className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 duration-200"
+            className="bg-ui-card border-ui-border hover:shadow-lg transition-all cursor-pointer hover:scale-105 duration-200"
             onClick={stat.onClick}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold mt-2">{stat.value}</p>
+                  <p className="card-title">{stat.title}</p>
+                  <p className="text-2xl font-bold text-ui-text-primary mt-2">{stat.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -504,10 +504,10 @@ export default function AdminOrdersPageEnhanced() {
       </div>
 
       {/* Quick Action Filters */}
-      <Card>
+      <Card className="bg-ui-card border-ui-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Filter className="h-4 w-4" />
+          <CardTitle className="text-sm font-semibold text-ui-text-primary flex items-center gap-2">
+            <Filter className="h-4 w-4 text-circleTel-orange" />
             Quick Filters - Orders Requiring Action
           </CardTitle>
         </CardHeader>
@@ -578,7 +578,7 @@ export default function AdminOrdersPageEnhanced() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setQuickFilter(null)}
-                className="text-gray-600"
+                className="text-ui-text-muted hover:text-ui-text-primary"
               >
                 Clear Filter
               </Button>
@@ -588,12 +588,12 @@ export default function AdminOrdersPageEnhanced() {
       </Card>
 
       {/* Filters */}
-      <Card>
+      <Card className="bg-ui-card border-ui-border">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ui-text-muted" />
                 <Input
                   placeholder="Search by order number, name, email, or phone..."
                   value={searchQuery}
@@ -669,10 +669,10 @@ export default function AdminOrdersPageEnhanced() {
       )}
 
       {/* Orders Table */}
-      <Card>
+      <Card className="bg-ui-card border-ui-border">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>
+          <CardTitle className="flex items-center justify-between text-ui-text-primary">
+            <span className="body-text font-medium">
               Showing {startIndex + 1}-{Math.min(endIndex, filteredOrders.length)} of {filteredOrders.length} orders
             </span>
             {(searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter) && (
@@ -695,9 +695,9 @@ export default function AdminOrdersPageEnhanced() {
         <CardContent>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 font-medium">No orders found</p>
-              <p className="text-gray-500 text-sm mt-1">
+              <AlertCircle className="h-12 w-12 text-ui-text-muted mx-auto mb-4" />
+              <p className="body-text font-medium">No orders found</p>
+              <p className="muted-text-sm mt-1">
                 {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter
                   ? 'Try adjusting your filters or search terms'
                   : 'No orders have been placed yet'}
@@ -708,7 +708,7 @@ export default function AdminOrdersPageEnhanced() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b-2 border-gray-200 bg-gray-50/50">
+                    <tr className="border-b-2 border-ui-border bg-ui-bg">
                       <th className="px-4 py-3 text-left">
                         <Checkbox
                           checked={selectedOrders.size === paginatedOrders.length && paginatedOrders.length > 0}
@@ -716,48 +716,48 @@ export default function AdminOrdersPageEnhanced() {
                         />
                       </th>
                       <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
                         onClick={() => handleSort('order_number')}
                       >
                         Order {getSortIcon('order_number')}
                       </th>
                       <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
                         onClick={() => handleSort('customer')}
                       >
                         Customer {getSortIcon('customer')}
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
                         Package
                       </th>
                       <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
                         onClick={() => handleSort('package_price')}
                       >
                         Amount {getSortIcon('package_price')}
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
                         Payment
                       </th>
                       <th
-                        className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        className="px-4 py-3 text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider cursor-pointer hover:bg-slate-100"
                         onClick={() => handleSort('created_at')}
                       >
                         Date {getSortIcon('created_at')}
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-ui-text-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-ui-border">
                     {paginatedOrders.map((order, index) => (
                       <tr
                         key={order.id}
-                        className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                        className={`hover:bg-ui-bg transition-colors ${index % 2 === 0 ? 'bg-ui-card' : 'bg-ui-bg/30'}`}
                       >
                         <td className="px-4 py-4">
                           <Checkbox
@@ -766,19 +766,19 @@ export default function AdminOrdersPageEnhanced() {
                           />
                         </td>
                         <td className="px-4 py-4">
-                          <div className="font-bold text-gray-900 text-base">{order.order_number}</div>
+                          <div className="font-bold text-ui-text-primary text-base">{order.order_number}</div>
                         </td>
                         <td className="px-4 py-4">
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-ui-text-primary">
                             {order.first_name} {order.last_name}
                           </div>
-                          <div className="text-sm text-gray-500">{order.email}</div>
+                          <div className="muted-text-sm">{order.email}</div>
                         </td>
                         <td className="px-4 py-4">
-                          <div className="text-sm text-gray-900">{order.package_name}</div>
+                          <div className="body-text">{order.package_name}</div>
                         </td>
                         <td className="px-4 py-4">
-                          <div className="font-semibold text-gray-900">
+                          <div className="font-semibold text-ui-text-primary">
                             R{parseFloat(order.package_price as any).toFixed(2)}/mo
                           </div>
                         </td>
@@ -789,7 +789,7 @@ export default function AdminOrdersPageEnhanced() {
                           {getPaymentBadge(order.payment_status)}
                         </td>
                         <td className="px-4 py-4">
-                          <div className="text-sm text-gray-600">
+                          <div className="muted-text">
                             {new Date(order.created_at).toLocaleDateString('en-ZA', {
                               year: 'numeric',
                               month: 'short',
@@ -852,9 +852,9 @@ export default function AdminOrdersPageEnhanced() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-ui-border">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Rows per page:</span>
+                    <span className="muted-text">Rows per page:</span>
                     <Select
                       value={itemsPerPage.toString()}
                       onValueChange={(value) => {
