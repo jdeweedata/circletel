@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'CircleTel Operations <operations@notify.circletel.co.za>',
+        from: 'CircleTel Operations <billing@notify.circletel.co.za>',
         to: 'jarrydj@intelliview.co.za',
         cc: ['jeffrey.de.wee@circletel.co.za'],
         subject: `Unjani Clinics - PPPoE Credentials for Interstellio (${sites.length} Sites)`,
@@ -143,9 +143,11 @@ export async function POST(request: NextRequest) {
       siteCount: sites.length,
     });
   } catch (error) {
-    adminLogger.error('Error sending PPPoE email', { error });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    adminLogger.error('Error sending PPPoE email', { error: errorMessage, stack: errorStack });
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { success: false, error: errorMessage, stack: errorStack },
       { status: 500 }
     );
   }
