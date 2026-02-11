@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { adminLogger } from '@/lib/logging';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
+    adminLogger.info('Starting PPPoE email send');
     const supabase = await createClient();
 
     // Get sites from database
@@ -26,7 +29,7 @@ export async function POST(request: NextRequest) {
         <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.site_name}</td>
         <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.province}</td>
         <td style="padding: 8px; border: 1px solid #E5E7EB; font-family: monospace; background: #F9FAFB;"><strong>${site.pppoe_username}</strong></td>
-        <td style="padding: 8px; border: 1px solid #E5E7EB;">${(site.installation_address as Record<string, string>)?.technology || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #E5E7EB;">${site.installation_address && typeof site.installation_address === 'object' ? (site.installation_address as Record<string, string>).technology || '-' : '-'}</td>
       </tr>
     `).join('');
 
@@ -118,9 +121,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      adminLogger.error('Failed to send email', { error });
-      return NextResponse.json({ success: false, error: error.message || 'Failed to send email' }, { status: 500 });
+      const errorText = await response.text();
+      adminLogger.error('Failed to send email', { status: response.status, error: errorText });
+      return NextResponse.json({ success: false, error: errorText || 'Failed to send email' }, { status: 500 });
     }
 
     const result = await response.json();
