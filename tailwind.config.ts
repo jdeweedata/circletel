@@ -64,36 +64,36 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// CircleTel custom colors with Verizon-inspired palette
+				// CircleTel Official Brand Colors
 				'circleTel': {
-					orange: '#F5831F',
+					// Primary Palette
+					orange: '#F5841E',        // Circle Tel Orange - rgb(245, 132, 30)
+					gray: '#747474',          // Circle Tel Grey - rgb(116, 116, 116)
+					navy: '#13274A',          // Deep Navy - rgb(19, 39, 74)
+					black: '#000000',
 					white: '#FFFFFF',
+					// Secondary Palette
+					'burnt-orange': '#D76026', // rgb(215, 96, 38)
+					'warm-orange': '#E97B26',  // rgb(233, 123, 38)
+					'bright-orange': '#F4742B', // rgb(244, 116, 43)
+					'light-gray': '#8B8B8B',   // rgb(139, 139, 139)
+					'dark-gray': '#606261',    // rgb(96, 98, 97)
+					'midnight-navy': '#0F1427', // rgb(15, 20, 39)
+					// Legacy aliases (for backwards compatibility)
 					darkNeutral: '#1F2937',
 					secondaryNeutral: '#4B5563',
 					lightNeutral: '#E6E9EF',
-					// Verizon-inspired modern colors
-					red: '#D52B1E',
-					'red-light': '#EF4444',
-					'red-dark': '#B91C1C',
-					gray: {
-						50: '#F9FAFB',
-						100: '#F3F4F6',
-						200: '#E5E7EB',
-						300: '#D1D5DB',
-						400: '#9CA3AF',
-						500: '#6B7280',
-						600: '#4B5563',
-						700: '#374151',
-						800: '#1F2937',
-						900: '#111827',
-					},
-					blue: {
-						50: '#EFF6FF',
-						100: '#DBEAFE',
-						500: '#3B82F6',
-						600: '#2563EB',
-						700: '#1D4ED8',
-					}
+				},
+				// UI Gray Scale (for backgrounds, text, borders)
+				'ui': {
+					bg: '#F9FAFB',             // Page background
+					card: '#FFFFFF',           // Card/section background
+					'text-primary': '#111827', // Near-black text
+					'text-secondary': '#4B5563', // Medium gray text
+					'text-muted': '#6B7280',   // Lighter gray text
+					'text-dark': '#1F2937',    // Dark gray text (h1)
+					sidebar: '#1F2937',        // Sidebar/nav background
+					border: '#E5E7EB',         // Default border
 				},
 				// WebAfrica-inspired colors (adapted with CircleTel orange)
 				'webafrica': {

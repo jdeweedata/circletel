@@ -113,14 +113,14 @@ function StatCard({
   trend?: string;
 }) {
   return (
-    <div className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 overflow-hidden">
+    <div className="group relative bg-ui-card rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-ui-border overflow-hidden">
       {/* Subtle gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-br from-circleTel-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="relative flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="text-3xl font-bold text-slate-900 tracking-tight">{value}</p>
+          <p className="card-title">{label}</p>
+          <p className="text-3xl font-bold text-ui-text-primary tracking-tight">{value}</p>
           {trend && (
             <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3 h-3" />
@@ -155,7 +155,7 @@ function ContactCard({
   accentColor: string;
 }) {
   return (
-    <div className="group relative bg-white rounded-xl p-5 border border-slate-100 hover:border-slate-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+    <div className="group relative bg-ui-card rounded-xl p-5 border border-ui-border hover:border-ui-text-muted/30 hover:shadow-md transition-all duration-300 overflow-hidden">
       {/* Accent line */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentColor} opacity-60 group-hover:opacity-100 transition-opacity`} />
 
@@ -164,14 +164,14 @@ function ContactCard({
           <Icon className={`w-5 h-5 ${accentColor.replace('bg-', 'text-')}`} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{type}</p>
-          <p className="font-semibold text-slate-900 truncate">{name}</p>
-          {position && <p className="text-sm text-slate-500">{position}</p>}
+          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">{type}</p>
+          <p className="font-semibold text-ui-text-primary truncate">{name}</p>
+          {position && <p className="muted-text">{position}</p>}
           <div className="flex flex-col gap-1 mt-3">
             {email && (
               <a
                 href={`mailto:${email}`}
-                className="inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-circleTel-orange hover:text-circleTel-warm-orange hover:underline transition-colors"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span className="truncate">{email}</span>
@@ -180,7 +180,7 @@ function ContactCard({
             {phone && (
               <a
                 href={`tel:${phone}`}
-                className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+                className="inline-flex items-center gap-1.5 body-text hover:text-ui-text-primary transition-colors"
               >
                 <Phone className="w-3.5 h-3.5" />
                 {phone}
@@ -196,9 +196,9 @@ function ContactCard({
 // Info Row Component
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex justify-between items-center py-3 border-b border-slate-100 last:border-0">
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className="font-medium text-slate-900 text-right">{value || '—'}</span>
+    <div className="flex justify-between items-center py-3 border-b border-ui-border last:border-0">
+      <span className="muted-text">{label}</span>
+      <span className="font-medium text-ui-text-primary text-right">{value || '—'}</span>
     </div>
   );
 }
@@ -414,21 +414,21 @@ export default function CorporateDetailPage() {
             </Button>
             <div>
               <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 font-serif tracking-tight">
+                <h1 className="page-title">
                   {corporate.companyName}
                 </h1>
-                <span className="font-mono text-sm font-bold text-orange-600 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
+                <span className="font-mono text-sm font-bold text-circleTel-orange bg-circleTel-orange/10 px-3 py-1.5 rounded-lg border border-circleTel-orange/20">
                   {corporate.corporateCode}
                 </span>
                 {getStatusBadge(corporate.accountStatus)}
               </div>
               {corporate.tradingName && (
-                <p className="text-slate-500">Trading as: {corporate.tradingName}</p>
+                <p className="muted-text">Trading as: {corporate.tradingName}</p>
               )}
               {corporate.industry && (
                 <div className="flex items-center gap-2 mt-2">
-                  <Globe className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm text-slate-500">{corporate.industry}</span>
+                  <Globe className="w-4 h-4 text-ui-text-muted" />
+                  <span className="muted-text">{corporate.industry}</span>
                 </div>
               )}
             </div>
@@ -489,24 +489,24 @@ export default function CorporateDetailPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white shadow-sm border border-slate-100 p-1 rounded-xl">
+          <TabsList className="bg-ui-card shadow-sm border border-ui-border p-1 rounded-xl">
             <TabsTrigger
               value="overview"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
               <Building2 className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="sites"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
               <MapPin className="w-4 h-4 mr-2" />
               Sites ({corporate.totalSites})
             </TabsTrigger>
             <TabsTrigger
               value="pppoe"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
               <Key className="w-4 h-4 mr-2" />
               PPPoE Credentials
@@ -517,15 +517,15 @@ export default function CorporateDetailPage() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Company Details Card */}
-              <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+              <div className="lg:col-span-2 bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+                <div className="p-6 border-b border-ui-border bg-gradient-to-r from-ui-bg to-white">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-sidebar to-ui-text-primary flex items-center justify-center">
                       <Building2 className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">Company Details</h3>
-                      <p className="text-sm text-slate-500">Corporate registration and business info</p>
+                      <h3 className="section-heading text-lg">Company Details</h3>
+                      <p className="muted-text">Corporate registration and business info</p>
                     </div>
                   </div>
                 </div>
@@ -546,14 +546,14 @@ export default function CorporateDetailPage() {
                   </div>
 
                   {corporate.physicalAddress?.city && (
-                    <div className="mt-6 pt-6 border-t border-slate-100">
+                    <div className="mt-6 pt-6 border-t border-ui-border">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-4 h-4 text-orange-500" />
+                        <div className="w-8 h-8 rounded-lg bg-circleTel-orange/10 flex items-center justify-center flex-shrink-0">
+                          <MapPin className="w-4 h-4 text-circleTel-orange" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-500 mb-1">Headquarters</p>
-                          <p className="text-slate-900">
+                          <p className="card-title mb-1">Headquarters</p>
+                          <p className="text-ui-text-primary">
                             {[
                               corporate.physicalAddress.street,
                               corporate.physicalAddress.city,
@@ -571,24 +571,24 @@ export default function CorporateDetailPage() {
               </div>
 
               {/* Contract Info Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-orange-50 to-white">
+              <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+                <div className="p-6 border-b border-ui-border bg-gradient-to-r from-circleTel-orange/10 to-white">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-circleTel-orange to-circleTel-warm-orange flex items-center justify-center">
                       <FileText className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">Contract</h3>
-                      <p className="text-sm text-slate-500">Agreement details</p>
+                      <h3 className="section-heading text-lg">Contract</h3>
+                      <p className="muted-text">Agreement details</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                    <Calendar className="w-5 h-5 text-slate-400" />
+                  <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
+                    <Calendar className="w-5 h-5 text-ui-text-muted" />
                     <div>
-                      <p className="text-xs text-slate-500">Contract Period</p>
-                      <p className="font-medium text-slate-900">
+                      <p className="muted-text-sm">Contract Period</p>
+                      <p className="font-medium text-ui-text-primary">
                         {corporate.contractStartDate
                           ? new Date(corporate.contractStartDate).toLocaleDateString()
                           : 'Not set'}
@@ -600,11 +600,11 @@ export default function CorporateDetailPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                    <Target className="w-5 h-5 text-slate-400" />
+                  <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
+                    <Target className="w-5 h-5 text-ui-text-muted" />
                     <div>
-                      <p className="text-xs text-slate-500">Target Deployment</p>
-                      <p className="font-medium text-slate-900">
+                      <p className="muted-text-sm">Target Deployment</p>
+                      <p className="font-medium text-ui-text-primary">
                         {corporate.expectedSites || '—'} sites
                       </p>
                     </div>
@@ -613,16 +613,16 @@ export default function CorporateDetailPage() {
                   {corporate.expectedSites && (
                     <div className="pt-2">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-slate-500">Deployment Progress</span>
-                        <span className="font-semibold text-orange-600">{deploymentProgress}%</span>
+                        <span className="muted-text">Deployment Progress</span>
+                        <span className="font-semibold text-circleTel-orange">{deploymentProgress}%</span>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-ui-border rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-circleTel-orange to-circleTel-warm-orange rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(deploymentProgress, 100)}%` }}
                         />
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="muted-text-sm mt-2">
                         {corporate.totalSites} of {corporate.expectedSites} sites deployed
                       </p>
                     </div>
@@ -632,15 +632,15 @@ export default function CorporateDetailPage() {
             </div>
 
             {/* Contacts Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white">
+            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+              <div className="p-6 border-b border-ui-border bg-gradient-to-r from-blue-50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">Contacts</h3>
-                    <p className="text-sm text-slate-500">Key personnel for this corporate account</p>
+                    <h3 className="section-heading text-lg">Contacts</h3>
+                    <p className="muted-text">Key personnel for this corporate account</p>
                   </div>
                 </div>
               </div>
@@ -681,17 +681,17 @@ export default function CorporateDetailPage() {
 
             {/* Notes Section */}
             {corporate.notes && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
+              <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+                <div className="p-6 border-b border-ui-border">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-text-muted to-ui-text-secondary flex items-center justify-center">
                       <FileText className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="font-semibold text-slate-900">Notes</h3>
+                    <h3 className="section-heading text-lg">Notes</h3>
                   </div>
                 </div>
                 <div className="p-6">
-                  <p className="text-slate-700 whitespace-pre-wrap">{corporate.notes}</p>
+                  <p className="body-text whitespace-pre-wrap">{corporate.notes}</p>
                 </div>
               </div>
             )}
@@ -699,12 +699,12 @@ export default function CorporateDetailPage() {
 
           {/* Sites Tab */}
           <TabsContent value="sites" className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100">
+            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+              <div className="p-6 border-b border-ui-border">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900">Sites Directory</h3>
-                    <p className="text-sm text-slate-500">{sites.length} sites registered</p>
+                    <h3 className="section-heading">Sites Directory</h3>
+                    <p className="muted-text">{sites.length} sites registered</p>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <div className="relative">
@@ -738,16 +738,16 @@ export default function CorporateDetailPage() {
 
               {sitesLoading ? (
                 <div className="text-center py-16">
-                  <div className="w-10 h-10 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
-                  <p className="text-slate-500 mt-4">Loading sites...</p>
+                  <div className="w-10 h-10 border-3 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
+                  <p className="muted-text mt-4">Loading sites...</p>
                 </div>
               ) : sites.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="h-8 w-8 text-slate-300" />
+                  <div className="w-16 h-16 bg-ui-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-ui-text-muted" />
                   </div>
-                  <h3 className="font-medium text-slate-900 mb-1">No sites found</h3>
-                  <p className="text-slate-500 mb-4">Start by adding your first site</p>
+                  <h3 className="font-medium text-ui-text-primary mb-1">No sites found</h3>
+                  <p className="muted-text mb-4">Start by adding your first site</p>
                   <Button
                     onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
                     className="bg-orange-500 hover:bg-orange-600"
@@ -760,14 +760,14 @@ export default function CorporateDetailPage() {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-slate-50/50">
-                        <TableHead className="font-semibold text-slate-600">#</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Account Number</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Site Name</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Province</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Contact</TableHead>
-                        <TableHead className="font-semibold text-slate-600">PPPoE</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Status</TableHead>
+                      <TableRow className="bg-ui-bg/50">
+                        <TableHead className="font-semibold text-ui-text-secondary">#</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Account Number</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Site Name</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Province</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Contact</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">PPPoE</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Status</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -775,27 +775,27 @@ export default function CorporateDetailPage() {
                       {sites.map((site) => (
                         <TableRow
                           key={site.id}
-                          className="hover:bg-orange-50/50 cursor-pointer transition-colors"
+                          className="hover:bg-circleTel-orange/5 cursor-pointer transition-colors"
                           onClick={() => router.push(`/admin/corporate/${corporateId}/sites/${site.id}`)}
                         >
-                          <TableCell className="font-medium text-slate-500">{site.siteNumber}</TableCell>
+                          <TableCell className="font-medium text-ui-text-muted">{site.siteNumber}</TableCell>
                           <TableCell>
-                            <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                            <span className="font-mono font-bold text-circleTel-orange bg-circleTel-orange/10 px-2 py-1 rounded">
                               {site.accountNumber}
                             </span>
                           </TableCell>
-                          <TableCell className="font-medium text-slate-900">{site.siteName}</TableCell>
-                          <TableCell className="text-slate-600">{site.province || '—'}</TableCell>
+                          <TableCell className="font-medium text-ui-text-primary">{site.siteName}</TableCell>
+                          <TableCell className="text-ui-text-secondary">{site.province || '—'}</TableCell>
                           <TableCell>
                             {site.siteContactName ? (
                               <div className="text-sm">
-                                <p className="font-medium text-slate-900">{site.siteContactName}</p>
+                                <p className="font-medium text-ui-text-primary">{site.siteContactName}</p>
                                 {site.siteContactPhone && (
-                                  <p className="text-slate-500">{site.siteContactPhone}</p>
+                                  <p className="muted-text">{site.siteContactPhone}</p>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-slate-400">—</span>
+                              <span className="text-ui-text-muted">—</span>
                             )}
                           </TableCell>
                           <TableCell>
@@ -804,7 +804,7 @@ export default function CorporateDetailPage() {
                                 {site.pppoeUsername}
                               </span>
                             ) : (
-                              <span className="text-slate-400 text-sm">Not generated</span>
+                              <span className="muted-text text-sm">Not generated</span>
                             )}
                           </TableCell>
                           <TableCell>{getStatusBadge(site.status)}</TableCell>
@@ -812,13 +812,13 @@ export default function CorporateDetailPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="hover:bg-orange-100"
+                              className="hover:bg-circleTel-orange/10"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/admin/corporate/${corporateId}/sites/${site.id}`);
                               }}
                             >
-                              <Pencil className="h-4 w-4 text-slate-500" />
+                              <Pencil className="h-4 w-4 text-ui-text-muted" />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -835,39 +835,39 @@ export default function CorporateDetailPage() {
             {/* Credential Stats */}
             {credentialStats && (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-                  <p className="text-sm text-slate-500 mb-1">Total Sites</p>
-                  <p className="text-2xl font-bold text-slate-900">{credentialStats.totalSites}</p>
+                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
+                  <p className="card-title mb-1">Total Sites</p>
+                  <p className="text-2xl font-bold text-ui-text-primary">{credentialStats.totalSites}</p>
                 </div>
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-                  <p className="text-sm text-slate-500 mb-1">With Credentials</p>
+                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
+                  <p className="card-title mb-1">With Credentials</p>
                   <p className="text-2xl font-bold text-blue-600">{credentialStats.withCredentials}</p>
                 </div>
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-                  <p className="text-sm text-slate-500 mb-1">Provisioned</p>
+                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
+                  <p className="card-title mb-1">Provisioned</p>
                   <p className="text-2xl font-bold text-emerald-600">{credentialStats.provisioned}</p>
                 </div>
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-                  <p className="text-sm text-slate-500 mb-1">Pending</p>
+                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
+                  <p className="card-title mb-1">Pending</p>
                   <p className="text-2xl font-bold text-amber-600">{credentialStats.pending}</p>
                 </div>
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-                  <p className="text-sm text-slate-500 mb-1">Failed</p>
+                <div className="bg-ui-card rounded-xl p-5 shadow-sm border border-ui-border">
+                  <p className="card-title mb-1">Failed</p>
                   <p className="text-2xl font-bold text-red-600">{credentialStats.failed}</p>
                 </div>
               </div>
             )}
 
             {/* Actions Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-green-50 to-white">
+            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+              <div className="p-6 border-b border-ui-border bg-gradient-to-r from-green-50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                     <Key className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">PPPoE Credential Management</h3>
-                    <p className="text-sm text-slate-500">Generate and export credentials for router configuration</p>
+                    <h3 className="section-heading text-lg">PPPoE Credential Management</h3>
+                    <p className="muted-text">Generate and export credentials for router configuration</p>
                   </div>
                 </div>
               </div>
@@ -924,37 +924,37 @@ export default function CorporateDetailPage() {
             </div>
 
             {/* Sites with Credentials Table */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="p-6 border-b border-slate-100">
-                <h3 className="font-semibold text-slate-900">Credential Status by Site</h3>
+            <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+              <div className="p-6 border-b border-ui-border">
+                <h3 className="section-heading">Credential Status by Site</h3>
               </div>
               {sitesLoading ? (
                 <div className="text-center py-12">
-                  <div className="w-8 h-8 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+                  <div className="w-8 h-8 border-2 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-slate-50/50">
-                        <TableHead className="font-semibold text-slate-600">Account Number</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Site Name</TableHead>
-                        <TableHead className="font-semibold text-slate-600">PPPoE Username</TableHead>
-                        <TableHead className="font-semibold text-slate-600">Status</TableHead>
+                      <TableRow className="bg-ui-bg/50">
+                        <TableHead className="font-semibold text-ui-text-secondary">Account Number</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Site Name</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">PPPoE Username</TableHead>
+                        <TableHead className="font-semibold text-ui-text-secondary">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sites.map((site) => (
-                        <TableRow key={site.id} className="hover:bg-slate-50/50">
+                        <TableRow key={site.id} className="hover:bg-ui-bg/50">
                           <TableCell>
-                            <span className="font-mono font-bold text-orange-600">{site.accountNumber}</span>
+                            <span className="font-mono font-bold text-circleTel-orange">{site.accountNumber}</span>
                           </TableCell>
-                          <TableCell className="font-medium text-slate-900">{site.siteName}</TableCell>
+                          <TableCell className="font-medium text-ui-text-primary">{site.siteName}</TableCell>
                           <TableCell>
                             {site.pppoeUsername ? (
-                              <span className="font-mono text-sm text-slate-700">{site.pppoeUsername}</span>
+                              <span className="font-mono text-sm text-ui-text-secondary">{site.pppoeUsername}</span>
                             ) : (
-                              <span className="text-slate-400 italic">Not generated</span>
+                              <span className="text-ui-text-muted italic">Not generated</span>
                             )}
                           </TableCell>
                           <TableCell>

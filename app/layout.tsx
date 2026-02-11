@@ -73,7 +73,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#F5831F',
+  themeColor: '#F5841E', // CircleTel Orange (official)
 };
 
 const poppins = Poppins({ 
@@ -101,7 +101,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#F5831F" />
+        <meta name="theme-color" content="#F5841E" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
@@ -109,7 +109,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#F5831F" />
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+      <body className="min-h-screen bg-[#F9FAFB] text-gray-900 antialiased font-sans">
         <QueryProvider>
           <PWAProvider>
             <OfflineProvider>

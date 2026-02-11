@@ -130,9 +130,9 @@ function StatCard({
         )}
       </div>
       <div className="mt-4">
-        <p className="text-3xl font-bold text-slate-900 tracking-tight">{value.toLocaleString()}</p>
-        <p className="text-sm font-medium text-slate-500 mt-1">{label}</p>
-        {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+        <p className="text-3xl font-bold text-ui-text-primary tracking-tight">{value.toLocaleString()}</p>
+        <p className="card-title mt-1">{label}</p>
+        {subtitle && <p className="muted-text-sm mt-0.5">{subtitle}</p>}
       </div>
       {/* Decorative corner accent */}
       <div className={cn('absolute top-0 right-0 w-20 h-20 opacity-5 rounded-tr-2xl', colors.bg)}
@@ -171,11 +171,11 @@ function CorporateCard({
             <span className="text-sm font-bold font-mono text-orange-600">{corporate.corporateCode}</span>
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-slate-900 truncate group-hover:text-orange-600 transition-colors">
+            <h3 className="font-semibold text-ui-text-primary truncate group-hover:text-circleTel-orange transition-colors">
               {corporate.companyName}
             </h3>
             {corporate.tradingName && (
-              <p className="text-xs text-slate-400 truncate">t/a {corporate.tradingName}</p>
+              <p className="muted-text-sm truncate">t/a {corporate.tradingName}</p>
             )}
           </div>
         </div>
@@ -188,10 +188,10 @@ function CorporateCard({
       {/* Sites Progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm mb-1.5">
-          <span className="text-slate-500">Sites</span>
-          <span className="font-semibold text-slate-900">
+          <span className="muted-text">Sites</span>
+          <span className="font-semibold text-ui-text-primary">
             <span className="text-emerald-600">{corporate.activeSites}</span>
-            <span className="text-slate-300 mx-1">/</span>
+            <span className="text-ui-border mx-1">/</span>
             {corporate.totalSites}
           </span>
         </div>
@@ -210,24 +210,24 @@ function CorporateCard({
       </div>
 
       {/* Contact */}
-      <div className="pt-4 border-t border-slate-100">
-        <p className="text-sm font-medium text-slate-700 truncate">{corporate.primaryContactName}</p>
-        <p className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
+      <div className="pt-4 border-t border-ui-border">
+        <p className="body-text font-medium truncate">{corporate.primaryContactName}</p>
+        <p className="muted-text-sm truncate flex items-center gap-1 mt-0.5">
           <Mail className="w-3 h-3" />
           {corporate.primaryContactEmail}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-ui-border">
         {corporate.industry ? (
-          <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+          <span className="muted-text-sm font-medium bg-ui-bg px-2 py-1 rounded-md">
             {corporate.industry}
           </span>
         ) : (
           <span />
         )}
-        <span className="text-xs text-slate-400">
+        <span className="muted-text-sm">
           {new Date(corporate.createdAt).toLocaleDateString('en-ZA', {
             day: 'numeric',
             month: 'short',
@@ -337,10 +337,10 @@ export default function CorporateListPage() {
                 <Building2 className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 font-serif tracking-tight">
+                <h1 className="page-title">
                   Corporate Clients
                 </h1>
-                <p className="text-slate-500 mt-0.5">
+                <p className="muted-text mt-0.5">
                   Manage enterprise multi-site accounts
                 </p>
               </div>
@@ -470,12 +470,12 @@ export default function CorporateListPage() {
             <p className="text-slate-500 mt-4">Loading corporate accounts...</p>
           </div>
         ) : corporates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200/80">
-            <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-              <Building2 className="w-10 h-10 text-slate-300" />
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-ui-border">
+            <div className="w-20 h-20 rounded-2xl bg-ui-bg flex items-center justify-center mb-4">
+              <Building2 className="w-10 h-10 text-ui-text-muted" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-1">No corporate accounts found</h3>
-            <p className="text-slate-500 mb-6">
+            <h3 className="section-heading mb-1">No corporate accounts found</h3>
+            <p className="muted-text mb-6">
               {searchQuery || statusFilter !== 'all'
                 ? 'Try adjusting your search or filters'
                 : 'Get started by adding your first corporate client'}
@@ -505,14 +505,14 @@ export default function CorporateListPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Code</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Company</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Contact</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Sites</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Industry</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Status</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-5 py-4">Created</th>
+                  <tr className="border-b border-ui-border bg-ui-bg/50">
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Code</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Company</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Contact</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Sites</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Industry</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Status</th>
+                    <th className="text-left text-xs font-semibold text-ui-text-secondary uppercase tracking-wider px-5 py-4">Created</th>
                     <th className="px-5 py-4"></th>
                   </tr>
                 </thead>
@@ -604,10 +604,10 @@ export default function CorporateListPage() {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-slate-200">
-            <p className="text-sm text-slate-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-ui-border">
+            <p className="muted-text">
               Showing{' '}
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-ui-text-secondary">
                 {(pagination.page - 1) * pagination.limit + 1}
               </span>{' '}
               to{' '}

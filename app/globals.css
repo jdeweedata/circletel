@@ -180,6 +180,95 @@
 }
 
 @layer components {
+  /* ===========================================
+     CircleTel Design System - Typography
+     =========================================== */
+
+  /* Page Title (H1) - 30px, bold, dark gray */
+  .page-title {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 36px;
+    color: rgb(31, 41, 55); /* #1F2937 */
+  }
+
+  /* Header Bar Title - 18px, semi-bold, near-black */
+  .header-title {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 28px;
+    color: rgb(17, 24, 39); /* #111827 */
+  }
+
+  /* Section Headings (H2) - 20px, bold, near-black */
+  .section-heading {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+    color: rgb(17, 24, 39); /* #111827 */
+  }
+
+  /* Card Titles (H3) - 14px, medium, medium gray */
+  .card-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: rgb(75, 85, 99); /* #4B5563 */
+  }
+
+  /* Body Text - 14-16px, regular/medium, gray */
+  .body-text {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: rgb(55, 65, 81); /* #374151 */
+  }
+
+  .body-text-lg {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: rgb(55, 65, 81); /* #374151 */
+  }
+
+  /* Muted/Secondary Text */
+  .muted-text {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: rgb(107, 114, 128); /* #6B7280 */
+  }
+
+  .muted-text-sm {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: rgb(107, 114, 128); /* #6B7280 */
+  }
+
+  /* ===========================================
+     CircleTel Design System - Containers
+     =========================================== */
+
+  /* Page Container - light gray background */
+  .page-container {
+    @apply min-h-screen bg-[#F9FAFB];
+  }
+
+  /* Card Container - white with subtle shadow */
+  .card-container {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+  }
+
+  /* Sidebar Container - dark charcoal */
+  .sidebar-container {
+    @apply bg-[#1F2937] text-white;
+  }
+
+  /* ===========================================
+     CircleTel Design System - Legacy Components
+     =========================================== */
+
   .recipe-card {
     @apply bg-white border border-gray-200 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow duration-300;
   }

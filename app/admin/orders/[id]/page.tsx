@@ -131,17 +131,17 @@ function StatCard({
   trend?: { label: string; positive?: boolean };
 }) {
   return (
-    <div className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="group relative bg-ui-card rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 border border-ui-border overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-circleTel-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="relative flex items-start justify-between">
         <div className="space-y-1 flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="text-2xl font-bold text-slate-900 tracking-tight truncate">{value}</p>
-          {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
+          <p className="card-title">{label}</p>
+          <p className="text-2xl font-bold text-ui-text-primary tracking-tight truncate">{value}</p>
+          {subtitle && <p className="muted-text-sm">{subtitle}</p>}
           {trend && (
             <p className={cn(
               "text-xs flex items-center gap-1 mt-1",
-              trend.positive ? "text-emerald-600" : "text-slate-500"
+              trend.positive ? "text-emerald-600" : "text-ui-text-muted"
             )}>
               {trend.positive && <TrendingUp className="w-3 h-3" />}
               {trend.label}
@@ -167,8 +167,8 @@ function SectionCard({
   badge,
   action,
   children,
-  headerGradient = "from-slate-50 to-white",
-  iconGradient = "from-slate-600 to-slate-800",
+  headerGradient = "from-ui-bg to-white",
+  iconGradient = "from-ui-sidebar to-ui-text-primary",
 }: {
   icon: React.ElementType;
   title: string;
@@ -180,16 +180,16 @@ function SectionCard({
   iconGradient?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <div className={cn("p-5 border-b border-slate-100 bg-gradient-to-r", headerGradient)}>
+    <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+      <div className={cn("p-5 border-b border-ui-border bg-gradient-to-r", headerGradient)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center", iconGradient)}>
               <Icon className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">{title}</h3>
-              {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+              <h3 className="section-heading text-lg">{title}</h3>
+              {subtitle && <p className="muted-text">{subtitle}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -206,9 +206,9 @@ function SectionCard({
 // Info Row Component
 function InfoRow({ label, value, className }: { label: string; value: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0", className)}>
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className="font-medium text-slate-900 text-right">{value || '—'}</span>
+    <div className={cn("flex justify-between items-center py-2.5 border-b border-ui-border/50 last:border-0", className)}>
+      <span className="muted-text">{label}</span>
+      <span className="font-medium text-ui-text-primary text-right">{value || '—'}</span>
     </div>
   );
 }
@@ -231,7 +231,7 @@ function WorkflowStepItem({
       {!isLast && (
         <div className={cn(
           "absolute top-5 left-[calc(50%+24px)] right-0 h-0.5 transition-colors",
-          isCompleted ? "bg-emerald-400" : "bg-slate-200"
+          isCompleted ? "bg-emerald-400" : "bg-ui-border"
         )} />
       )}
 
@@ -239,15 +239,15 @@ function WorkflowStepItem({
       <div className={cn(
         "w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all duration-300 border-2",
         isCompleted && "bg-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/30",
-        isActive && "bg-orange-500 border-orange-500 shadow-lg shadow-orange-500/30 animate-pulse",
-        !isCompleted && !isActive && "bg-slate-100 border-slate-200"
+        isActive && "bg-circleTel-orange border-circleTel-orange shadow-lg shadow-circleTel-orange/30 animate-pulse",
+        !isCompleted && !isActive && "bg-ui-bg border-ui-border"
       )}>
         {isCompleted ? (
           <CheckCircle className="w-5 h-5 text-white" />
         ) : (
           <Icon className={cn(
             "w-5 h-5",
-            isActive ? "text-white" : "text-slate-400"
+            isActive ? "text-white" : "text-ui-text-muted"
           )} />
         )}
       </div>
@@ -257,14 +257,14 @@ function WorkflowStepItem({
         <p className={cn(
           "text-xs font-semibold transition-colors",
           isCompleted && "text-emerald-600",
-          isActive && "text-orange-600",
-          !isCompleted && !isActive && "text-slate-400"
+          isActive && "text-circleTel-orange",
+          !isCompleted && !isActive && "text-ui-text-muted"
         )}>
           {step.label}
         </p>
-        <p className="text-[10px] text-slate-400 mt-0.5">{step.subLabel}</p>
+        <p className="text-[10px] text-ui-text-muted mt-0.5">{step.subLabel}</p>
         {step.date && (
-          <p className="text-[10px] text-slate-500 mt-1 bg-slate-50 px-2 py-0.5 rounded-full">
+          <p className="text-[10px] text-ui-text-muted mt-1 bg-ui-bg px-2 py-0.5 rounded-full">
             {step.date}
           </p>
         )}
@@ -459,14 +459,14 @@ export default function AdminOrderDetailPage() {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
-              <Package className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+              <div className="w-16 h-16 border-4 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
+              <Package className="w-6 h-6 text-circleTel-orange absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="text-slate-500 mt-6 font-medium">Loading order details...</p>
+            <p className="muted-text mt-6 font-medium">Loading order details...</p>
           </div>
         </div>
       </div>
@@ -476,16 +476,16 @@ export default function AdminOrderDetailPage() {
   // Error/Not Found State
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertCircle className="h-10 w-10 text-red-400" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Order Not Found</h2>
-            <p className="text-slate-500 mb-6">{error || 'The order you are looking for does not exist.'}</p>
+            <h2 className="section-heading mb-2">Order Not Found</h2>
+            <p className="muted-text mb-6">{error || 'The order you are looking for does not exist.'}</p>
             <Link href="/admin/orders">
-              <Button className="bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/25">
+              <Button className="bg-circleTel-orange hover:bg-circleTel-warm-orange shadow-lg shadow-circleTel-orange/25">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Orders
               </Button>
@@ -499,7 +499,7 @@ export default function AdminOrderDetailPage() {
   const statusConfig = getStatusConfig(order.status);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 relative">
+    <div className="min-h-screen bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5 relative">
       {/* Subtle crosshatch pattern */}
       <div
         className="absolute inset-0 opacity-[0.015] pointer-events-none"
@@ -515,21 +515,21 @@ export default function AdminOrderDetailPage() {
             <div className="flex items-start gap-4">
               <Link
                 href="/admin/orders"
-                className="mt-1 p-2.5 rounded-xl bg-white shadow-sm border border-slate-100 text-slate-500 hover:text-slate-900 hover:shadow-md transition-all"
+                className="mt-1 p-2.5 rounded-xl bg-ui-card shadow-sm border border-ui-border text-ui-text-muted hover:text-ui-text-primary hover:shadow-md transition-all"
               >
                 <ArrowLeft size={20} />
               </Link>
 
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 font-serif tracking-tight">
+                  <h1 className="page-title">
                     Order #{order.order_number}
                   </h1>
                   <Badge className={cn(statusConfig.bg, statusConfig.text, "border-0 font-semibold px-3 py-1")}>
                     {statusConfig.label}
                   </Badge>
                 </div>
-                <p className="text-slate-500">
+                <p className="muted-text">
                   Created {new Date(order.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -539,7 +539,7 @@ export default function AdminOrderDetailPage() {
                   })}
                   {order.account_number && (
                     <span className="ml-3">
-                      Account: <span className="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">{order.account_number}</span>
+                      Account: <span className="font-mono font-bold text-circleTel-orange bg-circleTel-orange/10 px-2 py-0.5 rounded">{order.account_number}</span>
                     </span>
                   )}
                 </p>
@@ -613,7 +613,7 @@ export default function AdminOrderDetailPage() {
         </div>
 
         {/* Workflow Stepper */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 overflow-hidden">
+        <div className="bg-ui-card rounded-2xl shadow-sm border border-ui-border p-6 overflow-hidden">
           <div className="flex items-center overflow-x-auto pb-2 min-w-max lg:min-w-0">
             {getWorkflowSteps(order.status).map((step, index, arr) => (
               <WorkflowStepItem
@@ -627,31 +627,31 @@ export default function AdminOrderDetailPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white shadow-sm border border-slate-100 p-1 rounded-xl w-full grid grid-cols-2 md:grid-cols-4 gap-1">
+          <TabsList className="bg-ui-card shadow-sm border border-ui-border p-1 rounded-xl w-full grid grid-cols-2 md:grid-cols-4 gap-1">
             <TabsTrigger
               value="overview"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
               <Eye className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="installation"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
               <Settings className="w-4 h-4 mr-2" />
               Installation
             </TabsTrigger>
             <TabsTrigger
               value="financials"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
               <Banknote className="w-4 h-4 mr-2" />
               Financials
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
+              className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
               <History className="w-4 h-4 mr-2" />
               History
@@ -673,43 +673,43 @@ export default function AdminOrderDetailPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</p>
-                        <p className="font-semibold text-slate-900">{order.first_name} {order.last_name}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Full Name</p>
+                        <p className="font-semibold text-ui-text-primary">{order.first_name} {order.last_name}</p>
                       </div>
                       {order.account_number && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Account Number</p>
-                          <p className="font-mono font-bold text-orange-600">{order.account_number}</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Account Number</p>
+                          <p className="font-mono font-bold text-circleTel-orange">{order.account_number}</p>
                         </div>
                       )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                      <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
                         <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
                           <Mail className="h-4 w-4 text-blue-600" />
                         </div>
                         <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate">{order.email}</a>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                      <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
                         <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
                           <Phone className="h-4 w-4 text-emerald-600" />
                         </div>
-                        <a href={`tel:${order.phone}`} className="text-sm text-slate-700 hover:text-slate-900">{order.phone}</a>
+                        <a href={`tel:${order.phone}`} className="body-text hover:text-ui-text-primary">{order.phone}</a>
                       </div>
                     </div>
                     <Separator className="my-4" />
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Contact Pref</p>
-                        <p className="text-sm text-slate-700 capitalize">{order.contact_preference}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Contact Pref</p>
+                        <p className="body-text capitalize">{order.contact_preference}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Marketing</p>
-                        <p className="text-sm text-slate-700">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Marketing</p>
+                        <p className="body-text">{order.marketing_opt_in ? 'Yes' : 'No'}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">WhatsApp</p>
-                        <p className="text-sm text-slate-700">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">WhatsApp</p>
+                        <p className="body-text">{order.whatsapp_opt_in ? 'Yes' : 'No'}</p>
                       </div>
                     </div>
                   </div>
@@ -731,32 +731,32 @@ export default function AdminOrderDetailPage() {
                   >
                     <div className="space-y-4">
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
-                        <p className="text-slate-900">{order.residential_address}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Street Address</p>
+                        <p className="text-ui-text-primary">{order.residential_address}</p>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {order.residential_suburb && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
-                            <p className="text-sm text-slate-700">{order.residential_suburb}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Suburb</p>
+                            <p className="body-text">{order.residential_suburb}</p>
                           </div>
                         )}
                         {order.residential_city && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
-                            <p className="text-sm text-slate-700">{order.residential_city}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">City</p>
+                            <p className="body-text">{order.residential_city}</p>
                           </div>
                         )}
                         {order.residential_province && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
-                            <p className="text-sm text-slate-700">{order.residential_province}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Province</p>
+                            <p className="body-text">{order.residential_province}</p>
                           </div>
                         )}
                         {order.residential_postal_code && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
-                            <p className="text-sm text-slate-700">{order.residential_postal_code}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Postal Code</p>
+                            <p className="body-text">{order.residential_postal_code}</p>
                           </div>
                         )}
                       </div>
@@ -768,34 +768,34 @@ export default function AdminOrderDetailPage() {
                 <SectionCard
                   icon={Package}
                   title="Package Details"
-                  headerGradient="from-orange-50 to-white"
-                  iconGradient="from-orange-500 to-orange-600"
+                  headerGradient="from-circleTel-orange/10 to-white"
+                  iconGradient="from-circleTel-orange to-circleTel-warm-orange"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Package Name</p>
-                      <p className="font-semibold text-slate-900">{order.package_name}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Package Name</p>
+                      <p className="font-semibold text-ui-text-primary">{order.package_name}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Speed</p>
-                      <p className="text-slate-700">{order.package_speed}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Speed</p>
+                      <p className="body-text">{order.package_speed}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Monthly Price</p>
-                      <p className="text-2xl font-bold text-slate-900">R{parseFloat(order.package_price as any).toFixed(2)}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Monthly Price</p>
+                      <p className="text-2xl font-bold text-ui-text-primary">R{parseFloat(order.package_price as any).toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Installation Fee</p>
-                      <p className="text-slate-700">R{parseFloat(order.installation_fee as any).toFixed(2)}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Installation Fee</p>
+                      <p className="body-text">R{parseFloat(order.installation_fee as any).toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Router Included</p>
-                      <p className="text-slate-700">{order.router_included ? 'Yes' : 'No'}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Router Included</p>
+                      <p className="body-text">{order.router_included ? 'Yes' : 'No'}</p>
                     </div>
                     {order.router_rental_fee && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Router Rental</p>
-                        <p className="text-slate-700">R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Router Rental</p>
+                        <p className="body-text">R{parseFloat(order.router_rental_fee as any).toFixed(2)}/month</p>
                       </div>
                     )}
                   </div>
@@ -817,7 +817,7 @@ export default function AdminOrderDetailPage() {
                     {order.referral_code && (
                       <InfoRow
                         label="Referral Code"
-                        value={<span className="font-mono bg-slate-100 px-2 py-0.5 rounded">{order.referral_code}</span>}
+                        value={<span className="font-mono bg-ui-bg px-2 py-0.5 rounded">{order.referral_code}</span>}
                       />
                     )}
                     {order.referred_by && <InfoRow label="Referred By" value={order.referred_by} />}
@@ -864,36 +864,36 @@ export default function AdminOrderDetailPage() {
                   icon={MapPin}
                   title="Installation Address"
                   headerGradient="from-amber-50 to-white"
-                  iconGradient="from-amber-500 to-orange-500"
+                  iconGradient="from-amber-500 to-circleTel-orange"
                 >
                   <div className="space-y-4">
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
-                      <p className="text-slate-900">{order.installation_address}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Street Address</p>
+                      <p className="text-ui-text-primary">{order.installation_address}</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {order.suburb && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
-                          <p className="text-sm text-slate-700">{order.suburb}</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Suburb</p>
+                          <p className="body-text">{order.suburb}</p>
                         </div>
                       )}
                       {order.city && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
-                          <p className="text-sm text-slate-700">{order.city}</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">City</p>
+                          <p className="body-text">{order.city}</p>
                         </div>
                       )}
                       {order.province && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
-                          <p className="text-sm text-slate-700">{order.province}</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Province</p>
+                          <p className="body-text">{order.province}</p>
                         </div>
                       )}
                       {order.postal_code && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
-                          <p className="text-sm text-slate-700">{order.postal_code}</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Postal Code</p>
+                          <p className="body-text">{order.postal_code}</p>
                         </div>
                       )}
                     </div>
@@ -901,7 +901,7 @@ export default function AdminOrderDetailPage() {
                       <>
                         <Separator />
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Special Instructions</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-2">Special Instructions</p>
                           <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl p-4">
                             {order.special_instructions}
                           </p>
@@ -916,19 +916,19 @@ export default function AdminOrderDetailPage() {
                   <SectionCard
                     icon={FileText}
                     title="Installation Documentation"
-                    headerGradient="from-slate-50 to-white"
-                    iconGradient="from-slate-500 to-slate-700"
+                    headerGradient="from-ui-bg to-white"
+                    iconGradient="from-ui-text-muted to-ui-text-secondary"
                   >
-                    <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <div className="flex items-center justify-between p-4 border border-ui-border rounded-xl bg-ui-bg hover:bg-ui-border/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center">
+                        <div className="h-12 w-12 bg-ui-card border border-ui-border rounded-xl flex items-center justify-center">
                           <FileText className="h-6 w-6 text-blue-600" />
                         </div>
                         <div className="overflow-hidden">
-                          <p className="font-medium text-sm text-slate-900 truncate max-w-[180px]">
+                          <p className="font-medium text-sm text-ui-text-primary truncate max-w-[180px]">
                             {order.installation_document_name || 'Installation Proof'}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="muted-text-sm">
                             Uploaded {order.installation_completed_at ? new Date(order.installation_completed_at).toLocaleDateString() : ''}
                           </p>
                         </div>
@@ -936,7 +936,7 @@ export default function AdminOrderDetailPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-white gap-2"
+                        className="bg-ui-card gap-2"
                         onClick={() => {
                           const url = order.installation_document_url?.startsWith('http')
                             ? order.installation_document_url
@@ -968,23 +968,23 @@ export default function AdminOrderDetailPage() {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Payment Method</p>
-                      <p className="text-slate-700 capitalize">{order.payment_method || 'Not specified'}</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Payment Method</p>
+                      <p className="body-text capitalize">{order.payment_method || 'Not specified'}</p>
                     </div>
                     {order.payment_reference && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Reference</p>
-                        <p className="font-mono text-sm bg-slate-100 px-2 py-1 rounded inline-block">{order.payment_reference}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Reference</p>
+                        <p className="font-mono text-sm bg-ui-bg px-2 py-1 rounded inline-block">{order.payment_reference}</p>
                       </div>
                     )}
                     {order.payment_date && (
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Payment Date</p>
-                        <p className="text-slate-700">{new Date(order.payment_date).toLocaleDateString()}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Payment Date</p>
+                        <p className="body-text">{new Date(order.payment_date).toLocaleDateString()}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Paid</p>
+                      <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Total Paid</p>
                       <p className="text-2xl font-bold text-emerald-600">R{parseFloat(order.total_paid as any).toFixed(2)}</p>
                     </div>
                   </div>
@@ -1013,37 +1013,37 @@ export default function AdminOrderDetailPage() {
                   <SectionCard
                     icon={FileText}
                     title="Billing Address"
-                    headerGradient="from-slate-50 to-white"
-                    iconGradient="from-slate-500 to-slate-700"
+                    headerGradient="from-ui-bg to-white"
+                    iconGradient="from-ui-text-muted to-ui-text-secondary"
                   >
                     <div className="space-y-4">
                       <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Street Address</p>
-                        <p className="text-slate-900">{order.billing_address}</p>
+                        <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Street Address</p>
+                        <p className="text-ui-text-primary">{order.billing_address}</p>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {order.billing_suburb && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Suburb</p>
-                            <p className="text-sm text-slate-700">{order.billing_suburb}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Suburb</p>
+                            <p className="body-text">{order.billing_suburb}</p>
                           </div>
                         )}
                         {order.billing_city && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">City</p>
-                            <p className="text-sm text-slate-700">{order.billing_city}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">City</p>
+                            <p className="body-text">{order.billing_city}</p>
                           </div>
                         )}
                         {order.billing_province && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Province</p>
-                            <p className="text-sm text-slate-700">{order.billing_province}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Province</p>
+                            <p className="body-text">{order.billing_province}</p>
                           </div>
                         )}
                         {order.billing_postal_code && (
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Postal Code</p>
-                            <p className="text-sm text-slate-700">{order.billing_postal_code}</p>
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-1">Postal Code</p>
+                            <p className="body-text">{order.billing_postal_code}</p>
                           </div>
                         )}
                       </div>
@@ -1067,13 +1067,13 @@ export default function AdminOrderDetailPage() {
                   <SectionCard
                     icon={FileText}
                     title="Notes"
-                    headerGradient="from-slate-50 to-white"
-                    iconGradient="from-slate-500 to-slate-700"
+                    headerGradient="from-ui-bg to-white"
+                    iconGradient="from-ui-text-muted to-ui-text-secondary"
                   >
                     <div className="space-y-4">
                       {order.technician_notes && (
                         <div>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Technician Notes</p>
+                          <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-2">Technician Notes</p>
                           <p className="text-sm text-blue-800 whitespace-pre-wrap bg-blue-50 border border-blue-100 rounded-xl p-4">
                             {order.technician_notes}
                           </p>
@@ -1083,8 +1083,8 @@ export default function AdminOrderDetailPage() {
                         <>
                           {order.technician_notes && <Separator />}
                           <div>
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Internal Notes</p>
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-xl p-4">
+                            <p className="text-xs font-semibold text-ui-text-muted uppercase tracking-wider mb-2">Internal Notes</p>
+                            <p className="body-text whitespace-pre-wrap bg-ui-bg border border-ui-border rounded-xl p-4">
                               {order.internal_notes}
                             </p>
                           </div>
