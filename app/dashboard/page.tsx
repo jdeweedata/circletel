@@ -12,6 +12,7 @@ import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
 import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
 import { EmailVerificationModal } from "@/components/dashboard/EmailVerificationModal";
+import { ConnectionStatusWidget } from "@/components/dashboard/ConnectionStatusWidget";
 
 interface DashboardData {
   customer: {
@@ -343,6 +344,11 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
             </div>
           </div>
         </div>
+      )}
+
+      {/* Connection Status */}
+      {hasActiveService && (
+        <ConnectionStatusWidget />
       )}
 
       {/* Modern Stats Grid */}
