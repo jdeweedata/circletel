@@ -1,13 +1,15 @@
 ---
 name: Bug Fixing Assistant
-description: Systematic debugging workflow for CircleTel - analyzes errors, identifies root causes, proposes fixes, and validates solutions with tests
-version: 1.0.0
-dependencies: python>=3.8, typescript>=5.0
+description: Systematic debugging workflow for CircleTel - analyzes errors, identifies root causes, proposes fixes, and validates solutions with tests. Integrates with error-registry for known issues.
+version: 1.1.0
+dependencies: python>=3.8, typescript>=5.0, error-registry
 ---
 
 # Bug Fixing Assistant Skill
 
 A comprehensive skill for systematically debugging and fixing software bugs in the CircleTel codebase. Uses structured workflows to identify root causes, propose targeted fixes, and validate solutions.
+
+**RSI Integration**: This skill connects to the error-registry for faster resolution of known issues.
 
 ## When This Skill Activates
 
@@ -24,6 +26,68 @@ This skill automatically activates when you:
 **Keywords**: bug, error, debug, fix, issue, broken, failing, crash, exception, timeout, undefined, null, 500 error, 403 error
 
 ## Core Debugging Strategy
+
+### Phase 0: Check Error Registry (1-2 minutes) - NEW!
+
+**Before investigating, check if this is a known error.**
+
+#### Step 0.1: Match Error Signature
+
+Check the error message against the registry:
+
+```
+Error Registry Location: .claude/skills/error-registry/
+
+Commands:
+- /errors top        # Show top 10 recurring errors
+- /error ERR-001     # Get specific error details
+- /errors search "RLS"  # Search by keyword
+```
+
+#### Step 0.2: Quick Lookup Table
+
+| Error Contains | Likely Match | Quick Fix |
+|----------------|--------------|-----------|
+| "loading stays true" | ERR-001 | Add `finally { setLoading(false) }` |
+| "row-level security" | ERR-002 | Add service_role policy |
+| "Promise<{ id:" | ERR-003 | `await context.params` |
+| "heap out of memory" | ERR-005 | Use `npm run build:memory` |
+| "401 Unauthorized" | ERR-006 | Check BOTH header AND cookies |
+
+#### Step 0.3: If Match Found
+
+1. **Read the error pattern file** for full solution
+2. **Apply the documented fix**
+3. **Log occurrence** (update lastSeen, increment count)
+4. **Skip to Phase 5** (Validation)
+
+#### Step 0.4: If No Match Found
+
+1. **Continue to Phase 1** (Understand the Problem)
+2. **After fixing, add to registry** using `/errors add`
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  BUG DETECTED                                           │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│  PHASE 0: Check Error Registry                          │
+│  Match error signature against known patterns           │
+└────────────────┬────────────────────────────────────────┘
+                 │
+     ┌───────────┴───────────┐
+     │ KNOWN?                │
+     ▼                       ▼
+┌──────────────┐     ┌──────────────────────────┐
+│ YES: Apply   │     │ NO: Continue to Phase 1  │
+│ known fix    │     │ Investigate & fix        │
+│ Skip to P5   │     │ Add to registry when done│
+└──────────────┘     └──────────────────────────┘
+```
+
+---
 
 ### Phase 1: Understand the Problem (5-10 minutes)
 

@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-12",
+  "totalOccurrences": 35,
+  "byCategory": {
+    "auth": 10,
+    "api": 9,
+    "build": 6,
+    "typescript": 3,
+    "supabase": 4,
+    "frontend": 1
+  },
+  "byMonth": {
+    "2026-02": 15,
+    "2026-01": 12,
+    "2025-12": 8
+  },
+  "resolutionTimes": {
+    "knownErrors": {
+      "avgMinutes": 5,
+      "count": 20
+    },
+    "newErrors": {
+      "avgMinutes": 25,
+      "count": 15
+    }
+  },
+  "trend": {
+    "direction": "decreasing",
+    "reason": "Error registry reducing repeat investigations"
+  }
+}

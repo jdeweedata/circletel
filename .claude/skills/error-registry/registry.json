@@ -1,0 +1,132 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-12",
+  "totalErrors": 10,
+  "categories": {
+    "api": 3,
+    "typescript": 1,
+    "supabase": 2,
+    "auth": 2,
+    "frontend": 1,
+    "build": 2
+  },
+  "topRecurring": [
+    { "id": "ERR-001", "name": "Infinite Loading State", "count": 7 },
+    { "id": "ERR-002", "name": "RLS Policy 403", "count": 5 },
+    { "id": "ERR-005", "name": "Heap Overflow", "count": 4 },
+    { "id": "ERR-003", "name": "Next.js 15 Async Params", "count": 3 },
+    { "id": "ERR-006", "name": "Dashboard 401", "count": 3 }
+  ],
+  "errors": [
+    {
+      "id": "ERR-001",
+      "name": "Infinite Loading State",
+      "category": "auth",
+      "severity": "critical",
+      "signature": "Loading spinner never stops|loading stays true|setLoading never called",
+      "quickFix": "Add finally { setLoading(false) }",
+      "file": "errors/auth/infinite-loading.md",
+      "occurrences": 7,
+      "lastSeen": "2026-02-12"
+    },
+    {
+      "id": "ERR-002",
+      "name": "RLS Policy 403",
+      "category": "api",
+      "severity": "high",
+      "signature": "new row violates row-level security policy|403 Forbidden|RLS blocked",
+      "quickFix": "Add service_role policy to table",
+      "file": "errors/api/rls-policy-403.md",
+      "occurrences": 5,
+      "lastSeen": "2026-02-11"
+    },
+    {
+      "id": "ERR-003",
+      "name": "Next.js 15 Async Params",
+      "category": "typescript",
+      "severity": "critical",
+      "signature": "Promise<{ id: string }>' is not assignable|params is a Promise|await context.params",
+      "quickFix": "const { id } = await context.params",
+      "file": "errors/typescript/nextjs15-async-params.md",
+      "occurrences": 3,
+      "lastSeen": "2026-02-10"
+    },
+    {
+      "id": "ERR-004",
+      "name": "Payment Amount Format",
+      "category": "api",
+      "severity": "critical",
+      "signature": "Invalid amount format|Amount must be in cents|NetCash amount error",
+      "quickFix": "Math.round(amount * 100) for cents",
+      "file": "errors/api/payment-amount-format.md",
+      "occurrences": 2,
+      "lastSeen": "2026-02-08"
+    },
+    {
+      "id": "ERR-005",
+      "name": "Heap Overflow",
+      "category": "build",
+      "severity": "high",
+      "signature": "JavaScript heap out of memory|heap limit Allocation failed|FATAL ERROR",
+      "quickFix": "Use npm run build:memory (8GB heap)",
+      "file": "errors/build/heap-overflow.md",
+      "occurrences": 4,
+      "lastSeen": "2026-02-12"
+    },
+    {
+      "id": "ERR-006",
+      "name": "Dashboard 401",
+      "category": "auth",
+      "severity": "high",
+      "signature": "401 Unauthorized|API returns 401 with valid session|auth header not checked",
+      "quickFix": "Check BOTH Authorization header AND cookies",
+      "file": "errors/auth/dashboard-401.md",
+      "occurrences": 3,
+      "lastSeen": "2026-02-09"
+    },
+    {
+      "id": "ERR-007",
+      "name": "Vercel Timeout",
+      "category": "build",
+      "severity": "medium",
+      "signature": "504 Gateway Timeout|maxDuration exceeded|Vercel function timeout",
+      "quickFix": "Add route to vercel.json with maxDuration",
+      "file": "errors/build/vercel-timeout.md",
+      "occurrences": 2,
+      "lastSeen": "2026-02-07"
+    },
+    {
+      "id": "ERR-008",
+      "name": "MTN API Anti-Bot",
+      "category": "api",
+      "severity": "medium",
+      "signature": "MTN API 403|blocked by anti-bot|missing browser headers",
+      "quickFix": "Add User-Agent, Referer, Origin headers",
+      "file": "errors/api/mtn-api-antibot.md",
+      "occurrences": 2,
+      "lastSeen": "2026-02-05"
+    },
+    {
+      "id": "ERR-009",
+      "name": "Supabase Join Array",
+      "category": "supabase",
+      "severity": "medium",
+      "signature": "Cannot read property of undefined|joined data is array|customer[0]",
+      "quickFix": "Array.isArray(data) ? data[0] : data",
+      "file": "errors/supabase/join-array-handling.md",
+      "occurrences": 3,
+      "lastSeen": "2026-02-10"
+    },
+    {
+      "id": "ERR-010",
+      "name": "Quote Column Name",
+      "category": "supabase",
+      "severity": "low",
+      "signature": "column notes does not exist|save quote fails|admin_notes",
+      "quickFix": "Use admin_notes not notes column",
+      "file": "errors/supabase/quote-column-name.md",
+      "occurrences": 1,
+      "lastSeen": "2026-02-06"
+    }
+  ]
+}

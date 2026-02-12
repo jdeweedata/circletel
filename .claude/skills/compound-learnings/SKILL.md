@@ -1,15 +1,16 @@
 ---
 name: Compound Learnings
-description: Capture insights from each task to make future work easier. Implements the "compound engineering" philosophy - each unit of work should reduce friction for subsequent units.
-version: 1.0.0
+description: Capture insights and corrections to make future work easier. Implements RSI (Recursive Self-Improvement) through automated correction detection and pattern extraction.
+version: 2.0.0
 author: CircleTel Engineering
+dependencies: error-registry
 ---
 
 # Compound Learnings
 
 > "Each unit of engineering work should make subsequent units easier—not harder."
 
-This skill implements the compound engineering philosophy: systematically capturing what you learn during development to accelerate future work.
+This skill implements the compound engineering philosophy AND **Recursive Self-Improvement (RSI)**: systematically capturing what you learn during development to accelerate future work. Now includes automatic correction detection to learn from mistakes.
 
 ## When This Skill Activates
 
@@ -19,8 +20,82 @@ This skill should be invoked:
 - After debugging a tricky issue
 - When you find a better way to do something
 - At the end of a productive session
+- **NEW**: When Claude is corrected during a task (auto-detected)
 
-**Keywords**: compound, learnings, document what I learned, capture pattern, session summary, retrospective
+**Keywords**: compound, learnings, document what I learned, capture pattern, session summary, retrospective, correction, mistake, wrong, actually, instead
+
+---
+
+## RSI: Self-Updating Through Corrections
+
+**NEW in v2.0**: This skill now detects and learns from corrections automatically.
+
+### Correction Detection Triggers
+
+The skill watches for these patterns indicating a correction:
+- "No, actually..." / "That's not right" / "That's wrong"
+- "Instead, do..." / "The correct way is..."
+- User provides alternative code immediately after Claude's output
+- User references documentation contradicting Claude's suggestion
+- "Don't do that" / "Never do X"
+
+### Correction Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    RSI CORRECTION LOOP                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│    CLAUDE OUTPUT ──► USER CORRECTION ──► DETECT ──► EXTRACT     │
+│                                                │        │        │
+│                                                │        ▼        │
+│                                                │    STORE IN     │
+│                                                │   corrections/  │
+│                                                │        │        │
+│                                                │        ▼        │
+│    FUTURE OUTPUTS ◄──── APPLY RULE ◄──── SYNTHESIZE RULE        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Command: /correction
+
+Use `/correction` to manually capture a correction.
+
+```bash
+# After being corrected
+/correction
+
+# With specific context
+/correction "Use admin_notes not notes column"
+```
+
+### Correction Entry Format
+
+```markdown
+# Correction: [Brief Description]
+
+**Date**: YYYY-MM-DD
+**Session**: [session-name]
+**Skill Affected**: [which skill was wrong]
+
+## Original Approach
+[What Claude did/suggested]
+
+## Correction Received
+[How user corrected Claude]
+
+## Learning Extracted
+[Rule derived from correction]
+
+## Application
+- **Update to**: [Which skill/pattern to update]
+- **Rule**: [Concrete rule to add]
+
+## Validation
+- [ ] Rule added to skill
+- [ ] No regression in related areas
+```
 
 ## The Compound Workflow
 
@@ -109,7 +184,12 @@ Use `/compound` to trigger the learning capture workflow.
 ├── SKILL.md                          # This file
 ├── templates/
 │   ├── learning-template.md          # Template for learnings
-│   └── pattern-template.md           # Template for patterns
+│   ├── pattern-template.md           # Template for patterns
+│   └── correction-template.md        # NEW: Template for corrections
+├── corrections/                       # NEW: RSI corrections
+│   └── YYYY-MM-DD_topic.md           # Detected corrections
+├── extracted-rules/                   # NEW: Synthesized rules
+│   └── rule-name.md                  # Rules derived from corrections
 └── learnings/
     ├── YYYY-MM-DD_topic.md           # Date-prefixed learnings
     └── patterns/
@@ -118,6 +198,35 @@ Use `/compound` to trigger the learning capture workflow.
         ├── testing.md                # Testing patterns
         └── migrations.md             # Migration patterns
 ```
+
+## Extracted Rules (RSI Output)
+
+Rules synthesized from corrections are stored in `extracted-rules/`:
+
+```markdown
+# Rule: [Rule Name]
+
+**Derived From**: corrections/YYYY-MM-DD_topic.md
+**Confidence**: high | medium | low
+**Applications**: N times
+
+## The Rule
+[Clear, actionable rule]
+
+## Example
+[Code or workflow example]
+
+## Counter-Example
+[What NOT to do - the original mistake]
+```
+
+### Example Extracted Rules
+
+| Rule | Derived From | Applications |
+|------|--------------|--------------|
+| Use `admin_notes` not `notes` | Correction 2026-02-06 | 3 |
+| Always `await context.params` | Correction 2026-02-08 | 5 |
+| Add service_role policy | Correction 2026-02-09 | 4 |
 
 ## Integration with MEMORY.md
 

@@ -1,0 +1,109 @@
+{
+  "version": "1.0.0",
+  "period": "2026-02",
+  "lastUpdated": "2026-02-12",
+  "skills": {
+    "bug-fixing": {
+      "activations": 47,
+      "successRate": 0.89,
+      "avgResolutionMinutes": 23,
+      "corrections": 7,
+      "patternsCreated": 3,
+      "phases": {
+        "registry": { "avgMinutes": 2, "skipRate": 0.2 },
+        "understand": { "avgMinutes": 5, "skipRate": 0.1 },
+        "investigate": { "avgMinutes": 10, "skipRate": 0.05 },
+        "fix": { "avgMinutes": 5, "successRate": 0.95 },
+        "validate": { "avgMinutes": 3, "skipRate": 0.3 }
+      },
+      "trend": "improving"
+    },
+    "compound-learnings": {
+      "activations": 28,
+      "successRate": 0.87,
+      "avgResolutionMinutes": 8,
+      "corrections": 4,
+      "patternsCreated": 5,
+      "trend": "stable"
+    },
+    "database-migration": {
+      "activations": 15,
+      "successRate": 0.95,
+      "avgResolutionMinutes": 12,
+      "corrections": 1,
+      "patternsCreated": 2,
+      "trend": "stable"
+    },
+    "context-manager": {
+      "activations": 35,
+      "successRate": 0.85,
+      "avgResolutionMinutes": 3,
+      "corrections": 5,
+      "patternsCreated": 1,
+      "trend": "stable"
+    },
+    "error-registry": {
+      "activations": 20,
+      "successRate": 0.90,
+      "avgResolutionMinutes": 5,
+      "corrections": 2,
+      "patternsCreated": 10,
+      "trend": "new",
+      "note": "RSI skill, just deployed"
+    },
+    "stats-tracker": {
+      "activations": 28,
+      "successRate": 0.92,
+      "avgResolutionMinutes": 1,
+      "corrections": 2,
+      "patternsCreated": 0,
+      "trend": "stable"
+    },
+    "refactor": {
+      "activations": 8,
+      "successRate": 0.75,
+      "avgResolutionMinutes": 45,
+      "corrections": 2,
+      "patternsCreated": 1,
+      "trend": "needs-attention"
+    },
+    "coverage-check": {
+      "activations": 5,
+      "successRate": 0.70,
+      "avgResolutionMinutes": 15,
+      "corrections": 2,
+      "patternsCreated": 0,
+      "trend": "needs-attention"
+    },
+    "mobile-testing": {
+      "activations": 2,
+      "successRate": 0.90,
+      "avgResolutionMinutes": 20,
+      "corrections": 0,
+      "patternsCreated": 0,
+      "trend": "underutilized"
+    },
+    "deployment-check": {
+      "activations": 3,
+      "successRate": 0.85,
+      "avgResolutionMinutes": 5,
+      "corrections": 0,
+      "patternsCreated": 0,
+      "trend": "underutilized"
+    }
+  },
+  "summary": {
+    "totalActivations": 191,
+    "avgSuccessRate": 0.86,
+    "mostEffective": ["database-migration", "bug-fixing", "stats-tracker"],
+    "needsImprovement": ["coverage-check", "refactor"],
+    "underutilized": ["mobile-testing", "deployment-check"]
+  },
+  "rsiMetrics": {
+    "errorRegistryHitRate": 0.40,
+    "correctionsCaputured": 25,
+    "rulesExtracted": 8,
+    "patternsCreated": 22,
+    "avgTimesSavedPerRegistryHit": 10
+  }
+}

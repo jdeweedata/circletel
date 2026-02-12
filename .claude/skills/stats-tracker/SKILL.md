@@ -1,11 +1,13 @@
 ---
 name: stats-tracker
-description: Track and analyze Claude Code usage statistics for CircleTel development. Use to monitor productivity, track model usage, view usage streaks, and optimize development workflow based on patterns.
+description: Track Claude Code usage statistics and skill effectiveness for CircleTel. Monitor productivity, model usage, streaks, and skill performance metrics.
+version: 2.0.0
+dependencies: error-registry, compound-learnings
 ---
 
 # Stats Tracker
 
-Skill for tracking and analyzing Claude Code usage statistics.
+Skill for tracking Claude Code usage statistics AND **skill effectiveness** (RSI metrics).
 
 ## When to Use
 
@@ -15,14 +17,18 @@ This skill activates when you:
 - Analyze model usage patterns
 - Monitor usage streaks
 - Plan based on usage limits
+- **NEW**: Review skill effectiveness metrics
+- **NEW**: Generate weekly effectiveness reports
 
-**Keywords**: stats, usage, analytics, productivity, streak, model usage, tokens, sessions, cost
+**Keywords**: stats, usage, analytics, productivity, streak, model usage, tokens, sessions, cost, skill effectiveness, skill metrics
 
 ## Quick Commands
 
 | Command | Description |
 |---------|-------------|
 | `/stats` | View usage stats, streak, favorite model |
+| `/stats skills` | **NEW**: View skill effectiveness dashboard |
+| `/stats skills [name]` | **NEW**: Deep-dive on specific skill |
 | `/usage` | View token usage and limits |
 | `/context` | View current context usage |
 | `/cost` | View session cost breakdown |
@@ -277,6 +283,150 @@ End: /stats  # Compare to baseline
 /cost   # Worth it for good architecture
 ```
 
+---
+
+## Skill Effectiveness Tracking (RSI Metrics)
+
+**NEW in v2.0**: Track which skills perform best and feed insights back for improvement.
+
+### Command: `/stats skills`
+
+```
+/stats skills
+
+═══════════════════════════════════════════════════════════════
+  SKILL EFFECTIVENESS DASHBOARD - February 2026
+═══════════════════════════════════════════════════════════════
+
+MOST EFFECTIVE (by success rate)      │ NEEDS IMPROVEMENT
+──────────────────────────────────────┼────────────────────────────
+1. database-migration      95% ✓      │ 1. coverage-check      70% ⚠
+2. bug-fixing              89% ✓      │ 2. refactor            75% ⚠
+3. compound-learnings      87% ✓      │
+                                      │
+MOST USED (activations)               │ UNDERUTILIZED
+──────────────────────────────────────┼────────────────────────────
+1. bug-fixing              47 times   │ 1. mobile-testing       2 times
+2. context-manager         35 times   │ 2. deployment-check     3 times
+3. stats-tracker           28 times   │
+
+INSIGHT: bug-fixing success rate improved 12% after adding
+        error-registry integration last week.
+
+RECOMMENDATION: Consider promoting mobile-testing skill
+               (high success rate, low activation).
+═══════════════════════════════════════════════════════════════
+```
+
+### Metrics Tracked Per Skill
+
+| Metric | Description | How Measured |
+|--------|-------------|--------------|
+| Activation Count | Times skill triggered | Keyword detection |
+| Success Rate | Completed without correction | No follow-up corrections |
+| Resolution Time | From activation to completion | Session timestamps |
+| Correction Rate | How often skill was corrected | Links to compound-learnings |
+| Pattern Contribution | New patterns generated | Links to learnings/ |
+
+### Deep-Dive: `/stats skills [name]`
+
+```
+/stats skills bug-fixing
+
+═══════════════════════════════════════════════════════════════
+  SKILL DEEP-DIVE: bug-fixing
+═══════════════════════════════════════════════════════════════
+Version: 1.1.0
+Dependencies: error-registry
+
+METRICS (February 2026)
+────────────────────────────────────────────────────────────────
+Activations:        47
+Success Rate:       89%
+Avg Resolution:     23 min
+Corrections:        7 (15%)
+Patterns Created:   3
+
+PHASE BREAKDOWN
+────────────────────────────────────────────────────────────────
+Phase 0 (Registry):   Avg 2min  │ Skip rate: 20%
+Phase 1 (Understand): Avg 5min  │ Skip rate: 10%
+Phase 2 (Investigate): Avg 10min │ Skip rate: 5%
+Phase 3 (Fix):        Avg 5min  │ Success: 95%
+Phase 4 (Validate):   Avg 3min  │ Skip rate: 30%
+
+TREND
+────────────────────────────────────────────────────────────────
+Success rate: ↑ 12% since error-registry integration
+Registry hits: 40% of bugs found in known patterns
+
+RECENT CORRECTIONS (to improve)
+────────────────────────────────────────────────────────────────
+- 2026-02-10: Missed RLS policy check
+- 2026-02-08: Used wrong column name
+═══════════════════════════════════════════════════════════════
+```
+
+### Data Storage
+
+Skill metrics are stored in:
+```
+.claude/skills/stats-tracker/
+├── metrics.json           # Current period metrics
+└── reports/
+    └── weekly-YYYY-WW.md  # Weekly reports
+```
+
+### Weekly Report Generation
+
+Every Monday, generate a skill effectiveness report:
+
+```markdown
+# Skill Effectiveness Report - Week 7, 2026
+
+## Summary
+- Total skill activations: 142
+- Average success rate: 85%
+- Most improved: bug-fixing (+12%)
+- Needs attention: coverage-check (70%)
+
+## RSI Loop Impact
+- Error registry hits: 40% (saving ~10min per known bug)
+- Corrections captured: 5
+- Rules extracted: 2
+- Patterns created: 3
+
+## Recommendations
+1. Add more MTN API patterns to error-registry
+2. Update coverage-check with fallback providers
+3. Promote mobile-testing (underutilized, high success)
+```
+
+### Integration with RSI Skills
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    RSI METRICS FLOW                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  SKILL ACTIVATION ──► TRACK METRICS ──► WEEKLY ANALYSIS         │
+│         │                                      │                 │
+│         │                                      ▼                 │
+│         │                            GENERATE INSIGHTS           │
+│         │                                      │                 │
+│         │              ┌───────────────────────┴───────┐         │
+│         │              │                               │         │
+│         ▼              ▼                               ▼         │
+│  CORRECTION? ──► compound-learnings            SKILL UPDATE      │
+│                        │                               │         │
+│                        ▼                               │         │
+│                 error-registry ◄───────────────────────┘         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Best Practices
 
 1. **Check stats daily** - Start with `/stats`
@@ -286,6 +436,7 @@ End: /stats  # Compare to baseline
 5. **Use Haiku for exploration** - Spawn Explore agents
 6. **Background for builds** - Don't waste tokens on output
 7. **Targeted queries** - Specific questions = efficient usage
+8. **NEW**: Review `/stats skills` weekly for improvement opportunities
 
 ## Troubleshooting
 
@@ -310,6 +461,7 @@ End: /stats  # Compare to baseline
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-12-10
+**Version**: 2.0.0
+**Last Updated**: 2026-02-12
 **For**: Claude Code v2.0.64+
+**RSI Integration**: error-registry, compound-learnings
