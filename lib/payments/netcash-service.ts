@@ -50,6 +50,7 @@ export interface NetcashCallback {
 }
 
 export class NetcashPaymentService {
+  private serviceKey: string;
   private merchantId: string;
   private webhookSecret: string;
   private paymentUrl: string;
@@ -58,15 +59,18 @@ export class NetcashPaymentService {
   private testMode: boolean;
 
   constructor() {
+    // m1 = Service Key (Pay Now integration key)
+    this.serviceKey = process.env.NETCASH_SERVICE_KEY || '';
+    // m2 = Merchant ID (Account Number)
     this.merchantId = process.env.NETCASH_MERCHANT_ID || '';
     this.webhookSecret = process.env.NETCASH_WEBHOOK_SECRET || '';
-    this.paymentUrl = process.env.NETCASH_PAYMENT_URL || 'https://sandbox.netcash.co.za/paynow/process';
-    this.returnUrl = process.env.NETCASH_RETURN_URL || `${process.env.NEXT_PUBLIC_BASE_URL}/payments/return`;
-    this.notifyUrl = process.env.NETCASH_NOTIFY_URL || `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/callback`;
+    this.paymentUrl = process.env.NETCASH_PAYMENT_URL || 'https://paynow.netcash.co.za/site/paynow.aspx';
+    this.returnUrl = process.env.NETCASH_RETURN_URL || `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/netcash/redirect`;
+    this.notifyUrl = process.env.NETCASH_NOTIFY_URL || `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/netcash/webhook`;
     this.testMode = process.env.NODE_ENV === 'development';
 
-    if (!this.merchantId) {
-      console.warn('Netcash merchant ID not configured. Payment processing will not work.');
+    if (!this.serviceKey || !this.merchantId) {
+      console.warn('Netcash service key or merchant ID not configured. Payment processing will not work.');
     }
   }
 
@@ -82,8 +86,8 @@ export class NetcashPaymentService {
     const amountInCents = Math.round(params.amount * 100);
 
     const formData: NetcashPaymentFormData = {
-      m1: this.merchantId,
-      m2: this.merchantId, // Using merchant ID for both m1 and m2
+      m1: this.serviceKey,   // Service Key (Pay Now integration key)
+      m2: this.merchantId,   // Merchant ID (Account Number)
       m3: 'circletel-nextjs', // Vendor key / software identifier
       m4: amountInCents.toString(),
       m5: transactionRef,
@@ -218,7 +222,7 @@ export class NetcashPaymentService {
    * Check if service is properly configured
    */
   isConfigured(): boolean {
-    return !!this.merchantId;
+    return !!this.serviceKey && !!this.merchantId;
   }
 
   /**
