@@ -60,7 +60,7 @@ Before testing, ensure:
    - **From:** CircleTel <noreply@notifications.circletelsa.co.za>
    - **Subject:** Verify Your CircleTel Account
    - **Content:** Orange CircleTel header, verification button
-   - **Footer:** contactus@circletel.co.za / 087 087 6305
+   - **Footer:** contactus@circletel.co.za / 082 487 3900
 
 6. **Verify button works:**
    - Click "Verify Email Address"
@@ -92,7 +92,7 @@ Select "yes" when asked to test account creation.
    - **From:** CircleTel <noreply@notifications.circletelsa.co.za>
    - **Subject:** Reset Your CircleTel Password
    - **Content:** Orange CircleTel header, reset button, security warning
-   - **Footer:** contactus@circletel.co.za / 087 087 6305
+   - **Footer:** contactus@circletel.co.za / 082 487 3900
 
 6. **Verify reset button works:**
    - Click "Reset My Password"
@@ -134,7 +134,7 @@ Select "yes" when asked to test password reset.
 
 #### **✅ Footer**
 - [ ] Contact email: contactus@circletel.co.za
-- [ ] Contact phone: 087 087 6305
+- [ ] Contact WhatsApp: 082 487 3900
 - [ ] Copyright: © 2025 CircleTel. All rights reserved.
 
 #### **✅ Functionality**
@@ -420,7 +420,7 @@ npm run dev
 
 3. **CircleTel Team:**
    - Email: contactus@circletel.co.za
-   - Phone: 087 087 6305
+   - WhatsApp: 082 487 3900
 
 ---
 

@@ -163,7 +163,7 @@ If you have any questions, please contact your sales representative or reply to 
 Best regards,
 CircleTel Business Solutions
 
-Phone: 087 087 6305
+WhatsApp: 082 487 3900
 Email: contactus@circletel.co.za',
  TRUE),
 

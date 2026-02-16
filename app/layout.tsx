@@ -13,6 +13,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 import { OrderContextProvider } from "@/components/order/context/OrderContext";
 import { CustomerAuthProvider } from "@/components/providers/CustomerAuthProvider";
+import { WhatsAppFloatingButton } from "@/components/common/WhatsAppFloatingButton";
 
 export const metadata: Metadata = {
   title: "CircleTel - Reliable Tech Solutions",
@@ -119,6 +120,7 @@ export default function RootLayout({
                     <OrderContextProvider>
                       <Toaster />
                       <Sonner />
+                      <WhatsAppFloatingButton />
                       {children}
                       <Analytics />
                     </OrderContextProvider>

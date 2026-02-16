@@ -509,11 +509,11 @@ export default function PaymentMethodPage() {
               </p>
               <div className="flex items-center gap-4">
                 <a
-                  href="tel:0870876305"
+                  href="https://wa.me/27824873900"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>087 087 6305</span>
+                  <span>082 487 3900</span>
                 </a>
                 <a
                   href="mailto:contactus@circletel.co.za"

@@ -331,7 +331,7 @@ When payment fails, users see actionable recovery options instead of generic err
 │                                                             │
 │ ▼ Technical Details                                         │
 │ ─────────────────────────────────────────────────────────  │
-│ Quick Help: 📞 087 087 6305 | ✉ contactus@circletel.co.za │
+│ Quick Help: 📞 082 487 3900 | ✉ contactus@circletel.co.za │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -350,7 +350,7 @@ When payment fails, users see actionable recovery options instead of generic err
 |--------|-------------|
 | **Try Again** | Retry payment (tracks attempt count) |
 | **Save & Pay Later** | Keep order, receive email link |
-| **Contact Support** | Direct phone call to 087 087 6305 |
+| **Contact Support** | WhatsApp message to 082 487 3900 |
 | **Go Back & Fix** | Navigate to correct step (validation errors) |
 
 **Features:**
@@ -847,7 +847,7 @@ const detectErrorType = (error: string): ErrorType => {
 |--------|---------|----------|
 | Try Again | `handleRetry()` | Clears error, re-initiates payment |
 | Save & Pay Later | `handleSaveForLater()` | Toast confirmation, redirect home |
-| Contact Support | `handleContactSupport()` | Opens phone dialer (087 087 6305) |
+| Contact Support | `handleContactSupport()` | Opens WhatsApp (082 487 3900) |
 | Go Back & Fix | `handleGoBackToFix()` | Navigates to appropriate step |
 
 **Impact:**
@@ -859,7 +859,7 @@ const detectErrorType = (error: string): ErrorType => {
 
 | Channel | Contact |
 |---------|---------|
-| Phone | 087 087 6305 |
+| WhatsApp | 082 487 3900 |
 | Email | contactus@circletel.co.za |
 
 ### Future CX Improvements (Backlog)

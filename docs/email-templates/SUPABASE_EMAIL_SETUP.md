@@ -150,7 +150,7 @@ Supabase provides these variables for use in templates:
 <p style="color: #666; font-size: 14px;">
   Need help? Contact us:<br>
   📧 contactus@circletel.co.za<br>
-  📞 087 087 6305
+  📞 082 487 3900
 </p>
 
 <p style="color: #999; font-size: 12px;">
@@ -269,7 +269,7 @@ export async function sendCustomVerificationEmail(
 
 Need help with email setup?
 - 📧 Email: contactus@circletel.co.za
-- 📞 Phone: 087 087 6305
+- 💬 WhatsApp: 082 487 3900
 
 ---
 

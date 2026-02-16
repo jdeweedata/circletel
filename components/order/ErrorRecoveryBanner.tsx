@@ -5,15 +5,16 @@ import {
   AlertCircle,
   RefreshCw,
   CreditCard,
-  Phone,
   Save,
   ChevronDown,
   ChevronUp,
   ExternalLink,
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 export type ErrorType =
   | 'payment_failed'
@@ -175,7 +176,7 @@ export function ErrorRecoveryBanner({
       id: 'support',
       label: 'Contact Support',
       description: 'Get help from our team',
-      icon: <Phone className="w-4 h-4" />,
+      icon: <FaWhatsapp className="w-4 h-4" />,
       onClick: onContactSupport,
       variant: 'outline',
     });
@@ -285,11 +286,13 @@ export function ErrorRecoveryBanner({
         <p className="text-xs text-red-700 mb-2 font-medium">Quick Help:</p>
         <div className="flex flex-wrap gap-3 text-xs">
           <a
-            href="tel:0870876305"
-            className="flex items-center gap-1 text-red-700 hover:text-red-900 hover:underline"
+            href={getWhatsAppLink('Hi, I need help with my order')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[#25D366] hover:text-[#128C7E] hover:underline"
           >
-            <Phone className="w-3 h-3" />
-            087 087 6305
+            <FaWhatsapp className="w-3 h-3" />
+            {CONTACT.WHATSAPP_NUMBER}
           </a>
           <a
             href="mailto:contactus@circletel.co.za"

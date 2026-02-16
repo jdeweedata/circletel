@@ -203,7 +203,7 @@ export default async function PayInvoicePage({ params }: PayInvoicePageProps) {
             </a>{' '}
             or call{' '}
             <a href="tel:+27870876305" className="text-primary hover:underline">
-              087 087 6305
+              082 487 3900
             </a>
           </p>
         </CardContent>

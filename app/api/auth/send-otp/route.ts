@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
                   © ${new Date().getFullYear()} CircleTel. All rights reserved.<br>
                   West House, 7 Autumn Road, Rivonia, Johannesburg, 2128<br>
                   <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a> |
-                  <a href="tel:0870876305" style="color: #F5831F; text-decoration: none;">087 087 6305</a>
+                  <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
                 </p>
               </div>
             </body>

@@ -373,7 +373,7 @@ export default function TermsPage() {
                 <h4 className="font-semibold text-blue-900 mb-3">Step 1: Initial Resolution Attempt</h4>
                 <p className="text-blue-900 mb-3">Contact our customer support team to attempt resolution in the spirit of cooperation.</p>
                 <p className="text-blue-900">
-                  <strong>Phone:</strong> 087 087 6305<br />
+                  <strong>WhatsApp:</strong> 082 487 3900<br />
                   <strong>Email:</strong> support@circletel.co.za
                 </p>
               </div>
@@ -1184,7 +1184,7 @@ export default function TermsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold mb-3">General Inquiries</h4>
-                  <p className="mb-2">Phone: 087 087 6305</p>
+                  <p className="mb-2">WhatsApp: 082 487 3900</p>
                   <p className="mb-2">Email: contactus@circletel.co.za</p>
                   <p className="mb-2">Support: support@circletel.co.za</p>
                 </div>

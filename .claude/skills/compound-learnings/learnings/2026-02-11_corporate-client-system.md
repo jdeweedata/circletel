@@ -107,7 +107,7 @@ const exportResult = await CorporatePPPoEBulkService.exportCredentials(
 ```typescript
 // lib/constants/contact.ts
 export const CONTACT = {
-  PHONE_SUPPORT: '082 487 3900',
+  // WhatsApp (Primary support channel)
   WHATSAPP_NUMBER: '082 487 3900',
   WHATSAPP_LINK: 'https://wa.me/27824873900',
   EMAIL_SUPPORT: 'support@circletel.co.za',

@@ -3,9 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { Truck, Wifi, Router, MapPin, Home, Building2 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
+import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 type CoverageType = 'residential' | 'business';
 
@@ -245,7 +247,7 @@ export function HeroWithTabs() {
               {/* Tab-specific messaging */}
               {activeTab === 'business' && (
                 <p className="text-sm text-gray-600 mt-2 text-center">
-                  Need help? Call <span className="font-semibold text-circleTel-orange">087 087 6305</span> to speak with a business connectivity specialist.
+                  Need help? <a href={getWhatsAppLink('Hi, I need help with business connectivity')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-[#25D366] hover:underline"><FaWhatsapp className="inline w-4 h-4" />{CONTACT.WHATSAPP_NUMBER}</a> to speak with a business connectivity specialist.
                 </p>
               )}
             </div>

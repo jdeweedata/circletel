@@ -140,7 +140,7 @@ Status: verified
 - ✅ Subject: "Verify Your CircleTel Account"
 - ✅ Orange CircleTel header
 - ✅ Verification button works
-- ✅ Contact info: contactus@circletel.co.za / 087 087 6305
+- ✅ Contact info: contactus@circletel.co.za / 082 487 3900
 
 ---
 
@@ -271,7 +271,7 @@ Status: verified
 - [x] Login after reset successful
 - [ ] Account creation email tested
 - [ ] Email branding verified (CircleTel orange header)
-- [ ] Contact info correct (contactus@circletel.co.za / 087 087 6305)
+- [ ] Contact info correct (contactus@circletel.co.za / 082 487 3900)
 - [ ] Mobile responsive email verified
 
 ---
@@ -303,7 +303,7 @@ Status: verified
 
 ### CircleTel Contact:
 - **Email:** contactus@circletel.co.za
-- **Phone:** 087 087 6305
+- **WhatsApp:** 082 487 3900
 
 ### External Services:
 - **Resend Dashboard:** https://resend.com/overview

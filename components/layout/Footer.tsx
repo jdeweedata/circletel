@@ -1,7 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { Linkedin, X, Mail, Phone, MapPin, Facebook } from 'lucide-react';
+import { Linkedin, X, Mail, MapPin, Facebook } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Logo } from '@/components/navigation/Logo';
+import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 export const Footer = () => {
   return (
@@ -10,10 +12,15 @@ export const Footer = () => {
         {/* Contact Bar */}
         <div className="bg-circleTel-secondaryNeutral bg-opacity-20 rounded-lg p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-4 md:mb-0">
-            <div className="flex items-center">
-              <Phone size={18} className="mr-2 text-circleTel-orange" />
-              <span className="text-circleTel-lightNeutral">087 087 6305</span>
-            </div>
+            <a
+              href={getWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:text-white transition-colors"
+            >
+              <FaWhatsapp size={18} className="mr-2 text-[#25D366]" />
+              <span className="text-circleTel-lightNeutral">{CONTACT.WHATSAPP_NUMBER}</span>
+            </a>
             <div className="flex items-center">
               <Mail size={18} className="mr-2 text-circleTel-orange" />
               <span className="text-circleTel-lightNeutral">contactus@circletel.co.za</span>

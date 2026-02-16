@@ -34,7 +34,7 @@ async function sendSMS() {
     phone = '27' + phone.substring(1);
   }
 
-  const smsMessage = `Hi ${SHAUN.firstName}, your CircleTel invoice ${SHAUN.invoiceNumber} (R${SHAUN.amount.toFixed(2)}) will be debited on ${SHAUN.dueDate}. Questions? Call 087 087 6305.`;
+  const smsMessage = `Hi ${SHAUN.firstName}, your CircleTel invoice ${SHAUN.invoiceNumber} (R${SHAUN.amount.toFixed(2)}) will be debited on ${SHAUN.dueDate}. Questions? WhatsApp 082 487 3900.`;
 
   console.log(`To: ${phone}`);
   console.log(`Message: ${smsMessage}`);
@@ -121,7 +121,7 @@ async function sendEmail() {
       <p>If you have any questions or need to update your payment details, please contact us:</p>
       <ul>
         <li>Email: billing@circletel.co.za</li>
-        <li>Phone: 087 087 6305</li>
+        <li>WhatsApp: 082 487 3900</li>
       </ul>
 
       <p>Thank you for choosing CircleTel!</p>

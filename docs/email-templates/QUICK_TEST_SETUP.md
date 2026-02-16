@@ -118,7 +118,7 @@ After setup, you should see:
 If stuck after following these steps:
 1. Check Resend status: https://status.resend.com
 2. Check Supabase status: https://status.supabase.com
-3. Contact: contactus@circletel.co.za / 087 087 6305
+3. Contact: contactus@circletel.co.za / 082 487 3900
 
 ---
 

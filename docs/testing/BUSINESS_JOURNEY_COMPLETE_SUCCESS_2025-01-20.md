@@ -232,7 +232,7 @@ The business user journey now flows seamlessly from landing page → coverage ch
    - ✅ Our team will review your inquiry carefully
    - ✅ You'll receive a response within 24 business hours
    - ✅ A confirmation email has been sent to your inbox
-   - ✅ For urgent matters, call us at 087 087 6305
+   - ✅ For urgent matters, WhatsApp us at 082 487 3900
 6. ✅ **Two action buttons**:
    - "Download Confirmation" (outlined)
    - "Close" (orange primary button)

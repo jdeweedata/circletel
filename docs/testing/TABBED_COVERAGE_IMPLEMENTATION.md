@@ -149,7 +149,7 @@ window.location.href = `/packages/${data.leadId}?type=${activeTab}`;
 **Business Tab**:
 ```html
 <p className="text-sm text-gray-600 mt-4 text-center">
-  Need help? Call <span className="font-semibold text-circleTel-orange">087 087 6305</span>
+  Need help? WhatsApp <span className="font-semibold text-circleTel-orange">082 487 3900</span>
   to speak with a business connectivity specialist.
 </p>
 ```

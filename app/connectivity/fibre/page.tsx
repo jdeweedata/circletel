@@ -444,7 +444,7 @@ export default function FibrePage() {
                 variant="outline"
                 className="border-white text-white hover:bg-white/10"
               >
-                <Link href="tel:0870876305">Call 087 087 6305</Link>
+                <Link href="https://wa.me/27824873900">WhatsApp 082 487 3900</Link>
               </Button>
             </div>
           </div>

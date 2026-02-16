@@ -771,10 +771,10 @@ function PackagesContent() {
               Contact Us
             </a>
             <a
-              href="tel:0870876305"
+              href="https://wa.me/27824873900"
               className="inline-flex items-center justify-center px-8 py-4 bg-orange-700 text-white font-semibold rounded-xl hover:bg-orange-800 transition-colors"
             >
-              Call 087 087 6305
+              WhatsApp 082 487 3900
             </a>
           </div>
         </div>

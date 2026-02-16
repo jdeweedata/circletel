@@ -42,7 +42,7 @@ async function sendEmail() {
       <p>If you have any questions or need to update your payment details, please contact us:</p>
       <ul>
         <li>Email: support@circletel.co.za</li>
-        <li>Phone: 087 087 6305</li>
+        <li>WhatsApp: 082 487 3900</li>
       </ul>
 
       <p>Thank you for choosing CircleTel!</p>

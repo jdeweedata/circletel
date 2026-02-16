@@ -292,7 +292,7 @@ export default function PaymentPage() {
 
   const handleContactSupport = () => {
     // Open phone dialer or support modal
-    window.location.href = 'tel:0870876305';
+    window.location.href = 'https://wa.me/27824873900';
   };
 
   const handleSaveForLater = async () => {
@@ -584,8 +584,8 @@ export default function PaymentPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Need help? Contact us at{' '}
-              <a href="tel:0870876305" className="text-circleTel-orange hover:underline font-medium">
-                087 087 6305
+              <a href="https://wa.me/27824873900" className="text-circleTel-orange hover:underline font-medium">
+                082 487 3900
               </a>
             </p>
           </div>

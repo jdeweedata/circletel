@@ -281,11 +281,11 @@ export default function BusinessPage() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <a
-              href="tel:0870876305"
+              href="https://wa.me/27824873900"
               className="bg-circleTel-darkNeutral hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               <Phone className="mr-2 h-5 w-5" />
-              087 087 6305
+              082 487 3900
             </a>
           </div>
         </div>

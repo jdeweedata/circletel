@@ -6,14 +6,13 @@
  */
 
 export const CONTACT = {
-  // Phone numbers
-  PHONE_SUPPORT: '082 487 3900',
-  PHONE_SALES: '010 880 3663',
-
-  // WhatsApp
+  // WhatsApp (Primary support channel)
   WHATSAPP_NUMBER: '082 487 3900',
   WHATSAPP_LINK: 'https://wa.me/27824873900',
   WHATSAPP_INTERNATIONAL: '+27 82 487 3900',
+
+  // Sales phone (for B2B inquiries only)
+  PHONE_SALES: '010 880 3663',
 
   // Email addresses
   EMAIL_SUPPORT: 'support@circletel.co.za',

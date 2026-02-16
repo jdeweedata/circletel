@@ -195,7 +195,7 @@ export default function RefundPolicyPage() {
 
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <h4 className="font-semibold text-circleTel-darkNeutral mb-2">✓ Phone Support</h4>
-              <p className="text-gray-700">Call 087 087 6305 (Mon-Fri, 8am-5pm)</p>
+              <p className="text-gray-700">WhatsApp 082 487 3900 (Mon-Fri, 8am-5pm)</p>
               <p className="text-sm text-gray-600 mt-2">Verbal cancellations must be confirmed via email</p>
             </div>
           </div>
@@ -436,7 +436,7 @@ export default function RefundPolicyPage() {
               <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Step 1: Contact Billing Department</h4>
               <p className="text-gray-700">
                 Email: billing@circletel.co.za<br />
-                Phone: 087 087 6305<br />
+                WhatsApp: 082 487 3900<br />
                 Provide: Account number, cancellation date, dispute details
               </p>
             </div>
@@ -469,7 +469,7 @@ export default function RefundPolicyPage() {
               <h4 className="font-semibold mb-3">Request Cancellation</h4>
               <p className="mb-2">Portal: <Link href="/dashboard" className="underline hover:opacity-80">Customer Dashboard</Link></p>
               <p className="mb-2">Email: support@circletel.co.za</p>
-              <p className="mb-2">Phone: 087 087 6305</p>
+              <p className="mb-2">WhatsApp: 082 487 3900</p>
             </div>
             <div>
               <h4 className="font-semibold mb-3">Related Policies</h4>

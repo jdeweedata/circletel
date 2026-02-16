@@ -145,7 +145,7 @@ ${formData.message}
 What's Next:
 - Our team will review your inquiry
 - You'll receive a response within 24 hours
-- For urgent matters, call us at 087 087 6305
+- For urgent matters, WhatsApp us at 082 487 3900
 
 Thank you for choosing CircleTel!
     `.trim();
@@ -301,7 +301,7 @@ Thank you for choosing CircleTel!
                         <Phone className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
                           <p className="font-semibold text-circleTel-darkNeutral">Phone</p>
-                          <p className="text-circleTel-secondaryNeutral">087 087 6305</p>
+                          <p className="text-circleTel-secondaryNeutral">082 487 3900</p>
                         </div>
                       </div>
                       <div className="flex items-start">
@@ -416,7 +416,7 @@ Thank you for choosing CircleTel!
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>For urgent matters, call us at 087 087 6305</span>
+                  <span>For urgent matters, WhatsApp us at 082 487 3900</span>
                 </li>
               </ul>
             </div>

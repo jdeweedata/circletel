@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 interface ContactInformationProps {
   className?: string;
@@ -14,15 +16,20 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
       </h2>
       
       <div className="space-y-4">
-        <div className="flex items-start">
-          <div className="bg-circleTel-lightNeutral rounded-full p-3 mr-3 text-circleTel-orange">
-            <Phone size={20} />
+        <a
+          href={getWhatsAppLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-start hover:opacity-80 transition-opacity"
+        >
+          <div className="bg-[#25D366]/10 rounded-full p-3 mr-3 text-[#25D366]">
+            <FaWhatsapp size={20} />
           </div>
           <div>
-            <h3 className="font-bold text-circleTel-darkNeutral">Phone</h3>
-            <p className="text-circleTel-secondaryNeutral">087 087 6305</p>
+            <h3 className="font-bold text-circleTel-darkNeutral">WhatsApp</h3>
+            <p className="text-circleTel-secondaryNeutral">{CONTACT.WHATSAPP_NUMBER}</p>
           </div>
-        </div>
+        </a>
         
         <div className="flex items-start">
           <div className="bg-circleTel-lightNeutral rounded-full p-3 mr-3 text-circleTel-orange">

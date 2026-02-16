@@ -224,7 +224,7 @@ If you still get warnings with the simplified template, use this ultra-minimal v
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
     <p style="color: #666; font-size: 13px;">
-      Questions? Email us at <a href="mailto:contactus@circletel.co.za" style="color: #F5831F;">contactus@circletel.co.za</a> or call 087 087 6305
+      Questions? Email us at <a href="mailto:contactus@circletel.co.za" style="color: #F5831F;">contactus@circletel.co.za</a> or WhatsApp 082 487 3900
     </p>
 
     <p style="color: #999; font-size: 11px;">
