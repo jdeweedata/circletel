@@ -127,7 +127,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
       total_amount,
       due_date,
       status,
-      payment_method,
+      payment_collection_method,
       customers (
         id,
         first_name,
@@ -138,7 +138,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     `)
     .in('status', ['draft', 'sent', 'partial', 'overdue'])
     .eq('due_date', dateStr)
-    .in('payment_method', ['debit_order', 'Debit Order']);
+    .in('payment_collection_method', ['debit_order', 'Debit Order']);
 
   if (invoiceError) {
     result.errors.push(`Failed to fetch invoices: ${invoiceError.message}`);
