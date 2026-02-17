@@ -344,7 +344,7 @@ export default function BillingDashboard() {
           <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Link href="/admin/billing/invoices">
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
                 <FileText className="h-6 w-6 text-circleTel-orange" />
@@ -361,6 +361,12 @@ export default function BillingDashboard() {
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
                 <CreditCard className="h-6 w-6 text-green-500" />
                 <span>Payment Methods</span>
+              </Button>
+            </Link>
+            <Link href="/admin/billing/cron-logs">
+              <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
+                <Clock className="h-6 w-6 text-purple-500" />
+                <span>Cron Logs</span>
               </Button>
             </Link>
           </div>
