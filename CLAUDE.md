@@ -513,9 +513,38 @@ See `.env.example` for complete list.
 | **coverage-check** | Multi-provider coverage | See `.claude/skills/coverage-check/` |
 | **mobile-testing** | Playwright mobile UI/UX | `npm run test:mobile` |
 
+#### Superpowers Skills (Dynamic Invocation)
+
+**⚠️ CRITICAL: These skills are invoked via the `Skill` tool and MUST be used when their trigger keywords appear.**
+
+| Skill | Trigger | When to Use |
+|-------|---------|-------------|
+| **superpowers:brainstorming** 🧠 | "create", "build", "add feature" | BEFORE any creative work - creating features, components, new functionality |
+| **superpowers:systematic-debugging** 🐛 | "bug", "error", "not working" | When encountering ANY bug, test failure, or unexpected behavior |
+| **superpowers:test-driven-development** 🧪 | "implement", "feature", "bugfix" | BEFORE writing implementation code for any feature or fix |
+| **superpowers:writing-plans** 📝 | "spec", "requirements", "plan" | When you have specs/requirements for a multi-step task |
+| **superpowers:executing-plans** ⚡ | "execute plan", "implement plan" | When executing a written implementation plan |
+| **superpowers:verification-before-completion** ✅ | "done", "complete", "fixed" | BEFORE claiming work is done or creating PRs/commits |
+| **superpowers:requesting-code-review** 🔍 | "review", "check my work" | After completing tasks or implementing major features |
+| **superpowers:receiving-code-review** 📥 | "feedback", "suggestions" | When receiving code review feedback before implementing |
+| **superpowers:dispatching-parallel-agents** 🚀 | 2+ independent tasks | When facing multiple tasks with no shared state |
+| **superpowers:subagent-driven-development** 🤖 | "parallel implementation" | Executing plans with independent tasks in current session |
+| **superpowers:using-git-worktrees** 🌳 | "feature branch", "isolation" | Starting feature work that needs workspace isolation |
+| **superpowers:finishing-a-development-branch** 🏁 | "ready to merge", "tests pass" | When implementation is complete and ready to integrate |
+| **superpowers:writing-skills** ✍️ | "create skill", "edit skill" | When creating or editing Claude Code skills |
+
+**Invocation Pattern**:
+```
+/skill superpowers:brainstorming       # Before creative work
+/skill superpowers:systematic-debugging # When debugging
+/skill superpowers:verification-before-completion  # Before claiming done
+```
+
+**Rule**: If even 1% chance a skill applies, invoke it. Skills can be skipped if they turn out to be irrelevant after invocation.
+
 **User Guide**: See `.claude/skills/USER_GUIDE.md` for complete documentation.
 
-**Auto-load**: Skills activate on keyword mentions. Manual: `/skill <skill-name>`
+**Auto-load**: Skills activate on keyword mentions. Manual: `/skill <skill-name>` or use Skill tool
 
 ## Getting Started (New Session)
 
@@ -615,7 +644,14 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ---
 
-**Version**: 5.8 | **Updated**: 2026-02-10 | **Team**: Development + Claude Code
+**Version**: 5.9 | **Updated**: 2026-02-17 | **Team**: Development + Claude Code
+
+**Major Changes in v5.9**:
+- Added Superpowers Skills section with 13 dynamic workflow skills
+- Skills now auto-invoke via Skill tool when trigger keywords detected
+- Key skills: brainstorming, systematic-debugging, verification-before-completion
+- Added NetCash Pay Now parameter mapping pattern (m2=PCI Vault Key, p4=Rands)
+- Documented skill invocation pattern with 1% rule
 
 **Major Changes in v5.8**:
 - Added billing automation patterns (Pay Now, SMS, email)
