@@ -25,6 +25,7 @@ import {
   ChevronDown,
   Sparkles
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -462,14 +463,23 @@ export default function FeasibilityPage() {
       const data = await response.json();
 
       if (data.success) {
-        alert(`Created ${data.successCount} quote(s). Redirecting to quotes list...`);
-        window.location.href = '/admin/quotes/business';
+        toast.success(`Created ${data.successCount} quote(s)`, {
+          description: 'Redirecting to quotes list...'
+        });
+        // Delay redirect to allow toast to be seen
+        setTimeout(() => {
+          window.location.href = '/admin/quotes/business';
+        }, 1500);
       } else {
-        alert(`Failed to create quotes. ${data.failureCount || 0} errors.`);
+        toast.error('Failed to generate quotes', {
+          description: `${data.failureCount || 0} errors occurred`
+        });
       }
     } catch (error) {
       console.error('Quote generation failed:', error);
-      alert('Failed to generate quotes. Please try again.');
+      toast.error('Failed to generate quotes', {
+        description: 'Please try again'
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -480,6 +490,114 @@ export default function FeasibilityPage() {
     setStep('form');
     setSiteResults([]);
     setSelectedSites(new Set());
+  };
+
+  // Retry a specific site that failed
+  const retrySite = async (siteId: string) => {
+    const siteIndex = siteResults.findIndex(r => r.id === siteId);
+    if (siteIndex === -1) return;
+
+    const site = siteResults[siteIndex];
+
+    // Set site to checking status
+    setSiteResults(prev => prev.map((r, idx) =>
+      idx === siteIndex ? { ...r, status: 'checking', error: undefined } : r
+    ));
+
+    try {
+      const isGPS = isGPSCoordinate(site.input);
+      let coordinates = isGPS ? parseCoordinates(site.input) : null;
+      let address = isGPS ? undefined : site.input;
+
+      // Geocode address inputs to get coordinates
+      if (!isGPS) {
+        try {
+          const geocodeResult = await geocodeAddress(site.input);
+          if (geocodeResult.success && geocodeResult.latitude && geocodeResult.longitude) {
+            coordinates = {
+              lat: parseFloat(geocodeResult.latitude),
+              lng: parseFloat(geocodeResult.longitude)
+            };
+            address = geocodeResult.formatted_address || site.input;
+          }
+        } catch (geocodeError) {
+          console.error('Geocoding failed:', geocodeError);
+        }
+      }
+
+      // Call actual coverage API
+      const response = await fetch('/api/coverage/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: address || `${coordinates?.lat}, ${coordinates?.lng}`,
+          ...(coordinates && {
+            coordinates: { lat: coordinates.lat, lng: coordinates.lng }
+          })
+        })
+      });
+
+      const result = await response.json();
+
+      // Parse coverage response
+      const coverage = {
+        fibre: {
+          available: result.data?.services?.some((s: any) => s.type === 'fibre') || false,
+          provider: 'DFA',
+          confidence: result.data?.confidence || 'medium'
+        },
+        tarana: {
+          available: result.data?.services?.some((s: any) => s.type === 'uncapped_wireless') || false,
+          confidence: result.data?.confidence || 'medium',
+          zone: result.data?.metadata?.baseStationValidation?.nearestStation ? 'Zone 0' : undefined
+        },
+        fiveG: {
+          available: result.data?.services?.some((s: any) => s.type === '5g') || false,
+          provider: 'MTN'
+        },
+        lte: {
+          available: result.data?.services?.some((s: any) => s.type === 'fixed_lte' || s.type === 'lte') || false,
+          provider: 'MTN'
+        }
+      };
+
+      // Generate recommended packages based on coverage and requirements
+      const packages = await generatePackageRecommendations(coverage, formData);
+
+      setSiteResults(prev => prev.map((r, idx) =>
+        idx === siteIndex ? {
+          ...r,
+          status: 'complete',
+          address: address || `${coordinates?.lat.toFixed(6)}, ${coordinates?.lng.toFixed(6)}`,
+          coordinates: coordinates || undefined,
+          coverage,
+          recommendedPackages: packages,
+          error: undefined
+        } : r
+      ));
+
+      // Auto-select if coverage found
+      if (coverage.fibre.available || coverage.tarana.available || coverage.fiveG.available) {
+        setSelectedSites(prev => new Set([...prev, siteId]));
+      }
+
+      toast.success('Coverage check complete', {
+        description: address || site.input
+      });
+
+    } catch (error) {
+      console.error('Retry failed:', error);
+      setSiteResults(prev => prev.map((r, idx) =>
+        idx === siteIndex ? {
+          ...r,
+          status: 'error',
+          error: 'Failed to check coverage'
+        } : r
+      ));
+      toast.error('Retry failed', {
+        description: 'Could not check coverage for this site'
+      });
+    }
   };
 
   return (
@@ -875,7 +993,18 @@ export default function FeasibilityPage() {
                               <p className="text-sm text-gray-400">Waiting...</p>
                             )}
                             {result.status === 'error' && (
-                              <p className="text-sm text-red-600">{result.error}</p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm text-red-600">{result.error}</p>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => retrySite(result.id)}
+                                  className="ml-auto"
+                                >
+                                  <RotateCcw className="w-4 h-4 mr-1" />
+                                  Retry
+                                </Button>
+                              </div>
                             )}
 
                             {/* Coverage badges */}
