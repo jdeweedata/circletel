@@ -198,14 +198,18 @@ export default function FeasibilityPage() {
         let address = isGPS ? undefined : site;
 
         // Call actual coverage API
+        // API requires address field; coordinates are optional enhancement
         const response = await fetch('/api/coverage/check', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(
-            coordinates
-              ? { coordinates, providers: ['mtn', 'dfa'] }
-              : { address, providers: ['mtn', 'dfa'] }
-          )
+          body: JSON.stringify({
+            // Address is always required - use GPS string as address if no street address
+            address: address || `${coordinates?.lat}, ${coordinates?.lng}`,
+            // Include coordinates if available (for PostGIS geography storage)
+            ...(coordinates && {
+              coordinates: { lat: coordinates.lat, lng: coordinates.lng }
+            })
+          })
         });
 
         const result = await response.json();
