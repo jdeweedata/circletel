@@ -338,14 +338,56 @@ export default function FeasibilityPage() {
   };
 
   // Generate quotes for selected sites
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const generateQuotes = async () => {
-    const selectedResults = siteResults.filter(r => selectedSites.has(r.id));
+    const selectedResults = siteResults.filter(r => selectedSites.has(r.id) && r.status === 'complete');
 
-    // TODO: Call quote generation API
-    console.log('Generating quotes for:', selectedResults);
+    if (selectedResults.length === 0) return;
 
-    // For now, redirect to quotes list
-    window.location.href = '/admin/quotes/business';
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch('/api/quotes/business/bulk-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientDetails: {
+            companyName: formData.companyName,
+            contactName: formData.contactName,
+            contactEmail: formData.contactEmail,
+            contactPhone: formData.contactPhone
+          },
+          requirements: {
+            speedRequirement: formData.speedRequirement,
+            contention: formData.contention,
+            contractTerm: 24
+          },
+          sites: selectedResults.map(result => ({
+            address: result.address || result.input,
+            coordinates: result.coordinates,
+            packages: result.recommendedPackages.slice(0, 1).map(pkg => ({
+              packageId: pkg.id,
+              itemType: 'primary' as const
+            }))
+          }))
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`Created ${data.successCount} quote(s). Redirecting to quotes list...`);
+        window.location.href = '/admin/quotes/business';
+      } else {
+        alert(`Failed to create quotes. ${data.failureCount || 0} errors.`);
+      }
+    } catch (error) {
+      console.error('Quote generation failed:', error);
+      alert('Failed to generate quotes. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Reset form
@@ -665,10 +707,15 @@ export default function FeasibilityPage() {
                         <Button
                           size="sm"
                           onClick={generateQuotes}
+                          disabled={isGenerating}
                           className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
                         >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Generate {selectedSites.size} Quote{selectedSites.size > 1 ? 's' : ''}
+                          {isGenerating ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <FileText className="w-4 h-4 mr-2" />
+                          )}
+                          {isGenerating ? 'Generating...' : `Generate ${selectedSites.size} Quote${selectedSites.size > 1 ? 's' : ''}`}
                         </Button>
                       )}
                     </div>
@@ -841,11 +888,15 @@ export default function FeasibilityPage() {
                           </Button>
                           <Button
                             onClick={generateQuotes}
-                            disabled={selectedSites.size === 0}
+                            disabled={selectedSites.size === 0 || isGenerating}
                             className="bg-circleTel-orange hover:bg-circleTel-orange/90 text-white gap-2"
                           >
-                            <Send className="w-4 h-4" />
-                            Generate {selectedSites.size > 0 ? `${selectedSites.size} ` : ''}Quote{selectedSites.size !== 1 ? 's' : ''}
+                            {isGenerating ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Send className="w-4 h-4" />
+                            )}
+                            {isGenerating ? 'Generating...' : `Generate ${selectedSites.size > 0 ? `${selectedSites.size} ` : ''}Quote${selectedSites.size !== 1 ? 's' : ''}`}
                           </Button>
                         </div>
                       </div>
