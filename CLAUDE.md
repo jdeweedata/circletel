@@ -607,6 +607,20 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ## Recent Updates (Nov 2025)
 
+### B2B Feasibility Portal (COMPLETE - Feb 2026)
+✅ Sales Quick Entry at `/admin/sales/feasibility`
+✅ Multi-site paste (addresses + GPS coordinates)
+✅ Auto coverage checks (MTN, DFA, Tarana, 5G, LTE)
+✅ Address geocoding via Google Maps
+✅ Smart package recommendations from database
+✅ Bulk quote generation API (`/api/quotes/business/bulk-create`)
+✅ Toast notifications and retry for failed sites
+
+**Files Created**:
+- `app/admin/sales/feasibility/page.tsx` - Main UI
+- `app/api/quotes/business/bulk-create/route.ts` - Bulk quote API
+- `docs/plans/2026-02-18-b2b-feasibility-portal-design.md` - Design doc
+
 ### Customer Dashboard Production Readiness
 ✅ Spec created (1,200+ lines, 147 points, 4-week timeline)
 **Scope**: 10 tables, account numbers (CT-YYYY-NNNNN), billing automation, NetCash eMandate, Interstellio API, Clickatell SMS
