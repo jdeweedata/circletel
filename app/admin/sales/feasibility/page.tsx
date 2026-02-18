@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { geocodeAddress } from '@/lib/services/google-geocoding';
 
 // Types
 interface SiteResult {
@@ -196,6 +197,23 @@ export default function FeasibilityPage() {
         const isGPS = isGPSCoordinate(site);
         let coordinates = isGPS ? parseCoordinates(site) : null;
         let address = isGPS ? undefined : site;
+
+        // Geocode address inputs to get coordinates
+        if (!isGPS) {
+          try {
+            const geocodeResult = await geocodeAddress(site);
+            if (geocodeResult.success && geocodeResult.latitude && geocodeResult.longitude) {
+              coordinates = {
+                lat: parseFloat(geocodeResult.latitude),
+                lng: parseFloat(geocodeResult.longitude)
+              };
+              address = geocodeResult.formatted_address || site;
+            }
+          } catch (geocodeError) {
+            console.error('Geocoding failed:', geocodeError);
+            // Continue with address-based coverage check
+          }
+        }
 
         // Call actual coverage API
         // API requires address field; coordinates are optional enhancement
