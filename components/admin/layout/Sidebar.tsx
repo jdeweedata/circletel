@@ -197,6 +197,12 @@ const navigationSections: NavSection[] = [
     label: 'Sales & Partners',
     items: [
       {
+        name: 'B2B Feasibility',
+        href: '/admin/sales/feasibility',
+        icon: Zap,
+        description: 'Quick coverage check & quote generation'
+      },
+      {
         name: 'Partners',
         icon: Handshake,
         children: [
