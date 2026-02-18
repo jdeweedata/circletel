@@ -255,7 +255,7 @@ export default function FeasibilityPage() {
         };
 
         // Generate recommended packages based on coverage and requirements
-        const packages = generatePackageRecommendations(coverage, formData);
+        const packages = await generatePackageRecommendations(coverage, formData);
 
         setSiteResults(prev => prev.map((r, idx) =>
           idx === i ? {
@@ -287,54 +287,139 @@ export default function FeasibilityPage() {
     setStep('results');
   };
 
+  // Fetch real packages from database by technology
+  const fetchPackagesByTechnology = async (
+    technology: 'fibre' | 'tarana' | '5g' | 'lte',
+    minSpeed: number
+  ): Promise<Array<{
+    id: string;
+    name: string;
+    speed_down: number;
+    speed_up: number;
+    price: number;
+  }>> => {
+    try {
+      // Map technology to service_type values in database
+      const serviceTypeMap: Record<string, string[]> = {
+        'fibre': ['BizFibreConnect', 'HomeFibreConnect', 'Fibre'],
+        'tarana': ['SkyFibre'],
+        '5g': ['5G'],
+        'lte': ['LTE', 'Fixed LTE']
+      };
+
+      const serviceTypes = serviceTypeMap[technology] || [];
+      if (serviceTypes.length === 0) return [];
+
+      // Build query string for service types
+      const serviceTypeParam = serviceTypes.join(',');
+
+      const response = await fetch(`/api/products?limit=10`);
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      const products = data.products || [];
+
+      // Filter by service type and minimum speed
+      return products
+        .filter((p: any) => {
+          const matchesType = serviceTypes.some(st =>
+            p.service_type?.toLowerCase().includes(st.toLowerCase()) ||
+            p.service_type === st
+          );
+          const meetsSpeed = (p.speed_down || 0) >= minSpeed;
+          return matchesType && meetsSpeed;
+        })
+        .map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          speed_down: p.speed_down || 0,
+          speed_up: p.speed_up || 0,
+          price: parseFloat(p.price || p.base_price_zar || 0)
+        }))
+        .sort((a: any, b: any) => a.speed_down - b.speed_down);
+    } catch (error) {
+      console.error('Failed to fetch packages:', error);
+      return [];
+    }
+  };
+
   // Generate package recommendations based on coverage and requirements
-  const generatePackageRecommendations = (
+  const generatePackageRecommendations = async (
     coverage: SiteResult['coverage'],
     form: FormData
-  ): SiteResult['recommendedPackages'] => {
+  ): Promise<SiteResult['recommendedPackages']> => {
     if (!coverage) return [];
 
     const packages: SiteResult['recommendedPackages'] = [];
     const speedMap: Record<string, number> = { '100': 100, '200': 200, '500': 500, '1000': 1000 };
     const targetSpeed = speedMap[form.speedRequirement];
+    const budget = form.budget ? parseFloat(form.budget) : Infinity;
 
-    // Fibre packages (highest priority)
+    // Fibre packages (highest priority for B2B)
     if (coverage.fibre.available) {
-      if (targetSpeed <= 100) {
-        packages.push({ id: 'fibre-100', name: 'Business Fibre 100', speed: '100/100 Mbps', price: 1499, technology: 'Fibre' });
-      }
-      if (targetSpeed <= 200) {
-        packages.push({ id: 'fibre-200', name: 'Business Fibre 200', speed: '200/200 Mbps', price: 2499, technology: 'Fibre' });
-      }
-      if (targetSpeed <= 500) {
-        packages.push({ id: 'fibre-500', name: 'Business Fibre 500', speed: '500/500 Mbps', price: 3999, technology: 'Fibre' });
+      const fibrePackages = await fetchPackagesByTechnology('fibre', Math.min(targetSpeed, 25));
+      for (const pkg of fibrePackages) {
+        if (pkg.price <= budget && packages.length < 4) {
+          packages.push({
+            id: pkg.id,
+            name: pkg.name,
+            speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+            price: pkg.price,
+            technology: 'Fibre'
+          });
+        }
       }
     }
 
-    // Tarana packages (second priority - good for B2B)
-    if (coverage.tarana.available) {
-      packages.push({ id: 'tarana-100', name: 'SkyFibre Business 100', speed: '100/100 Mbps', price: 1299, technology: 'Tarana' });
-      if (targetSpeed >= 200) {
-        packages.push({ id: 'tarana-200', name: 'SkyFibre Business 200', speed: '200/200 Mbps', price: 1999, technology: 'Tarana' });
+    // Tarana/SkyFibre packages (second priority - good for B2B wireless)
+    if (coverage.tarana.available && packages.length < 4) {
+      const taranaPackages = await fetchPackagesByTechnology('tarana', Math.min(targetSpeed, 50));
+      for (const pkg of taranaPackages) {
+        if (pkg.price <= budget && packages.length < 4) {
+          packages.push({
+            id: pkg.id,
+            name: pkg.name,
+            speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+            price: pkg.price,
+            technology: 'Tarana'
+          });
+        }
       }
     }
 
     // 5G packages
-    if (coverage.fiveG.available) {
-      packages.push({ id: '5g-100', name: 'Business 5G 100', speed: '100/50 Mbps', price: 999, technology: '5G' });
-      if (targetSpeed >= 200) {
-        packages.push({ id: '5g-200', name: 'Business 5G 200', speed: '200/100 Mbps', price: 1799, technology: '5G' });
+    if (coverage.fiveG.available && packages.length < 4) {
+      const fiveGPackages = await fetchPackagesByTechnology('5g', Math.min(targetSpeed, 35));
+      for (const pkg of fiveGPackages) {
+        if (pkg.price <= budget && packages.length < 4) {
+          packages.push({
+            id: pkg.id,
+            name: pkg.name,
+            speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+            price: pkg.price,
+            technology: '5G'
+          });
+        }
       }
     }
 
-    // LTE as fallback
+    // LTE as fallback (only if no other packages found)
     if (coverage.lte.available && packages.length === 0) {
-      packages.push({ id: 'lte-50', name: 'Business LTE 50', speed: '50/25 Mbps', price: 699, technology: 'LTE' });
+      const ltePackages = await fetchPackagesByTechnology('lte', 0);
+      for (const pkg of ltePackages) {
+        if (pkg.price <= budget && packages.length < 2) {
+          packages.push({
+            id: pkg.id,
+            name: pkg.name,
+            speed: `${pkg.speed_down}/${pkg.speed_up} Mbps`,
+            price: pkg.price,
+            technology: 'LTE'
+          });
+        }
+      }
     }
 
-    // Filter by budget if specified
-    const budget = form.budget ? parseFloat(form.budget) : Infinity;
-    return packages.filter(p => p.price <= budget).slice(0, 4);
+    return packages.slice(0, 4);
   };
 
   // Generate quotes for selected sites
