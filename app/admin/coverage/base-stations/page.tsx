@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -8,6 +8,7 @@ import { BaseStationStats } from '@/components/admin/coverage/BaseStationStats';
 import { BaseStationTable } from '@/components/admin/coverage/BaseStationTable';
 import { Radio, Map, RefreshCw, AlertTriangle, Download } from 'lucide-react';
 import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
 
 interface BaseStation {
   id: string;
@@ -42,6 +43,16 @@ interface Pagination {
   totalPages: number;
 }
 
+interface SyncStatus {
+  id: string;
+  status: string;
+  inserted: number;
+  updated: number;
+  deleted: number;
+  duration_ms: number;
+  created_at: string;
+}
+
 export default function BaseStationsPage() {
   const [stations, setStations] = useState<BaseStation[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -65,6 +76,11 @@ export default function BaseStationsPage() {
   const [market, setMarket] = useState('');
   const [sortBy, setSortBy] = useState('active_connections');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Sync state
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'pending' | 'running' | 'completed' | 'failed'>('idle');
+  const [lastSync, setLastSync] = useState<SyncStatus | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -97,6 +113,81 @@ export default function BaseStationsPage() {
       setLoading(false);
     }
   }, [pagination.page, pagination.pageSize, search, market, sortBy, sortOrder]);
+
+  // Fetch sync status from API
+  const fetchSyncStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/tarana/sync/status');
+      const data = await response.json();
+
+      if (response.ok && data.success && data.data) {
+        setLastSync(data.data);
+        const status = data.data.status as 'pending' | 'running' | 'completed' | 'failed';
+        setSyncStatus(status);
+        return status;
+      }
+      return 'idle';
+    } catch (err) {
+      console.error('Failed to fetch sync status:', err);
+      return 'idle';
+    }
+  }, []);
+
+  // Trigger a new sync
+  const triggerSync = async () => {
+    try {
+      setSyncStatus('pending');
+
+      const response = await fetch('/api/admin/tarana/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dryRun: false }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to trigger sync');
+      }
+
+      // Start polling for status updates
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+
+      pollingIntervalRef.current = setInterval(async () => {
+        const status = await fetchSyncStatus();
+        if (status === 'completed' || status === 'failed') {
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+          // Refresh table data on completion
+          if (status === 'completed') {
+            fetchData();
+          }
+        }
+      }, 2000);
+
+    } catch (err) {
+      console.error('Sync trigger failed:', err);
+      setSyncStatus('failed');
+    }
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Fetch sync status on mount
+  useEffect(() => {
+    fetchSyncStatus();
+  }, [fetchSyncStatus]);
 
   useEffect(() => {
     fetchData();
@@ -185,6 +276,32 @@ export default function BaseStationsPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Last sync info */}
+            {lastSync && (
+              <div className="text-sm text-gray-500 mr-2">
+                Last sync: {formatDistanceToNow(new Date(lastSync.created_at))} ago
+                {lastSync.status === 'completed' && (
+                  <span className="ml-1">
+                    ({lastSync.inserted} new, {lastSync.updated} updated)
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Sync Now Button */}
+            <Button
+              onClick={triggerSync}
+              disabled={syncStatus === 'pending' || syncStatus === 'running'}
+              variant="outline"
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${
+                  syncStatus === 'pending' || syncStatus === 'running' ? 'animate-spin' : ''
+                }`}
+              />
+              {syncStatus === 'running' ? 'Syncing...' : 'Sync Now'}
+            </Button>
+
             <Button onClick={fetchData} disabled={loading} variant="outline">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
