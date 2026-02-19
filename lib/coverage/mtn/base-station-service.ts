@@ -13,6 +13,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { Coordinates } from '../types';
+import { searchRadios } from '@/lib/tarana/client';
+import { hasTaranaAuth } from '@/lib/tarana/auth';
 
 // Coverage confidence levels
 export type CoverageConfidence = 'high' | 'medium' | 'low' | 'none';
@@ -144,6 +146,122 @@ export async function checkBaseStationProximity(
     console.error('[BaseStationService] Unexpected error:', error);
     return createFallbackResult(coordinates, 'Unexpected error');
   }
+}
+
+/**
+ * Check base station proximity using live Tarana API
+ * Falls back to database if API is unavailable
+ */
+export async function checkBaseStationProximityLive(
+  coordinates: Coordinates,
+  options: { limit?: number; useLiveApi?: boolean } = {}
+): Promise<BaseStationProximityResult> {
+  const { limit = 5, useLiveApi = false } = options;
+
+  // Try live API if requested and authenticated
+  if (useLiveApi && hasTaranaAuth()) {
+    try {
+      console.log('[BaseStationService] Using live Tarana API');
+      const result = await searchRadios('BN', { limit: 100 });
+
+      // Calculate distances and find nearest
+      const stationsWithDistance = result.radios
+        .filter(bn => bn.latitude && bn.longitude)
+        .map(bn => ({
+          id: bn.serialNumber,
+          serial_number: bn.serialNumber,
+          hostname: bn.deviceId,
+          site_name: bn.siteName,
+          active_connections: 0, // Not available in search
+          market: bn.marketName,
+          lat: bn.latitude,
+          lng: bn.longitude,
+          distance_km: calculateDistance(coordinates, { lat: bn.latitude, lng: bn.longitude }),
+          device_status: bn.deviceStatus,
+        }))
+        .sort((a, b) => a.distance_km - b.distance_km)
+        .slice(0, limit);
+
+      if (stationsWithDistance.length > 0) {
+        return buildProximityResult(coordinates, stationsWithDistance);
+      }
+    } catch (error) {
+      console.error('[BaseStationService] Live API failed, falling back to database:', error);
+    }
+  }
+
+  // Fall back to database
+  return checkBaseStationProximity(coordinates, options);
+}
+
+/**
+ * Calculate distance between two coordinates in km (Haversine formula)
+ */
+function calculateDistance(coord1: Coordinates, coord2: { lat: number; lng: number }): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (coord2.lat - coord1.lat) * Math.PI / 180;
+  const dLng = (coord2.lng - coord1.lng) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(coord1.lat * Math.PI / 180) * Math.cos(coord2.lat * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 100) / 100;
+}
+
+/**
+ * Build proximity result from stations with distance
+ */
+function buildProximityResult(
+  coordinates: Coordinates,
+  stations: Array<{
+    id: string;
+    serial_number: string;
+    hostname: string;
+    site_name: string;
+    active_connections: number;
+    market: string;
+    lat: number;
+    lng: number;
+    distance_km: number;
+  }>
+): BaseStationProximityResult {
+  const nearest = stations[0];
+
+  // Determine coverage confidence based on distance
+  let confidence: CoverageConfidence = 'none';
+  let requiresElevatedInstall = false;
+  let installationNote: string | null = null;
+
+  if (nearest) {
+    if (nearest.distance_km <= COVERAGE_THRESHOLD_HIGH) {
+      confidence = 'high';
+    } else if (nearest.distance_km <= COVERAGE_THRESHOLD_MAX) {
+      confidence = 'medium';
+      requiresElevatedInstall = true;
+      installationNote = 'Elevated installation (10m+) may be required for optimal signal.';
+    }
+  }
+
+  return {
+    hasCoverage: confidence !== 'none',
+    confidence,
+    requiresElevatedInstall,
+    installationNote,
+    nearestStation: nearest ? {
+      siteName: nearest.site_name,
+      hostname: nearest.hostname,
+      distanceKm: nearest.distance_km,
+      activeConnections: nearest.active_connections,
+      market: nearest.market,
+    } : null,
+    allNearbyStations: stations as TaranaBaseStation[],
+    metadata: {
+      checkedAt: new Date().toISOString(),
+      coordinatesUsed: coordinates,
+      stationsChecked: stations.length,
+    },
+  };
 }
 
 /**
@@ -287,6 +405,7 @@ export function shouldShowSkyFibre(result: BaseStationProximityResult): boolean 
 
 export default {
   checkBaseStationProximity,
+  checkBaseStationProximityLive,
   formatCoverageConfidence,
   shouldShowSkyFibre
 };

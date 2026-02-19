@@ -47,6 +47,13 @@ interface CoverageDetail {
   technology?: string;
   speed?: number;
   confidence?: string;
+  // Enhanced Tarana data
+  nearestStation?: {
+    siteName: string;
+    distanceKm: number;
+    market: string;
+    status?: 'connected' | 'disconnected';
+  };
 }
 
 interface DetailedCoverage {
@@ -331,7 +338,8 @@ function extractCoverageDetail(services: any[], serviceType: string): CoverageDe
   if (!service || !service.available) {
     return { available: false };
   }
-  return {
+
+  const detail: CoverageDetail = {
     available: true,
     provider: service.provider || undefined,
     siteId: service.metadata?.siteId || service.metadata?.SITEID || undefined,
@@ -341,6 +349,21 @@ function extractCoverageDetail(services: any[], serviceType: string): CoverageDe
     details: service.metadata?.details || undefined,
     confidence: service.signal || 'medium'
   };
+
+  // Add Tarana base station info if available
+  if (serviceType === 'uncapped_wireless' && service.metadata?.baseStationValidation?.nearestStation) {
+    const ns = service.metadata.baseStationValidation.nearestStation;
+    detail.nearestStation = {
+      siteName: ns.siteName || 'Unknown',
+      distanceKm: ns.distanceKm || 0,
+      market: ns.market || 'Unknown',
+      status: ns.deviceStatus === 1 ? 'connected' : 'disconnected'
+    };
+    // Update details to show BN proximity
+    detail.details = `${ns.siteName} (${ns.distanceKm?.toFixed(1) || '?'}km) - ${ns.market}`;
+  }
+
+  return detail;
 }
 
 // Fetch matching CircleTel products based on available coverage
@@ -463,7 +486,9 @@ export default function FeasibilityPage() {
             coordinates: coordinates || undefined,
             providers: ['mtn', 'dfa'],
             serviceTypes: ['fibre', 'uncapped_wireless', '5g', 'fixed_lte', 'lte'],
-            includeAlternatives: true
+            includeAlternatives: true,
+            // Request enhanced Tarana data
+            includeTaranaProximity: true
           })
         });
 
@@ -789,7 +814,9 @@ export default function FeasibilityPage() {
           coordinates: coordinates || undefined,
           providers: ['mtn', 'dfa'],
           serviceTypes: ['fibre', 'uncapped_wireless', '5g', 'fixed_lte', 'lte'],
-          includeAlternatives: true
+          includeAlternatives: true,
+          // Request enhanced Tarana data
+          includeTaranaProximity: true
         })
       });
 
