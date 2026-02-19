@@ -27,6 +27,9 @@ const mapOptions = {
   gestureHandling: 'greedy',
 };
 
+// Static libraries array to prevent Google Maps reload warning
+const GOOGLE_MAPS_LIBRARIES: ('places' | 'geocoding')[] = ['places', 'geocoding'];
+
 interface InteractiveMapPickerProps {
   onLocationSelect: (data: {
     address: string;
@@ -43,7 +46,7 @@ export function InteractiveMapPicker({ onLocationSelect, className }: Interactiv
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: ['places', 'geocoding']
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const handleMapClick = useCallback(async (e: google.maps.MapMouseEvent) => {
