@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import {
@@ -34,13 +35,19 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Clock
+  Clock,
+  LayoutGrid,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+
+// Import Single Site Stepper (to be created)
+import { SingleSiteStepper } from './components/SingleSiteStepper';
 
 // ============================================================================
 // Types
@@ -109,6 +116,9 @@ interface MapMarker {
   status: 'pending' | 'geocoding' | 'checking' | 'complete' | 'error' | 'partial';
   lineNumber: number;
 }
+
+// Export types for use in stepper components
+export type { CoverageDetail, DetailedCoverage, MatchingProduct, SiteResult };
 
 // ============================================================================
 // Constants
@@ -213,6 +223,28 @@ const getTechIcon = (tech: string) => {
 // ============================================================================
 
 export default function FeasibilityPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get mode from URL or default to 'single'
+  const modeFromUrl = searchParams.get('mode');
+  const [activeTab, setActiveTab] = useState<'single' | 'multiple'>(
+    modeFromUrl === 'multiple' ? 'multiple' : 'single'
+  );
+
+  // Update URL when tab changes
+  const handleTabChange = (value: string) => {
+    const newMode = value as 'single' | 'multiple';
+    setActiveTab(newMode);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('mode', newMode);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // ============================================================================
+  // Multiple Sites Mode State (existing implementation)
+  // ============================================================================
+
   // Form state
   const [formData, setFormData] = useState<FormData>({
     companyName: '',
@@ -255,6 +287,8 @@ export default function FeasibilityPage() {
 
   // Parse sites and update markers with live geocoding
   useEffect(() => {
+    if (activeTab !== 'multiple') return;
+
     const sites = parseSites(formData.sites);
     const newMarkers: MapMarker[] = [];
 
@@ -314,7 +348,7 @@ export default function FeasibilityPage() {
     } else {
       setMarkers([]);
     }
-  }, [formData.sites]);
+  }, [formData.sites, activeTab]);
 
   // Handle map click to add GPS coordinates
   const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
@@ -632,452 +666,494 @@ export default function FeasibilityPage() {
     );
   }
 
+  // ============================================================================
+  // Render
+  // ============================================================================
+
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col lg:flex-row">
-      {/* Left Panel - Form (40%) */}
-      <div className="w-full lg:w-[40%] h-full overflow-y-auto bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <MapPin className="h-6 w-6 text-circleTel-orange" />
-                B2B Feasibility Check
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Check coverage and generate quotes for multiple sites
-              </p>
-            </div>
-            {step !== 'form' && (
-              <Button variant="outline" size="sm" onClick={resetForm}>
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                New Check
-              </Button>
-            )}
+    <div className="h-[calc(100vh-80px)] flex flex-col">
+      {/* Header with Tab Toggle */}
+      <div className="bg-white border-b px-6 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-circleTel-orange" />
+              Sales Feasibility Portal
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Check coverage and generate quotes for B2B customers
+            </p>
           </div>
+        </div>
 
-          {/* Form Step */}
-          <AnimatePresence mode="wait">
-            {step === 'form' && (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
-              >
-                {/* Client Details */}
-                <div className="space-y-4">
-                  <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-circleTel-orange" />
-                    Client Details
-                  </h2>
-                  <div className="grid grid-cols-1 gap-3">
-                    <Input
-                      placeholder="Company Name *"
-                      value={formData.companyName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                    />
-                    <Input
-                      placeholder="Contact Name"
-                      value={formData.contactName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      />
-                      <Input
-                        type="tel"
-                        placeholder="Phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-                </div>
+        {/* Tab Toggle */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="single" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Single Site
+            </TabsTrigger>
+            <TabsTrigger value="multiple" className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Multiple Sites
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-                {/* Service Requirements */}
-                <div className="space-y-4">
-                  <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                    <Wifi className="h-4 w-4 text-circleTel-orange" />
-                    Service Requirements
-                  </h2>
-
-                  {/* Speed Options */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-500 uppercase">Speed Required</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {speedOptions.map((opt) => {
-                        const Icon = opt.icon;
-                        return (
-                          <button
-                            key={opt.value}
-                            onClick={() => setFormData(prev => ({ ...prev, speed: opt.value }))}
-                            className={`p-3 rounded-lg border-2 transition-all text-center ${
-                              formData.speed === opt.value
-                                ? 'border-circleTel-orange bg-circleTel-orange/10 text-circleTel-orange'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <Icon className="h-5 w-5 mx-auto mb-1" />
-                            <span className="text-xs font-medium">{opt.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Contention Options */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-500 uppercase">Contention Ratio</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {contentionOptions.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => setFormData(prev => ({ ...prev, contention: opt.value }))}
-                          className={`p-3 rounded-lg border-2 transition-all ${
-                            formData.contention === opt.value
-                              ? 'border-circleTel-orange bg-circleTel-orange/10'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <span className={`text-sm font-semibold ${formData.contention === opt.value ? 'text-circleTel-orange' : ''}`}>
-                            {opt.label}
-                          </span>
-                          <p className="text-xs text-gray-500">{opt.description}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Budget & Failover */}
-                  <div className="flex gap-3 items-start">
-                    <div className="flex-1">
-                      <Input
-                        type="number"
-                        placeholder="Budget per site (R)"
-                        value={formData.budget}
-                        onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                      />
-                    </div>
-                    <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <Checkbox
-                        checked={formData.failover}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
-                      />
-                      <span className="text-sm">
-                        <Shield className="h-4 w-4 inline mr-1 text-green-600" />
-                        Failover
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Sites */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-circleTel-orange" />
-                      Sites to Check
+      {/* Tab Content */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === 'single' ? (
+          // Single Site Mode - Stepper Wizard
+          <SingleSiteStepper />
+        ) : (
+          // Multiple Sites Mode - Split Map View (existing implementation)
+          <div className="h-full flex flex-col lg:flex-row">
+            {/* Left Panel - Form (40%) */}
+            <div className="w-full lg:w-[40%] h-full overflow-y-auto bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5">
+              <div className="p-6 space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Bulk Feasibility Check
                     </h2>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      {siteCount} site{siteCount !== 1 ? 's' : ''}
-                    </span>
+                    <p className="text-sm text-gray-500">
+                      Enter multiple addresses or GPS coordinates
+                    </p>
                   </div>
-                  <div className="relative">
-                    <Textarea
-                      placeholder="Enter addresses or GPS coordinates (one per line)&#10;&#10;Examples:&#10;123 Main Street, Sandton&#10;-26.107567, 28.056702"
-                      value={formData.sites}
-                      onChange={(e) => setFormData(prev => ({ ...prev, sites: e.target.value }))}
-                      rows={8}
-                      className="font-mono text-sm"
-                    />
-                    <div className="absolute bottom-2 right-2 flex gap-1">
-                      <button
-                        onClick={() => setFormData(prev => ({ ...prev, sites: '' }))}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                        title="Clear all"
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <MousePointer className="h-3 w-3" />
-                    Tip: Click on the map to add GPS coordinates
-                  </p>
-                </div>
-
-                {/* Submit Button */}
-                <Button
-                  onClick={checkFeasibility}
-                  disabled={siteCount === 0 || !formData.companyName}
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-6 text-lg font-semibold"
-                >
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Check Feasibility ({siteCount} site{siteCount !== 1 ? 's' : ''})
-                </Button>
-              </motion.div>
-            )}
-
-            {/* Checking Step */}
-            {step === 'checking' && (
-              <motion.div
-                key="checking"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
-              >
-                <div className="text-center py-8">
-                  <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold text-gray-900">Checking Coverage</h2>
-                  <p className="text-gray-500 mt-2">
-                    {completedCount + errorCount} of {siteResults.length} sites checked
-                  </p>
-                </div>
-
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {siteResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className={`p-3 rounded-lg border flex items-center gap-3 ${
-                        result.status === 'checking' ? 'bg-blue-50 border-blue-200' :
-                        result.status === 'complete' ? 'bg-green-50 border-green-200' :
-                        result.status === 'error' ? 'bg-red-50 border-red-200' :
-                        'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <span className="text-xs font-mono text-gray-400 w-6">{index + 1}</span>
-                      {result.status === 'checking' ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                      ) : result.status === 'complete' ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : result.status === 'error' ? (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      ) : (
-                        <Clock className="h-4 w-4 text-gray-400" />
-                      )}
-                      <span className="text-sm flex-1 truncate">{result.address}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Results Step */}
-            {step === 'results' && (
-              <motion.div
-                key="results"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
-              >
-                {/* Summary */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
-                    <CheckCircle2 className="h-6 w-6 text-green-500 mx-auto mb-1" />
-                    <span className="text-2xl font-bold text-green-700">{completedCount}</span>
-                    <p className="text-xs text-green-600">Coverage Found</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-center">
-                    <XCircle className="h-6 w-6 text-red-500 mx-auto mb-1" />
-                    <span className="text-2xl font-bold text-red-700">{errorCount}</span>
-                    <p className="text-xs text-red-600">No Coverage</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-gray-50 border border-gray-200 text-center">
-                    <MapPin className="h-6 w-6 text-gray-500 mx-auto mb-1" />
-                    <span className="text-2xl font-bold text-gray-700">{siteResults.length}</span>
-                    <p className="text-xs text-gray-600">Total Sites</p>
-                  </div>
-                </div>
-
-                {/* Site Results List */}
-                <div className="space-y-2 max-h-[350px] overflow-y-auto">
-                  {siteResults.map((result, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedSite(selectedSite === index ? null : index)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        selectedSite === index ? 'border-circleTel-orange bg-circleTel-orange/5' :
-                        result.status === 'complete' ? 'border-green-200 bg-green-50 hover:border-green-300' :
-                        result.status === 'error' ? 'border-red-200 bg-red-50 hover:border-red-300' :
-                        'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs font-mono text-gray-400 mt-0.5">{index + 1}</span>
-                          {result.status === 'complete' ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                          )}
-                          <div>
-                            <p className="text-sm font-medium">{result.address}</p>
-                            {result.recommendation && (
-                              <p className="text-xs text-gray-500 mt-1">{result.recommendation}</p>
-                            )}
-                          </div>
-                        </div>
-                        {result.status === 'error' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => { e.stopPropagation(); retrySite(index); }}
-                          >
-                            <RefreshCcw className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-
-                      {/* Expanded Details */}
-                      {selectedSite === index && result.coverage && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          className="mt-3 pt-3 border-t"
-                        >
-                          <div className="grid grid-cols-2 gap-2">
-                            {Object.entries(result.coverage).map(([tech, details]) => (
-                              details?.available && (
-                                <div key={tech} className="flex items-center gap-2 text-xs">
-                                  {getTechIcon(tech)}
-                                  <span className="capitalize">{tech}</span>
-                                  {details.provider && (
-                                    <span className="text-gray-400">({details.provider})</span>
-                                  )}
-                                </div>
-                              )
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Actions */}
-                <div className="space-y-3 pt-4 border-t">
-                  {generatedQuoteIds.length > 0 ? (
-                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                        <span className="font-semibold text-green-700">
-                          {generatedQuoteIds.length} Quote(s) Generated
-                        </span>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open('/admin/quotes', '_blank')}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Quotes
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      onClick={generateQuotes}
-                      disabled={completedCount === 0 || isGeneratingQuotes}
-                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-4"
-                    >
-                      {isGeneratingQuotes ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Generating Quotes...
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Generate Quotes ({completedCount} site{completedCount !== 1 ? 's' : ''})
-                        </>
-                      )}
+                  {step !== 'form' && (
+                    <Button variant="outline" size="sm" onClick={resetForm}>
+                      <ArrowLeft className="h-4 w-4 mr-1" />
+                      New Check
                     </Button>
                   )}
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
 
-      {/* Right Panel - Map (60%) */}
-      <div className="w-full lg:w-[60%] h-[400px] lg:h-full relative">
-        {!isLoaded ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+                {/* Form Step */}
+                <AnimatePresence mode="wait">
+                  {step === 'form' && (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-6"
+                    >
+                      {/* Client Details */}
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-circleTel-orange" />
+                          Client Details
+                        </h3>
+                        <div className="grid grid-cols-1 gap-3">
+                          <Input
+                            placeholder="Company Name *"
+                            value={formData.companyName}
+                            onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                          />
+                          <Input
+                            placeholder="Contact Name"
+                            value={formData.contactName}
+                            onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                          />
+                          <div className="grid grid-cols-2 gap-3">
+                            <Input
+                              type="email"
+                              placeholder="Email"
+                              value={formData.email}
+                              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                            />
+                            <Input
+                              type="tel"
+                              placeholder="Phone"
+                              value={formData.phone}
+                              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Service Requirements */}
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                          <Wifi className="h-4 w-4 text-circleTel-orange" />
+                          Service Requirements
+                        </h3>
+
+                        {/* Speed Options */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-500 uppercase">Speed Required</label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {speedOptions.map((opt) => {
+                              const Icon = opt.icon;
+                              return (
+                                <button
+                                  key={opt.value}
+                                  onClick={() => setFormData(prev => ({ ...prev, speed: opt.value }))}
+                                  className={`p-3 rounded-lg border-2 transition-all text-center ${
+                                    formData.speed === opt.value
+                                      ? 'border-circleTel-orange bg-circleTel-orange/10 text-circleTel-orange'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  }`}
+                                >
+                                  <Icon className="h-5 w-5 mx-auto mb-1" />
+                                  <span className="text-xs font-medium">{opt.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Contention Options */}
+                        <div className="space-y-2">
+                          <label className="text-xs text-gray-500 uppercase">Contention Ratio</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {contentionOptions.map((opt) => (
+                              <button
+                                key={opt.value}
+                                onClick={() => setFormData(prev => ({ ...prev, contention: opt.value }))}
+                                className={`p-3 rounded-lg border-2 transition-all ${
+                                  formData.contention === opt.value
+                                    ? 'border-circleTel-orange bg-circleTel-orange/10'
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <span className={`text-sm font-semibold ${formData.contention === opt.value ? 'text-circleTel-orange' : ''}`}>
+                                  {opt.label}
+                                </span>
+                                <p className="text-xs text-gray-500">{opt.description}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Budget & Failover */}
+                        <div className="flex gap-3 items-start">
+                          <div className="flex-1">
+                            <Input
+                              type="number"
+                              placeholder="Budget per site (R)"
+                              value={formData.budget}
+                              onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
+                            />
+                          </div>
+                          <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            <Checkbox
+                              checked={formData.failover}
+                              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
+                            />
+                            <span className="text-sm">
+                              <Shield className="h-4 w-4 inline mr-1 text-green-600" />
+                              Failover
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Sites */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-circleTel-orange" />
+                            Sites to Check
+                          </h3>
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {siteCount} site{siteCount !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <div className="relative">
+                          <Textarea
+                            placeholder="Enter addresses or GPS coordinates (one per line)&#10;&#10;Examples:&#10;123 Main Street, Sandton&#10;-26.107567, 28.056702"
+                            value={formData.sites}
+                            onChange={(e) => setFormData(prev => ({ ...prev, sites: e.target.value }))}
+                            rows={8}
+                            className="font-mono text-sm"
+                          />
+                          <div className="absolute bottom-2 right-2 flex gap-1">
+                            <button
+                              onClick={() => setFormData(prev => ({ ...prev, sites: '' }))}
+                              className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                              title="Clear all"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                          <MousePointer className="h-3 w-3" />
+                          Tip: Click on the map to add GPS coordinates
+                        </p>
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        onClick={checkFeasibility}
+                        disabled={siteCount === 0 || !formData.companyName}
+                        className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-6 text-lg font-semibold"
+                      >
+                        <Sparkles className="h-5 w-5 mr-2" />
+                        Check Feasibility ({siteCount} site{siteCount !== 1 ? 's' : ''})
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {/* Checking Step */}
+                  {step === 'checking' && (
+                    <motion.div
+                      key="checking"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-4"
+                    >
+                      <div className="text-center py-8">
+                        <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+                        <h2 className="text-xl font-semibold text-gray-900">Checking Coverage</h2>
+                        <p className="text-gray-500 mt-2">
+                          {completedCount + errorCount} of {siteResults.length} sites checked
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                        {siteResults.map((result, index) => (
+                          <div
+                            key={index}
+                            className={`p-3 rounded-lg border flex items-center gap-3 ${
+                              result.status === 'checking' ? 'bg-blue-50 border-blue-200' :
+                              result.status === 'complete' ? 'bg-green-50 border-green-200' :
+                              result.status === 'error' ? 'bg-red-50 border-red-200' :
+                              'bg-gray-50 border-gray-200'
+                            }`}
+                          >
+                            <span className="text-xs font-mono text-gray-400 w-6">{index + 1}</span>
+                            {result.status === 'checking' ? (
+                              <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                            ) : result.status === 'complete' ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            ) : result.status === 'error' ? (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            ) : (
+                              <Clock className="h-4 w-4 text-gray-400" />
+                            )}
+                            <span className="text-sm flex-1 truncate">{result.address}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Results Step */}
+                  {step === 'results' && (
+                    <motion.div
+                      key="results"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-4"
+                    >
+                      {/* Summary */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
+                          <CheckCircle2 className="h-6 w-6 text-green-500 mx-auto mb-1" />
+                          <span className="text-2xl font-bold text-green-700">{completedCount}</span>
+                          <p className="text-xs text-green-600">Coverage Found</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-center">
+                          <XCircle className="h-6 w-6 text-red-500 mx-auto mb-1" />
+                          <span className="text-2xl font-bold text-red-700">{errorCount}</span>
+                          <p className="text-xs text-red-600">No Coverage</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-gray-50 border border-gray-200 text-center">
+                          <MapPin className="h-6 w-6 text-gray-500 mx-auto mb-1" />
+                          <span className="text-2xl font-bold text-gray-700">{siteResults.length}</span>
+                          <p className="text-xs text-gray-600">Total Sites</p>
+                        </div>
+                      </div>
+
+                      {/* Site Results List */}
+                      <div className="space-y-2 max-h-[350px] overflow-y-auto">
+                        {siteResults.map((result, index) => (
+                          <div
+                            key={index}
+                            onClick={() => setSelectedSite(selectedSite === index ? null : index)}
+                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                              selectedSite === index ? 'border-circleTel-orange bg-circleTel-orange/5' :
+                              result.status === 'complete' ? 'border-green-200 bg-green-50 hover:border-green-300' :
+                              result.status === 'error' ? 'border-red-200 bg-red-50 hover:border-red-300' :
+                              'border-gray-200 bg-gray-50 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs font-mono text-gray-400 mt-0.5">{index + 1}</span>
+                                {result.status === 'complete' ? (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                                )}
+                                <div>
+                                  <p className="text-sm font-medium">{result.address}</p>
+                                  {result.recommendation && (
+                                    <p className="text-xs text-gray-500 mt-1">{result.recommendation}</p>
+                                  )}
+                                </div>
+                              </div>
+                              {result.status === 'error' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); retrySite(index); }}
+                                >
+                                  <RefreshCcw className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
+
+                            {/* Expanded Details */}
+                            {selectedSite === index && result.coverage && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                className="mt-3 pt-3 border-t"
+                              >
+                                <div className="grid grid-cols-2 gap-2">
+                                  {Object.entries(result.coverage).map(([tech, details]) => (
+                                    details?.available && (
+                                      <div key={tech} className="flex items-center gap-2 text-xs">
+                                        {getTechIcon(tech)}
+                                        <span className="capitalize">{tech}</span>
+                                        {details.provider && (
+                                          <span className="text-gray-400">({details.provider})</span>
+                                        )}
+                                      </div>
+                                    )
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="space-y-3 pt-4 border-t">
+                        {generatedQuoteIds.length > 0 ? (
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <CheckCircle2 className="h-5 w-5 text-green-500" />
+                              <span className="font-semibold text-green-700">
+                                {generatedQuoteIds.length} Quote(s) Generated
+                              </span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open('/admin/quotes', '_blank')}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Quotes
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            onClick={generateQuotes}
+                            disabled={completedCount === 0 || isGeneratingQuotes}
+                            className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-4"
+                          >
+                            {isGeneratingQuotes ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Generating Quotes...
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Generate Quotes ({completedCount} site{completedCount !== 1 ? 's' : ''})
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Right Panel - Map (60%) */}
+            <div className="w-full lg:w-[60%] h-[400px] lg:h-full relative">
+              {!isLoaded ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+                </div>
+              ) : (
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  options={mapOptions}
+                  onLoad={onMapLoad}
+                  onClick={onMapClick}
+                >
+                  {markers.map((marker) => (
+                    marker.status !== 'geocoding' && (
+                      <Marker
+                        key={marker.id}
+                        position={marker.position}
+                        icon={getMarkerIcon(marker.status)}
+                        label={{
+                          text: marker.lineNumber.toString(),
+                          color: '#ffffff',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                        }}
+                        onClick={() => {
+                          const index = siteResults.findIndex(s => s.address === marker.address);
+                          if (index >= 0) setSelectedSite(index);
+                        }}
+                      />
+                    )
+                  ))}
+                </GoogleMap>
+              )}
+
+              {/* Map Legend */}
+              <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg shadow-lg p-3">
+                <p className="text-xs font-semibold text-gray-700 mb-2">Legend</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <span>Coverage Available</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                    <span>No Coverage</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <span>Checking...</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gray-500" />
+                    <span>Pending</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2 pt-2 border-t">
+                  Click map to add location
+                </p>
+              </div>
+
+              {/* Site Count Overlay */}
+              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-lg shadow-lg px-4 py-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  {markers.filter(m => m.status !== 'geocoding').length} pin{markers.filter(m => m.status !== 'geocoding').length !== 1 ? 's' : ''} on map
+                </span>
+              </div>
+            </div>
           </div>
-        ) : (
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={mapCenter}
-            zoom={mapZoom}
-            options={mapOptions}
-            onLoad={onMapLoad}
-            onClick={onMapClick}
-          >
-            {markers.map((marker) => (
-              marker.status !== 'geocoding' && (
-                <Marker
-                  key={marker.id}
-                  position={marker.position}
-                  icon={getMarkerIcon(marker.status)}
-                  label={{
-                    text: marker.lineNumber.toString(),
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontWeight: 'bold',
-                  }}
-                  onClick={() => {
-                    const index = siteResults.findIndex(s => s.address === marker.address);
-                    if (index >= 0) setSelectedSite(index);
-                  }}
-                />
-              )
-            ))}
-          </GoogleMap>
         )}
-
-        {/* Map Legend */}
-        <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg shadow-lg p-3">
-          <p className="text-xs font-semibold text-gray-700 mb-2">Legend</p>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span>Coverage Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span>No Coverage</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span>Checking...</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gray-500" />
-              <span>Pending</span>
-            </div>
-          </div>
-          <p className="text-xs text-gray-400 mt-2 pt-2 border-t">
-            Click map to add location
-          </p>
-        </div>
-
-        {/* Site Count Overlay */}
-        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-lg shadow-lg px-4 py-2">
-          <span className="text-sm font-semibold text-gray-700">
-            {markers.filter(m => m.status !== 'geocoding').length} pin{markers.filter(m => m.status !== 'geocoding').length !== 1 ? 's' : ''} on map
-          </span>
-        </div>
       </div>
     </div>
   );
 }
-
