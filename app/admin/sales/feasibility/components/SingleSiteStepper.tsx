@@ -225,7 +225,12 @@ export function SingleSiteStepper() {
           (filters.technology === 'fibre' && (pkg.service_type?.toLowerCase().includes('fibre') || pkg.product_category?.toLowerCase().includes('fibre'))) ||
           (filters.technology === 'lte' && (pkg.service_type?.toLowerCase().includes('lte') || pkg.product_category?.toLowerCase().includes('lte'))) ||
           (filters.technology === '5g' && (pkg.service_type?.toLowerCase().includes('5g') || pkg.product_category?.toLowerCase().includes('5g'))) ||
-          (filters.technology === 'wireless' && (pkg.service_type?.toLowerCase().includes('wireless') || pkg.product_category?.toLowerCase().includes('tarana')));
+          (filters.technology === 'wireless' && (
+            pkg.service_type?.toLowerCase().includes('wireless') ||
+            pkg.service_type?.toLowerCase().includes('skyfibre') ||
+            pkg.product_category?.toLowerCase().includes('tarana') ||
+            pkg.product_category?.toLowerCase().includes('connectivity')
+          ));
         if (!techMatch) return false;
       }
       // Filter by speed
@@ -376,11 +381,6 @@ export function SingleSiteStepper() {
       const services = data.providers?.mtn?.services || [];
       const bestServices = data.bestServices || [];
 
-      // Debug logging
-      console.log('[Feasibility] API Response:', JSON.stringify(result, null, 2));
-      console.log('[Feasibility] Services array:', services);
-      console.log('[Feasibility] Service types:', services.map((s: { type: string }) => s.type));
-
       // Build coverage object from services array
       const coverage: DetailedCoverage = {};
 
@@ -424,7 +424,6 @@ export function SingleSiteStepper() {
       const taranaService = services.find((s: { type: string; available: boolean }) =>
         (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
       );
-      console.log('[Feasibility] Tarana service found:', taranaService);
       if (taranaService) {
         const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
         coverage.tarana = {
@@ -434,11 +433,7 @@ export function SingleSiteStepper() {
           distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
           baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
         };
-        console.log('[Feasibility] Tarana coverage set:', coverage.tarana);
       }
-
-      console.log('[Feasibility] Final coverage object:', coverage);
-      console.log('[Feasibility] Coverage keys:', Object.keys(coverage));
 
       setFormData(prev => ({
         ...prev,
@@ -799,24 +794,15 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4"
               >
-                {/* Debug: Log coverage at render time */}
-                {console.log('[Feasibility RENDER] formData.coverage:', formData.coverage)}
-                {console.log('[Feasibility RENDER] formData.address:', formData.address)}
-
                 {/* Compact Header with Coverage Badges */}
-                <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b bg-blue-50 p-4 rounded-lg">
+                <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b">
                   <div className="flex-1 min-w-0">
                     <h2 className="text-lg font-semibold text-gray-900 truncate">
                       {formData.address || 'Location Coverage'}
                     </h2>
-                    {/* Debug: Always show coverage info */}
-                    <p className="text-xs text-gray-500 mb-2">
-                      Coverage data: {formData.coverage ? Object.keys(formData.coverage).join(', ') : 'none'}
-                    </p>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => {
-                        console.log(`[Feasibility RENDER] Rendering badge for ${tech}:`, details);
-                        return details?.available ? (
+                      {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) =>
+                        details?.available ? (
                           <span
                             key={tech}
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200"
@@ -825,8 +811,8 @@ export function SingleSiteStepper() {
                             <span className="capitalize">{tech}</span>
                             <CheckCircle2 className="h-3 w-3" />
                           </span>
-                        ) : null;
-                      })}
+                        ) : null
+                      )}
                       {formData.coverage && Object.values(formData.coverage).every(d => !d?.available) && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                           <XCircle className="h-3 w-3" />
