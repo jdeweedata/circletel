@@ -28,7 +28,11 @@ import {
   DollarSign,
   Calendar,
   ClipboardList,
-  ExternalLink
+  ExternalLink,
+  Filter,
+  ArrowUpDown,
+  SlidersHorizontal,
+  Gauge
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -177,6 +181,14 @@ export function SingleSiteStepper() {
   const [availablePackages, setAvailablePackages] = useState<ServicePackage[]>([]);
   const [generatedQuoteId, setGeneratedQuoteId] = useState<string | null>(null);
 
+  // Package filters
+  const [filters, setFilters] = useState({
+    technology: 'all' as 'all' | 'fibre' | 'lte' | '5g' | 'wireless',
+    minSpeed: 0,
+    maxPrice: 10000,
+    sortBy: 'price' as 'price' | 'speed' | 'name',
+  });
+
   const [formData, setFormData] = useState<StepperFormData>({
     address: '',
     coordinates: null,
@@ -203,6 +215,33 @@ export function SingleSiteStepper() {
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Filtered and sorted packages
+  const filteredPackages = availablePackages
+    .filter(pkg => {
+      // Filter by technology
+      if (filters.technology !== 'all') {
+        const techMatch =
+          (filters.technology === 'fibre' && (pkg.service_type?.toLowerCase().includes('fibre') || pkg.product_category?.toLowerCase().includes('fibre'))) ||
+          (filters.technology === 'lte' && (pkg.service_type?.toLowerCase().includes('lte') || pkg.product_category?.toLowerCase().includes('lte'))) ||
+          (filters.technology === '5g' && (pkg.service_type?.toLowerCase().includes('5g') || pkg.product_category?.toLowerCase().includes('5g'))) ||
+          (filters.technology === 'wireless' && (pkg.service_type?.toLowerCase().includes('wireless') || pkg.product_category?.toLowerCase().includes('tarana')));
+        if (!techMatch) return false;
+      }
+      // Filter by speed
+      if (pkg.speed_down < filters.minSpeed) return false;
+      // Filter by price
+      if (pkg.price > filters.maxPrice) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'price': return a.price - b.price;
+        case 'speed': return b.speed_down - a.speed_down;
+        case 'name': return a.name.localeCompare(b.name);
+        default: return 0;
+      }
+    });
 
   // Load Google Maps
   const { isLoaded, loadError } = useJsApiLoader({
@@ -741,108 +780,192 @@ export function SingleSiteStepper() {
               </motion.div>
             )}
 
-            {/* Step 2: Coverage Results */}
+            {/* Step 2: Coverage Results & Package Selection */}
             {currentStep === 2 && (
               <motion.div
                 key="step2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Coverage Results</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Available technologies at {formData.address}
-                  </p>
-                </div>
-
-                {/* Coverage Summary */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => (
-                    <div
-                      key={tech}
-                      className={`p-4 rounded-lg border-2 ${
-                        details?.available
-                          ? 'border-green-200 bg-green-50'
-                          : 'border-gray-200 bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        {getTechIcon(tech)}
-                        <span className="font-medium capitalize">{tech}</span>
-                      </div>
-                      {details?.available ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-gray-400" />
-                      )}
-                      {details?.provider && (
-                        <p className="text-xs text-gray-500 mt-1">{details.provider}</p>
+                {/* Compact Header with Coverage Badges */}
+                <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-semibold text-gray-900 truncate">
+                      {formData.address || 'Location Coverage'}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => (
+                        details?.available && (
+                          <span
+                            key={tech}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200"
+                          >
+                            {getTechIcon(tech)}
+                            <span className="capitalize">{tech}</span>
+                            <CheckCircle2 className="h-3 w-3" />
+                          </span>
+                        )
+                      ))}
+                      {formData.coverage && Object.values(formData.coverage).every(d => !d?.available) && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                          <XCircle className="h-3 w-3" />
+                          No coverage
+                        </span>
                       )}
                     </div>
-                  ))}
+                  </div>
+                  {/* Selected Count Badge */}
+                  {formData.selectedPackages.length > 0 && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-circleTel-orange/10 rounded-lg border border-circleTel-orange/20">
+                      <Package className="h-4 w-4 text-circleTel-orange" />
+                      <span className="text-sm font-medium">{formData.selectedPackages.length} selected</span>
+                      <span className="text-sm font-bold text-circleTel-orange">{formatPrice(totals.monthly)}/mo</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Available Packages */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Packages</h3>
-                  <div className="space-y-3">
-                    {availablePackages.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>Loading packages...</p>
-                      </div>
-                    ) : (
-                      availablePackages.map((pkg) => {
-                        const isSelected = formData.selectedPackages.some(p => p.id === pkg.id);
-                        return (
-                          <div
-                            key={pkg.id}
-                            onClick={() => togglePackage(pkg, 'primary')}
-                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                              isSelected
-                                ? 'border-circleTel-orange bg-circleTel-orange/5'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <Checkbox checked={isSelected} />
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    {getTechIcon(pkg.service_type || pkg.product_category)}
-                                    <span className="font-medium">{pkg.name}</span>
-                                  </div>
-                                  <p className="text-sm text-gray-500">
-                                    {pkg.speed_down} Mbps down / {pkg.speed_up} Mbps up
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold text-lg">{formatPrice(pkg.price)}</p>
-                                <p className="text-xs text-gray-500">/month</p>
-                              </div>
+                {/* Filters Row */}
+                <div className="flex flex-wrap items-center gap-3 py-2 px-1">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm text-gray-500">Filters:</span>
+                  </div>
+
+                  {/* Technology Filter */}
+                  <select
+                    value={filters.technology}
+                    onChange={(e) => setFilters(f => ({ ...f, technology: e.target.value as typeof filters.technology }))}
+                    className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                  >
+                    <option value="all">All Technologies</option>
+                    <option value="fibre">Fibre</option>
+                    <option value="lte">LTE</option>
+                    <option value="5g">5G</option>
+                    <option value="wireless">Wireless/Tarana</option>
+                  </select>
+
+                  {/* Min Speed Filter */}
+                  <select
+                    value={filters.minSpeed}
+                    onChange={(e) => setFilters(f => ({ ...f, minSpeed: Number(e.target.value) }))}
+                    className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                  >
+                    <option value="0">Any Speed</option>
+                    <option value="50">50+ Mbps</option>
+                    <option value="100">100+ Mbps</option>
+                    <option value="200">200+ Mbps</option>
+                    <option value="500">500+ Mbps</option>
+                  </select>
+
+                  {/* Sort By */}
+                  <div className="flex items-center gap-1 ml-auto">
+                    <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                    <select
+                      value={filters.sortBy}
+                      onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value as typeof filters.sortBy }))}
+                      className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                    >
+                      <option value="price">Price: Low to High</option>
+                      <option value="speed">Speed: High to Low</option>
+                      <option value="name">Name: A-Z</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Package Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availablePackages.length === 0 ? (
+                    <div className="col-span-2 text-center py-12 text-gray-500">
+                      <Package className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                      <p className="font-medium">Loading packages...</p>
+                    </div>
+                  ) : filteredPackages.length === 0 ? (
+                    <div className="col-span-2 text-center py-12 text-gray-500">
+                      <SlidersHorizontal className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                      <p className="font-medium">No packages match your filters</p>
+                      <button
+                        onClick={() => setFilters({ technology: 'all', minSpeed: 0, maxPrice: 10000, sortBy: 'price' })}
+                        className="mt-2 text-sm text-circleTel-orange hover:underline"
+                      >
+                        Clear filters
+                      </button>
+                    </div>
+                  ) : (
+                    filteredPackages.map((pkg) => {
+                      const isSelected = formData.selectedPackages.some(p => p.id === pkg.id);
+                      return (
+                        <div
+                          key={pkg.id}
+                          onClick={() => togglePackage(pkg, 'primary')}
+                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                            isSelected
+                              ? 'border-circleTel-orange bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 shadow-sm'
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          {/* Selection indicator */}
+                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            isSelected ? 'border-circleTel-orange bg-circleTel-orange' : 'border-gray-300'
+                          }`}>
+                            {isSelected && <CheckCircle2 className="h-3 w-3 text-white" />}
+                          </div>
+
+                          {/* Package Header */}
+                          <div className="flex items-start gap-3 mb-3 pr-6">
+                            <div className={`p-2 rounded-lg ${isSelected ? 'bg-circleTel-orange/20' : 'bg-gray-100'}`}>
+                              {getTechIcon(pkg.service_type || pkg.product_category)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900 truncate">{pkg.name}</h4>
+                              <p className="text-xs text-gray-500 capitalize">
+                                {pkg.service_type || pkg.product_category || 'Internet'}
+                              </p>
                             </div>
                           </div>
-                        );
-                      })
-                    )}
-                  </div>
+
+                          {/* Speed & Price Row */}
+                          <div className="flex items-end justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1 text-sm">
+                                <Gauge className="h-4 w-4 text-blue-500" />
+                                <span className="font-medium">{pkg.speed_down}</span>
+                                <span className="text-gray-400">Mbps</span>
+                              </div>
+                              {pkg.speed_up > 0 && (
+                                <span className="text-xs text-gray-400">
+                                  ↑{pkg.speed_up} Mbps
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xl font-bold text-gray-900">{formatPrice(pkg.price)}</p>
+                              <p className="text-xs text-gray-500">/month</p>
+                            </div>
+                          </div>
+
+                          {/* Features Tags */}
+                          {pkg.features && pkg.features.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-gray-100">
+                              {pkg.features.slice(0, 3).map((feature, i) => (
+                                <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
 
-                {/* Selected Summary */}
-                {formData.selectedPackages.length > 0 && (
-                  <div className="p-4 bg-circleTel-orange/10 rounded-lg border border-circleTel-orange/20">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">
-                        {formData.selectedPackages.length} package(s) selected
-                      </span>
-                      <span className="font-bold text-lg">
-                        {formatPrice(totals.monthly)}/mo
-                      </span>
-                    </div>
-                  </div>
+                {/* Results count */}
+                {filteredPackages.length > 0 && (
+                  <p className="text-xs text-gray-400 text-center">
+                    Showing {filteredPackages.length} of {availablePackages.length} packages
+                  </p>
                 )}
               </motion.div>
             )}
