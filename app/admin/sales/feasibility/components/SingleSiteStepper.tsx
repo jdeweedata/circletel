@@ -128,6 +128,9 @@ const mapOptions: google.maps.MapOptions = {
   fullscreenControl: false,
 };
 
+// Static libraries array to prevent Google Maps reload warning
+const GOOGLE_MAPS_LIBRARIES: ('places')[] = ['places'];
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -204,7 +207,7 @@ export function SingleSiteStepper() {
   // Load Google Maps
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: ['places'],
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   // Initialize geocoder and autocomplete
@@ -311,7 +314,7 @@ export function SingleSiteStepper() {
 
     try {
       const requestBody = formData.coordinates
-        ? { latitude: formData.coordinates.lat, longitude: formData.coordinates.lng }
+        ? { coordinates: { lat: formData.coordinates.lat, lng: formData.coordinates.lng } }
         : { address: formData.address };
 
       const response = await fetch('/api/coverage/aggregate', {

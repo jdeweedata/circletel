@@ -159,6 +159,9 @@ const mapOptions: google.maps.MapOptions = {
   ],
 };
 
+// Static libraries array to prevent Google Maps reload warning
+const GOOGLE_MAPS_LIBRARIES: ('places')[] = ['places'];
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -276,7 +279,7 @@ export default function FeasibilityPage() {
   // Load Google Maps
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: ['places'],
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   // Initialize geocoder when map loads
@@ -401,7 +404,7 @@ export default function FeasibilityPage() {
         // Prepare request body
         const coords = parseCoordinates(site);
         const requestBody = coords
-          ? { latitude: coords.lat, longitude: coords.lng }
+          ? { coordinates: { lat: coords.lat, lng: coords.lng } }
           : { address: site };
 
         // Call coverage API
@@ -525,7 +528,7 @@ export default function FeasibilityPage() {
     try {
       const coords = parseCoordinates(site.address);
       const requestBody = coords
-        ? { latitude: coords.lat, longitude: coords.lng }
+        ? { coordinates: { lat: coords.lat, lng: coords.lng } }
         : { address: site.address };
 
       const response = await fetch('/api/coverage/aggregate', {
