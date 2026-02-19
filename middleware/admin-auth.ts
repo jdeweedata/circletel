@@ -18,6 +18,7 @@ const PUBLIC_ADMIN_ROUTES = [
   '/admin/signup',
   '/admin/forgot-password',
   '/admin/reset-password',
+  '/admin/sales/feasibility/designs', // Design mockups preview (temporary)
 ] as const;
 
 /**

@@ -22,7 +22,7 @@ export default function AdminLayout({
   const isStudioSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('studio.');
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password'];
+  const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password', '/admin/sales/feasibility/designs'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route)) || isStudioSubdomain;
 
   // Full-screen routes that use their own layout (no admin sidebar/header)
