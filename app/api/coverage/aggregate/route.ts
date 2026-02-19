@@ -273,7 +273,8 @@ function validateRequest(body: AggregationRequest): { valid: boolean; error?: st
 
 async function geocodeAddress(address: string): Promise<Coordinates> {
   // Use Google Maps Geocoding API
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  // Try server-side key first, fallback to public key (both work server-side)
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     throw new Error('Google Maps API key not configured');
   }
