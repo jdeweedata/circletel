@@ -38,6 +38,38 @@ import { cn } from '@/lib/utils';
 import { geocodeAddress } from '@/lib/services/google-geocoding';
 
 // Types
+interface CoverageDetail {
+  available: boolean;
+  provider?: string;
+  details?: string;
+  siteId?: string;
+  cellId?: string;
+  technology?: string;
+  speed?: number;
+  confidence?: string;
+}
+
+interface DetailedCoverage {
+  fiveG: CoverageDetail;
+  lte: CoverageDetail;
+  fixedLte: CoverageDetail;
+  ftth: CoverageDetail;
+  tarana: CoverageDetail;
+  threeG900: CoverageDetail;
+  threeG2100: CoverageDetail;
+  twoG: CoverageDetail;
+}
+
+interface MatchingProduct {
+  id: string;
+  name: string;
+  technology: string;
+  speed_down: number;
+  speed_up: number;
+  price: number;
+  service_type: string;
+}
+
 interface SiteResult {
   id: string;
   input: string;
@@ -50,6 +82,8 @@ interface SiteResult {
     fiveG: { available: boolean; provider?: string };
     lte: { available: boolean; provider?: string };
   } | null;
+  detailedCoverage?: DetailedCoverage;
+  matchingProducts?: MatchingProduct[];
   recommendedPackages: Array<{
     id: string;
     name: string;
@@ -142,6 +176,210 @@ function TechIcon({ tech }: { tech: string }) {
   }
 }
 
+// Detailed Coverage Table Component
+function DetailedCoverageTable({
+  coverage,
+  matchingProducts,
+  coordinates
+}: {
+  coverage: DetailedCoverage;
+  matchingProducts?: MatchingProduct[];
+  coordinates?: { lat: number; lng: number };
+}) {
+  const coverageRows = [
+    { key: 'fiveG', label: '5G', data: coverage.fiveG, techFilter: '5g' },
+    { key: 'lte', label: 'LTE', data: coverage.lte, techFilter: 'lte' },
+    { key: 'fixedLte', label: 'Fixed LTE', data: coverage.fixedLte, techFilter: 'fixed_lte' },
+    { key: 'ftth', label: 'FTTH (Fibre)', data: coverage.ftth, techFilter: 'fibre' },
+    { key: 'tarana', label: 'Tarana/SkyFibre', data: coverage.tarana, techFilter: 'skyfibre' },
+    { key: 'threeG900', label: '3G 900MHz', data: coverage.threeG900, techFilter: '3g' },
+    { key: 'threeG2100', label: '3G 2100MHz', data: coverage.threeG2100, techFilter: '3g' },
+    { key: 'twoG', label: '2G GSM', data: coverage.twoG, techFilter: '2g' },
+  ];
+
+  // Get matching products for a technology
+  const getProductsForTech = (techFilter: string) => {
+    if (!matchingProducts) return [];
+    return matchingProducts.filter(p => {
+      const serviceType = p.service_type?.toLowerCase() || '';
+      const name = p.name?.toLowerCase() || '';
+      switch (techFilter) {
+        case '5g': return serviceType.includes('5g') || name.includes('5g');
+        case 'lte': return serviceType.includes('lte') && !serviceType.includes('fixed');
+        case 'fixed_lte': return serviceType.includes('fixed') || name.includes('fixed lte');
+        case 'fibre': return serviceType.includes('fibre') || serviceType.includes('ftth') || serviceType.includes('bizfibre');
+        case 'skyfibre': return serviceType.includes('skyfibre') || serviceType.includes('tarana') || name.includes('skyfibre');
+        default: return false;
+      }
+    }).slice(0, 2);
+  };
+
+  return (
+    <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Coverage Analysis
+          </h4>
+          {coordinates && (
+            <span className="text-xs text-slate-300">
+              ({coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)})
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Table */}
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-gray-50 border-b border-gray-200">
+            <th className="px-4 py-2 text-left font-medium text-gray-600 w-36">Technology</th>
+            <th className="px-4 py-2 text-left font-medium text-gray-600 w-28">Status</th>
+            <th className="px-4 py-2 text-left font-medium text-gray-600">Details</th>
+            <th className="px-4 py-2 text-left font-medium text-gray-600">CircleTel Products</th>
+          </tr>
+        </thead>
+        <tbody>
+          {coverageRows.map((row, idx) => {
+            const products = getProductsForTech(row.techFilter);
+            return (
+              <tr key={row.key} className={cn(
+                "border-b border-gray-100 transition-colors",
+                row.data.available ? "bg-emerald-50/50 hover:bg-emerald-50" : "hover:bg-gray-50"
+              )}>
+                <td className="px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <TechIcon tech={row.key} />
+                    <span className="font-medium text-gray-900">{row.label}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-2.5">
+                  {row.data.available ? (
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Available
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-gray-400">
+                      <XCircle className="w-4 h-4" />
+                      No Coverage
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-2.5">
+                  {row.data.available ? (
+                    <span className="text-gray-600">
+                      {row.data.details ||
+                        (row.data.siteId && row.data.cellId
+                          ? `Site ${row.data.siteId}, Cell ${row.data.cellId}`
+                          : row.data.provider
+                            ? `Provider: ${row.data.provider}`
+                            : row.data.technology || 'Available'
+                        )
+                      }
+                      {row.data.speed && ` @ ${row.data.speed}Mbps`}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-2.5">
+                  {row.data.available && products.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {products.map(p => (
+                        <span
+                          key={p.id}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 bg-circleTel-orange/10 text-circleTel-orange rounded text-xs font-medium"
+                        >
+                          {p.name}
+                          <span className="text-circleTel-orange/70">R{p.price}/m</span>
+                        </span>
+                      ))}
+                    </div>
+                  ) : row.data.available ? (
+                    <span className="text-gray-400 text-xs italic">No matching products</span>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Summary Footer */}
+      <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-gray-500">
+            {coverageRows.filter(r => r.data.available).length} of {coverageRows.length} technologies available
+          </span>
+          <span className="text-gray-400">
+            Data from MTN WMS GeoServer
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Helper to extract detailed coverage info from services array
+function extractCoverageDetail(services: any[], serviceType: string): CoverageDetail {
+  const service = services.find((s: any) => s.type === serviceType);
+  if (!service || !service.available) {
+    return { available: false };
+  }
+  return {
+    available: true,
+    provider: service.provider || undefined,
+    siteId: service.metadata?.siteId || service.metadata?.SITEID || undefined,
+    cellId: service.metadata?.cellId || service.metadata?.CELLID || undefined,
+    technology: service.technology || service.metadata?.NETWORK_TYPE || undefined,
+    speed: service.estimatedSpeed?.download || service.metadata?.SPEED || undefined,
+    details: service.metadata?.details || undefined,
+    confidence: service.signal || 'medium'
+  };
+}
+
+// Fetch matching CircleTel products based on available coverage
+async function fetchMatchingProducts(coverage: DetailedCoverage): Promise<MatchingProduct[]> {
+  try {
+    const response = await fetch('/api/products?limit=50&status=active');
+    if (!response.ok) return [];
+    const data = await response.json();
+    const products: MatchingProduct[] = (data.products || []).map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      technology: p.service_type,
+      speed_down: p.speed_down || 0,
+      speed_up: p.speed_up || 0,
+      price: parseFloat(p.price || p.price_incl_vat || p.base_price_zar || 0),
+      service_type: p.service_type || ''
+    }));
+
+    // Filter products based on available coverage
+    const availableTechs: string[] = [];
+    if (coverage.ftth.available) availableTechs.push('fibre', 'ftth', 'bizfibre');
+    if (coverage.tarana.available) availableTechs.push('skyfibre', 'tarana', 'wireless');
+    if (coverage.fiveG.available) availableTechs.push('5g');
+    if (coverage.fixedLte.available) availableTechs.push('fixed', 'fixedlte');
+    if (coverage.lte.available) availableTechs.push('lte');
+
+    return products.filter(p => {
+      const serviceType = p.service_type?.toLowerCase() || '';
+      const name = p.name?.toLowerCase() || '';
+      return availableTechs.some(tech =>
+        serviceType.includes(tech) || name.includes(tech)
+      );
+    }).sort((a, b) => a.price - b.price);
+  } catch (error) {
+    console.error('Failed to fetch matching products:', error);
+    return [];
+  }
+}
+
 export default function FeasibilityPage() {
   const [step, setStep] = useState<'form' | 'checking' | 'results'>('form');
   const [formData, setFormData] = useState<FormData>({
@@ -216,44 +454,59 @@ export default function FeasibilityPage() {
           }
         }
 
-        // Call actual coverage API
-        // API requires address field; coordinates are optional enhancement
-        const response = await fetch('/api/coverage/check', {
+        // Call aggregate coverage API for detailed results
+        const response = await fetch('/api/coverage/aggregate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            // Address is always required - use GPS string as address if no street address
-            address: address || `${coordinates?.lat}, ${coordinates?.lng}`,
-            // Include coordinates if available (for PostGIS geography storage)
-            ...(coordinates && {
-              coordinates: { lat: coordinates.lat, lng: coordinates.lng }
-            })
+            address: address || undefined,
+            coordinates: coordinates || undefined,
+            providers: ['mtn', 'dfa'],
+            serviceTypes: ['fibre', 'uncapped_wireless', '5g', 'fixed_lte', 'lte'],
+            includeAlternatives: true
           })
         });
 
         const result = await response.json();
+        const services = result.data?.services || [];
+        const providers = result.data?.providers || [];
 
-        // Parse coverage response
+        // Parse basic coverage (backwards compatible)
         const coverage = {
           fibre: {
-            available: result.data?.services?.some((s: any) => s.type === 'fibre') || false,
-            provider: 'DFA',
+            available: services.some((s: any) => s.type === 'fibre' && s.available),
+            provider: services.find((s: any) => s.type === 'fibre')?.provider || 'DFA',
             confidence: result.data?.confidence || 'medium'
           },
           tarana: {
-            available: result.data?.services?.some((s: any) => s.type === 'uncapped_wireless') || false,
+            available: services.some((s: any) => s.type === 'uncapped_wireless' && s.available),
             confidence: result.data?.confidence || 'medium',
-            zone: result.data?.metadata?.baseStationValidation?.nearestStation ? 'Zone 0' : undefined
+            zone: result.data?.metadata?.baseStationValidation?.nearestStation?.siteName || undefined
           },
           fiveG: {
-            available: result.data?.services?.some((s: any) => s.type === '5g') || false,
+            available: services.some((s: any) => s.type === '5g' && s.available),
             provider: 'MTN'
           },
           lte: {
-            available: result.data?.services?.some((s: any) => s.type === 'fixed_lte' || s.type === 'lte') || false,
+            available: services.some((s: any) => (s.type === 'fixed_lte' || s.type === 'lte') && s.available),
             provider: 'MTN'
           }
         };
+
+        // Build detailed coverage from services
+        const detailedCoverage: DetailedCoverage = {
+          fiveG: extractCoverageDetail(services, '5g'),
+          lte: extractCoverageDetail(services, 'lte'),
+          fixedLte: extractCoverageDetail(services, 'fixed_lte'),
+          ftth: extractCoverageDetail(services, 'fibre'),
+          tarana: extractCoverageDetail(services, 'uncapped_wireless'),
+          threeG900: extractCoverageDetail(services, '3g_900'),
+          threeG2100: extractCoverageDetail(services, '3g_2100'),
+          twoG: extractCoverageDetail(services, '2g'),
+        };
+
+        // Fetch matching products from database
+        const matchingProducts = await fetchMatchingProducts(detailedCoverage);
 
         // Generate recommended packages based on coverage and requirements
         const packages = await generatePackageRecommendations(coverage, formData);
@@ -265,6 +518,8 @@ export default function FeasibilityPage() {
             address: address || `${coordinates?.lat.toFixed(6)}, ${coordinates?.lng.toFixed(6)}`,
             coordinates: coordinates || undefined,
             coverage,
+            detailedCoverage,
+            matchingProducts,
             recommendedPackages: packages
           } : r
         ));
@@ -525,41 +780,58 @@ export default function FeasibilityPage() {
         }
       }
 
-      // Call actual coverage API
-      const response = await fetch('/api/coverage/check', {
+      // Call aggregate coverage API for detailed results
+      const response = await fetch('/api/coverage/aggregate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          address: address || `${coordinates?.lat}, ${coordinates?.lng}`,
-          ...(coordinates && {
-            coordinates: { lat: coordinates.lat, lng: coordinates.lng }
-          })
+          address: address || undefined,
+          coordinates: coordinates || undefined,
+          providers: ['mtn', 'dfa'],
+          serviceTypes: ['fibre', 'uncapped_wireless', '5g', 'fixed_lte', 'lte'],
+          includeAlternatives: true
         })
       });
 
       const result = await response.json();
+      const services = result.data?.services || [];
 
-      // Parse coverage response
+      // Parse basic coverage (backwards compatible)
       const coverage = {
         fibre: {
-          available: result.data?.services?.some((s: any) => s.type === 'fibre') || false,
-          provider: 'DFA',
+          available: services.some((s: any) => s.type === 'fibre' && s.available),
+          provider: services.find((s: any) => s.type === 'fibre')?.provider || 'DFA',
           confidence: result.data?.confidence || 'medium'
         },
         tarana: {
-          available: result.data?.services?.some((s: any) => s.type === 'uncapped_wireless') || false,
+          available: services.some((s: any) => s.type === 'uncapped_wireless' && s.available),
           confidence: result.data?.confidence || 'medium',
-          zone: result.data?.metadata?.baseStationValidation?.nearestStation ? 'Zone 0' : undefined
+          zone: result.data?.metadata?.baseStationValidation?.nearestStation?.siteName || undefined
         },
         fiveG: {
-          available: result.data?.services?.some((s: any) => s.type === '5g') || false,
+          available: services.some((s: any) => s.type === '5g' && s.available),
           provider: 'MTN'
         },
         lte: {
-          available: result.data?.services?.some((s: any) => s.type === 'fixed_lte' || s.type === 'lte') || false,
+          available: services.some((s: any) => (s.type === 'fixed_lte' || s.type === 'lte') && s.available),
           provider: 'MTN'
         }
       };
+
+      // Build detailed coverage from services
+      const detailedCoverage: DetailedCoverage = {
+        fiveG: extractCoverageDetail(services, '5g'),
+        lte: extractCoverageDetail(services, 'lte'),
+        fixedLte: extractCoverageDetail(services, 'fixed_lte'),
+        ftth: extractCoverageDetail(services, 'fibre'),
+        tarana: extractCoverageDetail(services, 'uncapped_wireless'),
+        threeG900: extractCoverageDetail(services, '3g_900'),
+        threeG2100: extractCoverageDetail(services, '3g_2100'),
+        twoG: extractCoverageDetail(services, '2g'),
+      };
+
+      // Fetch matching products from database
+      const matchingProducts = await fetchMatchingProducts(detailedCoverage);
 
       // Generate recommended packages based on coverage and requirements
       const packages = await generatePackageRecommendations(coverage, formData);
@@ -571,6 +843,8 @@ export default function FeasibilityPage() {
           address: address || `${coordinates?.lat.toFixed(6)}, ${coordinates?.lng.toFixed(6)}`,
           coordinates: coordinates || undefined,
           coverage,
+          detailedCoverage,
+          matchingProducts,
           recommendedPackages: packages,
           error: undefined
         } : r
@@ -1007,9 +1281,10 @@ export default function FeasibilityPage() {
                               </div>
                             )}
 
-                            {/* Coverage badges */}
+                            {/* Coverage Results */}
                             {result.status === 'complete' && result.coverage && (
-                              <div className="space-y-3">
+                              <div className="space-y-4">
+                                {/* Quick Summary Badges */}
                                 <div className="flex flex-wrap gap-2">
                                   <CoverageBadge
                                     available={result.coverage.fibre.available}
@@ -1031,20 +1306,32 @@ export default function FeasibilityPage() {
                                   />
                                 </div>
 
-                                {/* Recommended packages */}
+                                {/* Detailed Coverage Table */}
+                                {result.detailedCoverage && (
+                                  <DetailedCoverageTable
+                                    coverage={result.detailedCoverage}
+                                    matchingProducts={result.matchingProducts}
+                                    coordinates={result.coordinates}
+                                  />
+                                )}
+
+                                {/* Recommended packages for quote generation */}
                                 {result.recommendedPackages.length > 0 && (
-                                  <div className="pt-2 border-t border-gray-100">
-                                    <p className="text-xs font-medium text-gray-500 mb-2">Recommended Packages</p>
+                                  <div className="pt-3 border-t border-gray-200">
+                                    <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                      <Sparkles className="w-4 h-4 text-circleTel-orange" />
+                                      Best Options for Quote
+                                    </p>
                                     <div className="flex flex-wrap gap-2">
                                       {result.recommendedPackages.map(pkg => (
                                         <div
                                           key={pkg.id}
-                                          className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                          className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-circleTel-orange/5 to-circleTel-orange/10 border border-circleTel-orange/20 rounded-lg text-sm"
                                         >
                                           <TechIcon tech={pkg.technology} />
-                                          <span className="font-medium">{pkg.name}</span>
+                                          <span className="font-medium text-gray-900">{pkg.name}</span>
                                           <span className="text-gray-500">{pkg.speed}</span>
-                                          <span className="text-circleTel-orange font-semibold">R{pkg.price}/m</span>
+                                          <span className="text-circleTel-orange font-bold">R{pkg.price}/m</span>
                                         </div>
                                       ))}
                                     </div>
@@ -1052,7 +1339,7 @@ export default function FeasibilityPage() {
                                 )}
 
                                 {result.recommendedPackages.length === 0 && (
-                                  <p className="text-sm text-amber-600 flex items-center gap-2">
+                                  <p className="text-sm text-amber-600 flex items-center gap-2 pt-2">
                                     <AlertCircle className="w-4 h-4" />
                                     No packages match requirements. Consider adjusting speed/budget.
                                   </p>
