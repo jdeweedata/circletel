@@ -439,7 +439,7 @@ export function SingleSiteStepper() {
 
       // Fetch available packages
       if (data.leadId) {
-        const packagesRes = await fetch(`/api/coverage/packages?leadId=${data.leadId}&coverageType=business`);
+        const packagesRes = await fetch(`/api/coverage/packages?leadId=${data.leadId}&type=business`);
         if (packagesRes.ok) {
           const packagesData = await packagesRes.json();
           setAvailablePackages(packagesData.packages || []);
