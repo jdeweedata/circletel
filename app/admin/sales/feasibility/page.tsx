@@ -418,43 +418,67 @@ export default function FeasibilityPage() {
           throw new Error(`Coverage check failed: ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || 'Coverage check failed');
+        }
+
+        const apiData = result.data;
+        const services = apiData.providers?.mtn?.services || [];
 
         // Process coverage data
         const coverage: DetailedCoverage = {};
         const matchingProducts: MatchingProduct[] = [];
 
-        // Map API response to our structure
-        if (data.mtn?.available) {
+        // Check for Fibre
+        const fibreService = services.find((s: { type: string; available: boolean }) =>
+          s.type === 'fibre' && s.available
+        );
+        if (fibreService) {
           coverage.fibre = {
             available: true,
             technology: 'Fibre',
-            provider: 'MTN',
-            products: data.mtn.products || [],
+            provider: fibreService.provider || 'MTN',
           };
         }
-        if (data.lte?.available) {
+
+        // Check for LTE
+        const lteService = services.find((s: { type: string; available: boolean }) =>
+          (s.type === 'fixed_lte' || s.type === 'lte') && s.available
+        );
+        if (lteService) {
           coverage.lte = {
             available: true,
-            technology: 'LTE',
-            provider: data.lte.provider || 'Multiple',
-            signalStrength: data.lte.signalStrength,
+            technology: 'Fixed LTE',
+            provider: lteService.provider || 'MTN',
           };
         }
-        if (data['5g']?.available) {
+
+        // Check for 5G
+        const fiveGService = services.find((s: { type: string; available: boolean }) =>
+          s.type === '5g' && s.available
+        );
+        if (fiveGService) {
           coverage['5g'] = {
             available: true,
             technology: '5G',
-            provider: data['5g'].provider || 'Multiple',
+            provider: fiveGService.provider || 'MTN',
           };
         }
-        if (data.tarana?.available) {
+
+        // Check for Tarana/Wireless
+        const taranaService = services.find((s: { type: string; available: boolean }) =>
+          (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
+        );
+        if (taranaService) {
+          const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
           coverage.tarana = {
             available: true,
-            technology: 'Tarana',
+            technology: taranaService.technology || 'Tarana Wireless',
             provider: 'CircleTel',
-            distance: data.tarana.distance,
-            baseStation: data.tarana.baseStation,
+            distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
+            baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
           };
         }
 
@@ -539,23 +563,62 @@ export default function FeasibilityPage() {
 
       if (!response.ok) throw new Error('Coverage check failed');
 
-      const data = await response.json();
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Coverage check failed');
+      }
+
+      const apiData = result.data;
+      const services = apiData.providers?.mtn?.services || [];
       const coverage: DetailedCoverage = {};
 
-      if (data.mtn?.available) {
+      // Check for Fibre
+      const fibreService = services.find((s: { type: string; available: boolean }) =>
+        s.type === 'fibre' && s.available
+      );
+      if (fibreService) {
         coverage.fibre = {
           available: true,
           technology: 'Fibre',
-          provider: 'MTN',
-          products: data.mtn.products || [],
+          provider: fibreService.provider || 'MTN',
         };
       }
-      if (data.tarana?.available) {
+
+      // Check for LTE
+      const lteService = services.find((s: { type: string; available: boolean }) =>
+        (s.type === 'fixed_lte' || s.type === 'lte') && s.available
+      );
+      if (lteService) {
+        coverage.lte = {
+          available: true,
+          technology: 'Fixed LTE',
+          provider: lteService.provider || 'MTN',
+        };
+      }
+
+      // Check for 5G
+      const fiveGService = services.find((s: { type: string; available: boolean }) =>
+        s.type === '5g' && s.available
+      );
+      if (fiveGService) {
+        coverage['5g'] = {
+          available: true,
+          technology: '5G',
+          provider: fiveGService.provider || 'MTN',
+        };
+      }
+
+      // Check for Tarana/Wireless
+      const taranaService = services.find((s: { type: string; available: boolean }) =>
+        (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
+      );
+      if (taranaService) {
+        const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
         coverage.tarana = {
           available: true,
-          technology: 'Tarana',
+          technology: taranaService.technology || 'Tarana Wireless',
           provider: 'CircleTel',
-          distance: data.tarana.distance,
+          distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
         };
       }
 

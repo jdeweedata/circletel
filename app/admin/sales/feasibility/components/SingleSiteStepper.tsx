@@ -327,40 +327,67 @@ export function SingleSiteStepper() {
         throw new Error('Coverage check failed');
       }
 
-      const data = await response.json();
+      const result = await response.json();
 
-      // Build coverage object
+      if (!result.success) {
+        throw new Error(result.error || 'Coverage check failed');
+      }
+
+      const data = result.data;
+      const services = data.providers?.mtn?.services || [];
+      const bestServices = data.bestServices || [];
+
+      // Build coverage object from services array
       const coverage: DetailedCoverage = {};
 
-      if (data.mtn?.available || data.fibre?.available) {
+      // Check for Fibre
+      const fibreService = services.find((s: { type: string; available: boolean }) =>
+        s.type === 'fibre' && s.available
+      );
+      if (fibreService) {
         coverage.fibre = {
           available: true,
           technology: 'Fibre',
-          provider: 'MTN',
-          products: data.mtn?.products || data.fibre?.products || [],
+          provider: fibreService.provider || 'MTN',
         };
       }
-      if (data.lte?.available) {
+
+      // Check for LTE
+      const lteService = services.find((s: { type: string; available: boolean }) =>
+        (s.type === 'fixed_lte' || s.type === 'lte') && s.available
+      );
+      if (lteService) {
         coverage.lte = {
           available: true,
-          technology: 'LTE',
-          provider: data.lte.provider || 'Multiple',
+          technology: 'Fixed LTE',
+          provider: lteService.provider || 'MTN',
         };
       }
-      if (data['5g']?.available) {
+
+      // Check for 5G
+      const fiveGService = services.find((s: { type: string; available: boolean }) =>
+        s.type === '5g' && s.available
+      );
+      if (fiveGService) {
         coverage['5g'] = {
           available: true,
           technology: '5G',
-          provider: data['5g'].provider || 'Multiple',
+          provider: fiveGService.provider || 'MTN',
         };
       }
-      if (data.tarana?.available || data.wireless?.available) {
+
+      // Check for Tarana/Wireless
+      const taranaService = services.find((s: { type: string; available: boolean }) =>
+        (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
+      );
+      if (taranaService) {
+        const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
         coverage.tarana = {
           available: true,
-          technology: 'Tarana',
+          technology: taranaService.technology || 'Tarana Wireless',
           provider: 'CircleTel',
-          distance: data.tarana?.distance,
-          baseStation: data.tarana?.baseStation,
+          distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
+          baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
         };
       }
 
