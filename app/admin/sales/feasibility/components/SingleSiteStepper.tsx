@@ -435,6 +435,19 @@ export function SingleSiteStepper() {
         };
       }
 
+      // Check DFA fibre coverage (separate provider from MTN)
+      const dfaServices = data.providers?.dfa?.services || [];
+      const dfaFibreService = dfaServices.find((s: { type: string; available: boolean }) =>
+        s.type === 'fibre' && s.available
+      );
+      if (dfaFibreService && !coverage.fibre) {
+        coverage.fibre = {
+          available: true,
+          technology: 'DFA Fibre',
+          provider: (dfaFibreService as { provider?: string }).provider || 'DFA',
+        };
+      }
+
       setFormData(prev => ({
         ...prev,
         coverage,

@@ -37,7 +37,8 @@ import {
   Check,
   Clock,
   LayoutGrid,
-  Layers
+  Layers,
+  Package
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -95,6 +96,19 @@ interface SiteResult {
   matchingProducts?: MatchingProduct[];
   recommendation?: string;
   error?: string;
+}
+
+interface ServicePackage {
+  id: string;
+  name: string;
+  service_type: string;
+  product_category?: string;
+  speed_down: number;
+  speed_up: number;
+  price: number;
+  installation_fee?: number;
+  provider?: string;
+  features?: string[];
 }
 
 interface FormData {
@@ -269,6 +283,11 @@ export default function FeasibilityPage() {
   const [isGeneratingQuotes, setIsGeneratingQuotes] = useState(false);
   const [generatedQuoteIds, setGeneratedQuoteIds] = useState<string[]>([]);
 
+  // Package selection state
+  const [availablePackages, setAvailablePackages] = useState<ServicePackage[]>([]);
+  const [sitePackageSelections, setSitePackageSelections] = useState<Record<number, string>>({});
+  const [isLoadingPackages, setIsLoadingPackages] = useState(false);
+
   // Map state
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
@@ -369,191 +388,89 @@ export default function FeasibilityPage() {
     }
   }, []);
 
-  // Check feasibility for all sites
-  const checkFeasibility = async () => {
-    const sites = parseSites(formData.sites);
-    if (sites.length === 0) {
-      toast.error('No sites entered - please enter at least one address or GPS coordinate.');
-      return;
-    }
+  // Fetch available business packages and auto-assign best-fit per site
+  const fetchAndAssignPackages = async (results: SiteResult[]) => {
+    setIsLoadingPackages(true);
+    try {
+      // Fetch all active business packages
+      const res = await fetch('/api/admin/products?active=true&customer_type=business');
+      if (!res.ok) throw new Error('Failed to fetch packages');
+      const data = await res.json();
+      const packages: ServicePackage[] = data.products || data || [];
+      setAvailablePackages(packages);
 
-    setIsChecking(true);
-    setStep('checking');
+      // Auto-assign best-fit package per site based on speed requirement and coverage
+      const selections: Record<number, string> = {};
+      results.forEach((result, index) => {
+        if (result.status !== 'complete' || !result.coverage) return;
 
-    // Initialize results
-    const initialResults: SiteResult[] = sites.map(site => ({
-      address: site,
-      coordinates: parseCoordinates(site) || undefined,
-      status: 'pending',
-    }));
-    setSiteResults(initialResults);
+        // Determine best technology available at this site
+        const coverageTechs = Object.entries(result.coverage)
+          .filter(([, detail]) => detail?.available)
+          .map(([tech]) => tech);
 
-    // Check each site
-    for (let i = 0; i < sites.length; i++) {
-      const site = sites[i];
-
-      // Update status to checking
-      setSiteResults(prev => prev.map((r, idx) =>
-        idx === i ? { ...r, status: 'checking' } : r
-      ));
-      setMarkers(prev => prev.map((m, idx) =>
-        idx === i ? { ...m, status: 'checking' } : m
-      ));
-
-      try {
-        // Prepare request body
-        const coords = parseCoordinates(site);
-        const requestBody = coords
-          ? { coordinates: { lat: coords.lat, lng: coords.lng } }
-          : { address: site };
-
-        // Call coverage API
-        const response = await fetch('/api/coverage/aggregate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
+        // Filter packages matching available technologies and speed requirement
+        const matchingPackages = packages.filter(pkg => {
+          const pkgType = (pkg.service_type || '').toLowerCase();
+          const pkgCategory = (pkg.product_category || '').toLowerCase();
+          const hasMatchingTech = coverageTechs.some(tech => {
+            if (tech === 'fibre') return pkgType.includes('fibre') || pkgCategory.includes('fibre');
+            if (tech === 'tarana') return pkgType.includes('skyfibre') || pkgType.includes('wireless') || pkgCategory.includes('wireless');
+            if (tech === 'lte') return pkgType.includes('lte') || pkgCategory.includes('lte');
+            if (tech === '5g') return pkgType.includes('5g') || pkgCategory.includes('5g');
+            return false;
+          });
+          return hasMatchingTech && pkg.speed_down >= formData.speed;
         });
 
-        if (!response.ok) {
-          throw new Error(`Coverage check failed: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error || 'Coverage check failed');
-        }
-
-        const apiData = result.data;
-        const services = apiData.providers?.mtn?.services || [];
-
-        // Process coverage data
-        const coverage: DetailedCoverage = {};
-        const matchingProducts: MatchingProduct[] = [];
-
-        // Check for Fibre
-        const fibreService = services.find((s: { type: string; available: boolean }) =>
-          s.type === 'fibre' && s.available
-        );
-        if (fibreService) {
-          coverage.fibre = {
-            available: true,
-            technology: 'Fibre',
-            provider: fibreService.provider || 'MTN',
-          };
-        }
-
-        // Check for LTE
-        const lteService = services.find((s: { type: string; available: boolean }) =>
-          (s.type === 'fixed_lte' || s.type === 'lte') && s.available
-        );
-        if (lteService) {
-          coverage.lte = {
-            available: true,
-            technology: 'Fixed LTE',
-            provider: lteService.provider || 'MTN',
-          };
-        }
-
-        // Check for 5G
-        const fiveGService = services.find((s: { type: string; available: boolean }) =>
-          s.type === '5g' && s.available
-        );
-        if (fiveGService) {
-          coverage['5g'] = {
-            available: true,
-            technology: '5G',
-            provider: fiveGService.provider || 'MTN',
-          };
-        }
-
-        // Check for Tarana/Wireless
-        const taranaService = services.find((s: { type: string; available: boolean }) =>
-          (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
-        );
-        if (taranaService) {
-          const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
-          coverage.tarana = {
-            available: true,
-            technology: taranaService.technology || 'Tarana Wireless',
-            provider: 'CircleTel',
-            distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
-            baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
-          };
-        }
-
-        // Determine status based on coverage
-        const hasCoverage = Object.values(coverage).some(c => c?.available);
-        const status = hasCoverage ? 'complete' : 'error';
-
-        // Generate recommendation
-        let recommendation = '';
-        if (coverage.fibre?.available) {
-          recommendation = 'Fibre recommended for best performance';
-        } else if (coverage.tarana?.available) {
-          recommendation = 'Tarana wireless recommended';
-        } else if (coverage['5g']?.available) {
-          recommendation = '5G available as backup';
-        } else if (coverage.lte?.available) {
-          recommendation = 'LTE available as last resort';
+        // Pick cheapest that meets speed requirement, or cheapest overall if none meet speed
+        const sorted = matchingPackages.sort((a, b) => a.price - b.price);
+        if (sorted.length > 0) {
+          selections[index] = sorted[0].id;
         } else {
-          recommendation = 'No coverage available at this location';
+          // Fallback: cheapest package with matching tech regardless of speed
+          const fallback = packages
+            .filter(pkg => {
+              const pkgType = (pkg.service_type || '').toLowerCase();
+              const pkgCategory = (pkg.product_category || '').toLowerCase();
+              return coverageTechs.some(tech => {
+                if (tech === 'fibre') return pkgType.includes('fibre') || pkgCategory.includes('fibre');
+                if (tech === 'tarana') return pkgType.includes('skyfibre') || pkgType.includes('wireless') || pkgCategory.includes('wireless');
+                if (tech === 'lte') return pkgType.includes('lte') || pkgCategory.includes('lte');
+                if (tech === '5g') return pkgType.includes('5g') || pkgCategory.includes('5g');
+                return false;
+              });
+            })
+            .sort((a, b) => a.price - b.price);
+          if (fallback.length > 0) {
+            selections[index] = fallback[0].id;
+          }
         }
-
-        // Update results
-        setSiteResults(prev => prev.map((r, idx) =>
-          idx === i ? {
-            ...r,
-            status,
-            coverage,
-            matchingProducts,
-            recommendation,
-            coordinates: coords || r.coordinates,
-          } : r
-        ));
-        setMarkers(prev => prev.map((m, idx) =>
-          idx === i ? { ...m, status } : m
-        ));
-
-      } catch (error) {
-        console.error(`Error checking site ${i}:`, error);
-        setSiteResults(prev => prev.map((r, idx) =>
-          idx === i ? {
-            ...r,
-            status: 'error',
-            error: error instanceof Error ? error.message : 'Coverage check failed',
-          } : r
-        ));
-        setMarkers(prev => prev.map((m, idx) =>
-          idx === i ? { ...m, status: 'error' } : m
-        ));
-      }
-
-      // Small delay between requests to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      });
+      setSitePackageSelections(selections);
+    } catch (error) {
+      console.error('Failed to fetch packages:', error);
+      toast.error('Failed to load packages. You can still retry.');
+    } finally {
+      setIsLoadingPackages(false);
     }
-
-    setIsChecking(false);
-    setStep('results');
   };
 
-  // Retry a single site
-  const retrySite = async (index: number) => {
-    const site = siteResults[index];
-    if (!site) return;
-
+  // Check a single site's coverage (extracted for parallel use)
+  const checkSingleSite = async (index: number, site: string): Promise<SiteResult> => {
+    // Update status to checking
     setSiteResults(prev => prev.map((r, idx) =>
-      idx === index ? { ...r, status: 'checking', error: undefined } : r
+      idx === index ? { ...r, status: 'checking' } : r
     ));
     setMarkers(prev => prev.map((m, idx) =>
       idx === index ? { ...m, status: 'checking' } : m
     ));
 
     try {
-      const coords = parseCoordinates(site.address);
+      const coords = parseCoordinates(site);
       const requestBody = coords
         ? { coordinates: { lat: coords.lat, lng: coords.lng } }
-        : { address: site.address };
+        : { address: site };
 
       const response = await fetch('/api/coverage/aggregate', {
         method: 'POST',
@@ -561,7 +478,9 @@ export default function FeasibilityPage() {
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) throw new Error('Coverage check failed');
+      if (!response.ok) {
+        throw new Error(`Coverage check failed: ${response.statusText}`);
+      }
 
       const result = await response.json();
       if (!result.success) {
@@ -572,7 +491,7 @@ export default function FeasibilityPage() {
       const services = apiData.providers?.mtn?.services || [];
       const coverage: DetailedCoverage = {};
 
-      // Check for Fibre
+      // Check for Fibre (MTN)
       const fibreService = services.find((s: { type: string; available: boolean }) =>
         s.type === 'fibre' && s.available
       );
@@ -619,41 +538,134 @@ export default function FeasibilityPage() {
           technology: taranaService.technology || 'Tarana Wireless',
           provider: 'CircleTel',
           distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
+          baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
+        };
+      }
+
+      // Check DFA fibre coverage (separate provider from MTN)
+      const dfaServices = apiData.providers?.dfa?.services || [];
+      const dfaFibreService = dfaServices.find((s: { type: string; available: boolean }) =>
+        s.type === 'fibre' && s.available
+      );
+      if (dfaFibreService && !coverage.fibre) {
+        coverage.fibre = {
+          available: true,
+          technology: 'DFA Fibre',
+          provider: (dfaFibreService as { provider?: string }).provider || 'DFA',
         };
       }
 
       const hasCoverage = Object.values(coverage).some(c => c?.available);
+      const status: SiteResult['status'] = hasCoverage ? 'complete' : 'error';
 
-      setSiteResults(prev => prev.map((r, idx) =>
-        idx === index ? {
-          ...r,
-          status: hasCoverage ? 'complete' : 'error',
-          coverage,
-          error: hasCoverage ? undefined : 'No coverage available',
-        } : r
-      ));
-      setMarkers(prev => prev.map((m, idx) =>
-        idx === index ? { ...m, status: hasCoverage ? 'complete' : 'error' } : m
-      ));
+      let recommendation = '';
+      if (coverage.fibre?.available) {
+        recommendation = 'Fibre recommended for best performance';
+      } else if (coverage.tarana?.available) {
+        recommendation = 'Tarana wireless recommended';
+      } else if (coverage['5g']?.available) {
+        recommendation = '5G available as backup';
+      } else if (coverage.lte?.available) {
+        recommendation = 'LTE available as last resort';
+      } else {
+        recommendation = 'No coverage available at this location';
+      }
+
+      const siteResult: SiteResult = {
+        address: site,
+        coordinates: coords || undefined,
+        status,
+        coverage,
+        matchingProducts: [],
+        recommendation,
+      };
+
+      setSiteResults(prev => prev.map((r, idx) => idx === index ? siteResult : r));
+      setMarkers(prev => prev.map((m, idx) => idx === index ? { ...m, status } : m));
+
+      return siteResult;
     } catch (error) {
-      setSiteResults(prev => prev.map((r, idx) =>
-        idx === index ? {
-          ...r,
-          status: 'error',
-          error: 'Retry failed',
-        } : r
-      ));
-      setMarkers(prev => prev.map((m, idx) =>
-        idx === index ? { ...m, status: 'error' } : m
-      ));
+      console.error(`Error checking site ${index}:`, error);
+      const errorResult: SiteResult = {
+        address: site,
+        coordinates: parseCoordinates(site) || undefined,
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Coverage check failed',
+      };
+      setSiteResults(prev => prev.map((r, idx) => idx === index ? errorResult : r));
+      setMarkers(prev => prev.map((m, idx) => idx === index ? { ...m, status: 'error' } : m));
+      return errorResult;
     }
   };
 
-  // Generate quotes for all successful sites
+  // Check feasibility for all sites (parallel batches of 3)
+  const checkFeasibility = async () => {
+    const sites = parseSites(formData.sites);
+    if (sites.length === 0) {
+      toast.error('No sites entered - please enter at least one address or GPS coordinate.');
+      return;
+    }
+
+    setIsChecking(true);
+    setStep('checking');
+    setAvailablePackages([]);
+    setSitePackageSelections({});
+
+    // Initialize results
+    const initialResults: SiteResult[] = sites.map(site => ({
+      address: site,
+      coordinates: parseCoordinates(site) || undefined,
+      status: 'pending',
+    }));
+    setSiteResults(initialResults);
+
+    // Process in parallel batches of 3
+    const BATCH_SIZE = 3;
+    const allResults: SiteResult[] = [...initialResults];
+
+    for (let i = 0; i < sites.length; i += BATCH_SIZE) {
+      const batch = sites.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map((site, batchIdx) => checkSingleSite(i + batchIdx, site))
+      );
+      batchResults.forEach((result, batchIdx) => {
+        allResults[i + batchIdx] = result;
+      });
+      // Small delay between batches to respect rate limits
+      if (i + BATCH_SIZE < sites.length) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+
+    setIsChecking(false);
+    setStep('results');
+
+    // Auto-fetch packages and assign best-fit
+    await fetchAndAssignPackages(allResults);
+  };
+
+  // Retry a single site (reuses checkSingleSite)
+  const retrySite = async (index: number) => {
+    const site = siteResults[index];
+    if (!site) return;
+    const result = await checkSingleSite(index, site.address);
+    // Re-assign package if coverage found
+    if (result.status === 'complete' && availablePackages.length > 0) {
+      await fetchAndAssignPackages(siteResults.map((r, i) => i === index ? result : r));
+    }
+  };
+
+  // Generate quotes for all successful sites with selected packages
   const generateQuotes = async () => {
-    const validSites = siteResults.filter(s => s.status === 'complete');
-    if (validSites.length === 0) {
-      toast.error('No sites with coverage available for quote generation.');
+    // Filter sites with coverage AND a selected package
+    const sitesWithPackages = siteResults
+      .map((result, index) => ({ result, index }))
+      .filter(({ result, index }) =>
+        result.status === 'complete' && sitePackageSelections[index]
+      );
+
+    if (sitesWithPackages.length === 0) {
+      toast.error('No sites with packages selected. Please select a package for at least one site.');
       return;
     }
 
@@ -664,31 +676,49 @@ export default function FeasibilityPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          companyName: formData.companyName,
-          contactName: formData.contactName,
-          email: formData.email,
-          phone: formData.phone,
-          speed: formData.speed,
-          contention: formData.contention,
-          budget: formData.budget ? parseInt(formData.budget) : null,
-          failover: formData.failover,
-          sites: validSites.map(s => ({
-            address: s.address,
-            coordinates: s.coordinates,
-            coverage: s.coverage,
+          clientDetails: {
+            companyName: formData.companyName,
+            contactName: formData.contactName || undefined,
+            contactEmail: formData.email || undefined,
+            contactPhone: formData.phone || undefined,
+          },
+          requirements: {
+            speedRequirement: String(formData.speed),
+            contention: formData.contention,
+            contractTerm: 24,
+          },
+          sites: sitesWithPackages.map(({ result, index }) => ({
+            address: result.address,
+            coordinates: result.coordinates,
+            packages: [{
+              packageId: sitePackageSelections[index],
+              itemType: 'primary' as const,
+            }],
           })),
         }),
       });
 
-      if (!response.ok) throw new Error('Quote generation failed');
-
       const data = await response.json();
-      setGeneratedQuoteIds(data.quoteIds || []);
 
-      toast.success(`${data.quoteIds?.length || 0} quote(s) created successfully.`);
+      if (!response.ok) {
+        throw new Error(data.error || 'Quote generation failed');
+      }
+
+      const quoteNumbers = data.summary?.quoteNumbers || [];
+      setGeneratedQuoteIds(quoteNumbers);
+
+      if (data.successCount > 0) {
+        toast.success(
+          `${data.successCount} quote(s) created.` +
+          (data.failureCount > 0 ? ` ${data.failureCount} failed.` : '') +
+          (data.summary?.totalMonthlyValue ? ` Total: R${data.summary.totalMonthlyValue.toFixed(2)}/mo` : '')
+        );
+      } else {
+        toast.error(`All ${data.failureCount} quote(s) failed. Check site packages.`);
+      }
     } catch (error) {
       console.error('Error generating quotes:', error);
-      toast.error('Failed to generate quotes. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to generate quotes. Please try again.');
     } finally {
       setIsGeneratingQuotes(false);
     }
@@ -712,6 +742,8 @@ export default function FeasibilityPage() {
     setMarkers([]);
     setSelectedSite(null);
     setGeneratedQuoteIds([]);
+    setAvailablePackages([]);
+    setSitePackageSelections({});
   };
 
   // Site count
@@ -1037,7 +1069,15 @@ export default function FeasibilityPage() {
                         </div>
                       </div>
 
-                      {/* Site Results List */}
+                      {/* Package Loading */}
+                      {isLoadingPackages && (
+                        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                          <span className="text-sm text-blue-700">Loading packages...</span>
+                        </div>
+                      )}
+
+                      {/* Site Results List with Package Selection */}
                       <div className="space-y-2 max-h-[350px] overflow-y-auto">
                         {siteResults.map((result, index) => (
                           <div
@@ -1051,17 +1091,55 @@ export default function FeasibilityPage() {
                             }`}
                           >
                             <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-2">
+                              <div className="flex items-start gap-2 flex-1 min-w-0">
                                 <span className="text-xs font-mono text-gray-400 mt-0.5">{index + 1}</span>
                                 {result.status === 'complete' ? (
-                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                                 ) : (
-                                  <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                                  <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                                 )}
-                                <div>
-                                  <p className="text-sm font-medium">{result.address}</p>
-                                  {result.recommendation && (
-                                    <p className="text-xs text-gray-500 mt-1">{result.recommendation}</p>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-medium truncate">{result.address}</p>
+                                  {/* Coverage tech badges */}
+                                  {result.coverage && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {Object.entries(result.coverage).map(([tech, details]) => (
+                                        details?.available && (
+                                          <span key={tech} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-white rounded text-[10px] font-medium border">
+                                            {getTechIcon(tech)}
+                                            <span className="capitalize">{tech}</span>
+                                          </span>
+                                        )
+                                      ))}
+                                    </div>
+                                  )}
+                                  {/* Package selector for sites with coverage */}
+                                  {result.status === 'complete' && availablePackages.length > 0 && (
+                                    <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                                      <select
+                                        value={sitePackageSelections[index] || ''}
+                                        onChange={(e) => {
+                                          setSitePackageSelections(prev => ({
+                                            ...prev,
+                                            [index]: e.target.value,
+                                          }));
+                                        }}
+                                        className="w-full text-xs border rounded-md px-2 py-1.5 bg-white focus:ring-1 focus:ring-circleTel-orange focus:border-circleTel-orange"
+                                      >
+                                        <option value="">Select package...</option>
+                                        {availablePackages.map(pkg => (
+                                          <option key={pkg.id} value={pkg.id}>
+                                            {pkg.name} - {pkg.speed_down}Mbps - R{pkg.price}/mo
+                                          </option>
+                                        ))}
+                                      </select>
+                                      {sitePackageSelections[index] && (
+                                        <p className="text-[10px] text-green-600 mt-0.5 flex items-center gap-1">
+                                          <Package className="h-3 w-3" />
+                                          {availablePackages.find(p => p.id === sitePackageSelections[index])?.name}
+                                        </p>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -1091,6 +1169,9 @@ export default function FeasibilityPage() {
                                         <span className="capitalize">{tech}</span>
                                         {details.provider && (
                                           <span className="text-gray-400">({details.provider})</span>
+                                        )}
+                                        {details.distance && (
+                                          <span className="text-gray-400">{details.distance.toFixed(1)}km</span>
                                         )}
                                       </div>
                                     )
@@ -1122,23 +1203,35 @@ export default function FeasibilityPage() {
                             </Button>
                           </div>
                         ) : (
-                          <Button
-                            onClick={generateQuotes}
-                            disabled={completedCount === 0 || isGeneratingQuotes}
-                            className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-4"
-                          >
-                            {isGeneratingQuotes ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                Generating Quotes...
-                              </>
-                            ) : (
-                              <>
-                                <FileText className="h-4 w-4 mr-2" />
-                                Generate Quotes ({completedCount} site{completedCount !== 1 ? 's' : ''})
-                              </>
+                          <>
+                            {/* Sites with packages count */}
+                            {availablePackages.length > 0 && (
+                              <p className="text-xs text-gray-500 text-center">
+                                {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length} of {completedCount} sites have packages selected
+                              </p>
                             )}
-                          </Button>
+                            <Button
+                              onClick={generateQuotes}
+                              disabled={
+                                Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length === 0 ||
+                                isGeneratingQuotes ||
+                                isLoadingPackages
+                              }
+                              className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-4"
+                            >
+                              {isGeneratingQuotes ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                  Generating Quotes...
+                                </>
+                              ) : (
+                                <>
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Generate Quotes ({Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length} site{Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length !== 1 ? 's' : ''})
+                                </>
+                              )}
+                            </Button>
+                          </>
                         )}
                       </div>
                     </motion.div>
