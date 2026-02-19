@@ -14,6 +14,12 @@ export {
   scheduledScrapeFunction,
 } from './functions/competitor-scrape';
 
+export {
+  taranaSyncFunction,
+  taranaSyncCompletedFunction,
+  taranaSyncFailedFunction,
+} from './functions/tarana-sync';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -21,8 +27,19 @@ import {
   scheduledScrapeFunction,
 } from './functions/competitor-scrape';
 
+import {
+  taranaSyncFunction,
+  taranaSyncCompletedFunction,
+  taranaSyncFailedFunction,
+} from './functions/tarana-sync';
+
 export const functions = [
+  // Competitor analysis
   competitorScrapeFunction,
   priceAlertFunction,
   scheduledScrapeFunction,
+  // Tarana sync
+  taranaSyncFunction,
+  taranaSyncCompletedFunction,
+  taranaSyncFailedFunction,
 ];

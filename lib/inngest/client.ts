@@ -111,6 +111,15 @@ export type TaranaSyncFailedEvent = {
   };
 };
 
+export type TaranaSyncCancelledEvent = {
+  name: 'tarana/sync.cancelled';
+  data: {
+    sync_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -120,4 +129,5 @@ export type InngestEvents = {
   'tarana/sync.requested': TaranaSyncRequestedEvent;
   'tarana/sync.completed': TaranaSyncCompletedEvent;
   'tarana/sync.failed': TaranaSyncFailedEvent;
+  'tarana/sync.cancelled': TaranaSyncCancelledEvent;
 };
