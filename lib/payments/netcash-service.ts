@@ -20,32 +20,29 @@ export interface NetcashPaymentFormData {
   m1: string; // Service Key
   m2: string; // Service ID (Account Number)
   m3: string; // Software Vendor Key
-  m4: string; // Transaction amount in cents
-  m5: string; // Unique transaction reference
-  m6: string; // Customer email
-  m7: string; // Optional field 1 (we'll use order ID)
-  m8: string; // Optional field 2 (we'll use order number)
-  m9: string; // Optional field 3 (we'll use customer name)
-  m10: string; // Optional field 4 (reserved)
+  m4: string; // Extra field 1 (Transaction Ref)
+  m5: string; // Extra field 2 (Order ID)
+  m6: string; // Extra field 3 (Order Number)
+  m9: string; // Extra field 4 (Customer Name)
   p2: string; // Return URL
-  p3: string; // Notification (webhook) URL
-  p4: string; // Description
+  p3: string; // Description of goods
   Budget: string; // 'Y' or 'N' - Allow budget payments
   CardPayment: string; // 'Y' or 'N' - Allow card payments
   EFTPayment: string; // 'Y' or 'N' - Allow EFT payments
   TestMode: string; // '1' for test, '0' for production
+  Amount: string; // Transaction amount in cents
 }
 
 export interface NetcashCallback {
   TransactionAccepted?: string; // 'true' or 'false'
   Complete?: string; // 'true' or 'false'
   Amount?: string; // Amount in cents
-  Reference?: string; // Unique transaction reference
+  Reference?: string; // Unique transaction reference (likely m4/Extra1 or internal ref)
   Reason?: string; // Approval/decline reason
   TransactionDate?: string; // Date of transaction
-  Extra1?: string; // Order ID (as sent in m7)
-  Extra2?: string; // Order Number (as sent in m8)
-  Extra3?: string; // Customer Name (as sent in m9)
+  Extra1?: string; // m4: Transaction Ref
+  Extra2?: string; // m5: Order ID
+  Extra3?: string; // m6: Order Number
   RequestTrace?: string; // Netcash trace number
 }
 
@@ -89,20 +86,17 @@ export class NetcashPaymentService {
       m1: this.serviceKey,   // Service Key (Pay Now integration key)
       m2: this.merchantId,   // Merchant ID (Account Number)
       m3: 'circletel-nextjs', // Vendor key / software identifier
-      m4: amountInCents.toString(),
-      m5: transactionRef,
-      m6: params.customerEmail,
-      m7: params.orderId, // Extra1: Order ID
-      m8: params.orderNumber, // Extra2: Order Number
-      m9: params.customerName, // Extra3: Customer Name
-      m10: '', // Extra4: Reserved
+      m4: transactionRef,     // Extra 1: Transaction Ref
+      m5: params.orderId,     // Extra 2: Order ID
+      m6: params.orderNumber, // Extra 3: Order Number
+      m9: params.customerName, // Extra 4: Customer Name
       p2: this.returnUrl,
-      p3: this.notifyUrl,
-      p4: params.description || `CircleTel Order ${params.orderNumber}`,
+      p3: params.description || `CircleTel Order ${params.orderNumber}`,
       Budget: 'Y', // Allow budget payments
       CardPayment: 'Y', // Allow card payments
       EFTPayment: 'Y', // Allow EFT payments
       TestMode: this.testMode ? '1' : '0',
+      Amount: amountInCents.toString(),
     };
 
     return formData;
@@ -158,10 +152,10 @@ export class NetcashPaymentService {
 
       return {
         success: true,
-        orderId: callbackData.Extra1,
-        orderNumber: callbackData.Extra2,
+        orderId: callbackData.Extra2, // m5 mapped to Extra2
+        orderNumber: callbackData.Extra3, // m6 mapped to Extra3
         amount,
-        reference: callbackData.Reference,
+        reference: callbackData.Reference || callbackData.Extra1, // m4 mapped to Extra1
         reason: callbackData.Reason,
         transactionDate: callbackData.TransactionDate,
         netcashTrace: callbackData.RequestTrace,
