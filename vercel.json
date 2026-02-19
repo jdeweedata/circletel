@@ -108,10 +108,6 @@
     "app/api/cron/generate-monthly-invoices/route.ts": {
       "maxDuration": 300,
       "memory": 1024
-    },
-    "app/api/cron/tarana-sync/route.ts": {
-      "maxDuration": 120,
-      "memory": 512
     }
   },
   "crons": [
@@ -186,10 +182,6 @@
     {
       "path": "/api/cron/generate-monthly-invoices",
       "schedule": "0 4 1 * *"
-    },
-    {
-      "path": "/api/cron/tarana-sync",
-      "schedule": "0 0 * * *"
     }
   ]
 }
