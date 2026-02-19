@@ -74,10 +74,50 @@ export type PriceAlertEvent = {
   };
 };
 
+// =============================================================================
+// TARANA SYNC EVENTS
+// =============================================================================
+
+export type TaranaSyncRequestedEvent = {
+  name: 'tarana/sync.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    sync_log_id: string;
+    options?: {
+      deleteStale?: boolean;
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type TaranaSyncCompletedEvent = {
+  name: 'tarana/sync.completed';
+  data: {
+    sync_log_id: string;
+    inserted: number;
+    updated: number;
+    deleted: number;
+    duration_ms: number;
+  };
+};
+
+export type TaranaSyncFailedEvent = {
+  name: 'tarana/sync.failed';
+  data: {
+    sync_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
   'competitor/scrape.completed': CompetitorScrapeCompleteEvent;
   'competitor/scrape.failed': CompetitorScrapeFailedEvent;
   'competitor/price.alert': PriceAlertEvent;
+  'tarana/sync.requested': TaranaSyncRequestedEvent;
+  'tarana/sync.completed': TaranaSyncCompletedEvent;
+  'tarana/sync.failed': TaranaSyncFailedEvent;
 };
