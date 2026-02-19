@@ -376,6 +376,11 @@ export function SingleSiteStepper() {
       const services = data.providers?.mtn?.services || [];
       const bestServices = data.bestServices || [];
 
+      // Debug logging
+      console.log('[Feasibility] API Response:', JSON.stringify(result, null, 2));
+      console.log('[Feasibility] Services array:', services);
+      console.log('[Feasibility] Service types:', services.map((s: { type: string }) => s.type));
+
       // Build coverage object from services array
       const coverage: DetailedCoverage = {};
 
@@ -419,6 +424,7 @@ export function SingleSiteStepper() {
       const taranaService = services.find((s: { type: string; available: boolean }) =>
         (s.type === 'uncapped_wireless' || s.type === 'licensed_wireless') && s.available
       );
+      console.log('[Feasibility] Tarana service found:', taranaService);
       if (taranaService) {
         const metadata = (taranaService as { metadata?: { baseStationValidation?: { nearestStation?: { siteName: string; distanceKm: number } } } }).metadata;
         coverage.tarana = {
@@ -428,7 +434,11 @@ export function SingleSiteStepper() {
           distance: metadata?.baseStationValidation?.nearestStation?.distanceKm,
           baseStation: metadata?.baseStationValidation?.nearestStation?.siteName,
         };
+        console.log('[Feasibility] Tarana coverage set:', coverage.tarana);
       }
+
+      console.log('[Feasibility] Final coverage object:', coverage);
+      console.log('[Feasibility] Coverage keys:', Object.keys(coverage));
 
       setFormData(prev => ({
         ...prev,
