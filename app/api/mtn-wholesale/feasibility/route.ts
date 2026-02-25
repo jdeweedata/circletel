@@ -26,7 +26,9 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       return response;
     } catch (error) {
       lastError = error as Error;
-      apiLogger.info(`Attempt ${i + 1}/${maxRetries} failed, retrying...`, error);
+      apiLogger.info(`Attempt ${i + 1}/${maxRetries} failed, retrying...`, {
+        error: error instanceof Error ? error.message : String(error)
+      });
 
       // Exponential backoff
       if (i < maxRetries - 1) {
@@ -91,7 +93,10 @@ export async function POST(request: NextRequest) {
         const geocodeResult = await geocodeAddress(input.address);
 
         if (!geocodeResult.success) {
-          apiLogger.error('[MTN Feasibility] Geocoding failed for:', input.address, geocodeResult.error);
+          apiLogger.error('[MTN Feasibility] Geocoding failed', {
+            address: input.address,
+            error: geocodeResult.error
+          });
           throw new Error(`Failed to geocode address "${input.address}": ${geocodeResult.error}`);
         }
 
@@ -129,7 +134,7 @@ export async function POST(request: NextRequest) {
     const authResult = await mtnSSOAuth.getAuthSession();
 
     if (!authResult.success || !authResult.cookies) {
-      apiLogger.error('[MTN Feasibility] Authentication failed:', authResult.error);
+      apiLogger.error('[MTN Feasibility] Authentication failed', { error: authResult.error });
       return NextResponse.json(
         {
           error: 'Authentication failed',
@@ -140,7 +145,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    apiLogger.info('[MTN Feasibility] Authentication successful, session ID:', authResult.sessionId);
+    apiLogger.info('[MTN Feasibility] Authentication successful', { sessionId: authResult.sessionId });
 
     // Get cookie header
     const cookieHeader = await mtnSSOAuth.getCookieHeader();
@@ -173,7 +178,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      apiLogger.error('[MTN Feasibility] MTN API Error:', response.status, errorText);
+      apiLogger.error('[MTN Feasibility] MTN API Error', { status: response.status, body: errorText });
 
       // If 401/403, session might be invalid - clear cache
       if (response.status === 401 || response.status === 403) {
@@ -195,7 +200,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    apiLogger.error('Error in MTN feasibility check:', error);
+    apiLogger.error('[MTN Feasibility] Error in feasibility check', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return NextResponse.json(
       { error: 'Failed to check feasibility with MTN API', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

@@ -260,32 +260,68 @@ export function SingleSiteStepper() {
     geocoderRef.current = new google.maps.Geocoder();
   }, []);
 
-  // Setup autocomplete on input
+  // Setup autocomplete on input - with retry logic for Places API
   useEffect(() => {
-    if (isLoaded && inputRef.current && !autocompleteRef.current) {
-      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-        componentRestrictions: { country: 'za' },
-        fields: ['formatted_address', 'geometry'],
-      });
+    if (!isLoaded || !inputRef.current || autocompleteRef.current) return;
 
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          setFormData(prev => ({
-            ...prev,
-            address: place.formatted_address || '',
-            coordinates: { lat, lng },
-            coverageChecked: false,
-            coverage: null,
-            leadId: null,
-          }));
-          setMarkerPosition({ lat, lng });
-          setMapCenter({ lat, lng });
-          mapRef.current?.setZoom(15);
+    // Function to initialize autocomplete
+    const initAutocomplete = () => {
+      // Check if Places API is available
+      if (typeof google === 'undefined' || !google.maps?.places?.Autocomplete) {
+        return false;
+      }
+
+      try {
+        autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current!, {
+          componentRestrictions: { country: 'za' },
+          fields: ['formatted_address', 'geometry'],
+        });
+
+        autocompleteRef.current.addListener('place_changed', () => {
+          const place = autocompleteRef.current?.getPlace();
+          if (place?.geometry?.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            setFormData(prev => ({
+              ...prev,
+              address: place.formatted_address || '',
+              coordinates: { lat, lng },
+              coverageChecked: false,
+              coverage: null,
+              leadId: null,
+            }));
+            setMarkerPosition({ lat, lng });
+            setMapCenter({ lat, lng });
+            mapRef.current?.setZoom(15);
+          }
+        });
+        return true;
+      } catch (error) {
+        console.error('Error initializing autocomplete:', error);
+        return false;
+      }
+    };
+
+    // Try immediately, then retry with delays if needed
+    if (!initAutocomplete()) {
+      const retryIntervals = [100, 300, 500, 1000];
+      let retryIndex = 0;
+
+      const retryInit = () => {
+        if (retryIndex >= retryIntervals.length) {
+          console.warn('Google Places Autocomplete failed to initialize after retries');
+          return;
         }
-      });
+        setTimeout(() => {
+          if (!autocompleteRef.current && initAutocomplete()) {
+            // Success
+          } else if (!autocompleteRef.current) {
+            retryIndex++;
+            retryInit();
+          }
+        }, retryIntervals[retryIndex]);
+      };
+      retryInit();
     }
   }, [isLoaded]);
 
