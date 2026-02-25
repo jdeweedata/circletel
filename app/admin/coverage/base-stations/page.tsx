@@ -277,7 +277,7 @@ export default function BaseStationsPage() {
           </div>
           <div className="flex items-center gap-3">
             {/* Last sync info */}
-            {lastSync && (
+            {lastSync && lastSync.created_at && !isNaN(new Date(lastSync.created_at).getTime()) && (
               <div className="text-sm text-gray-500 mr-2">
                 Last sync: {formatDistanceToNow(new Date(lastSync.created_at))} ago
                 {lastSync.status === 'completed' && (
