@@ -264,6 +264,15 @@ export type DebitOrdersFailedEvent = {
   };
 };
 
+export type DebitOrdersCancelledEvent = {
+  name: 'billing/debit-orders.cancelled';
+  data: {
+    batch_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 export type BillingDayRequestedEvent = {
   name: 'billing/day.requested';
   data: {
@@ -359,6 +368,7 @@ export type InngestEvents = {
   'billing/debit-orders.requested': DebitOrdersRequestedEvent;
   'billing/debit-orders.completed': DebitOrdersCompletedEvent;
   'billing/debit-orders.failed': DebitOrdersFailedEvent;
+  'billing/debit-orders.cancelled': DebitOrdersCancelledEvent;
   'billing/day.requested': BillingDayRequestedEvent;
   'billing/day.completed': BillingDayCompletedEvent;
   'billing/day.failed': BillingDayFailedEvent;
