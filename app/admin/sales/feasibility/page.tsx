@@ -49,6 +49,7 @@ import { toast } from 'sonner';
 
 // Import Single Site Stepper (to be created)
 import { SingleSiteStepper } from './components/SingleSiteStepper';
+import { EmailParseModal } from './components/EmailParseModal';
 
 // ============================================================================
 // Types
@@ -287,6 +288,9 @@ export default function FeasibilityPage() {
   const [availablePackages, setAvailablePackages] = useState<ServicePackage[]>([]);
   const [sitePackageSelections, setSitePackageSelections] = useState<Record<number, string>>({});
   const [isLoadingPackages, setIsLoadingPackages] = useState(false);
+
+  // Email parse modal state
+  const [isEmailParseOpen, setIsEmailParseOpen] = useState(false);
 
   // Map state
   const [markers, setMarkers] = useState<MapMarker[]>([]);
@@ -746,6 +750,15 @@ export default function FeasibilityPage() {
     setSitePackageSelections({});
   };
 
+  // Handle parsed email data - populate form and switch to multi-site mode
+  const handleEmailParsed = (parsedData: FormData) => {
+    resetForm();
+    setFormData(parsedData);
+    if (activeTab !== 'multiple') {
+      handleTabChange('multiple');
+    }
+  };
+
   // Site count
   const siteCount = parseSites(formData.sites).length;
   const completedCount = siteResults.filter(s => s.status === 'complete').length;
@@ -794,12 +807,25 @@ export default function FeasibilityPage() {
             </div>
           </div>
 
-          {/* Mode indicator badge */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
-            <div className={`w-2 h-2 rounded-full ${activeTab === 'single' ? 'bg-blue-500' : 'bg-purple-500'}`} />
-            <span className="text-xs font-medium text-slate-600">
-              {activeTab === 'single' ? 'Single Site Mode' : 'Bulk Mode'}
-            </span>
+          <div className="flex items-center gap-3">
+            {/* Parse Email Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEmailParseOpen(true)}
+              className="gap-2 border-circleTel-orange/30 text-circleTel-orange hover:bg-circleTel-orange/5 hover:border-circleTel-orange/50"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Parse Email</span>
+            </Button>
+
+            {/* Mode indicator badge */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
+              <div className={`w-2 h-2 rounded-full ${activeTab === 'single' ? 'bg-blue-500' : 'bg-purple-500'}`} />
+              <span className="text-xs font-medium text-slate-600">
+                {activeTab === 'single' ? 'Single Site Mode' : 'Bulk Mode'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -825,6 +851,13 @@ export default function FeasibilityPage() {
           </TabsList>
         </Tabs>
       </div>
+
+      {/* Email Parse Modal */}
+      <EmailParseModal
+        open={isEmailParseOpen}
+        onOpenChange={setIsEmailParseOpen}
+        onApply={handleEmailParsed}
+      />
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
