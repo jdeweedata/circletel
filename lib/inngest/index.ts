@@ -38,6 +38,12 @@ export {
   debitOrdersFailedFunction,
 } from './functions/debit-orders';
 
+export {
+  billingDayFunction,
+  billingDayCompletedFunction,
+  billingDayFailedFunction,
+} from './functions/billing-day';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -69,6 +75,12 @@ import {
   debitOrdersFailedFunction,
 } from './functions/debit-orders';
 
+import {
+  billingDayFunction,
+  billingDayCompletedFunction,
+  billingDayFailedFunction,
+} from './functions/billing-day';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -90,4 +102,8 @@ export const functions = [
   debitOrdersFunction,
   debitOrdersCompletedFunction,
   debitOrdersFailedFunction,
+  // Billing day (Pay Now for non-eMandate customers)
+  billingDayFunction,
+  billingDayCompletedFunction,
+  billingDayFailedFunction,
 ];

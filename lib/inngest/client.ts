@@ -308,6 +308,15 @@ export type BillingDayFailedEvent = {
   };
 };
 
+export type BillingDayCancelledEvent = {
+  name: 'billing/day.cancelled';
+  data: {
+    process_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 export type ZohoSyncRequestedEvent = {
   name: 'zoho/sync.requested';
   data: {
@@ -372,6 +381,7 @@ export type InngestEvents = {
   'billing/day.requested': BillingDayRequestedEvent;
   'billing/day.completed': BillingDayCompletedEvent;
   'billing/day.failed': BillingDayFailedEvent;
+  'billing/day.cancelled': BillingDayCancelledEvent;
   // Zoho sync events
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;
