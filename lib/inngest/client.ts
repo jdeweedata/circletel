@@ -121,6 +121,54 @@ export type TaranaSyncCancelledEvent = {
 };
 
 // =============================================================================
+// DFA SYNC EVENTS
+// =============================================================================
+
+export type DFASyncRequestedEvent = {
+  name: 'dfa/sync.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    sync_log_id: string;
+    options?: {
+      connectedOnly?: boolean;
+      nearNetOnly?: boolean;
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type DFASyncCompletedEvent = {
+  name: 'dfa/sync.completed';
+  data: {
+    sync_log_id: string;
+    connected_count: number;
+    near_net_count: number;
+    records_inserted: number;
+    records_updated: number;
+    duration_ms: number;
+  };
+};
+
+export type DFASyncFailedEvent = {
+  name: 'dfa/sync.failed';
+  data: {
+    sync_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type DFASyncCancelledEvent = {
+  name: 'dfa/sync.cancelled';
+  data: {
+    sync_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
+// =============================================================================
 // FEASIBILITY CHECK EVENTS
 // =============================================================================
 
@@ -176,6 +224,117 @@ export type FeasibilityCheckCancelledEvent = {
   };
 };
 
+// =============================================================================
+// BILLING EVENTS
+// =============================================================================
+
+export type DebitOrdersRequestedEvent = {
+  name: 'billing/debit-orders.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    billing_date?: string;
+    admin_user_id?: string;
+    batch_log_id: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type DebitOrdersCompletedEvent = {
+  name: 'billing/debit-orders.completed';
+  data: {
+    batch_log_id: string;
+    billing_date: string;
+    batch_id?: string;
+    total_eligible: number;
+    submitted: number;
+    skipped: number;
+    paynow_sent: number;
+    duration_ms: number;
+  };
+};
+
+export type DebitOrdersFailedEvent = {
+  name: 'billing/debit-orders.failed';
+  data: {
+    batch_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type BillingDayRequestedEvent = {
+  name: 'billing/day.requested';
+  data: {
+    triggered_by: 'cron' | 'manual' | 'debit-completion';
+    billing_date?: string;
+    admin_user_id?: string;
+    process_log_id: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type BillingDayCompletedEvent = {
+  name: 'billing/day.completed';
+  data: {
+    process_log_id: string;
+    billing_date: string;
+    total_invoices: number;
+    processed: number;
+    successful: number;
+    failed: number;
+    duration_ms: number;
+  };
+};
+
+export type BillingDayFailedEvent = {
+  name: 'billing/day.failed';
+  data: {
+    process_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type ZohoSyncRequestedEvent = {
+  name: 'zoho/sync.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    sync_log_id: string;
+    options?: {
+      maxProducts?: number;
+      dryRun?: boolean;
+      retryFailed?: boolean;
+    };
+  };
+};
+
+export type ZohoSyncCompletedEvent = {
+  name: 'zoho/sync.completed';
+  data: {
+    sync_log_id: string;
+    total_candidates: number;
+    processed: number;
+    crm_succeeded: number;
+    crm_failed: number;
+    billing_succeeded: number;
+    billing_failed: number;
+    duration_ms: number;
+  };
+};
+
+export type ZohoSyncFailedEvent = {
+  name: 'zoho/sync.failed';
+  data: {
+    sync_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -186,9 +345,25 @@ export type InngestEvents = {
   'tarana/sync.completed': TaranaSyncCompletedEvent;
   'tarana/sync.failed': TaranaSyncFailedEvent;
   'tarana/sync.cancelled': TaranaSyncCancelledEvent;
+  // DFA sync events
+  'dfa/sync.requested': DFASyncRequestedEvent;
+  'dfa/sync.completed': DFASyncCompletedEvent;
+  'dfa/sync.failed': DFASyncFailedEvent;
+  'dfa/sync.cancelled': DFASyncCancelledEvent;
   // Feasibility check events
   'feasibility/check.requested': FeasibilityCheckRequestedEvent;
   'feasibility/check.completed': FeasibilityCheckCompletedEvent;
   'feasibility/check.failed': FeasibilityCheckFailedEvent;
   'feasibility/check.cancelled': FeasibilityCheckCancelledEvent;
+  // Billing events
+  'billing/debit-orders.requested': DebitOrdersRequestedEvent;
+  'billing/debit-orders.completed': DebitOrdersCompletedEvent;
+  'billing/debit-orders.failed': DebitOrdersFailedEvent;
+  'billing/day.requested': BillingDayRequestedEvent;
+  'billing/day.completed': BillingDayCompletedEvent;
+  'billing/day.failed': BillingDayFailedEvent;
+  // Zoho sync events
+  'zoho/sync.requested': ZohoSyncRequestedEvent;
+  'zoho/sync.completed': ZohoSyncCompletedEvent;
+  'zoho/sync.failed': ZohoSyncFailedEvent;
 };
