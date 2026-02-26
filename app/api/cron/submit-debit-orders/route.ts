@@ -55,6 +55,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Check if Inngest is handling this workflow
+  const useInngest = process.env.BILLING_USE_INNGEST === 'true';
+  if (useInngest) {
+    cronLogger.info('Debit orders handled by Inngest - skipping cron execution');
+    return NextResponse.json({
+      skipped: true,
+      reason: 'Handled by Inngest workflow',
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   try {
     const result = await submitDebitOrders();
     return NextResponse.json(result);
