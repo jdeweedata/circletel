@@ -120,10 +120,13 @@ export class DFASyncService {
             allBuildings.push(...buildings);
 
             // Check if there are more results
+            // exceededTransferLimit=true means MORE records exist, so continue
             hasMore =
-              response.data.features.length === PAGE_SIZE &&
-              !response.data.exceededTransferLimit;
+              response.data.features.length === PAGE_SIZE ||
+              response.data.exceededTransferLimit === true;
             offset += PAGE_SIZE;
+
+            console.log(`[DFASync] Connected: fetched ${allBuildings.length} buildings (offset ${offset})...`);
           } else {
             hasMore = false;
           }
@@ -225,10 +228,13 @@ export class DFASyncService {
 
             allBuildings.push(...(buildings as DFANearNetBuilding[]));
 
+            // exceededTransferLimit=true means MORE records exist, so continue
             hasMore =
-              response.data.features.length === PAGE_SIZE &&
-              !response.data.exceededTransferLimit;
+              response.data.features.length === PAGE_SIZE ||
+              response.data.exceededTransferLimit === true;
             offset += PAGE_SIZE;
+
+            console.log(`[DFASync] Near-net: fetched ${allBuildings.length} buildings (offset ${offset})...`);
           } else {
             hasMore = false;
           }
