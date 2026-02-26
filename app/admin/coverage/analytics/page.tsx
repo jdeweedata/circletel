@@ -1,42 +1,41 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  LineChart,
-  Line,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 import {
-  TrendingUp,
-  Clock,
-  MapPin,
-  AlertTriangle,
-  CheckCircle,
-  Database,
-  Signal,
   Globe,
-  Users,
-  Calendar,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
   Download,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
+import {
+  KonnecktStatCard,
+  ActionRequiredPanel,
+  AtRiskSection,
+  TransactionsTable,
+  type ActionItem,
+  type AtRiskProvider,
+  type ErrorCollection,
+  type TransactionRecord,
+} from '@/components/admin/coverage/analytics';
 
 interface TimeSeriesData {
   timestamp: string;
@@ -59,81 +58,71 @@ interface ErrorDistribution {
   percentage: number;
 }
 
-interface PerformanceTrend {
-  period: string;
-  p50: number;
-  p95: number;
-  p99: number;
-}
-
 export default function CoverageAnalyticsPage() {
   const [timeRange, setTimeRange] = useState('24h');
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
   const [provinceData, setProvinceData] = useState<ProvinceData[]>([]);
   const [errorData, setErrorData] = useState<ErrorDistribution[]>([]);
-  const [performanceTrends, setPerformanceTrends] = useState<PerformanceTrend[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Mock data generation for demonstration
+  // Generate mock data for demonstration
   const generateMockData = () => {
     const now = new Date();
-    const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 720; // 24h, 7d, 30d
-    const interval = timeRange === '24h' ? 1 : timeRange === '7d' ? 4 : 24; // hourly, 4-hourly, daily
+    const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 720;
+    const interval = timeRange === '24h' ? 1 : timeRange === '7d' ? 4 : 24;
 
     // Time series data
     const timeSeries: TimeSeriesData[] = [];
     for (let i = hours; i >= 0; i -= interval) {
       const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000);
       timeSeries.push({
-        timestamp: timestamp.toISOString().slice(11, 16), // HH:MM format
+        timestamp: timestamp.toISOString().slice(11, 16),
         requests: Math.floor(Math.random() * 100) + 50,
-        successRate: Math.random() * 10 + 90, // 90-100%
-        responseTime: Math.random() * 1000 + 500, // 500-1500ms
-        errors: Math.floor(Math.random() * 5)
+        successRate: Math.random() * 10 + 90,
+        responseTime: Math.random() * 1000 + 500,
+        errors: Math.floor(Math.random() * 5),
       });
     }
 
     // Province data
     const provinces = [
-      'Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape',
-      'Limpopo', 'Mpumalanga', 'North West', 'Free State', 'Northern Cape'
+      'Gauteng',
+      'Western Cape',
+      'KwaZulu-Natal',
+      'Eastern Cape',
+      'Limpopo',
+      'Mpumalanga',
+      'North West',
+      'Free State',
+      'Northern Cape',
     ];
-    const provinceStats: ProvinceData[] = provinces.map(province => ({
+    const provinceStats: ProvinceData[] = provinces.map((province) => ({
       province,
       requests: Math.floor(Math.random() * 500) + 100,
-      successRate: Math.random() * 15 + 85, // 85-100%
-      avgResponseTime: Math.random() * 800 + 400 // 400-1200ms
+      successRate: Math.random() * 15 + 85,
+      avgResponseTime: Math.random() * 800 + 400,
     }));
 
     // Error distribution
     const errorTypes = [
-      'WMS_REQUEST_FAILED', 'LAYER_NOT_AVAILABLE', 'COORDINATE_OUT_OF_BOUNDS',
-      'SERVICE_UNAVAILABLE', 'CONFIG_NOT_FOUND', 'FEATURE_INFO_EMPTY'
+      'TIMEOUT',
+      'API_ERROR',
+      'RATE_LIMITED',
+      'INVALID_RESPONSE',
+      'CONNECTION_FAILED',
+      'AUTH_FAILED',
     ];
-    const totalErrors = errorTypes.reduce((sum, _, i) => sum + Math.floor(Math.random() * 20), 0);
-    const errors: ErrorDistribution[] = errorTypes.map(type => {
-      const count = Math.floor(Math.random() * 20);
-      return {
-        type,
-        count,
-        percentage: totalErrors > 0 ? (count / totalErrors) * 100 : 0
-      };
+    const errors: ErrorDistribution[] = errorTypes.map((type) => {
+      const count = Math.floor(Math.random() * 30) + 5;
+      return { type, count, percentage: 0 };
     });
-
-    // Performance trends
-    const periods = ['Last 7 Days', 'Last 30 Days', 'Last 90 Days'];
-    const trends: PerformanceTrend[] = periods.map(period => ({
-      period,
-      p50: Math.random() * 200 + 400, // 400-600ms
-      p95: Math.random() * 500 + 800, // 800-1300ms
-      p99: Math.random() * 800 + 1200 // 1200-2000ms
-    }));
+    const totalErrors = errors.reduce((sum, e) => sum + e.count, 0);
+    errors.forEach((e) => (e.percentage = (e.count / totalErrors) * 100));
 
     setTimeSeriesData(timeSeries);
     setProvinceData(provinceStats);
     setErrorData(errors);
-    setPerformanceTrends(trends);
   };
 
   const fetchAnalyticsData = async () => {
@@ -146,15 +135,10 @@ export default function CoverageAnalyticsPage() {
         setTimeSeriesData(result.data.timeSeries || []);
         setProvinceData(result.data.provinceData || []);
         setErrorData(result.data.errorData || []);
-        setPerformanceTrends(result.data.performanceTrends || []);
       } else {
-        // Fallback to mock data if no real data available
-        console.warn('No analytics data available, using mock data');
         generateMockData();
       }
-    } catch (error) {
-      console.error('Failed to fetch analytics data:', error);
-      // Fallback to mock data on error
+    } catch {
       generateMockData();
     } finally {
       setLoading(false);
@@ -164,77 +148,148 @@ export default function CoverageAnalyticsPage() {
 
   useEffect(() => {
     fetchAnalyticsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
-  const exportAnalytics = async (format: 'csv' | 'pdf') => {
-    // Mock export functionality
+  const exportAnalytics = async () => {
     const data = {
       timeRange,
       generated: new Date().toISOString(),
       summary: {
         totalRequests: timeSeriesData.reduce((sum, d) => sum + d.requests, 0),
-        avgSuccessRate: timeSeriesData.reduce((sum, d) => sum + d.successRate, 0) / timeSeriesData.length,
-        avgResponseTime: timeSeriesData.reduce((sum, d) => sum + d.responseTime, 0) / timeSeriesData.length
+        avgSuccessRate:
+          timeSeriesData.reduce((sum, d) => sum + d.successRate, 0) /
+          timeSeriesData.length,
+        avgResponseTime:
+          timeSeriesData.reduce((sum, d) => sum + d.responseTime, 0) /
+          timeSeriesData.length,
       },
       provinces: provinceData,
       errors: errorData,
-      performance: performanceTrends
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json',
+    });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `coverage-analytics-${timeRange}-${new Date().toISOString().split('T')[0]}.${format === 'csv' ? 'json' : format}`;
+    a.download = `coverage-analytics-${timeRange}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const colors = ['#F5831F', '#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'];
+  // Computed stats
+  const totalRequests = timeSeriesData.reduce((sum, d) => sum + d.requests, 0);
+  const avgSuccessRate =
+    timeSeriesData.length > 0
+      ? timeSeriesData.reduce((sum, d) => sum + d.successRate, 0) / timeSeriesData.length
+      : 0;
+  const avgResponseTime =
+    timeSeriesData.length > 0
+      ? timeSeriesData.reduce((sum, d) => sum + d.responseTime, 0) / timeSeriesData.length
+      : 0;
+  const totalErrors = timeSeriesData.reduce((sum, d) => sum + d.errors, 0);
+
+  // Mock action items
+  const actionItems: ActionItem[] = useMemo(() => {
+    const items: ActionItem[] = [];
+    // Generate mock action items based on error rate
+    const errorProviders = provinceData.filter((p) => p.successRate < 92);
+    errorProviders.forEach((provider) => {
+      items.push({
+        id: `action-${provider.province}`,
+        type: provider.successRate < 88 ? 'error' : 'warning',
+        title: `${provider.province} - High Error Rate`,
+        description: `Success rate dropped to ${provider.successRate.toFixed(1)}%`,
+        timestamp: new Date(Date.now() - Math.random() * 3600000 * 4),
+      });
+    });
+    if (avgResponseTime > 1000) {
+      items.push({
+        id: 'action-latency',
+        type: 'warning',
+        title: 'High API Latency Detected',
+        description: `Average response time is ${avgResponseTime.toFixed(0)}ms`,
+        timestamp: new Date(Date.now() - 1800000),
+      });
+    }
+    return items;
+  }, [provinceData, avgResponseTime]);
+
+  // Mock at-risk providers
+  const atRiskProviders: AtRiskProvider[] = useMemo(() => {
+    return [
+      { name: 'MTN WMS', errorRate: 8.2, requestCount: 1234 },
+      { name: 'Tarana API', errorRate: 5.1, requestCount: 892 },
+      { name: 'DFA Fiber', errorRate: 2.3, requestCount: 567 },
+      { name: 'LTE Fallback', errorRate: 1.1, requestCount: 345 },
+    ].filter((p) => p.errorRate > 0);
+  }, []);
+
+  // Error collections from errorData
+  const errorCollections: ErrorCollection[] = useMemo(() => {
+    return errorData.map((e) => ({
+      type: e.type,
+      count: e.count,
+    }));
+  }, [errorData]);
+
+  // Mock recent transactions
+  const recentTransactions: TransactionRecord[] = useMemo(() => {
+    const providers = ['MTN WMS', 'Tarana API', 'DFA Fiber', 'LTE Fallback', '5G Check'];
+    const statuses: TransactionRecord['status'][] = ['SUCCESS', 'SUCCESS', 'SUCCESS', 'FAILED', 'TIMEOUT'];
+    return Array.from({ length: 15 }, (_, i) => ({
+      id: `req_${Date.now().toString(36)}_${i}${Math.random().toString(36).slice(2, 8)}`,
+      provider: providers[Math.floor(Math.random() * providers.length)],
+      timestamp: new Date(Date.now() - i * 60000 * (1 + Math.random() * 5)),
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      responseTime:
+        statuses[Math.floor(Math.random() * statuses.length)] !== 'TIMEOUT'
+          ? Math.floor(Math.random() * 800) + 150
+          : undefined,
+    }));
+  }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-[#F9FAFB] p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid gap-6 md:grid-cols-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            <div className="h-10 bg-gray-200 rounded w-1/3" />
+            <div className="grid gap-4 md:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-28 bg-gray-200 rounded-xl" />
               ))}
             </div>
-            <div className="h-96 bg-gray-200 rounded-lg"></div>
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 h-80 bg-gray-200 rounded-xl" />
+              <div className="h-80 bg-gray-200 rounded-xl" />
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  const totalRequests = timeSeriesData.reduce((sum, d) => sum + d.requests, 0);
-  const avgSuccessRate = timeSeriesData.reduce((sum, d) => sum + d.successRate, 0) / timeSeriesData.length;
-  const avgResponseTime = timeSeriesData.reduce((sum, d) => sum + d.responseTime, 0) / timeSeriesData.length;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-[#F9FAFB] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-orange-600" />
-              Coverage Analytics
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Detailed performance metrics and usage analytics for MTN coverage API
+            <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Coverage API performance and health metrics
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-36 bg-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="24h">Last 24h</SelectItem>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
                 <SelectItem value="7d">Last 7 days</SelectItem>
                 <SelectItem value="30d">Last 30 days</SelectItem>
               </SelectContent>
@@ -243,357 +298,122 @@ export default function CoverageAnalyticsPage() {
               onClick={fetchAnalyticsData}
               disabled={refreshing}
               variant="outline"
+              size="sm"
+              className="bg-white"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-            <Button onClick={() => exportAnalytics('csv')} variant="outline">
+            <Button
+              onClick={exportAnalytics}
+              size="sm"
+              className="bg-[#F5831F] hover:bg-[#D76026] text-white"
+            >
               <Download className="h-4 w-4 mr-2" />
-              Export
+              Generate Report
             </Button>
           </div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
-              <Globe className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalRequests.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                {timeRange === '24h' ? 'in last 24 hours' : `in last ${timeRange}`}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Success Rate</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{avgSuccessRate.toFixed(1)}%</div>
-              <p className="text-xs text-muted-foreground">
-                Average across all requests
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Response Time</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{avgResponseTime.toFixed(0)}ms</div>
-              <p className="text-xs text-muted-foreground">
-                Mean response time
-              </p>
-            </CardContent>
-          </Card>
+        {/* Stat Cards Row */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <KonnecktStatCard
+            label="Total Requests"
+            value={totalRequests}
+            trend={{ value: 12.5, isPositive: true }}
+            subtext={`vs. previous ${timeRange === '24h' ? '24 hours' : timeRange}`}
+            icon={<Globe className="h-5 w-5" />}
+          />
+          <KonnecktStatCard
+            label="Avg Success Rate"
+            value={`${avgSuccessRate.toFixed(1)}%`}
+            trend={{ value: 2.1, isPositive: avgSuccessRate > 95 }}
+            subtext="Target: 99.5%"
+            icon={<CheckCircle className="h-5 w-5" />}
+          />
+          <KonnecktStatCard
+            label="Failed Requests"
+            value={totalErrors}
+            trend={{ value: 8.3, isPositive: false }}
+            subtext={`${((totalErrors / totalRequests) * 100).toFixed(2)}% of total`}
+            icon={<AlertTriangle className="h-5 w-5" />}
+          />
+          <KonnecktStatCard
+            label="Avg Response Time"
+            value={`${avgResponseTime.toFixed(0)}ms`}
+            trend={{
+              value: 5.2,
+              isPositive: avgResponseTime < 800,
+            }}
+            subtext="Target: <500ms"
+            icon={<Clock className="h-5 w-5" />}
+          />
         </div>
 
-        {/* Analytics Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full max-w-3xl grid-cols-5 rounded-lg bg-muted p-1.5">
-            <TabsTrigger
-              value="overview"
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span>Overview</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="performance"
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
-            >
-              <Signal className="h-4 w-4" />
-              <span>Performance</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="geographic"
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
-            >
-              <MapPin className="h-4 w-4" />
-              <span>Geographic</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="errors"
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              <span>Errors</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="trends"
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
-            >
-              <Calendar className="h-4 w-4" />
-              <span>Trends</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Request Volume */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Request Volume</CardTitle>
-                  <CardDescription>Coverage check requests over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={timeSeriesData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="timestamp" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area
-                        type="monotone"
-                        dataKey="requests"
-                        stroke="#F5831F"
-                        fill="#F5831F"
-                        fillOpacity={0.2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Success Rate */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Success Rate</CardTitle>
-                  <CardDescription>API success rate percentage</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={timeSeriesData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="timestamp" />
-                      <YAxis domain={[80, 100]} />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="successRate"
-                        stroke="#10B981"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+        {/* Chart + Action Required */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Request Activity Chart */}
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Request Activity</h3>
+              <span className="text-xs text-gray-400">
+                {timeRange === '24h' ? 'Hourly' : timeRange === '7d' ? '4-hour intervals' : 'Daily'}
+              </span>
             </div>
-          </TabsContent>
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={timeSeriesData}>
+                <defs>
+                  <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F5831F" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#F5831F" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis
+                  dataKey="timestamp"
+                  tick={{ fontSize: 11, fill: '#6B7280' }}
+                  axisLine={{ stroke: '#E5E7EB' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: '#6B7280' }}
+                  axisLine={{ stroke: '#E5E7EB' }}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="requests"
+                  stroke="#F5831F"
+                  strokeWidth={2}
+                  fill="url(#colorRequests)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
 
-          <TabsContent value="performance" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Response Time Trends */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Response Time</CardTitle>
-                  <CardDescription>API response time over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={timeSeriesData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="timestamp" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="responseTime"
-                        stroke="#2563EB"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+          {/* Action Required Panel */}
+          <ActionRequiredPanel
+            items={actionItems}
+            onViewAll={() => console.log('View all alerts')}
+          />
+        </div>
 
-              {/* Performance Percentiles */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance Percentiles</CardTitle>
-                  <CardDescription>Response time distribution</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={performanceTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="period" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="p50" fill="#10B981" name="P50" />
-                      <Bar dataKey="p95" fill="#F59E0B" name="P95" />
-                      <Bar dataKey="p99" fill="#EF4444" name="P99" />
-                      <Legend />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+        {/* At Risk + Error Collections */}
+        <AtRiskSection providers={atRiskProviders} errorCollections={errorCollections} />
 
-          <TabsContent value="geographic" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Province Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Requests by Province</CardTitle>
-                  <CardDescription>Geographic distribution of coverage checks</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={provinceData} layout="horizontal">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="province" width={100} />
-                      <Tooltip />
-                      <Bar dataKey="requests" fill="#F5831F" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Province Performance */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Provincial Performance</CardTitle>
-                  <CardDescription>Success rate and response time by province</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {provinceData
-                      .sort((a, b) => b.requests - a.requests)
-                      .slice(0, 6)
-                      .map((province, index) => (
-                        <div key={province.province} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: colors[index % colors.length] }}
-                            />
-                            <span className="font-medium">{province.province}</span>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span>{province.requests} requests</span>
-                            <Badge
-                              variant={province.successRate > 95 ? "default" :
-                                      province.successRate > 90 ? "secondary" : "destructive"}
-                            >
-                              {province.successRate.toFixed(1)}%
-                            </Badge>
-                            <span className="text-gray-500">
-                              {province.avgResponseTime.toFixed(0)}ms
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="errors" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Error Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Error Distribution</CardTitle>
-                  <CardDescription>Types of errors encountered</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={errorData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="count"
-                        label={({ type, percentage }) =>
-                          percentage > 5 ? `${type}: ${percentage.toFixed(1)}%` : ''
-                        }
-                      >
-                        {errorData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Error Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Error Breakdown</CardTitle>
-                  <CardDescription>Detailed error statistics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {errorData
-                      .sort((a, b) => b.count - a.count)
-                      .map((error, index) => (
-                        <div key={error.type} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: colors[index % colors.length] }}
-                            />
-                            <span className="font-medium">
-                              {error.type.replace(/_/g, ' ')}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-sm">{error.count} occurrences</span>
-                            <Badge variant="outline">
-                              {error.percentage.toFixed(1)}%
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="trends" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Historical Trends</CardTitle>
-                <CardDescription>
-                  Long-term performance and usage trends
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="text-center py-8">
-                    <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">
-                      Historical trend analysis will be available once sufficient data is collected
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Check back in a few weeks for detailed trend insights
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Recent Transactions Table */}
+        <TransactionsTable
+          transactions={recentTransactions}
+          onViewAll={() => console.log('View all transactions')}
+        />
       </div>
     </div>
   );
