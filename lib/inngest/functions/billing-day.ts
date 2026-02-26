@@ -195,6 +195,56 @@ export const billingDayFunction = inngest.createFunction(
 
     result.totalInvoicesDue = invoices.length;
 
+    // Step 3: Batch check mandates (single query instead of N queries)
+    const mandateStatuses = await step.run('batch-check-mandates', async () => {
+      const supabase = await createClient();
+
+      // Collect all unique customer IDs
+      const customerIds = new Set<string>();
+      invoices.forEach(inv => customerIds.add(inv.customer_id));
+
+      if (customerIds.size === 0) {
+        return {} as Record<string, boolean>;
+      }
+
+      // Single query to get all mandate statuses
+      const { data: paymentMethods, error } = await supabase
+        .from('customer_payment_methods')
+        .select('customer_id, method_type, mandate_status, is_active, encrypted_details')
+        .in('customer_id', Array.from(customerIds))
+        .eq('is_active', true)
+        .eq('method_type', 'debit_order');
+
+      if (error) {
+        console.error('[BillingDay] Failed to fetch mandates:', error);
+        throw new Error(`Failed to fetch mandates: ${error.message}`);
+      }
+
+      const statusMap: Record<string, boolean> = {};
+
+      // Initialize all customers as no eMandate
+      customerIds.forEach(id => {
+        statusMap[id] = false;
+      });
+
+      // Mark customers with active verified mandates
+      for (const pm of paymentMethods || []) {
+        const isVerified = pm.encrypted_details?.verified === true ||
+                          pm.encrypted_details?.verified === 'true';
+        const mandateActive = pm.mandate_status === 'active' ||
+                             pm.mandate_status === 'approved';
+
+        if (isVerified && mandateActive) {
+          statusMap[pm.customer_id] = true;
+        }
+      }
+
+      const activeCount = Object.values(statusMap).filter(v => v).length;
+      console.log(`[BillingDay] Mandate check: ${activeCount} with eMandate`);
+
+      return statusMap;
+    });
+
     // Handle no invoices case early
     if (invoices.length === 0) {
       console.log('[BillingDay] No unpaid invoices due today');
@@ -233,7 +283,7 @@ export const billingDayFunction = inngest.createFunction(
       return { success: true, processLogId, result };
     }
 
-    // Step 3: Get debit batch items (to skip those invoices)
+    // Step 4: Get debit batch items (to skip those invoices)
     const debitBatchInvoiceIds = await step.run('get-debit-batch-items', async () => {
       const supabase = await createClient();
 
@@ -253,7 +303,7 @@ export const billingDayFunction = inngest.createFunction(
 
     const debitBatchSet = new Set(debitBatchInvoiceIds);
 
-    // Step 4: Filter invoices (skip debit batch, already sent today, has eMandate)
+    // Step 5: Filter invoices (skip debit batch, already sent today, has eMandate)
     const invoicesToProcess = await step.run('filter-invoices', async () => {
       const eligible: Array<{
         id: string;
@@ -285,7 +335,7 @@ export const billingDayFunction = inngest.createFunction(
         }
 
         // Skip if customer has active eMandate (handled by debit order cron)
-        const hasEmandate = await PayNowBillingService.hasActiveEmandate(invoice.customer_id);
+        const hasEmandate = mandateStatuses[invoice.customer_id] || false;
         if (hasEmandate) {
           skippedEmandate++;
           console.log(`[BillingDay] Skipping ${invoice.invoice_number} (customer has active eMandate)`);
@@ -357,7 +407,7 @@ export const billingDayFunction = inngest.createFunction(
       return { success: true, processLogId, result };
     }
 
-    // Step 5: Process Pay Now in batches (skip if dry run)
+    // Step 6: Process Pay Now in batches (skip if dry run)
     if (!dryRun) {
       const batchSize = 10;
       const eligible = invoicesToProcess.eligible;
@@ -431,7 +481,7 @@ export const billingDayFunction = inngest.createFunction(
       result.processed = 0;
     }
 
-    // Step 6: Update final log
+    // Step 7: Update final log
     const finalStatus = result.failed > 0
       ? (result.successful > 0 ? 'completed_with_errors' : 'failed')
       : 'completed';
@@ -459,7 +509,7 @@ export const billingDayFunction = inngest.createFunction(
       );
     });
 
-    // Step 7: Send completion event
+    // Step 8: Send completion event
     await step.run('send-completion-event', async () => {
       await inngest.send({
         name: 'billing/day.completed',
