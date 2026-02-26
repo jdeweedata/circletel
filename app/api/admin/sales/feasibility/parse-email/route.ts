@@ -148,7 +148,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseEmai
 
         // Use REST API directly (same approach as the working AI Assistant route)
         const geminiResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {

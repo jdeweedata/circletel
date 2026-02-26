@@ -108,6 +108,26 @@
     "app/api/cron/generate-monthly-invoices/route.ts": {
       "maxDuration": 300,
       "memory": 1024
+    },
+    "app/api/admin/sales/feasibility/parse-email/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    },
+    "app/api/partners/feasibility/chat/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    },
+    "app/api/partners/feasibility/create/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "app/api/partners/feasibility/[id]/route.ts": {
+      "maxDuration": 15,
+      "memory": 256
+    },
+    "app/api/partners/feasibility/history/route.ts": {
+      "maxDuration": 15,
+      "memory": 256
     }
   },
   "crons": [

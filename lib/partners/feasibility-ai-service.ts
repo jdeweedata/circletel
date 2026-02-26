@@ -22,7 +22,7 @@ import {
 // CONFIGURATION
 // ============================================================================
 
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-2.5-flash';
 
 interface AIServiceConfig {
   maxRetries: number;
