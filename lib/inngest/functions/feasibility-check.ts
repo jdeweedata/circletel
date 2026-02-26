@@ -66,6 +66,7 @@ export const feasibilityCheckFunction = inngest.createFunction(
     const { lead_id, coordinates, requirements } = event.data;
     const startTime = Date.now();
 
+    try {
     // Step 1: Update lead status to 'checking'
     await step.run('update-status-checking', async () => {
       const supabase = await createClient();
@@ -93,15 +94,12 @@ export const feasibilityCheckFunction = inngest.createFunction(
       const results: ProviderCheckResult[] = [];
 
       // Run all checks in parallel
+      // CRITICAL: Order matters - index positions must match destructuring below
       const [taranaResult, mtnResult, fibreResult, dfaResult] = await Promise.allSettled([
-        // Tarana fixed wireless check
-        checkTarana(coords),
-        // MTN 5G/LTE check
-        checkMTN(coords),
-        // Internal fibre database check
-        checkFibre(coords),
-        // DFA Fibre API check
-        checkDFA(coords),
+        checkTarana(coords),  // Index 0
+        checkMTN(coords),     // Index 1
+        checkFibre(coords),   // Index 2
+        checkDFA(coords),     // Index 3
       ]);
 
       // Process Tarana result
@@ -240,6 +238,19 @@ export const feasibilityCheckFunction = inngest.createFunction(
       is_feasible: isFeasible,
       best_technology: bestTechnology,
     };
+    } catch (error) {
+      await step.run('send-failure-event', async () => {
+        await inngest.send({
+          name: 'feasibility/check.failed',
+          data: {
+            lead_id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            attempt: 1,
+          },
+        });
+      });
+      throw error;
+    }
   }
 );
 
@@ -298,11 +309,12 @@ async function checkMTN(coordinates: Coordinates): Promise<ProviderCheckResult> 
     });
 
     const mtnProvider = coverage.providers?.mtn;
-    const is5gAvailable = mtnProvider?.services?.some(
-      (s: { type: string; available: boolean }) => s.type === '5g' && s.available
+    const services = Array.isArray(mtnProvider?.services) ? mtnProvider.services : [];
+    const is5gAvailable = services.some(
+      (s: { type?: string; available?: boolean }) => s?.type === '5g' && s?.available === true
     );
-    const isLteAvailable = mtnProvider?.services?.some(
-      (s: { type: string; available: boolean }) => s.type === 'lte' && s.available
+    const isLteAvailable = services.some(
+      (s: { type?: string; available?: boolean }) => s?.type === 'lte' && s?.available === true
     );
 
     const technology = is5gAvailable ? '5g' : isLteAvailable ? 'lte' : '5g_lte';
@@ -317,6 +329,7 @@ async function checkMTN(coordinates: Coordinates): Promise<ProviderCheckResult> 
         provider: 'MTN',
         is_feasible: isFeasible,
         confidence: mtnProvider?.confidence || 'medium',
+        max_speed_mbps: is5gAvailable ? 300 : isLteAvailable ? 100 : undefined,
         checked_at: new Date().toISOString(),
       },
     };
