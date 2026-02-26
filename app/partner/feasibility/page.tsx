@@ -25,6 +25,7 @@ import {
   PartnerFeasibilitySite,
   FormSite,
   CreateFeasibilityRequest,
+  ServicePackage,
 } from '@/lib/partners/feasibility-types';
 import { toast } from 'sonner';
 
@@ -52,6 +53,8 @@ export default function PartnerFeasibilityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [sites, setSites] = useState<PartnerFeasibilitySite[]>([]);
+  const [packagesPerSite, setPackagesPerSite] = useState<Record<string, ServicePackage[]>>({});
+  const [selectedPackages, setSelectedPackages] = useState<Record<string, ServicePackage[]>>({});
 
   // Send chat message
   const handleSendMessage = useCallback(
@@ -252,10 +255,32 @@ export default function PartnerFeasibilityPage() {
     }
   };
 
+  // Fetch packages for a site after coverage completes
+  const fetchPackagesForSite = async (site: PartnerFeasibilitySite) => {
+    if (!site.coverage_lead_id) return;
+
+    try {
+      const response = await fetch(
+        `/api/coverage/packages?leadId=${site.coverage_lead_id}&type=business`
+      );
+      const data = await response.json();
+
+      if (data.packages && Array.isArray(data.packages)) {
+        setPackagesPerSite((prev) => ({
+          ...prev,
+          [site.id]: data.packages,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch packages for site:', site.id, error);
+    }
+  };
+
   // Poll for coverage results
   const pollForResults = async (id: string) => {
     let attempts = 0;
     const maxAttempts = 60; // 2 minutes at 2-second intervals
+    const fetchedSites = new Set<string>(); // Track which sites we've fetched packages for
 
     const poll = async () => {
       if (attempts >= maxAttempts) {
@@ -273,10 +298,23 @@ export default function PartnerFeasibilityPage() {
           return;
         }
 
-        setSites(data.request.sites || []);
+        const currentSites: PartnerFeasibilitySite[] = data.request.sites || [];
+        setSites(currentSites);
+
+        // Fetch packages for newly completed sites
+        for (const site of currentSites) {
+          if (
+            site.coverage_status === 'complete' &&
+            !fetchedSites.has(site.id) &&
+            site.coverage_lead_id
+          ) {
+            fetchedSites.add(site.id);
+            fetchPackagesForSite(site);
+          }
+        }
 
         // Check if all sites are complete
-        const allDone = (data.request.sites || []).every(
+        const allDone = currentSites.every(
           (s: PartnerFeasibilitySite) =>
             s.coverage_status === 'complete' || s.coverage_status === 'failed'
         );
@@ -300,6 +338,25 @@ export default function PartnerFeasibilityPage() {
     poll();
   };
 
+  // Package selection handlers
+  const handlePackageSelect = (siteId: string, pkg: ServicePackage) => {
+    setSelectedPackages((prev) => ({
+      ...prev,
+      [siteId]: [...(prev[siteId] || []), pkg],
+    }));
+  };
+
+  const handlePackageDeselect = (siteId: string, pkgId: string) => {
+    setSelectedPackages((prev) => ({
+      ...prev,
+      [siteId]: (prev[siteId] || []).filter((p) => p.id !== pkgId),
+    }));
+  };
+
+  const handleClearSelection = () => {
+    setSelectedPackages({});
+  };
+
   // Reset form for new request
   const handleNewRequest = () => {
     setPageState('entry');
@@ -307,6 +364,8 @@ export default function PartnerFeasibilityPage() {
     setFormState(INITIAL_FORM_STATE);
     setRequestId(null);
     setSites([]);
+    setPackagesPerSite({});
+    setSelectedPackages({});
   };
 
   return (
@@ -394,7 +453,13 @@ export default function PartnerFeasibilityPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <CoverageResults sites={sites} />
+            <CoverageResults
+              sites={sites}
+              packagesPerSite={packagesPerSite}
+              selectedPackages={selectedPackages}
+              onPackageSelect={handlePackageSelect}
+              onPackageDeselect={handlePackageDeselect}
+            />
           </CardContent>
         </Card>
       )}
@@ -403,8 +468,19 @@ export default function PartnerFeasibilityPage() {
       {pageState === 'results' && (
         <CoverageResults
           sites={sites}
+          packagesPerSite={packagesPerSite}
+          selectedPackages={selectedPackages}
+          onPackageSelect={handlePackageSelect}
+          onPackageDeselect={handlePackageDeselect}
+          onClearSelection={handleClearSelection}
           onGenerateQuote={() => {
-            toast.info('Quote generation coming soon!');
+            // TODO: Generate quote with selected packages
+            const allSelected = Object.values(selectedPackages).flat();
+            if (allSelected.length === 0) {
+              toast.error('Please select at least one package');
+              return;
+            }
+            toast.info(`Quote generation with ${allSelected.length} package(s) coming soon!`);
           }}
           canGenerateQuote={sites.some(
             (s) =>

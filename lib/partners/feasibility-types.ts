@@ -154,6 +154,34 @@ export interface PackageOption {
   technology: string;
 }
 
+// Full service package from product catalogue
+export interface ServicePackage {
+  id: string;
+  name: string;
+  service_type: string;
+  product_category?: string;
+  speed_down: number;
+  speed_up: number;
+  price: number;
+  promotion_price?: number;
+  promotion_months?: number;
+  features?: string[];
+  description?: string;
+  active?: boolean;
+  provider?: {
+    code: string;
+    name: string;
+    logo_url?: string;
+  };
+}
+
+// Filter state for package grid
+export interface PackageFilters {
+  technology: 'all' | 'fibre' | 'wireless' | 'lte' | '5g';
+  minSpeed: number;
+  sortBy: 'price' | 'speed' | 'name';
+}
+
 export interface SelectedPackage {
   package_id: string;
   technology: string;
