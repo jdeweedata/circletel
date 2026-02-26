@@ -269,6 +269,65 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
 }
 ```
 
+## Inngest Patterns
+
+### Function Structure
+
+```typescript
+export const myFunction = inngest.createFunction(
+  {
+    id: 'my-function',           // kebab-case
+    name: 'My Function',         // Human readable
+    retries: 3,
+    cancelOn: [{ event: 'my/event.cancelled', match: 'data.id' }],
+  },
+  { event: 'my/event.requested' },
+  async ({ event, step }) => {
+    try {
+      // Steps here...
+    } catch (error) {
+      // CRITICAL: Always send failure event
+      await step.run('send-failure-event', async () => {
+        await inngest.send({ name: 'my/event.failed', data: { error: error.message } });
+      });
+      throw error;
+    }
+  }
+);
+```
+
+### Parallel Provider Checks
+
+```typescript
+// CRITICAL: Order matters - index positions must match destructuring
+const [result1, result2, result3] = await Promise.allSettled([
+  checkProvider1(coords),  // Index 0
+  checkProvider2(coords),  // Index 1
+  checkProvider3(coords),  // Index 2
+]);
+```
+
+### Type Safety for Optional Arrays
+
+```typescript
+// ❌ BAD - unsafe optional chaining
+const hasFeature = provider?.services?.some(s => s.type === 'x');
+
+// ✅ GOOD - explicit guard
+const services = Array.isArray(provider?.services) ? provider.services : [];
+const hasFeature = services.some(
+  (s: { type?: string }) => s?.type === 'x'
+);
+```
+
+### Step Naming Convention
+
+- Use **kebab-case**: `update-status`, `send-completion-event`
+- Be **descriptive**: `parallel-provider-checks` not `step-2`
+- Include **action**: `persist-results`, `validate-input`
+
+**Template**: `.claude/templates/inngest-function.ts.template`
+
 ## Common Debugging Patterns
 
 ### Build-Time Errors from External Services

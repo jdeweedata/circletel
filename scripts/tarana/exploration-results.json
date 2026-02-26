@@ -1,0 +1,1083 @@
+{
+  "loginSuccess": true,
+  "loginDetails": [
+    "Navigating to: https://portal.tcs.taranawireless.com/operator-portal/operator/map",
+    "Initial page loaded: https://portal.tcs.taranawireless.com/operator-portal/login",
+    "Screenshot saved: 01-login-page.png",
+    "Found username field: input[name=\"username\"]",
+    "Found password field: input[type=\"password\"]",
+    "Total input fields found: 2",
+    "Input 1: type=text, name=username, id=login_email_input, placeholder=Username",
+    "Input 2: type=password, name=password, id=login_password_input, placeholder=Password",
+    "Filling in username...",
+    "Filling in password...",
+    "Screenshot saved: 02-credentials-filled.png",
+    "Clicking submit button: button[type=\"submit\"]",
+    "Navigation completed after login",
+    "Screenshot saved: 03-after-login.png",
+    "Login appears successful!",
+    "Screenshot saved: 04-map-page.png"
+  ],
+  "pageTitle": "Operator Portal - Login",
+  "currentUrl": "https://portal.tcs.taranawireless.com/operator-portal/operator/dashboard",
+  "networkRequests": [
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/operator/map",
+      "method": "GET",
+      "resourceType": "document",
+      "status": 302
+    },
+    {
+      "url": "http://portal.tcs.taranawireless.com/operator-portal/login",
+      "method": "GET",
+      "resourceType": "document",
+      "status": 307
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/login",
+      "method": "GET",
+      "resourceType": "document",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/env-config.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/common-config.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/criticalCss/modern-normalize.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/runtime.e81e48b8.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/7855.20794ef5.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/main.ca886619.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/9159.718ed935.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/6987.36bd9a48.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/7992.660f0e73.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/remoteEntry.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/alarms/remoteEntry.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/operations/remoteEntry.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/css/7987.9c91c4a9.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/7987.dff57f37.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/9351.b8a8826e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4037.4dd2e9f6.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4122.bb7a8da6.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1476.ad76e882.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/3839.11375a46.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/css/3917.26e05feb.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/3917.cf2e94f8.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5821.e7539f97.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/995.90f1e203.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1017.bff98d39.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7166.9bcba2eb.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/6565.9914f2b6.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4008.475a0c44.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/8643.5ed37836.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1469.ca2b9bb6.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2472.d191ce4a.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/2435.6bf433d0.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5797.a699f6a5.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/9211.ceb1426c.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3509.473adfef.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5423.7e01d8fb.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1765.34c91a69.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5321.5eafcf02.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/2232.762ef152.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/7296.9914d220.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4874.5bd0734c.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/9341.a5d666a0.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1737.3b633c8f.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4948.e4caa68a.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/8322.ad39f872.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/6306.01d5e389.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4417.bf7c2918.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4449.7f6bef48.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/8659.55072b45.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7682.8bc2054d.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1511.6a945559.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/9309.5a8922d2.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/9789.dd5ab769.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4130.e575b458.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/9826.b343f90e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/580.1afacf89.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/8229.3f452c97.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4475.6c190300.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/5807.7f28b335.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/6411.1784a35e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/5308.7cbed397.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2432.548abea5.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/css/4704.bb4d7702.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/css/3646.2b1d16b9.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3646.f266011c.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1085.c1b9a222.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/446.dbe55a31.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3410.557f554f.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/8632.79373352.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/css/2247.fb0a596d.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2247.70459c81.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/fonts/Lato-Regular.ttf",
+      "method": "GET",
+      "resourceType": "font",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/6816.cd6325e4.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1775.ddc6bd80.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/732.0fa5027a.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/307.7284e6e2.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3304.ed163b6d.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3779.aea566b5.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.us.heap-api.com/config/762504273/heap_config.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://static.hotjar.com/c/hotjar-2963954.js?sv=6",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/media/background_image_login.1f27044d.jpg",
+      "method": "GET",
+      "resourceType": "image",
+      "status": 200
+    },
+    {
+      "url": "https://script.hotjar.com/modules.ddd41caee2adfc4aedb8.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://cdn.us.heap-api.com/v5/heapjs-static/5.3.8/core/heap.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://c.us.heap-api.com/api/capture/v2/add_user_properties",
+      "method": "POST",
+      "resourceType": "fetch",
+      "status": 200
+    },
+    {
+      "url": "https://c.us.heap-api.com/api/capture/v2/track",
+      "method": "POST",
+      "resourceType": "fetch",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tcs/v1/user-auth/login",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/6804.c82da300.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1989.24065f27.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4844.debcb90a.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7774.a246349f.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/9904.db9f7543.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7332.975a4cc0.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5926.9496f09e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1211.5c19be70.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/css/4659.90184a6f.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4659.5763d6e9.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2173.654ba423.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/css/784.74270a88.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/784.941afdff.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://c.us.heap-api.com/api/capture/v2/track",
+      "method": "POST",
+      "resourceType": "fetch"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tni/v2/config_attributes",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tcs/v1/users",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/srs/v1/cpi?tcc-user-id=b05eaaf2-a453-420f-8826-5a9905a69cd3",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 400
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tni/v2/retailers/1020",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/ffi/evaluate/v1/batch",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tum/v1/user-metadata/search",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tum/v1/user-metadata/search",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tns/v1/announcements/search",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tni/v2/operators/219",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tni/v2/operators/219/regions?offset=0&count=1000",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/index.worker.792a8d1f.worker.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/ffi/evaluate/v1/batch",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/ffi/evaluate/v1/batch",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tmq/v2/radios/alarm/distribution",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5086.35d20f55.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/6516.1bda90ba.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/2673.b2e180af.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1006.b7595e23.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/453.cd637e99.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/8165.08c2c459.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/3146.93c894d1.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4055.20011a6e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/7631.2f1e1a9c.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/css/4948.97a9eebd.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/4948.e9b42238.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/359.d19ca2fb.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/2687.d43029e9.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/5782.605164d8.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/6415.2cf7ec57.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2384.ba4de046.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/8197.685a6ff9.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/8025.b66fcb12.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/1424.197a4b33.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/994.20654aaf.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/3289.1ee44e33.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/css/2754.916a1ab7.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/2754.a46ed6df.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/js/801.3fde0bfa.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/5580.94568494.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3226.8e8e4169.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/css/2715.5206c477.chunk.css",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/2715.57af6324.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/static/media/tarana_collapsed.9ffbd586.png",
+      "method": "GET",
+      "resourceType": "image",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/8013.8c23052c.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/1295.ff8ddcd0.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/9202.bf9972fd.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7092.41070d56.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7082.114afe15.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/7444.a0b32d38.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/9451.3ef0aaea.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3407.9aefeb33.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4796.ac964b8e.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4470.ac41bcda.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3540.bc99f164.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/4514.2166ada8.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/6440.310c9067.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3970.98b73175.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/6340.b7bb19d7.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/mfe/shared-components/static/js/3663.dea11b25.chunk.js",
+      "method": "GET",
+      "resourceType": "script",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tns/v1/announcements/search",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tns/v1/announcements/search",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tns/v1/announcements/search",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tum/v1/user-metadata/search",
+      "method": "POST",
+      "resourceType": "xhr"
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/fonts/Montserrat-Bold.ttf",
+      "method": "GET",
+      "resourceType": "font",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/fonts/Lato-Bold.ttf",
+      "method": "GET",
+      "resourceType": "font",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/operator-portal/fonts/Montserrat-Regular.ttf",
+      "method": "GET",
+      "resourceType": "font",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/nqs/v1/devices/count?entityType=OPERATOR&entityId=219",
+      "method": "GET",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tmq/v5/radios/kpi/aggregate",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tmq/v5/radios/count?type=BN",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    },
+    {
+      "url": "https://portal.tcs.taranawireless.com/api/tmq/v5/radios/count?type=RN",
+      "method": "POST",
+      "resourceType": "xhr",
+      "status": 200
+    }
+  ],
+  "apiEndpoints": [
+    "POST https://c.us.heap-api.com/api/capture/v2/add_user_properties",
+    "POST https://c.us.heap-api.com/api/capture/v2/track",
+    "POST https://portal.tcs.taranawireless.com/api/tcs/v1/user-auth/login",
+    "GET https://portal.tcs.taranawireless.com/api/tni/v2/config_attributes",
+    "GET https://portal.tcs.taranawireless.com/api/tcs/v1/users",
+    "GET https://portal.tcs.taranawireless.com/api/srs/v1/cpi?tcc-user-id=b05eaaf2-a453-420f-8826-5a9905a69cd3",
+    "GET https://portal.tcs.taranawireless.com/api/tni/v2/retailers/1020",
+    "POST https://portal.tcs.taranawireless.com/api/ffi/evaluate/v1/batch",
+    "POST https://portal.tcs.taranawireless.com/api/tum/v1/user-metadata/search",
+    "POST https://portal.tcs.taranawireless.com/api/tns/v1/announcements/search",
+    "GET https://portal.tcs.taranawireless.com/api/tni/v2/operators/219",
+    "GET https://portal.tcs.taranawireless.com/api/tni/v2/operators/219/regions?offset=0&count=1000",
+    "POST https://portal.tcs.taranawireless.com/api/tmq/v2/radios/alarm/distribution",
+    "GET https://portal.tcs.taranawireless.com/api/nqs/v1/devices/count?entityType=OPERATOR&entityId=219",
+    "POST https://portal.tcs.taranawireless.com/api/tmq/v5/radios/kpi/aggregate",
+    "POST https://portal.tcs.taranawireless.com/api/tmq/v5/radios/count?type=BN",
+    "POST https://portal.tcs.taranawireless.com/api/tmq/v5/radios/count?type=RN"
+  ],
+  "uiElements": [
+    "Buttons: 18 found",
+    "Sidebars: 1 found",
+    "Menus: 6 found",
+    "Tarana Feature - Search: 1 elements",
+    "Tarana Feature - Filters: 4 elements",
+    "Visible panels/sidebars: 1"
+  ],
+  "consoleMessages": [
+    "[warning] The value \"1024px\" for key \"width\" was truncated to its numeric prefix.",
+    "[error] Failed to load resource: the server responded with a status of 400 ()",
+    "[error] Error while creating cpi user... J",
+    "[warning] Highcharts warning: Consider including the \"accessibility.js\" module to make your chart more usable for people with disabilities. Set the \"accessibility.enabled\" option to false to remove this warning. See https://www.highcharts.com/docs/accessibility/accessibility-module."
+  ],
+  "errors": []
+}

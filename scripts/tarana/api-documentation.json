@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-02-19T03:36:32.580Z",
+  "baseUrl": "https://portal.tcs.taranawireless.com",
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "https://c.us.heap-api.com/api/capture/v2/add_user_properties",
+      "status": 200,
+      "sampleRequest": "\n\t762504273\u0012\u00102749393562198056\"�\u0001\u001aoMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36j\u0017\n\u000410.0\u0012\r141.0.7390.37\u001a\u0000*\u00002:\n\u0003web\u0012\u00055.3.8\u001a\u0003web\"'\n\u000elibrary_domain\u0012\u0015\n\u0013cdn.us.heap-api.com:�\u0001\n\u000f136244812755772\u0012\f\b����\u0006\u0010����\u0003\u001a\u0000*\u00002�\u0001\n\u00103116970765290210\u0012\f\b����\u0006\u0010����\u0003*7\n\u001dportal.tcs.taranawireless.com\u0012\u0016/operator-portal/login2\u0017\n\rscreen_height\u0012\u0006\n\u000410802\u0016\n\fscreen_width\u0012\u0006\n\u00041920",
+      "sampleResponse": "OK"
+    },
+    {
+      "method": "POST",
+      "path": "https://c.us.heap-api.com/api/capture/v2/track",
+      "status": 200,
+      "sampleRequest": "\n�\u0003\n\u000f136244812755772\u0012\t762504273\u001a\u00102749393562198056\"\f\b����\u0006\u0010����\u0003*:\n\u0003web\u0012\u00055.3.8\u001a\u0003web\"'\n\u000elibrary_domain\u0012\u0015\n\u0013cdn.us.heap-api.com:\u0000B�\u0001\u001aoMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36j\u0017\n\u000410.0\u0012\r141.0.7390.37\u001a\u0000J�\u0001\n\u000f136244812755772\u0012\f\b����\u0006\u0010����\u0003\u001a\u0000*\u00002�\u0001\n\u00103116970765290210\u0012\f\b����\u0006\u0010����\u0003\"\u0017Operator Portal - Login*7\n\u001dportal.tcs.taranawireless.com\u0012\u0016/operator-portal/login2\u0017\n\rscreen_height\u0012\u0006\n\u000410802\u0016\n\fscreen_width\u0012\u0006\n\u00041920b\u0000�\u0001\u0000\n�\u0004\n\u00103116970765290210\u0012\t76",
+      "sampleResponse": "OK"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tcs/v1/user-auth/login",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"session\":null,\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"accessToken\":\"eyJraWQiOiJoRjdobEQxVlc4MjBRVThrZDB5c05yTmNBdHVQSkhoUEFkcHVlam5JTHRvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJiMDVlYWFmMi1hNDUzLTQyMGYtODgyNi01YTk5MDVhNjljZDMiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb21cL3VzLXdlc3QtMl9rNk04WVUwczciLCJjbGllbnRfaWQiOiIzazFuNWkzMGQyZ2NrNHF0OGExcnVuMG1kcyIsIm9yaWdpbl9qdGkiOiJkZmVkOWEwNS0yZGU4LTRiNjctODFkZC1lYTRlMTE2ZDViY2UiLCJldmVudF9pZCI6ImQyYWRiNWZkLTZkMjQtNDRiMi1iM2VhLTUzNjhmYmU0Zjg5NiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3NzE0NzIxNzEsImV4cCI6MTc3MTQ3NTc3MSwiaWF0IjoxNzcxNDcyMTcxLCJqdGkiOiI5M2VlYWIwZi1iNWMzLTRmOWYtYTg3OS04MTI2ZWE2ZjJhODAiLCJ1c2VybmFtZSI6ImIwNWVhYWYyLWE0NTMtNDIwZi04ODI2LTVhOTkwNWE2OWNkMyJ9.VNuMw8v04FOm3Xu3FhDQug4n4UyG4s9TARsf06WGM00jGqjmDnKiWPK48hJyBkuTuhaWLGDZIUkyIZ8Dev0Oo3aH1SXT6W9_VorPVOevxoyi0ah8SL8ujyceu__AAeJiNayxzXUmNmbZzS8PuqkYPasGnv7eMyJV4kRpEKQPbXK69FtMxbcPgzr4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tni/v2/config_attributes",
+      "status": 200,
+      "sampleResponse": "{\"data\":[{\"fieldName\":\"carrier[0].status\",\"targetType\":\"BN\",\"dataType\":\"int\",\"reportMismatch\":false,\"enablePush\":false,\"configYangPath\":\"/radios/radio[id=0]/config/status\",\"stateYangPath\":\"/radios/radio[id=0]/state/status\",\"isMandatory\":false,\"displayName\":\"Radio operational status\",\"useConfigPath\":false,\"copyReportedValueToSaved\":false,\"useReportedStateForMismatch\":false},{\"fieldName\":\"carrier[1].status\",\"targetType\":\"BN\",\"dataType\":\"int\",\"reportMismatch\":false,\"enablePush\":false,\"configYangPath\":\"/radios/radio[id=1]/config/status\",\"stateYangPath\":\"/radios/radio[id=1]/state/status\",\"isMandatory\":false,\"displayName\":\"Radio operational status\",\"useConfigPath\":false,\"copyReportedValueToSaved\":false,\"useReportedStateForMismatch\":false},{\"fieldName\":\"carrier[2].status\",\"targetType\":\"BN\",\"dataType\":\"int\",\"reportMismatch\":false,\"enablePush\":false,\"configYangPath\":\"/radios/radio[id=2]/config/status\",\"stateYangPath\":\"/radios/radio[id=2]/state/status\",\"isMandatory\":false,\"displayName\":\"Radio op"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tcs/v1/users",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"firstName\":\"Mmathabo\",\"lastName\":\"Setoaba\",\"email\":\"mmathabo.setoaba@circletel.co.za\",\"mobile\":\"+27737373979\",\"address\":null,\"city\":null,\"state\":null,\"country\":null,\"pincode\":null,\"retailerId\":\"1020\",\"operatorId\":\"219\",\"assignedRoles\":[{\"roleId\":9,\"roleName\":\"Retailer Viewer\",\"roleDescription\":\"User with this role can have all the permissions of NOC L1, plus: Deny permissions to hide telemetry columns from the BN table and Deny permission to not allow launching the BN page\"}],\"assignedPolicies\":[],\"logInTimeSeconds\":1771472171,\"lastLoginTimeMillis\":1771472171705,\"lastActiveTimeMillis\":1771472171705,\"creationTimeMillis\":1754914414027,\"eulaAccept\":true,\"eulaAcceptTimeMillis\":1757414953349,\"lastPasswordChangeTimeMillis\":1771471677082,\"active\":true,\"idpUser\":false,\"userType\":\"TCC_USER\"},\"error\":null}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/srs/v1/cpi?tcc-user-id=b05eaaf2-a453-420f-8826-5a9905a69cd3",
+      "status": 400,
+      "sampleResponse": "{\"data\":null,\"error\":{\"code\":400,\"message\":\"CPI record with tccUserId b05eaaf2-a453-420f-8826-5a9905a69cd3 not found\",\"status\":\"Bad Request\"}}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tni/v2/retailers/1020",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"id\":1020,\"name\":\"Circle Tel SA\",\"operatorId\":219,\"isDefaultRetailer\":false,\"operatorName\":\"MTN\"},\"error\":null}"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ffi/evaluate/v1/batch",
+      "status": 200,
+      "sampleRequest": "{\"requestId\":\"f47481fd-6dfc-47dd-bb16-c4fe579ebcef\",\"requests\":[{\"context\":{},\"flagKey\":\"ui_heap-analytics-enhancement\",\"namespaceKey\":\"trial\"},{\"context\":{},\"flagKey\":\"ui_interactive-tours\",\"namespaceKey\":\"trial\"},{\"context\":{},\"flagKey\":\"ui_enable-drilldown-dashboard\",\"namespaceKey\":\"trial\"},{\"context\":{},\"flagKey\":\"ui_enable-network-config-view\",\"namespaceKey\":\"trial\"},{\"context\":{\"roleId\":\"9\"},\"flagKey\":\"telemetry_link-debug-packets\",\"namespaceKey\":\"trial\"},{\"context\":{\"roleId\":\"9\"},\"flagKey",
+      "sampleResponse": "{\"requestId\":\"f47481fd-6dfc-47dd-bb16-c4fe579ebcef\", \"responses\":[{\"type\":\"BOOLEAN_EVALUATION_RESPONSE_TYPE\", \"booleanResponse\":{\"enabled\":true, \"reason\":\"DEFAULT_EVALUATION_REASON\", \"requestId\":\"\", \"requestDurationMillis\":11.150734, \"timestamp\":\"2026-02-19T03:36:14.416410629Z\", \"flagKey\":\"ui_heap-analytics-enhancement\"}}, {\"type\":\"BOOLEAN_EVALUATION_RESPONSE_TYPE\", \"booleanResponse\":{\"enabled\":true, \"reason\":\"DEFAULT_EVALUATION_REASON\", \"requestId\":\"\", \"requestDurationMillis\":11.150734, \"timestamp\":\"2026-02-19T03:36:14.416410629Z\", \"flagKey\":\"ui_interactive-tours\"}}, {\"type\":\"BOOLEAN_EVALUATION_RESPONSE_TYPE\", \"booleanResponse\":{\"enabled\":true, \"reason\":\"DEFAULT_EVALUATION_REASON\", \"requestId\":\"\", \"requestDurationMillis\":11.150734, \"timestamp\":\"2026-02-19T03:36:14.416410629Z\", \"flagKey\":\"ui_enable-drilldown-dashboard\"}}, {\"type\":\"BOOLEAN_EVALUATION_RESPONSE_TYPE\", \"booleanResponse\":{\"enabled\":true, \"reason\":\"DEFAULT_EVALUATION_REASON\", \"requestId\":\"\", \"requestDurationMillis\":11.150734"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tum/v1/user-metadata/search",
+      "status": 200,
+      "sampleRequest": "[{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"operator\"},{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"regions\"},{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"markets\"},{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"cells\"},{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"sites\"},{\"userId\":\"b05eaa",
+      "sampleResponse": "{\"data\":[{\"userId\":\"b05eaaf2-a453-420f-8826-5a9905a69cd3\",\"domain\":\"portalNetworkFilter\",\"key\":\"regions\",\"value\":\"{\\\"id\\\":\\\"all\\\"}\"}],\"error\":null}"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tns/v1/announcements/search",
+      "status": 200,
+      "sampleRequest": "{\"offset\":0,\"limit\":1,\"filter\":{\"category\":\"RELEASE\"}}",
+      "sampleResponse": "{\"data\":{\"items\":[{\"id\":475,\"summary\":\"Tarana Cloud Suite (TCS) Customer Feedback\",\"description\":\"Tarana Cloud Suite (TCS) Customer Feedback\",\"startTimeMillis\":1757367869323,\"endTimeMillis\":1759301999000,\"priority\":\"INFO\",\"category\":\"RELEASE\",\"creator\":\"8dca4756-946f-46c9-a63f-4c411c98624d\",\"createTimeMillis\":1757367869326,\"roles\":null,\"operators\":null,\"announcementUuid\":\"bcbdf76c-248c-4f0e-bda9-f060f4cb6c09\",\"actionUrl\":\"https://forms.gle/eiUQzsTtUPDwKL3TA\",\"actionDisplayName\":\"Survey Link\"}],\"count\":1,\"offset\":0,\"totalCount\":12},\"error\":null}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tni/v2/operators/219",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"id\":219,\"name\":\"MTN\",\"logo\":{\"url\":null,\"data\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB0IAAALdCAYAAACxwKDUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFxEAABcRAcom8z8AAP+lSURBVHhe7L2Jltw2smhbpSqp7///yTvt9tx2t21ZU5/3Be/ee87p9uz2KMmyBtdDEEQSDGyCIEhmMlkRa+2VmSQIMicSETvJvPjjjz9+NAzDMAzDMAzDMAzDMAzDMAzDMAzD2BMXNxYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY7CxOhFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWuwsToRYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFrsLE6EWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFha7CxOhFhYWu47/fusy4X/+cmcDyHZc9PhnAf9yfPGW4s+O/yjg/7m4+XIAmde0+fPlzZdv3bn58i9XN184/qX44u3rFnf/nTujfPnu1c1X710XIO0Y6ePLd6W/S4fbxogv363jK8fXhXzz3mUB0o759v11+O6DywLu3Hz/4XXDdx9czeL7D65v/v3h3ZsfBvjxr/cmIstcj/LDh1ej/Ns9z6lQPx4376+XDT9+dKeInz6+Woyf/3Y9EVnmThW//P1KIdP6/PrJ1SBPP71ucY8/vUx4+tmdUZ7dv1LIdFn2osev94f5xc0f4mc3v4RfHNT3EE8/d9s4wLP7ZTz//OJk/PbgchiZn+HFgxyXCb8/vNPnwZXjejIv3XKvHtxZjNcPr4p48+j6qLx2vHq8Lq+f3K3izeO7N38Ys6H3nTjl55G2e5BH7jk9dMu572hM2Gb6/sW8dPvNmN9hP/LC7TuODe4fM9C+dhg5DtAxcBg6hgaoPfH88+sCpN2d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tni/v2/operators/219/regions?offset=0&count=1000",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"items\":[{\"id\":1071,\"name\":\"Training_UN\",\"operatorId\":219,\"operatorName\":\"MTN\",\"networkProfile\":1,\"notes\":\"This is a non-customer serving Region. This is PRIMARILY used to facilitate training and network testing by United Wireless.\",\"contactPerson\":\"\",\"email\":\"\",\"regulatoryDomain\":\"FCC\",\"regulatoryCountry\":\"ZAF\",\"telemetryEnabled\":true,\"telemetryOverrideEnabled\":false,\"telemetryCollector\":{\"id\":\"1f86bce3-9565-4965-b7f4-57104439c094\",\"name\":\"1eb30aac-0082-4d17-bb47-1f155ffdcae8\",\"host\":\"196.11.56.154\",\"port\":55555,\"intervalSeconds\":300,\"authMethod\":1,\"encryptedAccessKey\":null,\"accessKeyHash\":null},\"createdTimeSeconds\":1731896055,\"overrideDhcpV6RelayAgent\":false,\"dhcpV6RelayAgentEnabled\":false,\"dhcpV6InterfaceIdentifierTypeEnabled\":true,\"dhcpV6RemoteIdentifierTypeEnabled\":true,\"dhcpV6InterfaceIdentifierType\":\"RN_MAC_ADDRESS_ASCII\",\"dhcpV6RemoteIdentifierType\":\"BN_MAC_ADDRESS_ASCII\",\"overrideDhcpRelayAgent\":false,\"dhcpRelayAgentEnabled\":false,\"circuitIdentifierType\":\"RN_SERIAL_AS"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tmq/v2/radios/alarm/distribution",
+      "status": 200,
+      "sampleRequest": "{\"filter\":{\"regions\":[1071,1073]},\"facets\":[\"severity\"]}",
+      "sampleResponse": "{\"data\":{\"description\":\"Chart Formula\",\"total\":2904,\"facets\":[{\"facet\":\"severity\",\"distribution\":{\"2\":1117,\"3\":1253,\"4\":310,\"5\":224}}]},\"error\":null}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nqs/v1/operators/219/network-hierarchy?hierarchyLevel=SITE",
+      "status": 200,
+      "sampleResponse": "{\"data\":{\"id\":219,\"name\":\"MTN\",\"regions\":[{\"id\":1073,\"name\":\"South Africa\",\"markets\":[{\"id\":1601,\"name\":\"CAPE\",\"sites\":[{\"id\":4716,\"name\":\"16 Nourse Avenue\"},{\"id\":4739,\"name\":\"Agape School\"},{\"id\":4734,\"name\":\"Atlantis Secondary School\"},{\"id\":4742,\"name\":\"Bellville Sewage Ponds\"},{\"id\":4753,\"name\":\"Bishop Lavis High School\"},{\"id\":4725,\"name\":\"Bolts and Nut\"},{\"id\":4754,\"name\":\"BP Road\"},{\"id\":4735,\"name\":\"Brackenfell Station\"},{\"id\":4743,\"name\":\"Brewelskloof Reservior IHS\"},{\"id\":7860,\"name\":\"Ceres East IHS\"},{\"id\":6924,\"name\":\"Clanwilliam TV IHS\"},{\"id\":4741,\"name\":\"Dal Josafat Spoornet\"},{\"id\":7794,\"name\":\"Franschhoek VC\"},{\"id\":4756,\"name\":\"Garden Centre Flats\"},{\"id\":4731,\"name\":\"Garden Pot Centre\"},{\"id\":4717,\"name\":\"Gellman VC\"},{\"id\":4733,\"name\":\"George Hub Switching Centre\"},{\"id\":4750,\"name\":\"Gestetner Building 1\"},{\"id\":4720,\"name\":\"Harare Police Station\"},{\"id\":4757,\"name\":\"Helshoogte Koshuis\"},{\"id\":7439,\"name\":\"Hermanus Telkom\"},{\"id\":4724,\"name\":\"Kraaifontein Ind 2\"},{"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tmq/v1/radios/search",
+      "status": 200,
+      "sampleRequest": "{\"query\":{\"deviceType\":\"RN\",\"pagination\":{\"offset\":0,\"limit\":5000},\"sort\":[{\"field\":\"deviceId\",\"direction\":\"ASC\"}],\"conditions\":[{\"logicalOperator\":\"AND\",\"conditions\":[{\"type\":\"hierarchy\",\"logicalOperator\":\"AND\",\"conditions\":[{\"field\":\"regionId\",\"operation\":\"EXIST\",\"values\":[1071,1073]}]}]}]},\"outputSchema\":{\"deviceFields\":[\"/connections/connection/system/install/state/latitude\",\"/connections/connection/system/install/state/longitude\",\"/connections/connection/system/install/state/height\",\"/conne",
+      "sampleResponse": "{\"version\":\"1.0\",\"name\":\"Network Elements Query Response\",\"description\":\"Response schema for network elements query results\",\"data\":{\"deviceType\":\"BN\",\"devices\":[{\"serialNumber\":\"S134F2220600926\",\"regionId\":\"1073\",\"marketId\":\"1606\",\"siteId\":\"4963\",\"cellId\":\"5324\",\"sectorId\":\"13763\",\"deviceType\":\"BN\",\"masterSerial\":\"S134F2220600926\",\"fields\":{\"/system/install/state/latitude\":-26.304298400878906,\"/radios/regulatory/state/band\":\"5ghz\",\"/system/cloud/history/state/first-seen-timestamp\":1654560000,\"/system/install/state/longitude\":28.134172439575195,\"/system/state/hostname\":\"X0348-BN-45\",\"/system/install/state/azimuth\":45.0,\"/system/install/state/height\":1598.5860595703125,\"deviceStatus\":1}},{\"serialNumber\":\"S134F2214900079\",\"regionId\":\"1073\",\"marketId\":\"1602\",\"siteId\":\"7387\",\"cellId\":\"7934\",\"sectorId\":\"19835\",\"deviceType\":\"BN\",\"masterSerial\":\"S134F2214900079\",\"fields\":{\"/system/install/state/latitude\":-33.29132080078125,\"/radios/regulatory/state/band\":\"5ghz\",\"/system/cloud/history/state/fi"
+    }
+  ]
+}
