@@ -120,6 +120,62 @@ export type TaranaSyncCancelledEvent = {
   };
 };
 
+// =============================================================================
+// FEASIBILITY CHECK EVENTS
+// =============================================================================
+
+export type FeasibilityCheckRequestedEvent = {
+  name: 'feasibility/check.requested';
+  data: {
+    lead_id: string;
+    coordinates: { lat: number; lng: number };
+    requirements?: {
+      bandwidth_mbps?: number;
+      budget_max?: number;
+      contention?: 'best-effort' | '10:1' | 'dia';
+      failover_needed?: boolean;
+      sla_required?: string;
+    };
+    triggered_by?: 'api' | 'admin' | 'partner';
+    user_id?: string;
+  };
+};
+
+export type FeasibilityCheckCompletedEvent = {
+  name: 'feasibility/check.completed';
+  data: {
+    lead_id: string;
+    results: Array<{
+      technology: string;
+      provider: string;
+      is_feasible: boolean;
+      confidence: 'high' | 'medium' | 'low';
+      checked_at: string;
+    }>;
+    duration_ms: number;
+    is_feasible: boolean;
+    best_technology?: string;
+  };
+};
+
+export type FeasibilityCheckFailedEvent = {
+  name: 'feasibility/check.failed';
+  data: {
+    lead_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type FeasibilityCheckCancelledEvent = {
+  name: 'feasibility/check.cancelled';
+  data: {
+    lead_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -130,4 +186,9 @@ export type InngestEvents = {
   'tarana/sync.completed': TaranaSyncCompletedEvent;
   'tarana/sync.failed': TaranaSyncFailedEvent;
   'tarana/sync.cancelled': TaranaSyncCancelledEvent;
+  // Feasibility check events
+  'feasibility/check.requested': FeasibilityCheckRequestedEvent;
+  'feasibility/check.completed': FeasibilityCheckCompletedEvent;
+  'feasibility/check.failed': FeasibilityCheckFailedEvent;
+  'feasibility/check.cancelled': FeasibilityCheckCancelledEvent;
 };
