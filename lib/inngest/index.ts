@@ -20,6 +20,12 @@ export {
   taranaSyncFailedFunction,
 } from './functions/tarana-sync';
 
+export {
+  feasibilityCheckFunction,
+  feasibilityCheckCompletedFunction,
+  feasibilityCheckFailedFunction,
+} from './functions/feasibility-check';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -33,6 +39,12 @@ import {
   taranaSyncFailedFunction,
 } from './functions/tarana-sync';
 
+import {
+  feasibilityCheckFunction,
+  feasibilityCheckCompletedFunction,
+  feasibilityCheckFailedFunction,
+} from './functions/feasibility-check';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -42,4 +54,8 @@ export const functions = [
   taranaSyncFunction,
   taranaSyncCompletedFunction,
   taranaSyncFailedFunction,
+  // Feasibility checks
+  feasibilityCheckFunction,
+  feasibilityCheckCompletedFunction,
+  feasibilityCheckFailedFunction,
 ];
