@@ -158,6 +158,7 @@ export async function GET(
       .single();
 
     if (error || !lead) {
+      apiLogger.error('[check-async] Lead not found for status check', { leadId });
       return NextResponse.json(
         { success: false, error: 'Lead not found' },
         { status: 404 }
@@ -172,6 +173,9 @@ export async function GET(
       checkedAt: lead.checked_at,
     });
   } catch (error) {
+    apiLogger.error('[check-async] GET error', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
