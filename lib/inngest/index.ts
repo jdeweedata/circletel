@@ -21,10 +21,22 @@ export {
 } from './functions/tarana-sync';
 
 export {
+  dfaSyncFunction,
+  dfaSyncCompletedFunction,
+  dfaSyncFailedFunction,
+} from './functions/dfa-sync';
+
+export {
   feasibilityCheckFunction,
   feasibilityCheckCompletedFunction,
   feasibilityCheckFailedFunction,
 } from './functions/feasibility-check';
+
+export {
+  debitOrdersFunction,
+  debitOrdersCompletedFunction,
+  debitOrdersFailedFunction,
+} from './functions/debit-orders';
 
 // Collect all functions for the serve handler
 import {
@@ -40,10 +52,22 @@ import {
 } from './functions/tarana-sync';
 
 import {
+  dfaSyncFunction,
+  dfaSyncCompletedFunction,
+  dfaSyncFailedFunction,
+} from './functions/dfa-sync';
+
+import {
   feasibilityCheckFunction,
   feasibilityCheckCompletedFunction,
   feasibilityCheckFailedFunction,
 } from './functions/feasibility-check';
+
+import {
+  debitOrdersFunction,
+  debitOrdersCompletedFunction,
+  debitOrdersFailedFunction,
+} from './functions/debit-orders';
 
 export const functions = [
   // Competitor analysis
@@ -54,8 +78,16 @@ export const functions = [
   taranaSyncFunction,
   taranaSyncCompletedFunction,
   taranaSyncFailedFunction,
+  // DFA sync
+  dfaSyncFunction,
+  dfaSyncCompletedFunction,
+  dfaSyncFailedFunction,
   // Feasibility checks
   feasibilityCheckFunction,
   feasibilityCheckCompletedFunction,
   feasibilityCheckFailedFunction,
+  // Debit orders
+  debitOrdersFunction,
+  debitOrdersCompletedFunction,
+  debitOrdersFailedFunction,
 ];
