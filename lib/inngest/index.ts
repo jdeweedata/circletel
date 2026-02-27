@@ -44,6 +44,12 @@ export {
   billingDayFailedFunction,
 } from './functions/billing-day';
 
+export {
+  whatsappBillingNotifications,
+  whatsappNotificationsCompleted,
+  whatsappNotificationsFailed,
+} from './functions/whatsapp-notifications';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -81,6 +87,12 @@ import {
   billingDayFailedFunction,
 } from './functions/billing-day';
 
+import {
+  whatsappBillingNotifications,
+  whatsappNotificationsCompleted,
+  whatsappNotificationsFailed,
+} from './functions/whatsapp-notifications';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -106,4 +118,8 @@ export const functions = [
   billingDayFunction,
   billingDayCompletedFunction,
   billingDayFailedFunction,
+  // WhatsApp billing notifications
+  whatsappBillingNotifications,
+  whatsappNotificationsCompleted,
+  whatsappNotificationsFailed,
 ];

@@ -10,6 +10,7 @@ export interface PaymentConsents {
   refundPolicy: boolean;
   recurringPayment?: boolean;
   marketing?: boolean;
+  whatsappNotifications?: boolean;
 }
 
 export interface B2BConsents extends PaymentConsents {
@@ -23,6 +24,7 @@ interface PaymentConsentCheckboxesProps {
   onConsentChange: (consents: PaymentConsents | B2BConsents) => void;
   showRecurringPayment?: boolean;
   showMarketing?: boolean;
+  showWhatsApp?: boolean;
   variant?: 'consumer' | 'b2b';
   errors?: string[];
 }
@@ -45,6 +47,7 @@ export function PaymentConsentCheckboxes({
   onConsentChange,
   showRecurringPayment = false,
   showMarketing = false,
+  showWhatsApp = true,
   variant = 'consumer',
   errors = [],
 }: PaymentConsentCheckboxesProps) {
@@ -289,6 +292,29 @@ export function PaymentConsentCheckboxes({
             <span className="text-xs text-gray-600">
               I agree to receive promotional emails, SMS, and special offers from CircleTel.
               You can unsubscribe at any time.
+            </span>
+          </Label>
+        </div>
+      )}
+
+      {/* WhatsApp Notifications (Optional) */}
+      {showWhatsApp && (
+        <div className="flex items-start gap-3 bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+          <Checkbox
+            id="consent-whatsapp"
+            checked={consents.whatsappNotifications || false}
+            onCheckedChange={(checked) => updateConsent('whatsappNotifications', checked as boolean)}
+            className="mt-0.5"
+          />
+          <Label
+            htmlFor="consent-whatsapp"
+            className="text-sm text-gray-700 cursor-pointer leading-relaxed"
+          >
+            <span className="font-semibold text-emerald-900">Receive WhatsApp payment reminders (optional)</span>
+            <br />
+            <span className="text-xs text-emerald-800">
+              Get invoice reminders and easy Pay Now links on WhatsApp. Never miss a payment!
+              You can opt out anytime from your account settings.
             </span>
           </Label>
         </div>

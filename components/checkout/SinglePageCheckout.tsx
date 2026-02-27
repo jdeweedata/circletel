@@ -114,6 +114,7 @@ export function SinglePageCheckout({
       refundPolicy: false,
       recurringPayment: false,
       marketing: false,
+      whatsappNotifications: false,
     } as PaymentConsents,
   });
 
@@ -257,7 +258,8 @@ export function SinglePageCheckout({
             accountType: formData.accountType
           },
           consents: formData.consents,
-          marketing: formData.consents.marketing
+          marketing_opt_in: formData.consents.marketing || false,
+          whatsapp_opt_in: formData.consents.whatsappNotifications || false
         })
       });
 

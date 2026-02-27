@@ -353,6 +353,56 @@ export type ZohoSyncFailedEvent = {
   };
 };
 
+// =============================================================================
+// WHATSAPP NOTIFICATION EVENTS
+// =============================================================================
+
+export type WhatsAppNotificationRequestedEvent = {
+  name: 'billing/whatsapp.requested';
+  data: {
+    triggered_by: 'cron' | 'manual';
+    billing_date?: string;
+    admin_user_id?: string;
+    process_log_id?: string;
+    options?: {
+      dryRun?: boolean;
+      includeOverdue?: boolean;
+      maxDaysOverdue?: number;
+    };
+  };
+};
+
+export type WhatsAppNotificationCompletedEvent = {
+  name: 'billing/whatsapp.completed';
+  data: {
+    process_log_id: string;
+    billing_date: string;
+    total_invoices: number;
+    eligible?: number;
+    sent: number;
+    failed: number;
+    duration_ms: number;
+  };
+};
+
+export type WhatsAppNotificationFailedEvent = {
+  name: 'billing/whatsapp.failed';
+  data: {
+    process_log_id: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type WhatsAppNotificationCancelledEvent = {
+  name: 'billing/whatsapp.cancelled';
+  data: {
+    process_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -386,4 +436,9 @@ export type InngestEvents = {
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;
   'zoho/sync.failed': ZohoSyncFailedEvent;
+  // WhatsApp notification events
+  'billing/whatsapp.requested': WhatsAppNotificationRequestedEvent;
+  'billing/whatsapp.completed': WhatsAppNotificationCompletedEvent;
+  'billing/whatsapp.failed': WhatsAppNotificationFailedEvent;
+  'billing/whatsapp.cancelled': WhatsAppNotificationCancelledEvent;
 };
