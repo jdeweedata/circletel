@@ -6,6 +6,13 @@ import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import dynamic from 'next/dynamic';
+
+// Agentation: Visual UI feedback for AI coding agents (dev-only)
+const Agentation = dynamic(
+  () => import('agentation').then((mod) => mod.Agentation),
+  { ssr: false }
+);
 
 export default function AdminLayout({
   children,
@@ -149,6 +156,9 @@ export default function AdminLayout({
           </div>
         </main>
       </div>
+
+      {/* Agentation: Visual UI feedback for AI coding agents (dev-only) */}
+      {process.env.NODE_ENV === 'development' && <Agentation />}
     </div>
   );
 }

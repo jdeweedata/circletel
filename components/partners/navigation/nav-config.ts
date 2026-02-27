@@ -6,6 +6,8 @@ import {
   Users,
   FolderOpen,
   UserPlus,
+  ImageIcon,
+  Megaphone,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -42,6 +44,13 @@ export const partnerTabs: PartnerTab[] = [
     routes: ['/partner/leads'],
   },
   {
+    id: 'marketing',
+    label: 'Marketing',
+    icon: Megaphone,
+    href: '/partner/marketing',
+    routes: ['/partner/marketing'],
+  },
+  {
     id: 'earnings',
     label: 'Earnings',
     icon: DollarSign,
@@ -63,6 +72,9 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
   business: [
     { label: 'All Leads', href: '/partner/leads', icon: Users },
     { label: 'New Lead', href: '/partner/leads/new', icon: UserPlus },
+  ],
+  marketing: [
+    { label: 'Marketing Materials', href: '/partner/marketing', icon: ImageIcon },
   ],
   earnings: [
     { label: 'Commissions', href: '/partner/commissions', icon: DollarSign },
