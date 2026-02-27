@@ -1,0 +1,30 @@
+-- ============================================================================
+-- CPQ System Tables Migration
+-- Created: 2026-02-27
+-- Description: Configure, Price, Quote system for B2B sales automation
+--
+-- NOTE: This migration is a reference only. The CPQ tables were created
+-- by a previous migration and already exist in production with this schema:
+--
+-- EXISTING TABLES (do not recreate):
+-- - cpq_sessions (owner_type, owner_id, step_data JSONB, etc.)
+-- - cpq_discount_limits (is_active, can_approve_discounts, max_approvable_discount)
+-- - cpq_pricing_rules (name, adjustment_type, adjustment_value, can_stack, stack_priority, is_active)
+-- - cpq_approval_requests
+-- - cpq_analytics
+-- - cpq_product_eligibility
+--
+-- SEED DATA ALREADY EXISTS:
+-- - 8 discount limits (4 partner tiers + 4 admin roles)
+-- - 4 pricing rules (volume, contract, bundle discounts)
+--
+-- TypeScript implementation adapted to match existing schema in:
+-- - lib/cpq/types.ts
+-- - lib/cpq/rule-engine.ts
+-- - lib/cpq/ai-service.ts
+-- - lib/cpq/ai-prompts.ts
+-- - app/api/cpq/*
+-- ============================================================================
+
+-- This migration is intentionally a no-op as tables already exist
+SELECT 'CPQ tables already exist - no migration needed' AS info;

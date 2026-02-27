@@ -56,6 +56,7 @@ import {
   Truck,
   Box,
   Briefcase,
+  Sparkles,
 } from 'lucide-react';
 
 interface User {
@@ -201,6 +202,12 @@ const navigationSections: NavSection[] = [
         href: '/admin/sales/feasibility',
         icon: Zap,
         description: 'Quick coverage check & quote generation'
+      },
+      {
+        name: 'CPQ Builder',
+        href: '/admin/cpq',
+        icon: Sparkles,
+        description: 'AI-powered quote configuration wizard'
       },
       {
         name: 'Partners',
