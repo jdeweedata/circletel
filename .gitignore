@@ -163,3 +163,4 @@ logs_result*.json
 # External shared resources
 shared-ai-skills/
 docs/emandate/
+.worktrees/
