@@ -56,6 +56,8 @@ import {
   Truck,
   Box,
   Briefcase,
+  Megaphone,
+  Percent,
   Sparkles,
 } from 'lucide-react';
 
@@ -224,6 +226,21 @@ const navigationSections: NavSection[] = [
           { name: 'Dashboard', href: '/admin/competitor-analysis', icon: LayoutDashboard },
           { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: Building2 },
           { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: LinkIcon }
+        ]
+      },
+    ]
+  },
+  {
+    label: 'Marketing',
+    items: [
+      {
+        name: 'Marketing',
+        icon: Megaphone,
+        children: [
+          { name: 'Dashboard', href: '/admin/marketing', icon: LayoutDashboard },
+          { name: 'Promotions', href: '/admin/marketing/promotions', icon: Percent },
+          { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: Target },
+          { name: 'Analytics', href: '/admin/marketing/analytics', icon: BarChart3 }
         ]
       },
     ]

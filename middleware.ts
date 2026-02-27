@@ -15,6 +15,7 @@ import { type NextRequest } from 'next/server';
 import { handleSubdomainRouting } from './middleware/subdomain-handler';
 import { createMiddlewareSupabaseClient } from './middleware/supabase-client';
 import { handleAdminAuth } from './middleware/admin-auth';
+import { handleAmbassadorAuth } from './middleware/ambassador-auth';
 
 export async function middleware(request: NextRequest) {
   // Step 1: Handle subdomain routing
@@ -28,12 +29,18 @@ export async function middleware(request: NextRequest) {
   const { supabase, response } = createMiddlewareSupabaseClient(request);
 
   // Step 3: Handle admin route authentication
-  const authResult = await handleAdminAuth(request, supabase);
-  if (authResult.shouldRedirect && authResult.redirectResponse) {
-    return authResult.redirectResponse;
+  const adminAuthResult = await handleAdminAuth(request, supabase);
+  if (adminAuthResult.shouldRedirect && adminAuthResult.redirectResponse) {
+    return adminAuthResult.redirectResponse;
   }
 
-  // Step 4: Return response (with any cookie updates)
+  // Step 4: Handle ambassador route authentication
+  const ambassadorAuthResult = await handleAmbassadorAuth(request, supabase);
+  if (ambassadorAuthResult.shouldRedirect && ambassadorAuthResult.redirectResponse) {
+    return ambassadorAuthResult.redirectResponse;
+  }
+
+  // Step 5: Return response (with any cookie updates)
   return response;
 }
 
