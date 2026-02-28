@@ -8,6 +8,8 @@ import { PrismicNextImage } from "@prismicio/next";
  */
 export type FeatureGridProps = SliceComponentProps<Content.FeatureGridSlice>;
 
+type FeatureItem = Content.FeatureGridSliceDefaultPrimaryFeaturesItem;
+
 /**
  * Component for "FeatureGrid" Slices.
  *
@@ -53,7 +55,7 @@ const FeatureGrid: FC<FeatureGridProps> = ({ slice }) => {
         {/* Features Grid */}
         {features && features.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
+            {features.map((feature: FeatureItem, index: number) => (
               <div
                 key={index}
                 className="group p-8 rounded-xl bg-circleTel-lightNeutral hover:bg-white hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-circleTel-orange"
@@ -66,7 +68,6 @@ const FeatureGrid: FC<FeatureGridProps> = ({ slice }) => {
                         field={feature.icon}
                         fill
                         className="object-contain"
-                        alt={feature.icon.alt || ""}
                       />
                     </div>
                   </div>

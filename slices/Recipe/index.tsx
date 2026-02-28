@@ -1,5 +1,5 @@
-import { Content } from "@prismicio/client";
-import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
+import * as prismic from "@prismicio/client";
+import { PrismicRichText } from "@prismicio/react";
 import { Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +7,42 @@ import { Button } from "@/components/ui/button";
 import { PrismicNextLink } from "@prismicio/next";
 
 /**
+ * Local type definition for Recipe slice (not yet in generated types)
+ */
+interface RecipeSlice {
+  slice_type: "recipe";
+  slice_label: string | null;
+  variation: string;
+  version: string;
+  primary: {
+    title?: prismic.KeyTextField;
+    description?: prismic.RichTextField;
+    badge_text?: prismic.KeyTextField;
+    badge_color?: prismic.KeyTextField;
+    background_color?: prismic.KeyTextField;
+    ingredients_title?: prismic.KeyTextField;
+    ingredients?: prismic.RichTextField;
+    price?: prismic.KeyTextField;
+    cta_text?: prismic.KeyTextField;
+    cta_link?: prismic.LinkField;
+    testimonial_quote?: prismic.RichTextField;
+    testimonial_author?: prismic.KeyTextField;
+    testimonial_company?: prismic.KeyTextField;
+    testimonial_initials?: prismic.KeyTextField;
+    [key: string]: unknown;
+  };
+  items: never[];
+}
+
+/**
  * Props for `Recipe`.
  */
-export type RecipeProps = SliceComponentProps<Content.RecipeSlice>;
+export interface RecipeProps {
+  slice: RecipeSlice;
+  index: number;
+  slices: RecipeSlice[];
+  context: unknown;
+}
 
 const badgeColorMap = {
   blue: "bg-blue-100 text-blue-800",

@@ -86,21 +86,26 @@ export async function discoverScoopProductUrls(): Promise<string[]> {
   console.log('[ProductScraper] Discovering product URLs from Scoop website...')
 
   try {
-    const firecrawl = getFirecrawlClient()
+    const firecrawl = getFirecrawlClient() as unknown as {
+      crawlUrl: (url: string, options: object) => Promise<{ success?: boolean; data?: Array<{ url?: string }> }>
+    }
 
-    // Map the website to find all product URLs
-    const mapResult = await firecrawl.mapUrl(SCOOP_BASE_URL, {
-      includeSubdomains: false,
+    // Map the website to find all product URLs using crawl
+    const crawlResult = await firecrawl.crawlUrl(SCOOP_BASE_URL, {
       limit: 5000,
+      scrapeOptions: { formats: [] }, // Only get URLs, no content
     })
 
-    if (!mapResult.success || !mapResult.links) {
-      console.error('[ProductScraper] Failed to map website:', mapResult)
+    if (!crawlResult.data?.length) {
+      console.error('[ProductScraper] Failed to map website:', crawlResult)
       return []
     }
 
+    // Extract URLs from crawl results
+    const allUrls = crawlResult.data.map(item => item.url || '').filter(Boolean)
+
     // Filter to product URLs (typically contain /product/ or /p/)
-    const productUrls = mapResult.links.filter((url: string) => {
+    const productUrls = allUrls.filter((url: string) => {
       const lowercaseUrl = url.toLowerCase()
       return (
         lowercaseUrl.includes('/product/') ||
@@ -131,14 +136,15 @@ export async function findProductUrl(
     // Search using Firecrawl
     const searchResult = await firecrawl.search(`site:scoop.co.za ${sku} ${productName}`, {
       limit: 5,
-    })
+    }) as { success?: boolean; data?: Array<{ url?: string; title?: string }> }
 
-    if (!searchResult.success || !searchResult.data?.length) {
+    const searchData = searchResult.data || []
+    if (!searchData.length) {
       return null
     }
 
     // Find the best match
-    for (const result of searchResult.data) {
+    for (const result of searchData) {
       const url = result.url || ''
       const title = (result.title || '').toLowerCase()
       const skuLower = sku.toLowerCase()
@@ -165,10 +171,10 @@ export async function findProductUrl(
     }
 
     // Return first result as fuzzy match
-    if (searchResult.data[0]?.url) {
+    if (searchData[0]?.url) {
       return {
         sku,
-        product_url: searchResult.data[0].url,
+        product_url: searchData[0].url,
         confidence: 'fuzzy',
       }
     }
@@ -193,12 +199,12 @@ export async function scrapeProductPage(productUrl: string): Promise<ScrapeResul
   try {
     const firecrawl = getFirecrawlClient()
 
-    const scrapeResult = await firecrawl.scrapeUrl(productUrl, {
+    const scrapeResult = await firecrawl.scrape(productUrl, {
       formats: ['markdown', 'html'],
       timeout: SCRAPE_TIMEOUT_MS,
-    })
+    }) as { success?: boolean; markdown?: string; html?: string; metadata?: { title?: string; description?: string } }
 
-    if (!scrapeResult.success) {
+    if (!scrapeResult.markdown && !scrapeResult.html) {
       return {
         success: false,
         error: 'Scrape failed - no content returned',

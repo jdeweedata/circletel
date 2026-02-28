@@ -1,10 +1,46 @@
-import { Content } from "@prismicio/client";
-import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
+import * as prismic from "@prismicio/client";
+import { PrismicRichText } from "@prismicio/react";
+
+/**
+ * Local type definition for ComparisonTable slice (not yet in generated types)
+ */
+interface ComparisonTableSliceItem {
+  row_label?: prismic.KeyTextField;
+  column_1_value?: prismic.KeyTextField;
+  column_2_value?: prismic.KeyTextField;
+  column_3_value?: prismic.KeyTextField;
+  column_4_value?: prismic.KeyTextField;
+  highlight_row?: boolean;
+  [key: string]: unknown;
+}
+
+interface ComparisonTableSlice {
+  slice_type: "comparison_table";
+  slice_label: string | null;
+  variation: string;
+  version: string;
+  primary: {
+    section_title?: prismic.RichTextField;
+    section_description?: prismic.RichTextField;
+    column_1_header?: prismic.KeyTextField;
+    column_2_header?: prismic.KeyTextField;
+    column_3_header?: prismic.KeyTextField;
+    column_4_header?: prismic.KeyTextField;
+    footer_note?: prismic.KeyTextField;
+    [key: string]: unknown;
+  };
+  items: ComparisonTableSliceItem[];
+}
 
 /**
  * Props for `ComparisonTable`.
  */
-export type ComparisonTableProps = SliceComponentProps<Content.ComparisonTableSlice>;
+export interface ComparisonTableProps {
+  slice: ComparisonTableSlice;
+  index: number;
+  slices: ComparisonTableSlice[];
+  context: unknown;
+}
 
 /**
  * Component for "ComparisonTable" Slices.

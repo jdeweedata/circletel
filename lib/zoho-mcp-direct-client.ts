@@ -71,12 +71,13 @@ export class ZohoMCPDirectClient {
         });
 
         if (!response.error) {
+          const result = response.result as { tools?: unknown[] } | undefined;
           return {
             success: true,
             data: {
               status: 'connected',
               timestamp: new Date().toISOString(),
-              availableTools: response.result?.tools || [],
+              availableTools: result?.tools || [],
               approach: 'mcp_tools_list',
             },
             message: 'Successfully connected to Zoho MCP server',

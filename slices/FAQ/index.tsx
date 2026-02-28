@@ -1,5 +1,5 @@
-import { Content } from "@prismicio/client";
-import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
+import * as prismic from "@prismicio/client";
+import { PrismicRichText } from "@prismicio/react";
 import {
   Accordion,
   AccordionContent,
@@ -8,9 +8,36 @@ import {
 } from "@/components/ui/accordion";
 
 /**
+ * Local type definition for FAQ slice (not yet in generated types)
+ */
+interface FaqSliceItem {
+  question?: prismic.KeyTextField;
+  answer?: prismic.RichTextField;
+  [key: string]: unknown;
+}
+
+interface FaqSlice {
+  slice_type: "faq";
+  slice_label: string | null;
+  variation: string;
+  version: string;
+  primary: {
+    section_title?: prismic.RichTextField;
+    section_description?: prismic.RichTextField;
+    [key: string]: unknown;
+  };
+  items: FaqSliceItem[];
+}
+
+/**
  * Props for `FAQ`.
  */
-export type FAQProps = SliceComponentProps<Content.FaqSlice>;
+export interface FAQProps {
+  slice: FaqSlice;
+  index: number;
+  slices: FaqSlice[];
+  context: unknown;
+}
 
 /**
  * Component for "FAQ" Slices.

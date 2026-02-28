@@ -1,10 +1,34 @@
-import { Content } from "@prismicio/client";
-import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
+import * as prismic from "@prismicio/client";
+import { PrismicRichText } from "@prismicio/react";
+
+/**
+ * Local type definition for CaseStudy slice (not yet in generated types)
+ */
+interface CaseStudySlice {
+  slice_type: "case_study";
+  slice_label: string | null;
+  variation: string;
+  version: string;
+  primary: {
+    title?: prismic.KeyTextField;
+    quote?: prismic.RichTextField;
+    author?: prismic.KeyTextField;
+    company?: prismic.KeyTextField;
+    background_color?: prismic.KeyTextField;
+    [key: string]: unknown;
+  };
+  items: never[];
+}
 
 /**
  * Props for `CaseStudy`.
  */
-export type CaseStudyProps = SliceComponentProps<Content.CaseStudySlice>;
+export interface CaseStudyProps {
+  slice: CaseStudySlice;
+  index: number;
+  slices: CaseStudySlice[];
+  context: unknown;
+}
 
 const backgroundStyleMap = {
   white: "bg-white p-4 rounded-lg",

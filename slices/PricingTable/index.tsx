@@ -1,11 +1,43 @@
-import { Content } from "@prismicio/client";
-import { PrismicRichText, SliceComponentProps } from "@prismicio/react";
+import * as prismic from "@prismicio/client";
+import { PrismicRichText } from "@prismicio/react";
 import { PrismicNextLink } from "@prismicio/next";
+
+/**
+ * Local type definition for PricingTable slice (not yet in generated types)
+ */
+interface PricingTableSliceItem {
+  tier_name?: prismic.KeyTextField;
+  description?: prismic.KeyTextField;
+  price?: prismic.KeyTextField;
+  features?: prismic.RichTextField;
+  cta_button_text?: prismic.KeyTextField;
+  cta_button_link?: prismic.LinkField;
+  is_featured?: boolean;
+  [key: string]: unknown;
+}
+
+interface PricingTableSlice {
+  slice_type: "pricing_table";
+  slice_label: string | null;
+  variation: string;
+  version: string;
+  primary: {
+    title?: prismic.RichTextField;
+    subtitle?: prismic.RichTextField;
+    [key: string]: unknown;
+  };
+  items: PricingTableSliceItem[];
+}
 
 /**
  * Props for `PricingTable`.
  */
-export type PricingTableProps = SliceComponentProps<Content.PricingTableSlice>;
+export interface PricingTableProps {
+  slice: PricingTableSlice;
+  index: number;
+  slices: PricingTableSlice[];
+  context: unknown;
+}
 
 /**
  * Component for "PricingTable" Slices.

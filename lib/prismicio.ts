@@ -44,11 +44,7 @@ export function createClient(config: prismicNext.CreateClientConfig = {}) {
   })
 
   // Enable preview mode if in draft mode
-  prismicNext.enableAutoPreviews({
-    client,
-    previewData: config.previewData,
-    req: config.req,
-  })
+  prismicNext.enableAutoPreviews({ client })
 
   return client
 }
@@ -64,10 +60,8 @@ export function createClient(config: prismicNext.CreateClientConfig = {}) {
 export async function createClientWithDraftMode() {
   const draft = await draftMode()
   
-  const client = createClient({
-    // If in draft mode, Prismic will fetch unpublished content
-    previewData: draft.isEnabled ? { previewData: 'enabled' } : undefined,
-  })
+  // Create client - draft mode is handled automatically by enableAutoPreviews
+  const client = createClient()
 
   return client
 }
