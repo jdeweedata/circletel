@@ -50,6 +50,7 @@ import { toast } from 'sonner';
 // Import Single Site Stepper (to be created)
 import { SingleSiteStepper } from './components/SingleSiteStepper';
 import { EmailParseModal } from './components/EmailParseModal';
+import { mapDarkStyle } from './components/MapStyles';
 
 // ============================================================================
 // Types
@@ -165,13 +166,7 @@ const mapOptions: google.maps.MapOptions = {
   mapTypeControl: true,
   streetViewControl: false,
   fullscreenControl: true,
-  styles: [
-    {
-      featureType: 'poi',
-      elementType: 'labels',
-      stylers: [{ visibility: 'off' }],
-    },
-  ],
+  styles: mapDarkStyle,
 };
 
 // Static libraries array to prevent Google Maps reload warning
@@ -789,75 +784,71 @@ export default function FeasibilityPage() {
   ];
 
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+    <div className="h-[calc(100vh-80px)] flex flex-col bg-circleTel-midnight-navy text-slate-100 selection:bg-circleTel-orange/30">
       {/* Header with Tab Toggle */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-6 py-4 flex-shrink-0">
+      <div className="bg-circleTel-navy/50 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="p-2.5 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-xl shadow-lg shadow-orange-500/20">
               <MapPin className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">
-                Sales Feasibility Portal
-              </h1>
-              <p className="text-sm text-slate-500">
-                Check coverage and generate B2B quotes
-              </p>
+              <div>
+                <h1 className="text-xl font-bold text-white tracking-tight">
+                  Sales Feasibility Portal
+                </h1>
+                <p className="text-sm text-slate-400 font-medium">
+                  Check coverage and generate B2B quotes
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Parse Email Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEmailParseOpen(true)}
+                className="gap-2 border-circleTel-orange/30 text-circleTel-orange hover:bg-circleTel-orange/5 hover:border-circleTel-orange/50"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden sm:inline">Parse Email</span>
+              </Button>
+
+              {/* Mode indicator badge */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">
+                <div className={`w-2 h-2 rounded-full ${activeTab === 'single' ? 'bg-circleTel-orange animate-pulse' : 'bg-purple-500'}`} />
+                <span className="text-xs font-semibold text-slate-300">
+                  {activeTab === 'single' ? 'Single Site Mode' : 'Bulk Mode'}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Parse Email Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEmailParseOpen(true)}
-              className="gap-2 border-circleTel-orange/30 text-circleTel-orange hover:bg-circleTel-orange/5 hover:border-circleTel-orange/50"
-            >
-              <Mail className="h-4 w-4" />
-              <span className="hidden sm:inline">Parse Email</span>
-            </Button>
-
-            {/* Mode indicator badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
-              <div className={`w-2 h-2 rounded-full ${activeTab === 'single' ? 'bg-blue-500' : 'bg-purple-500'}`} />
-              <span className="text-xs font-medium text-slate-600">
-                {activeTab === 'single' ? 'Single Site Mode' : 'Bulk Mode'}
-              </span>
-            </div>
-          </div>
+          {/* Tab Toggle - Enhanced */}
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid w-full max-w-lg grid-cols-2 h-12 p-1 bg-black/40 border border-white/10 rounded-xl backdrop-blur-lg">
+              <TabsTrigger
+                value="single"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white text-slate-400 transition-all duration-300"
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="font-semibold uppercase tracking-wider text-[10px]">Single Site</span>
+                <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Quick check</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="multiple"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white text-slate-400 transition-all duration-300"
+              >
+                <Layers className="h-4 w-4" />
+                <span className="font-semibold uppercase tracking-wider text-[10px]">Multiple Sites</span>
+                <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Bulk quotes</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
-        {/* Tab Toggle - Enhanced */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full max-w-lg grid-cols-2 h-12 p-1 bg-slate-100/80 rounded-xl">
-            <TabsTrigger
-              value="single"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 text-slate-600 transition-all"
-            >
-              <MapPin className="h-4 w-4" />
-              <span className="font-medium">Single Site</span>
-              <span className="hidden sm:inline text-xs text-slate-400 ml-1">Quick check</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="multiple"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 text-slate-600 transition-all"
-            >
-              <Layers className="h-4 w-4" />
-              <span className="font-medium">Multiple Sites</span>
-              <span className="hidden sm:inline text-xs text-slate-400 ml-1">Bulk quotes</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
-
-      {/* Email Parse Modal */}
-      <EmailParseModal
-        open={isEmailParseOpen}
-        onOpenChange={setIsEmailParseOpen}
-        onApply={handleEmailParsed}
-      />
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
@@ -866,9 +857,9 @@ export default function FeasibilityPage() {
           <SingleSiteStepper />
         ) : (
           // Multiple Sites Mode - Split Map View (existing implementation)
-          <div className="h-full flex flex-col lg:flex-row">
+          <div className="h-full flex flex-col lg:flex-row bg-circleTel-midnight-navy">
             {/* Left Panel - Form (45%) */}
-            <div className="w-full lg:w-[45%] xl:w-[42%] h-full overflow-y-auto">
+            <div className="w-full lg:w-[45%] xl:w-[42%] h-full overflow-y-auto border-r border-white/5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               <div className="p-6 space-y-5">
                 {/* Header with Progress */}
                 <div className="flex items-center justify-between">
@@ -889,25 +880,23 @@ export default function FeasibilityPage() {
                 </div>
 
                 {/* Progress Stepper */}
-                <div className="flex items-center justify-between bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                <div className="flex items-center justify-between bg-black/30 rounded-xl p-3 border border-white/5 shadow-2xl backdrop-blur-md">
                   {progressSteps.map((s, idx) => {
                     const Icon = s.icon;
                     const isActive = step === s.id;
                     const isComplete = (step === 'checking' && idx === 0) || (step === 'results' && idx < 2);
                     return (
                       <div key={s.id} className="flex items-center gap-2">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all ${
-                          isActive ? 'bg-circleTel-orange text-white shadow-lg shadow-orange-500/30' :
-                          isComplete ? 'bg-green-100 text-green-600' :
-                          'bg-slate-100 text-slate-400'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-500 ${isActive ? 'bg-circleTel-orange text-white shadow-lg shadow-orange-500/40 ring-4 ring-circleTel-orange/20' :
+                          isComplete ? 'bg-green-500/20 text-green-400 border border-green-500/20' :
+                            'bg-white/5 text-slate-600 border border-white/5'
+                          }`}>
                           {isComplete ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                         </div>
-                        <span className={`text-xs font-medium hidden sm:inline ${
-                          isActive ? 'text-slate-900' : isComplete ? 'text-green-600' : 'text-slate-400'
-                        }`}>{s.label}</span>
+                        <span className={`text-[10px] font-bold uppercase tracking-tighter hidden sm:inline ${isActive ? 'text-white' : isComplete ? 'text-green-400' : 'text-slate-600'
+                          }`}>{s.label}</span>
                         {idx < progressSteps.length - 1 && (
-                          <ChevronRight className="h-4 w-4 text-slate-300 mx-1" />
+                          <ChevronRight className="h-3 w-3 text-white/5 mx-1" />
                         )}
                       </div>
                     );
@@ -925,10 +914,10 @@ export default function FeasibilityPage() {
                       className="space-y-4"
                     >
                       {/* Client Details Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-slate-50 border-b border-slate-100">
-                          <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-blue-500" />
+                      <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/5">
+                          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Building2 className="h-3 w-3 text-circleTel-orange" />
                             Client Details
                           </h3>
                         </div>
@@ -937,13 +926,13 @@ export default function FeasibilityPage() {
                             placeholder="Company Name *"
                             value={formData.companyName}
                             onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                            className="border-slate-200 focus:border-circleTel-orange focus:ring-circleTel-orange/20"
+                            className="bg-black/20 border-white/5 text-white focus:border-circleTel-orange/30 focus:ring-circleTel-orange/10 placeholder:text-slate-600 h-10"
                           />
                           <Input
                             placeholder="Contact Name"
                             value={formData.contactName}
                             onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                            className="border-slate-200"
+                            className="bg-black/20 border-white/5 text-white placeholder:text-slate-600 h-10"
                           />
                           <div className="grid grid-cols-2 gap-3">
                             <Input
@@ -951,31 +940,31 @@ export default function FeasibilityPage() {
                               placeholder="Email"
                               value={formData.email}
                               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                              className="border-slate-200"
+                              className="bg-black/20 border-white/5 text-white placeholder:text-slate-600 h-10"
                             />
                             <Input
                               type="tel"
                               placeholder="Phone"
                               value={formData.phone}
                               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                              className="border-slate-200"
+                              className="bg-black/20 border-white/5 text-white placeholder:text-slate-600 h-10"
                             />
                           </div>
                         </div>
                       </div>
 
                       {/* Service Requirements Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-slate-50 border-b border-slate-100">
-                          <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                            <Wifi className="h-4 w-4 text-purple-500" />
+                      <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/5">
+                          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Wifi className="h-3 w-3 text-circleTel-orange" />
                             Service Requirements
                           </h3>
                         </div>
                         <div className="p-4 space-y-4">
-                          {/* Speed Options - 2x2 Grid for better readability */}
+                          {/* Speed Options */}
                           <div className="space-y-2">
-                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Minimum Speed</label>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Minimum Speed</label>
                             <div className="grid grid-cols-2 gap-2">
                               {speedOptions.map((opt) => {
                                 const Icon = opt.icon;
@@ -984,16 +973,15 @@ export default function FeasibilityPage() {
                                   <button
                                     key={opt.value}
                                     onClick={() => setFormData(prev => ({ ...prev, speed: opt.value }))}
-                                    className={`p-3 rounded-lg border-2 transition-all flex items-center gap-3 ${
-                                      isSelected
-                                        ? 'border-circleTel-orange bg-gradient-to-br from-orange-50 to-amber-50 shadow-sm'
-                                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                                    }`}
+                                    className={`p-3 rounded-lg border transition-all duration-300 flex items-center gap-3 ${isSelected
+                                      ? 'border-circleTel-orange bg-circleTel-orange/10 shadow-[0_0_15px_rgba(245,132,30,0.2)]'
+                                      : 'border-white/5 bg-black/20 hover:border-white/20 hover:bg-white/5'
+                                      }`}
                                   >
-                                    <div className={`p-2 rounded-lg ${isSelected ? 'bg-circleTel-orange/10' : 'bg-slate-100'}`}>
-                                      <Icon className={`h-4 w-4 ${isSelected ? 'text-circleTel-orange' : 'text-slate-500'}`} />
+                                    <div className={`p-2 rounded-md ${isSelected ? 'bg-circleTel-orange text-white' : 'bg-white/5 text-slate-500'}`}>
+                                      <Icon className="h-4 w-4" />
                                     </div>
-                                    <span className={`text-sm font-semibold ${isSelected ? 'text-circleTel-orange' : 'text-slate-700'}`}>
+                                    <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-slate-400'}`}>
                                       {opt.label}
                                     </span>
                                   </button>
@@ -1002,9 +990,9 @@ export default function FeasibilityPage() {
                             </div>
                           </div>
 
-                          {/* Contention Options - Cleaner cards */}
+                          {/* Contention Options */}
                           <div className="space-y-2">
-                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Service Level</label>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Service Level</label>
                             <div className="grid grid-cols-3 gap-2">
                               {contentionOptions.map((opt) => {
                                 const isSelected = formData.contention === opt.value;
@@ -1012,56 +1000,53 @@ export default function FeasibilityPage() {
                                   <button
                                     key={opt.value}
                                     onClick={() => setFormData(prev => ({ ...prev, contention: opt.value }))}
-                                    className={`p-3 rounded-lg border-2 transition-all text-center ${
-                                      isSelected
-                                        ? 'border-circleTel-orange bg-gradient-to-br from-orange-50 to-amber-50'
-                                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                                    }`}
+                                    className={`p-2.5 rounded-lg border transition-all duration-300 text-center ${isSelected
+                                      ? 'border-circleTel-orange bg-circleTel-orange/10 shadow-[0_0_10px_rgba(245,132,30,0.1)]'
+                                      : 'border-white/5 bg-black/20 hover:border-white/20 hover:bg-white/5'
+                                      }`}
                                   >
-                                    <span className={`text-sm font-bold block ${isSelected ? 'text-circleTel-orange' : 'text-slate-700'}`}>
+                                    <span className={`text-xs font-black block uppercase tracking-tight ${isSelected ? 'text-circleTel-orange' : 'text-slate-400'}`}>
                                       {opt.label}
                                     </span>
-                                    <span className="text-[10px] text-slate-500 mt-0.5 block">{opt.description}</span>
+                                    <span className="text-[8px] text-slate-600 mt-0.5 block font-bold">{opt.description}</span>
                                   </button>
                                 );
                               })}
                             </div>
                           </div>
 
-                          {/* Budget & Failover - Better alignment */}
-                          <div className="flex gap-3 items-center pt-2 border-t border-slate-100">
+                          {/* Budget & Failover */}
+                          <div className="flex gap-3 items-center pt-3 border-t border-white/5">
                             <div className="flex-1">
-                              <label className="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1.5">
+                              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">
                                 Budget (Optional)
                               </label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                                 <Input
                                   type="number"
                                   placeholder="Per site"
                                   value={formData.budget}
                                   onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                                  className="pl-9 border-slate-200"
+                                  className="pl-9 bg-black/20 border-white/5 text-white h-10"
                                 />
                               </div>
                             </div>
-                            <div>
-                              <label className="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1.5">
-                                Options
+                            <div className="flex-1">
+                              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5 text-right px-4">
+                                Security
                               </label>
-                              <label className={`flex items-center gap-2 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${
-                                formData.failover
-                                  ? 'bg-green-50 border-2 border-green-200'
-                                  : 'bg-slate-50 border-2 border-slate-200 hover:border-slate-300'
-                              }`}>
+                              <label className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all duration-300 border ${formData.failover
+                                ? 'bg-green-500/10 border-green-500/40 text-green-400'
+                                : 'bg-black/20 border-white/5 text-slate-500 hover:border-white/10'
+                                }`}>
                                 <Checkbox
                                   checked={formData.failover}
                                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
+                                  className="border-white/20 data-[state=checked]:bg-green-500"
                                 />
-                                <Shield className={`h-4 w-4 ${formData.failover ? 'text-green-600' : 'text-slate-400'}`} />
-                                <span className={`text-sm font-medium ${formData.failover ? 'text-green-700' : 'text-slate-600'}`}>
-                                  Failover
-                                </span>
+                                <Shield className="h-3 w-3" />
+                                <span className="text-[10px] font-black uppercase">Failover</span>
                               </label>
                             </div>
                           </div>
@@ -1069,49 +1054,45 @@ export default function FeasibilityPage() {
                       </div>
 
                       {/* Sites Card */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-slate-50 border-b border-slate-100 flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-green-500" />
+                      <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/5 flex items-center justify-between">
+                          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <MapPin className="h-3 w-3 text-circleTel-orange" />
                             Sites to Check
                           </h3>
-                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                            siteCount > 0 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
-                          }`}>
-                            {siteCount} site{siteCount !== 1 ? 's' : ''}
+                          <span className={`text-[10px] font-black px-3 py-1 rounded-full border shadow-[0_0_10px_rgba(255,255,255,0.05)] ${siteCount > 0 ? 'bg-circleTel-orange/20 border-circleTel-orange/30 text-circleTel-orange' : 'bg-white/5 border-white/10 text-slate-600'
+                            }`}>
+                            {siteCount} SITE{siteCount !== 1 ? 'S' : ''}
                           </span>
                         </div>
                         <div className="p-4">
-                          <div className="relative">
+                          <div className="relative group">
                             <Textarea
-                              placeholder="Paste addresses or GPS coordinates here (one per line)
-
-Examples:
-• 123 Main Street, Sandton, 2196
-• -26.107567, 28.056702
-• Shop 4, Mall of Africa, Midrand"
+                              placeholder="Paste addresses or GPS coordinates here (one per line)..."
                               value={formData.sites}
                               onChange={(e) => setFormData(prev => ({ ...prev, sites: e.target.value }))}
                               rows={6}
-                              className="font-mono text-sm border-slate-200 bg-slate-50/50 focus:bg-white resize-none"
+                              className="font-mono text-xs border-white/5 bg-black/20 text-white focus:bg-black/40 focus:border-circleTel-orange/30 resize-none placeholder:text-slate-700 scrollbar-thin scrollbar-thumb-white/10"
                             />
                             {formData.sites && (
                               <button
                                 onClick={() => setFormData(prev => ({ ...prev, sites: '' }))}
-                                className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+                                className="absolute top-2 right-2 p-1.5 text-slate-500 hover:text-white hover:bg-white/10 rounded-md transition-all opacity-0 group-hover:opacity-100"
                                 title="Clear all"
                               >
                                 <XCircle className="h-4 w-4" />
                               </button>
                             )}
                           </div>
-                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-dashed border-slate-200">
-                            <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                              <MousePointer className="h-3 w-3" />
-                              Click on the map to add locations
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              or paste from spreadsheet
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-dashed border-white/5">
+                            <div className="flex items-center gap-4">
+                              <p className="text-[10px] text-slate-600 font-bold flex items-center gap-1.5 uppercase tracking-wider">
+                                <MousePointer className="h-3 w-3" />
+                                Map Selection Enabled
+                              </p>
+                            </div>
+                            <p className="text-[10px] text-slate-700 font-bold italic">
+                              Bulk CSV supported
                             </p>
                           </div>
                         </div>
@@ -1121,13 +1102,13 @@ Examples:
                       <Button
                         onClick={checkFeasibility}
                         disabled={siteCount === 0 || !formData.companyName}
-                        className="w-full bg-gradient-to-r from-circleTel-orange to-orange-500 hover:from-circleTel-orange/90 hover:to-orange-500/90 text-white py-6 text-lg font-semibold rounded-xl shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:shadow-none transition-all"
+                        className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 disabled:shadow-none transition-all duration-500 active:scale-[0.98] border-none"
                       >
-                        <Sparkles className="h-5 w-5 mr-2" />
-                        Check Feasibility
+                        <Sparkles className="h-4 w-4 mr-3 animate-pulse" />
+                        Initialize Scan
                         {siteCount > 0 && (
-                          <span className="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-sm">
-                            {siteCount} site{siteCount !== 1 ? 's' : ''}
+                          <span className="ml-4 px-2.5 py-1 bg-black/20 rounded font-bold text-[10px]">
+                            {siteCount} SITES
                           </span>
                         )}
                       </Button>
@@ -1144,62 +1125,61 @@ Examples:
                       className="space-y-4"
                     >
                       {/* Progress Header */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 text-center">
-                        <div className="relative inline-flex">
+                      <div className="bg-white/5 rounded-2xl border border-white/10 shadow-2xl p-8 text-center backdrop-blur-xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
+                        <div className="relative inline-flex mb-6">
                           <div className="absolute inset-0 bg-circleTel-orange/20 rounded-full animate-ping" />
-                          <div className="relative p-4 bg-gradient-to-br from-circleTel-orange to-orange-500 rounded-full shadow-lg">
-                            <Loader2 className="h-8 w-8 animate-spin text-white" />
+                          <div className="relative p-5 bg-circleTel-orange rounded-full shadow-[0_0_30px_rgba(245,132,30,0.4)]">
+                            <Loader2 className="h-10 w-10 animate-spin text-white" />
                           </div>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 mt-4">Checking Coverage</h2>
-                        <p className="text-slate-500 mt-1">
-                          Querying {siteResults.length} location{siteResults.length !== 1 ? 's' : ''}...
+                        <h2 className="text-2xl font-black text-white uppercase tracking-widest mt-4">Analyzing Coverage</h2>
+                        <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                          Optimizing routes for {siteResults.length} location{siteResults.length !== 1 ? 's' : ''}...
                         </p>
                         {/* Progress Bar */}
-                        <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="mt-8 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 max-w-sm mx-auto">
                           <motion.div
-                            className="h-full bg-gradient-to-r from-circleTel-orange to-orange-400"
+                            className="h-full bg-gradient-to-r from-circleTel-orange to-orange-400 shadow-[0_0_10px_rgba(245,132,30,0.5)]"
                             initial={{ width: 0 }}
                             animate={{ width: `${((completedCount + errorCount) / siteResults.length) * 100}%` }}
                             transition={{ duration: 0.3 }}
                           />
                         </div>
-                        <p className="text-sm font-medium text-slate-600 mt-2">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4">
                           {completedCount + errorCount} of {siteResults.length} complete
                         </p>
                       </div>
 
                       {/* Site List */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="max-h-[350px] overflow-y-auto divide-y divide-slate-100">
+                      <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
+                        <div className="max-h-[350px] overflow-y-auto divide-y divide-white/5 scrollbar-thin scrollbar-thumb-white/10">
                           {siteResults.map((result, index) => (
                             <div
                               key={index}
-                              className={`px-4 py-3 flex items-center gap-3 transition-colors ${
-                                result.status === 'checking' ? 'bg-blue-50/50' :
-                                result.status === 'complete' ? 'bg-green-50/30' :
-                                result.status === 'error' ? 'bg-red-50/30' :
-                                'bg-white'
-                              }`}
+                              className={`px-4 py-4 flex items-center gap-4 transition-all duration-300 ${result.status === 'checking' ? 'bg-circleTel-orange/5' :
+                                result.status === 'complete' ? 'bg-green-500/5' :
+                                  result.status === 'error' ? 'bg-red-500/5' :
+                                    'bg-transparent'
+                                }`}
                             >
-                              <span className="text-xs font-mono text-slate-400 w-6 text-center">{index + 1}</span>
-                              <div className={`p-1.5 rounded-full ${
-                                result.status === 'checking' ? 'bg-blue-100' :
-                                result.status === 'complete' ? 'bg-green-100' :
-                                result.status === 'error' ? 'bg-red-100' :
-                                'bg-slate-100'
-                              }`}>
+                              <span className="text-[10px] font-black text-slate-600 w-6 text-center">{index + 1}</span>
+                              <div className={`p-2 rounded-lg ${result.status === 'checking' ? 'bg-circleTel-orange/20 text-circleTel-orange animate-pulse' :
+                                result.status === 'complete' ? 'bg-green-500/20 text-green-400' :
+                                  result.status === 'error' ? 'bg-red-500/20 text-red-500' :
+                                    'bg-white/5 text-slate-600'
+                                }`}>
                                 {result.status === 'checking' ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500" />
+                                  <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : result.status === 'complete' ? (
-                                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                                  <ShieldCheck className="h-4 w-4" />
                                 ) : result.status === 'error' ? (
-                                  <XCircle className="h-3.5 w-3.5 text-red-500" />
+                                  <ShieldAlert className="h-4 w-4" />
                                 ) : (
-                                  <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                  <Clock className="h-4 w-4" />
                                 )}
                               </div>
-                              <span className="text-sm flex-1 truncate text-slate-700">{result.address}</span>
+                              <span className="text-sm font-bold flex-1 truncate text-slate-300">{result.address}</span>
                             </div>
                           ))}
                         </div>
@@ -1218,65 +1198,68 @@ Examples:
                     >
                       {/* Summary Cards */}
                       <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-white rounded-xl border border-green-200 p-4 text-center shadow-sm">
-                          <div className="inline-flex p-2.5 bg-green-100 rounded-full mb-2">
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <div className="bg-green-500/5 rounded-xl border border-green-500/20 p-4 text-center shadow-[0_0_20px_rgba(34,197,94,0.05)] backdrop-blur-sm group hover:border-green-500/40 transition-all duration-300">
+                          <div className="inline-flex p-2.5 bg-green-500/20 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                            <ShieldCheck className="h-5 w-5 text-green-400" />
                           </div>
-                          <span className="text-2xl font-bold text-green-700 block">{completedCount}</span>
-                          <p className="text-xs text-green-600 font-medium">Coverage Found</p>
+                          <span className="text-2xl font-black text-white block tracking-tighter">{completedCount}</span>
+                          <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">Fiber Found</p>
                         </div>
-                        <div className="bg-white rounded-xl border border-red-200 p-4 text-center shadow-sm">
-                          <div className="inline-flex p-2.5 bg-red-100 rounded-full mb-2">
-                            <XCircle className="h-5 w-5 text-red-600" />
+                        <div className="bg-red-500/5 rounded-xl border border-red-500/20 p-4 text-center shadow-[0_0_20px_rgba(239,68,68,0.05)] backdrop-blur-sm group hover:border-red-500/40 transition-all duration-300">
+                          <div className="inline-flex p-2.5 bg-red-500/20 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                            <ShieldAlert className="h-5 w-5 text-red-400" />
                           </div>
-                          <span className="text-2xl font-bold text-red-700 block">{errorCount}</span>
-                          <p className="text-xs text-red-600 font-medium">No Coverage</p>
+                          <span className="text-2xl font-black text-white block tracking-tighter">{errorCount}</span>
+                          <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-1">No Density</p>
                         </div>
-                        <div className="bg-white rounded-xl border border-slate-200 p-4 text-center shadow-sm">
-                          <div className="inline-flex p-2.5 bg-slate-100 rounded-full mb-2">
-                            <MapPin className="h-5 w-5 text-slate-600" />
+                        <div className="bg-white/5 rounded-xl border border-white/10 p-4 text-center shadow-[0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-sm group hover:border-white/20 transition-all duration-300">
+                          <div className="inline-flex p-2.5 bg-white/10 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                            <MapPin className="h-5 w-5 text-slate-400" />
                           </div>
-                          <span className="text-2xl font-bold text-slate-700 block">{siteResults.length}</span>
-                          <p className="text-xs text-slate-600 font-medium">Total Sites</p>
+                          <span className="text-2xl font-black text-white block tracking-tighter">{siteResults.length}</span>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Total Sites</p>
                         </div>
                       </div>
 
                       {/* Package Loading */}
                       {isLoadingPackages && (
-                        <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                          <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                        <div className="flex items-center gap-4 p-5 bg-circleTel-orange/10 border border-circleTel-orange/30 rounded-xl backdrop-blur-md">
+                          <div className="p-2 bg-circleTel-orange rounded-lg">
+                            <Loader2 className="h-5 w-5 animate-spin text-white" />
+                          </div>
                           <div>
-                            <span className="text-sm font-medium text-blue-700 block">Loading packages...</span>
-                            <span className="text-xs text-blue-500">Matching available services to sites</span>
+                            <span className="text-sm font-bold text-white block uppercase tracking-wide">Optimizing Packages</span>
+                            <span className="text-[10px] text-circleTel-orange font-bold uppercase">Matching best available services to discovered sites</span>
                           </div>
                         </div>
                       )}
 
                       {/* Site Results List with Package Selection */}
-                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-slate-700">Site Results</span>
-                          <span className="text-xs text-slate-500">
-                            {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length}/{completedCount} packages selected
+                      <div className="bg-white/5 rounded-xl border border-white/10 shadow-xl overflow-hidden backdrop-blur-sm">
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <MapPin className="h-3 w-3 text-circleTel-orange" />
+                            Site Results
+                          </span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                            {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length}/{completedCount} SELECTED
                           </span>
                         </div>
-                        <div className="max-h-[320px] overflow-y-auto divide-y divide-slate-100">
+                        <div className="max-h-[320px] overflow-y-auto divide-y divide-white/5 scrollbar-thin scrollbar-thumb-white/10">
                           {siteResults.map((result, index) => (
                             <div
                               key={index}
                               onClick={() => setSelectedSite(selectedSite === index ? null : index)}
-                              className={`p-4 cursor-pointer transition-all ${
-                                selectedSite === index ? 'bg-orange-50/50' :
+                              className={`p-4 cursor-pointer transition-all ${selectedSite === index ? 'bg-orange-50/50' :
                                 result.status === 'complete' ? 'hover:bg-slate-50' :
-                                result.status === 'error' ? 'bg-red-50/30 hover:bg-red-50/50' :
-                                'hover:bg-slate-50'
-                              }`}
+                                  result.status === 'error' ? 'bg-red-50/30 hover:bg-red-50/50' :
+                                    'hover:bg-slate-50'
+                                }`}
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                                  <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                                    result.status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                  }`}>
+                                  <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${result.status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                    }`}>
                                     {index + 1}
                                   </div>
                                   <div className="min-w-0 flex-1">
@@ -1305,11 +1288,10 @@ Examples:
                                               [index]: e.target.value,
                                             }));
                                           }}
-                                          className={`w-full text-sm border-2 rounded-lg px-3 py-2 transition-all ${
-                                            sitePackageSelections[index]
-                                              ? 'border-green-300 bg-green-50 focus:border-green-400'
-                                              : 'border-slate-200 bg-white hover:border-slate-300 focus:border-circleTel-orange'
-                                          } focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20`}
+                                          className={`w-full text-sm border-2 rounded-lg px-3 py-2 transition-all ${sitePackageSelections[index]
+                                            ? 'border-green-300 bg-green-50 focus:border-green-400'
+                                            : 'border-slate-200 bg-white hover:border-slate-300 focus:border-circleTel-orange'
+                                            } focus:outline-none focus:ring-2 focus:ring-circleTel-orange/20`}
                                         >
                                           <option value="">Select a package...</option>
                                           {availablePackages.map(pkg => (
@@ -1434,104 +1416,106 @@ Examples:
                   )}
                 </AnimatePresence>
               </div>
-            </div>
 
-            {/* Right Panel - Map (55%) */}
-            <div className="w-full lg:w-[55%] xl:w-[58%] h-[400px] lg:h-full relative border-l border-slate-200">
-              {!isLoaded ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
-                  <div className="text-center">
-                    <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-3" />
-                    <p className="text-sm text-slate-500">Loading map...</p>
+              {/* Right Panel - Map (55%) */}
+              <div className="flex-1 h-full lg:h-full relative border-l border-white/5">
+                {!isLoaded ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-circleTel-midnight-navy">
+                    <div className="text-center">
+                      <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-3" />
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Initializing Map Engine</p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  options={mapOptions}
-                  onLoad={onMapLoad}
-                  onClick={onMapClick}
-                >
-                  {markers.map((marker) => (
-                    marker.status !== 'geocoding' && (
-                      <Marker
-                        key={marker.id}
-                        position={marker.position}
-                        icon={getMarkerIcon(marker.status)}
-                        label={{
-                          text: marker.lineNumber.toString(),
-                          color: '#ffffff',
-                          fontSize: '10px',
-                          fontWeight: 'bold',
-                        }}
-                        onClick={() => {
-                          const index = siteResults.findIndex(s => s.address === marker.address);
-                          if (index >= 0) setSelectedSite(index);
-                        }}
-                      />
-                    )
-                  ))}
-                </GoogleMap>
-              )}
+                ) : (
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    options={mapOptions}
+                    onLoad={onMapLoad}
+                    onClick={onMapClick}
+                  >
+                    {markers.map((marker) => (
+                      marker.status !== 'geocoding' && (
+                        <Marker
+                          key={marker.id}
+                          position={marker.position}
+                          icon={getMarkerIcon(marker.status)}
+                          label={{
+                            text: marker.lineNumber.toString(),
+                            color: '#ffffff',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                          }}
+                          onClick={() => {
+                            const index = siteResults.findIndex(s => s.address === marker.address);
+                            if (index >= 0) setSelectedSite(index);
+                          }}
+                        />
+                      )
+                    ))}
+                  </GoogleMap>
+                )}
 
+              </div>
+
+              {/* Map Control Overlays */}
               {/* Map Legend - Top Left */}
-              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 overflow-hidden">
-                <div className="px-3 py-2 bg-slate-50 border-b border-slate-100">
-                  <p className="text-xs font-semibold text-slate-700">Map Legend</p>
+              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 overflow-hidden">
+                <div className="px-3 py-2 bg-white/5 border-b border-white/5">
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Map Legend</p>
                 </div>
                 <div className="p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-200" />
-                    <span className="text-slate-600">Coverage Found</span>
+                  <div className="flex items-center gap-2 text-[10px] font-bold">
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                    <span className="text-slate-400">Coverage Found</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-3 h-3 rounded-full bg-red-500 ring-2 ring-red-200" />
-                    <span className="text-slate-600">No Coverage</span>
+                  <div className="flex items-center gap-2 text-[10px] font-bold">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                    <span className="text-slate-400">No Density</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-3 h-3 rounded-full bg-blue-500 ring-2 ring-blue-200 animate-pulse" />
-                    <span className="text-slate-600">Checking</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-3 h-3 rounded-full bg-slate-400 ring-2 ring-slate-200" />
-                    <span className="text-slate-600">Pending</span>
+                  <div className="flex items-center gap-2 text-[10px] font-bold">
+                    <div className="w-2.5 h-2.5 rounded-full bg-circleTel-orange animate-pulse shadow-[0_0_10px_rgba(245,132,30,0.5)]" />
+                    <span className="text-slate-400">Scanning...</span>
                   </div>
                 </div>
               </div>
 
-              {/* Site Count + Instructions - Top Right */}
+              {/* Status Badge - Top Right */}
               <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-                <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 px-4 py-2.5 flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-circleTel-orange" />
+                <div className="bg-black/60 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 px-4 py-2.5 flex items-center gap-3">
+                  <div className="p-1.5 bg-circleTel-orange/20 rounded-lg">
+                    <MapPin className="h-4 w-4 text-circleTel-orange" />
+                  </div>
                   <div>
-                    <span className="text-lg font-bold text-slate-800">
+                    <span className="text-lg font-black text-white tracking-tighter">
                       {markers.filter(m => m.status !== 'geocoding').length}
                     </span>
-                    <span className="text-xs text-slate-500 ml-1">
-                      site{markers.filter(m => m.status !== 'geocoding').length !== 1 ? 's' : ''} plotted
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">
+                      Mapped
                     </span>
                   </div>
                 </div>
-                {step === 'form' && (
-                  <div className="bg-circleTel-orange/90 backdrop-blur-sm text-white rounded-lg px-3 py-1.5 text-xs font-medium shadow-lg flex items-center gap-1.5">
-                    <MousePointer className="h-3 w-3" />
-                    Click to add location
-                  </div>
-                )}
               </div>
-
-              {/* Company Name Badge - Bottom Right */}
-              {formData.companyName && (
-                <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200/50 px-4 py-2">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-slate-400" />
-                    <span className="text-sm font-medium text-slate-700">{formData.companyName}</span>
-                  </div>
+              {step === 'form' && (
+                <div className="bg-circleTel-orange/90 backdrop-blur-sm text-white rounded-lg px-3 py-1.5 text-xs font-medium shadow-lg flex items-center gap-1.5">
+                  <MousePointer className="h-3 w-3" />
+                  Click to add location
                 </div>
               )}
             </div>
+
+            {/* Company Name Badge - Bottom Right */}
+            {formData.companyName && (
+              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 px-4 py-2.5 group hover:border-circleTel-orange/30 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 bg-white/5 rounded-lg group-hover:bg-circleTel-orange/10 transition-colors">
+                    <Building2 className="h-4 w-4 text-slate-400 group-hover:text-circleTel-orange" />
+                  </div>
+                  <span className="text-xs font-black text-white uppercase tracking-wider">{formData.companyName}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

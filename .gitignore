@@ -164,3 +164,6 @@ logs_result*.json
 shared-ai-skills/
 docs/emandate/
 .worktrees/
+
+# Skills lock file (local state)
+skills-lock.json

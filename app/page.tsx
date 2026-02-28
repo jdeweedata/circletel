@@ -10,6 +10,7 @@ import { SuccessStories } from '@/components/home/SuccessStories';
 import { LeadMagnet } from '@/components/home/LeadMagnet';
 import { BlogPreview } from '@/components/home/BlogPreview';
 import { Footer } from '@/components/layout/Footer';
+import { DealCardsGrid } from '@/components/marketing';
 
 export default function Home() {
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function Home() {
       <Navbar />
       <main>
         <HeroWithTabs />
+        <DealCardsGrid />
         <ValueProposition />
         <ServicesSnapshot />
         <SuccessStories />

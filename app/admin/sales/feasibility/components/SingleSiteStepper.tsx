@@ -130,6 +130,7 @@ const mapOptions: google.maps.MapOptions = {
   mapTypeControl: false,
   streetViewControl: false,
   fullscreenControl: false,
+  styles: mapDarkStyle, // Using same dark style
 };
 
 // Static libraries array to prevent Google Maps reload warning
@@ -664,9 +665,9 @@ export function SingleSiteStepper() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-ui-bg via-white to-circleTel-orange/5">
+    <div className="h-full flex flex-col bg-circleTel-midnight-navy text-slate-100">
       {/* Progress Bar */}
-      <div className="bg-white border-b px-6 py-4">
+      <div className="bg-circleTel-navy/50 backdrop-blur-xl border-b border-white/10 px-6 py-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => {
@@ -679,33 +680,30 @@ export function SingleSiteStepper() {
                 <div key={step.id} className="flex items-center flex-1">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        isComplete
-                          ? 'bg-green-500 text-white'
-                          : isActive
-                          ? 'bg-circleTel-orange text-white'
-                          : 'bg-gray-200 text-gray-500'
-                      }`}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-lg ${isComplete
+                        ? 'bg-green-500 text-white shadow-green-500/20'
+                        : isActive
+                          ? 'bg-circleTel-orange text-white shadow-circleTel-orange/30 scale-110'
+                          : 'bg-white/5 text-slate-500 border border-white/5'
+                        }`}
                     >
                       {isComplete ? (
-                        <CheckCircle2 className="h-5 w-5" />
+                        <CheckCircle2 className="h-6 w-6" />
                       ) : (
-                        <Icon className="h-5 w-5" />
+                        <Icon className={`h-6 w-6 ${isActive ? 'animate-pulse' : ''}`} />
                       )}
                     </div>
                     <span
-                      className={`text-xs mt-1 font-medium ${
-                        isActive ? 'text-circleTel-orange' : isComplete ? 'text-green-600' : 'text-gray-500'
-                      }`}
+                      className={`text-[10px] mt-2 font-black uppercase tracking-widest ${isActive ? 'text-circleTel-orange' : isComplete ? 'text-green-500' : 'text-slate-600'
+                        }`}
                     >
                       {step.title}
                     </span>
                   </div>
                   {!isLast && (
                     <div
-                      className={`flex-1 h-1 mx-2 rounded ${
-                        isComplete ? 'bg-green-500' : 'bg-gray-200'
-                      }`}
+                      className={`flex-1 h-0.5 mx-4 rounded-full transition-all duration-500 ${isComplete ? 'bg-gradient-to-r from-green-500 to-green-500' : 'bg-white/5'
+                        }`}
                     />
                   )}
                 </div>
@@ -728,51 +726,57 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Enter Site Address</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Search for an address or click on the map to select a location
+                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-0 group-hover:opacity-50 transition-opacity" />
+                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <MapPin className="h-6 w-6 text-circleTel-orange" />
+                    Site Location
+                  </h2>
+                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                    Define the target coordinates for feasibility analysis
                   </p>
                 </div>
 
                 {/* Toggle GPS/Address */}
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={!formData.useGPS}
-                      onChange={() => setFormData(prev => ({ ...prev, useGPS: false }))}
-                      className="text-circleTel-orange"
-                    />
-                    <span className="text-sm">Search Address</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={formData.useGPS}
-                      onChange={() => setFormData(prev => ({ ...prev, useGPS: true }))}
-                      className="text-circleTel-orange"
-                    />
-                    <span className="text-sm">Enter GPS Coordinates</span>
-                  </label>
+                <div className="flex items-center gap-6 bg-black/20 p-2 rounded-xl border border-white/5 w-fit">
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, useGPS: false }))}
+                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${!formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-500 hover:text-slate-300'
+                      }`}
+                  >
+                    Address
+                  </button>
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, useGPS: true }))}
+                    className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${formData.useGPS ? 'bg-circleTel-orange text-white shadow-lg shadow-circleTel-orange/20' : 'text-slate-500 hover:text-slate-300'
+                      }`}
+                  >
+                    GPS
+                  </button>
                 </div>
 
                 {/* Address/GPS Input */}
-                {formData.useGPS ? (
-                  <Input
-                    placeholder="Enter GPS coordinates (e.g., -26.2041, 28.0473)"
-                    value={formData.gpsInput}
-                    onChange={(e) => handleGPSInputChange(e.target.value)}
-                    className="font-mono"
-                  />
-                ) : (
-                  <Input
-                    ref={inputRef}
-                    placeholder="Start typing an address..."
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                  />
-                )}
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-slate-500 group-hover:text-circleTel-orange transition-colors" />
+                  </div>
+                  {formData.useGPS ? (
+                    <Input
+                      placeholder="Enter GPS coordinates (e.g., -26.2041, 28.0473)"
+                      value={formData.gpsInput}
+                      onChange={(e) => handleGPSInputChange(e.target.value)}
+                      className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 font-mono h-14 rounded-xl"
+                    />
+                  ) : (
+                    <Input
+                      ref={inputRef}
+                      placeholder="Start typing an address..."
+                      value={formData.address}
+                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 focus:ring-1 focus:ring-circleTel-orange/30 h-14 rounded-xl"
+                    />
+                  )}
+                </div>
 
                 {/* Map */}
                 {isLoaded && (
@@ -801,36 +805,22 @@ export function SingleSiteStepper() {
                     </GoogleMap>
                   </div>
                 )}
-
-                {/* Selected Location Info */}
-                {formData.coordinates && (
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700">Selected Location:</p>
-                    <p className="text-sm text-gray-600 mt-1">{formData.address || 'Address pending...'}</p>
-                    <p className="text-xs text-gray-400 mt-1 font-mono">
-                      {formData.coordinates.lat.toFixed(6)}, {formData.coordinates.lng.toFixed(6)}
-                    </p>
-                  </div>
-                )}
-
-                {/* Check Coverage Button */}
-                <Button
-                  onClick={checkCoverage}
-                  disabled={isLoading || (!formData.coordinates && !formData.address)}
-                  className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-4"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Checking Coverage...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="h-4 w-4 mr-2" />
-                      Check Coverage
-                    </>
-                  )}
-                </Button>
+                {/* Coverage Check Action */}
+                <div className="pt-4">
+                  <Button
+                    onClick={checkCoverage}
+                    disabled={(!formData.address && !formData.coordinates) || isLoading}
+                    className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 disabled:shadow-none transition-all duration-500 overflow-hidden relative group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+                    {isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                    ) : (
+                      <Sparkles className="h-4 w-4 mr-3 animate-pulse text-white" />
+                    )}
+                    {isLoading ? 'Scanning Infrastructure...' : 'Initiate Scan'}
+                  </Button>
+                </div>
               </motion.div>
             )}
 
@@ -841,57 +831,43 @@ export function SingleSiteStepper() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
+                className="space-y-6"
               >
-                {/* Compact Header with Coverage Badges */}
-                <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold text-gray-900 truncate">
-                      {formData.address || 'Location Coverage'}
-                    </h2>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) =>
-                        details?.available ? (
-                          <span
-                            key={tech}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200"
-                          >
-                            {getTechIcon(tech)}
-                            <span className="capitalize">{tech}</span>
-                            <CheckCircle2 className="h-3 w-3" />
-                          </span>
-                        ) : null
-                      )}
-                      {formData.coverage && Object.values(formData.coverage).every(d => !d?.available) && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                          <XCircle className="h-3 w-3" />
-                          No coverage
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* Selected Count Badge */}
-                  {formData.selectedPackages.length > 0 && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-circleTel-orange/10 rounded-lg border border-circleTel-orange/20">
-                      <Package className="h-4 w-4 text-circleTel-orange" />
-                      <span className="text-sm font-medium">{formData.selectedPackages.length} selected</span>
-                      <span className="text-sm font-bold text-circleTel-orange">{formatPrice(totals.monthly)}/mo</span>
-                    </div>
-                  )}
+                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
+                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <ShieldCheck className="h-6 w-6 text-green-500" />
+                    Available Infrastructure
+                  </h2>
+                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                    Select the optimal packages for this location
+                  </p>
+                </div>
+
+                {/* Specific Tech Badges */}
+                <div className="flex flex-wrap gap-2">
+                  {formData.coverage && Object.entries(formData.coverage).map(([tech, details]) => (
+                    details?.available && (
+                      <div key={tech} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2">
+                        {getTechIcon(tech)}
+                        <span className="text-[10px] font-black text-white uppercase tracking-widest">{tech} Ready</span>
+                      </div>
+                    )
+                  ))}
                 </div>
 
                 {/* Filters Row */}
                 <div className="flex flex-wrap items-center gap-3 py-2 px-1">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-500">Filters:</span>
+                    <Filter className="h-4 w-4 text-slate-500" />
+                    <span className="text-sm text-slate-400">Filters:</span>
                   </div>
 
                   {/* Technology Filter */}
                   <select
                     value={filters.technology}
                     onChange={(e) => setFilters(f => ({ ...f, technology: e.target.value as typeof filters.technology }))}
-                    className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                    className="text-sm border border-white/10 rounded-lg px-3 py-1.5 bg-white/5 text-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
                   >
                     <option value="all">All Technologies</option>
                     <option value="fibre">Fibre</option>
@@ -904,7 +880,7 @@ export function SingleSiteStepper() {
                   <select
                     value={filters.minSpeed}
                     onChange={(e) => setFilters(f => ({ ...f, minSpeed: Number(e.target.value) }))}
-                    className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
+                    className="text-sm border border-white/10 rounded-lg px-3 py-1.5 bg-white/5 text-white focus:ring-2 focus:ring-circleTel-orange/20 focus:border-circleTel-orange"
                   >
                     <option value="0">Any Speed</option>
                     <option value="50">50+ Mbps</option>
@@ -953,16 +929,14 @@ export function SingleSiteStepper() {
                         <div
                           key={pkg.id}
                           onClick={() => togglePackage(pkg, 'primary')}
-                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
-                            isSelected
-                              ? 'border-circleTel-orange bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 shadow-sm'
-                              : 'border-gray-200 bg-white hover:border-gray-300'
-                          }`}
+                          className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${isSelected
+                            ? 'border-circleTel-orange bg-gradient-to-br from-circleTel-orange/5 to-circleTel-orange/10 shadow-sm'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
                         >
                           {/* Selection indicator */}
-                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                            isSelected ? 'border-circleTel-orange bg-circleTel-orange' : 'border-gray-300'
-                          }`}>
+                          <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-circleTel-orange bg-circleTel-orange' : 'border-gray-300'
+                            }`}>
                             {isSelected && <CheckCircle2 className="h-3 w-3 text-white" />}
                           </div>
 
@@ -1024,7 +998,7 @@ export function SingleSiteStepper() {
               </motion.div>
             )}
 
-            {/* Step 3: Package Confirmation - Combined with Step 2 for simplicity */}
+            {/* Step 3: Package Confirmation */}
             {currentStep === 3 && (
               <motion.div
                 key="step3"
@@ -1033,62 +1007,68 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Confirm Package Selection</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Review your selected packages before proceeding
+                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
+                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <Package className="h-6 w-6 text-circleTel-orange" />
+                    Review Selection
+                  </h2>
+                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                    Verify the chosen infrastructure packages
                   </p>
                 </div>
 
-                <div className="space-y-3">
-                  {formData.selectedPackages.map((pkg, index) => (
-                    <div key={pkg.id} className="p-4 rounded-lg border bg-white">
+                <div className="space-y-4">
+                  {formData.selectedPackages.map((pkg) => (
+                    <div key={pkg.id} className="relative p-6 rounded-2xl bg-white/5 border border-white/10 group hover:border-white/20 transition-all">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-white/5 rounded-xl group-hover:bg-circleTel-orange/10 transition-colors">
                             {getTechIcon(pkg.technology)}
-                            <span className="font-medium">{pkg.name}</span>
-                            <span className="text-xs bg-gray-100 px-2 py-0.5 rounded capitalize">
-                              {pkg.itemType}
-                            </span>
                           </div>
-                          <p className="text-sm text-gray-500 mt-1">
-                            {pkg.speed} Mbps • {pkg.provider}
-                          </p>
+                          <div>
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest">{pkg.name}</h4>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                              {pkg.speed} Mbps • {pkg.provider}
+                            </p>
+                          </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">{formatPrice(pkg.price)}/mo</p>
-                          {pkg.installationFee > 0 && (
-                            <p className="text-xs text-gray-500">
-                              +{formatPrice(pkg.installationFee)} install
-                            </p>
-                          )}
+                          <p className="text-lg font-black text-white tracking-widest leading-none">{formatPrice(pkg.price)}</p>
+                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">/ month</p>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Totals */}
-                <div className="p-4 bg-gray-50 rounded-lg space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Monthly Subtotal</span>
-                    <span>{formatPrice(totals.monthly)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>VAT (15%)</span>
-                    <span>{formatPrice(totals.vat)}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-lg pt-2 border-t">
-                    <span>Monthly Total</span>
-                    <span>{formatPrice(totals.total)}</span>
-                  </div>
-                  {totals.installation > 0 && (
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>One-time Installation</span>
-                      <span>{formatPrice(totals.installation)}</span>
+                {/* Totals Card */}
+                <div className="bg-black/40 rounded-2xl border border-white/5 p-8 backdrop-blur-md shadow-2xl">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Subtotal</span>
+                      <span className="text-sm font-black text-white tracking-widest">{formatPrice(totals.monthly)}</span>
                     </div>
-                  )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">VAT (15%)</span>
+                      <span className="text-sm font-black text-white tracking-widest">{formatPrice(totals.vat)}</span>
+                    </div>
+                    <div className="pt-4 mt-2 border-t border-white/5 flex justify-between items-center">
+                      <span className="text-xs font-black text-white uppercase tracking-[0.2em]">Monthly Total</span>
+                      <span className="text-2xl font-black text-circleTel-orange tracking-widest">{formatPrice(totals.total)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-8">
+                  <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Back to Selection
+                  </Button>
+                  <Button onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)]">
+                    Client Details
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </motion.div>
             )}
@@ -1102,108 +1082,110 @@ export function SingleSiteStepper() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Client Details</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Enter the client's business information
+                <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
+                  <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                    <Building2 className="h-6 w-6 text-circleTel-orange" />
+                    Client Profile
+                  </h2>
+                  <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                    Information for proposal generation
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <Label>Company Name *</Label>
-                    <Input
-                      placeholder="Acme Corporation"
-                      value={formData.companyName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                    />
+                <div className="bg-white/5 rounded-2xl border border-white/5 p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2 group">
+                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Company Name *</Label>
+                      <Input
+                        placeholder="e.g. Acme Corp"
+                        value={formData.companyName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl font-bold tracking-wide"
+                      />
+                    </div>
+                    <div className="group">
+                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Contact Person</Label>
+                      <Input
+                        placeholder="Contact Name"
+                        value={formData.contactName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                      />
+                    </div>
+                    <div className="group">
+                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Email Address</Label>
+                      <Input
+                        type="email"
+                        placeholder="client@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                      />
+                    </div>
+                    <div className="group">
+                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block group-focus-within:text-circleTel-orange transition-colors">Phone Number</Label>
+                      <Input
+                        type="tel"
+                        placeholder="+27..."
+                        value={formData.phone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="bg-black/20 border-white/10 text-white placeholder:text-slate-600 focus:border-circleTel-orange/50 h-14 rounded-xl"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label>Contact Name</Label>
-                    <Input
-                      placeholder="John Smith"
-                      value={formData.contactName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label>Phone</Label>
-                    <Input
-                      type="tel"
-                      placeholder="082 123 4567"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label>Email</Label>
-                    <Input
-                      type="email"
-                      placeholder="john@acme.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-                </div>
 
-                {/* Contract Term */}
-                <div>
-                  <Label>Contract Term</Label>
-                  <RadioGroup
-                    value={formData.contractTerm.toString()}
-                    onValueChange={(v) => setFormData(prev => ({ ...prev, contractTerm: parseInt(v) as 12 | 24 | 36 }))}
-                    className="flex gap-4 mt-2"
-                  >
-                    {contractTermOptions.map((opt) => (
-                      <label
-                        key={opt.value}
-                        className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer ${
-                          formData.contractTerm === opt.value
-                            ? 'border-circleTel-orange bg-circleTel-orange/5'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                  <div className="pt-6 border-t border-white/5 space-y-6">
+                    <div>
+                      <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">Preferred Contract Term</Label>
+                      <RadioGroup
+                        value={formData.contractTerm.toString()}
+                        onValueChange={(v) => setFormData(prev => ({ ...prev, contractTerm: parseInt(v) as 12 | 24 | 36 }))}
+                        className="flex gap-4"
                       >
-                        <RadioGroupItem value={opt.value.toString()} />
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
-                  </RadioGroup>
-                </div>
+                        {contractTermOptions.map((opt) => (
+                          <label
+                            key={opt.value}
+                            className={`flex-1 flex items-center justify-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-300 ${formData.contractTerm === opt.value
+                              ? 'border-circleTel-orange bg-circleTel-orange/10 text-white'
+                              : 'border-white/5 bg-black/20 text-slate-500 hover:border-white/10'
+                              }`}
+                          >
+                            <RadioGroupItem value={opt.value.toString()} className="sr-only" />
+                            <span className="text-xs font-black uppercase tracking-widest">{opt.label}</span>
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    </div>
 
-                {/* Additional Options */}
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <Label>Budget (Optional)</Label>
-                    <Input
-                      type="number"
-                      placeholder="R 5,000"
-                      value={formData.budget}
-                      onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                    />
-                  </div>
-                  <div className="flex items-end pb-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
                       <Checkbox
+                        id="failover"
                         checked={formData.failover}
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
+                        className="border-white/20 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
                       />
-                      <span className="text-sm flex items-center gap-1">
-                        <Shield className="h-4 w-4 text-green-600" />
-                        Failover Required
-                      </span>
-                    </label>
+                      <Label htmlFor="failover" className="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-green-500" />
+                        Redundant Failover Required
+                      </Label>
+                    </div>
                   </div>
                 </div>
 
-                {/* Notes */}
-                <div>
-                  <Label>Additional Notes</Label>
-                  <Textarea
-                    placeholder="Any special requirements or notes..."
-                    value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                    rows={3}
-                  />
+                <div className="flex justify-between items-center pt-8">
+                  <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Back to review
+                  </Button>
+                  <Button
+                    onClick={nextStep}
+                    disabled={!formData.companyName}
+                    className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 transition-all active:scale-95"
+                  >
+                    Confirm Proposal
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </motion.div>
             )}
@@ -1215,25 +1197,27 @@ export function SingleSiteStepper() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-8"
               >
                 {generatedQuoteId ? (
                   // Success State
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-50" />
+                    <div className="w-20 h-20 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/10">
+                      <CheckCircle2 className="h-10 w-10 text-green-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Quote Generated!</h2>
-                    <p className="text-gray-500 mt-2">
-                      Your quote has been created successfully.
+                    <h2 className="text-3xl font-black text-white uppercase tracking-widest leading-tight">Quote Generated</h2>
+                    <p className="text-slate-400 mt-3 font-medium tracking-wide max-w-sm mx-auto">
+                      Automated proposal has been created and synced with the sales pipeline
                     </p>
-                    <div className="mt-6 space-y-3">
+
+                    <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center px-8">
                       <Button
                         onClick={() => window.open(`/admin/quotes/${generatedQuoteId}`, '_blank')}
-                        className="bg-circleTel-orange hover:bg-circleTel-orange/90"
+                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-circleTel-orange/20"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        View Quote
+                        View Document
                       </Button>
                       <Button
                         variant="outline"
@@ -1260,125 +1244,120 @@ export function SingleSiteStepper() {
                           setGeneratedQuoteId(null);
                           setMarkerPosition(null);
                         }}
-                        className="ml-2"
+                        className="border-white/10 hover:bg-white/5 text-slate-300 h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px]"
                       >
-                        Start New Quote
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        New Feasibility
                       </Button>
                     </div>
                   </div>
                 ) : (
                   // Review State
                   <>
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Review & Generate Quote</h2>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Please review all details before generating the quote
+                    <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
+                      <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                        <FileText className="h-6 w-6 text-circleTel-orange" />
+                        Final Review
+                      </h2>
+                      <p className="text-slate-400 mt-2 font-medium tracking-wide">
+                        Validate installation parameters before finalizing
                       </p>
                     </div>
 
-                    {/* Location Summary */}
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="font-medium text-gray-700 flex items-center gap-2 mb-2">
-                        <MapPin className="h-4 w-4 text-circleTel-orange" />
-                        Location
-                      </h3>
-                      <p className="text-sm">{formData.address}</p>
-                    </div>
-
-                    {/* Client Summary */}
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="font-medium text-gray-700 flex items-center gap-2 mb-2">
-                        <Building2 className="h-4 w-4 text-circleTel-orange" />
-                        Client
-                      </h3>
-                      <div className="text-sm space-y-1">
-                        <p><strong>{formData.companyName}</strong></p>
-                        {formData.contactName && <p>{formData.contactName}</p>}
-                        {formData.email && <p>{formData.email}</p>}
-                        {formData.phone && <p>{formData.phone}</p>}
-                      </div>
-                    </div>
-
-                    {/* Packages Summary */}
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="font-medium text-gray-700 flex items-center gap-2 mb-2">
-                        <Package className="h-4 w-4 text-circleTel-orange" />
-                        Packages ({formData.selectedPackages.length})
-                      </h3>
-                      <div className="space-y-2">
-                        {formData.selectedPackages.map((pkg) => (
-                          <div key={pkg.id} className="flex justify-between text-sm">
-                            <span>{pkg.name}</span>
-                            <span className="font-medium">{formatPrice(pkg.price)}/mo</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Summary Section */}
+                      <div className="space-y-6">
+                        {/* Location */}
+                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
+                          <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
+                            <MapPin className="h-4 w-4 text-circleTel-orange" />
                           </div>
-                        ))}
+                          <div>
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Site Address</span>
+                            <p className="text-sm font-bold text-white mt-1 leading-relaxed">{formData.address}</p>
+                          </div>
+                        </div>
+
+                        {/* Client */}
+                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
+                          <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
+                            <Building2 className="h-4 w-4 text-circleTel-orange" />
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Client Account</span>
+                            <p className="text-sm font-black text-white mt-1 uppercase tracking-wider">{formData.companyName}</p>
+                            <div className="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-white/5">
+                              <div>
+                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Contact</span>
+                                <p className="text-[10px] text-slate-300 font-bold">{formData.contactName || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Term</span>
+                                <p className="text-[10px] text-slate-300 font-bold">{formData.contractTerm} Months</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Calculations Section */}
+                      <div className="bg-black/30 rounded-2xl border border-white/5 p-8 flex flex-col">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Commercial Summary</span>
+
+                        <div className="space-y-4 flex-1">
+                          {formData.selectedPackages.map(pkg => (
+                            <div key={pkg.id} className="flex justify-between items-center group">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-circleTel-orange" />
+                                <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors capitalize">{pkg.name}</span>
+                              </div>
+                              <span className="text-xs font-black text-white tracking-widest">{formatPrice(pkg.price)}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">VAT (15%)</span>
+                            <span className="text-xs font-black text-slate-300 tracking-widest">{formatPrice(totals.vat)}</span>
+                          </div>
+                          <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl">
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Monthly Total</span>
+                            <span className="text-2xl font-black text-circleTel-orange tracking-tighter">{formatPrice(totals.total)}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Totals */}
-                    <div className="p-4 bg-circleTel-orange/10 rounded-lg border border-circleTel-orange/20">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Monthly + VAT</span>
-                        <span className="font-bold text-lg">{formatPrice(totals.total)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Contract Term</span>
-                        <span>{formData.contractTerm} months</span>
-                      </div>
+                    <div className="flex justify-between items-center pt-10">
+                      <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
+                        <ChevronLeft className="h-4 w-4 mr-2" />
+                        Edit details
+                      </Button>
+                      <Button
+                        onClick={generateQuote}
+                        disabled={isLoading}
+                        className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-16 h-14 rounded-xl font-black uppercase tracking-[.3em] text-[10px] shadow-[0_15px_40px_rgba(245,132,30,0.4)] relative group transition-all active:scale-95"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
+                        {isLoading ? (
+                          <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                        ) : (
+                          <Zap className="h-4 w-4 mr-3 text-white fill-white shadow-xl shadow-white/50" />
+                        )}
+                        Finalize Proposal
+                      </Button>
                     </div>
-
-                    {/* Generate Button */}
-                    <Button
-                      onClick={generateQuote}
-                      disabled={isLoading}
-                      className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white py-6 text-lg font-semibold"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                          Generating Quote...
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="h-5 w-5 mr-2" />
-                          Generate Quote
-                        </>
-                      )}
-                    </Button>
                   </>
                 )}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </div >
 
-      {/* Navigation Footer */}
-      {!generatedQuoteId && (
-        <div className="bg-white border-t px-6 py-4">
-          <div className="max-w-4xl mx-auto flex justify-between">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Back
-            </Button>
-
-            {currentStep < 5 && (
-              <Button
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="bg-circleTel-orange hover:bg-circleTel-orange/90"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Navigation Footer - Removed for unified UI */}
+    </div >
   );
 }
