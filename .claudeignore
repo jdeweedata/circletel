@@ -1,0 +1,96 @@
+# .claudeignore - Exclude from Claude Code context
+# CircleTel Project
+
+# Dependencies (huge, not useful for context)
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+.turbo/
+
+# Package locks (large, rarely needed)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated/minified files
+*.min.js
+*.min.css
+*.map
+*.chunk.js
+*.bundle.js
+
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Test artifacts
+coverage/
+.nyc_output/
+__snapshots__/
+*.snap
+playwright-report/
+test-results/
+
+# Assets (binary, can't read anyway)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.mp3
+*.pdf
+
+# Large data files
+*.csv
+*.xlsx
+*.sql
+fixtures/
+test-data/
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git/
+
+# Environment (security)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Supabase local
+.supabase/
+
+# Vercel
+.vercel/
+
+# Cache
+.cache/
+.eslintcache
+.prettiercache
+
+# Large documentation (load selectively)
+# Uncomment if needed:
+# docs/archive/
+# docs/legacy/
