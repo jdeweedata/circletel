@@ -659,7 +659,7 @@ export default function TermsPage() {
                   <ul className="list-disc pl-6 space-y-1 text-red-900">
                     <li><strong>No Guaranteed Speeds:</strong> All speed specifications are "up to" maximum speeds; actual speeds depend on MTN network conditions</li>
                     <li><strong>Coverage Gaps:</strong> Service may be unavailable in underground areas, rural areas, or areas with limited MTN coverage</li>
-                    <li><strong>Load Shedding Impact:</strong> MTN towers have limited battery backup (2-4 hours); extended power outages may affect service</li>
+                    <li><strong>Power Outage Impact:</strong> MTN towers have limited battery backup (2-4 hours); extended power outages may affect service</li>
                     <li><strong>International Roaming:</strong> Not included; requires separate activation and incurs additional charges</li>
                     <li><strong>VPN Restrictions:</strong> Some VPN protocols may be blocked or throttled by MTN for network security</li>
                   </ul>
@@ -883,7 +883,7 @@ export default function TermsPage() {
                   <h4 className="font-semibold text-circleTel-darkNeutral mb-2">Force Majeure Events</h4>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>Acts of God (floods, earthquakes, storms)</li>
-                    <li>Utility interruptions (power outages, Eskom load shedding)</li>
+                    <li>Utility interruptions (power outages, grid failures)</li>
                     <li>Equipment failure due to external factors</li>
                     <li>Labor strikes, riots, civil unrest</li>
                     <li>Government actions or regulatory changes</li>

@@ -113,7 +113,7 @@ const getDefaultFeatures = (serviceType: string): string[] => {
     ...baseFeatures,
     'Quick setup',
     'Reliable connection',
-    'Load-shedding ready'
+    'Portable backup'
   ];
 };
 

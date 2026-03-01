@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
-import { Poppins, Space_Mono } from "next/font/google";
+import { Poppins, Space_Mono, Montserrat, Manrope } from "next/font/google";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -85,10 +85,24 @@ const poppins = Poppins({
   display: 'swap',
 });
 
-const spaceMono = Space_Mono({ 
-  subsets: ["latin"], 
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-space-mono",
+  display: 'swap',
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-montserrat",
+  display: 'swap',
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
   display: 'swap',
 });
 
@@ -98,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${spaceMono.variable} font-sans`}>
+    <html lang="en" className={`${poppins.variable} ${spaceMono.variable} ${montserrat.variable} ${manrope.variable} font-sans`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />

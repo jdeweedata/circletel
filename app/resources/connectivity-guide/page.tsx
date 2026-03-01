@@ -127,7 +127,7 @@ export default function ConnectivityGuide() {
                 </li>
                 <li className="flex items-start">
                   <div className="mt-1 mr-2 h-4 w-4 bg-circleTel-orange rounded-full flex-shrink-0"></div>
-                  <span><strong>Power reliability:</strong> Maintaining connectivity during urban load shedding</span>
+                  <span><strong>Power reliability:</strong> Maintaining connectivity with backup power solutions</span>
                 </li>
               </ul>
 
@@ -199,7 +199,7 @@ export default function ConnectivityGuide() {
                 <p className="text-sm italic mb-3">
                   "As a financial services firm in Sandton, we required guaranteed uptime and low latency. CircleTel's
                   enterprise fibre solution delivered consistent sub-5ms latency to our cloud providers and 99.99% uptime,
-                  even during load shedding thanks to their integrated power solutions."
+                  backed by their integrated redundancy solutions."
                 </p>
                 <p className="text-sm font-bold">- Johannesburg Financial Services Client</p>
               </div>

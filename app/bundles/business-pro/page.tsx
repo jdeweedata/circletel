@@ -130,7 +130,7 @@ const BusinessPro = () => {
                     <CardTitle className="text-lg">Power Resilience</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-circleTel-secondaryNeutral">Managed UPS systems keep your internet and critical systems running during load shedding</p>
+                    <p className="text-circleTel-secondaryNeutral">Managed UPS systems keep your internet and critical systems running during power interruptions</p>
                   </CardContent>
                 </Card>
 
@@ -273,7 +273,7 @@ const BusinessPro = () => {
                   <p className="text-circleTel-secondaryNeutral mb-6">Our managed UPS systems automatically kick in during power outages, keeping your internet connection and critical systems running for hours, not minutes.</p>
 
                   <h4 className="font-bold text-circleTel-darkNeutral mb-2">What areas do you service?</h4>
-                  <p className="text-circleTel-secondaryNeutral mb-6">We serve both urban and rural communities across South Africa, with specialized solutions for areas prone to load shedding.</p>
+                  <p className="text-circleTel-secondaryNeutral mb-6">We serve both urban and rural communities across South Africa, with specialized connectivity solutions for all areas.</p>
                 </div>
 
                 <div>

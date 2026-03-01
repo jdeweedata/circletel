@@ -67,9 +67,14 @@ export default {
 				// CircleTel Official Brand Colors
 				'circleTel': {
 					// Primary Palette
-					orange: '#F5841E',        // Circle Tel Orange - rgb(245, 132, 30)
+					orange: '#E87A1E',        // Primary orange (updated from wireframe spec)
+					'orange-accessible': '#AE5B16', // For text on light backgrounds
+					'orange-dark': '#C45A30', // Hover states
 					gray: '#747474',          // Circle Tel Grey - rgb(116, 116, 116)
-					navy: '#13274A',          // Deep Navy - rgb(19, 39, 74)
+					navy: '#1B2A4A',          // Deep Navy (updated from wireframe spec)
+					charcoal: '#2D3436',      // Footer background
+					grey600: '#7F8C8D',       // Secondary text
+					grey200: '#F0F0F0',       // Section backgrounds
 					black: '#000000',
 					white: '#FFFFFF',
 					// Secondary Palette
@@ -168,7 +173,12 @@ export default {
 			},
 			fontFamily: {
 				'sans': ['var(--font-poppins)', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
+				'heading': ['var(--font-poppins)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'body': ['var(--font-montserrat)', 'var(--font-poppins)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
 				'mono': ['var(--font-space-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+				// Ivy Design System - Manrope for data-heavy interfaces
+				'display': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'data': ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
 			}
 		}
 	},

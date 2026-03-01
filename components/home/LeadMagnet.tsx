@@ -27,7 +27,7 @@ export function LeadMagnet() {
             <div>
               <h2 className="text-3xl font-bold text-circleTel-darkNeutral mb-4">Get Your Free South African IT Health Recipe</h2>
               <p className="text-circleTel-secondaryNeutral mb-6">
-                Discover how well your IT infrastructure is performing in the face of South African challenges like load shedding and connectivity issues. Get a customized recipe for improvement tailored to your business.
+                Discover how well your IT infrastructure is performing. Get a customized recipe for improvement tailored to your South African business.
               </p>
 
               {/* Benefits List */}
@@ -36,7 +36,7 @@ export function LeadMagnet() {
                 <ul className="space-y-2">
                   <li className="flex items-start">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center mr-2 mt-0.5">✓</span>
-                    <span className="text-circleTel-secondaryNeutral">Load shedding preparedness assessment</span>
+                    <span className="text-circleTel-secondaryNeutral">Business continuity assessment</span>
                   </li>
                   <li className="flex items-start">
                     <span className="h-5 w-5 rounded-full bg-circleTel-orange text-white flex items-center justify-center mr-2 mt-0.5">✓</span>
@@ -56,7 +56,7 @@ export function LeadMagnet() {
               {/* Social Proof */}
               <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
                 <p className="text-circleTel-secondaryNeutral italic">
-                  &quot;The IT assessment helped us identify critical gaps in our load shedding strategy. We implemented CircleTel&apos;s recommendations and now our business continues operating even during Stage 6!&quot;
+                  &quot;The IT assessment helped us identify critical gaps in our infrastructure. We implemented CircleTel&apos;s recommendations and now our business runs smoothly with reliable connectivity!&quot;
                 </p>
                 <div className="flex items-center mt-3">
                   <div className="h-10 w-10 rounded-full bg-circleTel-lightNeutral flex items-center justify-center text-circleTel-orange font-bold">
@@ -89,10 +89,10 @@ export function LeadMagnet() {
                   Future Services
                 </button>
                 <button
-                  className={`flex-1 py-2 px-4 text-center font-medium ${activeTab === 'loadshedding' ? 'border-b-2 border-circleTel-orange text-circleTel-darkNeutral' : 'text-circleTel-secondaryNeutral'}`}
-                  onClick={() => setActiveTab('loadshedding')}
+                  className={`flex-1 py-2 px-4 text-center font-medium ${activeTab === 'continuity' ? 'border-b-2 border-circleTel-orange text-circleTel-darkNeutral' : 'text-circleTel-secondaryNeutral'}`}
+                  onClick={() => setActiveTab('continuity')}
                 >
-                  Load Shedding
+                  Business Continuity
                 </button>
               </div>
 
@@ -107,9 +107,9 @@ export function LeadMagnet() {
                 <RegisterInterestForm />
               ) : (
                 <div className="bg-white rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Load Shedding Solutions</h3>
+                  <h3 className="text-xl font-bold text-circleTel-darkNeutral mb-4">Business Continuity Solutions</h3>
                   <p className="text-circleTel-secondaryNeutral mb-4">
-                    Keep your business running during power outages with our specialized IT solutions for load shedding.
+                    Keep your business running smoothly with our specialized IT continuity solutions.
                   </p>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
@@ -127,7 +127,7 @@ export function LeadMagnet() {
                   </ul>
                   <Button
                     className="w-full bg-circleTel-orange hover:bg-circleTel-orange/90 text-white"
-                    onClick={() => window.location.href = '/resources/load-shedding'}
+                    onClick={() => window.location.href = '/resources/connectivity-guide'}
                   >
                     Learn More About Our Solutions
                   </Button>

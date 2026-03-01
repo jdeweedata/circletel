@@ -2,15 +2,11 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/layout/Navbar';
-import { HeroWithTabs } from '@/components/home/HeroWithTabs';
-import { ValueProposition } from '@/components/home/ValueProposition';
-import { ServicesSnapshot } from '@/components/home/ServicesSnapshot';
-import { SuccessStories } from '@/components/home/SuccessStories';
-import { LeadMagnet } from '@/components/home/LeadMagnet';
-import { BlogPreview } from '@/components/home/BlogPreview';
-import { Footer } from '@/components/layout/Footer';
-import { DealCardsGrid } from '@/components/marketing';
+import { NewHero } from '@/components/home/NewHero';
+import { PlanCards } from '@/components/home/PlanCards';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { Testimonials } from '@/components/home/Testimonials';
+import { FAQ } from '@/components/home/FAQ';
 
 export default function Home() {
   const router = useRouter();
@@ -21,7 +17,7 @@ export default function Home() {
     if (typeof window !== 'undefined' && window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
-      
+
       if (accessToken && !isRedirecting) {
         console.log('[Home] Detected OAuth redirect, forwarding to callback...');
         setIsRedirecting(true);
@@ -36,7 +32,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5831F] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-circleTel-orange mx-auto mb-4"></div>
           <p className="text-gray-600">Redirecting...</p>
         </div>
       </div>
@@ -45,17 +41,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
-      <main>
-        <HeroWithTabs />
-        <DealCardsGrid />
-        <ValueProposition />
-        <ServicesSnapshot />
-        <SuccessStories />
-        <LeadMagnet />
-        <BlogPreview />
-      </main>
-      <Footer />
+      <NewHero />
+      <PlanCards />
+      <HowItWorks />
+      <Testimonials />
+      <FAQ />
     </div>
   );
 }
