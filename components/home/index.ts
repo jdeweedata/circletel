@@ -1,6 +1,6 @@
 // New homepage components (2026 refactor)
-export { NewHero } from './NewHero';
-export { SegmentTabs, SEGMENT_DATA, type SegmentType } from './SegmentTabs';
+export { NewHero, type SegmentType, SEGMENT_DATA } from './NewHero';
+export { SegmentTabs } from './SegmentTabs';
 export { QuickActions, QuickActionsBar } from './QuickActions';
 export { PlanCards } from './PlanCards';
 export { HowItWorks } from './HowItWorks';

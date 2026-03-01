@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Package, Calculator, Phone, Zap, MessageCircle } from 'lucide-react';
+import { MapPin, Package, Calculator, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuickAction {
@@ -50,39 +50,23 @@ const QUICK_ACTIONS: QuickAction[] = [
 
 interface QuickActionsProps {
   className?: string;
-  variant?: 'default' | 'compact';
 }
 
-export function QuickActions({ className, variant = 'default' }: QuickActionsProps) {
+export function QuickActions({ className }: QuickActionsProps) {
   const handleClick = (href: string) => {
     if (href.startsWith('#')) {
-      // Scroll to section
       const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Navigate to page
       window.location.href = href;
     }
   };
 
-  const isCompact = variant === 'compact';
-
   return (
-    <section className={cn('py-6 md:py-8 bg-white', className)}>
+    <section className={cn('py-4 bg-gray-50 border-b border-gray-100', className)}>
       <div className="container mx-auto px-4">
-        {/* Section Header - optional for non-compact */}
-        {!isCompact && (
-          <div className="text-center mb-6">
-            <p className="text-sm font-medium text-circleTel-grey600 uppercase tracking-wide">
-              Quick Actions
-            </p>
-          </div>
-        )}
-
-        {/* Quick Action Tiles */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-4xl mx-auto">
+        {/* Compact Quick Action Row */}
+        <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto scrollbar-hide">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
@@ -91,44 +75,16 @@ export function QuickActions({ className, variant = 'default' }: QuickActionsPro
                 type="button"
                 onClick={() => handleClick(action.href)}
                 className={cn(
-                  'group flex flex-col items-center p-4 md:p-6 rounded-xl transition-all duration-200',
-                  'border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.02]',
-                  'focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2',
-                  action.bgColor
+                  'flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap',
+                  'bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-circleTel-orange/30',
+                  'focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-1'
                 )}
               >
-                {/* Icon Container */}
-                <div
-                  className={cn(
-                    'w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-2 md:mb-3',
-                    'bg-white shadow-inner transition-transform group-hover:scale-110'
-                  )}
-                >
-                  <Icon className={cn('w-6 h-6 md:w-7 md:h-7', action.color)} />
-                </div>
-
-                {/* Label */}
-                <span className="font-heading font-semibold text-sm md:text-base text-circleTel-navy mb-0.5">
-                  {action.label}
-                </span>
-
-                {/* Description - hidden on mobile compact */}
-                <span className="text-xs text-circleTel-grey600 hidden md:block">
-                  {action.description}
-                </span>
+                <Icon className={cn('w-4 h-4', action.color)} />
+                <span className="text-sm font-medium text-circleTel-navy">{action.label}</span>
               </button>
             );
           })}
-        </div>
-
-        {/* Optional: Promotional Callout */}
-        <div className="mt-6 md:mt-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-circleTel-orange/10 to-orange-100 rounded-full">
-            <Zap className="w-4 h-4 text-circleTel-orange" />
-            <span className="text-sm font-medium text-circleTel-navy">
-              Same-day installation available in most areas
-            </span>
-          </div>
         </div>
       </div>
     </section>

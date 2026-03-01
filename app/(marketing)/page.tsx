@@ -2,13 +2,12 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { NewHero } from '@/components/home/NewHero';
+import { NewHero, type SegmentType } from '@/components/home/NewHero';
 import { QuickActions } from '@/components/home/QuickActions';
 import { PlanCards } from '@/components/home/PlanCards';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Testimonials } from '@/components/home/Testimonials';
 import { FAQ } from '@/components/home/FAQ';
-import type { SegmentType } from '@/components/home/SegmentTabs';
 
 // Valid segment values
 const VALID_SEGMENTS: SegmentType[] = ['business', 'wfh', 'home'];

@@ -1,42 +1,46 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Home, Building2, Briefcase, Monitor, Gamepad2, Wrench, Calendar, ArrowRight, Zap, CheckCircle } from 'lucide-react';
-import { SegmentTabs, SEGMENT_DATA, type SegmentType } from './SegmentTabs';
+import { MapPin, Home, Building2, Briefcase, ArrowRight, Zap, CheckCircle } from 'lucide-react';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-const SEGMENT_ICONS: Record<SegmentType, React.ElementType> = {
-  business: Building2,
-  wfh: Briefcase,
-  home: Home,
-};
+export type SegmentType = 'business' | 'wfh' | 'home';
 
-interface TrustItem {
-  icon: React.ElementType;
+const SEGMENT_CONFIG: Record<SegmentType, {
   label: string;
-}
-
-const TRUST_ITEMS: Record<SegmentType, TrustItem[]> = {
-  home: [
-    { icon: Monitor, label: 'Netflix-ready' },
-    { icon: Gamepad2, label: 'Gaming ping <20ms' },
-    { icon: Wrench, label: 'Free installation' },
-    { icon: Calendar, label: 'Month-to-month' },
-  ],
-  wfh: [
-    { icon: Monitor, label: 'HD video calls' },
-    { icon: () => <span className="text-sm font-bold">↑</span>, label: 'Fast uploads' },
-    { icon: Wrench, label: 'Free installation' },
-    { icon: Calendar, label: 'No lock-in' },
-  ],
-  business: [
-    { icon: () => <span className="text-sm font-bold">99.9%</span>, label: 'SLA' },
-    { icon: () => <span className="text-sm font-bold">24/7</span>, label: 'Support' },
-    { icon: Building2, label: 'Local NOC' },
-    { icon: Calendar, label: 'Same-day response' },
-  ],
+  shortLabel: string;
+  icon: React.ElementType;
+  priceFrom: string;
+  tagline: string;
+  placeholder: string;
+}> = {
+  home: {
+    label: 'Home',
+    shortLabel: 'Home',
+    icon: Home,
+    priceFrom: 'R799',
+    tagline: 'Stream, game & connect the whole family',
+    placeholder: 'Enter your home address',
+  },
+  wfh: {
+    label: 'Work from Home',
+    shortLabel: 'SOHO',
+    icon: Briefcase,
+    priceFrom: 'R799',
+    tagline: 'Reliable video calls & fast uploads',
+    placeholder: 'Enter your home office address',
+  },
+  business: {
+    label: 'Business',
+    shortLabel: 'Business',
+    icon: Building2,
+    priceFrom: 'R1,299',
+    tagline: '99.9% SLA with 24/7 local support',
+    placeholder: 'Enter your business address',
+  },
 };
 
 interface NewHeroProps {
@@ -45,7 +49,6 @@ interface NewHeroProps {
 }
 
 export function NewHero({ activeSegment: externalSegment, onSegmentChange }: NewHeroProps) {
-  // Support both controlled and uncontrolled modes
   const [internalSegment, setInternalSegment] = React.useState<SegmentType>('home');
   const activeSegment = externalSegment ?? internalSegment;
   const setActiveSegment = onSegmentChange ?? setInternalSegment;
@@ -56,11 +59,9 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
   const [isChecking, setIsChecking] = React.useState(false);
   const [showMapModal, setShowMapModal] = React.useState(false);
 
-  const currentSegment = SEGMENT_DATA[activeSegment];
-  const SegmentIcon = SEGMENT_ICONS[activeSegment];
-  const trustItems = TRUST_ITEMS[activeSegment];
+  const config = SEGMENT_CONFIG[activeSegment];
 
-  // Load persisted address from sessionStorage on mount
+  // Load persisted address from sessionStorage
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedData = sessionStorage.getItem('circletel_coverage_address');
@@ -68,29 +69,17 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
         try {
           const parsed = JSON.parse(savedData);
           const timestamp = new Date(parsed.timestamp);
-          const now = new Date();
-          const hoursDiff = (now.getTime() - timestamp.getTime()) / (1000 * 60 * 60);
-
+          const hoursDiff = (Date.now() - timestamp.getTime()) / (1000 * 60 * 60);
           if (hoursDiff < 24 && parsed.address) {
             setAddress(parsed.address);
-            if (parsed.coordinates) {
-              setCoordinates(parsed.coordinates);
-            }
-            // Map old types to new segments (only if uncontrolled mode)
-            if (!externalSegment) {
-              if (parsed.type === 'residential') {
-                setActiveSegment('home');
-              } else if (parsed.type === 'business') {
-                setActiveSegment('business');
-              }
-            }
+            if (parsed.coordinates) setCoordinates(parsed.coordinates);
           }
-        } catch (error) {
-          console.error('Failed to load saved address:', error);
+        } catch (e) {
+          console.error('Failed to load saved address:', e);
         }
       }
     }
-  }, [externalSegment, setActiveSegment]);
+  }, []);
 
   const handleLocationSelect = (data: {
     address: string;
@@ -115,10 +104,8 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
 
   const handleCheckCoverage = async () => {
     if (!address.trim()) return;
-
     setIsChecking(true);
     try {
-      // Store address in sessionStorage
       sessionStorage.setItem('circletel_coverage_address', JSON.stringify({
         address: address.trim(),
         coordinates,
@@ -127,7 +114,6 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
         timestamp: new Date().toISOString(),
       }));
 
-      // Create a coverage lead
       const response = await fetch('/api/coverage/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,10 +124,7 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create coverage lead');
-      }
-
+      if (!response.ok) throw new Error('Failed to create coverage lead');
       const data = await response.json();
       const packageType = activeSegment === 'business' ? 'business' : 'residential';
       window.location.href = `/packages/${data.leadId}?type=${packageType}`;
@@ -158,261 +141,153 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
     setTimeout(() => handleCheckCoverage(), 100);
   };
 
-  // Segment-specific hero backgrounds
-  const SEGMENT_BACKGROUNDS: Record<SegmentType, string> = {
-    home: '/images/marketing/skyfibre-home-hero.jpg',
-    wfh: '/images/marketing/skyfibre-home-hero.jpg', // Same lifestyle image works for WFH
-    business: '', // No image for business - use gradient
-  };
-
-  const heroBackground = SEGMENT_BACKGROUNDS[activeSegment];
-  const hasHeroImage = !!heroBackground;
-
   return (
-    <section className="relative overflow-hidden">
-      {/* Background Image for Home/WFH segments */}
-      {hasHeroImage && (
-        <>
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${heroBackground})` }}
-          />
-          {/* Gradient overlay - darker on left for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-circleTel-navy/90 via-circleTel-navy/60 to-transparent" />
-        </>
-      )}
+    <section className="relative bg-gradient-to-br from-circleTel-navy via-circleTel-navy to-circleTel-navy/95 overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-circleTel-orange rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl" />
+      </div>
 
-      {/* Fallback solid background for business */}
-      {!hasHeroImage && (
-        <div className="absolute inset-0 bg-gradient-to-br from-circleTel-navy via-circleTel-navy to-circleTel-orange/20" />
-      )}
-
-      <div className="relative container mx-auto px-4 py-16 md:py-24">
-        {/* Promotional Banner - Cell C style price anchor */}
-        <div className={`mb-6 ${hasHeroImage ? 'max-w-xl' : 'text-center'}`}>
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-circleTel-orange to-orange-500 rounded-full px-4 py-2 shadow-lg animate-pulse-subtle">
-            <Zap className="w-4 h-4 text-white" />
-            <span className="text-white text-sm md:text-base font-bold">
-              FREE Installation
-            </span>
-            <span className="text-white/80 text-xs md:text-sm">
-              (worth R2,500)
-            </span>
+      <div className="relative container mx-auto px-4 py-10 md:py-16">
+        {/* Promo Banner */}
+        <div className="flex justify-center mb-4">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-circleTel-orange to-orange-500 rounded-full px-3 py-1.5 shadow-lg">
+            <Zap className="w-3.5 h-3.5 text-white" />
+            <span className="text-white text-xs md:text-sm font-bold">FREE Installation</span>
+            <span className="text-white/80 text-xs">(worth R2,500)</span>
           </div>
         </div>
 
-        {/* Heading - Left aligned with hero image */}
-        <div className={`mb-8 md:mb-12 ${hasHeroImage ? 'text-left max-w-xl' : 'text-center'}`}>
-          <h1 className={`font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 ${hasHeroImage ? 'text-white' : 'text-white'}`}>
-            {activeSegment === 'home' ? (
-              <>
-                <span className="text-circleTel-orange">SkyFibre</span> Home
-              </>
-            ) : activeSegment === 'wfh' ? (
-              <>
-                <span className="text-circleTel-orange">Work</span>Connect
-              </>
-            ) : (
-              'Connect Your Business'
-            )}
+        {/* Hero Heading */}
+        <div className="text-center mb-6">
+          <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+            <span className="text-circleTel-orange">Premium</span> Internet
           </h1>
-          <p className={`font-body text-lg md:text-xl ${hasHeroImage ? 'text-white/90' : 'text-white/80'}`}>
-            {activeSegment === 'home'
-              ? 'Premium Internet. Professional Service.'
-              : activeSegment === 'wfh'
-              ? 'Reliable connectivity for remote work.'
-              : 'Enterprise-grade connectivity for your business.'}
+          <p className="text-white/80 text-base md:text-lg max-w-md mx-auto">
+            {config.tagline}
           </p>
-          {hasHeroImage && (
-            <p className="text-circleTel-orange font-bold text-2xl md:text-3xl mt-4">
-              From R{activeSegment === 'home' ? '799' : '799'}/mo
-            </p>
-          )}
         </div>
 
-        {/* Segment Tabs */}
-        <SegmentTabs
-          activeSegment={activeSegment}
-          onSegmentChange={(segment) => {
-            setActiveSegment(segment);
-            setAddress(''); // Reset address when switching
-          }}
-          className={`mb-8 md:mb-12 ${hasHeroImage ? 'max-w-xl' : ''}`}
-          variant={hasHeroImage ? 'dark' : 'light'}
-        />
+        {/* Compact Segment Pills */}
+        <div className="flex justify-center gap-2 mb-6">
+          {(Object.keys(SEGMENT_CONFIG) as SegmentType[]).map((seg) => {
+            const Icon = SEGMENT_CONFIG[seg].icon;
+            const isActive = activeSegment === seg;
+            return (
+              <button
+                key={seg}
+                onClick={() => {
+                  setActiveSegment(seg);
+                  setAddress('');
+                }}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all',
+                  'focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2 focus:ring-offset-circleTel-navy',
+                  isActive
+                    ? 'bg-circleTel-orange text-white shadow-lg'
+                    : 'bg-white/10 text-white/80 hover:bg-white/20'
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{SEGMENT_CONFIG[seg].label}</span>
+                <span className="sm:hidden">{SEGMENT_CONFIG[seg].shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Hero Card */}
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-            {/* Address Search Bar - Full Width at Top */}
-            <div className="mb-8">
-              {/* Input + Button Row */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-circleTel-orange z-10" />
-                  <AddressAutocomplete
-                    value={address}
-                    onLocationSelect={handleLocationSelect}
-                    placeholder={currentSegment.placeholder}
-                    className="w-full [&_input]:pl-12 [&_input]:pr-4 [&_input]:py-4 [&_input]:h-14 [&_input]:text-base [&_input]:rounded-xl [&_input]:border-2 [&_input]:border-gray-200 [&_input]:focus:border-circleTel-orange [&_input]:shadow-inner"
-                    showLocationButton={false}
-                    showMapButton={false}
-                  />
-                </div>
-                <Button
-                  onClick={handleCheckCoverage}
-                  disabled={!address.trim() || isChecking}
-                  className="h-14 px-8 md:w-auto bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold text-base rounded-xl shadow-md transition-all disabled:opacity-60"
-                >
-                  {isChecking ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                      Checking...
-                    </>
-                  ) : (
-                    <>
-                      Check Availability
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </Button>
-              </div>
+        {/* Price Display */}
+        <div className="text-center mb-6">
+          <p className="text-white text-sm">From</p>
+          <p className="text-circleTel-orange text-3xl md:text-4xl font-bold">
+            {config.priceFrom}<span className="text-lg font-normal">/mo</span>
+          </p>
+        </div>
 
-              {/* Links Row - Accessible with focus states */}
-              <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-2 mt-3 text-sm">
-                <button
-                  type="button"
-                  aria-label="Use my current location for address"
-                  onClick={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                          setCoordinates({
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                          });
-                        },
-                        (error) => console.error('Geolocation error:', error)
-                      );
-                    }
-                  }}
-                  className="flex items-center gap-1.5 text-circleTel-orange-accessible hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2 rounded px-2 py-1 transition-colors"
-                >
-                  <MapPin className="w-4 h-4" aria-hidden="true" />
-                  Use my location
-                </button>
-                <button
-                  type="button"
-                  aria-label="Open interactive map to find your address"
-                  onClick={() => setShowMapModal(true)}
-                  className="text-circleTel-orange-accessible hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2 rounded px-2 py-1 transition-colors"
-                >
-                  Can&apos;t find your address? Use our map
-                </button>
+        {/* Compact Search Card */}
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-xl p-4">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-circleTel-orange z-10" />
+                <AddressAutocomplete
+                  value={address}
+                  onLocationSelect={handleLocationSelect}
+                  placeholder={config.placeholder}
+                  className="w-full [&_input]:pl-10 [&_input]:pr-3 [&_input]:py-3 [&_input]:h-12 [&_input]:text-sm [&_input]:rounded-lg [&_input]:border [&_input]:border-gray-200 [&_input]:focus:border-circleTel-orange"
+                  showLocationButton={false}
+                  showMapButton={false}
+                />
               </div>
+              <Button
+                onClick={handleCheckCoverage}
+                disabled={!address.trim() || isChecking}
+                className="h-12 px-6 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-60"
+              >
+                {isChecking ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    Check Coverage
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </>
+                )}
+              </Button>
             </div>
-
-            {/* Segment Content - Below Address Bar */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              {/* Left: Segment Info */}
-              <div className="space-y-4">
-                {/* Icon + Title */}
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md:w-12 md:h-12 bg-circleTel-orange/10 rounded-xl flex items-center justify-center">
-                    <SegmentIcon className="w-5 h-5 md:w-6 md:h-6 text-circleTel-orange" />
-                  </div>
-                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-circleTel-navy">
-                    {currentSegment.title}
-                  </h2>
-                </div>
-
-                {/* Tags */}
-                <p className="font-body text-circleTel-grey600">
-                  {currentSegment.tags.join(' · ')}
-                </p>
-
-                {/* Price */}
-                <div className="py-2">
-                  <p className="font-heading text-3xl md:text-4xl font-bold text-circleTel-navy">
-                    From R{currentSegment.priceFrom.toLocaleString()}<span className="text-lg md:text-xl font-normal">/month</span>
-                  </p>
-                </div>
-
-                {/* Badge */}
-                <div>
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-circleTel-orange text-white">
-                    {currentSegment.badge}
-                  </span>
-                </div>
-
-                {/* Technologies */}
-                <p className="font-body text-sm text-circleTel-grey600">
-                  {currentSegment.technologies}
-                </p>
-              </div>
-
-              {/* Right: Trust Points + Microcopy */}
-              <div className="space-y-4">
-                {/* Trust Points as List */}
-                <div className="grid grid-cols-2 gap-3">
-                  {trustItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <div key={item.label} className="flex items-center gap-2 text-circleTel-navy">
-                        <div className="w-8 h-8 bg-circleTel-orange/10 rounded-lg flex items-center justify-center text-circleTel-orange">
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <span className="font-body text-sm font-medium">
-                          {item.label}
-                        </span>
-                      </div>
+            {/* Helper Links */}
+            <div className="flex justify-center gap-4 mt-2 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => setCoordinates({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                      (err) => console.error('Geolocation error:', err)
                     );
-                  })}
-                </div>
-
-                {/* Microcopy */}
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-circleTel-grey600 font-body pt-2">
-                  <span className="flex items-center gap-1">
-                    <span className="text-green-500">✓</span> Free installation
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="text-green-500">✓</span> No contracts
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="text-green-500">✓</span> Cancel anytime
-                  </span>
-                </div>
-              </div>
+                  }
+                }}
+                className="text-circleTel-orange hover:underline"
+              >
+                Use my location
+              </button>
+              <span className="text-gray-300">|</span>
+              <button
+                type="button"
+                onClick={() => setShowMapModal(true)}
+                className="text-circleTel-orange hover:underline"
+              >
+                Use map
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Trust Bar - Enhanced visibility */}
-        <div className="max-w-4xl mx-auto mt-8 md:mt-10">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20">
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-              <span className="flex items-center gap-2 text-white">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-sm font-medium">99.9% Uptime SLA</span>
-              </span>
-              <span className="flex items-center gap-2 text-white">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-sm font-medium">24/7 Local Support</span>
-              </span>
-              <span className="flex items-center gap-2 text-white">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-sm font-medium">Same-Day Installation</span>
-              </span>
-              <span className="flex items-center gap-2 text-white">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-sm font-medium">No Lock-in Contracts</span>
-              </span>
-            </div>
-          </div>
+        {/* Compact Trust Bar */}
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6 text-white/80 text-xs md:text-sm">
+          <span className="flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+            99.9% Uptime
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+            24/7 Support
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+            No Contracts
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+            Same-Day Install
+          </span>
         </div>
       </div>
 
-      {/* Interactive Map Modal */}
+      {/* Map Modal */}
       <InteractiveCoverageMapModal
         isOpen={showMapModal}
         onClose={() => setShowMapModal(false)}
@@ -424,3 +299,6 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
     </section>
   );
 }
+
+// Re-export for backwards compatibility
+export { SEGMENT_CONFIG as SEGMENT_DATA };
