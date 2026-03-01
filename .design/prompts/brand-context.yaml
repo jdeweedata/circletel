@@ -1,0 +1,130 @@
+# CircleTel Brand Context for AI Image Generation
+# Include this context in all prompts for brand consistency
+#
+# Usage: Reference these values in your prompts
+# Example: "primary orange (#F5831F) accent lighting"
+
+brand:
+  name: CircleTel
+  tagline: "Connect. Communicate. Conquer."
+  market: South African ISP/Telecom
+
+colors:
+  primary: "#F5831F"       # Vibrant Orange - CTAs, accents, highlights
+  secondary: "#1F2937"     # Dark Charcoal - Text, headers, contrast
+  background: "#E6E9EF"    # Light Neutral Gray - Clean backgrounds
+  white: "#FFFFFF"         # Pure White - Studio backgrounds
+
+  # Usage in prompts
+  prompt_snippets:
+    accent: "vibrant orange (#F5831F)"
+    text: "dark charcoal (#1F2937)"
+    bg_light: "clean light gray (#E6E9EF)"
+    bg_studio: "pure white seamless"
+
+typography:
+  primary_family: "Arial, Helvetica, sans-serif"
+  weights:
+    regular: 400
+    semibold: 600
+    bold: 700
+    extrabold: 800
+  style: "Modern, clean, professional"
+
+photography_style:
+  mood:
+    - Trustworthy
+    - Innovative
+    - Approachable
+    - Professional
+    - African
+
+  lighting:
+    - "Soft directional studio lighting"
+    - "Natural window light (lifestyle)"
+    - "Warm African sunlight (outdoor)"
+    - "Clean diffused lighting (products)"
+
+  backgrounds:
+    studio: "Pure white or light gray (#E6E9EF) seamless"
+    lifestyle: "Modern South African home/office"
+    outdoor: "South African landscapes, urban, or suburban"
+
+  technical_defaults:
+    lens: "85mm or 100mm"
+    aperture: "f/8 for products, f/2.8 for lifestyle"
+    resolution: "4K minimum"
+
+south_african_context:
+  include_in_lifestyle:
+    - "Diverse South African family"
+    - "Modern African home decor"
+    - "Local urban/suburban settings"
+    - "African-inspired design elements"
+
+  avoid:
+    - "Generic Western stock imagery"
+    - "Stereotypical African imagery"
+    - "Colonial aesthetics"
+
+# Reusable prompt injection block
+# Copy-paste this into prompts for consistent branding
+brand_injection: |
+  Brand Context: CircleTel - South African ISP
+  Primary Color: Vibrant orange (#F5831F) for accents and highlights
+  Secondary Color: Dark charcoal (#1F2937) for contrast
+  Background: Clean white or light gray (#E6E9EF)
+  Style: Modern, professional, trustworthy, approachable
+  Market: South African telecom, diverse representation
+
+# Quality signals to include in all prompts
+quality_signals:
+  - "ultra realistic"
+  - "commercial product photography"
+  - "professional studio lighting"
+  - "sharp focus"
+  - "high-end advertising quality"
+  - "4K resolution"
+  - "no AI-generated text"
+
+# Common aspect ratios for different uses
+aspect_ratios:
+  social_square: "1:1"
+  social_story: "9:16"
+  hero_banner: "21:9"
+  product_page: "16:9"
+  feature_card: "4:3"
+  mobile_banner: "3:2"
+
+# B&W Monochrome variant (advanced templates)
+# Use for: flash portraits, split typography, editorial content
+monochrome:
+  primary: "#000000"        # True black
+  secondary: "#FFFFFF"      # Pure white
+  accent: "#F5831F"         # Orange pop (selective single-element use)
+
+  style_keywords:
+    - "high contrast"
+    - "dramatic shadows"
+    - "fine film grain"
+    - "editorial authenticity"
+    - "chiaroscuro lighting"
+
+  usage_note: |
+    Keep image predominantly B&W. Add single orange (#F5831F)
+    accent to ONE element only: lip color, badge, LED indicator,
+    or brand element. Do not colorize multiple elements.
+
+# Typography for advanced templates
+typography_advanced:
+  inter_semibold:
+    family: "Inter"
+    weight: 600
+    tracking: "-0.02em"  # Tight kerning
+    max_canvas_width: "20%"  # For photo mosaic posters
+
+  slab_serif:
+    style: "Heavy slab serif uppercase"
+    usage: "Split typography patterns"
+    stack: "Vertically for strongest impact"
+    optimal_length: "4-6 characters (LEAD, GROW, RISE)"
