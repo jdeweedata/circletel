@@ -374,6 +374,22 @@
     animation: slide-out 0.3s ease-out;
   }
 
+  /* Subtle pulse for promotional banners - less aggressive than default pulse */
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
   .wireless-package-card {
     @apply bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300;
     display: flex;

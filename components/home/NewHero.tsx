@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Home, Building2, Briefcase, Monitor, Gamepad2, Wrench, Calendar, ArrowRight } from 'lucide-react';
+import { MapPin, Home, Building2, Briefcase, Monitor, Gamepad2, Wrench, Calendar, ArrowRight, Zap, CheckCircle } from 'lucide-react';
 import { SegmentTabs, SEGMENT_DATA, type SegmentType } from './SegmentTabs';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
@@ -158,17 +158,76 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
     setTimeout(() => handleCheckCoverage(), 100);
   };
 
+  // Segment-specific hero backgrounds
+  const SEGMENT_BACKGROUNDS: Record<SegmentType, string> = {
+    home: '/images/marketing/skyfibre-home-hero.jpg',
+    wfh: '/images/marketing/skyfibre-home-hero.jpg', // Same lifestyle image works for WFH
+    business: '', // No image for business - use gradient
+  };
+
+  const heroBackground = SEGMENT_BACKGROUNDS[activeSegment];
+  const hasHeroImage = !!heroBackground;
+
   return (
-    <section className="bg-circleTel-grey200 py-12 md:py-20">
-      <div className="container mx-auto px-4">
-        {/* Heading */}
-        <div className="text-center mb-8 md:mb-12">
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-circleTel-navy mb-4">
-            Connect Your World
+    <section className="relative overflow-hidden">
+      {/* Background Image for Home/WFH segments */}
+      {hasHeroImage && (
+        <>
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${heroBackground})` }}
+          />
+          {/* Gradient overlay - darker on left for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-circleTel-navy/90 via-circleTel-navy/60 to-transparent" />
+        </>
+      )}
+
+      {/* Fallback solid background for business */}
+      {!hasHeroImage && (
+        <div className="absolute inset-0 bg-gradient-to-br from-circleTel-navy via-circleTel-navy to-circleTel-orange/20" />
+      )}
+
+      <div className="relative container mx-auto px-4 py-16 md:py-24">
+        {/* Promotional Banner - Cell C style price anchor */}
+        <div className={`mb-6 ${hasHeroImage ? 'max-w-xl' : 'text-center'}`}>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-circleTel-orange to-orange-500 rounded-full px-4 py-2 shadow-lg animate-pulse-subtle">
+            <Zap className="w-4 h-4 text-white" />
+            <span className="text-white text-sm md:text-base font-bold">
+              FREE Installation
+            </span>
+            <span className="text-white/80 text-xs md:text-sm">
+              (worth R2,500)
+            </span>
+          </div>
+        </div>
+
+        {/* Heading - Left aligned with hero image */}
+        <div className={`mb-8 md:mb-12 ${hasHeroImage ? 'text-left max-w-xl' : 'text-center'}`}>
+          <h1 className={`font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 ${hasHeroImage ? 'text-white' : 'text-white'}`}>
+            {activeSegment === 'home' ? (
+              <>
+                <span className="text-circleTel-orange">SkyFibre</span> Home
+              </>
+            ) : activeSegment === 'wfh' ? (
+              <>
+                <span className="text-circleTel-orange">Work</span>Connect
+              </>
+            ) : (
+              'Connect Your Business'
+            )}
           </h1>
-          <p className="font-body text-lg md:text-xl text-circleTel-grey600">
-            Fast, reliable internet for every need
+          <p className={`font-body text-lg md:text-xl ${hasHeroImage ? 'text-white/90' : 'text-white/80'}`}>
+            {activeSegment === 'home'
+              ? 'Premium Internet. Professional Service.'
+              : activeSegment === 'wfh'
+              ? 'Reliable connectivity for remote work.'
+              : 'Enterprise-grade connectivity for your business.'}
           </p>
+          {hasHeroImage && (
+            <p className="text-circleTel-orange font-bold text-2xl md:text-3xl mt-4">
+              From R{activeSegment === 'home' ? '799' : '799'}/mo
+            </p>
+          )}
         </div>
 
         {/* Segment Tabs */}
@@ -178,7 +237,8 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
             setActiveSegment(segment);
             setAddress(''); // Reset address when switching
           }}
-          className="mb-8 md:mb-12"
+          className={`mb-8 md:mb-12 ${hasHeroImage ? 'max-w-xl' : ''}`}
+          variant={hasHeroImage ? 'dark' : 'light'}
         />
 
         {/* Hero Card */}
@@ -327,16 +387,27 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
           </div>
         </div>
 
-        {/* Trust Bar - Simplified */}
+        {/* Trust Bar - Enhanced visibility */}
         <div className="max-w-4xl mx-auto mt-8 md:mt-10">
-          <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-circleTel-grey600 text-sm">
-            <span>99.9% Uptime SLA</span>
-            <span className="hidden md:inline">·</span>
-            <span>24/7 Local Support</span>
-            <span className="hidden md:inline">·</span>
-            <span>Same-Day Installation</span>
-            <span className="hidden md:inline">·</span>
-            <span>No Lock-in Contracts</span>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-5 border border-white/20">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+              <span className="flex items-center gap-2 text-white">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-sm font-medium">99.9% Uptime SLA</span>
+              </span>
+              <span className="flex items-center gap-2 text-white">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-sm font-medium">24/7 Local Support</span>
+              </span>
+              <span className="flex items-center gap-2 text-white">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-sm font-medium">Same-Day Installation</span>
+              </span>
+              <span className="flex items-center gap-2 text-white">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-sm font-medium">No Lock-in Contracts</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

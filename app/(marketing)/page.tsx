@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { NewHero } from '@/components/home/NewHero';
+import { QuickActions } from '@/components/home/QuickActions';
 import { PlanCards } from '@/components/home/PlanCards';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Testimonials } from '@/components/home/Testimonials';
@@ -82,6 +83,7 @@ export default function Home() {
         activeSegment={activeSegment}
         onSegmentChange={handleSegmentChange}
       />
+      <QuickActions />
       <PlanCards activeSegment={activeSegment} />
       <HowItWorks />
       <Testimonials activeSegment={activeSegment} />
