@@ -2,44 +2,116 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
+import type { SegmentType } from './SegmentTabs';
 
 interface Testimonial {
   id: string;
   quote: string;
   author: string;
+  role?: string;
   location: string;
   stars: number;
 }
 
-const TESTIMONIALS: Testimonial[] = [
+// Home/Consumer testimonials
+const HOME_TESTIMONIALS: Testimonial[] = [
   {
-    id: '1',
+    id: 'h1',
     quote: "Finally, internet that just works. My kids game, I stream, my wife works — all at the same time.",
     author: 'Thandi M.',
     location: 'Sandton',
     stars: 5,
   },
   {
-    id: '2',
-    quote: "I switched from a competitor after one too many dropped Zoom calls. CircleTel's symmetric upload is a game changer.",
-    author: 'Sipho K.',
-    location: 'Cape Town',
+    id: 'h2',
+    quote: "Netflix in 4K on 3 TVs and nobody complains. Best switch we ever made.",
+    author: 'Johan V.',
+    location: 'Centurion',
     stars: 5,
   },
   {
-    id: '3',
-    quote: "The SLA and same-day support response sold us. We haven't had a single outage in 8 months.",
+    id: 'h3',
+    quote: "Free installation and no contracts? I was skeptical, but 8 months in and not a single issue.",
     author: 'Naledi P.',
     location: 'Pretoria',
     stars: 5,
   },
 ];
 
-const TRUST_METRICS = [
-  '10,000+ homes connected',
-  '99.9% uptime',
-  '4.7★ on Hellopeter',
+// SOHO/WFH testimonials
+const WFH_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'w1',
+    quote: "I switched after one too many dropped Zoom calls. CircleTel's symmetric upload is a game changer for remote work.",
+    author: 'Sipho K.',
+    role: 'Freelance Developer',
+    location: 'Cape Town',
+    stars: 5,
+  },
+  {
+    id: 'w2',
+    quote: "Video calls never drop, even during load shedding with their 5G backup option. Essential for my consulting work.",
+    author: 'Thabo M.',
+    role: 'Business Consultant',
+    location: 'Johannesburg',
+    stars: 5,
+  },
+  {
+    id: 'w3',
+    quote: "My team of 3 all work from home and share the same connection. VoIP quality is crystal clear.",
+    author: 'Lerato N.',
+    role: 'Agency Owner',
+    location: 'Durban',
+    stars: 5,
+  },
 ];
+
+// Business testimonials
+const BUSINESS_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'b1',
+    quote: "The 99.9% SLA saved our month-end processing. Zero downtime in 8 months of operation.",
+    author: 'Rebecca S.',
+    role: 'Operations Director',
+    location: 'Sandton',
+    stars: 5,
+  },
+  {
+    id: 'b2',
+    quote: "Same-day support response and a dedicated account manager. This is what enterprise service should look like.",
+    author: 'Michael C.',
+    role: 'IT Manager',
+    location: 'Rosebank',
+    stars: 5,
+  },
+  {
+    id: 'b3',
+    quote: "We connected 5 branch offices with their business fibre. Static IPs and VPN support made it seamless.",
+    author: 'Pieter V.',
+    role: 'CTO',
+    location: 'Cape Town',
+    stars: 5,
+  },
+];
+
+// Segment-specific trust metrics
+const TRUST_METRICS: Record<SegmentType, string[]> = {
+  home: [
+    '10,000+ homes connected',
+    '99.9% uptime',
+    'Free installation',
+  ],
+  wfh: [
+    '2,500+ remote workers',
+    'HD video optimized',
+    '4.8★ Google rating',
+  ],
+  business: [
+    '500+ businesses connected',
+    '99.9% SLA guaranteed',
+    '4-hour response time',
+  ],
+};
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -51,7 +123,19 @@ function StarRating({ count }: { count: number }) {
   );
 }
 
-export function Testimonials() {
+interface TestimonialsProps {
+  activeSegment?: SegmentType;
+}
+
+export function Testimonials({ activeSegment = 'home' }: TestimonialsProps) {
+  // Select testimonials based on segment
+  const testimonials = activeSegment === 'business'
+    ? BUSINESS_TESTIMONIALS
+    : activeSegment === 'wfh'
+    ? WFH_TESTIMONIALS
+    : HOME_TESTIMONIALS;
+
+  const trustMetrics = TRUST_METRICS[activeSegment];
   return (
     <section className="bg-white py-12 md:py-20">
       <div className="container mx-auto px-4">
@@ -62,7 +146,7 @@ export function Testimonials() {
 
         {/* Testimonial Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {TESTIMONIALS.map((testimonial) => (
+          {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
               className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100"
@@ -87,6 +171,11 @@ export function Testimonials() {
                   <p className="font-heading text-sm font-semibold text-circleTel-navy">
                     {testimonial.author}
                   </p>
+                  {testimonial.role && (
+                    <p className="font-body text-xs text-circleTel-orange">
+                      {testimonial.role}
+                    </p>
+                  )}
                   <p className="font-body text-xs text-circleTel-grey600">
                     {testimonial.location}
                   </p>
@@ -98,12 +187,12 @@ export function Testimonials() {
 
         {/* Trust Metrics Bar */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-4 md:gap-8">
-          {TRUST_METRICS.map((metric, index) => (
+          {trustMetrics.map((metric, index) => (
             <React.Fragment key={metric}>
               <span className="font-body text-sm md:text-base font-medium text-circleTel-navy">
                 {metric}
               </span>
-              {index < TRUST_METRICS.length - 1 && (
+              {index < trustMetrics.length - 1 && (
                 <span className="hidden md:inline text-gray-300">·</span>
               )}
             </React.Fragment>

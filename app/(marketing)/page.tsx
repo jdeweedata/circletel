@@ -1,16 +1,53 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { NewHero } from '@/components/home/NewHero';
 import { PlanCards } from '@/components/home/PlanCards';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Testimonials } from '@/components/home/Testimonials';
 import { FAQ } from '@/components/home/FAQ';
+import type { SegmentType } from '@/components/home/SegmentTabs';
+
+// Valid segment values
+const VALID_SEGMENTS: SegmentType[] = ['business', 'wfh', 'home'];
+
+function isValidSegment(value: string | null): value is SegmentType {
+  return value !== null && VALID_SEGMENTS.includes(value as SegmentType);
+}
 
 export default function Home() {
   const router = useRouter();
-  const [isRedirecting, setIsRedirecting] = React.useState(false);
+  const searchParams = useSearchParams();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Get initial segment from URL or default to 'home'
+  const urlSegment = searchParams.get('segment');
+  const initialSegment: SegmentType = isValidSegment(urlSegment) ? urlSegment : 'home';
+  const [activeSegment, setActiveSegment] = useState<SegmentType>(initialSegment);
+
+  // Sync segment state with URL param on mount
+  useEffect(() => {
+    const urlSegment = searchParams.get('segment');
+    if (isValidSegment(urlSegment) && urlSegment !== activeSegment) {
+      setActiveSegment(urlSegment);
+    }
+  }, [searchParams, activeSegment]);
+
+  // Update URL when segment changes
+  const handleSegmentChange = useCallback((segment: SegmentType) => {
+    setActiveSegment(segment);
+
+    // Update URL without full page reload
+    const url = new URL(window.location.href);
+    if (segment === 'home') {
+      // Remove param for default segment to keep URL clean
+      url.searchParams.delete('segment');
+    } else {
+      url.searchParams.set('segment', segment);
+    }
+    window.history.replaceState({}, '', url.toString());
+  }, []);
 
   // Detect OAuth redirect and forward to callback page
   useEffect(() => {
@@ -41,10 +78,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <NewHero />
-      <PlanCards />
+      <NewHero
+        activeSegment={activeSegment}
+        onSegmentChange={handleSegmentChange}
+      />
+      <PlanCards activeSegment={activeSegment} />
       <HowItWorks />
-      <Testimonials />
+      <Testimonials activeSegment={activeSegment} />
       <FAQ />
     </div>
   );

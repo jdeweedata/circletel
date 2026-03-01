@@ -39,8 +39,17 @@ const TRUST_ITEMS: Record<SegmentType, TrustItem[]> = {
   ],
 };
 
-export function NewHero() {
-  const [activeSegment, setActiveSegment] = React.useState<SegmentType>('home');
+interface NewHeroProps {
+  activeSegment?: SegmentType;
+  onSegmentChange?: (segment: SegmentType) => void;
+}
+
+export function NewHero({ activeSegment: externalSegment, onSegmentChange }: NewHeroProps) {
+  // Support both controlled and uncontrolled modes
+  const [internalSegment, setInternalSegment] = React.useState<SegmentType>('home');
+  const activeSegment = externalSegment ?? internalSegment;
+  const setActiveSegment = onSegmentChange ?? setInternalSegment;
+
   const [address, setAddress] = React.useState('');
   const [coordinates, setCoordinates] = React.useState<{ lat: number; lng: number } | null>(null);
   const [addressComponents, setAddressComponents] = React.useState<Record<string, string>>({});
@@ -67,11 +76,13 @@ export function NewHero() {
             if (parsed.coordinates) {
               setCoordinates(parsed.coordinates);
             }
-            // Map old types to new segments
-            if (parsed.type === 'residential') {
-              setActiveSegment('home');
-            } else if (parsed.type === 'business') {
-              setActiveSegment('business');
+            // Map old types to new segments (only if uncontrolled mode)
+            if (!externalSegment) {
+              if (parsed.type === 'residential') {
+                setActiveSegment('home');
+              } else if (parsed.type === 'business') {
+                setActiveSegment('business');
+              }
             }
           }
         } catch (error) {
@@ -79,7 +90,7 @@ export function NewHero() {
         }
       }
     }
-  }, []);
+  }, [externalSegment, setActiveSegment]);
 
   const handleLocationSelect = (data: {
     address: string;
