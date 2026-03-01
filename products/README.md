@@ -42,6 +42,11 @@ IT services, bundles, and pricing for SME customers.
 | [WorkConnect Functional Spec](connectivity/soho/WorkConnect_SOHO_Functional_Specification_v1_0.md) | Technical requirements |
 | [SOHO Consumer Recommendations](connectivity/soho/CircleTel_SOHO_Consumer_Product_Recommendations_v1_0.md) | Package recommendations |
 
+#### Residential (SkyFibre Home)
+| Document | Description |
+|----------|-------------|
+| [SkyFibre Home Product Catalogue](connectivity/residential/SkyFibre_Home_Product_Catalogue_v1_0.md) | Residential FWA via MTN Tarana G1 (50/100/200 Mbps) |
+
 ### Cloud & Hosting
 | Document | Description |
 |----------|-------------|
