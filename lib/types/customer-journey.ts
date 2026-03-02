@@ -152,6 +152,7 @@ export interface CreateCoverageLeadInput {
   last_name: string;
   email: string;
   phone: string;
+  alternate_phone?: string;
   company_name?: string;
   address: string;
   suburb?: string;
@@ -167,7 +168,13 @@ export interface CreateCoverageLeadInput {
   requested_speed?: string;
   budget_range?: string;
   contact_preference?: ContactPreference;
+  preferred_contact_method?: string;
   best_contact_time?: string;
+  status?: string;
+  service_interest?: string;
+  urgency_level?: string;
+  follow_up_date?: string;
+  notes?: string;
   metadata?: Record<string, any>;
 }
 
