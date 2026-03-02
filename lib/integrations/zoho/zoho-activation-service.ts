@@ -15,6 +15,48 @@ import { ZohoAPIClient } from '@/lib/zoho-api-client';
 import { zohoLogger } from '@/lib/logging';
 
 // =============================================================================
+// ZOHO API RESPONSE TYPES
+// =============================================================================
+
+interface ZohoCRMRecord {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface ZohoCRMSearchResponse {
+  data?: ZohoCRMRecord[];
+  details?: { id: string };
+}
+
+interface ZohoBooksContactResponse {
+  contact?: { contact_id: string };
+}
+
+interface ZohoBooksInvoiceResponse {
+  invoice?: {
+    invoice_id?: string;
+    invoice_number?: string;
+    status?: string;
+    invoice_url?: string;
+  };
+}
+
+interface ZohoBillingSubscriptionResponse {
+  subscription?: {
+    subscription_id?: string;
+    subscription_number?: string;
+    status?: string;
+    next_billing_at?: string;
+  };
+}
+
+interface ZohoAPIResponseWithData {
+  success: boolean;
+  data?: ZohoCRMSearchResponse | ZohoCRMRecord | ZohoCRMRecord[];
+  error?: string;
+}
+
+// =============================================================================
 // TYPES
 // =============================================================================
 
@@ -92,17 +134,17 @@ interface ZohoBooksCustomer {
 }
 
 interface ZohoBooksInvoice {
-  invoice_id: string;
-  invoice_number: string;
+  invoice_id?: string;
+  invoice_number?: string;
   total: number;
-  status: string;
+  status?: string;
   invoice_url?: string;
 }
 
 interface ZohoBillingSubscription {
-  subscription_id: string;
-  subscription_number: string;
-  status: string;
+  subscription_id?: string;
+  subscription_number?: string;
+  status?: string;
   next_billing_at?: string;
 }
 
@@ -250,9 +292,10 @@ export class ZohoActivationService {
       Service_Start_Date: input.serviceStartDate,
     };
 
-    if (existingContact.success && existingContact.data && existingContact.data.length > 0) {
+    const existingData = existingContact.data as ZohoCRMRecord[] | undefined;
+    if (existingContact.success && existingData && existingData.length > 0) {
       // Update existing contact
-      const contactId = existingContact.data[0].id;
+      const contactId = existingData[0].id;
       await this.zohoClient.updateCRMRecord('Contacts', contactId, contactData);
 
       return {
@@ -270,8 +313,9 @@ export class ZohoActivationService {
         throw new Error('Failed to create CRM contact');
       }
 
+      const responseData = response.data as ZohoCRMSearchResponse;
       return {
-        id: response.data.details?.id || response.data.id,
+        id: responseData.details?.id || (response.data as ZohoCRMRecord).id,
         First_Name: firstName,
         Last_Name: lastName || 'Customer',
         Email: input.email,
@@ -304,8 +348,9 @@ export class ZohoActivationService {
       throw new Error('Failed to create Books customer');
     }
 
+    const responseData = response.data as ZohoBooksContactResponse;
     return {
-      contact_id: response.data.contact?.contact_id || response.data.contact_id,
+      contact_id: responseData.contact?.contact_id || (response.data as { contact_id?: string }).contact_id || '',
       contact_name: input.customerName,
       email: input.email,
       phone: input.phone,
@@ -371,14 +416,15 @@ export class ZohoActivationService {
       throw new Error('Failed to generate Books invoice');
     }
 
-    const invoice = response.data.invoice || response.data;
+    const responseData = response.data as ZohoBooksInvoiceResponse;
+    const invoiceResult = responseData.invoice || (response.data as { invoice_id?: string; invoice_number?: string; status?: string; invoice_url?: string });
 
     return {
-      invoice_id: invoice.invoice_id,
-      invoice_number: invoice.invoice_number,
+      invoice_id: invoiceResult.invoice_id || '',
+      invoice_number: invoiceResult.invoice_number || '',
       total,
-      status: invoice.status || 'draft',
-      invoice_url: invoice.invoice_url,
+      status: invoiceResult.status || 'draft',
+      invoice_url: invoiceResult.invoice_url,
     };
   }
 
@@ -416,11 +462,12 @@ export class ZohoActivationService {
       throw new Error('Failed to create Billing subscription');
     }
 
-    const subscription = response.data.subscription || response.data;
+    const responseData = response.data as ZohoBillingSubscriptionResponse;
+    const subscription: ZohoBillingSubscription = responseData.subscription || (response.data as ZohoBillingSubscription);
 
     return {
-      subscription_id: subscription.subscription_id,
-      subscription_number: subscription.subscription_number || subscription.subscription_id,
+      subscription_id: subscription.subscription_id || '',
+      subscription_number: subscription.subscription_number || subscription.subscription_id || '',
       status: subscription.status || 'live',
       next_billing_at: subscription.next_billing_at,
     };
