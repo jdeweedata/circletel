@@ -55,7 +55,8 @@ export interface EmailTags {
 
 export interface SmsNotificationInput {
   to: string;
-  message: string;
+  /** Direct message content. If template is provided, this is optional */
+  message?: string;
   template?: SmsTemplate;
   data?: Record<string, any>;
 }
@@ -63,6 +64,7 @@ export interface SmsNotificationInput {
 export type EmailTemplate =
   | 'order_confirmation'
   | 'payment_received'
+  | 'payment_confirmation'
   | 'installation_scheduled'
   | 'installation_reminder'
   | 'order_activated'
@@ -2292,7 +2294,7 @@ export class SmsNotificationService {
   static async send(input: SmsNotificationInput): Promise<NotificationResult> {
     const message = input.template
       ? this.renderTemplate(input.template, input.data || {})
-      : input.message;
+      : input.message || '';
 
     // Delegate to SmsChannel for actual sending
     return SmsChannel.send({

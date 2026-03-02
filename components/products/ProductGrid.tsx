@@ -48,8 +48,11 @@ export function ProductGrid({
         <ProductCard
           key={product.id}
           product={product}
-          onSelect={onProductSelect}
-          onCompare={onProductCompare}
+          onSelect={onProductSelect ? (productId: string) => {
+            const p = products.find(pr => pr.id === productId);
+            if (p) onProductSelect(p);
+          } : undefined}
+          onCompare={onProductCompare ? () => onProductCompare(product) : undefined}
           isComparing={comparingProducts.includes(product.id)}
         />
       ))}

@@ -43,6 +43,7 @@ export interface NetCashFormData {
   m9?: string;             // Return URL
   m10?: string;            // Cancel URL
   m4?: string;             // Unique transaction ID
+  [key: string]: string | undefined;  // Allow additional parameters
 }
 
 /**
@@ -60,6 +61,8 @@ export interface NetCashCallback {
   CardType?: string;                // Card type if card payment
   RequestTrace?: string;            // NetCash trace number
   Result?: string;                  // 'Success', 'Failed', 'Cancelled'
+  m4?: string;                      // Unique transaction ID (fallback for Reference)
+  [key: string]: string | undefined;  // Allow additional parameters
 }
 
 // ============================================================================
@@ -141,7 +144,7 @@ export class NetCashProvider extends BasePaymentProvider {
   ): Promise<PaymentInitiationResult> {
     try {
       // Validate required parameters
-      this.validateParams(params, ['amount', 'reference', 'customerEmail']);
+      this.validateParams(params as unknown as Record<string, unknown>, ['amount', 'reference', 'customerEmail']);
 
       // Generate unique transaction reference
       const transactionId = this.generateTransactionReference(params.reference);
@@ -186,10 +189,18 @@ export class NetCashProvider extends BasePaymentProvider {
         reference: params.reference
       });
 
+      // Convert formData to Record<string, string> by filtering undefined values
+      const cleanedFormData: Record<string, string> = {};
+      for (const [key, value] of Object.entries(formData)) {
+        if (value !== undefined) {
+          cleanedFormData[key] = value;
+        }
+      }
+
       return {
         success: true,
         paymentUrl: this.paymentUrl,
-        formData,
+        formData: cleanedFormData,
         transactionId,
         metadata: this.sanitizeMetadata(params.metadata)
       };
@@ -449,7 +460,14 @@ export class NetCashProvider extends BasePaymentProvider {
    * Alternative to POST redirect - useful for testing.
    */
   generatePaymentUrlWithParams(formData: NetCashFormData): string {
-    const params = new URLSearchParams(formData as Record<string, string>);
+    // Filter out undefined values and cast to Record<string, string>
+    const cleanedData: Record<string, string> = {};
+    for (const [key, value] of Object.entries(formData)) {
+      if (value !== undefined) {
+        cleanedData[key] = value;
+      }
+    }
+    const params = new URLSearchParams(cleanedData);
     return `${this.paymentUrl}?${params.toString()}`;
   }
 }

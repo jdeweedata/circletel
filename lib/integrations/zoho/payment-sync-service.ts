@@ -127,7 +127,7 @@ export async function syncPaymentToZohoBilling(
       reference_number: payment.transaction_reference || payment.id.substring(0, 8),
       description: payment.description || `Payment via ${payment.payment_method}`,
 
-      // Link to invoice if available
+      // Link to invoice if available (always an array, empty if no invoice)
       invoices: zoho_invoice_id
         ? [
             {
@@ -135,7 +135,7 @@ export async function syncPaymentToZohoBilling(
               amount_applied: parseFloat(payment.amount || 0)
             }
           ]
-        : undefined,
+        : [],
 
       // Custom fields for CircleTel reference
       cf_circletel_payment_id: payment.id,

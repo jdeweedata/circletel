@@ -45,7 +45,7 @@ export class DFAProductMapper {
     const products = await this.fetchDFAProducts();
 
     // Map products with coverage details
-    return products.map((product) => {
+    return products.map((product: typeof products[number]) => {
       const mappedProduct: MappedProduct = {
         id: product.id,
         name: product.name,

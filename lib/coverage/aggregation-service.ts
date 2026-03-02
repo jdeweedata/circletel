@@ -394,7 +394,7 @@ export class CoverageAggregationService {
               confidence: baseStationValidation.confidence,
               nearestStation: baseStationValidation.nearestStation,
               requiresElevatedInstall: baseStationValidation.requiresElevatedInstall,
-              installationNote: baseStationValidation.installationNote,
+              installationNote: baseStationValidation.installationNote ?? undefined,
               stationsChecked: baseStationValidation.metadata.stationsChecked
             } : undefined
           }
@@ -474,7 +474,7 @@ export class CoverageAggregationService {
                   confidence: wholesaleBaseStationCheck.confidence,
                   nearestStation: wholesaleBaseStationCheck.nearestStation,
                   requiresElevatedInstall: wholesaleBaseStationCheck.requiresElevatedInstall,
-                  installationNote: wholesaleBaseStationCheck.installationNote,
+                  installationNote: wholesaleBaseStationCheck.installationNote ?? undefined,
                   stationsChecked: wholesaleBaseStationCheck.metadata.stationsChecked
                 } : undefined
               }

@@ -121,7 +121,7 @@ export async function sendCoverageLeadAlert(
 
     // Step 2: Send Email Alert to Sales Team
     try {
-      const emailResult = await EmailNotificationService.sendEmail({
+      const emailResult = await EmailNotificationService.send({
         to: SALES_TEAM_EMAIL,
         subject: `🔔 New ${getCustomerTypeLabel(leadData.customer_type)} Lead: ${leadData.first_name} ${leadData.last_name}`,
         template: 'sales_coverage_lead_alert',
@@ -250,7 +250,7 @@ export async function sendBusinessQuoteAlert(
 
   try {
     // Send high-priority email to sales team
-    const emailResult = await EmailNotificationService.sendEmail({
+    const emailResult = await EmailNotificationService.send({
       to: SALES_TEAM_EMAIL,
       subject: `🚨 NEW BUSINESS QUOTE REQUEST: ${quoteData.company_name} (${quoteData.urgency?.toUpperCase() || 'MEDIUM'} Priority)`,
       template: 'sales_business_quote_alert',
@@ -300,7 +300,7 @@ export async function sendBusinessQuoteAlert(
       }
     }
 
-    result.success = result.emailSent;
+    result.success = result.emailSent ?? false;
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -377,9 +377,10 @@ Coverage Check ID: ${leadData.id}
 
     if (response.success && response.data) {
       // Extract lead ID from response
-      const leadId = Array.isArray(response.data)
-        ? response.data[0]?.details?.id
-        : response.data?.id;
+      const data = response.data as any;
+      const leadId = Array.isArray(data)
+        ? data[0]?.details?.id
+        : data?.id;
 
       return {
         success: true,

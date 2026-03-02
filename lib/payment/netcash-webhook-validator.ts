@@ -207,7 +207,7 @@ export function parseWebhookPayload(body: unknown): WebhookValidationResult {
         return { valid: false, errors };
       }
     } else {
-      payload = body;
+      payload = body as NetcashWebhookPayload;
     }
 
     // Validate required fields

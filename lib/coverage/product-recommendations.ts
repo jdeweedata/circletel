@@ -337,7 +337,7 @@ export class ProductRecommendationService {
     }
 
     // Business product bonus for SME products (0-5 points)
-    if (product.productType === 'sme' || product.productType === 'enterprise') {
+    if (product.productType === 'sme') {
       score += 5;
     }
 
@@ -367,7 +367,7 @@ export class ProductRecommendationService {
       reasons.push(`Meets your ${options.minSpeed} Mbps speed requirement`);
     }
 
-    if (product.productType === 'sme' || product.productType === 'enterprise') {
+    if (product.productType === 'sme') {
       reasons.push('Business-grade service with SLA');
     }
 
@@ -406,7 +406,7 @@ export class ProductRecommendationService {
       pros.push('High-speed connectivity');
     }
 
-    if (product.productType === 'sme' || product.productType === 'enterprise') {
+    if (product.productType === 'sme') {
       pros.push('Business SLA included');
       pros.push('Priority support');
     }

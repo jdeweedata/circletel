@@ -129,9 +129,10 @@ export async function syncSubscriptionToZohoBilling(
     zohoLogger.debug('[SubscriptionSync] Fetched plan_code', { planCode });
 
     // Build ZOHO Billing subscription payload
-    // Zoho requires plan_code (string), not plan_id
+    // Zoho accepts either plan_id or plan object with plan_code
     const zohoPayload = {
       customer_id: service.customer.zoho_billing_customer_id,
+      plan_id: planId,
       plan: {
         plan_code: planCode,
         quantity: 1,
@@ -146,7 +147,7 @@ export async function syncSubscriptionToZohoBilling(
       // Custom fields for CircleTel reference
       cf_circletel_service_id: service.id,
       cf_installation_address: service.installation_address || undefined,
-    };
+    } as Record<string, unknown>;
 
     // Remove undefined fields
     Object.keys(zohoPayload).forEach(key => {
@@ -162,14 +163,11 @@ export async function syncSubscriptionToZohoBilling(
     });
 
     // Create subscription in ZOHO Billing (reuse billingClient from above)
-    const zohoSubscription = await billingClient.createSubscription(zohoPayload);
-
-    const zoho_subscription_id = zohoSubscription.subscription_id;
+    // createSubscription returns the subscription_id as a string
+    const zoho_subscription_id = await billingClient.createSubscription(zohoPayload as any);
 
     zohoLogger.debug('[SubscriptionSync] Successfully created ZOHO subscription:', {
-      subscription_id: zoho_subscription_id,
-      subscription_number: zohoSubscription.subscription_number,
-      status: zohoSubscription.status
+      subscription_id: zoho_subscription_id
     });
 
     // Update service with ZOHO subscription ID
@@ -192,7 +190,7 @@ export async function syncSubscriptionToZohoBilling(
       status: 'success',
       attempt_number: 1,
       request_payload: zohoPayload,
-      response_payload: zohoSubscription
+      response_payload: { subscription_id: zoho_subscription_id }
     });
 
     return {

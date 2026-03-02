@@ -63,20 +63,14 @@ interface OrderData {
  */
 export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
   try {
-    // Generate email HTML from React template using structured context
+    // Generate email HTML from React template using flat structure expected by component
     const emailHtml = await render(
       KYCCompletedEmail({
-        customer: {
-          name: kycSession.customer_name || 'Valued Customer',
-        },
-        kyc: {
-          verificationDate: kycSession.completed_at,
-          riskTier: kycSession.risk_tier as 'low' | 'medium' | 'high',
-        },
-        quote: {
-          number: kycSession.quote_number || 'Your Quote',
-          url: `${process.env.NEXT_PUBLIC_APP_URL}/customer/quotes/${kycSession.quote_id}`,
-        },
+        customerName: kycSession.customer_name || 'Valued Customer',
+        verificationDate: kycSession.completed_at || new Date().toISOString(),
+        riskTier: kycSession.risk_tier as 'low' | 'medium' | 'high',
+        contractUrl: `${process.env.NEXT_PUBLIC_APP_URL}/customer/contracts/${kycSession.quote_id}`,
+        quoteNumber: kycSession.quote_number || 'Your Quote',
       })
     );
 
@@ -257,15 +251,15 @@ export async function sendWorkflowEmailSequence(
  */
 export function renderEmailPreview(
   template: 'kyc' | 'contract' | 'activation',
-  data: Record<string, any>
+  data: Record<string, unknown>
 ) {
   switch (template) {
     case 'kyc':
-      return render(KYCCompletedEmail(data));
+      return render(KYCCompletedEmail(data as any));
     case 'contract':
-      return render(ContractReadyEmail(data));
+      return render(ContractReadyEmail(data as any));
     case 'activation':
-      return render(ServiceActivatedEmail(data));
+      return render(ServiceActivatedEmail(data as any));
     default:
       throw new Error(`Unknown template: ${template}`);
   }

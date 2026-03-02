@@ -62,7 +62,7 @@ export function ZohoConnectionStatus() {
           </Badge>
         </div>
 
-        {data?.success && data.data && (
+        {data?.success && data.data != null && (
           <div className="space-y-2 text-sm">
             {(() => {
               const connectionData = data.data as ConnectionTestData;

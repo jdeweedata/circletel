@@ -202,7 +202,7 @@ export class NetcashPaymentService {
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     // For testing, always return success with a mock token
-    const cardNumber = data.CardNumber
+    const cardNumber = String(data.CardNumber || '')
     const lastFour = cardNumber.slice(-4)
     const cardType = this.detectCardType(cardNumber)
     

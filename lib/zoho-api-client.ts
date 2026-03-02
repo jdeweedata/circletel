@@ -17,7 +17,7 @@ interface ZohoAPIResponse<T = unknown> {
 }
 
 export class ZohoAPIClient {
-  private config: ZohoAPIConfig;
+  protected config: ZohoAPIConfig;
   private accessToken?: string;
   private tokenExpiry?: number;
 

@@ -138,7 +138,7 @@ export function getDiditClient(): AxiosInstance {
  */
 export const diditClient: AxiosInstance = new Proxy({} as AxiosInstance, {
   get(_, prop) {
-    return (getDiditClient() as Record<string, unknown>)[prop as string];
+    return (getDiditClient() as unknown as Record<string, unknown>)[prop as string];
   }
 });
 

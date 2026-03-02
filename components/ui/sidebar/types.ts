@@ -61,11 +61,13 @@ export interface SidebarProps extends SidebarProviderProps {
   className?: string;
 }
 
-export interface SidebarBodyProps extends Omit<ComponentProps<'div'>, 'ref'> {
+export interface SidebarBodyProps {
   /** Whether to show on mobile (default: true) */
   showOnMobile?: boolean;
   /** Children elements */
   children?: ReactNode;
+  /** Additional CSS class names */
+  className?: string;
 }
 
 export interface SidebarLinkProps extends Omit<ComponentProps<'a'>, 'onClick'> {

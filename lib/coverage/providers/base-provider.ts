@@ -109,8 +109,11 @@ export abstract class BaseCoverageProvider {
   /** Human-readable display name */
   abstract readonly displayName: string;
 
-  /** Provider configuration */
-  protected config: ProviderConfig;
+  /** Provider configuration (lazily initialized) */
+  private _config?: ProviderConfig;
+
+  /** Config overrides passed to constructor */
+  private configOverrides?: Partial<ProviderConfig>;
 
   /** Error counter for health monitoring */
   protected errorCount = 0;
@@ -122,14 +125,23 @@ export abstract class BaseCoverageProvider {
   protected lastHealthCheck?: Date;
 
   constructor(config?: Partial<ProviderConfig>) {
-    this.config = {
-      name: this.name,
-      displayName: this.displayName,
-      enabled: true,
-      supportedServices: this.getSupportedServices(),
-      timeout: 10000,
-      ...config,
-    };
+    // Store overrides for lazy initialization
+    this.configOverrides = config;
+  }
+
+  /** Get config (lazily initialized to avoid accessing abstract properties in constructor) */
+  protected get config(): ProviderConfig {
+    if (!this._config) {
+      this._config = {
+        name: this.name,
+        displayName: this.displayName,
+        enabled: true,
+        supportedServices: this.getSupportedServices(),
+        timeout: 10000,
+        ...this.configOverrides,
+      };
+    }
+    return this._config;
   }
 
   // ===========================================================================

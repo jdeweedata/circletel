@@ -8,7 +8,7 @@
  */
 
 import type { IPaymentProvider } from './providers/payment-provider.interface';
-import type { PaymentProviderType } from '@/lib/types/payment.types';
+import type { PaymentProviderType, PaymentProviderCapabilities } from '@/lib/types/payment.types';
 import { NetCashProvider } from './providers/netcash/netcash-provider';
 // Future imports:
 // import { ZOHOBillingProvider } from './providers/zoho/zoho-billing-provider';
@@ -368,7 +368,7 @@ export class PaymentProviderFactory {
    */
   static getProviderCapabilities(
     providerType: PaymentProviderType
-  ): ReturnType<IPaymentProvider['getCapabilities']> | null {
+  ): PaymentProviderCapabilities | null {
     try {
       const provider = this.getProvider(providerType);
       return provider.getCapabilities ? provider.getCapabilities() : null;

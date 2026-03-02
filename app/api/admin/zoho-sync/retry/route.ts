@@ -119,8 +119,10 @@ export async function POST(request: NextRequest) {
         data: {
           entity_type,
           entity_id,
-          zoho_id: result.zoho_customer_id || result.zoho_subscription_id ||
-                   result.zoho_invoice_id || result.zoho_payment_id
+          zoho_id: ('zoho_customer_id' in result ? result.zoho_customer_id : undefined) ||
+                   ('zoho_subscription_id' in result ? result.zoho_subscription_id : undefined) ||
+                   ('zoho_invoice_id' in result ? result.zoho_invoice_id : undefined) ||
+                   ('zoho_payment_id' in result ? result.zoho_payment_id : undefined)
         }
       });
     } else {

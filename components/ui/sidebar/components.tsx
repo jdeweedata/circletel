@@ -88,7 +88,6 @@ export const SidebarBody = memo(function SidebarBody({
 const DesktopSidebar = memo(function DesktopSidebar({
   children,
   className,
-  ...props
 }: SidebarBodyProps) {
   const { isOpen, isAnimated } = useSidebar();
   const { getDesktopWidth } = useSidebarAnimations(isOpen, isAnimated);
@@ -99,7 +98,6 @@ const DesktopSidebar = memo(function DesktopSidebar({
       className={cn(styles.desktop, className)}
       animate={{ width: getDesktopWidth() }}
       transition={SIDEBAR_ANIMATIONS.DESKTOP_WIDTH}
-      {...props}
     >
       {children}
     </motion.div>

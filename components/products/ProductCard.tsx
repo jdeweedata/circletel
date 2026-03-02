@@ -6,18 +6,25 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Wifi, Zap, Router } from 'lucide-react';
 
 interface ProductCardProps {
-  // Product from products table
+  // Product from products table (flexible to support different product types)
   product?: {
     id: string;
     name: string;
-    speed: string;
-    price: number;
+    speed?: string;
+    price?: number | null;
+    base_price_zar?: string | number;
     promo_price?: number | null;
-    installation_fee: number;
+    installation_fee?: number;
     router_model?: string | null;
-    router_included: boolean;
+    router_included?: boolean;
     router_rental_fee?: number | null;
-    category: string;
+    category?: string;
+    pricing?: {
+      monthly?: number;
+      setup?: number;
+      download_speed?: number;
+      upload_speed?: number;
+    } | null;
     metadata?: {
       costBreakdown?: {
         dfaWholesale?: number;
@@ -44,6 +51,8 @@ interface ProductCardProps {
   router_included?: boolean;
   // Common props
   onSelect?: (productId: string) => void;
+  onCompare?: (product: ProductCardProps['product']) => void;
+  isComparing?: boolean;
   featured?: boolean;
   isPopular?: boolean;
   isSelected?: boolean;
@@ -65,6 +74,8 @@ export function ProductCard({
   installation_fee: directInstallationFee,
   router_included: directRouterIncluded,
   onSelect,
+  onCompare,
+  isComparing = false,
   featured = false,
   isPopular = false,
   isSelected = false,
@@ -73,10 +84,13 @@ export function ProductCard({
   // Support both product object and direct props
   const productId = product?.id || id || '';
   const productName = product?.name || name || '';
-  const productSpeed = product?.speed || (speed_down ? `${speed_down}/${speed_up}Mbps` : '');
-  const basePrice = product?.price || directPrice || 0;
+  const productSpeed = product?.speed || (product?.pricing?.download_speed
+    ? `${product.pricing.download_speed}/${product.pricing.upload_speed || 0}Mbps`
+    : (speed_down ? `${speed_down}/${speed_up}Mbps` : ''));
+  const basePrice = product?.price || product?.pricing?.monthly ||
+    (product?.base_price_zar ? parseFloat(String(product.base_price_zar)) : directPrice) || 0;
   const promoPrice = product?.promo_price || promotion_price;
-  const installFee = product?.installation_fee ?? directInstallationFee ?? 0;
+  const installFee = product?.installation_fee ?? product?.pricing?.setup ?? directInstallationFee ?? 0;
   const routerIncluded = product?.router_included ?? directRouterIncluded ?? false;
 
   const hasPromo = promoPrice && promoPrice < basePrice;
