@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     let paymentStatus = 'pending';
     const responseCode = bodyParsed.ResponseCode || bodyParsed.response_code;
     const transactionAccepted = bodyParsed.TransactionAccepted || bodyParsed.transaction_accepted;
-    const reason = bodyParsed.Reason || bodyParsed.reason || '';
+    const reason = String(bodyParsed.Reason || bodyParsed.reason || '');
     const amount = parseFloat(String(bodyParsed.Amount || bodyParsed.amount || '0'));
 
     // NetCash uses multiple status indicators:
@@ -387,9 +387,9 @@ export async function POST(request: NextRequest) {
               const shouldBePrimary = !existingMethods || existingMethods.length === 0;
 
               // Extract payment method details from NetCash response
-              const paymentMethodType = bodyParsed.PaymentMethod || bodyParsed.payment_method || 'card';
-              const cardType = bodyParsed.CardType || bodyParsed.card_type || 'unknown';
-              const maskedCard = bodyParsed.CardMasked || bodyParsed.MaskedPan || bodyParsed.card_masked || '';
+              const paymentMethodType = String(bodyParsed.PaymentMethod || bodyParsed.payment_method || 'card');
+              const cardType = String(bodyParsed.CardType || bodyParsed.card_type || 'unknown');
+              const maskedCard = String(bodyParsed.CardMasked || bodyParsed.MaskedPan || bodyParsed.card_masked || '');
               const lastFour = maskedCard ? maskedCard.slice(-4) : '****';
 
               // Determine method type
@@ -517,7 +517,7 @@ export async function POST(request: NextRequest) {
 
               // Send payment receipt email
               if (customer?.email) {
-                const paymentMethod = bodyParsed.PaymentMethod || bodyParsed.payment_method || 'Online Payment';
+                const paymentMethod = String(bodyParsed.PaymentMethod || bodyParsed.payment_method || 'Online Payment');
 
                 EnhancedEmailService.sendPaymentReceipt({
                   invoice_id: invoice.id,
