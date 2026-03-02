@@ -17,6 +17,41 @@ import { billingLogger } from '@/lib/logging';
 // Types
 // =============================================================================
 
+// Customer type for joined data
+interface CustomerData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  account_number?: string;
+}
+
+// Service type for joined data
+interface ServiceData {
+  service_name?: string;
+}
+
+// Raw type from Supabase (joins return arrays)
+interface RawInvoiceData {
+  id: string;
+  invoice_number: string;
+  invoice_date: string;
+  due_date: string;
+  total_amount: number;
+  amount_paid: number;
+  status: string;
+  pdf_url?: string;
+  reminder_sent_at?: string;
+  reminder_count: number;
+  customer: CustomerData[];
+  service?: ServiceData[];
+  line_items?: Array<{
+    description: string;
+    amount: number;
+  }>;
+}
+
+// Normalized type (customer/service as single objects)
 export interface InvoiceForReminder {
   id: string;
   invoice_number: string;
@@ -28,20 +63,24 @@ export interface InvoiceForReminder {
   pdf_url?: string;
   reminder_sent_at?: string;
   reminder_count: number;
-  customer: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    account_number?: string;
-  };
-  service?: {
-    service_name?: string;
-  };
+  customer: CustomerData;
+  service?: ServiceData;
   line_items?: Array<{
     description: string;
     amount: number;
   }>;
+}
+
+// Normalize raw Supabase data to expected format
+function normalizeInvoice(raw: RawInvoiceData): InvoiceForReminder | null {
+  const customer = Array.isArray(raw.customer) ? raw.customer[0] : raw.customer;
+  if (!customer) return null;
+
+  return {
+    ...raw,
+    customer,
+    service: Array.isArray(raw.service) ? raw.service[0] : raw.service,
+  };
 }
 
 export interface ReminderResult {
@@ -121,10 +160,12 @@ export class InvoiceReminderService {
       throw new Error(`Failed to fetch invoices needing reminders: ${error.message}`);
     }
 
-    // Filter out invoices without valid customer email
-    return (invoices || []).filter(inv =>
-      inv.customer?.email && inv.customer.email.includes('@')
-    ) as InvoiceForReminder[];
+    // Normalize and filter out invoices without valid customer email
+    return (invoices || [])
+      .map(inv => normalizeInvoice(inv as RawInvoiceData))
+      .filter((inv): inv is InvoiceForReminder =>
+        inv !== null && !!inv.customer?.email && inv.customer.email.includes('@')
+      );
   }
 
   /**
@@ -171,15 +212,15 @@ export class InvoiceReminderService {
       };
     }
 
-    const typedInvoice = invoice as InvoiceForReminder;
+    const typedInvoice = normalizeInvoice(invoice as RawInvoiceData);
 
-    // Validate customer email
-    if (!typedInvoice.customer?.email || !typedInvoice.customer.email.includes('@')) {
+    // Validate normalized invoice and customer email
+    if (!typedInvoice || !typedInvoice.customer?.email || !typedInvoice.customer.email.includes('@')) {
       await this.updateReminderError(invoiceId, 'Invalid or missing customer email');
       return {
         invoice_id: invoiceId,
-        invoice_number: typedInvoice.invoice_number,
-        customer_email: typedInvoice.customer?.email || 'MISSING',
+        invoice_number: typedInvoice?.invoice_number || 'UNKNOWN',
+        customer_email: typedInvoice?.customer?.email || 'MISSING',
         success: false,
         error: 'Invalid or missing customer email'
       };
@@ -373,7 +414,9 @@ export class InvoiceReminderService {
         throw new Error(`Failed to fetch specified invoices: ${error.message}`);
       }
 
-      invoices = (data || []) as InvoiceForReminder[];
+      invoices = (data || [])
+        .map(inv => normalizeInvoice(inv as RawInvoiceData))
+        .filter((inv): inv is InvoiceForReminder => inv !== null);
     } else {
       // Find invoices due in N days
       invoices = await this.findInvoicesNeedingReminder(daysBeforeDue);
