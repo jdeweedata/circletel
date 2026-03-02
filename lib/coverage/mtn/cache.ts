@@ -231,14 +231,6 @@ export class MTNCoverageCache {
   }
 
   /**
-   * Clear all cache entries
-   */
-  clear(): void {
-    this.cache.clear();
-    this.hitStats = { hits: 0, misses: 0 };
-  }
-
-  /**
    * Preload cache for specific area (grid-based)
    */
   async preloadArea(

@@ -759,66 +759,6 @@ export class ZohoBillingClient extends ZohoAPIClient {
     }
   }
 
-  // ============================================================================
-  // Subscriptions API
-  // ============================================================================
-
-  /**
-   * Create a new subscription
-   * Automatically generates first invoice
-   */
-  async createSubscription(payload: any): Promise<any> {
-    try {
-      zohoLogger.debug(' Creating subscription:', {
-        customer_id: payload.customer_id,
-        plan: payload.plan,
-      });
-
-      const response = await this.request<any>(
-        '/subscriptions',
-        'POST',
-        payload
-      );
-
-      // Response structure: { code, message, subscription: {...} }
-      if (!response.subscription) {
-        throw new Error('Failed to create subscription');
-      }
-
-      zohoLogger.debug(' Subscription created:', {
-        subscription_id: response.subscription.subscription_id,
-        subscription_number: response.subscription.subscription_number,
-        status: response.subscription.status,
-      });
-
-      return response.subscription;
-    } catch (error) {
-      zohoLogger.error('[ZohoBillingClient] Error creating subscription', { error: error instanceof Error ? error.message : String(error) });
-      throw error;
-    }
-  }
-
-  /**
-   * Get a subscription by ID
-   */
-  async getSubscription(subscriptionId: string): Promise<any> {
-    try {
-      const response = await this.request<any>(
-        `/subscriptions/${subscriptionId}`
-      );
-
-      // Response structure: { code, message, subscription: {...} }
-      if (!response.subscription) {
-        throw new Error('Subscription not found');
-      }
-
-      return response.subscription;
-    } catch (error) {
-      zohoLogger.error('[ZohoBillingClient] Error getting subscription', { error: error instanceof Error ? error.message : String(error) });
-      throw error;
-    }
-  }
-
   /**
    * Cancel a subscription
    */
@@ -1075,46 +1015,6 @@ export class ZohoBillingClient extends ZohoAPIClient {
       zohoLogger.debug(' Customer deleted successfully');
     } catch (error) {
       zohoLogger.error('[ZohoBillingClient] Error deleting customer', { error: error instanceof Error ? error.message : String(error) });
-      throw error;
-    }
-  }
-
-  // ============================================================================
-  // Plans API - Update Operations (Epic 3.6)
-  // ============================================================================
-
-  /**
-   * Update an existing plan
-   * Used for price changes - updates plan price when price change becomes effective
-   *
-   * @param planId - Zoho Billing Plan ID
-   * @param updates - Partial plan object with fields to update
-   * @returns Updated plan object
-   */
-  async updatePlan(planId: string, updates: Partial<any>): Promise<any> {
-    try {
-      zohoLogger.debug('[ZohoBillingClient] Updating plan', { planId, updates });
-
-      const response = await this.request<any>(
-        `/plans/${planId}`,
-        'PUT',
-        updates
-      );
-
-      // Response structure: { code, message, plan: {...} }
-      if (!response.plan) {
-        throw new Error('Failed to update plan');
-      }
-
-      zohoLogger.debug(' Plan updated successfully:', {
-        plan_id: response.plan.plan_id,
-        plan_code: response.plan.plan_code,
-        recurring_price: response.plan.recurring_price,
-      });
-
-      return response.plan;
-    } catch (error) {
-      zohoLogger.error('[ZohoBillingClient] Error updating plan', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }

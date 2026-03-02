@@ -178,6 +178,7 @@ export interface CreateCoverageLeadInput {
 export interface ConsumerOrder {
   id: string;
   order_number: string;
+  customer_id?: string | null;
 
   // Customer Information
   first_name: string;
