@@ -23,6 +23,7 @@ export interface ZohoLead {
   leadSource?: string;
   status?: string;
   layout?: string;
+  [key: string]: unknown;
 }
 
 export interface ZohoContact {
@@ -36,6 +37,7 @@ export interface ZohoContact {
   mailingCity?: string;
   mailingState?: string;
   mailingCountry?: string;
+  [key: string]: unknown;
 }
 
 export interface ZohoDeal {
@@ -47,6 +49,7 @@ export interface ZohoDeal {
   stage?: string;
   closingDate?: string;
   probability?: number;
+  [key: string]: unknown;
 }
 
 // Zoho Mail Types
@@ -58,6 +61,7 @@ export interface ZohoEmail {
   content: string;
   contentType?: 'text' | 'html';
   attachments?: ZohoAttachment[];
+  [key: string]: unknown;
 }
 
 export interface ZohoAttachment {
@@ -77,6 +81,7 @@ export interface ZohoEvent {
   attendees?: string[];
   isAllDay?: boolean;
   recurrence?: string;
+  [key: string]: unknown;
 }
 
 // Zoho Desk Types
@@ -90,6 +95,7 @@ export interface ZohoTicket {
   departmentId?: string;
   category?: string;
   assigneeId?: string;
+  [key: string]: unknown;
 }
 
 // Zoho Projects Types
@@ -101,6 +107,7 @@ export interface ZohoProject {
   endDate?: string;
   status?: 'Active' | 'Inactive' | 'Completed';
   ownerId?: string;
+  [key: string]: unknown;
 }
 
 export interface ZohoTask {
@@ -113,6 +120,7 @@ export interface ZohoTask {
   status?: 'Not Started' | 'In Progress' | 'Completed';
   startDate?: string;
   endDate?: string;
+  [key: string]: unknown;
 }
 
 // MCP Action Types
