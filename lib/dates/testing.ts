@@ -42,7 +42,6 @@ export function mockDate(dateString: string | Date): void {
       if (args.length === 0) {
         super(mockNow);
       } else {
-        // @ts-expect-error - spreading into Date constructor
         super(...args);
       }
     }

@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
       // Quote details
       status: 'draft' as const,
-      contract_term: parseInt(body.contract_term) || 12,
+      contract_term: (parseInt(body.contract_term) || 12) as 12 | 24 | 36,
 
       // Pricing (calculated from body.pricing)
       subtotal_monthly: body.pricing?.totalMonthly || 0,

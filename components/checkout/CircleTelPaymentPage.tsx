@@ -36,8 +36,8 @@ interface PaymentPageProps {
 export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageProps) {
   const router = useRouter()
   const { state } = useOrderContext()
-  const selectedPackage = state.orderData.coverage?.selectedPackage
-  const pricing = state.orderData.coverage?.pricing
+  const selectedPackage = state.orderData.coverage?.selectedPackage || state.orderData.package?.selectedPackage
+  const pricing = state.orderData.package?.pricing
 
   const [formData, setFormData] = useState({
     // Your Details

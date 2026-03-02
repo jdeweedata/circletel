@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import type { CreateQuoteRequest, CreateQuoteItemRequest } from '@/lib/quotes/types';
-import { PaymentConsentCheckboxes, type B2BConsents } from '@/components/payments/PaymentConsentCheckboxes';
+import { PaymentConsentCheckboxes, type B2BConsents, type PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 import { validateConsents } from '@/lib/constants/policy-versions';
 
 interface BusinessQuoteRequestFormProps {
@@ -94,8 +94,8 @@ export default function BusinessQuoteRequestForm({
     setItems(newItems);
   };
 
-  const handleConsentChange = (newConsents: B2BConsents) => {
-    setConsents(newConsents);
+  const handleConsentChange = (newConsents: PaymentConsents | B2BConsents) => {
+    setConsents(newConsents as B2BConsents);
     // Clear consent errors when user makes changes
     if (consentErrors.length > 0) {
       setConsentErrors([]);

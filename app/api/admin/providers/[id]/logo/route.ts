@@ -75,7 +75,7 @@ export async function POST(
 
     // Process image with Sharp (resize and optimize)
     const buffer = Buffer.from(await file.arrayBuffer());
-    let processedBuffer = buffer;
+    let processedBuffer: Buffer = buffer;
     let dimensions = { width: 0, height: 0 };
 
     if (file.type !== 'image/svg+xml') {

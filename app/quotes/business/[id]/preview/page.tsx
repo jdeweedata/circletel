@@ -306,8 +306,8 @@ export default function QuotePreviewPage({ params }: Props) {
         benefits.add('Mobile app integration');
       }
       
-      // Business-specific benefits
-      if (quote.customer_type === 'business' || quote.customer_type === 'enterprise') {
+      // Business-specific benefits (all quote types get these since it's a business quote)
+      if (quote && (quote.customer_type === 'smme' || quote.customer_type === 'enterprise')) {
         benefits.add('Dedicated account manager');
         benefits.add('Priority technical support');
         benefits.add('Service level reporting');

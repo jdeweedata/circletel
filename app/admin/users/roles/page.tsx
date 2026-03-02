@@ -41,11 +41,13 @@ import { RoleFormDialog } from '@/components/admin/roles/RoleFormDialog';
 import { DeleteRoleDialog } from '@/components/admin/roles/DeleteRoleDialog';
 import type { RoleWithUserCount } from '@/lib/types/role';
 
+type RoleDepartment = 'Executive' | 'Management' | 'Finance' | 'Product' | 'Operations' | 'Sales' | 'Marketing' | 'Support' | 'IT' | 'General';
+
 interface RoleTemplate {
   id: string;
   name: string;
   description: string;
-  department: string;
+  department: RoleDepartment;
   level: 'executive' | 'management' | 'staff' | 'support';
   permissions: string[];
   is_default: boolean;
@@ -53,6 +55,8 @@ interface RoleTemplate {
   color: string;
   icon: string;
   user_count?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function RolesManagementPage() {

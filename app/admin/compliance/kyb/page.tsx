@@ -100,7 +100,7 @@ export default function AdminKYBCompliancePage() {
 
       if (error) throw error;
 
-      const subjectsData = (data || []) as KYBSubject[];
+      const subjectsData = (data || []) as unknown as KYBSubject[];
       setSubjects(subjectsData);
 
       const total = subjectsData.length;

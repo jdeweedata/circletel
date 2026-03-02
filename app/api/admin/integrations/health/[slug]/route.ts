@@ -101,7 +101,7 @@ export async function GET(
     // Fetch OAuth Token Status (if applicable)
     // =========================================================================
     let oauthStatus = null;
-    if (integration.requires_oauth) {
+    if ((integration as any).requires_oauth) {
       const { data: oauthTokens } = await supabaseAdmin
         .from('integration_oauth_tokens')
         .select('id, expires_at, created_at, updated_at')
@@ -197,7 +197,7 @@ export async function GET(
     // Fetch Recent Webhook Failures (Last 24 Hours, if applicable)
     // =========================================================================
     let webhookFailures = null;
-    if (integration.supports_webhooks) {
+    if ((integration as any).supports_webhooks) {
       const { data: failedWebhooks } = await supabaseAdmin
         .from('integration_webhook_logs')
         .select('id, event_type, status_code, error_message, received_at')

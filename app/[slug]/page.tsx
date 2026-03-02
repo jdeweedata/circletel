@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SliceZone } from '@prismicio/react';
+import { asText } from '@prismicio/client';
 
 import { createClient } from '@/lib/prismicio';
 import { components } from '@/slices';
@@ -31,10 +32,10 @@ export async function generateMetadata({
     const page = await client.getByUID('page', slug);
 
     return {
-      title: page.data.meta_title || page.data.title || 'CircleTel',
+      title: page.data.meta_title || asText(page.data.title) || 'CircleTel',
       description: page.data.meta_description || '',
       openGraph: {
-        title: page.data.meta_title || page.data.title || 'CircleTel',
+        title: page.data.meta_title || asText(page.data.title) || 'CircleTel',
         description: page.data.meta_description || '',
         images: page.data.meta_image?.url
           ? [

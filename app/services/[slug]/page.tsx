@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const client = createClient();
 
   const page = await client
-    .getByUID("service_page", slug)
+    .getByUID("service_page" as "page", slug)
     .catch(() => notFound());
 
   return (
@@ -36,7 +36,7 @@ export async function generateMetadata({
   const client = createClient();
 
   const page = await client
-    .getByUID("service_page", slug)
+    .getByUID("service_page" as "page", slug)
     .catch(() => notFound());
 
   return {
@@ -47,7 +47,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   const client = createClient();
-  const pages = await client.getAllByType("service_page");
+  const pages = await client.getAllByType("service_page" as "page");
 
   return pages.map((page) => {
     return { slug: page.uid };

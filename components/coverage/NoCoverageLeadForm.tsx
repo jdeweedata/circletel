@@ -166,7 +166,7 @@ export function NoCoverageLeadForm({
                   setFormData({ ...formData, company_name: e.target.value })
                 }
                 placeholder="Your company name"
-                required={formData.customer_type !== 'consumer'}
+                required
               />
             </div>
           )}

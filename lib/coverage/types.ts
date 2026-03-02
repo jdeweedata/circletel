@@ -32,6 +32,20 @@ export interface CoverageCheckResult {
     distance?: number;
     installationEstimate?: any;
     productsAvailable?: number;
+    wholesaleDebug?: unknown;
+    nadCorrection?: {
+      applied?: boolean;
+      distance?: number;
+      original?: Coordinates;
+      corrected?: Coordinates;
+    };
+    baseStationValidation?: {
+      confidence?: string;
+      nearestStation?: unknown;
+      requiresElevatedInstall?: boolean;
+      installationNote?: string;
+      stationsChecked?: number;
+    };
   };
 }
 

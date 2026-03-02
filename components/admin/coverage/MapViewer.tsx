@@ -13,7 +13,6 @@ interface MapViewerProps {
 
 declare global {
   interface Window {
-    google: any;
     initMap: () => void;
   }
 }

@@ -30,7 +30,7 @@ export interface DFAConnectedBuilding {
   DFA_Building_ID: string;
   Longitude: number;
   Latitude: number;
-  DFA_Connected_Y_N: 'Y' | 'N';
+  DFA_Connected_Y_N: 'Y' | 'N' | 'Yes' | 'No';
   Third_Party_Dependant_For_Conne?: string;
   QBRecordID?: number;
   Broadband?: string;

@@ -835,7 +835,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               }}
               items={quote.items.map(item => ({
                 package: {
-                  name: item.package_name,
+                  name: item.package_name || 'Unknown Package',
                   speed: item.package_speed || '',
                   pricing: {
                     monthly: item.monthly_price,
@@ -843,7 +843,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                   }
                 },
                 quantity: item.quantity,
-                item_type: item.item_type
+                item_type: item.item_type as string
               }))}
               mtnDeals={quote.metadata?.mtn_deals}
               pricing={{
@@ -853,9 +853,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 discountAmount: quote.custom_discount_amount || 0,
                 afterDiscount: pricing.subtotal_monthly + pricing.subtotal_installation - (quote.custom_discount_amount || 0),
                 vat: pricing.vat_amount_monthly + pricing.vat_amount_installation,
-                total: pricing.total_monthly + pricing.total_installation,
-                totalMonthly: pricing.total_monthly,
-                totalInstallation: pricing.total_installation
+                total: pricing.total_monthly + pricing.total_installation
               }}
             />
           </div>
