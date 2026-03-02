@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils/aceternity";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, MotionValue } from "framer-motion";
 import React, { useRef } from "react";
 
 export const FloatingDock = ({
@@ -81,7 +81,7 @@ function IconContainer({
   icon,
   href,
 }: {
-  mouseX: unknown;
+  mouseX: MotionValue<number>;
   title: string;
   icon: React.ReactNode;
   href: string;
