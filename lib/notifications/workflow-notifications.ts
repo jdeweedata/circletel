@@ -64,7 +64,7 @@ interface OrderData {
 export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
   try {
     // Generate email HTML from React template
-    const emailHtml = render(
+    const emailHtml = await render(
       KYCCompletedEmail({
         customerName: kycSession.customer_name || 'Valued Customer',
         verificationDate: kycSession.completed_at,
@@ -112,7 +112,7 @@ export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
 export async function sendContractReadyEmail(contract: ContractData) {
   try {
     // Generate email HTML from React template
-    const emailHtml = render(
+    const emailHtml = await render(
       ContractReadyEmail({
         customerName: contract.customer_name || 'Valued Customer',
         contractNumber: contract.contract_number,
@@ -120,7 +120,7 @@ export async function sendContractReadyEmail(contract: ContractData) {
         packageName: contract.package_name || 'Internet Service',
         monthlyPrice: contract.monthly_price || 0,
         installationFee: contract.installation_fee || 0,
-        expiresAt: contract.signature_expires_at || 
+        expiresAt: contract.signature_expires_at ||
                    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       })
     );
@@ -163,7 +163,7 @@ export async function sendContractReadyEmail(contract: ContractData) {
 export async function sendServiceActivatedEmail(order: OrderData) {
   try {
     // Generate email HTML from React template
-    const emailHtml = render(
+    const emailHtml = await render(
       ServiceActivatedEmail({
         customerName: `${order.first_name} ${order.last_name}`,
         orderNumber: order.order_number,

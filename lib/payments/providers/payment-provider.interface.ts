@@ -15,7 +15,9 @@ import {
   PaymentStatusResult,
   RefundParams,
   RefundResult,
-  PaymentProviderType
+  PaymentProviderType,
+  PaymentProviderCapabilities,
+  ProviderHealthCheckResult
 } from '@/lib/types/payment.types';
 
 // ============================================================================

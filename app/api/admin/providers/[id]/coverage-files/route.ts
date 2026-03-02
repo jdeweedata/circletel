@@ -1,6 +1,6 @@
 // Coverage Files (KML/KMZ) Upload API
 import { NextRequest, NextResponse } from 'next/server';
-import { mtnWMSClient } from '@/lib/coverage/mtn/wms-client';
+import { createClient } from '@/lib/supabase/server';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import { parseStringPromise } from 'xml2js';
@@ -31,9 +31,10 @@ export async function POST(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const supabase = await createClient();
 
     // Verify provider exists
-    const { data: provider, error: providerError } = await mtnWMSClient.supabase
+    const { data: provider, error: providerError } = await supabase
       .from('network_providers')
       .select('id, name')
       .eq('id', id)
@@ -127,7 +128,7 @@ export async function POST(
     const parsedServiceTypes = serviceTypes ? serviceTypes.split(',').map(s => s.trim()) : [];
 
     // Save coverage file record to database
-    const { data: fileRecord, error: fileError } = await mtnWMSClient.supabase
+    const { data: fileRecord, error: fileError } = await supabase
       .from('coverage_files')
       .insert([{
         filename,
@@ -181,8 +182,9 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const supabase = await createClient();
 
-    const { data, error } = await mtnWMSClient.supabase
+    const { data, error } = await supabase
       .from('coverage_files')
       .select('*')
       .eq('provider_id', id)
@@ -213,6 +215,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params;
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const fileId = searchParams.get('fileId');
 
@@ -225,11 +229,11 @@ export async function DELETE(
     }
 
     // Get file details before deletion
-    const { data: file, error: fetchError } = await mtnWMSClient.supabase
+    const { data: file, error: fetchError } = await supabase
       .from('coverage_files')
       .select('*')
       .eq('id', fileId)
-      .eq('provider_id', params.id)
+      .eq('provider_id', id)
       .single();
 
     if (fetchError || !file) {
@@ -241,7 +245,7 @@ export async function DELETE(
     }
 
     // Delete file record
-    const { error: deleteError } = await mtnWMSClient.supabase
+    const { error: deleteError } = await supabase
       .from('coverage_files')
       .delete()
       .eq('id', fileId);

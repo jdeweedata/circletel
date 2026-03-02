@@ -1,6 +1,6 @@
 // Individual Provider Management API
 import { NextRequest, NextResponse } from 'next/server';
-import { mtnWMSClient } from '@/lib/coverage/mtn/wms-client';
+import { createClient } from '@/lib/supabase/server';
 
 // Get individual provider details
 export async function GET(
@@ -10,8 +10,9 @@ export async function GET(
   try {
     const params = await context.params;
     const { id } = params;
+    const supabase = await createClient();
 
-    const { data, error } = await mtnWMSClient.supabase
+    const { data, error } = await supabase
       .from('network_providers')
       .select(`
         *,
@@ -77,8 +78,9 @@ export async function POST(
     const { action } = await request.json();
 
     if (action === 'test_connection') {
+      const supabase = await createClient();
       // Get provider details
-      const { data: provider, error } = await mtnWMSClient.supabase
+      const { data: provider, error } = await supabase
         .from('network_providers')
         .select('*')
         .eq('id', id)

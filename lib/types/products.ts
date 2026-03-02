@@ -9,6 +9,7 @@ export interface ProductPricing {
   monthly: number;
   upload_speed: number;
   download_speed: number;
+  data_cap?: string | number | null;
 }
 
 export interface ProductMetadata {

@@ -47,7 +47,8 @@ export async function getAllPages() {
  */
 export async function getHomepage() {
   try {
-    const homepage = await client.getSingle('homepage');
+    // 'homepage' is a custom Prismic type - cast to avoid TS strict checks
+    const homepage = await client.getSingle('homepage' as 'page');
     return homepage;
   } catch (error) {
     console.error('Failed to fetch Prismic homepage:', error);

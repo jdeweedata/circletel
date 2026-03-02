@@ -73,7 +73,7 @@ export class ProductsClientService {
           query = query.order('updated_at', { ascending: false });
           break;
         default:
-          query = query.order('sort_order', { ascending: true, nullsLast: true }); // service_packages has sort_order
+          query = query.order('sort_order', { ascending: true }); // service_packages has sort_order
       }
 
       // Apply pagination

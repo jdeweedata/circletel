@@ -104,6 +104,7 @@ async function logWebhook(
   sourceIP: string,
   userAgent: string | null
 ): Promise<string> {
+  const supabase = await createClient();
   const webhookType = determineWebhookType(payload);
   const orderId = extractOrderIdFromReference(payload.Reference);
 
@@ -142,6 +143,7 @@ async function isDuplicateWebhook(payload: NetcashWebhookPayload): Promise<boole
     return false; // Cannot check duplicates without transaction ID
   }
 
+  const supabase = await createClient();
   const webhookType = determineWebhookType(payload);
 
   const { data, error } = await supabase
@@ -168,6 +170,7 @@ async function updateWebhookStatus(
   status: 'processing' | 'processed' | 'failed' | 'duplicate',
   errorMessage?: string
 ): Promise<void> {
+  const supabase = await createClient();
   const updateData: any = {
     status,
     updated_at: new Date().toISOString(),
@@ -198,6 +201,7 @@ async function getActivePaymentConfig(): Promise<{
   webhookSecret: string;
   environment: string;
 } | null> {
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc('get_active_payment_config', {
     env: process.env.NODE_ENV === 'production' ? 'production' : 'test',
   });
@@ -490,6 +494,7 @@ export async function POST(req: NextRequest) {
  */
 export async function GET() {
   try {
+    const supabase = await createClient();
     // Check if payment configuration exists
     const config = await getActivePaymentConfig();
 

@@ -41,6 +41,7 @@
     "archive/**/*",
     "scripts/**/*",
     "**/__tests__/**/*",
-    "tests/**/*"
+    "tests/**/*",
+    "docs/**/*"
   ]
 }

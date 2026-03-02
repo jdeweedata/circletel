@@ -240,7 +240,7 @@ export default function RolesManagementPage() {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <PermissionGate permission={PERMISSIONS.SYSTEM.MANAGE_ROLES}>
+          <PermissionGate permission={PERMISSIONS.USERS.MANAGE_ROLES}>
             <Button
               size="sm"
               onClick={handleCreateRole}
@@ -402,7 +402,7 @@ export default function RolesManagementPage() {
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
-                        <PermissionGate permission={PERMISSIONS.SYSTEM.MANAGE_ROLES}>
+                        <PermissionGate permission={PERMISSIONS.USERS.MANAGE_ROLES}>
                           <Button
                             variant="ghost"
                             size="sm"

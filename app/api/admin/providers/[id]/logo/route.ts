@@ -1,6 +1,6 @@
 // Provider Logo Upload API
 import { NextRequest, NextResponse } from 'next/server';
-import { mtnWMSClient } from '@/lib/coverage/mtn/wms-client';
+import { createClient } from '@/lib/supabase/server';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import sharp from 'sharp';
@@ -16,9 +16,10 @@ export async function POST(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const supabase = await createClient();
 
     // Verify provider exists
-    const { data: provider, error: providerError } = await mtnWMSClient.supabase
+    const { data: provider, error: providerError } = await supabase
       .from('network_providers')
       .select('id, name')
       .eq('id', id)
@@ -99,7 +100,7 @@ export async function POST(
     await writeFile(filePath, processedBuffer);
 
     // Delete old logo if exists
-    const { data: existingLogo } = await mtnWMSClient.supabase
+    const { data: existingLogo } = await supabase
       .from('provider_logos')
       .select('id, file_path')
       .eq('provider_id', id)
@@ -110,14 +111,14 @@ export async function POST(
       // await unlink(path.join(process.cwd(), 'public', existingLogo.file_path)).catch(() => {});
 
       // Delete old logo record
-      await mtnWMSClient.supabase
+      await supabase
         .from('provider_logos')
         .delete()
         .eq('id', existingLogo.id);
     }
 
     // Save logo record to database
-    const { data: logoRecord, error: logoError } = await mtnWMSClient.supabase
+    const { data: logoRecord, error: logoError } = await supabase
       .from('provider_logos')
       .insert([{
         provider_id: id,
@@ -136,7 +137,7 @@ export async function POST(
     }
 
     // Update provider record with logo_id
-    await mtnWMSClient.supabase
+    await supabase
       .from('network_providers')
       .update({ logo_id: logoRecord.id })
       .eq('id', id);
@@ -171,9 +172,10 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const supabase = await createClient();
 
     // Get current logo
-    const { data: provider, error } = await mtnWMSClient.supabase
+    const { data: provider, error } = await supabase
       .from('network_providers')
       .select(`
         logo_id,
@@ -194,13 +196,13 @@ export async function DELETE(
     }
 
     // Remove logo_id from provider
-    await mtnWMSClient.supabase
+    await supabase
       .from('network_providers')
       .update({ logo_id: null })
       .eq('id', id);
 
     // Delete logo record
-    await mtnWMSClient.supabase
+    await supabase
       .from('provider_logos')
       .delete()
       .eq('id', provider.logo_id);

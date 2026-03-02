@@ -82,7 +82,7 @@ export class ProductsService {
           query = query.order('updated_at', { ascending: false });
           break;
         default:
-          query = query.order('sort_order', { ascending: true, nullsLast: true });  // service_packages has sort_order
+          query = query.order('sort_order', { ascending: true });  // service_packages has sort_order
       }
 
       // Apply pagination
@@ -167,6 +167,7 @@ export class ProductsService {
    */
   static async createProduct(productData: CreateProductData): Promise<Product> {
     try {
+      const supabase = await getSupabase();
       // Generate slug from name if not provided
       const slug = productData.name
         .toLowerCase()
@@ -215,19 +216,20 @@ export class ProductsService {
    */
   static async updateProduct(productData: UpdateProductData): Promise<Product> {
     try {
+      const supabase = await getSupabase();
       const updateData: Record<string, unknown> = { ...productData };
       delete updateData.id;
 
       // Convert prices to strings if provided
-      if (updateData.base_price_zar !== undefined) {
-        updateData.base_price_zar = updateData.base_price_zar.toString();
+      if (updateData.base_price_zar !== undefined && updateData.base_price_zar !== null) {
+        updateData.base_price_zar = String(updateData.base_price_zar);
       }
-      if (updateData.cost_price_zar !== undefined) {
-        updateData.cost_price_zar = updateData.cost_price_zar.toString();
+      if (updateData.cost_price_zar !== undefined && updateData.cost_price_zar !== null) {
+        updateData.cost_price_zar = String(updateData.cost_price_zar);
       }
 
       // Update slug if name changed
-      if (updateData.name) {
+      if (updateData.name && typeof updateData.name === 'string') {
         updateData.slug = updateData.name
           .toLowerCase()
           .replace(/[^\w\s]/gi, '')
@@ -261,6 +263,7 @@ export class ProductsService {
    */
   static async deleteProduct(id: string): Promise<boolean> {
     try {
+      const supabase = await getSupabase();
       const { error } = await supabase
         .from('products')
         .update({

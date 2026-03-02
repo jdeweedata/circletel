@@ -200,15 +200,14 @@ export interface KycData {
 }
 
 // KYC Helper Functions
-export function hasRequiredKycDocuments(kycData: KycData): boolean {
-  const accountType = 'personal'; // This should be passed or derived from context
+export function hasRequiredKycDocuments(kycData: KycData, accountType: 'personal' | 'business' = 'personal'): boolean {
   const hasIdDocument = kycData?.idDocumentUploaded === true;
   const hasProofOfAddress = kycData?.proofOfAddressUploaded === true;
-  
+
   if (accountType === 'business') {
     return hasIdDocument && hasProofOfAddress && (kycData?.companyRegistrationUploaded === true);
   }
-  
+
   return hasIdDocument && hasProofOfAddress;
 }
 
