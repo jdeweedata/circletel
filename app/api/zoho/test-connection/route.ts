@@ -13,7 +13,7 @@ export async function GET(): Promise<NextResponse> {
         mcpServerStatus: result.success ? 'connected' : 'error',
         crmTestStatus: result.success ? 'accessible' : 'limited_access',
         timestamp: new Date().toISOString(),
-        ...result.data,
+        ...(typeof result.data === 'object' && result.data !== null ? result.data : {}),
       },
       message: result.message || 'Zoho connection test completed',
       error: result.error,

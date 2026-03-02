@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
       data: {
         paymentUrl: paymentData.paymentUrl,
         transactionReference: paymentData.transactionReference,
-        invoiceNumber: paymentData.formData.m8, // Extra2 contains invoice number
-        amount: parseFloat(paymentData.formData.m4) / 100 // Convert from cents
+        invoiceNumber: paymentData.formData.m6, // Extra field 3 (Order Number)
+        amount: parseFloat(paymentData.formData.Amount) / 100 // Convert from cents
       }
     });
 

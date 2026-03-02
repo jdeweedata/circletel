@@ -49,7 +49,7 @@ export async function POST(
     // Verify lead is assigned to this partner
     const { data: lead, error: verifyError } = await supabase
       .from('coverage_leads')
-      .select('id, assigned_partner_id')
+      .select('id, assigned_partner_id, follow_up_count')
       .eq('id', leadId)
       .single()
 

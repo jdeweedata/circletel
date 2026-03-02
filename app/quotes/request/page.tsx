@@ -378,7 +378,7 @@ function QuoteRequestFormContent() {
             setShowMapModal(false);
           }}
           initialAddress={address}
-          initialCoordinates={coordinates}
+          initialCoordinates={coordinates ?? undefined}
           layout="horizontal"
         />
 

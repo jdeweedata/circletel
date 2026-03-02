@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { adminLogger } from '@/lib/logging/logger';
+import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,7 +57,7 @@ export async function GET(
     return NextResponse.json({ outage });
 
   } catch (error) {
-    adminLogger.error('Get outage error', { error });
+    apiLogger.error('Get outage error', { error });
     return NextResponse.json(
       { error: 'Failed to fetch outage' },
       { status: 500 }
@@ -131,7 +131,7 @@ export async function PATCH(
       throw error;
     }
 
-    adminLogger.info('Outage updated', {
+    apiLogger.info('Outage updated', {
       incidentId: id,
       updates: Object.keys(updates),
       updatedBy: user.email
@@ -140,7 +140,7 @@ export async function PATCH(
     return NextResponse.json({ outage });
 
   } catch (error) {
-    adminLogger.error('Update outage error', { error });
+    apiLogger.error('Update outage error', { error });
     return NextResponse.json(
       { error: 'Failed to update outage' },
       { status: 500 }
@@ -212,7 +212,7 @@ export async function POST(
       })
       .eq('id', id);
 
-    adminLogger.info('Outage update added', {
+    apiLogger.info('Outage update added', {
       incidentId: id,
       status,
       isPublic: is_public,
@@ -222,7 +222,7 @@ export async function POST(
     return NextResponse.json({ update }, { status: 201 });
 
   } catch (error) {
-    adminLogger.error('Add outage update error', { error });
+    apiLogger.error('Add outage update error', { error });
     return NextResponse.json(
       { error: 'Failed to add update' },
       { status: 500 }

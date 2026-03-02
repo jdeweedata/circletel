@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // IMPORTANT: Redirect to /payment/callback which doesn't require auth
     let redirectUrl: string;
 
-    if (transactionAccepted === 'true' || transactionAccepted === true) {
+    if (transactionAccepted === 'true' || String(transactionAccepted) === 'true') {
       redirectUrl = `${baseUrl}/payment/callback?payment_method=success`;
       if (reference) {
         redirectUrl += `&ref=${encodeURIComponent(String(reference))}`;

@@ -5,14 +5,23 @@ import FullWidthProgressBar from '@/components/order/FullWidthProgressBar'
 import AccountCreationForm from '@/components/order/AccountCreationForm'
 import { useRouter } from 'next/navigation'
 
+type StepStatus = 'active' | 'upcoming' | 'completed';
+
+interface Step {
+  number: number;
+  label: string;
+  status: StepStatus;
+  sublabel?: string;
+}
+
 export default function AccountCreationDemo() {
   const router = useRouter()
 
-  const steps = [
-    { number: 1, label: 'Account', status: 'active' as const, sublabel: 'In Progress' },
-    { number: 2, label: 'Address', status: 'upcoming' as const },
-    { number: 3, label: 'Payment', status: 'upcoming' as const },
-    { number: 4, label: 'Confirmation', status: 'upcoming' as const },
+  const steps: Step[] = [
+    { number: 1, label: 'Account', status: 'active', sublabel: 'In Progress' },
+    { number: 2, label: 'Address', status: 'upcoming' },
+    { number: 3, label: 'Payment', status: 'upcoming' },
+    { number: 4, label: 'Confirmation', status: 'upcoming' },
   ]
 
   const handleSubmit = async (data: {

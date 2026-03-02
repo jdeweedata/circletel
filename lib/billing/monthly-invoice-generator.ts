@@ -64,8 +64,11 @@ export interface InvoiceGenerationResult {
   success: boolean;
   invoiceId?: string;
   invoiceNumber?: string;
+  amount?: number;
   zohoSynced?: boolean;
   paynowSent?: boolean;
+  emailSent?: boolean;
+  smsSent?: boolean;
   errors: string[];
   skipped?: boolean;
   skipReason?: string;

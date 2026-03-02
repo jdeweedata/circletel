@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
       payload.connected = {
         buildingId: result.buildingDetails?.buildingId,
         status: result.buildingDetails?.status ?? 'Connected',
-        ftth: result.buildingDetails?.ftth ?? result.buildingDetails?.FTTH,
-        broadband: result.buildingDetails?.broadband ?? result.buildingDetails?.Broadband,
-        precinct: result.buildingDetails?.precinct ?? result.buildingDetails?.Precinct
+        ftth: result.buildingDetails?.ftth ?? (result.buildingDetails as Record<string, unknown>)?.FTTH,
+        broadband: result.buildingDetails?.broadband ?? (result.buildingDetails as Record<string, unknown>)?.Broadband,
+        precinct: result.buildingDetails?.precinct ?? (result.buildingDetails as Record<string, unknown>)?.Precinct
       };
     } else if (result.coverageType === 'near-net') {
       const distance = result.nearNetDetails?.distance || 0;

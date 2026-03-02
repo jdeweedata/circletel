@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     // The action_link goes through Supabase's verify endpoint
     // We need to extract the token and build our own URL that goes through /auth/confirm
     const actionLink = linkData.properties?.action_link;
-    let tokenHash = linkData.properties?.hashed_token;
+    let tokenHash: string | undefined = linkData.properties?.hashed_token;
 
     // If hashed_token is not directly available, extract it from the action_link
     // action_link format: https://project.supabase.co/auth/v1/verify?token=<hash>&type=recovery&...

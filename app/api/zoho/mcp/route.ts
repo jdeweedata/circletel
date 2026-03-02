@@ -43,15 +43,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       case 'get_records':
         result = await zohoMCPDirectClient.getRecords(
-          body.parameters.module || 'Leads',
+          String(body.parameters.module || 'Leads'),
           body.parameters
         );
         break;
 
       case 'search_records':
         result = await zohoMCPDirectClient.searchRecords(
-          body.parameters.module || 'Leads',
-          body.parameters.criteria
+          String(body.parameters.module || 'Leads'),
+          String(body.parameters.criteria || '')
         );
         break;
 

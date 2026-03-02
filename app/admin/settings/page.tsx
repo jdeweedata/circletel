@@ -64,7 +64,7 @@ export default function SettingsPage() {
           return (
             <Component
               key={category.title}
-              href={category.available ? category.href : undefined}
+              href={category.available && category.href ? category.href : '#'}
               className={category.available ? 'block' : 'block opacity-50 cursor-not-allowed'}
             >
               <Card className={category.available ? 'hover:shadow-lg transition-shadow' : ''}>

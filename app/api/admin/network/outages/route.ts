@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { adminLogger } from '@/lib/logging/logger';
+import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ outages: outages || [] });
 
   } catch (error) {
-    adminLogger.error('List outages error', { error });
+    apiLogger.error('List outages error', { error });
     return NextResponse.json(
       { error: 'Failed to fetch outages' },
       { status: 500 }
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         created_by: adminUser.id
       });
 
-    adminLogger.info('Outage created', {
+    apiLogger.info('Outage created', {
       incidentNumber: outage.incident_number,
       title,
       severity,
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ outage }, { status: 201 });
 
   } catch (error) {
-    adminLogger.error('Create outage error', { error });
+    apiLogger.error('Create outage error', { error });
     return NextResponse.json(
       { error: 'Failed to create outage' },
       { status: 500 }

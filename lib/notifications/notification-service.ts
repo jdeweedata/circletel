@@ -158,6 +158,24 @@ export class EmailNotificationService {
   }
 
   /**
+   * Send payment confirmation email
+   */
+  static async sendPaymentConfirmation(order: ConsumerOrder): Promise<NotificationResult> {
+    return this.send({
+      to: order.email,
+      subject: `Payment Confirmation - ${order.order_number}`,
+      template: 'payment_confirmation',
+      data: {
+        order_number: order.order_number,
+        customer_name: `${order.first_name} ${order.last_name}`,
+        package_name: order.package_name,
+        monthly_price: order.package_price,
+        payment_date: new Date().toLocaleDateString('en-ZA'),
+      },
+    });
+  }
+
+  /**
    * Send quote email to business customer
    */
   static async sendQuote(quote: BusinessQuote): Promise<NotificationResult> {

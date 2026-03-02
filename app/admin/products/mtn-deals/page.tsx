@@ -195,7 +195,7 @@ export default function MTNDealsPage() {
           </p>
         </div>
         <Button
-          onClick={fetchDeals}
+          onClick={() => fetchDeals()}
           variant="outline"
           className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
         >

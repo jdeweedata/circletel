@@ -18,6 +18,9 @@ export interface CoverageData {
   leadId?: string;
   availableServices?: string[];
   locationType?: LocationType;
+  coverageType?: string;
+  // Selected package stored with coverage (legacy pattern)
+  selectedPackage?: PackageDetails;
 }
 
 export interface PackageSelectionData {
@@ -45,7 +48,7 @@ export interface AccountData {
 
   // Installation Details
   installationAddress?: Address;
-  installationLocationType?: LocationType;
+  installationLocationType?: LocationType | string;
   preferredInstallationDate?: Date;
   alternativeInstallationDate?: Date;
   onsiteContact?: {
@@ -129,10 +132,10 @@ export interface FeeBreakdown {
 
 export interface Address {
   street: string;
-  suburb: string;
-  city: string;
-  province: string;
-  postalCode: string;
+  suburb?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
   country: string;
 }
 

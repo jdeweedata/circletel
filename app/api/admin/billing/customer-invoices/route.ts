@@ -90,9 +90,10 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Customer invoices fetch failed', { error: error instanceof Error ? error.message : String(error) });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    apiLogger.error('Customer invoices fetch failed', { error: errorMessage });
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
+      { success: false, error: errorMessage || 'Internal server error' },
       { status: 500 }
     );
   }

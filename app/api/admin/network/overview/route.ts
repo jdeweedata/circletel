@@ -11,7 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { adminLogger } from '@/lib/logging/logger';
+import { apiLogger } from '@/lib/logging/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(overview);
 
   } catch (error) {
-    adminLogger.error('Network overview API error', { error });
+    apiLogger.error('Network overview API error', { error });
     return NextResponse.json(
       { error: 'Failed to fetch network overview' },
       { status: 500 }

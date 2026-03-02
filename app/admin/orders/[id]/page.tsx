@@ -221,7 +221,7 @@ function WorkflowStepItem({
   step: WorkflowStep;
   isLast: boolean;
 }) {
-  const Icon = step.icon;
+  const Icon = step.icon || CheckCircle;
   const isCompleted = step.status === 'completed';
   const isActive = step.status === 'active';
 

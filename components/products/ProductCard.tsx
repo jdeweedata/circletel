@@ -144,7 +144,7 @@ export function ProductCard({
           <div className="flex items-baseline gap-2">
             {hasPromo && (
               <span className="text-2xl text-muted-foreground line-through">
-                {formatPrice(product.price)}
+                {formatPrice(basePrice)}
               </span>
             )}
             <span className="text-4xl font-bold text-circleTel-orange">
@@ -165,7 +165,7 @@ export function ProductCard({
         </div>
 
         {/* Router Information */}
-        {product.router_model && (
+        {product?.router_model && (
           <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
             <Router className="w-5 h-5 mt-0.5 text-circleTel-orange flex-shrink-0" />
             <div className="flex-1">

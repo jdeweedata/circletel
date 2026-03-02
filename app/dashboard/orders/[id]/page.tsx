@@ -31,7 +31,7 @@ import { getFulfillmentStatusInfo, getOrderWorkflow } from '@/lib/types/order-tr
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useCustomerAuth();
+  const { user, session } = useCustomerAuth();
   const [order, setOrder] = useState<OrderWithTracking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export default function OrderDetailPage() {
 
       const response = await fetch(`/api/dashboard/orders/${orderId}`, {
         headers: {
-          'Authorization': `Bearer ${user.session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       });
 
