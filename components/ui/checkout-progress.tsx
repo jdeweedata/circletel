@@ -253,7 +253,9 @@ export function CompactCheckoutProgress({
  * />
  * ```
  */
-interface VerticalStepWithDescription extends Omit<CheckoutProgressProps['steps'][0], 'id'> {
+type StepItem = NonNullable<CheckoutProgressProps['steps']>[number];
+
+interface VerticalStepWithDescription extends Omit<StepItem, 'id'> {
   id: CheckoutStep;
   description?: string;
 }

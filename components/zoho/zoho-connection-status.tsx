@@ -6,6 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 
+// Type for connection test response data
+interface ConnectionTestData {
+  mcpServerStatus?: string;
+  crmTestStatus?: string;
+  timestamp?: string | number;
+}
+
 export function ZohoConnectionStatus() {
   const { data, isLoading, error, refetch } = useZohoConnection();
 
@@ -57,20 +64,33 @@ export function ZohoConnectionStatus() {
 
         {data?.success && data.data && (
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">MCP Server:</span>
-              <span className="font-mono">{data.data.mcpServerStatus}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">CRM Access:</span>
-              <span className="font-mono">{data.data.crmTestStatus}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Last Tested:</span>
-              <span className="font-mono">
-                {new Date(data.data.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
+            {(() => {
+              const connectionData = data.data as ConnectionTestData;
+              return (
+                <>
+                  {connectionData.mcpServerStatus && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">MCP Server:</span>
+                      <span className="font-mono">{connectionData.mcpServerStatus}</span>
+                    </div>
+                  )}
+                  {connectionData.crmTestStatus && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">CRM Access:</span>
+                      <span className="font-mono">{connectionData.crmTestStatus}</span>
+                    </div>
+                  )}
+                  {connectionData.timestamp && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Last Tested:</span>
+                      <span className="font-mono">
+                        {new Date(connectionData.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
 

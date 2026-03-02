@@ -352,8 +352,9 @@ export class MTNResponseValidator {
     const MAX_DISTANCE_KM = 10; // 10km radius seems reasonable for coverage data
 
     for (const feature of features) {
-      if (feature.feature?.geometry?.coordinates) {
-        const [lng, lat] = feature.feature.geometry.coordinates;
+      const geom = (feature.feature as { geometry?: { coordinates?: [number, number] } })?.geometry;
+      if (geom?.coordinates) {
+        const [lng, lat] = geom.coordinates;
         const distance = this.calculateDistance(coordinates, { lat, lng });
 
         if (distance > MAX_DISTANCE_KM) {

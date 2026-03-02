@@ -61,6 +61,7 @@ export interface EmailVariables {
   // Support information
   supportEmail?: string;
   supportPhone?: string;
+  supportWhatsApp?: string;
 
   // Links
   loginUrl?: string;

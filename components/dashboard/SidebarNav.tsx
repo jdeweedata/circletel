@@ -21,13 +21,20 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-const items = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  disabled?: boolean;
+}
+
+const items: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Home },
   { label: 'Accounts', href: '/dashboard/profile', icon: UserCircle },
   { label: 'Orders', href: '/dashboard/orders', icon: Package },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Help & Support', href: '#', icon: HelpCircle },
-  { label: 'Settings', href: '#', icon: Settings },
+  { label: 'Help & Support', href: '#', icon: HelpCircle, disabled: true },
+  { label: 'Settings', href: '#', icon: Settings, disabled: true },
 ];
 
 interface SidebarNavProps {

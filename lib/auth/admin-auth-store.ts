@@ -21,7 +21,7 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { SessionStorage, type AdminUser } from './session-storage';
+import { SessionStorage, type AdminUser, type AdminSession } from './session-storage';
 import { DevAuthService } from './dev-auth-service';
 import { ProdAuthService } from './prod-auth-service';
 import { isDevelopmentMode } from './constants';
@@ -118,7 +118,7 @@ export const useAdminAuthStore = create<AdminAuthState & AdminAuthActions>()(
 
         try {
           let user: AdminUser;
-          let session: { access_token: string; expires_at: number };
+          let session: AdminSession;
 
           if (isDevelopmentMode()) {
             // Development mode - use DevAuthService

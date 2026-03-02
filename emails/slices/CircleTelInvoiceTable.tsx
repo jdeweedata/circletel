@@ -102,7 +102,7 @@ export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
       {normalizedItems.map((item, index) => (
         <Row key={index}>
           <Column style={{ ...emailStyles.tableCell, width: '60%' }}>
-            <Text style={{ margin: 0, ...typography.body }}>
+            <Text style={{ ...typography.body, margin: 0 }}>
               {item.description}
               {item.quantity && item.quantity > 1 && (
                 <span style={{ color: brandColors.secondaryNeutral }}>
@@ -119,7 +119,7 @@ export const CircleTelInvoiceTable: React.FC<CircleTelInvoiceTableProps> = ({
               textAlign: 'right',
             }}
           >
-            <Text style={{ margin: 0, ...typography.body }}>
+            <Text style={{ ...typography.body, margin: 0 }}>
               {formatAmount(item.amount)}
             </Text>
           </Column>

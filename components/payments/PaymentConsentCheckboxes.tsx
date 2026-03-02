@@ -51,11 +51,11 @@ export function PaymentConsentCheckboxes({
   variant = 'consumer',
   errors = [],
 }: PaymentConsentCheckboxesProps) {
-  const updateConsent = (key: keyof (PaymentConsents | B2BConsents), value: boolean) => {
+  const updateConsent = (key: keyof PaymentConsents | keyof B2BConsents, value: boolean) => {
     onConsentChange({
       ...consents,
       [key]: value,
-    });
+    } as PaymentConsents | B2BConsents);
   };
 
   const isB2B = variant === 'b2b';

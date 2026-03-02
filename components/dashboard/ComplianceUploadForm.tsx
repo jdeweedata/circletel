@@ -276,17 +276,17 @@ export function ComplianceUploadForm({
             >
               <option value="">-- Select Document Type --</option>
 
-              {category === 'fica' && (
+              {category === 'fica' && 'address' in requirements && (
                 <>
                   <optgroup label="Proof of Identity (FICA)">
-                    {requirements.identity.options.map(opt => (
+                    {requirements.identity.options.map((opt: { type: string; label: string }) => (
                       <option key={opt.type} value={opt.type}>
                         {opt.label}
                       </option>
                     ))}
                   </optgroup>
                   <optgroup label="Proof of Address (FICA)">
-                    {requirements.address.options.map(opt => (
+                    {requirements.address.options.map((opt: { type: string; label: string }) => (
                       <option key={opt.type} value={opt.type}>
                         {opt.label}
                       </option>
@@ -295,17 +295,17 @@ export function ComplianceUploadForm({
                 </>
               )}
 
-              {category === 'rica' && (
+              {category === 'rica' && 'residence' in requirements && (
                 <>
                   <optgroup label="Proof of Identity (RICA)">
-                    {requirements.identity.options.map(opt => (
+                    {requirements.identity.options.map((opt: { type: string; label: string }) => (
                       <option key={opt.type} value={opt.type}>
                         {opt.label}
                       </option>
                     ))}
                   </optgroup>
                   <optgroup label="Proof of Residence (RICA)">
-                    {requirements.residence.options.map(opt => (
+                    {requirements.residence.options.map((opt: { type: string; label: string }) => (
                       <option key={opt.type} value={opt.type}>
                         {opt.label}
                       </option>

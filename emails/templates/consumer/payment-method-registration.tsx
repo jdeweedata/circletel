@@ -90,12 +90,12 @@ export const PaymentMethodRegistrationEmail: React.FC<PaymentMethodRegistrationE
             5. Done! We'll automatically update your order status
           </CircleTelTextBlock>
 
-          <CircleTelTextBlock align="left" size="small" color="muted">
+          <CircleTelTextBlock align="left" variant="small">
             <strong>Important:</strong> This registration link expires in 7 days. If you need a new
             link, please contact our support team or reply to this email.
           </CircleTelTextBlock>
 
-          <CircleTelTextBlock align="left" size="small" color="muted">
+          <CircleTelTextBlock align="left" variant="small">
             <strong>Order Reference:</strong> {orderNumber}
             <br />
             <strong>Monthly Amount:</strong> R{monthlyAmount.toFixed(2)}

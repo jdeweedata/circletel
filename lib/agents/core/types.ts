@@ -446,6 +446,9 @@ export interface WorkerConfig {
 
   /** Timeout per worker (ms) */
   timeoutMs: number;
+
+  /** Enable verbose logging */
+  verbose?: boolean;
 }
 
 /**

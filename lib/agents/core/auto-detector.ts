@@ -190,6 +190,7 @@ export class AutoDetector {
       frontend: 0,
       testing: 0,
       integration: 0,
+      documentation: 0,
     };
 
     // Check feature keywords
@@ -265,7 +266,7 @@ export class AutoDetector {
     if (complexityScore >= 10) {
       complexity = 'complex';
     } else if (complexityScore >= 5) {
-      complexity = 'moderate';
+      complexity = 'medium';
     } else {
       complexity = 'simple';
     }

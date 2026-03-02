@@ -11,7 +11,7 @@ import { emailStyles } from '../utils/styles';
 interface CircleTelTextBlockProps {
   children: React.ReactNode;
   align?: 'left' | 'center' | 'right';
-  variant?: 'normal' | 'small' | 'large';
+  variant?: 'normal' | 'small' | 'large' | 'highlight';
   spacing?: 'normal' | 'tight' | 'loose';
 }
 
@@ -26,6 +26,17 @@ export const CircleTelTextBlock: React.FC<CircleTelTextBlockProps> = ({
   const marginBottom =
     spacing === 'tight' ? '8px' : spacing === 'loose' ? '24px' : '16px';
 
+  // Highlight variant styles
+  const isHighlight = variant === 'highlight';
+  const highlightStyles = isHighlight
+    ? {
+        backgroundColor: '#FFF7ED',
+        borderLeft: '4px solid #F5831F',
+        padding: '16px',
+        borderRadius: '4px',
+      }
+    : {};
+
   return (
     <Section style={emailStyles.section}>
       <Text
@@ -34,6 +45,7 @@ export const CircleTelTextBlock: React.FC<CircleTelTextBlockProps> = ({
           textAlign: align,
           fontSize,
           marginBottom,
+          ...highlightStyles,
         }}
       >
         {children}

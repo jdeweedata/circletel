@@ -195,17 +195,17 @@ If you encounter an error:
     const { standards, subtask } = input;
     const lines: string[] = [];
 
-    if (standards.typeScriptStrict) {
+    if (standards?.typeScriptStrict) {
       lines.push('- TypeScript strict mode (no `any` types)');
     }
 
-    if (standards.rbacRequired && subtask.requirements?.enforceRBAC) {
+    if (standards?.rbacRequired && subtask.requirements?.enforceRBAC) {
       lines.push(
         '- RBAC: Admin features must have permission gates (UI + API + database)'
       );
     }
 
-    if (subtask.requirements?.applyDesignSystem) {
+    if (subtask.requirements?.applyDesignSystem && standards?.designSystemColors) {
       lines.push(
         `- Design System: Use CircleTel colors (${standards.designSystemColors.join(', ')})`
       );

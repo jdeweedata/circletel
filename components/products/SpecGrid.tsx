@@ -42,10 +42,10 @@ export function SpecGrid({ section }: SpecGridProps) {
           ${section.columns === 2 ? 'grid-cols-1 md:grid-cols-2' : ''}
           ${section.columns === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
           ${section.columns === 4 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' : ''}
-          ${section.columns > 4 ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' : ''}
+          ${(section.columns ?? 0) > 4 ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' : ''}
         `}
       >
-        {section.items.map((item) => (
+        {(section.items ?? section.specs ?? []).map((item) => (
           <div
             key={item.id}
             className="

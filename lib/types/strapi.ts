@@ -65,17 +65,26 @@ export interface Spec {
 
 export interface SpecGridSection {
   title?: string;
-  specs: Spec[];
-  columns?: 2 | 3 | 4;
+  specs?: Spec[];
+  items?: Spec[];
+  columns?: number;
+}
+
+// Image type for steps
+export interface StepImage {
+  url: string;
+  alternativeText?: string;
 }
 
 // How It Works Types
 export interface Step {
   id: string;
-  number: number;
+  number?: number;
+  stepNumber?: number;
   title: string;
   description: string;
   icon?: string;
+  image?: StepImage;
 }
 
 export interface HowItWorksSection {

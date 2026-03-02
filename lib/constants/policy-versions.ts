@@ -89,24 +89,57 @@ export interface PolicyConsent {
 }
 
 /**
- * Validate that all required consents are accepted
+ * UI consent interface (used by payment forms)
  */
-export function validateConsents(consents: Partial<PolicyConsent>): {
+export interface UIPaymentConsents {
+  terms: boolean;
+  privacy: boolean;
+  paymentTerms: boolean;
+  refundPolicy: boolean;
+  recurringPayment?: boolean;
+  marketing?: boolean;
+  whatsappNotifications?: boolean;
+  // B2B specific
+  dataProcessing?: boolean;
+  thirdPartyDisclosure?: boolean;
+  businessVerification?: boolean;
+}
+
+/**
+ * Validate that all required consents are accepted
+ * Supports both PolicyConsent and UI consent formats
+ */
+export function validateConsents(consents: Partial<PolicyConsent> | UIPaymentConsents): {
   valid: boolean;
   errors: string[];
 } {
   const errors: string[] = [];
 
-  if (!consents.terms_accepted) {
-    errors.push('You must accept the Terms & Conditions');
-  }
-
-  if (!consents.privacy_accepted) {
-    errors.push('You must accept the Privacy Policy');
-  }
-
-  if (!consents.payment_terms_accepted) {
-    errors.push('You must accept the Payment Terms');
+  // Check if this is UI format (has 'terms' as boolean) or PolicyConsent format
+  if ('terms' in consents && typeof consents.terms === 'boolean') {
+    // UI format validation
+    const uiConsents = consents as UIPaymentConsents;
+    if (!uiConsents.terms) {
+      errors.push('You must accept the Terms & Conditions');
+    }
+    if (!uiConsents.privacy) {
+      errors.push('You must accept the Privacy Policy');
+    }
+    if (!uiConsents.paymentTerms) {
+      errors.push('You must accept the Payment Terms');
+    }
+  } else {
+    // PolicyConsent format validation
+    const policyConsents = consents as Partial<PolicyConsent>;
+    if (!policyConsents.terms_accepted) {
+      errors.push('You must accept the Terms & Conditions');
+    }
+    if (!policyConsents.privacy_accepted) {
+      errors.push('You must accept the Privacy Policy');
+    }
+    if (!policyConsents.payment_terms_accepted) {
+      errors.push('You must accept the Payment Terms');
+    }
   }
 
   // Refund policy acknowledgment is optional (not required)
