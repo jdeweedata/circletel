@@ -107,11 +107,12 @@ export class WorkflowEngine {
       }
 
       try {
-        // Get the worker
-        const worker = this.workers.get(subtask.worker);
+        // Get the worker (use worker or workerType)
+        const workerKey = subtask.worker ?? subtask.workerType;
+        const worker = this.workers.get(workerKey);
 
         if (!worker) {
-          throw new Error(`Worker "${subtask.worker}" not found`);
+          throw new Error(`Worker "${workerKey}" not found`);
         }
 
         // Prepare worker input
@@ -120,7 +121,7 @@ export class WorkflowEngine {
           context: {
             projectPath: process.cwd(),
             previousResults: results.filter((r) =>
-              subtask.dependencies.includes(r.taskId)
+              subtask.dependencies.includes(r.taskId ?? r.subtaskId ?? '')
             ),
             userPrompt: plan.request.userPrompt,
             analysis: plan.analysis,
@@ -400,34 +401,36 @@ export class WorkflowEngine {
    */
   getSummaryMarkdown(result: WorkflowResult): string {
     const lines: string[] = [];
+    const summary = result.summary;
+    const qualityResults = result.qualityResults ?? [];
 
     lines.push('# Workflow Execution Summary\n');
     lines.push(`**Status**: ${result.status === 'success' ? '✅ SUCCESS' : '❌ FAILED'}\n`);
-    lines.push(`**Duration**: ${result.summary.totalDuration} minutes`);
-    lines.push(`**Completed**: ${new Date(result.completedAt).toLocaleString()}\n`);
+    lines.push(`**Duration**: ${summary?.totalDuration ?? 0} minutes`);
+    lines.push(`**Completed**: ${result.completedAt ? new Date(result.completedAt).toLocaleString() : 'N/A'}\n`);
 
     lines.push('## Task Results\n');
-    lines.push(`- **Total Tasks**: ${result.summary.totalTasks}`);
-    lines.push(`- **Successful**: ${result.summary.successfulTasks}`);
-    lines.push(`- **Failed**: ${result.summary.failedTasks}\n`);
+    lines.push(`- **Total Tasks**: ${summary?.totalTasks ?? 0}`);
+    lines.push(`- **Successful**: ${summary?.successfulTasks ?? 0}`);
+    lines.push(`- **Failed**: ${summary?.failedTasks ?? 0}\n`);
 
     lines.push('## Quality Gates\n');
-    lines.push(`- **Passed**: ${result.summary.qualityGatesPassed}`);
-    lines.push(`- **Failed**: ${result.summary.qualityGatesFailed}\n`);
+    lines.push(`- **Passed**: ${summary?.qualityGatesPassed ?? 0}`);
+    lines.push(`- **Failed**: ${summary?.qualityGatesFailed ?? 0}\n`);
 
-    if (result.qualityResults.length > 0) {
+    if (qualityResults.length > 0) {
       lines.push('### Details\n');
-      for (const qr of result.qualityResults) {
-        lines.push(`- ${qr.passed ? '✅' : '❌'} ${qr.gateName}: ${qr.message}`);
+      for (const qr of qualityResults) {
+        lines.push(`- ${qr.passed ? '✅' : '❌'} ${qr.gateName}: ${qr.message ?? ''}`);
       }
       lines.push('');
     }
 
     lines.push('## Generated Files\n');
-    const files = this.getAggregatedFiles(result);
+    const files = this.getAggregatedFiles(result) ?? [];
     if (files.length > 0) {
       for (const file of files) {
-        lines.push(`- \`${file.path}\` (${file.action})`);
+        lines.push(`- \`${file.path}\` (${file.action ?? 'unknown'})`);
       }
     } else {
       lines.push('No files generated.');

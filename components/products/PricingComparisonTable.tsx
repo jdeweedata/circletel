@@ -1,6 +1,6 @@
 'use client'
 
-import { PricingTableSection } from '@/lib/types/strapi'
+import { PricingTableSection, PricingTableColumn } from '@/lib/types/strapi'
 import { Button } from '@/components/ui/button'
 import { Check, X } from 'lucide-react'
 import Link from 'next/link'
@@ -29,8 +29,8 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
       {/* Desktop View - Table */}
       <div className="hidden md:block overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
-          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${section.columns.length}, minmax(250px, 1fr))` }}>
-            {section.columns.map((column, index) => (
+          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${(section.columns ?? []).length}, minmax(250px, 1fr))` }}>
+            {(section.columns ?? []).map((column: PricingTableColumn, index: number) => (
               <div
                 key={index}
                 className={`
@@ -65,7 +65,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                 {/* Features */}
                 <div className="flex-1 p-6">
                   <ul className="space-y-3">
-                    {column.features.map((feature, featureIndex) => (
+                    {(column.features ?? []).map((feature: string, featureIndex: number) => (
                       <li key={featureIndex} className="flex items-start gap-2">
                         {feature.startsWith('✓') || feature.startsWith('✔') ? (
                           <>
@@ -126,7 +126,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
 
       {/* Mobile View - Stacked Cards */}
       <div className="md:hidden space-y-4">
-        {section.columns.map((column, index) => (
+        {(section.columns ?? []).map((column: PricingTableColumn, index: number) => (
           <div
             key={index}
             className={`
@@ -161,7 +161,7 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
             {/* Features */}
             <div className="p-4">
               <ul className="space-y-2">
-                {column.features.map((feature, featureIndex) => (
+                {(column.features ?? []).map((feature: string, featureIndex: number) => (
                   <li key={featureIndex} className="flex items-start gap-2">
                     {feature.startsWith('✓') || feature.startsWith('✔') ? (
                       <>

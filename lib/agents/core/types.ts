@@ -73,6 +73,9 @@ export interface UserRequest {
   /** Original user message */
   message: string;
 
+  /** Alias for message (used by workflow engine) */
+  userPrompt?: string;
+
   /** Request timestamp */
   timestamp: Date;
 
@@ -127,6 +130,9 @@ export interface Subtask {
 
   /** Worker type to execute this subtask */
   workerType: WorkerType;
+
+  /** Alias for workerType (used by workflow engine) */
+  worker?: string;
 
   /** Subtask description */
   description: string;
@@ -226,8 +232,16 @@ export interface WorkerInput {
   /** Domain memory context */
   domainContext?: string;
 
+  /** Workflow engine context */
+  context?: {
+    projectPath?: string;
+    previousResults?: WorkerResult[];
+    userPrompt?: string;
+    analysis?: TaskAnalysis;
+  };
+
   /** CircleTel project standards */
-  standards: {
+  standards?: {
     typeScriptStrict: boolean;
     designSystemColors: string[];
     rbacRequired: boolean;
@@ -240,47 +254,60 @@ export interface WorkerInput {
  */
 export interface WorkerResult {
   /** Subtask that was executed */
-  subtaskId: string;
+  subtaskId?: string;
+
+  /** Task ID (workflow engine alias) */
+  taskId?: string;
 
   /** Worker type that executed */
-  workerType: WorkerType;
+  workerType?: WorkerType;
 
   /** Execution status */
-  status: 'success' | 'failure';
+  status: 'success' | 'failure' | 'error';
 
   /** Generated files */
   files?: {
     path: string;
     content: string;
-    description: string;
+    description?: string;
+    action?: 'create' | 'update' | 'delete';
   }[];
 
   /** Execution output/logs */
-  output: string;
+  output?: string;
 
   /** Error details if failed */
-  error?: {
+  error?: string | {
     message: string;
     stack?: string;
     recoverable: boolean;
   };
 
   /** Confidence in result (0-1) */
-  confidence: number;
+  confidence?: number;
 
   /** Actual execution time (minutes) */
-  executionMinutes: number;
+  executionMinutes?: number;
 
   /** Metadata for orchestrator */
   metadata?: {
     /** Files created/modified */
-    filesChanged: string[];
+    filesChanged?: string[];
 
     /** Dependencies installed */
     dependenciesAdded?: string[];
 
     /** Quality checks passed */
-    qualityChecksPassed: boolean;
+    qualityChecksPassed?: boolean;
+
+    /** Worker name (workflow engine) */
+    worker?: string;
+
+    /** Duration in ms (workflow engine) */
+    duration?: number;
+
+    /** Timestamp (workflow engine) */
+    timestamp?: Date;
   };
 }
 
@@ -294,6 +321,9 @@ export interface WorkerResult {
 export interface QualityGate {
   /** Gate name */
   name: string;
+
+  /** Gate type (workflow engine) */
+  type?: 'typescript' | 'build' | 'tests' | 'rbac' | 'standards';
 
   /** Gate description */
   description: string;
@@ -317,6 +347,12 @@ export interface QualityGateResult {
 
   /** Whether gate passed */
   passed: boolean;
+
+  /** Message (workflow engine) */
+  message?: string;
+
+  /** Check timestamp (workflow engine) */
+  checkedAt?: Date;
 
   /** Failure reason if not passed */
   reason?: string;
@@ -462,22 +498,37 @@ export interface DomainContext {
  */
 export interface ProgressUpdate {
   /** Session ID */
-  sessionId: string;
+  sessionId?: string;
+
+  /** Task ID (workflow engine format) */
+  taskId?: string;
+
+  /** Task description (workflow engine format) */
+  taskDescription?: string;
+
+  /** Progress percentage (workflow engine format) */
+  progress?: number;
+
+  /** Completed tasks count (workflow engine format) */
+  completedTasks?: number;
+
+  /** Total tasks count (workflow engine format) */
+  totalTasks?: number;
 
   /** Current phase */
-  phase: 'planning' | 'executing' | 'quality_checks' | 'aggregating';
+  phase?: 'planning' | 'executing' | 'quality_checks' | 'aggregating';
 
   /** Completed subtasks */
-  completedSubtasks: number;
+  completedSubtasks?: number;
 
   /** Total subtasks */
-  totalSubtasks: number;
+  totalSubtasks?: number;
 
   /** Percent complete */
-  percentComplete: number;
+  percentComplete?: number;
 
   /** Currently executing workers */
-  activeWorkers: {
+  activeWorkers?: {
     workerId: string;
     workerType: WorkerType;
     subtaskId: string;
@@ -485,10 +536,10 @@ export interface ProgressUpdate {
   }[];
 
   /** Estimated time remaining (minutes) */
-  estimatedTimeRemaining: number;
+  estimatedTimeRemaining?: number;
 
   /** Update timestamp */
-  timestamp: Date;
+  timestamp?: Date;
 }
 
 // ============================================================================
@@ -534,7 +585,7 @@ export class WorkerExecutionError extends Error {
  */
 export interface WorkflowResult {
   /** Whether workflow completed successfully */
-  success: boolean;
+  success?: boolean;
 
   /** All worker results */
   results: WorkerResult[];
@@ -543,10 +594,32 @@ export interface WorkflowResult {
   output?: string;
 
   /** Total execution time (ms) */
-  executionTimeMs: number;
+  executionTimeMs?: number;
 
   /** Any errors encountered */
   errors?: string[];
+
+  /** Execution plan (workflow engine) */
+  plan?: ExecutionPlan;
+
+  /** Quality gate results (workflow engine) */
+  qualityResults?: QualityGateResult[];
+
+  /** Summary (workflow engine) */
+  summary?: {
+    totalTasks: number;
+    successfulTasks: number;
+    failedTasks: number;
+    totalDuration: number;
+    qualityGatesPassed: number;
+    qualityGatesFailed: number;
+  };
+
+  /** Overall status (workflow engine) */
+  status?: 'success' | 'failed';
+
+  /** Completion timestamp (workflow engine) */
+  completedAt?: Date;
 }
 
 /**
