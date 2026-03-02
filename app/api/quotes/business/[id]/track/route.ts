@@ -82,7 +82,7 @@ export async function POST(
       .single();
 
     if (trackingError) {
-      apiLogger.error('Tracking error:', trackingError);
+      apiLogger.error('Tracking error', { error: trackingError.message, code: trackingError.code });
       // Don't fail the request if tracking fails
       return NextResponse.json({
         success: true,
@@ -97,7 +97,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    apiLogger.error('Tracking error:', error);
+    apiLogger.error('Tracking error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -149,7 +149,7 @@ export async function GET(
       .single();
 
     if (analyticsError && analyticsError.code !== 'PGRST116') {
-      apiLogger.error('Analytics error:', analyticsError);
+      apiLogger.error('Analytics error', { error: analyticsError.message, code: analyticsError.code });
     }
 
     const analyticsData = analyticsRow || ({} as any);
@@ -173,7 +173,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    apiLogger.error('Error fetching tracking data:', error);
+    apiLogger.error('Error fetching tracking data', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch (error) {
-          apiLogger.info('Geocoding failed or timed out:', error instanceof Error ? error.message : 'Unknown error');
+          apiLogger.info('Geocoding failed or timed out', { error: error instanceof Error ? error.message : 'Unknown error' });
           // Continue without coordinates - not critical for lead creation
         }
       }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Lead creation error:', error);
+    apiLogger.error('Lead creation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
 
   } catch (error) {
-    apiLogger.error('Lead retrieval error:', error);
+    apiLogger.error('Lead retrieval error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

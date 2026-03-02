@@ -278,7 +278,7 @@ export async function syncServicePackageToZohoBilling(
       hardwareItemId,
     };
   } catch (error) {
-    zohoLogger.error('[BillingSync] Error syncing to Zoho Billing:', error);
+    zohoLogger.error('[BillingSync] Error syncing to Zoho Billing', { error: error instanceof Error ? error.message : String(error) });
 
     return {
       success: false,
@@ -324,7 +324,7 @@ export async function getBillingSyncStatus(servicePackage: ServicePackage): Prom
       hardwareItemId: hardwareItem?.item_id,
     };
   } catch (error) {
-    zohoLogger.error('[BillingSync] Error checking sync status:', error);
+    zohoLogger.error('[BillingSync] Error checking sync status', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }

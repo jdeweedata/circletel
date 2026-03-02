@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const result = await NotificationTrackingService.createDailySnapshot();
 
     if (!result.success) {
-      cronLogger.error('[AR Snapshot] Failed:', result.error);
+      cronLogger.error('[AR Snapshot] Failed', { error: result.error });
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 500 }
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       date: new Date().toISOString().split('T')[0],
     });
   } catch (error) {
-    cronLogger.error('[AR Snapshot] Error:', error);
+    cronLogger.error('[AR Snapshot] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

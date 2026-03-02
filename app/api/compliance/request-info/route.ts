@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       .eq('id', sessionId);
 
     if (updateError) {
-      apiLogger.error('Error updating KYC session:', updateError);
+      apiLogger.error('Error updating KYC session', { error: updateError.message, code: updateError.code });
       return NextResponse.json(
         { error: 'Failed to add information request' },
         { status: 500 }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       .eq('id', session.quote_id);
 
     if (quoteError) {
-      apiLogger.error('Error updating quote status:', quoteError);
+      apiLogger.error('Error updating quote status', { error: quoteError.message, code: quoteError.code });
       // Don't fail the request, info request is already saved
     }
 
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Error in request-info endpoint:', error);
+    apiLogger.error('Error in request-info endpoint', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

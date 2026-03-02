@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (timeSeriesError) {
-      apiLogger.error('Time series error:', timeSeriesError);
+      apiLogger.error('Time series error', { error: timeSeriesError.message, code: timeSeriesError.code });
     }
 
     // Fetch province data
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       .not('province', 'is', null);
 
     if (provinceError) {
-      apiLogger.error('Province error:', provinceError);
+      apiLogger.error('Province error', { error: provinceError.message, code: provinceError.code });
     }
 
     // Fetch error distribution
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       .not('error_type', 'is', null);
 
     if (errorError) {
-      apiLogger.error('Error data error:', errorError);
+      apiLogger.error('Error data error', { error: errorError.message, code: errorError.code });
     }
 
     // Fetch performance trends (last 7, 30, 90 days)
@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Analytics API error:', error);
+    apiLogger.error('Analytics API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch analytics data',

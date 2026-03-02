@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
         recordsProcessed++;
         
       } catch (error: any) {
-        cronLogger.error(`Failed to process service ${service.id}:`, error);
+        cronLogger.error(`[GenerateInvoices] Failed to process service ${service.id}`, { error: error instanceof Error ? error.message : String(error) });
         errors.push(`Service ${service.id}: ${error.message}`);
         recordsFailed++;
       }
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    cronLogger.error('Invoice generation job failed:', error);
+    cronLogger.error('[GenerateInvoices] Invoice generation job failed', { error: error instanceof Error ? error.message : String(error) });
     
     // Log failed execution
     const supabase = await createClient();
@@ -279,7 +279,7 @@ async function logExecution(
       environment: process.env.NODE_ENV || 'production'
     });
   } catch (error) {
-    cronLogger.error('Failed to log execution:', error);
+    cronLogger.error('[GenerateInvoices] Failed to log execution', { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -338,7 +338,7 @@ async function sendInvoiceNotifications(
     if (emailResult.success) {
       cronLogger.info(`[Invoice Notification] Email sent to ${customer.email} for ${invoice.invoice_number}`);
     } else {
-      cronLogger.error(`[Invoice Notification] Email failed for ${invoice.invoice_number}:`, emailResult.error);
+      cronLogger.error(`[Invoice Notification] Email failed for ${invoice.invoice_number}`, { error: emailResult.error });
     }
 
     // Note: SMS reminders for overdue invoices are handled by /api/cron/invoice-sms-reminders
@@ -346,7 +346,7 @@ async function sendInvoiceNotifications(
 
     return emailResult.success;
   } catch (error) {
-    cronLogger.error('[Invoice Notification] Failed to send notifications:', error);
+    cronLogger.error('[Invoice Notification] Failed to send notifications', { error: error instanceof Error ? error.message : String(error) });
     // Don't throw - notifications are non-critical
     return false;
   }

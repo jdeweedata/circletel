@@ -79,7 +79,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    apiLogger.error('Get quote error:', error);
+    apiLogger.error('Get quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },
       { status: 500 }
@@ -160,7 +160,7 @@ export async function PUT(
       .single();
 
     if (updateError) {
-      apiLogger.error('Update quote error:', updateError);
+      apiLogger.error('Update quote error', { error: updateError.message, code: updateError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to update quote' },
         { status: 500 }
@@ -182,7 +182,7 @@ export async function PUT(
           .eq('id', item.id);
 
         if (itemError) {
-          apiLogger.error('Update item error:', itemError);
+          apiLogger.error('Update item error', { error: itemError.message, code: itemError.code });
         }
       }
     }
@@ -218,7 +218,7 @@ export async function PUT(
       quote: updatedQuote
     });
   } catch (error: any) {
-    apiLogger.error('Update quote error:', error);
+    apiLogger.error('Update quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to update quote' },
       { status: 500 }
@@ -295,7 +295,7 @@ export async function DELETE(
       message: 'Quote deleted successfully'
     });
   } catch (error: any) {
-    apiLogger.error('Delete quote error:', error);
+    apiLogger.error('Delete quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to delete quote' },
       { status: 500 }

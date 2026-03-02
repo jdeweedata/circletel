@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        apiLogger.error('Failed to log quote consents:', consentLog.error);
+        apiLogger.error('Failed to log quote consents', { error: consentLog.error });
         // Don't fail the quote creation if consent logging fails
       } else {
-        apiLogger.info('Quote consents logged successfully:', consentLog.consent_id);
+        apiLogger.info('Quote consents logged successfully', { consentId: consentLog.consent_id });
       }
     }
 
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    apiLogger.error('Error creating quote:', error);
+    apiLogger.error('Error creating quote', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

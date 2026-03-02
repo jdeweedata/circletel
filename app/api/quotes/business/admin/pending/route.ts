@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    apiLogger.error('Error fetching pending quotes:', error);
+    apiLogger.error('Error fetching pending quotes', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

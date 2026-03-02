@@ -122,12 +122,12 @@ export async function GET(request: NextRequest) {
       });
 
       if (logError) {
-        cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
+        cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal)', { error: logError.message });
       } else {
         cronLogger.info('[Zoho Sync Cron] ✅ Execution logged to database');
       }
     } catch (logError: any) {
-      cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal):', logError.message);
+      cronLogger.warn('[Zoho Sync Cron] Failed to log execution (non-fatal)', { error: logError.message });
     }
 
     // =========================================================================
@@ -180,8 +180,8 @@ export async function GET(request: NextRequest) {
             }
           } catch (logError: any) {
             cronLogger.warn(
-              `[Zoho Sync Cron] Failed to log error for ${result.sku}:`,
-              logError.message
+              `[Zoho Sync Cron] Failed to log error for ${result.sku}`,
+              { error: logError.message }
             );
           }
         }
@@ -214,8 +214,8 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    cronLogger.error('[Zoho Sync Cron] ❌ Fatal error:', error);
-    cronLogger.error('[Zoho Sync Cron] Stack:', error.stack);
+    cronLogger.error('[Zoho Sync Cron] Fatal error', { error: error.message });
+    cronLogger.error('[Zoho Sync Cron] Stack', { stack: error.stack });
 
     // Try to log fatal error to database
     try {
@@ -231,7 +231,7 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (logError) {
-      cronLogger.error('[Zoho Sync Cron] Failed to log fatal error:', logError);
+      cronLogger.error('[Zoho Sync Cron] Failed to log fatal error', { error: logError instanceof Error ? logError.message : String(logError) });
     }
 
     return NextResponse.json(

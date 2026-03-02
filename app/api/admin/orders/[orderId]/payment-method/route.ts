@@ -60,7 +60,7 @@ export async function POST(
       .single();
 
     if (orderError || !order) {
-      apiLogger.error('[Admin Payment Method] Order not found:', orderError);
+      apiLogger.error('[Admin Payment Method] Order not found', { error: orderError?.message, code: orderError?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -75,7 +75,7 @@ export async function POST(
       .single();
 
     if (customerError || !customer) {
-      apiLogger.error('[Admin Payment Method] Customer not found:', customerError);
+      apiLogger.error('[Admin Payment Method] Customer not found', { error: customerError?.message, code: customerError?.code });
       return NextResponse.json(
         { success: false, error: 'Customer not found for this order' },
         { status: 404 }
@@ -84,7 +84,7 @@ export async function POST(
 
     // Validate customer has account number
     if (!customer.account_number) {
-      apiLogger.error('[Admin Payment Method] Customer account number not assigned:', customer.id);
+      apiLogger.error('[Admin Payment Method] Customer account number not assigned', { customerId: customer.id });
       return NextResponse.json(
         { success: false, error: 'Customer account number not yet assigned. Please contact support.' },
         { status: 400 }
@@ -141,7 +141,7 @@ export async function POST(
       .single();
 
     if (pmError || !paymentMethod) {
-      apiLogger.error('[Admin Payment Method] Failed to create payment method:', pmError);
+      apiLogger.error('[Admin Payment Method] Failed to create payment method', { error: pmError?.message, code: pmError?.code });
       return NextResponse.json(
         { success: false, error: 'Failed to create payment method' },
         { status: 500 }
@@ -203,7 +203,7 @@ export async function POST(
       .single();
 
     if (erError || !emandateRecord) {
-      apiLogger.error('[Admin Payment Method] Failed to create emandate request:', erError);
+      apiLogger.error('[Admin Payment Method] Failed to create emandate request', { error: erError?.message, code: erError?.code });
       await supabase.from('payment_methods').delete().eq('id', paymentMethod.id);
       return NextResponse.json(
         { success: false, error: 'Failed to create eMandate request' },
@@ -264,7 +264,7 @@ export async function POST(
         fileToken,
       });
     } catch (netcashError: any) {
-      apiLogger.error('[Admin Payment Method] NetCash API error:', netcashError);
+      apiLogger.error('[Admin Payment Method] NetCash API error', { error: netcashError instanceof Error ? netcashError.message : String(netcashError) });
 
       // Update records with error status
       await supabase
@@ -321,7 +321,7 @@ export async function POST(
       message: 'eMandate request created. Customer will receive email/SMS from NetCash to sign the mandate.',
     });
   } catch (error: any) {
-    apiLogger.error('[Admin Payment Method] Unexpected error:', error);
+    apiLogger.error('[Admin Payment Method] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -371,7 +371,7 @@ export async function GET(
       .maybeSingle();
 
     if (emandateError) {
-      apiLogger.error('Error fetching emandate request:', emandateError);
+      apiLogger.error('Error fetching emandate request', { error: emandateError.message, code: emandateError.code });
     }
 
     // Fetch payment method separately to avoid join issues
@@ -384,7 +384,7 @@ export async function GET(
         .single();
 
       if (pmError) {
-        apiLogger.error('Error fetching payment method:', pmError);
+        apiLogger.error('Error fetching payment method', { error: pmError.message, code: pmError.code });
       } else {
         paymentMethodData = pmData;
       }
@@ -403,7 +403,7 @@ export async function GET(
             .createSignedUrl(storagePath, 60 * 60); // 1 hour validity
 
           if (urlError) {
-            apiLogger.error('Error creating signed URL:', urlError);
+            apiLogger.error('Error creating signed URL', { error: urlError.message });
             return null;
           }
           return urlData?.signedUrl || null;
@@ -412,7 +412,7 @@ export async function GET(
         // Return as-is if it's already a full URL
         return pdfLink;
       } catch (err) {
-        apiLogger.error('Exception in getSignedPdfUrl:', err);
+        apiLogger.error('Exception in getSignedPdfUrl', { error: err instanceof Error ? err.message : String(err) });
         return null;
       }
     };
@@ -483,7 +483,7 @@ export async function GET(
       .maybeSingle();
 
     if (pmError) {
-      apiLogger.error('Error fetching payment method:', pmError);
+      apiLogger.error('Error fetching payment method', { error: pmError.message, code: pmError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch payment method' },
         { status: 500 }
@@ -540,7 +540,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    apiLogger.error('Error in payment-method API:', error);
+    apiLogger.error('Error in payment-method API', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

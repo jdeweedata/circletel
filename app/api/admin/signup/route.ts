@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (adminCheckError && adminCheckError.code !== 'PGRST116') {
-      apiLogger.error('[Admin Signup] Error checking existing admin:', adminCheckError)
+      apiLogger.error('[Admin Signup] Error checking existing admin', { error: adminCheckError.message, code: adminCheckError.code })
       return NextResponse.json(
         {
           success: false,
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Only return error if it's a real database error, not "no rows found"
     if (requestCheckError && requestCheckError.code !== 'PGRST116') {
-      apiLogger.error('[Admin Signup] Error checking existing request:', requestCheckError)
+      apiLogger.error('[Admin Signup] Error checking existing request', { error: requestCheckError.message, code: requestCheckError.code })
       return NextResponse.json(
         {
           success: false,
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
           .eq('id', existingRequest.id)
 
         if (deleteError) {
-          apiLogger.error('Error deleting rejected request:', deleteError)
+          apiLogger.error('Error deleting rejected request', { error: deleteError.message, code: deleteError.code })
         }
       }
     }
@@ -137,8 +137,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      apiLogger.error('[Admin Signup] Error creating pending user:', JSON.stringify(insertError, null, 2))
-      apiLogger.error('[Admin Signup] Insert error details:', {
+      apiLogger.error('[Admin Signup] Error creating pending user', { error: insertError.message, code: insertError.code })
+      apiLogger.error('[Admin Signup] Insert error details', {
         message: insertError.message,
         code: insertError.code,
         details: insertError.details,
@@ -165,8 +165,8 @@ export async function POST(request: NextRequest) {
       request_id: pendingUser.id
     })
   } catch (error) {
-    apiLogger.error('[Admin Signup] Uncaught error:', error)
-    apiLogger.error('[Admin Signup] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    apiLogger.error('[Admin Signup] Uncaught error', { error: error instanceof Error ? error.message : String(error) })
+    apiLogger.error('[Admin Signup] Error stack', { stack: error instanceof Error ? error.stack : 'No stack trace' })
     return NextResponse.json(
       {
         success: false,

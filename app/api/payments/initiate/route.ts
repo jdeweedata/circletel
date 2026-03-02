@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (transactionError) {
-      paymentLogger.error('Error creating payment transaction:', transactionError);
+      paymentLogger.error('Error creating payment transaction', { error: transactionError.message });
       // Continue anyway - payment can still work even if we don't track it perfectly
     }
 
@@ -156,10 +156,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        paymentLogger.error('Failed to log payment consents:', consentLog.error);
+        paymentLogger.error('Failed to log payment consents', { error: consentLog.error });
         // Don't fail the payment if consent logging fails
       } else {
-        paymentLogger.info('Payment consents logged successfully:', consentLog.consent_id);
+        paymentLogger.info('Payment consents logged successfully', { consent_id: consentLog.consent_id });
       }
     }
 
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       message: 'Payment initiated successfully'
     });
   } catch (error) {
-    paymentLogger.error('Payment initiation error:', error);
+    paymentLogger.error('Payment initiation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

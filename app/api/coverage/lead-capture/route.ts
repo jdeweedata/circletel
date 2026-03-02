@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      apiLogger.error('Database error creating lead:', dbError);
+      apiLogger.error('Database error creating lead', { error: dbError.message, code: dbError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to create lead in database' },
         { status: 500 }
@@ -84,16 +84,16 @@ export async function POST(request: NextRequest) {
     })
       .then((salesResult) => {
         if (salesResult.success) {
-          apiLogger.info('Sales alert sent successfully:', {
+          apiLogger.info('Sales alert sent successfully', {
             emailSent: salesResult.emailSent,
             zohoLeadId: salesResult.zohoLeadId,
           });
         } else {
-          apiLogger.error('Sales alert failed:', salesResult.errors);
+          apiLogger.error('Sales alert failed', { errors: salesResult.errors });
         }
       })
       .catch((error) => {
-        apiLogger.error('Sales alert error:', error);
+        apiLogger.error('Sales alert error', { error: error instanceof Error ? error.message : String(error) });
       });
 
     // Send confirmation email (async, don't block response)
@@ -110,13 +110,13 @@ export async function POST(request: NextRequest) {
     })
       .then((emailResult) => {
         if (emailResult.success) {
-          apiLogger.info('Confirmation email sent to:', lead.email);
+          apiLogger.info('Confirmation email sent', { email: lead.email });
         } else {
-          apiLogger.error('Failed to send email:', emailResult.error);
+          apiLogger.error('Failed to send email', { error: emailResult.error });
         }
       })
       .catch((error) => {
-        apiLogger.error('Email send error:', error);
+        apiLogger.error('Email send error', { error: error instanceof Error ? error.message : String(error) });
       });
 
     return NextResponse.json({
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       message: 'Lead captured successfully. You will be notified when service is available.',
     });
   } catch (error) {
-    apiLogger.error('Lead capture error:', error);
+    apiLogger.error('Lead capture error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

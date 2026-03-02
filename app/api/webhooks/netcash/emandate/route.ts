@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const customerId = parsedPostback.Field3;
 
     if (!orderId || !orderNumber) {
-      webhookLogger.error('Missing order reference in postback:', parsedPostback);
+      webhookLogger.error('Missing order reference in postback', { parsedPostback });
       return NextResponse.json(
         { error: 'Missing order reference in postback' },
         { status: 400 }
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (findError) {
-      webhookLogger.error('Error finding emandate request:', findError);
+      webhookLogger.error('Error finding emandate request', { error: findError.message });
       return NextResponse.json(
         { error: 'Failed to process postback' },
         { status: 500 }
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       .eq('id', emandateRequest.id);
 
     if (updateError) {
-      webhookLogger.error('Error updating emandate request:', updateError);
+      webhookLogger.error('Error updating emandate request', { error: updateError.message });
       // Continue processing despite error
     }
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.payment_method_id);
 
       if (pmUpdateError) {
-        webhookLogger.error('Error updating payment method:', pmUpdateError);
+        webhookLogger.error('Error updating payment method', { error: pmUpdateError.message });
       }
 
       // Update or create customer_billing record with primary payment method
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
           });
 
         if (billingError) {
-          webhookLogger.error('Error updating customer_billing:', billingError);
+          webhookLogger.error('Error updating customer_billing', { error: billingError.message });
         } else {
           webhookLogger.info('Customer billing updated with debit order:', {
             customerId,
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
         .eq('id', orderId);
 
       if (orderUpdateError) {
-        webhookLogger.error('Error updating order status:', orderUpdateError);
+        webhookLogger.error('Error updating order status', { error: orderUpdateError.message });
       }
 
       // Log status change in order history
@@ -238,11 +238,11 @@ export async function POST(request: NextRequest) {
           package_name: order.package_name,
         }).then((result) => {
           if (result.success) {
-            webhookLogger.info('Customer payment method confirmation email sent:', result.message_id);
+            webhookLogger.info('Customer payment method confirmation email sent', { message_id: result.message_id });
           } else {
-            webhookLogger.error('Failed to send customer confirmation:', result.error);
+            webhookLogger.error('Failed to send customer confirmation', { error: result.error });
           }
-        }).catch((err) => webhookLogger.error('Email error:', err));
+        }).catch((err) => webhookLogger.error('Email error', { error: err instanceof Error ? err.message : String(err) }));
 
         // Send admin notification (async, don't block)
         AdminNotificationService.notifyPaymentMethodRegistered({
@@ -258,11 +258,11 @@ export async function POST(request: NextRequest) {
           monthly_amount: order.package_price,
         }).then((result) => {
           if (result.success) {
-            webhookLogger.info('Admin payment method notification sent:', result.message_id);
+            webhookLogger.info('Admin payment method notification sent', { message_id: result.message_id });
           } else {
-            webhookLogger.error('Failed to send admin notification:', result.error);
+            webhookLogger.error('Failed to send admin notification', { error: result.error });
           }
-        }).catch((err) => webhookLogger.error('Admin notification error:', err));
+        }).catch((err) => webhookLogger.error('Admin notification error', { error: err instanceof Error ? err.message : String(err) }));
 
         // Update order_status_history to mark customer was notified
         await supabase
@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.payment_method_id);
 
       if (pmFailError) {
-        webhookLogger.error('Error updating failed payment method:', pmFailError);
+        webhookLogger.error('Error updating failed payment method', { error: pmFailError.message });
       }
 
       webhookLogger.info('Payment method registration failed:', {
@@ -323,9 +323,9 @@ export async function POST(request: NextRequest) {
             <p><strong>Action Required:</strong> Contact customer to retry payment method setup or use alternative payment method.</p>
           `,
         }).then(() => {
-          webhookLogger.info('Admin notified of failed mandate:', failedOrder.order_number);
+          webhookLogger.info('Admin notified of failed mandate', { order_number: failedOrder.order_number });
         }).catch((err) => {
-          webhookLogger.error('Failed to notify admin of mandate failure:', err);
+          webhookLogger.error('Failed to notify admin of mandate failure', { error: err instanceof Error ? err.message : String(err) });
         });
       }
     }
@@ -337,7 +337,7 @@ export async function POST(request: NextRequest) {
       mandateSuccessful,
     });
   } catch (error: any) {
-    webhookLogger.error('Error processing NetCash eMandate postback:', error);
+    webhookLogger.error('Error processing NetCash eMandate postback', { error: error instanceof Error ? error.message : String(error) });
 
     // Return 200 even on error to prevent NetCash retries flooding our system
     // Log error for manual review

@@ -30,7 +30,7 @@ export async function syncCustomerToZohoBilling(
   const supabase = await createClient();
 
   try {
-    zohoLogger.debug('[CustomerSync] Starting sync for customer:', customer_id);
+    zohoLogger.debug('[CustomerSync] Starting sync for customer', { customer_id });
 
     // Update sync status to 'syncing'
     await supabase
@@ -51,7 +51,7 @@ export async function syncCustomerToZohoBilling(
 
     // Check if already synced
     if (customer.zoho_billing_customer_id) {
-      zohoLogger.debug('[CustomerSync] Customer already synced:', customer.zoho_billing_customer_id);
+      zohoLogger.debug('[CustomerSync] Customer already synced', { zoho_billing_customer_id: customer.zoho_billing_customer_id });
       return {
         success: true,
         zoho_customer_id: customer.zoho_billing_customer_id
@@ -100,7 +100,7 @@ export async function syncCustomerToZohoBilling(
       zohoPayload
     );
 
-    zohoLogger.info('[CustomerSync] Successfully synced to ZOHO:', zoho_customer_id);
+    zohoLogger.info('[CustomerSync] Successfully synced to ZOHO', { zoho_customer_id });
 
     // Update customer with ZOHO ID and sync status
     await supabase
@@ -131,7 +131,7 @@ export async function syncCustomerToZohoBilling(
     };
 
   } catch (error) {
-    zohoLogger.error('[CustomerSync] Error syncing customer:', error);
+    zohoLogger.error('[CustomerSync] Error syncing customer', { error: error instanceof Error ? error.message : String(error) });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

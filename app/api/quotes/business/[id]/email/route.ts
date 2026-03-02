@@ -299,10 +299,10 @@ export async function POST(
       ]
     });
 
-    apiLogger.info('Resend API result:', JSON.stringify(emailResult, null, 2));
+    apiLogger.info('Resend API result', { result: JSON.stringify(emailResult, null, 2) });
 
     if (!emailResult.data || emailResult.error) {
-      apiLogger.error('Resend error:', emailResult.error);
+      apiLogger.error('Resend error', { error: emailResult.error?.message || 'Unknown error' });
       throw new Error(emailResult.error?.message || 'Failed to send email');
     }
 
@@ -336,7 +336,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    apiLogger.error('Email sending error:', error);
+    apiLogger.error('Email sending error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

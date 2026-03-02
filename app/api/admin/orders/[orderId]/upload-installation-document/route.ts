@@ -102,7 +102,7 @@ export async function POST(
       });
 
     if (uploadError) {
-      apiLogger.error('Error uploading document:', uploadError);
+      apiLogger.error('Error uploading document', { error: uploadError.message });
       return NextResponse.json(
         {
           success: false,
@@ -166,7 +166,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    apiLogger.error('Error uploading document:', error);
+    apiLogger.error('Error uploading document', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

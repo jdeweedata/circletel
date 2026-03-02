@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       .order('name', { ascending: true });
 
     if (integrationsError) {
-      apiLogger.error('[HealthAPI] Error fetching integrations:', integrationsError);
+      apiLogger.error('[HealthAPI] Error fetching integrations', { error: integrationsError.message, code: integrationsError.code });
       return NextResponse.json(
         { error: 'Failed to fetch integrations' },
         { status: 500 }
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[HealthAPI] Error:', error);
+    apiLogger.error('[HealthAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

@@ -58,7 +58,7 @@ async function fetchIntegrationData(): Promise<{
       .order('name');
 
     if (error) {
-      apiLogger.error('Error fetching integrations:', error);
+      apiLogger.error('Error fetching integrations', { error: error.message, code: error.code });
       return { integrations: [], summary: { total: 0, healthy: 0, degraded: 0, down: 0, unknown: 0 } };
     }
 
@@ -85,7 +85,7 @@ async function fetchIntegrationData(): Promise<{
 
     return { integrations, summary };
   } catch (err) {
-    apiLogger.error('Error in fetchIntegrationData:', err);
+    apiLogger.error('Error in fetchIntegrationData', { error: err instanceof Error ? err.message : String(err) });
     return { integrations: [], summary: { total: 0, healthy: 0, degraded: 0, down: 0, unknown: 0 } };
   }
 }
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      apiLogger.error('Gemini API error:', geminiResponse.status, errorText);
+      apiLogger.error('Gemini API error', { status: geminiResponse.status, error: errorText });
 
       // Parse error for more specific messaging
       let errorMessage = 'Failed to get response from AI. Please try again.';
@@ -334,7 +334,7 @@ export async function POST(request: NextRequest) {
 
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         } catch (err) {
-          apiLogger.error('Stream processing error:', err);
+          apiLogger.error('Stream processing error', { error: err instanceof Error ? err.message : String(err) });
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Stream processing error' })}\n\n`));
         } finally {
           controller.close();
@@ -351,7 +351,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('AI Assistant error:', error);
+    apiLogger.error('AI Assistant error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

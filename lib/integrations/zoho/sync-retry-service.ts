@@ -126,7 +126,7 @@ async function updateRetryStatus(params: {
     );
 
   if (error) {
-    zohoLogger.error('[ZohoRetryService] Failed to update retry status:', error);
+    zohoLogger.error('[ZohoRetryService] Failed to update retry status', { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -156,7 +156,7 @@ export async function syncWithRetry(
 
     throw new Error(result.error || 'Sync failed without error message');
   } catch (error) {
-    zohoLogger.error(`[ZohoRetryService] ✗ Sync failed for ${servicePackage.id}:`, error);
+    zohoLogger.error(`[ZohoRetryService] Sync failed for ${servicePackage.id}`, { error: error instanceof Error ? error.message : String(error) });
 
     const structuredError = buildStructuredError(error, currentAttempt, servicePackage);
     const nextRetryAt = calculateNextRetryAt(currentAttempt);
@@ -219,7 +219,7 @@ export async function getRetryQueue(): Promise<ServicePackage[]> {
     .in('id', packageIds);
 
   if (pkgError || !packages) {
-    zohoLogger.error('[ZohoRetryService] Failed to fetch service packages for retry:', pkgError);
+    zohoLogger.error('[ZohoRetryService] Failed to fetch service packages for retry', { error: pkgError instanceof Error ? pkgError.message : String(pkgError) });
     return [];
   }
 

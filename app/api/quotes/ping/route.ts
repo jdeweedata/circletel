@@ -28,7 +28,7 @@ export async function GET() {
     });
   } catch (error) {
     const elapsed = Date.now() - start;
-    apiLogger.error('[Ping API] Exception:', error);
+    apiLogger.error('[Ping API] Exception', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

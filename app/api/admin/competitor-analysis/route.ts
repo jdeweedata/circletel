@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    apiLogger.error('[Competitor Analysis API] Dashboard error:', error);
+    apiLogger.error('[Competitor Analysis API] Dashboard error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch dashboard stats' },
       { status: 500 }

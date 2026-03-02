@@ -61,7 +61,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .not('connection_id', 'eq', '')
 
     if (servicesError) {
-      cronLogger.error('[Diagnostics Cron] Failed to fetch services:', servicesError)
+      cronLogger.error('[Diagnostics Cron] Failed to fetch services', { error: servicesError.message })
       return NextResponse.json(
         { error: 'Failed to fetch services' },
         { status: 500 }
@@ -118,8 +118,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         } else {
           errors.push(`${service.id}: ${result.reason}`)
           cronLogger.error(
-            `[Diagnostics Cron] Failed to check ${service.id}:`,
-            result.reason
+            `[Diagnostics Cron] Failed to check ${service.id}`,
+            { error: result.reason instanceof Error ? result.reason.message : String(result.reason) }
           )
         }
       }
@@ -148,9 +148,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const duration = Date.now() - startTime
 
     cronLogger.info(
-      `[Diagnostics Cron] Completed in ${duration}ms:`,
-      `${stats.healthy} healthy, ${stats.warning} warning, ${stats.critical} critical, ${stats.offline} offline`,
-      `(${stats.tickets_created} tickets created, ${stats.errors} errors)`
+      `[Diagnostics Cron] Completed in ${duration}ms: ${stats.healthy} healthy, ${stats.warning} warning, ${stats.critical} critical, ${stats.offline} offline (${stats.tickets_created} tickets created, ${stats.errors} errors)`
     )
 
     // Send summary email if there are critical issues
@@ -182,7 +180,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   } catch (error) {
     const duration = Date.now() - startTime
-    cronLogger.error('[Diagnostics Cron] Error:', error)
+    cronLogger.error('[Diagnostics Cron] Error', { error: error instanceof Error ? error.message : String(error) })
 
     return NextResponse.json(
       {
@@ -252,9 +250,9 @@ View full details at: ${process.env.NEXT_PUBLIC_BASE_URL}/admin/diagnostics
       text: body,
     })
 
-    cronLogger.info('[Diagnostics Cron] Summary email sent to', supportEmail)
+    cronLogger.info('[Diagnostics Cron] Summary email sent', { recipient: supportEmail })
   } catch (error) {
-    cronLogger.error('[Diagnostics Cron] Failed to send summary email:', error)
+    cronLogger.error('[Diagnostics Cron] Failed to send summary email', { error: error instanceof Error ? error.message : String(error) })
   }
 }
 

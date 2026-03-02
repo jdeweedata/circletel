@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('Failed to create coverage lead:', error);
+      apiLogger.error('Failed to create coverage lead', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to create coverage lead', details: error.message },
         { status: 500 }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       longitude: lead.longitude
     });
   } catch (error) {
-    apiLogger.error('Coverage lead creation error:', error);
+    apiLogger.error('Coverage lead creation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

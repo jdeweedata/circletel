@@ -76,7 +76,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      apiLogger.error('Version restore error:', updateError);
+      apiLogger.error('[CMS] Version restore error', { error: updateError.message });
       return NextResponse.json({ error: 'Failed to restore version' }, { status: 500 });
     }
 
@@ -86,7 +86,7 @@ export async function POST(
       message: `Restored to version ${version}`,
     });
   } catch (error) {
-    apiLogger.error('Restore POST error:', error);
+    apiLogger.error('[CMS] Restore POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

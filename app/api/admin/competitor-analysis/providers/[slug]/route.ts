@@ -71,7 +71,7 @@ export async function GET(request: NextRequest, context: RouteParams) {
       scrape_history: scrapeLogs || [],
     });
   } catch (error) {
-    apiLogger.error('[Provider API] GET error:', error);
+    apiLogger.error('[Provider API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch provider' },
       { status: 500 }
@@ -143,7 +143,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
       .single();
 
     if (error) {
-      apiLogger.error('[Provider API] Update error:', error);
+      apiLogger.error('[Provider API] Update error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to update provider' },
         { status: 500 }
@@ -152,7 +152,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    apiLogger.error('[Provider API] PATCH error:', error);
+    apiLogger.error('[Provider API] PATCH error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to update provider' },
       { status: 500 }
@@ -186,7 +186,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       .eq('slug', slug);
 
     if (error) {
-      apiLogger.error('[Provider API] Delete error:', error);
+      apiLogger.error('[Provider API] Delete error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to delete provider' },
         { status: 500 }
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       message: `Provider "${existing.name}" deleted successfully`,
     });
   } catch (error) {
-    apiLogger.error('[Provider API] DELETE error:', error);
+    apiLogger.error('[Provider API] DELETE error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to delete provider' },
       { status: 500 }

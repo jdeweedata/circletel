@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       .order('integration_slug', { ascending: true });
 
     if (tokensError) {
-      apiLogger.error('[OAuth API] Error fetching tokens:', tokensError);
+      apiLogger.error('[OAuth API] Error fetching tokens', { error: tokensError.message, code: tokensError.code });
       // Don't fail completely, continue with empty array
     }
 
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (zohoError && zohoError.code !== 'PGRST116') {
-      apiLogger.error('[OAuth API] Error fetching Zoho token:', zohoError);
+      apiLogger.error('[OAuth API] Error fetching Zoho token', { error: zohoError.message, code: zohoError.code });
     }
 
     // =========================================================================
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[OAuth API] Error:', error);
+    apiLogger.error('[OAuth API] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

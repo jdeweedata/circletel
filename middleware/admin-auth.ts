@@ -71,6 +71,20 @@ export async function handleAdminAuth(
   supabase: SupabaseClient
 ): Promise<AdminAuthResult> {
   const pathname = request.nextUrl.pathname;
+
+  // DEV BYPASS: Skip auth for localhost in development mode
+  const isDev = process.env.NODE_ENV === 'development';
+  const isLocalhost = request.headers.get('host')?.includes('localhost') ||
+                      request.headers.get('host')?.startsWith('127.0.0.1');
+
+  if (isDev && isLocalhost && isAdminRoute(pathname)) {
+    // Return mock user for dev - allows full admin access without login
+    return {
+      shouldRedirect: false,
+      user: { id: 'dev-user', email: 'dev@localhost' } as any
+    };
+  }
+
   const user = await getSessionUser(supabase);
 
   // Debug logging removed - middleware edge runtime constraints

@@ -172,7 +172,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkQuote
           ? error.code
           : 'UNKNOWN_ERROR';
 
-        apiLogger.error(`[Bulk Quote] Failed to create quote for site ${i}:`, {
+        apiLogger.error(`[Bulk Quote] Failed to create quote for site ${i}`, {
           address: site.address,
           error: errorMessage,
           code: errorCode,

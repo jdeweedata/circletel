@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     const result = await runReconciliation();
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Reconciliation cron error:', error);
+    cronLogger.error('Reconciliation cron error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const result = await runReconciliation(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Reconciliation error:', error);
+    cronLogger.error('Reconciliation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Reconciliation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -331,6 +331,6 @@ async function logReconciliation(
         result: result,
       });
   } catch (error) {
-    cronLogger.error('Failed to log reconciliation:', error);
+    cronLogger.error('Failed to log reconciliation', { error: error instanceof Error ? error.message : String(error) });
   }
 }

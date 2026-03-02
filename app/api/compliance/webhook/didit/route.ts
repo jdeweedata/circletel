@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     try {
       isValidSignature = verifyDiditWebhook(rawBody, signature);
     } catch (error) {
-      webhookLogger.error('[Webhook API] Signature verification error:', error);
+      webhookLogger.error('[Webhook API] Signature verification error', { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         {
           success: false,
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     try {
       webhookPayload = JSON.parse(rawBody);
     } catch (error) {
-      webhookLogger.error('[Webhook API] Failed to parse webhook payload:', error);
+      webhookLogger.error('[Webhook API] Failed to parse webhook payload', { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         {
           success: false,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     const result = await processDiditWebhook(webhookPayload);
 
     if (!result.valid) {
-      webhookLogger.error('[Webhook API] Webhook processing failed:', result.error);
+      webhookLogger.error('[Webhook API] Webhook processing failed', { error: result.error });
       return NextResponse.json(
         {
           success: false,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    webhookLogger.error('[Webhook API] Unexpected error:', error);
+    webhookLogger.error('[Webhook API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

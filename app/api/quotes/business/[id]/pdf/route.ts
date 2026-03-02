@@ -73,7 +73,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    apiLogger.error('PDF generation error:', error);
+    apiLogger.error('PDF generation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { 
         success: false, 

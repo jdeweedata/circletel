@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    apiLogger.error('Send reminders failed:', errorMessage);
+    apiLogger.error('Send reminders failed', { error: errorMessage });
 
     return NextResponse.json(
       { success: false, error: errorMessage },
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    apiLogger.error('Get pending reminders failed:', errorMessage);
+    apiLogger.error('Get pending reminders failed', { error: errorMessage });
 
     return NextResponse.json(
       { success: false, error: errorMessage },

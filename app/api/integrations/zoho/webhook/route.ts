@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return await processWebhook(payload);
     }
   } catch (error) {
-    webhookLogger.error('[ZOHO Webhook] Error:', error);
+    webhookLogger.error('[ZOHO Webhook] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -62,14 +62,14 @@ export async function POST(request: NextRequest) {
  */
 async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse> {
   try {
-    webhookLogger.info('[ZOHO Webhook] Received:', payload.operation, payload.module, payload.record_id);
+    webhookLogger.info('[ZOHO Webhook] Received', { operation: payload.operation, module: payload.module, record_id: payload.record_id });
 
     const supabase = await createClient();
 
     // Find corresponding CircleTel entity
     const zohoType = mapModuleToZohoType(payload.module);
     if (!zohoType) {
-      webhookLogger.warn('[ZOHO Webhook] Unknown module:', payload.module);
+      webhookLogger.warn('[ZOHO Webhook] Unknown module', { module: payload.module });
       return NextResponse.json({
         success: true,
         message: 'Module not tracked',
@@ -84,7 +84,7 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
       .single();
 
     if (!mapping) {
-      webhookLogger.warn('[ZOHO Webhook] No mapping found for:', zohoType, payload.record_id);
+      webhookLogger.warn('[ZOHO Webhook] No mapping found for', { zohoType, record_id: payload.record_id });
       return NextResponse.json({
         success: true,
         message: 'No mapping found',
@@ -104,7 +104,7 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
         webhookLogger.info('[ZOHO Webhook] Insert operation (no action needed)');
         break;
       default:
-        webhookLogger.warn('[ZOHO Webhook] Unknown operation:', payload.operation);
+        webhookLogger.warn('[ZOHO Webhook] Unknown operation', { operation: payload.operation });
     }
 
     return NextResponse.json({
@@ -112,7 +112,7 @@ async function processWebhook(payload: ZohoWebhookPayload): Promise<NextResponse
       message: 'Webhook processed',
     });
   } catch (error) {
-    webhookLogger.error('[ZOHO Webhook] Processing error:', error);
+    webhookLogger.error('[ZOHO Webhook] Processing error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -195,7 +195,7 @@ function verifyWebhookSignature(payload: string, signature: string, secret: stri
     // Timing-safe comparison
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
   } catch (error) {
-    webhookLogger.error('[ZOHO Webhook] Signature verification error:', error);
+    webhookLogger.error('[ZOHO Webhook] Signature verification error', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }

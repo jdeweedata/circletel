@@ -71,6 +71,7 @@ export async function processPaymentSuccess(
 ): Promise<WebhookProcessingResult> {
   try {
     console.log('[Webhook Processor] Processing payment success:', payload.Reference);
+    const supabase = await createClient();
 
     // 1. Find order by payment reference
     const { data: order, error: orderError } = await supabase
@@ -164,6 +165,7 @@ export async function processPaymentFailure(
 ): Promise<WebhookProcessingResult> {
   try {
     console.log('[Webhook Processor] Processing payment failure:', payload.Reference);
+    const supabase = await createClient();
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
@@ -245,6 +247,7 @@ export async function processRefund(
 ): Promise<WebhookProcessingResult> {
   try {
     console.log('[Webhook Processor] Processing refund:', payload.Reference);
+    const supabase = await createClient();
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
@@ -325,6 +328,7 @@ export async function processChargeback(
 ): Promise<WebhookProcessingResult> {
   try {
     console.log('[Webhook Processor] Processing chargeback:', payload.Reference);
+    const supabase = await createClient();
 
     // 1. Find order
     const { data: order, error: orderError } = await supabase
@@ -582,6 +586,7 @@ async function createWebhookAudit(
   eventData: Record<string, unknown>
 ): Promise<void> {
   try {
+    const supabase = await createClient();
     await supabase
       .from('payment_webhook_audit')
       .insert({
@@ -623,6 +628,7 @@ async function triggerServiceActivation(orderId: string): Promise<void> {
  * Check if order exists
  */
 export async function orderExists(paymentReference: string): Promise<boolean> {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('orders')
     .select('id')
@@ -636,6 +642,7 @@ export async function orderExists(paymentReference: string): Promise<boolean> {
  * Get order by payment reference
  */
 export async function getOrderByReference(paymentReference: string): Promise<any | null> {
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('orders')
     .select('*')

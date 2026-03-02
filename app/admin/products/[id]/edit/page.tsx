@@ -309,47 +309,55 @@ export default function EditProductPage() {
 
   return (
     <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
-      <div className="container mx-auto py-8 max-w-5xl">
-        <div className="flex items-center gap-4 mb-6">
-          <Link href="/admin/products">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Products
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">Edit Product</h1>
-            <p className="text-muted-foreground">
-              Update product details, pricing, and features
-            </p>
+      <div className="min-h-screen bg-gray-50/50">
+        {/* Header with Breadcrumb */}
+        <div className="bg-white border-b sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto px-6 py-4">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-2 text-sm mb-3">
+              <Link href="/admin/products" className="text-gray-500 hover:text-circleTel-orange transition-colors">
+                Products
+              </Link>
+              <span className="text-gray-300">/</span>
+              <Link href={`/admin/products/${params.id}`} className="text-gray-500 hover:text-circleTel-orange transition-colors truncate max-w-[200px]">
+                {product?.name || 'Product'}
+              </Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-gray-900 font-medium">Edit</span>
+            </nav>
+
+            {/* Title */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Edit Product</h1>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {product?.sku && <span className="font-mono">{product.sku}</span>}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
+        <div className="max-w-5xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-3 md:grid-cols-6">
-              <TabsTrigger value="basic" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <FileText className="h-4 w-4 mr-1.5" />
+            <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto flex flex-wrap gap-1">
+              <TabsTrigger value="basic" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Basic Info
               </TabsTrigger>
-              <TabsTrigger value="pricing" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Calculator className="h-4 w-4 mr-1.5" />
+              <TabsTrigger value="pricing" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Pricing
               </TabsTrigger>
-              <TabsTrigger value="cost-breakdown" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Layers className="h-4 w-4 mr-1.5" />
+              <TabsTrigger value="cost-breakdown" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Cost Breakdown
               </TabsTrigger>
-              <TabsTrigger value="connectivity" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Wifi className="h-4 w-4 mr-1.5" />
+              <TabsTrigger value="connectivity" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Connectivity
               </TabsTrigger>
-              <TabsTrigger value="features" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Tag className="h-4 w-4 mr-1.5" />
+              <TabsTrigger value="features" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Features
               </TabsTrigger>
-              <TabsTrigger value="status" className="px-3 py-2 text-sm data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-                <Settings className="h-4 w-4 mr-1.5" />
+              <TabsTrigger value="status" className="px-4 py-2 text-sm data-[state=active]:bg-circleTel-orange data-[state=active]:text-white rounded-md">
                 Status
               </TabsTrigger>
             </TabsList>
@@ -465,52 +473,44 @@ export default function EditProductPage() {
 
             {/* Pricing & Costs Tab */}
             <TabsContent value="pricing" className="space-y-6">
-              {/* Margin Calculator Summary */}
-              <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-green-800">
-                    <TrendingUp className="h-5 w-5" />
-                    Margin Calculator
-                  </CardTitle>
-                  <CardDescription>
-                    Real-time profit margin analysis
-                    {priceCalculations.usingBreakdown && (
-                      <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
-                        Using Cost Breakdown
-                      </Badge>
-                    )}
-                  </CardDescription>
+              {/* Margin Calculator Summary - Compact */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      Cost & Margin Analysis
+                      {priceCalculations.usingBreakdown && (
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
+                          Cost Breakdown Active
+                        </Badge>
+                      )}
+                    </CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Total Cost</p>
-                      <p className="text-2xl font-bold text-red-600">{formatCurrency(priceCalculations.cost)}</p>
-                      <p className="text-xs text-gray-400">
-                        {priceCalculations.usingBreakdown ? 'From breakdown' : 'Wholesale'}
-                      </p>
+                <CardContent className="pt-2 px-4 pb-4">
+                  <div className="grid grid-cols-5 gap-3">
+                    <div className="text-center p-3 bg-red-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Total Cost</p>
+                      <p className="text-lg font-bold text-red-600">{formatCurrency(priceCalculations.cost)}</p>
                     </div>
-                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Selling Price (Excl. VAT)</p>
-                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(priceCalculations.sellingPriceExclVat)}</p>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Selling Price</p>
+                      <p className="text-lg font-bold text-gray-900">{formatCurrency(priceCalculations.sellingPriceExclVat)}</p>
                     </div>
-                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Selling Price (Incl. VAT)</p>
-                      <p className="text-2xl font-bold text-circleTel-orange">{formatCurrency(priceCalculations.sellingPriceInclVat)}</p>
-                      <p className="text-xs text-gray-400">VAT: {formatCurrency(priceCalculations.vatAmount)}</p>
+                    <div className="text-center p-3 bg-orange-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Incl. VAT</p>
+                      <p className="text-lg font-bold text-circleTel-orange">{formatCurrency(priceCalculations.sellingPriceInclVat)}</p>
                     </div>
-                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Gross Profit</p>
-                      <p className={`text-2xl font-bold ${priceCalculations.grossProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(priceCalculations.grossProfit)}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                      <p className="text-xs text-gray-500 uppercase tracking-wide">Margin %</p>
-                      <p className={`text-2xl font-bold ${priceCalculations.marginPercentage >= 30 ? 'text-green-600' : priceCalculations.marginPercentage >= 20 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Margin %</p>
+                      <p className={`text-lg font-bold ${priceCalculations.marginPercentage >= 30 ? 'text-green-600' : priceCalculations.marginPercentage >= 20 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {priceCalculations.marginPercentage.toFixed(1)}%
                       </p>
-                      <p className="text-xs text-gray-400">Markup: {priceCalculations.markupPercentage.toFixed(1)}%</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Once-off Costs</p>
+                      <p className="text-lg font-bold text-gray-900">{formatCurrency(0)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -947,6 +947,7 @@ export default function EditProductPage() {
             </Button>
           </div>
         </form>
+        </div>
       </div>
     </PermissionGate>
   );

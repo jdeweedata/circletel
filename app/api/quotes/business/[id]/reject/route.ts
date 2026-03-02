@@ -64,7 +64,7 @@ export async function POST(
       .single();
 
     if (updateError || !updatedQuote) {
-      apiLogger.error('Quote rejection error:', updateError);
+      apiLogger.error('Quote rejection error', { error: updateError?.message, code: updateError?.code });
       return NextResponse.json(
         {
           success: false,
@@ -80,7 +80,7 @@ export async function POST(
       message: 'Quote rejected successfully'
     });
   } catch (error) {
-    apiLogger.error('Error rejecting quote:', error);
+    apiLogger.error('Error rejecting quote', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

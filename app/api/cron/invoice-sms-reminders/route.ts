@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const result = await runSmsReminders();
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Invoice SMS reminders cron error:', error);
+    cronLogger.error('Invoice SMS reminders cron error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'SMS reminders failed',
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const result = await runSmsReminders(minDaysOverdue, maxDaysOverdue);
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Invoice SMS reminders error:', error);
+    cronLogger.error('Invoice SMS reminders error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'SMS reminders failed',
@@ -166,6 +166,6 @@ async function logCronExecution(
       result,
     });
   } catch (error) {
-    cronLogger.error('Failed to log cron execution:', error);
+    cronLogger.error('Failed to log cron execution', { error: error instanceof Error ? error.message : String(error) });
   }
 }

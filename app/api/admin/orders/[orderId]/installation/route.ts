@@ -45,7 +45,7 @@ export async function GET(
       .maybeSingle();
 
     if (error) {
-      apiLogger.error('Error fetching installation task:', error);
+      apiLogger.error('Error fetching installation task', { error: error.message, code: error.code });
       return NextResponse.json(
         {
           success: false,
@@ -94,7 +94,7 @@ export async function GET(
       data: transformedTask,
     });
   } catch (error: any) {
-    apiLogger.error('Error fetching installation task:', error);
+    apiLogger.error('Error fetching installation task', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

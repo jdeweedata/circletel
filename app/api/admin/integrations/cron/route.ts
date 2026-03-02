@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[CronJobsAPI] Error:', error);
+    apiLogger.error('[CronJobsAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

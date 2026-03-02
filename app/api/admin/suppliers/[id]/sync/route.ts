@@ -1,16 +1,21 @@
 /**
  * Admin Supplier Sync API Route
  * POST /api/admin/suppliers/[id]/sync - Trigger manual sync for a supplier
+ *
+ * Supports: SCOOP (XML), MIRO (HTML), NOLOGY (HTML)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { syncScoopProducts } from '@/lib/suppliers/scoop-sync'
+import { syncMiRoProducts } from '@/lib/suppliers/miro'
+import { syncNologyProducts } from '@/lib/suppliers/nology'
 import { cacheAllSupplierImages } from '@/lib/suppliers/image-cache'
+import type { SyncResult } from '@/lib/suppliers/types'
 
 // Allow longer execution for sync operations
 export const runtime = 'nodejs'
-export const maxDuration = 60 // 60 seconds for sync
+export const maxDuration = 300 // 5 minutes for multi-category scraping
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -30,7 +35,7 @@ export async function POST(
     // Get supplier details
     const { data: supplier, error: supplierError } = await supabase
       .from('suppliers')
-      .select('id, code, name, feed_type, feed_url')
+      .select('id, code, name, feed_type, feed_url, sync_status')
       .eq('id', id)
       .single()
 
@@ -49,30 +54,59 @@ export async function POST(
       )
     }
 
+    // Check if a sync is already in progress
+    if (supplier.sync_status === 'syncing') {
+      return NextResponse.json(
+        { success: false, error: 'Sync already in progress for this supplier' },
+        { status: 409 }
+      )
+    }
+
     // Parse request body for options
     const body = await request.json().catch(() => ({}))
     const cacheImages = body.cache_images ?? true
     const triggeredByUserId = body.user_id || null
+    const dryRun = body.dry_run ?? false
 
-    console.log(`[Supplier Sync] Starting sync for ${supplier.name} (${supplier.code})`)
+    console.log(`[Supplier Sync] Starting sync for ${supplier.name} (${supplier.code})${dryRun ? ' [DRY RUN]' : ''}`)
 
-    // Currently only Scoop is supported
-    if (supplier.code !== 'SCOOP') {
-      return NextResponse.json(
-        { success: false, error: `Sync not implemented for supplier: ${supplier.code}` },
-        { status: 501 }
-      )
+    // Run sync based on supplier code
+    let syncResult: SyncResult
+
+    switch (supplier.code) {
+      case 'SCOOP':
+        syncResult = await syncScoopProducts({
+          triggered_by: 'manual',
+          triggered_by_user_id: triggeredByUserId,
+        })
+        break
+
+      case 'MIRO':
+        syncResult = await syncMiRoProducts({
+          triggered_by: 'manual',
+          triggered_by_user_id: triggeredByUserId,
+          dry_run: dryRun,
+        })
+        break
+
+      case 'NOLOGY':
+        syncResult = await syncNologyProducts({
+          triggered_by: 'manual',
+          triggered_by_user_id: triggeredByUserId,
+          dry_run: dryRun,
+        })
+        break
+
+      default:
+        return NextResponse.json(
+          { success: false, error: `Sync not implemented for supplier: ${supplier.code}` },
+          { status: 501 }
+        )
     }
 
-    // Run sync
-    const syncResult = await syncScoopProducts({
-      triggered_by: 'manual',
-      triggered_by_user_id: triggeredByUserId,
-    })
-
-    // Optionally cache images
+    // Optionally cache images (skip for dry run)
     let imageCacheResult = null
-    if (cacheImages && syncResult.success) {
+    if (cacheImages && syncResult.success && !dryRun) {
       console.log(`[Supplier Sync] Caching images for ${supplier.name}`)
       try {
         imageCacheResult = await cacheAllSupplierImages(supplier.id, supplier.code)
@@ -102,10 +136,11 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Sync completed for ${supplier.name}`,
+      message: `Sync completed for ${supplier.name}${dryRun ? ' (dry run)' : ''}`,
       data: {
         log_id: syncResult.log_id,
         duration_ms: syncResult.duration_ms,
+        dry_run: dryRun,
         stats: {
           ...syncResult.stats,
           images_cached: imageCacheResult?.cached || 0,

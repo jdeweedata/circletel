@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (paymentError) {
-      apiLogger.error('[Manual Payment] Failed to record payment:', paymentError);
+      apiLogger.error('[Manual Payment] Failed to record payment', { error: paymentError.message, code: paymentError.code });
       return NextResponse.json(
         { error: 'Failed to record payment', details: paymentError.message },
         { status: 500 }
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       .eq('id', invoice_id);
 
     if (updateError) {
-      apiLogger.error('[Manual Payment] Failed to update invoice:', updateError);
+      apiLogger.error('[Manual Payment] Failed to update invoice', { error: updateError.message, code: updateError.code });
       return NextResponse.json(
         { error: 'Failed to update invoice', details: updateError.message },
         { status: 500 }
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (balanceError) {
-        apiLogger.warn('[Manual Payment] Failed to update balance:', balanceError);
+        apiLogger.warn('[Manual Payment] Failed to update balance', { error: balanceError.message, code: balanceError.code });
         // Don't fail the request, payment was recorded successfully
       }
     }
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[Manual Payment] Error:', error);
+    apiLogger.error('[Manual Payment] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

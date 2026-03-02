@@ -89,7 +89,7 @@ export async function DELETE(
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {
-    apiLogger.error('Interstellio disconnect session error:', error)
+    apiLogger.error('Interstellio disconnect session error', { error: error instanceof Error ? error.message : String(error) })
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

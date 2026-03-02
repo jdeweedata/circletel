@@ -143,7 +143,7 @@ export async function GET(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[WebhookLogDetailsAPI] Error:', error);
+    apiLogger.error('[WebhookLogDetailsAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

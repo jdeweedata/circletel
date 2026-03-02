@@ -85,7 +85,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    apiLogger.error('[API] Error fetching KYC status:', error);
+    apiLogger.error('[API] Error fetching KYC status', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

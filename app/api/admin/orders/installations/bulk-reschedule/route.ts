@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       .select('id, order_id');
 
     if (updateError) {
-      apiLogger.error('Error updating installation tasks:', updateError);
+      apiLogger.error('Error updating installation tasks', { error: updateError.message, code: updateError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to reschedule installations', details: updateError.message },
         { status: 500 }
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         .in('id', orderIds);
 
       if (orderUpdateError) {
-        apiLogger.warn('⚠️ Failed to update some orders:', orderUpdateError);
+        apiLogger.warn('Failed to update some orders', { error: orderUpdateError.message, code: orderUpdateError.code });
         // Don't fail the request if order updates fail
       }
     }
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       message: `Successfully rescheduled ${updatedTasks?.length || 0} installation(s)`,
     });
   } catch (error: any) {
-    apiLogger.error('Error in POST /api/admin/orders/installations/bulk-reschedule:', error);
+    apiLogger.error('Error in POST /api/admin/orders/installations/bulk-reschedule', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }

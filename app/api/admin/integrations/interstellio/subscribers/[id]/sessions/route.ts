@@ -98,7 +98,7 @@ export async function GET(
       count: sessions.length,
     })
   } catch (error) {
-    apiLogger.error('Interstellio sessions error:', error)
+    apiLogger.error('Interstellio sessions error', { error: error instanceof Error ? error.message : String(error) })
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }
@@ -183,7 +183,7 @@ export async function DELETE(
       disconnectedAt: new Date().toISOString(),
     })
   } catch (error) {
-    apiLogger.error('Interstellio disconnect all error:', error)
+    apiLogger.error('Interstellio disconnect all error', { error: error instanceof Error ? error.message : String(error) })
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

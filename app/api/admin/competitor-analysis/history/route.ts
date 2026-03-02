@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     const { data: history, error: historyError } = await historyQuery;
 
     if (historyError) {
-      apiLogger.error('[History API] Query error:', historyError);
+      apiLogger.error('[History API] Query error', { error: historyError.message, code: historyError.code });
       return NextResponse.json(
         { error: 'Failed to fetch price history' },
         { status: 500 }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[History API] GET error:', error);
+    apiLogger.error('[History API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch price history' },
       { status: 500 }

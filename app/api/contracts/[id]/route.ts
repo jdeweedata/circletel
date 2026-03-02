@@ -80,7 +80,7 @@ export async function GET(
       .single();
 
     if (contractError || !contract) {
-      apiLogger.error('[ContractAPI] Contract not found:', contractError);
+      apiLogger.error('[ContractAPI] Contract not found', { error: contractError?.message, code: contractError?.code });
       return NextResponse.json(
         {
           success: false,
@@ -159,7 +159,7 @@ export async function GET(
       data: responseData,
     });
   } catch (error) {
-    apiLogger.error('[ContractAPI] Error fetching contract:', error);
+    apiLogger.error('[ContractAPI] Error fetching contract', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

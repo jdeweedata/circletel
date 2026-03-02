@@ -53,7 +53,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    apiLogger.error('Get page error:', error);
+    apiLogger.error('Get page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -112,7 +112,7 @@ export async function PUT(
       .single();
 
     if (error) {
-      apiLogger.error('Failed to update page:', error);
+      apiLogger.error('Failed to update page', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
@@ -120,7 +120,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    apiLogger.error('Update page error:', error);
+    apiLogger.error('Update page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -157,13 +157,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      apiLogger.error('Failed to patch page:', error);
+      apiLogger.error('Failed to patch page', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    apiLogger.error('Patch page error:', error);
+    apiLogger.error('Patch page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -186,7 +186,7 @@ export async function DELETE(
       const { error } = await supabase.from('pb_pages').delete().eq('id', id);
 
       if (error) {
-        apiLogger.error('Failed to delete page:', error);
+        apiLogger.error('Failed to delete page', { error: error.message, code: error.code });
         return NextResponse.json({ error: 'Failed to delete page' }, { status: 500 });
       }
     } else {
@@ -200,14 +200,14 @@ export async function DELETE(
         .eq('id', id);
 
       if (error) {
-        apiLogger.error('Failed to archive page:', error);
+        apiLogger.error('Failed to archive page', { error: error.message, code: error.code });
         return NextResponse.json({ error: 'Failed to archive page' }, { status: 500 });
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    apiLogger.error('Delete page error:', error);
+    apiLogger.error('Delete page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

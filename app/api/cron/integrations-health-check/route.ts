@@ -197,7 +197,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    cronLogger.error('[IntegrationsHealthCheck] Error running health check:', error);
+    cronLogger.error('[IntegrationsHealthCheck] Error running health check', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {
@@ -287,16 +287,16 @@ This is an automated alert from CircleTel Integration Monitoring System
         if (!response.ok) {
           const errorData = await response.json();
           cronLogger.error(
-            `[IntegrationsHealthCheck] Failed to send email to ${admin.email}:`,
-            errorData
+            `[IntegrationsHealthCheck] Failed to send email to ${admin.email}`,
+            { error: errorData }
           );
         } else {
           cronLogger.info(`[IntegrationsHealthCheck] ✅ Alert sent to ${admin.email}`);
         }
       } catch (emailError) {
         cronLogger.error(
-          `[IntegrationsHealthCheck] Error sending email to ${admin.email}:`,
-          emailError
+          `[IntegrationsHealthCheck] Error sending email to ${admin.email}`,
+          { error: emailError instanceof Error ? emailError.message : String(emailError) }
         );
       }
     }
@@ -315,6 +315,6 @@ This is an automated alert from CircleTel Integration Monitoring System
       },
     });
   } catch (error) {
-    cronLogger.error('[IntegrationsHealthCheck] Error sending alert:', error);
+    cronLogger.error('[IntegrationsHealthCheck] Error sending alert', { error: error instanceof Error ? error.message : String(error) });
   }
 }

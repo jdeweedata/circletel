@@ -103,7 +103,7 @@ export async function POST(
     // =========================================================================
     const cronSecret = process.env.CRON_SECRET;
     if (!cronSecret) {
-      apiLogger.error('[CronTriggerAPI] CRON_SECRET not configured');
+      apiLogger.error('[CronTriggerAPI] CRON_SECRET not configured', {});
       return NextResponse.json(
         { error: 'Cron secret not configured - cannot trigger cron job' },
         { status: 500 }
@@ -211,7 +211,7 @@ export async function POST(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[CronTriggerAPI] Error:', error);
+    apiLogger.error('[CronTriggerAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

@@ -57,7 +57,7 @@ export async function handleSignatureComplete(
       .eq('id', contractId);
 
     if (error) {
-      zohoLogger.error('[handleSignatureComplete] Update error:', error);
+      zohoLogger.error('[handleSignatureComplete] Update error', { error: error.message });
       throw new Error(`Failed to update contract ${contractId}: ${error.message}`);
     }
 
@@ -66,7 +66,7 @@ export async function handleSignatureComplete(
     // TODO: Trigger invoice generation (Task Group 10)
     // await triggerInvoiceGeneration(contractId);
   } catch (error: any) {
-    zohoLogger.error('[handleSignatureComplete] Error:', error);
+    zohoLogger.error('[handleSignatureComplete] Error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -138,7 +138,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
           .eq('id', contractId);
 
         if (updateError) {
-          zohoLogger.error('[processSignWebhook] Partial signature update error:', updateError);
+          zohoLogger.error('[processSignWebhook] Partial signature update error', { error: updateError.message });
           return false;
         }
 
@@ -172,7 +172,7 @@ export async function processSignWebhook(payload: ZohoSignWebhookPayload): Promi
 
     return true;
   } catch (error: any) {
-    zohoLogger.error('[processSignWebhook] Processing error:', error);
+    zohoLogger.error('[processSignWebhook] Processing error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -195,7 +195,7 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
       .single();
 
     if (error || !contract) {
-      zohoLogger.error('[checkAndMarkFullySigned] Contract fetch error:', error);
+      zohoLogger.error('[checkAndMarkFullySigned] Contract fetch error', { error: error?.message ?? 'Contract not found' });
       return false;
     }
 
@@ -214,7 +214,7 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
         .eq('id', contractId);
 
       if (updateError) {
-        zohoLogger.error('[checkAndMarkFullySigned] Update error:', updateError);
+        zohoLogger.error('[checkAndMarkFullySigned] Update error', { error: updateError.message });
         return false;
       }
 
@@ -224,7 +224,7 @@ export async function checkAndMarkFullySigned(contractId: string): Promise<boole
 
     return false;
   } catch (error: any) {
-    zohoLogger.error('[checkAndMarkFullySigned] Error:', error);
+    zohoLogger.error('[checkAndMarkFullySigned] Error', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }
@@ -254,7 +254,7 @@ export function verifyWebhookSignature(
       Buffer.from(expectedSignature)
     );
   } catch (error) {
-    zohoLogger.error('[verifyWebhookSignature] Error:', error);
+    zohoLogger.error('[verifyWebhookSignature] Error', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }

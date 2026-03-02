@@ -56,7 +56,7 @@ export async function POST(
       .maybeSingle();
 
     if (installError) {
-      apiLogger.error('Error fetching installation task:', installError);
+      apiLogger.error('Error fetching installation task', { error: installError.message, code: installError.code });
     }
 
     if (!installation || !installation.scheduled_date) {
@@ -110,7 +110,7 @@ export async function POST(
           results.sms.error = smsResult.error || 'Unknown error';
         }
       } catch (smsError: any) {
-        apiLogger.error('Failed to send SMS:', smsError);
+        apiLogger.error('Failed to send SMS', { error: smsError instanceof Error ? smsError.message : String(smsError) });
         results.sms.error = smsError.message;
       }
     }
@@ -140,7 +140,7 @@ export async function POST(
           results.email.error = emailResult.error || 'Unknown error';
         }
       } catch (emailError: any) {
-        apiLogger.error('Failed to send email:', emailError);
+        apiLogger.error('Failed to send email', { error: emailError instanceof Error ? emailError.message : String(emailError) });
         results.email.error = emailError.message;
       }
     }
@@ -189,7 +189,7 @@ export async function POST(
         await supabase.from('order_communications').insert(communications);
       }
     } catch (logError) {
-      apiLogger.warn('⚠️ Failed to log communication:', logError);
+      apiLogger.warn('Failed to log communication', { error: logError instanceof Error ? logError.message : String(logError) });
     }
 
     // Return results
@@ -213,7 +213,7 @@ export async function POST(
         : 'Failed to send reminders',
     });
   } catch (error: any) {
-    apiLogger.error('Error sending installation notification:', error);
+    apiLogger.error('Error sending installation notification', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

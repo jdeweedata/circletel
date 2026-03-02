@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     // Get Current Stats
     // =========================================================================
     const beforeStats = await getPaymentSyncStats();
-    cronLogger.info('[Payment Sync Retry] Current sync stats:', beforeStats);
+    cronLogger.info('[Payment Sync Retry] Current sync stats', { stats: beforeStats });
 
     // =========================================================================
     // Skip if dry run
@@ -134,12 +134,12 @@ export async function GET(request: NextRequest) {
       });
 
       if (logError) {
-        cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
+        cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal)', { error: logError.message });
       } else {
         cronLogger.info('[Payment Sync Retry] Execution logged to database');
       }
     } catch (logError: any) {
-      cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal):', logError.message);
+      cronLogger.warn('[Payment Sync Retry] Failed to log execution (non-fatal)', { error: logError.message });
     }
 
     // =========================================================================
@@ -161,8 +161,8 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    cronLogger.error('[Payment Sync Retry] Fatal error:', error);
-    cronLogger.error('[Payment Sync Retry] Stack:', error.stack);
+    cronLogger.error('[Payment Sync Retry] Fatal error', { error: error.message });
+    cronLogger.error('[Payment Sync Retry] Stack', { stack: error.stack });
 
     // Try to log fatal error to database
     try {
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (logError) {
-      cronLogger.error('[Payment Sync Retry] Failed to log fatal error:', logError);
+      cronLogger.error('[Payment Sync Retry] Failed to log fatal error', { error: logError instanceof Error ? logError.message : String(logError) });
     }
 
     return NextResponse.json(

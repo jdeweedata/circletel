@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Error validating quote request token:', error);
+    apiLogger.error('Error validating quote request token', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

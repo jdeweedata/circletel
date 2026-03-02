@@ -82,7 +82,7 @@ export async function POST(
       result: healthCheckResult,
     });
   } catch (error) {
-    apiLogger.error('[Integration Health Check API] Error:', error);
+    apiLogger.error('[Integration Health Check API] Error', { error: error instanceof Error ? error.message : String(error) });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

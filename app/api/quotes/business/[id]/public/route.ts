@@ -67,7 +67,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    apiLogger.error('Get public quote error:', error);
+    apiLogger.error('Get public quote error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch quote' },
       { status: 500 }

@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     const { data: integrations, error } = await query;
 
     if (error) {
-      apiLogger.error('[Integrations API] Failed to fetch integrations:', error);
+      apiLogger.error('[Integrations API] Failed to fetch integrations', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to fetch integrations' }, { status: 500 });
     }
 
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
       summary,
     });
   } catch (error) {
-    apiLogger.error('[Integrations API] Unexpected error:', error);
+    apiLogger.error('[Integrations API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
       // In production, implement proper reference mapping
       throw new Error('Subscription lookup not yet implemented - requires CircleTel DB integration');
     } else {
-      webhookLogger.error('[NetCash Zoho Webhook] Invalid reference format:', reference);
+      webhookLogger.error('[NetCash Zoho Webhook] Invalid reference format', { reference });
       return NextResponse.json(
         { error: 'Invalid payment reference format' },
         { status: 400 }
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    webhookLogger.error('[NetCash Zoho Webhook] Error processing webhook:', error);
+    webhookLogger.error('[NetCash Zoho Webhook] Error processing webhook', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

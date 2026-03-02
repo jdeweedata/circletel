@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const result = await submitCCDebitOrders();
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('[CC Debit Cron] Error:', error);
+    cronLogger.error('[CC Debit Cron] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Submission failed',
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const result = await submitCCDebitOrders(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('[CC Debit Cron] Error:', error);
+    cronLogger.error('[CC Debit Cron] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Submission failed',
@@ -281,7 +281,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
 
     if (!authResult.success) {
       result.errors.push(`Batch authorisation failed: ${authResult.error}`);
-      cronLogger.warn('[CC Debit Cron] Batch not authorised:', authResult.error);
+      cronLogger.warn('[CC Debit Cron] Batch not authorised', { error: authResult.error });
     } else {
       cronLogger.info(`[CC Debit Cron] Batch ${batchResult.batchId} authorised`);
     }
@@ -374,7 +374,7 @@ async function recordBatchSubmission(
 
     await supabase.from('debit_order_batch_items').insert(batchItems);
   } catch (error) {
-    cronLogger.error('[CC Debit Cron] Failed to record batch:', error);
+    cronLogger.error('[CC Debit Cron] Failed to record batch', { error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -403,6 +403,6 @@ async function logExecution(
       },
     });
   } catch (error) {
-    cronLogger.error('[CC Debit Cron] Failed to log execution:', error);
+    cronLogger.error('[CC Debit Cron] Failed to log execution', { error: error instanceof Error ? error.message : String(error) });
   }
 }

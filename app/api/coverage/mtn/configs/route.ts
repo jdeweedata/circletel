@@ -84,7 +84,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ConfigResp
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    apiLogger.error('MTN configs API error:', error);
+    apiLogger.error('MTN configs API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfigRes
     }
 
   } catch (error) {
-    apiLogger.error('MTN connectivity test error:', error);
+    apiLogger.error('MTN connectivity test error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: 'Internal server error'

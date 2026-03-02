@@ -96,7 +96,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (contentType.includes('xml') || contentType.includes('json')) {
       const errorText = await wmsResponse.text();
       if (errorText.toLowerCase().includes('error') || errorText.toLowerCase().includes('exception')) {
-        apiLogger.error('WMS service returned error:', errorText);
+        apiLogger.error('WMS service returned error', { errorText });
         return NextResponse.json({
           error: 'WMS service returned an error'
         }, { status: 502 });
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    apiLogger.error('WMS proxy error:', error);
+    apiLogger.error('WMS proxy error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 });
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return GET(getRequest);
 
   } catch (error) {
-    apiLogger.error('WMS proxy POST error:', error);
+    apiLogger.error('WMS proxy POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       error: 'Invalid JSON body'
     }, { status: 400 });

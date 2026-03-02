@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     const { data: webhookLogs, error: logsError, count } = await query;
 
     if (logsError) {
-      apiLogger.error('[WebhooksAPI] Error fetching webhook logs:', logsError);
+      apiLogger.error('[WebhooksAPI] Error fetching webhook logs', { error: logsError.message, code: logsError.code });
       return NextResponse.json(
         { error: 'Failed to fetch webhook logs' },
         { status: 500 }
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[WebhooksAPI] Error:', error);
+    apiLogger.error('[WebhooksAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

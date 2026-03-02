@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      apiLogger.error('[Scrape API] Query error:', error);
+      apiLogger.error('[Scrape API] Query error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch scrape logs' },
         { status: 500 }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       total: data?.length || 0,
     });
   } catch (error) {
-    apiLogger.error('[Scrape API] GET error:', error);
+    apiLogger.error('[Scrape API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch scrape logs' },
       { status: 500 }
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (logError) {
-        apiLogger.error('[Scrape API] Failed to create log entry:', logError);
+        apiLogger.error('[Scrape API] Failed to create log entry', { error: logError.message, code: logError.code });
         continue;
       }
 
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
         await inngest.send(inngestEvents);
         apiLogger.info(`[Scrape API] Sent ${inngestEvents.length} scrape jobs to Inngest`);
       } catch (inngestError) {
-        apiLogger.error('[Scrape API] Failed to send to Inngest:', inngestError);
+        apiLogger.error('[Scrape API] Failed to send to Inngest', { error: inngestError instanceof Error ? inngestError.message : String(inngestError) });
         // Fall back to marking jobs as failed
         for (const logId of scrapeLogIds) {
           await supabase
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       queue: 'inngest',
     });
   } catch (error) {
-    apiLogger.error('[Scrape API] POST error:', error);
+    apiLogger.error('[Scrape API] POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to trigger scrape' },
       { status: 500 }

@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
   try {
     // Use SSR client for auth
     const supabaseSSR = await createSSRClient();
-    apiLogger.info('[Notifications API] ⏱️ SSR client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Notifications API] SSR client created', { elapsed_ms: Date.now() - startTime });
 
     // Auth check with timeout protection
     const GET_USER_TIMEOUT = 5000; // 5 second timeout
@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
       const result = await Promise.race([getUserPromise, timeoutPromise]);
       user = result.data.user;
       authError = result.error;
-      apiLogger.info('[Notifications API] ⏱️ Auth check completed:', Date.now() - startTime, 'ms');
+      apiLogger.info('[Notifications API] Auth check completed', { elapsed_ms: Date.now() - startTime });
     } catch (timeoutError) {
-      apiLogger.error('[Notifications API] ❌ Auth timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Notifications API] Auth timeout', { elapsed_ms: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    apiLogger.info('[Notifications API] ✅ User authenticated:', user.id);
+    apiLogger.info('[Notifications API] User authenticated', { userId: user.id });
 
     // Use service role client for querying notifications
     const supabase = await createAdminClient();
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     };
 
     const validatedQuery = ListNotificationsQuerySchema.parse(queryParams);
-    apiLogger.info('[Notifications API] ⏱️ Query validated:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Notifications API] Query validated', { elapsed_ms: Date.now() - startTime });
 
     // Build query
     let query = supabase
@@ -195,8 +195,8 @@ export async function GET(request: NextRequest) {
       // Don't fail the request, just set unread count to 0
     }
 
-    apiLogger.info('[Notifications API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
-    apiLogger.info(`✅ Notifications fetched: ${notifications?.length || 0} notifications, ${unreadCount || 0} unread`);
+    apiLogger.info('[Notifications API] Total request time', { elapsed_ms: Date.now() - startTime });
+    apiLogger.info('[Notifications API] Notifications fetched', { count: notifications?.length || 0, unread: unreadCount || 0 });
 
     return NextResponse.json({
       success: true,
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
       user = result.data.user;
       authError = result.error;
     } catch (timeoutError) {
-      apiLogger.error('[Notifications API] ❌ POST auth timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Notifications API] POST auth timeout', { elapsed_ms: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (createError) {
-      apiLogger.error('Error creating notification:', createError);
+      apiLogger.error('Error creating notification', { error: createError.message, code: createError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to create notification' },
         { status: 500 }
@@ -346,7 +346,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    apiLogger.error('Error in POST /api/notifications:', error);
+    apiLogger.error('Error in POST /api/notifications', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

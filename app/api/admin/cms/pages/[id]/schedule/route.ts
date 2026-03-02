@@ -57,7 +57,7 @@ export async function POST(
         .single();
 
       if (updateError) {
-        apiLogger.error('Cancel schedule error:', updateError);
+        apiLogger.error('[CMS] Cancel schedule error', { error: updateError.message });
         return NextResponse.json({ error: 'Failed to cancel scheduling' }, { status: 500 });
       }
 
@@ -121,7 +121,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      apiLogger.error('Schedule error:', updateError);
+      apiLogger.error('[CMS] Schedule error', { error: updateError.message });
       return NextResponse.json({ error: 'Failed to schedule page' }, { status: 500 });
     }
 
@@ -131,7 +131,7 @@ export async function POST(
       message: `Page scheduled for ${scheduleDate.toLocaleString()}`,
     });
   } catch (error) {
-    apiLogger.error('Schedule POST error:', error);
+    apiLogger.error('[CMS] Schedule POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .select('id', { count: 'exact', head: true });
 
     if (error) {
-      apiLogger.error('[Health Check] Database error:', error);
+      apiLogger.error('[Health Check] Database error', { error: error.message, code: error.code });
       return NextResponse.json({
         success: false,
         error: 'Database connection failed',
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       elapsed_ms: elapsed
     });
   } catch (error) {
-    apiLogger.error('[Health Check] Exception:', error);
+    apiLogger.error('[Health Check] Exception', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: 'Health check failed',

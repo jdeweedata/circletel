@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         .eq('id', order_id);
 
       if (syncError) {
-        apiLogger.error('Failed to sync account number:', syncError);
+        apiLogger.error('Failed to sync account number', { error: syncError.message, code: syncError.code });
       } else {
         accountNumber = customerAccountNumber;
         apiLogger.info(`[Invoice] Synced account number ${customerAccountNumber} to order ${order.order_number}`);
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (invoiceError) {
-      apiLogger.error('Failed to create invoice:', invoiceError);
+      apiLogger.error('Failed to create invoice', { error: invoiceError.message, code: invoiceError.code });
       return NextResponse.json(
         { success: false, error: `Failed to create invoice: ${invoiceError.message}` },
         { status: 500 }

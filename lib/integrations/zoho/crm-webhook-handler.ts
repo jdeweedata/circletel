@@ -72,7 +72,7 @@ export async function processZohoCRMWebhook(
         };
     }
   } catch (error) {
-    zohoLogger.error('[ZOHO CRM Webhook] Processing failed:', error);
+    zohoLogger.error('[ZOHO CRM Webhook] Processing failed', { error: error instanceof Error ? error.message : String(error) });
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -173,7 +173,7 @@ async function handleDealUpdate(contractId: string, data: DealWebhookData): Prom
       .eq('id', contractId);
 
     if (error) {
-      zohoLogger.error('[ZOHO CRM Webhook] Failed to update contract:', error);
+      zohoLogger.error('[ZOHO CRM Webhook] Failed to update contract', { error: error.message });
       throw error;
     }
 
@@ -350,7 +350,7 @@ export async function logWebhookEvent(
 
     zohoLogger.info('[ZOHO CRM Webhook] Event logged successfully');
   } catch (error) {
-    zohoLogger.error('[ZOHO CRM Webhook] Failed to log event:', error);
+    zohoLogger.error('[ZOHO CRM Webhook] Failed to log event', { error: error instanceof Error ? error.message : String(error) });
     // Don't throw - logging failure shouldn't break webhook processing
   }
 }

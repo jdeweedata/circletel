@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      apiLogger.error('Database error fetching orders:', error);
+      apiLogger.error('Database error fetching orders', { error: error.message, code: error.code });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch orders', details: error.message },
         { status: 500 }
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       count: orders.length,
     });
   } catch (error) {
-    apiLogger.error('Error fetching admin orders:', error);
+    apiLogger.error('Error fetching admin orders', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -120,7 +120,7 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('Database error updating order:', error);
+      apiLogger.error('Database error updating order', { error: error.message, code: error.code });
       return NextResponse.json(
         { success: false, error: 'Failed to update order', details: error.message },
         { status: 500 }
@@ -135,7 +135,7 @@ export async function PATCH(request: NextRequest) {
       message: 'Order status updated successfully',
     });
   } catch (error) {
-    apiLogger.error('Error updating order:', error);
+    apiLogger.error('Error updating order', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

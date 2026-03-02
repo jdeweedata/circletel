@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       try {
         return providerInstance.normalizeProduct(raw);
       } catch (e) {
-        apiLogger.error(`[TestScrape] Failed to normalize: ${raw.name}`, e);
+        apiLogger.error(`[TestScrape] Failed to normalize: ${raw.name}`, { error: e instanceof Error ? e.message : String(e) });
         return null;
       }
     }).filter(Boolean);
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[TestScrape] Error:', error);
+    apiLogger.error('[TestScrape] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Scrape failed',

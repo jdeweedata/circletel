@@ -50,6 +50,12 @@ export {
   whatsappNotificationsFailed,
 } from './functions/whatsapp-notifications';
 
+export {
+  supplierSyncFunction,
+  supplierSyncCompletedFunction,
+  supplierSyncFailedFunction,
+} from './functions/supplier-sync';
+
 // Collect all functions for the serve handler
 import {
   competitorScrapeFunction,
@@ -93,6 +99,12 @@ import {
   whatsappNotificationsFailed,
 } from './functions/whatsapp-notifications';
 
+import {
+  supplierSyncFunction,
+  supplierSyncCompletedFunction,
+  supplierSyncFailedFunction,
+} from './functions/supplier-sync';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -122,4 +134,8 @@ export const functions = [
   whatsappBillingNotifications,
   whatsappNotificationsCompleted,
   whatsappNotificationsFailed,
+  // Supplier product sync (MiRO, Nology, Scoop)
+  supplierSyncFunction,
+  supplierSyncCompletedFunction,
+  supplierSyncFailedFunction,
 ];

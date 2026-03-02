@@ -172,7 +172,7 @@ export async function GET(
       activityLogs: activityLogs || [],
     });
   } catch (error) {
-    apiLogger.error('[Integration Detail API] Unexpected error:', error);
+    apiLogger.error('[Integration Detail API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -269,7 +269,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      apiLogger.error('[Integration Update API] Failed to update integration:', updateError);
+      apiLogger.error('[Integration Update API] Failed to update integration', { error: updateError.message, code: updateError.code });
       return NextResponse.json({ error: 'Failed to update integration' }, { status: 500 });
     }
 
@@ -286,7 +286,7 @@ export async function PATCH(
 
     return NextResponse.json({ integration: updatedIntegration });
   } catch (error) {
-    apiLogger.error('[Integration Update API] Unexpected error:', error);
+    apiLogger.error('[Integration Update API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

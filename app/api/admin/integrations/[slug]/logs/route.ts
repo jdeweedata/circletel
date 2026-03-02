@@ -303,7 +303,7 @@ export async function GET(
     });
 
   } catch (error) {
-    apiLogger.error('Integration logs API error:', error);
+    apiLogger.error('Integration logs API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

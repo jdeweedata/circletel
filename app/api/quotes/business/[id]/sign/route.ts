@@ -135,7 +135,7 @@ export async function POST(
       message: 'Quote signed successfully'
     });
   } catch (error) {
-    apiLogger.error('Error signing quote:', error);
+    apiLogger.error('Error signing quote', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

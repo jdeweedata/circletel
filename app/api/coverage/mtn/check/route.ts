@@ -126,7 +126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CoverageC
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    apiLogger.error('MTN coverage check error:', error);
+    apiLogger.error('MTN coverage check error', { error: error instanceof Error ? error.message : String(error) });
 
     if (error instanceof CoverageError) {
       return NextResponse.json({

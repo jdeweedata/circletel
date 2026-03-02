@@ -52,6 +52,15 @@ interface ProductFormData {
   contract_months: string;
   installation_days: string;
   availability_zones: string[];
+  // Additional fields used in form
+  type: string;
+  target_market: string;
+  speed_down: string;
+  speed_up: string;
+  data_limit: string;
+  price: string;
+  contract_term: string;
+  availability: string;
 }
 
 const initialFormData: ProductFormData = {
@@ -72,7 +81,16 @@ const initialFormData: ProductFormData = {
   download_speed: '',
   contract_months: '1',
   installation_days: '3',
-  availability_zones: []
+  availability_zones: [],
+  // Additional form fields
+  type: '',
+  target_market: '',
+  speed_down: '',
+  speed_up: '',
+  data_limit: '',
+  price: '',
+  contract_term: '',
+  availability: ''
 };
 
 export default function NewProduct() {

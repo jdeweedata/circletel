@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       .eq('is_active', true);
 
     if (providerError) {
-      cronLogger.error('[CronCompetitorScrape] Failed to fetch providers:', providerError);
+      cronLogger.error('[CronCompetitorScrape] Failed to fetch providers', { error: providerError.message });
       return NextResponse.json(
         { error: 'Failed to fetch providers', details: providerError.message },
         { status: 500 }
@@ -112,7 +112,7 @@ export async function GET(request: Request) {
         .single();
 
       if (logError) {
-        cronLogger.error(`[CronCompetitorScrape] Failed to create log for ${provider.name}:`, logError);
+        cronLogger.error(`[CronCompetitorScrape] Failed to create log for ${provider.name}`, { error: logError.message });
         continue;
       }
 
@@ -137,7 +137,7 @@ export async function GET(request: Request) {
         await inngest.send(inngestEvents);
         cronLogger.info(`[CronCompetitorScrape] Sent ${inngestEvents.length} jobs to Inngest`);
       } catch (inngestError) {
-        cronLogger.error('[CronCompetitorScrape] Failed to send to Inngest:', inngestError);
+        cronLogger.error('[CronCompetitorScrape] Failed to send to Inngest', { error: inngestError instanceof Error ? inngestError.message : String(inngestError) });
         
         // Mark jobs as failed
         for (const logId of scrapeLogIds) {
@@ -167,7 +167,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    cronLogger.error('[CronCompetitorScrape] Error:', message);
+    cronLogger.error('[CronCompetitorScrape] Error', { error: message });
     return NextResponse.json({ error: 'Failed to trigger scrapes', details: message }, { status: 500 });
   }
 }

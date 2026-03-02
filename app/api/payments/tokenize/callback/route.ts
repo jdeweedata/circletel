@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenData.success) {
-      paymentLogger.error('[Tokenization Callback] Tokenization failed:', tokenData.error);
+      paymentLogger.error('[Tokenization Callback] Tokenization failed', { error: tokenData.error });
       const errorUrl = new URL(returnUrl, request.url);
       errorUrl.searchParams.set('error', 'tokenization_failed');
       errorUrl.searchParams.set('message', tokenData.error || 'Card tokenization failed');
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     const storeResult = await netcashPciVaultService.storeToken(tokenData, customerId);
 
     if (!storeResult.success) {
-      paymentLogger.error('[Tokenization Callback] Failed to store token:', storeResult.error);
+      paymentLogger.error('[Tokenization Callback] Failed to store token', { error: storeResult.error });
       const errorUrl = new URL(returnUrl, request.url);
       errorUrl.searchParams.set('error', 'storage_failed');
       errorUrl.searchParams.set('message', 'Failed to save card details');
@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(successUrl);
 
   } catch (error) {
-    paymentLogger.error('[Tokenization Callback] Error:', error);
+    paymentLogger.error('[Tokenization Callback] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.redirect(
       new URL('/dashboard/billing/payment-methods?error=system_error', request.url)
     );

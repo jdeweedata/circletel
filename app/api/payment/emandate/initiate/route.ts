@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      paymentLogger.error('[eMandate Initiate] Customer not found:', customerError);
+      paymentLogger.error('[eMandate Initiate] Customer not found', { error: customerError?.message });
       return NextResponse.json(
         { error: 'Customer not found' },
         { status: 404 }
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     // Validate customer has account number (auto-generated on customer creation)
     if (!customer.account_number) {
-      paymentLogger.error('[eMandate Initiate] Customer account number not assigned:', customer_id);
+      paymentLogger.error('[eMandate Initiate] Customer account number not assigned', { customer_id });
       return NextResponse.json(
         { error: 'Customer account number not yet assigned. Please contact support.' },
         { status: 400 }
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError || !order) {
-      paymentLogger.error('[eMandate Initiate] Order not found:', orderError);
+      paymentLogger.error('[eMandate Initiate] Order not found', { error: orderError?.message });
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
@@ -140,9 +140,9 @@ export async function POST(request: NextRequest) {
       .is('mandate_signed_at', null); // Only delete unsigned mandates
 
     if (deleteError) {
-      paymentLogger.warn('[eMandate Initiate] Failed to clean up old payment methods:', deleteError);
+      paymentLogger.warn('[eMandate Initiate] Failed to clean up old payment methods', { error: deleteError.message });
     } else {
-      paymentLogger.info('[eMandate Initiate] Cleaned up old unsigned payment methods for:', accountReference);
+      paymentLogger.info('[eMandate Initiate] Cleaned up old unsigned payment methods', { accountReference });
     }
 
     // Create payment_methods record (pending status)
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (pmError || !paymentMethod) {
-      paymentLogger.error('[eMandate Initiate] Failed to create payment method:', pmError);
+      paymentLogger.error('[eMandate Initiate] Failed to create payment method', { error: pmError?.message });
       return NextResponse.json(
         { error: 'Failed to create payment method' },
         { status: 500 }
@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (erError || !emandateRecord) {
-      paymentLogger.error('[eMandate Initiate] Failed to create emandate request:', erError);
+      paymentLogger.error('[eMandate Initiate] Failed to create emandate request', { error: erError?.message });
       // Rollback payment method
       await supabase.from('payment_methods').delete().eq('id', paymentMethod.id);
       return NextResponse.json(
@@ -332,7 +332,7 @@ export async function POST(request: NextRequest) {
         fileToken,
       });
     } catch (netcashError: any) {
-      paymentLogger.error('[eMandate Initiate] NetCash API error:', netcashError);
+      paymentLogger.error('[eMandate Initiate] NetCash API error', { error: netcashError instanceof Error ? netcashError.message : String(netcashError) });
 
       // Update emandate_requests with error
       await supabase
@@ -384,7 +384,7 @@ export async function POST(request: NextRequest) {
       message: 'Mandate request submitted. Customer will receive an email/SMS from NetCash to sign the mandate.',
     });
   } catch (error: any) {
-    paymentLogger.error('[eMandate Initiate] Unexpected error:', error);
+    paymentLogger.error('[eMandate Initiate] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },
       { status: 500 }

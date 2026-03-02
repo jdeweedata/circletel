@@ -125,7 +125,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Aggregati
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    apiLogger.error('Coverage aggregation error:', error);
+    apiLogger.error('Coverage aggregation error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json({
       success: false,

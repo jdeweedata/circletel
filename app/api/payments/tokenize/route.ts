@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      paymentLogger.error('[Tokenize] User not authenticated:', authError);
+      paymentLogger.error('[Tokenize] User not authenticated', { error: authError?.message });
       // Redirect to auth login, with return to the verify-card page (not the API route)
       return NextResponse.redirect(
         new URL(`/auth/login?redirect=${encodeURIComponent('/dashboard/billing/verify-card')}`, request.url)
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      paymentLogger.error('[Tokenize] Customer not found:', customerError);
+      paymentLogger.error('[Tokenize] Customer not found', { error: customerError?.message });
       return NextResponse.redirect(
         new URL(`${returnPath}?error=customer_not_found`, request.url)
       );
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(tokenizationUrl);
 
   } catch (error) {
-    paymentLogger.error('[Tokenize] Error:', error);
+    paymentLogger.error('[Tokenize] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.redirect(
       new URL('/dashboard/billing/payment-methods?error=system_error', request.url)
     );

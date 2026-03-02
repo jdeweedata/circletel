@@ -152,7 +152,7 @@ export async function GET() {
       recentPayments,
     });
   } catch (error) {
-    apiLogger.error('Error fetching billing stats:', error);
+    apiLogger.error('Error fetching billing stats', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch billing stats' },
       { status: 500 }

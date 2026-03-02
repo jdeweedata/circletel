@@ -104,7 +104,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      apiLogger.error('Publish error:', updateError);
+      apiLogger.error('[CMS] Publish error', { error: updateError.message });
       return NextResponse.json({ error: 'Failed to update page status' }, { status: 500 });
     }
 
@@ -114,7 +114,7 @@ export async function POST(
       message: `Page ${action === 'publish' ? 'published' : action === 'unpublish' ? 'unpublished' : 'archived'} successfully`,
     });
   } catch (error) {
-    apiLogger.error('Publish POST error:', error);
+    apiLogger.error('[CMS] Publish POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

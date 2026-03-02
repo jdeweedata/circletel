@@ -91,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
   } catch (error) {
-    apiLogger.error('Monitoring API error:', error);
+    apiLogger.error('Monitoring API error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json({
       success: false,
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
   } catch (error) {
-    apiLogger.error('Monitoring POST API error:', error);
+    apiLogger.error('Monitoring POST API error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json({
       success: false,

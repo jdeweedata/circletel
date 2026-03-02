@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
   const snapshotDate = new Date().toISOString().split('T')[0];
 
   try {
-    cronLogger.info('[Stats Snapshot] Starting daily snapshot for', snapshotDate);
+    cronLogger.info('[Stats Snapshot] Starting daily snapshot', { date: snapshotDate });
 
     const supabase = await createClient();
 
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     const duration = Date.now() - startTime;
-    cronLogger.error('[Stats Snapshot] Error:', error);
+    cronLogger.error('[Stats Snapshot] Error', { error: error instanceof Error ? error.message : String(error) });
 
     // Log failed execution
     const supabase = await createClient();

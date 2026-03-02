@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const { data: media, error, count } = await query;
 
     if (error) {
-      apiLogger.error('Failed to fetch media:', error);
+      apiLogger.error('Failed to fetch media', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
     }
 
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       folders: Object.entries(folderCounts).map(([name, count]) => ({ name, count })),
     });
   } catch (error) {
-    apiLogger.error('Media API error:', error);
+    apiLogger.error('Media API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      apiLogger.error('Storage upload error:', uploadError);
+      apiLogger.error('Storage upload error', { error: uploadError.message });
       return NextResponse.json(
         { error: 'Failed to upload file to storage' },
         { status: 500 }
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      apiLogger.error('Failed to insert media record:', insertError);
+      apiLogger.error('Failed to insert media record', { error: insertError.message, code: insertError.code });
       // Try to clean up the uploaded file
       await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
       return NextResponse.json(
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       media,
     }, { status: 201 });
   } catch (error) {
-    apiLogger.error('Media upload error:', error);
+    apiLogger.error('Media upload error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

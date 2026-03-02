@@ -45,7 +45,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (customersError) {
-      apiLogger.error('Error fetching customers:', customersError);
+      apiLogger.error('Error fetching customers', { error: customersError.message, code: customersError.code });
       return NextResponse.json(
         { error: 'Failed to fetch customers' },
         { status: 500 }
@@ -112,7 +112,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    apiLogger.error('Error in billing customers API:', error);
+    apiLogger.error('Error in billing customers API', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch customers' },
       { status: 500 }

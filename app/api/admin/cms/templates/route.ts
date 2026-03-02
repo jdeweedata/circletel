@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: templates, error } = await query;
 
     if (error) {
-      apiLogger.error('Failed to fetch templates:', error);
+      apiLogger.error('[CMS] Failed to fetch templates', { error: error.message });
       return NextResponse.json({ error: 'Failed to fetch templates' }, { status: 500 });
     }
 
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       templates: templates || [],
     });
   } catch (error) {
-    apiLogger.error('Templates API error:', error);
+    apiLogger.error('[CMS] Templates API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -127,7 +127,7 @@ async function logWebhook(
     .single();
 
   if (error) {
-    webhookLogger.error('[Webhook Endpoint] Failed to log webhook:', error);
+    webhookLogger.error('[Webhook Endpoint] Failed to log webhook', { error: error.message });
     throw new Error(`Failed to log webhook: ${error.message}`);
   }
 
@@ -153,7 +153,7 @@ async function isDuplicateWebhook(payload: NetcashWebhookPayload): Promise<boole
     .limit(1);
 
   if (error) {
-    webhookLogger.error('[Webhook Endpoint] Duplicate check failed:', error);
+    webhookLogger.error('[Webhook Endpoint] Duplicate check failed', { error: error.message });
     return false; // On error, allow processing
   }
 
@@ -187,7 +187,7 @@ async function updateWebhookStatus(
     .eq('id', webhookId);
 
   if (error) {
-    webhookLogger.error('[Webhook Endpoint] Failed to update webhook status:', error);
+    webhookLogger.error('[Webhook Endpoint] Failed to update webhook status', { error: error.message });
   }
 }
 
@@ -203,7 +203,7 @@ async function getActivePaymentConfig(): Promise<{
   });
 
   if (error || !data || data.length === 0) {
-    webhookLogger.error('[Webhook Endpoint] No active payment configuration found');
+    webhookLogger.error('[Webhook Endpoint] No active payment configuration found', { error: error?.message });
     return null;
   }
 
@@ -257,7 +257,7 @@ async function routeWebhookProcessor(
         return { success: true }; // Still return success to prevent Netcash retries
     }
   } catch (error) {
-    webhookLogger.error('[Webhook Endpoint] Processor error:', error);
+    webhookLogger.error('[Webhook Endpoint] Processor error', { error: error instanceof Error ? error.message : String(error) });
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown processing error',
@@ -336,7 +336,7 @@ export async function POST(req: NextRequest) {
     const validationResult = await validateWebhookRequest(req, config.webhookSecret);
 
     if (!validationResult.valid) {
-      webhookLogger.error('[Webhook Endpoint] Validation failed:', validationResult.errors);
+      webhookLogger.error('[Webhook Endpoint] Validation failed', { errors: validationResult.errors });
 
       // Log failed webhook attempt
       const userAgent = req.headers.get('user-agent');
@@ -357,7 +357,7 @@ export async function POST(req: NextRequest) {
     const payload = validationResult.payload!;
     const sanitizedPayload = sanitizePayloadForLogging(payload);
 
-    webhookLogger.info('[Webhook Endpoint] Webhook received:', sanitizedPayload);
+    webhookLogger.info('[Webhook Endpoint] Webhook received', { payload: sanitizedPayload });
 
     // ==================================================================
     // 4. CHECK FOR DUPLICATE (IDEMPOTENCY)
@@ -444,7 +444,7 @@ export async function POST(req: NextRequest) {
     } else {
       await updateWebhookStatus(webhookId, 'failed', processingResult.error);
 
-      webhookLogger.error('[Webhook Endpoint] Processing failed:', processingResult.error);
+      webhookLogger.error('[Webhook Endpoint] Processing failed', { error: processingResult.error });
 
       // Still return 200 to Netcash
       return NextResponse.json(
@@ -457,7 +457,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (error) {
-    webhookLogger.error('[Webhook Endpoint] Unexpected error:', error);
+    webhookLogger.error('[Webhook Endpoint] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
 
     // Update webhook status if we have an ID
     if (webhookId) {

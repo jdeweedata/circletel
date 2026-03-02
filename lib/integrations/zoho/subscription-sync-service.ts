@@ -35,7 +35,7 @@ export async function syncSubscriptionToZohoBilling(
   const supabase = await createClient();
 
   try {
-    zohoLogger.debug('[SubscriptionSync] Starting sync for service:', service_id);
+    zohoLogger.debug('[SubscriptionSync] Starting sync for service', { service_id });
 
     // Update sync status to 'syncing'
     await supabase
@@ -68,7 +68,7 @@ export async function syncSubscriptionToZohoBilling(
 
     // Check if already synced
     if (service.zoho_subscription_id) {
-      zohoLogger.debug('[SubscriptionSync] Service already synced:', service.zoho_subscription_id);
+      zohoLogger.debug('[SubscriptionSync] Service already synced', { zoho_subscription_id: service.zoho_subscription_id });
       return {
         success: true,
         zoho_subscription_id: service.zoho_subscription_id
@@ -126,7 +126,7 @@ export async function syncSubscriptionToZohoBilling(
       throw new Error(`Could not fetch plan_code for plan_id: ${planId}`);
     }
     
-    zohoLogger.debug('[SubscriptionSync] Fetched plan_code:', planCode);
+    zohoLogger.debug('[SubscriptionSync] Fetched plan_code', { planCode });
 
     // Build ZOHO Billing subscription payload
     // Zoho requires plan_code (string), not plan_id
@@ -201,7 +201,7 @@ export async function syncSubscriptionToZohoBilling(
     };
 
   } catch (error) {
-    zohoLogger.error('[SubscriptionSync] Error syncing subscription:', error);
+    zohoLogger.error('[SubscriptionSync] Error syncing subscription', { error: error instanceof Error ? error.message : String(error) });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

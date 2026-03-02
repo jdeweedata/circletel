@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      apiLogger.error('[Compare API] Query error:', error);
+      apiLogger.error('[Compare API] Query error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch comparison data' },
         { status: 500 }
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       has_more: (count || 0) > offset + limit,
     });
   } catch (error) {
-    apiLogger.error('[Compare API] GET error:', error);
+    apiLogger.error('[Compare API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch comparison data' },
       { status: 500 }

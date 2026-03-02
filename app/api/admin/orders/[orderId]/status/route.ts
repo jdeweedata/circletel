@@ -62,7 +62,7 @@ export async function GET(
       .single();
 
     if (error || !order) {
-      apiLogger.error('Error fetching order status:', error);
+      apiLogger.error('Error fetching order status', { error: error?.message, code: error?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -79,7 +79,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    apiLogger.error('Error fetching allowed statuses:', error);
+    apiLogger.error('Error fetching allowed statuses', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -138,7 +138,7 @@ export async function PATCH(
       .single();
 
     if (fetchError || !order) {
-      apiLogger.error('Error fetching order:', fetchError);
+      apiLogger.error('Error fetching order', { error: fetchError?.message, code: fetchError?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -212,7 +212,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      apiLogger.error('Error updating order status:', updateError);
+      apiLogger.error('Error updating order status', { error: updateError.message, code: updateError.code });
       return NextResponse.json(
         {
           success: false,
@@ -240,7 +240,7 @@ export async function PATCH(
       });
 
     if (historyError) {
-      apiLogger.error('Error logging status history:', historyError);
+      apiLogger.error('Error logging status history', { error: historyError.message, code: historyError.code });
       // Don't fail the request if history logging fails
     }
 
@@ -253,7 +253,7 @@ export async function PATCH(
       message: `Order status updated to ${newStatus}`,
     });
   } catch (error: any) {
-    apiLogger.error('Error updating order status:', error);
+    apiLogger.error('Error updating order status', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

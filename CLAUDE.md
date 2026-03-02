@@ -2,6 +2,21 @@
 
 Guidance for Claude Code when working with CircleTel codebase.
 
+## Quick Reference
+
+| Need | Section | Key Command |
+|------|---------|-------------|
+| Start session | [Getting Started](#getting-started-new-session) | `powershell -File .claude/skills/context-manager/run-context-analyzer.ps1` |
+| Run dev server | [Essential Commands](#essential-commands) | `npm run dev:memory` |
+| Type check | [Essential Commands](#essential-commands) | `npm run type-check:memory` |
+| Deploy | [Deployment Workflow](#deployment-workflow) | `git push origin feature/xyz:staging` |
+| Auth patterns | [Authentication](#authentication-three-context-system) | Check BOTH header AND cookies |
+| Database schema | [Database Schema](#database-schema) | `customer_invoices` (not `invoices`) |
+| File placement | [File Organization](#file-organization) | Docs → `docs/`, Code → `app/`, `lib/` |
+| Skills | [Skills System](#skills-system-13-total) | `/skill superpowers:brainstorming` |
+
+---
+
 ## ⚠️ MANDATORY: Claude Code Rules
 
 > **STOP. Before ANY code change, you MUST follow these rules.**
@@ -717,31 +732,8 @@ powershell -File .claude/skills/context-manager/run-context-analyzer.ps1 -Path a
 
 ---
 
-**Version**: 5.9 | **Updated**: 2026-02-17 | **Team**: Development + Claude Code
+**Version**: 6.0 | **Updated**: 2026-02-28 | **Team**: Development + Claude Code
 
-**Major Changes in v5.9**:
-- Added Superpowers Skills section with 13 dynamic workflow skills
-- Skills now auto-invoke via Skill tool when trigger keywords detected
-- Key skills: brainstorming, systematic-debugging, verification-before-completion
-- Added NetCash Pay Now parameter mapping pattern (m2=PCI Vault Key, p4=Rands)
-- Documented skill invocation pattern with 1% rule
+**v6.0**: Added Quick Reference table, moved changelog to `docs/CHANGELOG.md`
 
-**Major Changes in v5.8**:
-- Added billing automation patterns (Pay Now, SMS, email)
-- Added lazy-load pattern for external services (prevents build errors)
-- Added external URL redirect pattern (use API routes)
-- Added Resend domain config (notify.circletel.co.za)
-- Added Billing Tables section to Database Schema
-
-**Major Changes in v5.7**:
-- Added Claude Code Business OS framework (Event Hooks, Custom Commands)
-- Session start hook for automatic context analysis
-- Pre-edit backup hook for file protection
-- Post-bash logging hook for audit trail
-- Custom commands: `/new-migration`, `/health-check`, `/sync-types`
-- YAML metadata headers added to architecture docs for better searchability
-
-**Major Changes in v5.6**:
-- Admin Order Details page refactored to tabbed workflow interface
-- Improved UX with focused sections (Overview, Installation/Service, Financials, History/Notes)
-- Persistent header and workflow stepper for continuous status visibility
+See [docs/CHANGELOG.md](docs/CHANGELOG.md) for full version history.

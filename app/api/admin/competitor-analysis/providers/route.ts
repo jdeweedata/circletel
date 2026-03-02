@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      apiLogger.error('[Providers API] Query error:', error);
+      apiLogger.error('[Providers API] Query error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch providers' },
         { status: 500 }
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       total: data?.length || 0,
     });
   } catch (error) {
-    apiLogger.error('[Providers API] GET error:', error);
+    apiLogger.error('[Providers API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch providers' },
       { status: 500 }
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('[Providers API] Insert error:', error);
+      apiLogger.error('[Providers API] Insert error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to create provider' },
         { status: 500 }
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    apiLogger.error('[Providers API] POST error:', error);
+    apiLogger.error('[Providers API] POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to create provider' },
       { status: 500 }

@@ -15,7 +15,7 @@ export async function GET(
     const { id } = await context.params;
     productId = id;
     
-    apiLogger.info('[Product Detail API] Fetching product:', id);
+    apiLogger.info('[Product Detail API] Fetching product', { productId: id });
     
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -85,7 +85,7 @@ export async function GET(
     }
 
     if (!product) {
-      apiLogger.warn('[Product Detail API] Product not found:', id);
+      apiLogger.warn('[Product Detail API] Product not found', { productId: id });
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
@@ -381,7 +381,7 @@ export async function PUT(
       .limit(1);
 
     if (auditError) {
-      apiLogger.warn('Failed to update audit log with user info:', auditError);
+      apiLogger.warn('Failed to update audit log with user info', { error: auditError.message, code: auditError.code });
       // Don't fail the request if audit update fails
     }
 
@@ -444,7 +444,7 @@ export async function DELETE(
       .single();
 
     if (error) {
-      apiLogger.error('Error deleting product:', error);
+      apiLogger.error('Error deleting product', { error: error.message, code: error.code });
       return NextResponse.json(
         { success: false, error: 'Failed to delete product' },
         { status: 500 }
@@ -467,7 +467,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, data: product });
   } catch (error) {
-    apiLogger.error('Error in DELETE /api/admin/products/[id]:', error);
+    apiLogger.error('Error in DELETE /api/admin/products/[id]', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

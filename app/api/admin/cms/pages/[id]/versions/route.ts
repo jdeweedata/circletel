@@ -49,7 +49,7 @@ export async function GET(
       .order('version', { ascending: false });
 
     if (error) {
-      apiLogger.error('Versions fetch error:', error);
+      apiLogger.error('[CMS] Versions fetch error', { error: error.message });
       return NextResponse.json({ error: 'Failed to fetch versions' }, { status: 500 });
     }
 
@@ -59,7 +59,7 @@ export async function GET(
       versions: versions || [],
     });
   } catch (error) {
-    apiLogger.error('Versions GET error:', error);
+    apiLogger.error('[CMS] Versions GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

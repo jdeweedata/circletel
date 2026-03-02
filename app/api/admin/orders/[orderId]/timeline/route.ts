@@ -57,7 +57,7 @@ export async function GET(
       .single();
 
     if (orderError || !order) {
-      apiLogger.error('Error fetching order:', orderError);
+      apiLogger.error('Error fetching order', { error: orderError?.message, code: orderError?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -75,7 +75,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (statusError) {
-      apiLogger.error('Error fetching status history:', statusError);
+      apiLogger.error('Error fetching status history', { error: statusError.message, code: statusError.code });
     } else if (statusHistory) {
       statusHistory.forEach((change) => {
         timeline.push({
@@ -104,7 +104,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (commError) {
-      apiLogger.error('Error fetching communications:', commError);
+      apiLogger.error('Error fetching communications', { error: commError.message, code: commError.code });
     } else if (communications) {
       communications.forEach((comm) => {
         let title = '';
@@ -161,7 +161,7 @@ export async function GET(
       .order('created_at', { ascending: true });
 
     if (installError) {
-      apiLogger.error('Error fetching installations:', installError);
+      apiLogger.error('Error fetching installations', { error: installError.message, code: installError.code });
     } else if (installations) {
       installations.forEach((task) => {
         // Installation scheduled event
@@ -258,7 +258,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    apiLogger.error('Error fetching order timeline:', error);
+    apiLogger.error('Error fetching order timeline', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

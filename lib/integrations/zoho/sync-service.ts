@@ -189,7 +189,7 @@ export class ZohoSyncService {
         zohoEntityType: 'Deals',
       };
     } catch (error) {
-      zohoLogger.error('[ZohoSync] Failed to sync KYC status:', error);
+      zohoLogger.error('[ZohoSync] Failed to sync KYC status', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -261,7 +261,7 @@ export class ZohoSyncService {
         zohoEntityType: 'Deals',
       };
     } catch (error) {
-      zohoLogger.error('[ZohoSync] Failed to sync RICA status:', error);
+      zohoLogger.error('[ZohoSync] Failed to sync RICA status', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -304,7 +304,7 @@ export class ZohoSyncService {
         return { ...result, syncLogId } as T & { syncLogId?: string };
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        zohoLogger.error(`[ZohoSync] Attempt ${attempt} failed:`, lastError.message);
+        zohoLogger.error(`[ZohoSync] Attempt ${attempt} failed`, { error: lastError.message });
 
         // Log retry or failure
         if (attempt < config.maxAttempts) {
@@ -352,7 +352,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      zohoLogger.error('[ZohoSync] Failed to fetch quote:', error);
+      zohoLogger.error('[ZohoSync] Failed to fetch quote', { error: error?.message ?? 'No data returned' });
       return null;
     }
 
@@ -399,7 +399,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      zohoLogger.error('[ZohoSync] Failed to fetch contract:', error);
+      zohoLogger.error('[ZohoSync] Failed to fetch contract', { error: error?.message ?? 'No data returned' });
       return null;
     }
 
@@ -466,7 +466,7 @@ export class ZohoSyncService {
     });
 
     if (error) {
-      zohoLogger.error('[ZohoSync] Failed to create mapping:', error);
+      zohoLogger.error('[ZohoSync] Failed to create mapping', { error: error.message });
       throw error;
     }
 
@@ -536,7 +536,7 @@ export class ZohoSyncService {
       .single();
 
     if (error || !data) {
-      zohoLogger.error('[ZohoSync] Failed to log attempt:', error);
+      zohoLogger.error('[ZohoSync] Failed to log attempt', { error: error?.message ?? 'No data returned' });
       return '';
     }
 

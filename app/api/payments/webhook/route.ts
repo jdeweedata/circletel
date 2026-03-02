@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const webhookResult = await provider.processWebhook(payload, signature);
 
     if (!webhookResult.success) {
-      webhookLogger.error('[Payment Webhook] Processing failed:', webhookResult.error);
+      webhookLogger.error('[Payment Webhook] Processing failed', { error: webhookResult.error });
       return NextResponse.json(
         { error: webhookResult.error || 'Webhook processing failed' },
         { status: 400 }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          webhookLogger.info('[Payment Webhook] Invoice marked as paid:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as paid', { invoiceId });
 
           // 10. AUTO-CREATE ORDER on successful payment
           const { data: contract } = await supabase
@@ -197,9 +197,9 @@ export async function POST(request: NextRequest) {
               .single();
 
             if (orderError) {
-              webhookLogger.error('[Payment Webhook] Failed to create order:', orderError);
+              webhookLogger.error('[Payment Webhook] Failed to create order', { error: orderError.message });
             } else {
-              webhookLogger.info('[Payment Webhook] Order created:', order.order_number);
+              webhookLogger.info('[Payment Webhook] Order created', { order_number: order.order_number });
 
               // 11. TRIGGER RICA SUBMISSION (if KYC approved)
               if (contract.kyc_session?.verification_result === 'approved') {
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
                     webhookLogger.error('[Payment Webhook] RICA submission failed');
                   }
                 } catch (ricaError) {
-                  webhookLogger.error('[Payment Webhook] RICA submission error:', ricaError);
+                  webhookLogger.error('[Payment Webhook] RICA submission error', { error: ricaError instanceof Error ? ricaError.message : String(ricaError) });
                 }
               }
 
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          webhookLogger.info('[Payment Webhook] Invoice marked as failed:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as failed', { invoiceId });
         } else if (status === 'pending' || status === 'processing') {
           await supabase
             .from('invoices')
@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
             })
             .eq('id', invoiceId);
 
-          webhookLogger.info('[Payment Webhook] Invoice marked as pending:', invoiceId);
+          webhookLogger.info('[Payment Webhook] Invoice marked as pending', { invoiceId });
         }
       }
     }
@@ -282,7 +282,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', paymentTransaction.order_id);
 
-        webhookLogger.info('[Payment Webhook] Order marked as paid:', paymentTransaction.order_id);
+        webhookLogger.info('[Payment Webhook] Order marked as paid', { order_id: paymentTransaction.order_id });
       } else if (status === 'failed') {
         await supabase
           .from('consumer_orders')
@@ -292,7 +292,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', paymentTransaction.order_id);
 
-        webhookLogger.info('[Payment Webhook] Order marked as failed:', paymentTransaction.order_id);
+        webhookLogger.info('[Payment Webhook] Order marked as failed', { order_id: paymentTransaction.order_id });
       }
     }
 
@@ -388,7 +388,7 @@ export async function POST(request: NextRequest) {
       provider: provider.name
     });
   } catch (error) {
-    webhookLogger.error('[Payment Webhook] Error processing webhook:', error);
+    webhookLogger.error('[Payment Webhook] Error processing webhook', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

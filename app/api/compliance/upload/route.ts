@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      apiLogger.error('Database insert error:', insertError)
+      apiLogger.error('Database insert error', { error: insertError.message, code: insertError.code })
       return NextResponse.json(
         { error: 'Failed to save document metadata', details: insertError.message },
         { status: 500 }
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       message: 'Document uploaded successfully',
     })
   } catch (error) {
-    apiLogger.error('Upload API error:', error)
+    apiLogger.error('Upload API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (docsError) {
-      apiLogger.error('Database query error:', docsError)
+      apiLogger.error('Database query error', { error: docsError.message, code: docsError.code })
       return NextResponse.json(
         { error: 'Failed to fetch documents' },
         { status: 500 }
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    apiLogger.error('Get documents API error:', error)
+    apiLogger.error('Get documents API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -279,7 +279,7 @@ export async function DELETE(request: NextRequest) {
       .remove([document.file_path])
 
     if (storageError) {
-      apiLogger.error('Storage delete error:', storageError)
+      apiLogger.error('Storage delete error', { error: storageError.message })
       // Continue anyway - database record is more important
     }
 
@@ -290,7 +290,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', documentId)
 
     if (deleteError) {
-      apiLogger.error('Database delete error:', deleteError)
+      apiLogger.error('Database delete error', { error: deleteError.message, code: deleteError.code })
       return NextResponse.json(
         { error: 'Failed to delete document' },
         { status: 500 }
@@ -302,7 +302,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Document deleted successfully',
     })
   } catch (error) {
-    apiLogger.error('Delete API error:', error)
+    apiLogger.error('Delete API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

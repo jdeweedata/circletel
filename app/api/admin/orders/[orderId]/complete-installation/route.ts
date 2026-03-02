@@ -76,7 +76,7 @@ export async function POST(
       .single();
 
     if (fetchError || !order) {
-      apiLogger.error('Error fetching order:', fetchError);
+      apiLogger.error('Error fetching order', { error: fetchError?.message, code: fetchError?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -114,7 +114,7 @@ export async function POST(
         });
 
       if (uploadError) {
-        apiLogger.error('Error uploading document:', uploadError);
+        apiLogger.error('Error uploading document', { error: uploadError.message });
         return NextResponse.json(
           {
             success: false,
@@ -158,7 +158,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      apiLogger.error('Error updating order:', updateError);
+      apiLogger.error('Error updating order', { error: updateError.message, code: updateError.code });
       // Try to delete the uploaded file
       if (filePath) {
         await supabase.storage
@@ -193,7 +193,7 @@ export async function POST(
       });
 
     if (historyError) {
-      apiLogger.error('Error logging status history:', historyError);
+      apiLogger.error('Error logging status history', { error: historyError.message, code: historyError.code });
       // Don't fail the request if history logging fails
     }
 
@@ -222,7 +222,7 @@ export async function POST(
       });
     } catch (notificationError) {
       // Log but don't fail the request
-      apiLogger.error('[CompleteInstallation] Failed to send SDM notification:', notificationError);
+      apiLogger.error('[CompleteInstallation] Failed to send SDM notification', { error: notificationError instanceof Error ? notificationError.message : String(notificationError) });
     }
 
     return NextResponse.json({
@@ -232,7 +232,7 @@ export async function POST(
       documentUrl: publicUrl,
     });
   } catch (error: any) {
-    apiLogger.error('Error completing installation:', error);
+    apiLogger.error('Error completing installation', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

@@ -22,7 +22,7 @@ export async function GET() {
         }
       }
     );
-    apiLogger.info('[Orders API] ⏱️ Supabase client created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Orders API] Supabase client created', { elapsedMs: Date.now() - startTime });
 
     // Execute query with timeout protection
     const QUERY_TIMEOUT = 12000; // 12 second timeout
@@ -42,9 +42,9 @@ export async function GET() {
       const result = await Promise.race([queryPromise, timeoutPromise]);
       orders = result.data;
       error = result.error;
-      apiLogger.info('[Orders API] ⏱️ Query completed:', Date.now() - startTime, 'ms', `(${orders?.length || 0} orders)`);
+      apiLogger.info('[Orders API] Query completed', { elapsedMs: Date.now() - startTime, orderCount: orders?.length || 0 });
     } catch (timeoutError) {
-      apiLogger.error('[Orders API] ❌ Query timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Orders API] Query timeout', { elapsedMs: Date.now() - startTime });
       return NextResponse.json(
         {
           success: false,
@@ -56,7 +56,7 @@ export async function GET() {
     }
 
     if (error) {
-      apiLogger.error('Error fetching orders:', error);
+      apiLogger.error('Error fetching orders', { error: error.message, code: error.code });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch orders', details: error.message },
         { status: 500 }
@@ -69,7 +69,7 @@ export async function GET() {
       count: orders?.length || 0
     });
   } catch (error) {
-    apiLogger.error('Orders fetch error:', error);
+    apiLogger.error('Orders fetch error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

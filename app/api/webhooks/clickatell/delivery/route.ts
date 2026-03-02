@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    webhookLogger.info('[Clickatell Webhook] Received callback:', JSON.stringify(body, null, 2));
+    webhookLogger.info('[Clickatell Webhook] Received callback', { body });
 
     // Clickatell can send single or batch callbacks
     const callbacks: ClickatellCallback[] = Array.isArray(body) ? body : [body];
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (findError) {
-        webhookLogger.error('[Clickatell Webhook] Error finding emandate request:', findError);
+        webhookLogger.error('[Clickatell Webhook] Error finding emandate request', { error: findError.message });
         continue;
       }
 
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         .eq('id', emandateRequest.id);
 
       if (updateError) {
-        webhookLogger.error('[Clickatell Webhook] Error updating emandate request:', updateError);
+        webhookLogger.error('[Clickatell Webhook] Error updating emandate request', { error: updateError.message });
         continue;
       }
 
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, processed: callbacks.length });
 
   } catch (error: any) {
-    webhookLogger.error('[Clickatell Webhook] Error:', error);
+    webhookLogger.error('[Clickatell Webhook] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

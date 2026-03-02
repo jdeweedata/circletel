@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      apiLogger.error('[ZohoInit] Token refresh failed:', tokenData);
+      apiLogger.error('[ZohoInit] Token refresh failed', { error: tokenData.error, details: JSON.stringify(tokenData) });
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: `Token refresh failed: ${tokenData.error}`,
           details: tokenData
         },
@@ -79,14 +79,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('[ZohoInit] Failed to store token:', error);
+      apiLogger.error('[ZohoInit] Failed to store token', { error: error.message, code: error.code });
       return NextResponse.json(
         { success: false, error: `Failed to store token: ${error.message}` },
         { status: 500 }
       );
     }
 
-    apiLogger.info('[ZohoInit] Token stored successfully, expires at:', expiresAt.toISOString());
+    apiLogger.info('[ZohoInit] Token stored successfully', { expiresAt: expiresAt.toISOString() });
 
     return NextResponse.json({
       success: true,
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('[ZohoInit] Error:', error);
+    apiLogger.error('[ZohoInit] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('[ZohoInit] Error checking status:', error);
+    apiLogger.error('[ZohoInit] Error checking status', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

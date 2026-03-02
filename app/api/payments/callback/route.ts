@@ -23,13 +23,13 @@ export async function POST(request: NextRequest) {
       callbackData = Object.fromEntries(formData.entries()) as any;
     }
 
-    paymentLogger.info('Netcash callback received:', callbackData);
+    paymentLogger.info('Netcash callback received', { callbackData });
 
     // Process the callback
     const result = netcashService.processCallback(callbackData);
 
     if (!result.success) {
-      paymentLogger.error('Payment callback processing failed:', result.error);
+      paymentLogger.error('Payment callback processing failed', { error: result.error });
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 400 }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       .eq('provider_reference', reference);
 
     if (transactionError) {
-      paymentLogger.error('Error updating payment transaction:', transactionError);
+      paymentLogger.error('Error updating payment transaction', { error: transactionError.message });
     }
 
     // Update order status
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (orderError) {
-      paymentLogger.error('Error updating order:', orderError);
+      paymentLogger.error('Error updating order', { error: orderError.message });
       return NextResponse.json(
         { success: false, error: 'Failed to update order' },
         { status: 500 }
@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
     // Send payment confirmation email
     try {
       await EmailNotificationService.sendPaymentConfirmation(order);
-      paymentLogger.info('Payment confirmation email sent to:', order.email);
+      paymentLogger.info('Payment confirmation email sent', { email: order.email });
     } catch (emailError) {
-      paymentLogger.error('Failed to send payment confirmation email:', emailError);
+      paymentLogger.error('Failed to send payment confirmation email', { error: emailError instanceof Error ? emailError.message : String(emailError) });
       // Don't fail the callback if email fails
     }
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       message: 'Payment processed successfully',
     });
   } catch (error) {
-    paymentLogger.error('Payment callback error:', error);
+    paymentLogger.error('Payment callback error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    paymentLogger.error('Payment callback (GET) error:', error);
+    paymentLogger.error('Payment callback (GET) error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to process callback' },
       { status: 500 }

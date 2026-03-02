@@ -266,7 +266,7 @@ export async function POST(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    apiLogger.error('[WebhookTestAPI] Error:', error);
+    apiLogger.error('[WebhookTestAPI] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

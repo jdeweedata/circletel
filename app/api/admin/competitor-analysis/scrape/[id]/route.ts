@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, context: RouteParams) {
       duration_ms: durationMs,
     });
   } catch (error) {
-    apiLogger.error('[Scrape Status API] GET error:', error);
+    apiLogger.error('[Scrape Status API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch scrape status' },
       { status: 500 }

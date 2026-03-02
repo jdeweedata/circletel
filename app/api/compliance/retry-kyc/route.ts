@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Other errors (Didit API failures, database errors)
-      apiLogger.error('[API] KYC retry failed:', error);
+      apiLogger.error('[API] KYC retry failed', { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         {
           success: false,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[API] Unexpected error in retry-kyc:', error);
+    apiLogger.error('[API] Unexpected error in retry-kyc', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

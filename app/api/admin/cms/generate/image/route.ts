@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       rateLimitStatus: updatedRateLimit,
     });
   } catch (error) {
-    apiLogger.error('Image Generation API error:', error);
+    apiLogger.error('Image Generation API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

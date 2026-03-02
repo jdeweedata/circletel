@@ -83,7 +83,7 @@ export async function GET(
       .order('completed_at', { ascending: false });
 
     if (paymentsError) {
-      apiLogger.error('[Invoice Detail] Error fetching payments:', paymentsError);
+      apiLogger.error('[Invoice Detail] Error fetching payments', { error: paymentsError.message, code: paymentsError.code });
     }
 
     // Get invoice line items if they exist
@@ -113,7 +113,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    apiLogger.error('[Invoice Detail] Error:', error);
+    apiLogger.error('[Invoice Detail] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

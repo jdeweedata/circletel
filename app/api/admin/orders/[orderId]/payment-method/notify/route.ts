@@ -57,7 +57,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       .maybeSingle();
 
     if (emandateError) {
-      apiLogger.error('Error fetching emandate request:', emandateError);
+      apiLogger.error('Error fetching emandate request', { error: emandateError.message, code: emandateError.code });
     }
 
     // Check if we have a mandate URL
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         results.email.error = emailResult.error || 'Unknown error';
       }
     } catch (emailError: any) {
-      apiLogger.error('Failed to send email:', emailError);
+      apiLogger.error('Failed to send email', { error: emailError instanceof Error ? emailError.message : String(emailError) });
       results.email.error = emailError.message;
     }
 
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         results.sms.error = smsResult.error || 'Unknown error';
       }
     } catch (smsError: any) {
-      apiLogger.error('Failed to send SMS:', smsError);
+      apiLogger.error('Failed to send SMS', { error: smsError instanceof Error ? smsError.message : String(smsError) });
       results.sms.error = smsError.message;
     }
 
@@ -165,9 +165,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         },
       ]);
 
-      apiLogger.info('✅ Communication logged:', logResult);
+      apiLogger.info('Communication logged', { success: logResult?.status === 201 });
     } catch (logError) {
-      apiLogger.warn('⚠️ Failed to log communication (table may not exist):', logError);
+      apiLogger.warn('Failed to log communication (table may not exist)', { error: logError instanceof Error ? logError.message : String(logError) });
     }
 
     // Return results
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         : 'Failed to send notifications',
     });
   } catch (error: any) {
-    apiLogger.error('Error sending payment method notification:', error);
+    apiLogger.error('Error sending payment method notification', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

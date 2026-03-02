@@ -40,7 +40,7 @@ const SEGMENTS: Segment[] = [
     label: 'Home',
     shortLabel: 'Home',
     icon: Home,
-    priceFrom: 'R299+',
+    priceFrom: 'R799+',
     valueProp: 'Netflix-ready',
     description: 'Stream, game & connect',
   },
@@ -50,9 +50,11 @@ interface SegmentTabsProps {
   activeSegment: SegmentType;
   onSegmentChange: (segment: SegmentType) => void;
   className?: string;
+  variant?: 'light' | 'dark';
 }
 
-export function SegmentTabs({ activeSegment, onSegmentChange, className }: SegmentTabsProps) {
+export function SegmentTabs({ activeSegment, onSegmentChange, className, variant = 'light' }: SegmentTabsProps) {
+  const isDark = variant === 'dark';
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -159,23 +161,25 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className }: Segme
                 'focus:outline-none focus:ring-2 focus:ring-circleTel-orange focus:ring-offset-2',
                 // Mobile snap
                 isMobile && 'snap-center',
-                // Active/Inactive states
+                // Active/Inactive states - support dark variant
                 isActive
                   ? 'bg-circleTel-orange text-white shadow-lg scale-105'
-                  : 'bg-white text-circleTel-navy shadow-md hover:shadow-lg hover:scale-[1.02] border border-gray-100'
+                  : isDark
+                    ? 'bg-white/10 backdrop-blur-sm text-white shadow-md hover:bg-white/20 hover:scale-[1.02] border border-white/20'
+                    : 'bg-white text-circleTel-navy shadow-md hover:shadow-lg hover:scale-[1.02] border border-gray-100'
               )}
             >
               {/* Icon */}
               <div
                 className={cn(
                   'w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 sm:mb-3',
-                  isActive ? 'bg-white/20' : 'bg-circleTel-orange/10'
+                  isActive ? 'bg-white/20' : isDark ? 'bg-white/10' : 'bg-circleTel-orange/10'
                 )}
               >
                 <Icon
                   className={cn(
                     'h-5 w-5 sm:h-6 sm:w-6',
-                    isActive ? 'text-white' : 'text-circleTel-orange'
+                    isActive ? 'text-white' : isDark ? 'text-white' : 'text-circleTel-orange'
                   )}
                   aria-hidden="true"
                 />
@@ -191,7 +195,7 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className }: Segme
               <span
                 className={cn(
                   'font-heading font-bold text-lg sm:text-xl',
-                  isActive ? 'text-white' : 'text-circleTel-navy'
+                  isActive ? 'text-white' : isDark ? 'text-white' : 'text-circleTel-navy'
                 )}
               >
                 {segment.priceFrom}
@@ -276,18 +280,18 @@ export const SEGMENT_DATA: Record<SegmentType, {
     title: 'Work from Home',
     subtitle: 'Reliable video calls · Fast uploads · Uninterrupted',
     tags: ['Video calls', 'Fast uploads', 'Business grade'],
-    priceFrom: 449,
+    priceFrom: 799,
     badge: 'Zoom-ready',
-    technologies: 'Fibre · 5G · LTE options available',
+    technologies: 'SkyFibre · MTN Tarana G1 Fixed Wireless',
     placeholder: 'Enter your home office address',
   },
   home: {
     title: 'Home Connectivity',
     subtitle: 'Streaming · Gaming · Smart home · Family WiFi',
     tags: ['Streaming', 'Gaming', 'Smart home', 'Family WiFi'],
-    priceFrom: 299,
+    priceFrom: 799,
     badge: 'Netflix-ready',
-    technologies: 'Fibre · 5G · LTE options available',
+    technologies: 'SkyFibre · MTN Tarana G1 Fixed Wireless',
     placeholder: 'Enter your home address',
   },
 };

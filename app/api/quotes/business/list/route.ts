@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const sort_by = searchParams.get('sort_by') || 'created_at';
     const sort_order = searchParams.get('sort_order') || 'desc';
 
-    apiLogger.info('[Quotes API] Fetching quotes with params:', { limit, offset, status, customer_type, search });
+    apiLogger.info('[Quotes API] Fetching quotes with params', { limit, offset, status, customer_type, search });
 
     // Build query
     let query = supabase
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error: quotesError, count } = await query;
 
     if (quotesError) {
-      apiLogger.error('[Quotes API] Error fetching quotes:', quotesError);
+      apiLogger.error('[Quotes API] Error fetching quotes', { error: quotesError.message, code: quotesError.code });
       return NextResponse.json(
         {
           success: false,
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       .in('quote_id', quoteIds);
 
     if (itemCountsError) {
-      apiLogger.error('[Quotes API] Error fetching item counts:', itemCountsError);
+      apiLogger.error('[Quotes API] Error fetching item counts', { error: itemCountsError.message, code: itemCountsError.code });
     }
 
     // Create a map of quote_id -> item count
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       .in('id', creatorIds);
 
     if (adminsError) {
-      apiLogger.error('[Quotes API] Error fetching admins:', adminsError);
+      apiLogger.error('[Quotes API] Error fetching admins', { error: adminsError.message, code: adminsError.code });
     }
 
     // Create a map of admin_id -> admin details
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    apiLogger.error(`[Quotes API] ❌ Error after ${totalTime}ms:`, error);
+    apiLogger.error(`[Quotes API] Error after ${totalTime}ms`, { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

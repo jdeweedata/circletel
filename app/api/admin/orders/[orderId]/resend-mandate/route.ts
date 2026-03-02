@@ -147,7 +147,7 @@ export async function POST(
     const batchResult = await emandateBatchService.submitMandate(emandateBatchRequest);
 
     if (!batchResult.success) {
-      apiLogger.error('[Resend Mandate] NetCash submission failed:', batchResult);
+      apiLogger.error('[Resend Mandate] NetCash submission failed', { errorCode: batchResult.errorCode, errorMessage: batchResult.errorMessage });
       return NextResponse.json(
         { 
           success: false, 
@@ -196,7 +196,7 @@ export async function POST(
     });
 
   } catch (error: any) {
-    apiLogger.error('[Resend Mandate] Error:', error);
+    apiLogger.error('[Resend Mandate] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

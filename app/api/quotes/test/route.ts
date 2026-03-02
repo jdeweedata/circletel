@@ -10,7 +10,7 @@ export async function GET() {
 
     // Check env var
     const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-    apiLogger.info('[Test API] Has service key:', hasServiceKey);
+    apiLogger.info('[Test API] Has service key', { hasServiceKey });
 
     // Create client
     const supabase = await createClient();
@@ -25,7 +25,7 @@ export async function GET() {
     apiLogger.info(`[Test API] Query completed in ${elapsed}ms`);
 
     if (error) {
-      apiLogger.error('[Test API] Error:', error);
+      apiLogger.error('[Test API] Error', { error: error.message, code: error.code });
       return NextResponse.json({
         success: false,
         error: error.message,
@@ -41,7 +41,7 @@ export async function GET() {
     });
   } catch (error) {
     const elapsed = Date.now() - start;
-    apiLogger.error('[Test API] Exception:', error);
+    apiLogger.error('[Test API] Exception', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

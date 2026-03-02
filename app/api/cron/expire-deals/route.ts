@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .lt('promo_end_date', today);
     
     if (fetchError) {
-      cronLogger.error('Error fetching expired deals:', fetchError);
+      cronLogger.error('[ExpireDeals] Error fetching expired deals', { error: fetchError.message });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch expired deals' },
         { status: 500 }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       .in('id', expiredDeals.map(d => d.id));
     
     if (updateError) {
-      cronLogger.error('Error updating deals:', updateError);
+      cronLogger.error('[ExpireDeals] Error updating deals', { error: updateError.message });
       return NextResponse.json(
         { success: false, error: 'Failed to expire deals' },
         { status: 500 }
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Log the expiry
-    cronLogger.info(`Expired ${expiredDeals.length} MTN deals:`, expiredDeals.map(d => d.deal_id));
+    cronLogger.info(`[ExpireDeals] Expired ${expiredDeals.length} MTN deals`, { dealIds: expiredDeals.map(d => d.deal_id) });
     
     return NextResponse.json({
       success: true,
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    cronLogger.error('Error in expire-deals cron:', error);
+    cronLogger.error('[ExpireDeals] Error in expire-deals cron', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

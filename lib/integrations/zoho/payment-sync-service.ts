@@ -36,7 +36,7 @@ export async function syncPaymentToZohoBilling(
   const supabase = await createClient();
 
   try {
-    zohoLogger.debug('[PaymentSync] Starting sync for payment:', payment_id);
+    zohoLogger.debug('[PaymentSync] Starting sync for payment', { payment_id });
 
     // Update sync status to 'syncing'
     await supabase
@@ -66,7 +66,7 @@ export async function syncPaymentToZohoBilling(
 
     // Check if already synced
     if (payment.zoho_payment_id) {
-      zohoLogger.debug('[PaymentSync] Payment already synced:', payment.zoho_payment_id);
+      zohoLogger.debug('[PaymentSync] Payment already synced', { zoho_payment_id: payment.zoho_payment_id });
       return {
         success: true,
         zoho_payment_id: payment.zoho_payment_id
@@ -198,7 +198,7 @@ export async function syncPaymentToZohoBilling(
     };
 
   } catch (error) {
-    zohoLogger.error('[PaymentSync] Error syncing payment:', error);
+    zohoLogger.error('[PaymentSync] Error syncing payment', { error: error instanceof Error ? error.message : String(error) });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 

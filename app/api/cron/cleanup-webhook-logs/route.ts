@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       .lt('received_at', cutoffDate.toISOString());
 
     if (countError) {
-      cronLogger.error('[WebhookLogsCleanup] Error counting logs:', countError);
+      cronLogger.error('[WebhookLogsCleanup] Error counting logs', { error: countError.message });
       throw new Error('Failed to count webhook logs');
     }
 
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         .lt('received_at', cutoffDate.toISOString());
 
       if (deleteError) {
-        cronLogger.error('[WebhookLogsCleanup] Error deleting logs:', deleteError);
+        cronLogger.error('[WebhookLogsCleanup] Error deleting logs', { error: deleteError.message });
         throw new Error('Failed to delete webhook logs');
       }
 
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    cronLogger.error('[WebhookLogsCleanup] Error running cleanup:', error);
+    cronLogger.error('[WebhookLogsCleanup] Error running cleanup', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

@@ -123,6 +123,10 @@ export interface BusinessQuoteItem {
   speed_up: number | null;
   data_cap_gb: number | null;
 
+  // Additional fields (for UI compatibility)
+  package_name?: string; // Alias for service_name in some views
+  package_speed?: string; // Formatted speed string
+
   // Additional info
   notes: string | null;
   display_order: number;
@@ -149,6 +153,7 @@ export interface BusinessQuoteVersion {
   // Change tracking
   changed_by: string | null;
   change_summary: string | null;
+  change_notes?: string | null; // Alias for change_summary in some views
   created_at: string;
 }
 
@@ -272,6 +277,13 @@ export interface QuoteDetails extends QuoteWithItems {
     full_name: string;
     email: string;
   } | null;
+  // Additional fields for UI
+  signed_at?: string | null; // When quote was signed
+  notes?: string | null; // General notes (alias for admin_notes in some views)
+  metadata?: {
+    mtn_deals?: any[];
+    [key: string]: any;
+  } | null; // JSONB metadata storage
 }
 
 /**
@@ -301,11 +313,13 @@ export interface SignQuoteRequest {
   signer_email: string;
   signer_id_number: string;
   signer_position?: string;
+  signer_title?: string; // Job title of the signer
   signature_type: SignatureType;
   signature_data: string; // Base64 canvas or typed name
   fica_documents_confirmed: boolean;
   cipc_documents_confirmed: boolean;
   terms_accepted: boolean;
+  additional_notes?: string; // Optional notes from signer
 }
 
 /**

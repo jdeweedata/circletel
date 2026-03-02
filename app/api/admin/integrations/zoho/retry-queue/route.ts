@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     const result = await processRetryQueue();
 
-    apiLogger.info('[ZohoRetryQueue] Retry queue processing complete:', result);
+    apiLogger.info('[ZohoRetryQueue] Retry queue processing complete', { result });
 
     return NextResponse.json({
       success: true,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[ZohoRetryQueue] Error processing retry queue:', error);
+    apiLogger.error('[ZohoRetryQueue] Error processing retry queue', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[ZohoRetryQueue] Error getting retry queue status:', error);
+    apiLogger.error('[ZohoRetryQueue] Error getting retry queue status', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

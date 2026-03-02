@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      apiLogger.error('[Products API] Query error:', error);
+      apiLogger.error('[Products API] Query error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch products' },
         { status: 500 }
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       has_more: (count || 0) > (filters.offset! + filters.limit!),
     });
   } catch (error) {
-    apiLogger.error('[Products API] GET error:', error);
+    apiLogger.error('[Products API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch products' },
       { status: 500 }

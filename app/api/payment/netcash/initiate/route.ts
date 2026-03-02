@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       suburb: order.suburb,
     });
 
-    paymentLogger.info('[Payment Initiate] Building payment with description:', description);
+    paymentLogger.info('[Payment Initiate] Building payment with description', { description });
 
     // Initiate payment via provider
     const paymentResult = await provider.initiate({
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResult.success) {
-      paymentLogger.error('[Payment Initiate] Failed:', paymentResult.error);
+      paymentLogger.error('[Payment Initiate] Failed', { error: paymentResult.error });
       return NextResponse.json(
         {
           success: false,
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       .eq('id', orderId);
 
     if (updateError) {
-      paymentLogger.error('Failed to update order status:', updateError);
+      paymentLogger.error('Failed to update order status', { error: updateError.message });
     }
 
     // Log payment initiation in audit table
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (auditError) {
-      paymentLogger.error('Failed to log payment initiation:', auditError);
+      paymentLogger.error('Failed to log payment initiation', { error: auditError.message });
     }
 
     // Log consents if provided
@@ -161,10 +161,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!consentLog.success) {
-        paymentLogger.error('Failed to log payment consents:', consentLog.error);
+        paymentLogger.error('Failed to log payment consents', { error: consentLog.error });
         // Don't fail the payment if consent logging fails
       } else {
-        paymentLogger.info('Payment consents logged successfully:', consentLog.consent_id);
+        paymentLogger.info('Payment consents logged successfully', { consent_id: consentLog.consent_id });
       }
     }
 
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    paymentLogger.error('Payment initiation error:', error);
+    paymentLogger.error('Payment initiation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

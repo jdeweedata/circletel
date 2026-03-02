@@ -105,7 +105,7 @@ async function upsertProductIntegrationRow(params: {
     );
 
   if (error) {
-    zohoLogger.error('[ZohoProductSync] Failed to upsert product_integrations row:', error);
+    zohoLogger.error('[ZohoProductSync] Failed to upsert product_integrations row', { error: error.message });
   }
 }
 
@@ -143,7 +143,7 @@ async function upsertZohoCRMProduct(
         }
       }
     } catch (error) {
-      zohoLogger.warn('[ZohoProductSync] Zoho product search failed, will attempt create:', error);
+      zohoLogger.warn('[ZohoProductSync] Zoho product search failed, will attempt create', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -248,7 +248,7 @@ export async function syncServicePackageToZohoCRM(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error during Zoho CRM sync';
 
-    zohoLogger.error('[ZohoProductSync] Failed to sync service package to Zoho CRM:', error);
+    zohoLogger.error('[ZohoProductSync] Failed to sync service package to Zoho CRM', { error: error instanceof Error ? error.message : String(error) });
 
     try {
       await upsertProductIntegrationRow({
@@ -259,7 +259,7 @@ export async function syncServicePackageToZohoCRM(
         error: message,
       });
     } catch (dbError) {
-      zohoLogger.error('[ZohoProductSync] Additionally failed to record sync failure in product_integrations:', dbError);
+      zohoLogger.error('[ZohoProductSync] Additionally failed to record sync failure in product_integrations', { error: dbError instanceof Error ? dbError.message : String(dbError) });
     }
 
     return {

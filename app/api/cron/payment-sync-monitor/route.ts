@@ -187,7 +187,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    cronLogger.error('Payment sync monitoring error:', error);
+    cronLogger.error('Payment sync monitoring error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {
@@ -213,7 +213,7 @@ async function sendAlerts(result: MonitoringResult): Promise<{ email: boolean; w
       const emailSent = await sendEmailAlert(result);
       alerts.email = emailSent;
     } catch (error) {
-      cronLogger.error('Failed to send email alert:', error);
+      cronLogger.error('Failed to send email alert', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -223,7 +223,7 @@ async function sendAlerts(result: MonitoringResult): Promise<{ email: boolean; w
       const webhookSent = await sendWebhookAlert(result);
       alerts.webhook = webhookSent;
     } catch (error) {
-      cronLogger.error('Failed to send webhook alert:', error);
+      cronLogger.error('Failed to send webhook alert', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -367,7 +367,7 @@ async function logMonitoringResult(
       duration_ms: processingTimeMs,
     });
   } catch (error) {
-    cronLogger.error('Failed to log monitoring result:', error);
+    cronLogger.error('Failed to log monitoring result', { error: error instanceof Error ? error.message : String(error) });
   }
 }
 

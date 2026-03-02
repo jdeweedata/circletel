@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       expiresAt,
     });
   } catch (error) {
-    apiLogger.error('Preview token generation error:', error);
+    apiLogger.error('[CMS] Preview token generation error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    apiLogger.error('Preview fetch error:', error);
+    apiLogger.error('[CMS] Preview fetch error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -142,7 +142,7 @@ export async function DELETE() {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    apiLogger.error('Preview clear error:', error);
+    apiLogger.error('[CMS] Preview clear error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -62,7 +62,7 @@ export class ZohoCRMService {
         });
       }
 
-      zohoLogger.debug('[ZohoCRM] Creating Estimate:', estimateData.Subject);
+      zohoLogger.debug('[ZohoCRM] Creating Estimate', { subject: estimateData.Subject });
 
       const response = await fetch(`${this.baseUrl}/Quotes`, {
         method: 'POST',
@@ -81,13 +81,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        zohoLogger.debug('[ZohoCRM] Estimate created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Estimate created successfully', { zohoId });
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      zohoLogger.error('[ZohoCRM] Failed to create Estimate:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Estimate', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -120,7 +120,7 @@ export class ZohoCRMService {
         Contract_Signed_Date: contractData.signed_date,
       };
 
-      zohoLogger.debug('[ZohoCRM] Creating Deal:', dealData.Deal_Name);
+      zohoLogger.debug('[ZohoCRM] Creating Deal', { dealName: dealData.Deal_Name });
 
       const response = await fetch(`${this.baseUrl}/Deals`, {
         method: 'POST',
@@ -139,13 +139,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        zohoLogger.debug('[ZohoCRM] Deal created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Deal created successfully', { zohoId });
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      zohoLogger.error('[ZohoCRM] Failed to create Deal:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Deal', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -157,7 +157,7 @@ export class ZohoCRMService {
     try {
       const accessToken = await this.auth.getAccessToken();
 
-      zohoLogger.debug('[ZohoCRM] Updating Deal:', dealId);
+      zohoLogger.debug('[ZohoCRM] Updating Deal', { dealId });
 
       const response = await fetch(`${this.baseUrl}/Deals/${dealId}`, {
         method: 'PUT',
@@ -180,7 +180,7 @@ export class ZohoCRMService {
 
       zohoLogger.debug('[ZohoCRM] Deal updated successfully');
     } catch (error) {
-      zohoLogger.error('[ZohoCRM] Failed to update Deal:', error);
+      zohoLogger.error('[ZohoCRM] Failed to update Deal', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -192,7 +192,7 @@ export class ZohoCRMService {
     try {
       const accessToken = await this.auth.getAccessToken();
 
-      zohoLogger.debug('[ZohoCRM] Creating Contact:', contactData.Email);
+      zohoLogger.debug('[ZohoCRM] Creating Contact', { email: contactData.Email });
 
       const response = await fetch(`${this.baseUrl}/Contacts`, {
         method: 'POST',
@@ -211,13 +211,13 @@ export class ZohoCRMService {
 
       if (result.data[0].code === 'SUCCESS') {
         const zohoId = result.data[0].details.id;
-        zohoLogger.debug('[ZohoCRM] Contact created successfully:', zohoId);
+        zohoLogger.debug('[ZohoCRM] Contact created successfully', { zohoId });
         return zohoId;
       } else {
         throw new Error(`ZOHO API error: ${result.data[0].message}`);
       }
     } catch (error) {
-      zohoLogger.error('[ZohoCRM] Failed to create Contact:', error);
+      zohoLogger.error('[ZohoCRM] Failed to create Contact', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -251,7 +251,7 @@ export class ZohoCRMService {
 
       return null;
     } catch (error) {
-      zohoLogger.error('[ZohoCRM] Search failed:', error);
+      zohoLogger.error('[ZohoCRM] Search failed', { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }

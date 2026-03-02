@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: payload });
   } catch (error) {
-    apiLogger.error('[Admin DFA Coverage] Error:', error);
+    apiLogger.error('[Admin DFA Coverage] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'internal_error', message: 'Failed to check DFA coverage' },
       { status: 500 }

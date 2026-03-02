@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data?.user) {
         user = data.user;
-        paymentLogger.info('[Payment Method Initiate] Auth via header:', user.email);
+        paymentLogger.info('[Payment Method Initiate] Auth via header', { email: user.email });
       }
     }
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabaseWithSession.auth.getUser();
       if (!error && data?.user) {
         user = data.user;
-        paymentLogger.info('[Payment Method Initiate] Auth via cookies:', user.email);
+        paymentLogger.info('[Payment Method Initiate] Auth via cookies', { email: user.email });
       }
     }
 
@@ -67,14 +67,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (customerError || !customer) {
-      paymentLogger.error('[Payment Method Initiate] Customer not found:', customerError);
+      paymentLogger.error('[Payment Method Initiate] Customer not found', { error: customerError?.message });
       return NextResponse.json(
         { success: false, error: 'Customer record not found. Please contact support.' },
         { status: 404 }
       );
     }
 
-    paymentLogger.info('[Payment Method Initiate] Customer found:', customer.id, customer.email);
+    paymentLogger.info('[Payment Method Initiate] Customer found', { customer_id: customer.id, email: customer.email });
 
     // 3. Get payment provider
     const provider = getPaymentProvider();
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     const customerIdPrefix = customer.id.slice(0, 8);
     const reference = `PM-VAL-${customerIdPrefix}-${timestamp}`;
 
-    paymentLogger.info('[Payment Method Initiate] Generated reference:', reference);
+    paymentLogger.info('[Payment Method Initiate] Generated reference', { reference });
 
     // 5. Get base URL for redirects
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResult.success) {
-      paymentLogger.error('[Payment Method Initiate] Failed:', paymentResult.error);
+      paymentLogger.error('[Payment Method Initiate] Failed', { error: paymentResult.error });
       return NextResponse.json(
         { success: false, error: paymentResult.error || 'Failed to initiate payment validation' },
         { status: 500 }
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (transactionError) {
-      paymentLogger.error('[Payment Method Initiate] Transaction record error:', transactionError);
+      paymentLogger.error('[Payment Method Initiate] Transaction record error', { error: transactionError.message });
       // Continue anyway - payment can still work, webhook will handle it
     }
 

@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     // Get Today's Date (YYYY-MM-DD)
     // =========================================================================
     const today = new Date().toISOString().split('T')[0];
-    cronLogger.info('[Price Changes Cron] Checking for price changes effective on:', today);
+    cronLogger.info('[Price Changes Cron] Checking for price changes effective on', { date: today });
 
     // =========================================================================
     // Find Price Changes to Make Effective
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       .eq('effective_date', today);
 
     if (queryError) {
-      cronLogger.error('[Price Changes Cron] Query error:', queryError);
+      cronLogger.error('[Price Changes Cron] Query error', { error: queryError.message });
       return NextResponse.json(
         { error: 'Failed to fetch price changes' },
         { status: 500 }
@@ -155,8 +155,8 @@ export async function GET(request: NextRequest) {
             );
           } catch (zohoError: any) {
             cronLogger.error(
-              `[Price Changes Cron] ⚠️  Zoho Billing update failed (non-fatal):`,
-              zohoError
+              `[Price Changes Cron] Zoho Billing update failed (non-fatal)`,
+              { error: zohoError.message }
             );
             result.zoho_error = zohoError.message;
             // Don't fail the entire operation - price is updated in Supabase
@@ -220,8 +220,8 @@ export async function GET(request: NextRequest) {
 
         if (historyError) {
           cronLogger.error(
-            `[Price Changes Cron] ⚠️  Failed to update price_history:`,
-            historyError
+            `[Price Changes Cron] Failed to update price_history`,
+            { error: historyError.message }
           );
           // Don't fail - history is supplementary
         } else {
@@ -245,8 +245,8 @@ export async function GET(request: NextRequest) {
         result.error = error.message;
 
         cronLogger.error(
-          `[Price Changes Cron] ❌ Failed to process price change ${change.id}:`,
-          error
+          `[Price Changes Cron] Failed to process price change ${change.id}`,
+          { error: error.message }
         );
 
         // Log error to zoho_sync_logs for monitoring
@@ -260,7 +260,7 @@ export async function GET(request: NextRequest) {
             attempt_number: 1,
           });
         } catch (logError) {
-          cronLogger.error('[Price Changes Cron] Failed to log error:', logError);
+          cronLogger.error('[Price Changes Cron] Failed to log error', { error: logError instanceof Error ? logError.message : String(logError) });
         }
       }
 
@@ -287,7 +287,7 @@ export async function GET(request: NextRequest) {
       results,
     });
   } catch (error: any) {
-    cronLogger.error('[Price Changes Cron] Fatal error:', error);
+    cronLogger.error('[Price Changes Cron] Fatal error', { error: error.message });
 
     return NextResponse.json(
       {

@@ -65,7 +65,7 @@ export class ZohoAuthService extends ZohoAPIClient {
 
       return newAccessToken;
     } catch (error) {
-      zohoLogger.error('[ZohoAuth] Failed to get access token:', error);
+      zohoLogger.error('[ZohoAuth] Failed to get access token', { error: error instanceof Error ? error.message : String(error) });
       throw new Error(`Failed to get ZOHO access token: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -166,15 +166,15 @@ export class ZohoAuthService extends ZohoAPIClient {
       if (error) {
         // Treat token storage failures as non-blocking so that
         // catalogue sync can still proceed using in-memory tokens.
-        zohoLogger.error('[ZohoAuth] Failed to store token (non-blocking):', error);
+        zohoLogger.error('[ZohoAuth] Failed to store token (non-blocking)', { error: error.message });
         return;
       }
 
-      zohoLogger.debug('[ZohoAuth] Token stored in database, expires at:', expiresAt.toISOString());
+      zohoLogger.debug('[ZohoAuth] Token stored in database', { expiresAt: expiresAt.toISOString() });
     } catch (error) {
       // If the zoho_tokens table or schema cache is missing, we should not
       // block the caller. Log and continue with the in-memory token only.
-      zohoLogger.error('[ZohoAuth] Error storing token (non-blocking):', error);
+      zohoLogger.error('[ZohoAuth] Error storing token (non-blocking)', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -195,7 +195,7 @@ export class ZohoAuthService extends ZohoAPIClient {
 
       return data as ZohoToken;
     } catch (error) {
-      zohoLogger.error('[ZohoAuth] Error getting stored token:', error);
+      zohoLogger.error('[ZohoAuth] Error getting stored token', { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }

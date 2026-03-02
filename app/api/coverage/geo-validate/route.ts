@@ -120,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeoValida
     return NextResponse.json(response, { headers });
 
   } catch (error) {
-    apiLogger.error('Geographic validation error:', error);
+    apiLogger.error('Geographic validation error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json({
       success: false,

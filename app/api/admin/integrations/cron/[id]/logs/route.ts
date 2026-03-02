@@ -91,7 +91,7 @@ export async function GET(
       .range(offset, offset + limit - 1);
 
     if (logsError) {
-      apiLogger.error('[Cron Logs API] Error fetching logs:', logsError);
+      apiLogger.error('[Cron Logs API] Error fetching logs', { error: logsError.message, code: logsError.code });
       return NextResponse.json(
         { error: 'Failed to fetch cron logs', details: logsError.message },
         { status: 500 }
@@ -108,7 +108,7 @@ export async function GET(
       .eq('integration_slug', cronJob.integration_slug);
 
     if (countError) {
-      apiLogger.error('[Cron Logs API] Error counting logs:', countError);
+      apiLogger.error('[Cron Logs API] Error counting logs', { error: countError.message, code: countError.code });
     }
 
     const total = totalCount || 0;
@@ -152,7 +152,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    apiLogger.error('[Cron Logs API] Error:', error);
+    apiLogger.error('[Cron Logs API] Error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: 'Internal server error',

@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResult.success) {
-      paymentLogger.error('[Test Payment] Failed:', paymentResult.error);
+      paymentLogger.error('[Test Payment] Failed', { error: paymentResult.error });
       return NextResponse.json(
         {
           success: false,
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (transactionError) {
-      paymentLogger.error('[Test Payment] Transaction record error:', transactionError);
+      paymentLogger.error('[Test Payment] Transaction record error', { error: transactionError.message });
       // Continue anyway - payment can still work
     }
 

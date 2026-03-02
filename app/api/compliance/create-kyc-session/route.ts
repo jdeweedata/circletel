@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Other errors (Didit API failures, database errors)
-      apiLogger.error('[API] KYC session creation failed:', error);
+      apiLogger.error('[API] KYC session creation failed', { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         {
           success: false,
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[API] Unexpected error in create-kyc-session:', error);
+    apiLogger.error('[API] Unexpected error in create-kyc-session', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

@@ -132,7 +132,7 @@ export async function POST(
       message: 'OAuth token refreshed successfully',
     });
   } catch (error) {
-    apiLogger.error('[OAuth Refresh API] Unexpected error:', error);
+    apiLogger.error('[OAuth Refresh API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

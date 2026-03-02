@@ -95,7 +95,7 @@ export async function POST(
       message: 'Quote sent successfully'
     });
   } catch (error) {
-    apiLogger.error('Error sending quote:', error);
+    apiLogger.error('Error sending quote', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

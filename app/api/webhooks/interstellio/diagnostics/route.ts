@@ -104,7 +104,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(result)
   } catch (error) {
-    webhookLogger.error('[Interstellio Webhook] Error:', error)
+    webhookLogger.error('[Interstellio Webhook] Error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       {
         success: false,
@@ -183,7 +183,7 @@ async function processWebhook(
     .single()
 
   if (eventError) {
-    webhookLogger.error('[Interstellio Webhook] Failed to insert event:', eventError)
+    webhookLogger.error('[Interstellio Webhook] Failed to insert event', { error: eventError.message })
     return {
       success: false,
       action: 'error',
@@ -350,15 +350,15 @@ async function sendAlertNotification(
       .join('\n')
 
     webhookLogger.info(
-      `[Interstellio Webhook] Alert notification for ${service.customer_name}:`,
-      alertMessages
+      `[Interstellio Webhook] Alert notification for ${service.customer_name}`,
+      { alertMessages }
     )
 
     // Email would be sent here using AdminNotificationService
     // For now, just log it
     // await AdminNotificationService.notifyDiagnosticsAlert({ ... })
   } catch (error) {
-    webhookLogger.error('[Interstellio Webhook] Failed to send alert:', error)
+    webhookLogger.error('[Interstellio Webhook] Failed to send alert', { error: error instanceof Error ? error.message : String(error) })
   }
 }
 

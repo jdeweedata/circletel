@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(monitoringData);
 
   } catch (error) {
-    apiLogger.error('Monitoring API error:', error);
+    apiLogger.error('Monitoring API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch monitoring data' },
       { status: 500 }
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    apiLogger.error('Monitoring action error:', error);
+    apiLogger.error('Monitoring action error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to execute action' },
       { status: 500 }

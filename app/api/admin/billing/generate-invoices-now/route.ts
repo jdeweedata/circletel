@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     const { data: services, error: servicesError } = await query;
     
     if (servicesError) {
-      apiLogger.error('Error fetching services:', servicesError);
+      apiLogger.error('Error fetching services', { error: servicesError.message, code: servicesError.code });
       return NextResponse.json(
         { error: 'Failed to fetch services' },
         { status: 500 }

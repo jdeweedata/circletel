@@ -45,7 +45,7 @@ export async function GET(
       .single();
 
     if (contractError || !contract) {
-      apiLogger.error('[ContractPDFAPI] Contract not found:', contractError);
+      apiLogger.error('[ContractPDFAPI] Contract not found', { error: contractError?.message, code: contractError?.code });
       return NextResponse.json(
         {
           success: false,
@@ -63,7 +63,7 @@ export async function GET(
       try {
         pdfUrl = await generateContractPDF(contractId);
       } catch (pdfError) {
-        apiLogger.error('[ContractPDFAPI] PDF generation failed:', pdfError);
+        apiLogger.error('[ContractPDFAPI] PDF generation failed', { error: pdfError instanceof Error ? pdfError.message : String(pdfError) });
         return NextResponse.json(
           {
             success: false,
@@ -81,7 +81,7 @@ export async function GET(
       .download(fileName);
 
     if (downloadError || !pdfData) {
-      apiLogger.error('[ContractPDFAPI] PDF download failed:', downloadError);
+      apiLogger.error('[ContractPDFAPI] PDF download failed', { error: downloadError?.message });
       return NextResponse.json(
         {
           success: false,
@@ -104,7 +104,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    apiLogger.error('[ContractPDFAPI] Error downloading PDF:', error);
+    apiLogger.error('[ContractPDFAPI] Error downloading PDF', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

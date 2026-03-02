@@ -32,6 +32,12 @@ export default function AdminLayout({
   const publicRoutes = ['/admin/login', '/admin/signup', '/admin/forgot-password', '/admin/reset-password', '/admin/sales/feasibility/designs'];
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route)) || isStudioSubdomain;
 
+  // DEV BYPASS: Skip auth for all admin routes on localhost in development
+  const isDev = process.env.NODE_ENV === 'development';
+  const isLocalhost = typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const devBypass = isDev && isLocalhost;
+
   // Full-screen routes that use their own layout (no admin sidebar/header)
   const fullScreenRoutes = ['/admin/cms/builder'];
   const isFullScreenRoute = fullScreenRoutes.some(route => pathname?.startsWith(route));
@@ -39,6 +45,19 @@ export default function AdminLayout({
   // Fetch admin user from API (server-side validates session from cookies)
   useEffect(() => {
     if (isPublicRoute) {
+      setIsLoading(false);
+      return;
+    }
+
+    // DEV BYPASS: Use mock user on localhost in development
+    if (devBypass) {
+      setUser({
+        id: 'dev-user',
+        email: 'dev@localhost',
+        first_name: 'Dev',
+        last_name: 'User',
+        role: 'super_admin',
+      });
       setIsLoading(false);
       return;
     }
@@ -88,7 +107,7 @@ export default function AdminLayout({
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute, supabase, pathname]); // Added pathname
+  }, [isPublicRoute, devBypass, supabase, pathname]);
 
   // For public routes (login/signup), render without authentication check
   if (isPublicRoute) {

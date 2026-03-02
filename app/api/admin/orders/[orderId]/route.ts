@@ -39,7 +39,7 @@ export async function GET(
       .single();
 
     if (error || !order) {
-      apiLogger.error('Error fetching order by ID:', error);
+      apiLogger.error('Error fetching order by ID', { error: error?.message, code: error?.code });
       return NextResponse.json(
         { success: false, error: 'Order not found' },
         { status: 404 }
@@ -81,7 +81,7 @@ export async function GET(
       data: enrichedOrder,
     });
   } catch (error: any) {
-    apiLogger.error('Admin single order fetch error:', error);
+    apiLogger.error('Admin single order fetch error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       { status: 501 }
     );
   } catch (error) {
-    apiLogger.error('MTN map coverage check error:', error);
+    apiLogger.error('MTN map coverage check error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',

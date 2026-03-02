@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const result = await submitDebitOrders();
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Debit order submission cron error:', error);
+    cronLogger.error('Debit order submission cron error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Submission failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     const result = await submitDebitOrders(customDate);
     return NextResponse.json(result);
   } catch (error) {
-    cronLogger.error('Debit order submission error:', error);
+    cronLogger.error('Debit order submission error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Submission failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -316,7 +316,7 @@ async function submitDebitOrders(customDate?: Date): Promise<SubmissionResult> {
     if (!authResult.success) {
       result.errors.push(`Batch authorisation failed: ${authResult.error}`);
       // Don't fail the whole job - batch is submitted, just not authorised
-      cronLogger.warn('Batch submitted but not authorised:', authResult.error);
+      cronLogger.warn('Batch submitted but not authorised', { error: authResult.error });
     } else {
       cronLogger.info(`Batch ${batchResult.batchId} authorised successfully`);
     }
@@ -477,7 +477,7 @@ async function recordBatchSubmission(
       .insert(batchItems);
 
   } catch (error) {
-    cronLogger.error('Failed to record batch submission:', error);
+    cronLogger.error('Failed to record batch submission', { error: error instanceof Error ? error.message : String(error) });
     // Don't throw - this is non-critical logging
   }
 }
@@ -507,7 +507,7 @@ async function updateNextBillingDates(
           .eq('id', item.orderId);
       }
     } catch (error) {
-      cronLogger.error(`Failed to update next billing date for ${item.accountReference}:`, error);
+      cronLogger.error(`Failed to update next billing date for ${item.accountReference}`, { error: error instanceof Error ? error.message : String(error) });
     }
   }
 }
@@ -538,6 +538,6 @@ async function logExecution(
         },
       });
   } catch (error) {
-    cronLogger.error('Failed to log execution:', error);
+    cronLogger.error('Failed to log execution', { error: error instanceof Error ? error.message : String(error) });
   }
 }

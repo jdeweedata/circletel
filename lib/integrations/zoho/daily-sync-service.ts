@@ -208,7 +208,7 @@ async function updateBillingSyncStatus(
     .eq('service_package_id', servicePackageId);
 
   if (error) {
-    zohoLogger.error('[DailySync] Failed to update Billing sync status:', error.message);
+    zohoLogger.error('[DailySync] Failed to update Billing sync status', { error: error.message });
   }
 }
 
@@ -240,7 +240,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
     }
   } catch (error) {
     result.crmError = error instanceof Error ? error.message : 'Unknown error';
-    zohoLogger.error(`[DailySync] CRM sync failed for ${candidate.sku}:`, error);
+    zohoLogger.error(`[DailySync] CRM sync failed for ${candidate.sku}`, { error: error instanceof Error ? error.message : String(error) });
   }
 
   // Small delay between CRM and Billing
@@ -266,7 +266,7 @@ async function syncProduct(candidate: SyncCandidate): Promise<SyncResult> {
 
   } catch (error) {
     result.billingError = error instanceof Error ? error.message : 'Unknown error';
-    zohoLogger.error(`[DailySync] Billing sync failed for ${candidate.sku}:`, error);
+    zohoLogger.error(`[DailySync] Billing sync failed for ${candidate.sku}`, { error: error instanceof Error ? error.message : String(error) });
 
     // Update product_integrations with failure
     await updateBillingSyncStatus(candidate.id, {

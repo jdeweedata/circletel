@@ -46,7 +46,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, media });
   } catch (error) {
-    apiLogger.error('Media GET error:', error);
+    apiLogger.error('Media GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -97,13 +97,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      apiLogger.error('Media update error:', error);
+      apiLogger.error('Media update error', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, media });
   } catch (error) {
-    apiLogger.error('Media PATCH error:', error);
+    apiLogger.error('Media PATCH error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -144,7 +144,7 @@ export async function DELETE(
       .remove([media.storage_path]);
 
     if (storageError) {
-      apiLogger.error('Storage delete error:', storageError);
+      apiLogger.error('Storage delete error', { error: storageError.message });
       // Continue to delete the database record even if storage delete fails
     }
 
@@ -155,13 +155,13 @@ export async function DELETE(
       .eq('id', id);
 
     if (deleteError) {
-      apiLogger.error('Media delete error:', deleteError);
+      apiLogger.error('Media delete error', { error: deleteError.message, code: deleteError.code });
       return NextResponse.json({ error: 'Failed to delete media' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    apiLogger.error('Media DELETE error:', error);
+    apiLogger.error('Media DELETE error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

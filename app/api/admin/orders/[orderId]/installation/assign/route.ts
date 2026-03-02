@@ -44,7 +44,7 @@ export async function POST(
       .maybeSingle();
 
     if (fetchError) {
-      apiLogger.error('Error fetching installation task:', fetchError);
+      apiLogger.error('Error fetching installation task', { error: fetchError.message, code: fetchError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch installation task', details: fetchError.message },
         { status: 500 }
@@ -83,7 +83,7 @@ export async function POST(
         .single();
 
       if (error) {
-        apiLogger.error('Error updating installation task:', error);
+        apiLogger.error('Error updating installation task', { error: error.message, code: error.code });
         return NextResponse.json(
           { success: false, error: 'Failed to assign technician', details: error.message },
           { status: 500 }
@@ -152,7 +152,7 @@ export async function POST(
         .single();
 
       if (error) {
-        apiLogger.error('Error creating installation task:', error);
+        apiLogger.error('Error creating installation task', { error: error.message, code: error.code });
         return NextResponse.json(
           { success: false, error: 'Failed to create installation task', details: error.message },
           { status: 500 }
@@ -178,7 +178,7 @@ export async function POST(
       message: existingTask ? 'Technician reassigned successfully' : 'Installation scheduled and technician assigned',
     });
   } catch (error: any) {
-    apiLogger.error('Error in POST /api/admin/orders/[orderId]/installation/assign:', error);
+    apiLogger.error('Error in POST /api/admin/orders/[orderId]/installation/assign', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }
@@ -248,7 +248,7 @@ export async function DELETE(
       message: 'Technician unassigned successfully',
     });
   } catch (error: any) {
-    apiLogger.error('Error in DELETE /api/admin/orders/[orderId]/installation/assign:', error);
+    apiLogger.error('Error in DELETE /api/admin/orders/[orderId]/installation/assign', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error', details: error.message },
       { status: 500 }

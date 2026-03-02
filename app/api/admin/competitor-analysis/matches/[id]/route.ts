@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, context: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    apiLogger.error('[Match API] GET error:', error);
+    apiLogger.error('[Match API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch match' },
       { status: 500 }
@@ -124,7 +124,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
       .single();
 
     if (error) {
-      apiLogger.error('[Match API] Update error:', error);
+      apiLogger.error('[Match API] Update error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to update match' },
         { status: 500 }
@@ -133,7 +133,7 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    apiLogger.error('[Match API] PATCH error:', error);
+    apiLogger.error('[Match API] PATCH error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to update match' },
       { status: 500 }
@@ -167,7 +167,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       .eq('id', id);
 
     if (error) {
-      apiLogger.error('[Match API] Delete error:', error);
+      apiLogger.error('[Match API] Delete error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to delete match' },
         { status: 500 }
@@ -178,7 +178,7 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       message: 'Match deleted successfully',
     });
   } catch (error) {
-    apiLogger.error('[Match API] DELETE error:', error);
+    apiLogger.error('[Match API] DELETE error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to delete match' },
       { status: 500 }

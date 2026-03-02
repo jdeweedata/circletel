@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error) {
-    apiLogger.error('[Coverage Products API] Error:', error);
+    apiLogger.error('[Coverage Products API] Error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    apiLogger.error('[Coverage Products API] Error:', error);
+    apiLogger.error('[Coverage Products API] Error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

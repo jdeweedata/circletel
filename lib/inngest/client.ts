@@ -403,6 +403,76 @@ export type WhatsAppNotificationCancelledEvent = {
   };
 };
 
+// =============================================================================
+// SUPPLIER SYNC EVENTS
+// =============================================================================
+
+export type SupplierSyncRequestedEvent = {
+  name: 'supplier/sync.requested';
+  data: {
+    supplier_code?: string; // 'MIRO', 'NOLOGY', 'SCOOP', or 'ALL'
+    triggered_by: 'cron' | 'manual';
+    admin_user_id?: string;
+    options?: {
+      dryRun?: boolean;
+    };
+  };
+};
+
+export type SupplierSyncCompletedEvent = {
+  name: 'supplier/sync.completed';
+  data: {
+    suppliers_synced: string[];
+    results: Record<
+      string,
+      {
+        success: boolean;
+        log_id: string;
+        products_found: number;
+        products_created: number;
+        products_updated: number;
+        error?: string;
+      }
+    >;
+    totals: {
+      totalProducts: number;
+      totalCreated: number;
+      totalUpdated: number;
+      totalUnchanged: number;
+      totalDeactivated: number;
+      suppliers_synced: number;
+      suppliers_failed: number;
+    };
+    duration_ms: number;
+    dry_run: boolean;
+  };
+};
+
+export type SupplierSyncCompletedWithErrorsEvent = {
+  name: 'supplier/sync.completed_with_errors';
+  data: SupplierSyncCompletedEvent['data'] & {
+    errors: string[];
+  };
+};
+
+export type SupplierSyncFailedEvent = {
+  name: 'supplier/sync.failed';
+  data: {
+    supplier_code: string;
+    error: string;
+    attempt: number;
+  };
+};
+
+export type SupplierSyncCancelledEvent = {
+  name: 'supplier/sync.cancelled';
+  data: {
+    sync_log_id: string;
+    cancelled_by?: string;
+    reason?: string;
+  };
+};
+
 // Union type for all events
 export type InngestEvents = {
   'competitor/scrape.requested': CompetitorScrapeEvent;
@@ -441,4 +511,10 @@ export type InngestEvents = {
   'billing/whatsapp.completed': WhatsAppNotificationCompletedEvent;
   'billing/whatsapp.failed': WhatsAppNotificationFailedEvent;
   'billing/whatsapp.cancelled': WhatsAppNotificationCancelledEvent;
+  // Supplier sync events
+  'supplier/sync.requested': SupplierSyncRequestedEvent;
+  'supplier/sync.completed': SupplierSyncCompletedEvent;
+  'supplier/sync.completed_with_errors': SupplierSyncCompletedWithErrorsEvent;
+  'supplier/sync.failed': SupplierSyncFailedEvent;
+  'supplier/sync.cancelled': SupplierSyncCancelledEvent;
 };

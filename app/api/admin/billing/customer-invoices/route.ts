@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       .order('invoice_date', { ascending: false });
 
     if (invoicesError) {
-      apiLogger.error('Error fetching invoices:', invoicesError);
+      apiLogger.error('Error fetching invoices', { error: invoicesError.message, code: invoicesError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to fetch invoices' },
         { status: 500 }
@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
       count: invoices?.length || 0
     });
 
-  } catch (error: any) {
-    apiLogger.error('Customer invoices fetch failed:', error);
+  } catch (error) {
+    apiLogger.error('Customer invoices fetch failed', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }

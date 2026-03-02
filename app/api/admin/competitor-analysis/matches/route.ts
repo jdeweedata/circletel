@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      apiLogger.error('[Matches API] Query error:', error);
+      apiLogger.error('[Matches API] Query error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to fetch matches' },
         { status: 500 }
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       has_more: (count || 0) > offset + limit,
     });
   } catch (error) {
-    apiLogger.error('[Matches API] GET error:', error);
+    apiLogger.error('[Matches API] GET error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to fetch matches' },
       { status: 500 }
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('[Matches API] Insert error:', error);
+      apiLogger.error('[Matches API] Insert error', { error: error.message, code: error.code });
       return NextResponse.json(
         { error: 'Failed to create match' },
         { status: 500 }
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
-    apiLogger.error('[Matches API] POST error:', error);
+    apiLogger.error('[Matches API] POST error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Failed to create match' },
       { status: 500 }

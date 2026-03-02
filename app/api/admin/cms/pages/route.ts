@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const { data: pages, error, count } = await query;
 
     if (error) {
-      apiLogger.error('Failed to fetch pages:', error);
+      apiLogger.error('Failed to fetch pages', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to fetch pages' }, { status: 500 });
     }
 
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       offset,
     });
   } catch (error) {
-    apiLogger.error('Pages API error:', error);
+    apiLogger.error('Pages API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -125,13 +125,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('Failed to create page:', error);
+      apiLogger.error('Failed to create page', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to create page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page }, { status: 201 });
   } catch (error) {
-    apiLogger.error('Create page error:', error);
+    apiLogger.error('Create page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -173,13 +173,13 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      apiLogger.error('Failed to update page:', error);
+      apiLogger.error('Failed to update page', { error: error.message, code: error.code });
       return NextResponse.json({ error: 'Failed to update page' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, page });
   } catch (error) {
-    apiLogger.error('Update page error:', error);
+    apiLogger.error('Update page error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

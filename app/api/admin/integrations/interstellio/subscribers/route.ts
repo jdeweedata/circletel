@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    apiLogger.error('Interstellio subscribers error:', error)
+    apiLogger.error('Interstellio subscribers error', { error: error instanceof Error ? error.message : String(error) })
 
     if (error instanceof Error && 'status' in error) {
       const apiError = error as Error & { status: number }

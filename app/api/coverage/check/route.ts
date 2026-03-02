@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (leadError) {
-      apiLogger.error('Error creating coverage lead:', leadError);
-      apiLogger.error('Lead data attempted:', leadData);
+      apiLogger.error('Error creating coverage lead', { error: leadError.message, code: leadError.code });
+      apiLogger.error('Lead data attempted', { leadData });
       return NextResponse.json(
         { success: false, error: 'Failed to check coverage', details: leadError.message },
         { status: 500 }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       .order('price', { ascending: true });
 
     if (packagesError) {
-      apiLogger.error('Error fetching packages:', packagesError);
+      apiLogger.error('Error fetching packages', { error: packagesError.message, code: packagesError.code });
     }
 
     return NextResponse.json({
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    apiLogger.error('Coverage check error:', error);
+    apiLogger.error('Coverage check error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

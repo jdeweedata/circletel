@@ -107,7 +107,7 @@ function verifyWebhookSignature(
       Buffer.from(expectedSignature)
     );
   } catch (error) {
-    webhookLogger.error('Signature verification error:', error);
+    webhookLogger.error('Signature verification error', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (insertError) {
-      webhookLogger.error('Failed to insert notification tracking:', insertError);
+      webhookLogger.error('Failed to insert notification tracking', { error: insertError.message });
       // Don't return error - we still want to acknowledge the webhook
     }
 
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
         );
 
         if (metricsError) {
-          webhookLogger.error('Failed to update template metrics:', metricsError);
+          webhookLogger.error('Failed to update template metrics', { error: metricsError.message });
         }
       }
     }
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
       message_id: event.data.email_id,
     });
   } catch (error) {
-    webhookLogger.error('Webhook processing error:', error);
+    webhookLogger.error('Webhook processing error', { error: error instanceof Error ? error.message : String(error) });
 
     // Return 200 to prevent Resend from retrying
     // (Log error for debugging but acknowledge receipt)

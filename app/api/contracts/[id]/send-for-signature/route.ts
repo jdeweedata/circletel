@@ -32,7 +32,7 @@ export async function POST(
       .single();
 
     if (fetchError || !contract) {
-      apiLogger.error('[Send for Signature] Contract not found:', contractId);
+      apiLogger.error('[Send for Signature] Contract not found', { contractId, error: fetchError?.message });
       return NextResponse.json(
         { success: false, error: 'Contract not found' },
         { status: 404 }
@@ -61,7 +61,7 @@ export async function POST(
       .eq('id', contractId);
 
     if (updateError) {
-      apiLogger.error('[Send for Signature] Failed to update contract status:', updateError);
+      apiLogger.error('[Send for Signature] Failed to update contract status', { error: updateError.message, code: updateError.code });
       // Don't throw - signature request was successful
     }
 
@@ -75,7 +75,7 @@ export async function POST(
       },
     });
   } catch (error: any) {
-    apiLogger.error('[Send for Signature Error]', error);
+    apiLogger.error('[Send for Signature Error]', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

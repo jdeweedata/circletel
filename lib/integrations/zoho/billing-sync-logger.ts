@@ -42,11 +42,11 @@ export async function logZohoSync(params: SyncLogParams): Promise<void> {
       });
 
     if (error) {
-      zohoLogger.error('[ZohoBillingLogger] Failed to log sync:', error);
+      zohoLogger.error('[ZohoBillingLogger] Failed to log sync', { error: error.message });
       // Don't throw - logging failure shouldn't break sync
     }
   } catch (error) {
-    zohoLogger.error('[ZohoBillingLogger] Error logging sync:', error);
+    zohoLogger.error('[ZohoBillingLogger] Error logging sync', { error: error instanceof Error ? error.message : String(error) });
     // Don't throw - logging failure shouldn't break sync
   }
 }

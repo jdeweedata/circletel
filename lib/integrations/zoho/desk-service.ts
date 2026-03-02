@@ -115,7 +115,7 @@ export class ZohoDeskService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        zohoLogger.error(`[ZOHO Desk] API error ${response.status}:`, errorText);
+        zohoLogger.error(`[ZOHO Desk] API error ${response.status}`, { error: errorText });
         return {
           success: false,
           error: `API request failed: ${response.status} ${response.statusText}`,
@@ -129,7 +129,7 @@ export class ZohoDeskService {
         data: responseData,
       };
     } catch (error) {
-      zohoLogger.error('[ZOHO Desk] Request failed:', error);
+      zohoLogger.error('[ZOHO Desk] Request failed', { error: error instanceof Error ? error.message : String(error) });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',

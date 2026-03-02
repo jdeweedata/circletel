@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    apiLogger.error('Send SMS reminders failed:', errorMessage);
+    apiLogger.error('Send SMS reminders failed', { error: errorMessage });
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    apiLogger.error('Get pending SMS reminders failed:', errorMessage);
+    apiLogger.error('Get pending SMS reminders failed', { error: errorMessage });
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }

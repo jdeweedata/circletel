@@ -61,7 +61,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    apiLogger.error('Share token resolution error:', error);
+    apiLogger.error('Share token resolution error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

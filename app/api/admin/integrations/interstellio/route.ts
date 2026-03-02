@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       lastCheckedAt: new Date().toISOString(),
     })
   } catch (error) {
-    apiLogger.error('Interstellio dashboard error:', error)
+    apiLogger.error('Interstellio dashboard error', { error: error instanceof Error ? error.message : String(error) })
 
     // Check if it's an Interstellio API error
     if (error instanceof Error && 'status' in error) {

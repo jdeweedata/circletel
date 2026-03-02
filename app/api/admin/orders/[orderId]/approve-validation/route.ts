@@ -61,7 +61,7 @@ export async function POST(
       .maybeSingle();
 
     if (emError) {
-      apiLogger.error('Error finding emandate request:', emError);
+      apiLogger.error('Error finding emandate request', { error: emError.message, code: emError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to find payment method request' },
         { status: 500 }
@@ -94,7 +94,7 @@ export async function POST(
       .eq('id', emandateRequest.id);
 
     if (emUpdateError) {
-      apiLogger.error('Error updating emandate request:', emUpdateError);
+      apiLogger.error('Error updating emandate request', { error: emUpdateError.message, code: emUpdateError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to update emandate request' },
         { status: 500 }
@@ -117,7 +117,7 @@ export async function POST(
       .eq('id', emandateRequest.payment_method_id);
 
     if (pmUpdateError) {
-      apiLogger.error('Error updating payment method:', pmUpdateError);
+      apiLogger.error('Error updating payment method', { error: pmUpdateError.message, code: pmUpdateError.code });
       return NextResponse.json(
         { success: false, error: 'Failed to update payment method' },
         { status: 500 }
@@ -136,7 +136,7 @@ export async function POST(
         .eq('id', orderId);
 
       if (orderUpdateError) {
-        apiLogger.error('Error updating order status:', orderUpdateError);
+        apiLogger.error('Error updating order status', { error: orderUpdateError.message, code: orderUpdateError.code });
       }
     }
 
@@ -169,7 +169,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    apiLogger.error('Error approving payment method validation:', error);
+    apiLogger.error('Error approving payment method validation', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

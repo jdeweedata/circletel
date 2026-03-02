@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    apiLogger.info('[Login API] ⏱️ Request parsed:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] Request parsed', { elapsed_ms: Date.now() - startTime });
 
     // Get IP address and user agent
     const ipAddress =
@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
         cookies: {
           getAll() {
             const cookies = request.cookies.getAll();
-            apiLogger.info('[Login API] Cookies from request count:', cookies.length);
+            apiLogger.info('[Login API] Cookies from request', { count: cookies.length });
             return cookies;
           },
           setAll(cookies) {
-            apiLogger.info('[Login API] Capturing cookies to set, count:', cookies.length);
+            apiLogger.info('[Login API] Capturing cookies to set', { count: cookies.length });
             if (cookies.length > 0) {
-              apiLogger.info('[Login API] First cookie name:', cookies[0].name);
+              apiLogger.info('[Login API] First cookie name', { name: cookies[0].name });
             }
             // Store cookies to be set on final response
             cookiesToSet.push(...cookies);
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Service role client for admin_users check (bypasses RLS)
     const supabaseAdmin = await createClient();
-    apiLogger.info('[Login API] ⏱️ Supabase clients created:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] Supabase clients created', { elapsed_ms: Date.now() - startTime });
 
     // Step 1: Check if user exists in admin_users
     const { data: adminUser, error: adminError } = await supabaseAdmin
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       .select('id, email, full_name, is_active, role, role_template_id, permissions')
       .eq('email', normalizedEmail)
       .maybeSingle();
-    apiLogger.info('[Login API] ⏱️ Admin user lookup completed:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] Admin user lookup completed', { elapsed_ms: Date.now() - startTime });
 
     if (adminError || !adminUser) {
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -134,9 +134,9 @@ export async function POST(request: NextRequest) {
       const result = await Promise.race([authPromise, timeoutPromise]);
       authData = result.data;
       authError = result.error;
-      apiLogger.info('[Login API] ⏱️ Supabase Auth completed:', Date.now() - startTime, 'ms');
+      apiLogger.info('[Login API] Supabase Auth completed', { elapsed_ms: Date.now() - startTime });
     } catch (timeoutError) {
-      apiLogger.error('[Login API] ❌ Supabase Auth timeout:', Date.now() - startTime, 'ms');
+      apiLogger.error('[Login API] Supabase Auth timeout', { elapsed_ms: Date.now() - startTime });
       
       // Log timeout issue
       await supabaseAdmin.from('admin_audit_logs').insert({
@@ -242,11 +242,11 @@ export async function POST(request: NextRequest) {
         user_agent: userAgent
       })
     ]).then(([auditResult, activityResult]) => {
-      apiLogger.info('[Login API] ⏱️ Audit logs completed (async):', Date.now() - startTime, 'ms');
-      if (auditResult.error) apiLogger.error('[Login API] Audit log error:', auditResult.error);
-      if (activityResult.error) apiLogger.error('[Login API] Activity log error:', activityResult.error);
+      apiLogger.info('[Login API] Audit logs completed (async)', { elapsed_ms: Date.now() - startTime });
+      if (auditResult.error) apiLogger.error('[Login API] Audit log error', { error: auditResult.error.message, code: auditResult.error.code });
+      if (activityResult.error) apiLogger.error('[Login API] Activity log error', { error: activityResult.error.message, code: activityResult.error.code });
     }).catch(error => {
-      apiLogger.error('[Login API] Audit logging failed (non-blocking):', error);
+      apiLogger.error('[Login API] Audit logging failed (non-blocking)', { error: error instanceof Error ? error.message : String(error) });
     });
 
     apiLogger.info(`✅ Admin login successful: ${normalizedEmail} (${adminUser.role}) from IP: ${ipAddress}`);
@@ -270,12 +270,12 @@ export async function POST(request: NextRequest) {
       successResponse.cookies.set(name, value, options);
     });
 
-    apiLogger.info('[Login API] Final response cookie count:', cookiesToSet.length);
-    apiLogger.info('[Login API] ⏱️ Total request time:', Date.now() - startTime, 'ms');
+    apiLogger.info('[Login API] Final response cookie count', { count: cookiesToSet.length });
+    apiLogger.info('[Login API] Total request time', { elapsed_ms: Date.now() - startTime });
 
     return successResponse;
   } catch (error) {
-    apiLogger.error('Admin login error:', error);
+    apiLogger.error('Admin login error', { error: error instanceof Error ? error.message : String(error) });
 
     return NextResponse.json(
       {

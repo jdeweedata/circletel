@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
         // Success!
         quote = data;
       } catch (error) {
-        apiLogger.error('Error creating quote:', error);
+        apiLogger.error('Error creating quote', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
           {
             success: false,
@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
       );
 
     if (itemsError) {
-      apiLogger.error('Error creating quote items:', itemsError);
+      apiLogger.error('Error creating quote items', { error: itemsError.message, code: itemsError.code });
       // Rollback quote creation
       await supabase.from('business_quotes').delete().eq('id', quote.id);
       return NextResponse.json(
@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
 
     // Send notification (async, don't wait for result)
     QuoteNotificationService.sendForQuoteEvent('quote_created', quote.id).catch(err => {
-      apiLogger.error('Failed to send quote_created notification:', err);
+      apiLogger.error('Failed to send quote_created notification', { error: err instanceof Error ? err.message : String(err) });
       // Don't fail the request if notification fails
     });
 
@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    apiLogger.error('Error submitting quote request:', error);
+    apiLogger.error('Error submitting quote request', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

@@ -1,9 +1,9 @@
 ---
 type: architecture
 domain: [platform, all]
-tags: [overview, database, api, components, agent-os, integrations]
+tags: [overview, database, api, components, agent-os, integrations, inngest, skills]
 status: current
-last_updated: 2025-11-29
+last_updated: 2026-03-02
 dependencies: []
 priority: high
 description: Main hub document for understanding the CircleTel platform architecture
@@ -13,8 +13,8 @@ description: Main hub document for understanding the CircleTel platform architec
 
 Comprehensive reference for the CircleTel platform architecture, features, and codebase structure.
 
-**Last Updated**: 2025-11-29
-**Version**: 1.0
+**Last Updated**: 2026-03-02
+**Version**: 2.0
 
 ---
 
@@ -46,16 +46,19 @@ Comprehensive reference for the CircleTel platform architecture, features, and c
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 15, React 18, TypeScript |
-| Styling | Tailwind CSS, Framer Motion |
+| Frontend | Next.js 15.1.9, React 18, TypeScript |
+| Styling | Tailwind CSS v4, Framer Motion |
 | Backend | Next.js API Routes, Supabase Edge Functions |
 | Database | Supabase PostgreSQL (`agyjovdugmtopasyvlng`) |
 | Auth | Supabase Auth (3-context: Consumer/Partner/Admin) |
+| Background Jobs | Inngest (event-driven, durable functions) |
 | Payments | NetCash Pay Now (20+ methods) |
 | CRM | ZOHO (async sync) |
 | SMS | Clickatell |
 | KYC | Didit |
 | E-Signatures | ZOHO Sign |
+| CMS | Prismic (headless CMS for product pages) |
+| Image Generation | Google Gemini (marketing assets) |
 
 ### Environments
 
@@ -118,7 +121,7 @@ app/
 └── api/                         # API routes (260+ endpoints)
 ```
 
-### Admin Sections (26 Total)
+### Admin Sections (28 Total)
 
 | Section | Path | Purpose |
 |---------|------|---------|
@@ -128,11 +131,13 @@ app/
 | Products | `/admin/products` | Product catalog, pricing |
 | Products Approvals | `/admin/products/approvals` | Product approval workflow |
 | MTN Deals | `/admin/products/mtn-deals` | MTN business deals |
+| **Sales Feasibility** | `/admin/sales/feasibility` | B2B quick entry, multi-site coverage (NEW) |
 | CMS | `/admin/cms` | Page builder, content |
 | CMS Builder | `/admin/cms/builder` | Drag-drop page editor |
 | CMS Media | `/admin/cms/media` | Media library |
 | Partners | `/admin/partners` | Partner management |
 | Quotes | `/admin/quotes` | B2B quotations |
+| Billing | `/admin/billing` | Invoice management, SMS reminders |
 | Users | `/admin/users` | Admin user accounts |
 | User Roles | `/admin/users/roles` | RBAC role management |
 | User Activity | `/admin/users/activity` | Activity audit |
@@ -170,8 +175,15 @@ app/
 |-------|---------|--------|
 | `kyc_sessions` | KYC verification sessions | UUID |
 | `contracts` | Business contracts | CT-YYYY-NNN |
-| `invoices` | Invoice records | INV-YYYY-NNN |
+| `customer_invoices` | Invoice records (NOT `invoices`) | INV-YYYY-NNN |
 | `rica_submissions` | RICA compliance | UUID |
+
+### Supplier Tables (NEW - Feb 2026)
+
+| Table | Purpose |
+|-------|---------|
+| `suppliers` | Supplier records (Miro, Nology, etc.) |
+| `supplier_sync_logs` | Supplier sync audit trail |
 
 ### Partner Tables
 
@@ -520,18 +532,31 @@ components/
 ├── commands/                 # Custom slash commands
 │   ├── new-migration.md      # /new-migration <name>
 │   ├── health-check.md       # /health-check
-│   └── sync-types.md         # /sync-types
-├── skills/                   # Packaged SOPs (7 skills)
+│   ├── sync-types.md         # /sync-types
+│   └── compound.md           # /compound - capture session learnings
+├── skills/                   # Packaged SOPs (13+ skills)
 │   ├── context-manager/      # Token optimization
 │   ├── bug-fixing/           # Debugging workflow
 │   ├── database-migration/   # Migration tooling
-│   └── prompt-optimizer/     # Prompt engineering
+│   ├── prompt-optimizer/     # Prompt engineering
+│   ├── session-manager/      # Named sessions, resume (v2.0.64)
+│   ├── async-runner/         # Background tasks (v2.0.64)
+│   ├── rules-organizer/      # Modular .claude/rules/ (v2.0.64)
+│   ├── stats-tracker/        # Usage analytics (v2.0.64)
+│   ├── compound-learnings/   # Transform insights into capabilities
+│   ├── brand-design/         # CircleTel brand guidelines for AI
+│   ├── solution-design/      # Product management patterns
+│   └── promotional-campaigns/ # Campaign response templates
 ├── agents/                   # AI agent definitions
 │   ├── api-engineer.md       # API development
 │   └── prompt-optimizer.md   # Prompt optimization
 ├── tools/                    # MCP code execution
 │   ├── supabase-executor.ts  # Database queries (80% token savings)
 │   └── README.md             # Tool documentation
+├── rules/                    # Modular instruction files
+│   ├── verify-schema-first.md
+│   ├── api-param-documentation.md
+│   └── type-guards-optionals.md
 ├── backups/                  # Pre-edit file backups
 ├── logs/                     # Bash audit logs
 └── settings.local.json       # Hooks & permissions config
@@ -640,6 +665,28 @@ agent-os/specs/[spec-id]/
 - **Consumer API**: Fallback coverage
 - **Anti-Bot Headers**: Required for all requests
 
+### Inngest (Background Jobs)
+
+- **Location**: `lib/inngest/`
+- **Dashboard**: Vercel Integrations → Inngest
+- **Use Cases**: Supplier sync, coverage checks, notifications, billing
+- **Pattern**: Dual triggers (cron + manual event)
+
+**Key Functions**:
+| Function | Schedule | Purpose |
+|----------|----------|---------|
+| `supplier-sync` | Daily 2am | Sync Miro/Nology products |
+| `coverage-check` | On-demand | Parallel provider coverage |
+| `invoice-generation` | Monthly 1st | Generate customer invoices |
+| `sms-reminders` | Daily 10pm | Overdue invoice reminders |
+
+**Conflict Detection Pattern**:
+```typescript
+const { data: running } = await supabase.from('sync_logs')
+  .select('id').in('status', ['pending', 'running']).single();
+if (running) return { status: 409, error: 'Already running' };
+```
+
 ---
 
 ## Quick Reference
@@ -679,5 +726,28 @@ pending → in_progress → completed → approved
 
 ---
 
-**Document Version**: 1.0
+## Recent Updates (2026)
+
+### March 2026
+- Platform stabilization: TypeScript errors reduced from 1,005 → 336 (67%)
+- Added B2B Sales Feasibility Portal (`/admin/sales/feasibility`)
+- Homepage CRO optimizations (Cell C-inspired patterns)
+- Segment-aware homepage (business/wfh/home tabs)
+- SkyFibre Home residential products added
+- 13+ Claude Code skills documented
+
+### February 2026
+- Miro/Nology supplier integrations
+- Inngest background job system
+- Bulk quote generation API
+- Invoice SMS reminders via Clickatell
+
+### January 2026
+- Prismic CMS integration for product pages
+- AI image generation workflows (Gemini)
+- Partner compliance document system complete
+
+---
+
+**Document Version**: 2.0
 **Maintained By**: Development Team + Claude Code

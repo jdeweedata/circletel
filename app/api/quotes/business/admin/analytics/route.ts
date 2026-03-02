@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const { data: quotes, error: quotesError } = await query;
 
     if (quotesError) {
-      apiLogger.error('Analytics fetch error:', quotesError);
+      apiLogger.error('Analytics fetch error', { error: quotesError.message, code: quotesError.code });
       return NextResponse.json(
         {
           success: false,
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    apiLogger.error('Error fetching analytics:', error);
+    apiLogger.error('Error fetching analytics', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

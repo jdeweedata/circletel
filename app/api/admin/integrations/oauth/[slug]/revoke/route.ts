@@ -80,7 +80,7 @@ export async function DELETE(
       .eq('id', token.id);
 
     if (revokeError) {
-      apiLogger.error('[OAuth Revoke API] Failed to revoke token:', revokeError);
+      apiLogger.error('[OAuth Revoke API] Failed to revoke token', { error: revokeError.message, code: revokeError.code });
       return NextResponse.json({ error: 'Failed to revoke OAuth token' }, { status: 500 });
     }
 
@@ -109,7 +109,7 @@ export async function DELETE(
       message: 'OAuth token revoked successfully',
     });
   } catch (error) {
-    apiLogger.error('[OAuth Revoke API] Unexpected error:', error);
+    apiLogger.error('[OAuth Revoke API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

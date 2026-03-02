@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       .order('integration_slug');
 
     if (tokensError) {
-      apiLogger.error('[OAuth Tokens API] Failed to fetch tokens:', tokensError);
+      apiLogger.error('[OAuth Tokens API] Failed to fetch tokens', { error: tokensError.message, code: tokensError.code });
       return NextResponse.json({ error: 'Failed to fetch OAuth tokens' }, { status: 500 });
     }
 
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    apiLogger.error('[OAuth Tokens API] Unexpected error:', error);
+    apiLogger.error('[OAuth Tokens API] Unexpected error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

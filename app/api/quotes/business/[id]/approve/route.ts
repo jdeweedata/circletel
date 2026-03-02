@@ -77,7 +77,7 @@ export async function POST(
       message: 'Quote approved successfully'
     });
   } catch (error) {
-    apiLogger.error('Error approving quote:', error);
+    apiLogger.error('Error approving quote', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

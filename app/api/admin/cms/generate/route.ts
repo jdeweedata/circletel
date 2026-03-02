@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       rateLimitStatus: updatedRateLimit,
     });
   } catch (error) {
-    apiLogger.error('AI Generation API error:', error);
+    apiLogger.error('AI Generation API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
       usageStats,
     });
   } catch (error) {
-    apiLogger.error('AI Usage API error:', error);
+    apiLogger.error('AI Usage API error', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
