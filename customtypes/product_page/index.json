@@ -1,0 +1,113 @@
+{
+  "id": "product_page",
+  "label": "Product Page",
+  "format": "page",
+  "repeatable": true,
+  "status": true,
+  "json": {
+    "Main": {
+      "uid": {
+        "type": "UID",
+        "config": {
+          "label": "UID",
+          "placeholder": "e.g., skyfibre-home, bizfibre-connect"
+        }
+      },
+      "product_name": {
+        "type": "Text",
+        "config": {
+          "label": "Product Name",
+          "placeholder": "e.g., SkyFibre Home"
+        }
+      },
+      "tagline": {
+        "type": "Text",
+        "config": {
+          "label": "Tagline",
+          "placeholder": "e.g., Fast, Reliable Home Internet"
+        }
+      },
+      "hero_image": {
+        "type": "Image",
+        "config": {
+          "label": "Hero Image",
+          "constraint": {
+            "width": 2560,
+            "height": 1440
+          },
+          "thumbnails": [
+            {
+              "name": "mobile",
+              "width": 768,
+              "height": 432
+            }
+          ]
+        }
+      },
+      "hero_cta_text": {
+        "type": "Text",
+        "config": {
+          "label": "Hero CTA Text",
+          "placeholder": "e.g., Check Your Coverage"
+        }
+      },
+      "hero_cta_link": {
+        "type": "Link",
+        "config": {
+          "label": "Hero CTA Link",
+          "placeholder": "/coverage-check",
+          "allowTargetBlank": true
+        }
+      },
+      "slices": {
+        "type": "Slices",
+        "fieldset": "Slice Zone",
+        "config": {
+          "choices": {
+            "pricing_table": {
+              "type": "SharedSlice"
+            },
+            "faq": {
+              "type": "SharedSlice"
+            },
+            "feature_grid": {
+              "type": "SharedSlice"
+            },
+            "comparison_table": {
+              "type": "SharedSlice"
+            },
+            "hero_section": {
+              "type": "SharedSlice"
+            }
+          }
+        }
+      }
+    },
+    "SEO": {
+      "meta_title": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Title",
+          "placeholder": "SEO title for search results"
+        }
+      },
+      "meta_description": {
+        "type": "Text",
+        "config": {
+          "label": "Meta Description",
+          "placeholder": "SEO description for search results"
+        }
+      },
+      "meta_image": {
+        "type": "Image",
+        "config": {
+          "label": "Meta Image (OG Image)",
+          "constraint": {
+            "width": 1200,
+            "height": 630
+          }
+        }
+      }
+    }
+  }
+}

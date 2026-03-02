@@ -34,6 +34,18 @@ export function createClient(config: prismicNext.CreateClientConfig = {}) {
         type: 'page',
         path: '/:uid',
       },
+      {
+        type: 'product_page',
+        path: '/product/:uid',
+      },
+      {
+        type: 'service_page',
+        path: '/services/:uid',
+      },
+      {
+        type: 'resource_page',
+        path: '/resources/:uid',
+      },
     ],
     
     // Fetch options
