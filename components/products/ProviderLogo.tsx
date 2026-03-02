@@ -29,7 +29,7 @@ export interface ProviderLogoProps {
   providerName: string;
 
   /** Logo URL (can be absolute or relative path) */
-  logoUrl: string;
+  logoUrl?: string;
 
   /** Dark variant logo URL (for dark backgrounds) */
   logoDarkUrl?: string;

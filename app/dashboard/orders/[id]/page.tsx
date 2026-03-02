@@ -49,7 +49,7 @@ export default function OrderDetailPage() {
       setLoading(true);
       setError(null);
 
-      if (!user?.session) {
+      if (!session) {
         console.error('No user session found');
         setError('Please log in to view order details');
         setLoading(false);

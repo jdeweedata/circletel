@@ -77,8 +77,8 @@ interface PackageWithProvider extends Omit<ServicePackage, 'compatible_providers
 
 interface CoverageMetadata {
   providers: {
-    mtn: { confidence: number; servicesFound: number } | null;
-    dfa: { confidence: number; servicesFound: number } | null;
+    mtn: { confidence: 'high' | 'medium' | 'low' | number; servicesFound: number } | null;
+    dfa: { confidence: 'high' | 'medium' | 'low' | number; servicesFound: number } | null;
   };
   lastUpdated?: string;
   totalServicesFound: number;
@@ -358,7 +358,7 @@ export async function GET(request: NextRequest) {
         // Fetch provider data for packages with compatible_providers
         const { data: providers, error: providersError } = await supabase
           .from('fttb_network_providers')
-          .select('provider_code, display_name, logo_url, logo_dark_url, logo_light_url, logo_format, logo_aspect_ratio, priority')
+          .select('provider_code, display_name, logo_url, logo_dark_url, logo_light_url, logo_format, logo_aspect_ratio, priority, active')
           .eq('active', true);
 
         // Create provider lookup map

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Product } from '@/lib/types/products';
+import { Product, ProductStatus } from '@/lib/types/products';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -138,7 +138,7 @@ export function QuickEditModal({
             <Label>Status</Label>
             <Select
               onValueChange={(value) =>
-                setUpdates({ ...updates, status: value === 'none' ? undefined : value })
+                setUpdates({ ...updates, status: value === 'none' ? undefined : value as ProductStatus })
               }
             >
               <SelectTrigger>

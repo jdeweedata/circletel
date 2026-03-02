@@ -24,7 +24,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasAssignedUsers = role && role.user_count > 0;
+  const hasAssignedUsers = role ? role.user_count > 0 : false;
 
   const handleDelete = async () => {
     if (!role) return;

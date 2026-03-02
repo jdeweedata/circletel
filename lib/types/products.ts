@@ -16,6 +16,10 @@ export interface ProductMetadata {
   contract_months: number;
   installation_days: number;
   availability_zones: string[];
+  provider_code?: string;
+  provider?: string;
+  provider_name?: string;
+  features?: string[];
   [key: string]: unknown;
 }
 
@@ -68,6 +72,8 @@ export interface Product {
   price?: number | null;
   contract_term?: number | null;
   availability?: string;
+  // Change tracking (for quick edit modal)
+  change_reason?: string;
 }
 
 // Form data interfaces for create/update

@@ -536,7 +536,7 @@ export class CustomerAuthService {
   /**
    * Resend verification email
    */
-  static async resendVerificationEmail(email: string): Promise<{ error: string | null }> {
+  static async resendVerificationEmail(email: string): Promise<{ success: boolean; error: string | null }> {
     try {
       const supabase = createClient();
 
@@ -549,14 +549,15 @@ export class CustomerAuthService {
       });
 
       if (error) {
-        return { error: error.message };
+        return { success: false, error: error.message };
       }
 
-      return { error: null };
+      return { success: true, error: null };
 
     } catch (error) {
       console.error('Resend verification error:', error);
       return {
+        success: false,
         error: error instanceof Error ? error.message : 'Failed to resend verification'
       };
     }
