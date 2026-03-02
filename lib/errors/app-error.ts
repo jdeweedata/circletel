@@ -85,11 +85,12 @@ export interface AppErrorOptions {
  * All custom errors should extend this class
  */
 export class AppError extends Error {
-  public readonly code: ErrorCode;
+  public code: ErrorCode;  // Not readonly - subclasses can override
   public readonly statusCode: number;
   public readonly details?: Record<string, unknown>;
   public readonly isOperational: boolean;
   public readonly timestamp: string;
+  public cause?: Error;  // ES2022 Error cause
 
   constructor(message: string, options: AppErrorOptions = {}) {
     super(message);
