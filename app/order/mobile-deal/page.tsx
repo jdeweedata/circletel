@@ -23,7 +23,7 @@ import {
   ArrowRight,
   Check,
   Smartphone,
-  SimCard,
+  Sim,
   Signal,
   Database,
   Phone,
@@ -265,7 +265,7 @@ function MTNDealOrderContent() {
                         </div>
                       ) : (
                         <div className="p-3 bg-orange-100 rounded-lg">
-                          <SimCard className="h-8 w-8 text-circleTel-orange" />
+                          <Sim className="h-8 w-8 text-circleTel-orange" />
                         </div>
                       )}
                       <div className="flex-1">
@@ -666,7 +666,7 @@ function MTNDealOrderContent() {
                     {deal.has_device ? (
                       <Smartphone className="h-8 w-8 text-gray-400" />
                     ) : (
-                      <SimCard className="h-8 w-8 text-circleTel-orange" />
+                      <Sim className="h-8 w-8 text-circleTel-orange" />
                     )}
                     <div>
                       <p className="font-medium text-sm line-clamp-2">

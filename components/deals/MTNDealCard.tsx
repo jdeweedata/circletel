@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Smartphone, 
-  SimCard, 
+  Sim, 
   Signal, 
   Wifi,
   Phone,
@@ -91,7 +91,7 @@ export function MTNDealCard({
                 </div>
               ) : (
                 <div className="p-2 bg-orange-100 rounded-lg">
-                  <SimCard className="h-5 w-5 text-circleTel-orange" />
+                  <Sim className="h-5 w-5 text-circleTel-orange" />
                 </div>
               )}
               <div>
@@ -145,7 +145,7 @@ export function MTNDealCard({
             </div>
           ) : (
             <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
-              <SimCard className="h-6 w-6 text-circleTel-orange" />
+              <Sim className="h-6 w-6 text-circleTel-orange" />
             </div>
           )}
           <div className="min-w-0">
@@ -252,7 +252,7 @@ export function MTNDealGrid({
   if (deals.length === 0) {
     return (
       <div className="text-center py-12">
-        <SimCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+        <Sim className="h-12 w-12 text-gray-300 mx-auto mb-4" />
         <p className="text-gray-500">{emptyMessage}</p>
       </div>
     );

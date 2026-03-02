@@ -9,7 +9,7 @@ import {
   CreditCard,
   CheckCircle,
   CalendarCheck,
-  Tool,
+  Wrench,
   Zap,
   XCircle,
   Loader2,
@@ -86,7 +86,7 @@ export function OrderStatusDistributionWidget() {
         },
         installation_in_progress: {
           label: 'Installing',
-          icon: Tool,
+          icon: Wrench,
           color: 'text-indigo-600',
           bgColor: 'bg-indigo-100'
         },

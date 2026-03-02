@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
   CreditCard,
   CalendarCheck,
-  Tool,
+  Wrench,
   Zap,
   AlertTriangle,
   Loader2,
@@ -74,7 +74,7 @@ export function OrdersRequiringAttentionWidget() {
           status: 'installation_in_progress',
           count: ordersData.filter((o: any) => o.status === 'installation_in_progress').length,
           label: 'Installation In Progress',
-          icon: Tool,
+          icon: Wrench,
           color: 'text-purple-600',
           bgColor: 'bg-purple-50',
           href: '/admin/orders?filter=in_progress'

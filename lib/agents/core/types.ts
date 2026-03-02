@@ -526,6 +526,35 @@ export class WorkerExecutionError extends Error {
 }
 
 // ============================================================================
+// Workflow Types
+// ============================================================================
+
+/**
+ * Result of a complete workflow execution
+ */
+export interface WorkflowResult {
+  /** Whether workflow completed successfully */
+  success: boolean;
+
+  /** All worker results */
+  results: WorkerResult[];
+
+  /** Final aggregated output */
+  output?: string;
+
+  /** Total execution time (ms) */
+  executionTimeMs: number;
+
+  /** Any errors encountered */
+  errors?: string[];
+}
+
+/**
+ * Progress callback function for workflow updates
+ */
+export type ProgressCallback = (update: ProgressUpdate) => void;
+
+// ============================================================================
 // Utility Types
 // ============================================================================
 

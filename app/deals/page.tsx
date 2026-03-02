@@ -33,7 +33,7 @@ import {
   Signal,
   Zap,
   Smartphone,
-  SimCard,
+  Sim,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -265,7 +265,7 @@ export default function DealsPage() {
                 <span className="text-sm">Device Deals</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <SimCard className="h-4 w-4" />
+                <Sim className="h-4 w-4" />
                 <span className="text-sm">SIM Only</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
@@ -349,7 +349,7 @@ export default function DealsPage() {
                   With Device
                 </TabsTrigger>
                 <TabsTrigger value="sim">
-                  <SimCard className="h-4 w-4 mr-1" />
+                  <Sim className="h-4 w-4 mr-1" />
                   SIM Only
                 </TabsTrigger>
               </TabsList>
