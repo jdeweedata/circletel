@@ -63,14 +63,20 @@ interface OrderData {
  */
 export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
   try {
-    // Generate email HTML from React template
+    // Generate email HTML from React template using structured context
     const emailHtml = await render(
       KYCCompletedEmail({
-        customerName: kycSession.customer_name || 'Valued Customer',
-        verificationDate: kycSession.completed_at,
-        riskTier: kycSession.risk_tier as 'low' | 'medium' | 'high',
-        contractUrl: `${process.env.NEXT_PUBLIC_APP_URL}/customer/quotes/${kycSession.quote_id}`,
-        quoteNumber: kycSession.quote_number || 'Your Quote',
+        customer: {
+          name: kycSession.customer_name || 'Valued Customer',
+        },
+        kyc: {
+          verificationDate: kycSession.completed_at,
+          riskTier: kycSession.risk_tier as 'low' | 'medium' | 'high',
+        },
+        quote: {
+          number: kycSession.quote_number || 'Your Quote',
+          url: `${process.env.NEXT_PUBLIC_APP_URL}/customer/quotes/${kycSession.quote_id}`,
+        },
       })
     );
 
@@ -111,17 +117,25 @@ export async function sendKYCCompletedEmail(kycSession: KYCSessionData) {
  */
 export async function sendContractReadyEmail(contract: ContractData) {
   try {
-    // Generate email HTML from React template
+    // Generate email HTML from React template using structured context
     const emailHtml = await render(
       ContractReadyEmail({
-        customerName: contract.customer_name || 'Valued Customer',
-        contractNumber: contract.contract_number,
-        zohoSignUrl: contract.zoho_sign_url || '',
-        packageName: contract.package_name || 'Internet Service',
-        monthlyPrice: contract.monthly_price || 0,
-        installationFee: contract.installation_fee || 0,
-        expiresAt: contract.signature_expires_at ||
-                   new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        customer: {
+          name: contract.customer_name || 'Valued Customer',
+        },
+        contract: {
+          number: contract.contract_number,
+          signUrl: contract.zoho_sign_url || '',
+          expiresAt: contract.signature_expires_at ||
+                     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+        package: {
+          name: contract.package_name || 'Internet Service',
+        },
+        pricing: {
+          monthlyFee: contract.monthly_price || 0,
+          installationFee: contract.installation_fee || 0,
+        },
       })
     );
 
@@ -162,18 +176,30 @@ export async function sendContractReadyEmail(contract: ContractData) {
  */
 export async function sendServiceActivatedEmail(order: OrderData) {
   try {
-    // Generate email HTML from React template
+    // Generate email HTML from React template using structured context
     const emailHtml = await render(
       ServiceActivatedEmail({
-        customerName: `${order.first_name} ${order.last_name}`,
-        orderNumber: order.order_number,
-        accountNumber: order.account_number,
-        packageName: order.package_name,
-        packageSpeed: order.package_speed,
-        username: order.username,
-        temporaryPassword: order.temporary_password,
-        supportUrl: `${process.env.NEXT_PUBLIC_APP_URL}/customer/support`,
-        installationDate: order.activation_date,
+        customer: {
+          name: `${order.first_name} ${order.last_name}`,
+        },
+        order: {
+          number: order.order_number,
+        },
+        service: {
+          accountNumber: order.account_number,
+          username: order.username,
+          temporaryPassword: order.temporary_password,
+        },
+        package: {
+          name: order.package_name,
+          speed: order.package_speed,
+        },
+        installation: {
+          date: order.activation_date,
+        },
+        support: {
+          portalUrl: `${process.env.NEXT_PUBLIC_APP_URL}/customer/support`,
+        },
       })
     );
 
