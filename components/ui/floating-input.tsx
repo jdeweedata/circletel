@@ -5,7 +5,7 @@ import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface FloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label?: string;
   error?: string;
   isDisabled?: boolean;
   showLockIcon?: boolean;
@@ -16,6 +16,8 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(!!props.value || !!props.defaultValue);
 
+    // Use label if provided, otherwise fall back to placeholder
+    const displayLabel = label || (typeof props.placeholder === 'string' ? props.placeholder : '');
     const isActive = isFocused || hasValue || props.placeholder !== ' ';
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -75,7 +77,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               : 'text-gray-500'
           )}
         >
-          {label}
+          {displayLabel}
           {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
 
