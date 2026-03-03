@@ -170,3 +170,4 @@ docs/emandate/
 
 # Skills lock file (local state)
 skills-lock.json
+__pycache__/
