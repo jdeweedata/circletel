@@ -120,6 +120,12 @@ const nextConfig = {
         hostname: 'design.canva.ai',
         port: '',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        port: '',
+        pathname: '/images/**'
       }
     ]
   }
