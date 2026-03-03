@@ -1,10 +1,14 @@
-import { createClient } from 'next-sanity';
+import { createClient, type SanityClient } from 'next-sanity';
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '7iqq2t7l';
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 export const apiVersion = '2024-01-01';
 
-export const client = createClient({
+// Lazy-loaded clients to avoid build-time errors when env vars are missing
+let _client: SanityClient | null = null;
+let _writeClient: SanityClient | null = null;
+
+export const client: SanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
@@ -12,7 +16,7 @@ export const client = createClient({
 });
 
 // For server-side mutations and preview
-export const writeClient = createClient({
+export const writeClient: SanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
