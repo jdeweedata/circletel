@@ -120,6 +120,9 @@ templates/
 # Screenshots (debug)
 screenshots/
 
+# Wireframes (generated for dev reference)
+wireframes/
+
 # Log output files
 logs_result*.json
 

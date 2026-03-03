@@ -1,0 +1,42 @@
+# Mockup Prompt Template
+# Copy this file and customize for your mockups
+# Run: python mockup-generator.py prompts/your-file.yaml
+
+# Single mockup format:
+# name: output-filename.jpg
+# folder: category/version
+# aspect_ratio: "16:9"  # Options: 1:1, 4:3, 3:2, 16:9, 9:16, 21:9
+# resolution: "2K"      # Options: 1K, 2K, 4K
+# prompt: |
+#   Your detailed prompt here...
+
+# Multiple mockups format:
+mockups:
+  - name: desktop-view.jpg
+    folder: my-feature/v1
+    aspect_ratio: "16:9"
+    resolution: "2K"
+    prompt: |
+      High-fidelity UI mockup of [describe your UI], desktop view.
+
+      HEADER:
+      - [Header elements]
+
+      MAIN CONTENT:
+      - [Main content description]
+
+      FOOTER:
+      - [Footer elements]
+
+      Style: [Style description, colors, typography]
+
+  - name: mobile-view.jpg
+    folder: my-feature/v1
+    aspect_ratio: "9:16"
+    resolution: "2K"
+    prompt: |
+      High-fidelity mobile UI mockup of [describe], iPhone 15 Pro.
+
+      [Mobile-specific layout description]
+
+      Style: Mobile-first, iOS native feel.

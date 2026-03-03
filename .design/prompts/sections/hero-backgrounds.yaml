@@ -1,0 +1,71 @@
+# CircleTel Hero Section Backgrounds
+# Run: python image-generator.py prompts/sections/hero-backgrounds.yaml
+
+images:
+  - name: network-abstract.jpg
+    type: hero
+    folder: sections/hero
+    prompt: |
+      Abstract digital network visualization for website hero.
+
+      Elements:
+      - Flowing lines representing data/connectivity
+      - Nodes and connection points glowing orange (#F5831F)
+      - Dark blue to black gradient background
+      - Subtle particle effects
+      - Sense of speed and movement
+      - South African map outline subtly integrated
+
+      Style: Futuristic, tech, clean, not cluttered
+      Space for text overlay on left side
+
+  - name: connected-city.jpg
+    type: hero
+    folder: sections/hero
+    prompt: |
+      Aerial view of a connected South African city at dusk.
+
+      Scene:
+      - Johannesburg or Cape Town skyline
+      - Golden hour lighting
+      - Network connection lines overlaid (subtle, orange glow)
+      - Data flowing between buildings
+      - 5G towers visible
+      - Modern, aspirational feel
+
+      Style: Cinematic, warm tones, professional
+      Dark gradient on left for text overlay
+
+  - name: home-connectivity.jpg
+    type: hero
+    folder: sections/hero
+    prompt: |
+      Modern South African family enjoying connected home.
+
+      Scene:
+      - Open-plan living area
+      - Parents on laptops, kids on tablets
+      - Smart TV showing streaming content
+      - WiFi symbol subtly overlaid
+      - Warm, natural lighting
+      - African art on walls
+      - Router visible but not prominent
+
+      Mood: Warm, family, connected lifestyle
+      Shot from slight angle, lifestyle photography
+
+  - name: business-connectivity.jpg
+    type: hero
+    folder: sections/hero
+    prompt: |
+      Professional South African office with seamless connectivity.
+
+      Scene:
+      - Modern open-plan office
+      - Diverse team in video conference
+      - Large screens, laptops, devices
+      - Fast, reliable connection implied
+      - Johannesburg CBD visible through windows
+      - Professional, corporate feel
+
+      Style: Clean, professional, aspirational B2B

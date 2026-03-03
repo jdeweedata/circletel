@@ -1,0 +1,83 @@
+# CircleTel Feature Section Illustrations
+# Run: python image-generator.py prompts/sections/features.yaml
+
+images:
+  - name: speed-illustration.jpg
+    type: illustration
+    folder: sections/features
+    prompt: |
+      Illustration representing fast internet speed.
+
+      Elements:
+      - Speedometer or gauge showing maximum
+      - Motion lines suggesting speed
+      - Download arrow with speed indicator
+      - "100 Mbps" or similar text integrated
+      - Orange accent color (#F5831F)
+
+      Style: Flat design, minimal, clean lines
+      White or light gray background
+
+  - name: support-illustration.jpg
+    type: illustration
+    folder: sections/features
+    prompt: |
+      Illustration representing 24/7 customer support.
+
+      Elements:
+      - Friendly support agent with headset
+      - Chat bubbles
+      - Clock showing 24/7
+      - Heart or thumbs up icon
+      - South African flag colors subtly integrated
+
+      Style: Friendly, approachable, flat design
+      Orange accent, diverse representation
+
+  - name: coverage-map.jpg
+    type: illustration
+    folder: sections/features
+    prompt: |
+      Stylized South African coverage map illustration.
+
+      Elements:
+      - South Africa map outline
+      - Coverage dots/zones in major cities
+      - Johannesburg, Cape Town, Durban highlighted
+      - Network lines connecting cities
+      - Orange glow for covered areas
+      - Expanding coverage animation implied
+
+      Style: Clean, infographic style, data visualization
+
+  - name: no-contract.jpg
+    type: illustration
+    folder: sections/features
+    prompt: |
+      Illustration representing no contracts/flexibility.
+
+      Elements:
+      - Broken chain or freed hands
+      - Calendar with X marks
+      - Freedom/flexibility visual metaphor
+      - Checkmark indicating easy cancellation
+      - Month-to-month badge
+
+      Style: Positive, empowering, flat design
+      Orange accent color
+
+  - name: installation.jpg
+    type: illustration
+    folder: sections/features
+    prompt: |
+      Illustration representing easy self-installation.
+
+      Elements:
+      - Hands unboxing a router
+      - Simple 1-2-3 step indicators
+      - Plug and play visual
+      - Happy customer with working internet
+      - "10 minutes" time indicator
+
+      Style: Simple, instructional, friendly
+      Step-by-step visual guide feel

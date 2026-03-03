@@ -1,0 +1,72 @@
+# CircleTel Social Media Posts
+# Run: python image-generator.py prompts/marketing/social-posts.yaml
+
+images:
+  - name: 5g-launch-post.jpg
+    type: social
+    folder: marketing/social
+    prompt: |
+      Social media announcement post for 5G launch.
+
+      Design:
+      - Bold "5G IS HERE" headline
+      - 5G icon/symbol prominent
+      - Speed indicators (100Mbps+)
+      - Orange gradient background (#F5831F)
+      - CircleTel logo bottom corner
+      - "From R599/mo" price callout
+      - Excitement, energy, modern
+
+      Style: Bold, eye-catching, shareable
+      Instagram/Facebook square format
+
+  - name: fibre-promo-story.jpg
+    type: social-story
+    folder: marketing/social
+    prompt: |
+      Instagram story for fibre promotion.
+
+      Design:
+      - "FIBRE SPECIAL" headline top
+      - "R299/mo" large price
+      - "50Mbps Uncapped" features
+      - Swipe up indicator
+      - Orange accent elements
+      - Modern, clean design
+      - CircleTel branding
+
+      Style: Story format, swipe-up friendly
+      Vertical 9:16
+
+  - name: customer-testimonial.jpg
+    type: social
+    folder: marketing/social
+    prompt: |
+      Customer testimonial social post.
+
+      Design:
+      - Quote marks prominent
+      - "Finally, internet that works!" testimonial text
+      - Happy customer photo placeholder (silhouette)
+      - Star rating (5 stars)
+      - Customer name: "Thabo M., Sandton"
+      - Subtle orange accents
+
+      Style: Trust-building, authentic feel
+      Clean, professional
+
+  - name: coverage-expansion.jpg
+    type: social
+    folder: marketing/social
+    prompt: |
+      Coverage expansion announcement.
+
+      Design:
+      - South Africa map with new areas highlighted
+      - "Now in Pretoria East!" headline
+      - Expanding circle animation implied
+      - Orange coverage zones
+      - "Check your address" CTA
+      - Celebration confetti subtle
+
+      Style: Announcement, exciting, news-worthy

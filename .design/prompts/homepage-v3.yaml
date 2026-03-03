@@ -1,0 +1,50 @@
+# CircleTel Homepage - Version 3 (New Design Exploration)
+# Run: python mockup-generator.py prompts/homepage-v3.yaml
+
+mockups:
+  - name: desktop-hero.jpg
+    folder: homepage/v3
+    aspect_ratio: "16:9"
+    resolution: "2K"
+    prompt: |
+      High-fidelity UI mockup of modern ISP homepage, desktop view.
+
+      HEADER:
+      - CircleTel logo with orange accent
+      - Nav: Products, Business, Support
+      - Login, orange "Get Started" button
+
+      HERO:
+      - Bold headline: "Internet That Just Works"
+      - Subheadline: "Fibre, 5G & LTE across South Africa"
+      - Single centered coverage checker card
+      - Tabbed selector: Home | SOHO | Business
+      - Address input with autocomplete
+      - Orange "Check Coverage" button
+
+      BELOW:
+      - Trust badges row
+      - Featured packages carousel
+
+      Style: Clean, modern, lots of whitespace, orange #F5841E accents.
+
+  - name: mobile-hero.jpg
+    folder: homepage/v3
+    aspect_ratio: "9:16"
+    resolution: "2K"
+    prompt: |
+      High-fidelity mobile UI mockup of ISP homepage, iPhone 15 Pro.
+
+      HEADER: CircleTel logo, hamburger menu
+
+      HERO:
+      - "Internet That Just Works"
+      - Segmented control: Home | SOHO | Business
+      - Address input (full width)
+      - Orange "Check Coverage" button
+
+      TRUST: "99.9% Uptime" | "24/7 Support" | "Local Team"
+
+      FEATURED: Horizontal scroll deal cards
+
+      Style: Mobile-first, generous touch targets, iOS native feel.

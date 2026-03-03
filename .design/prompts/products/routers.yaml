@@ -1,0 +1,77 @@
+# CircleTel Router Product Images
+# Run: python image-generator.py prompts/products/routers.yaml
+
+images:
+  - name: 5g-cpe-router-white.jpg
+    type: product
+    folder: products/routers
+    prompt: |
+      A sleek, modern 5G CPE router device.
+
+      Design:
+      - Matte white rectangular body with rounded edges
+      - Small LED indicator lights on front (blue/green)
+      - Subtle ventilation grilles on sides
+      - Two external 5G antennas (black, adjustable)
+      - Single ethernet port visible on back
+      - "5G" badge on front
+
+      Setting:
+      - Pure white seamless background
+      - Soft studio lighting with subtle shadows
+      - 3/4 angle view showing front and side
+      - Clean, minimal, e-commerce ready
+
+  - name: 5g-router-lifestyle.jpg
+    type: product-lifestyle
+    folder: products/routers
+    prompt: |
+      A 5G CPE router in a modern South African home setting.
+
+      Scene:
+      - Router placed on a sleek wooden console table
+      - Modern living room background (slightly blurred)
+      - Natural window light from the side
+      - Family photos and plants nearby
+      - African-inspired decor elements
+      - Person using laptop on couch (background, blurred)
+
+      Mood: Warm, connected, modern African home
+
+  - name: fibre-ont-device.jpg
+    type: product
+    folder: products/routers
+    prompt: |
+      A compact fibre ONT (Optical Network Terminal) device.
+
+      Design:
+      - Small white box, compact design
+      - Green "LINK" LED light glowing
+      - Fibre port with green connector
+      - Ethernet ports on back
+      - Wall-mountable design visible
+      - "Fibre" text on front
+
+      Setting:
+      - White background, studio lighting
+      - Slight angle showing ports
+      - Clean product photography style
+
+  - name: lte-router-outdoor.jpg
+    type: product
+    folder: products/routers
+    prompt: |
+      An outdoor LTE router for rural/farm installations.
+
+      Design:
+      - Weatherproof white enclosure
+      - External LTE antennas
+      - IP65 rated appearance
+      - Mounting bracket visible
+      - POE ethernet cable connection
+
+      Setting:
+      - Mounted on a pole or wall
+      - Blue sky background
+      - South African farmland visible
+      - Professional installation look

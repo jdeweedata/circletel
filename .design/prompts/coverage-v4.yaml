@@ -1,0 +1,49 @@
+# CircleTel Coverage Results Page - Version 4
+# Run: python mockup-generator.py prompts/coverage-v4.yaml
+
+mockups:
+  - name: desktop-results.jpg
+    folder: coverage/v4
+    aspect_ratio: "16:9"
+    resolution: "2K"
+    prompt: |
+      High-fidelity UI mockup of an ISP coverage results page, desktop view.
+
+      HEADER: CircleTel logo, nav, Login, Get Started
+
+      SUCCESS BANNER:
+      - Orange gradient (#F5841E to #FF9F43)
+      - Checkmark icon, "Great News! You're Covered"
+      - "5 packages available at your address"
+      - Address: "123 Main Street, Sandton, 2196"
+
+      FILTER BAR:
+      - Tabs: "All (5)" | "Fibre (2)" | "5G (2)" | "LTE (1)"
+      - Sort dropdown, Filter button
+
+      PACKAGE CARDS (3 columns):
+      - FEATURED: "RECOMMENDED" badge, MTN 5G 100Mbps, R599/mo
+      - Other cards: Fibre 50/100Mbps, LTE 50GB, 5G 50Mbps
+
+      Style: Clean e-commerce layout, orange accents, Figma quality.
+
+  - name: mobile-results.jpg
+    folder: coverage/v4
+    aspect_ratio: "9:16"
+    resolution: "2K"
+    prompt: |
+      High-fidelity mobile UI mockup of ISP coverage results, iPhone 15 Pro.
+
+      HEADER: Back arrow, "Coverage Results", Filter icon
+
+      SUCCESS BANNER: Orange gradient, "You're Covered!", address
+
+      TABS (horizontal scroll): "All (5)" | "Fibre (2)" | "5G (2)"
+
+      PACKAGE CARDS (stacked):
+      - CARD 1: "RECOMMENDED", MTN 5G 100Mbps, R599/mo
+      - CARD 2: Fibre 50Mbps, R449/mo
+
+      STICKY BOTTOM: "Compare (0)" | "Filter" buttons
+
+      Style: Mobile-first, thumb-friendly, iOS native feel.

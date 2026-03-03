@@ -69,7 +69,8 @@ export default {
 					// Primary Palette
 					orange: '#E87A1E',        // Primary orange (updated from wireframe spec)
 					'orange-accessible': '#AE5B16', // For text on light backgrounds
-					'orange-dark': '#C45A30', // Hover states
+					'orange-dark': '#C45A30', // Hover states (buttons)
+					'orange-light': '#FDF2E9', // Hover states (tabs, light backgrounds)
 					gray: '#747474',          // Circle Tel Grey - rgb(116, 116, 116)
 					navy: '#1B2A4A',          // Deep Navy (updated from wireframe spec)
 					charcoal: '#2D3436',      // Footer background

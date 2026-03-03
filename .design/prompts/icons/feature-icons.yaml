@@ -1,0 +1,85 @@
+# CircleTel Feature Icons
+# Run: python image-generator.py prompts/icons/feature-icons.yaml
+
+images:
+  - name: icon-speed.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing internet speed.
+      - Speedometer gauge at maximum
+      - Simple line art style
+      - Orange accent (#F5831F)
+      - White background
+      - 64x64px icon style
+
+  - name: icon-support.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing customer support.
+      - Headset with speech bubble
+      - Simple line art style
+      - Orange accent (#F5831F)
+      - White background
+      - Friendly, approachable
+
+  - name: icon-coverage.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing network coverage.
+      - Signal bars or WiFi waves
+      - Location pin
+      - Simple line art style
+      - Orange accent (#F5831F)
+
+  - name: icon-router.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing WiFi router.
+      - Simple router shape
+      - WiFi waves emanating
+      - Line art style
+      - Orange accent
+
+  - name: icon-contract-free.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing no contracts.
+      - Calendar with X or checkmark
+      - Freedom/flexibility symbol
+      - Simple line art
+      - Orange accent
+
+  - name: icon-installation.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal icon representing easy installation.
+      - Plug connecting
+      - Or hands with router
+      - Simple, friendly
+      - Orange accent
+
+  - name: icon-5g.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal 5G technology icon.
+      - "5G" text stylized
+      - Speed lines or signal waves
+      - Modern, tech feel
+      - Orange accent
+
+  - name: icon-fibre.jpg
+    type: icon
+    folder: icons/features
+    prompt: |
+      Minimal fibre optic icon.
+      - Fibre cable with light
+      - Speed indicator
+      - Modern, clean
+      - Orange accent
