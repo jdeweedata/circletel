@@ -2,10 +2,25 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Zap, Wifi, Signal, BatteryCharging, Building2, Shield, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { SegmentType } from './SegmentTabs';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+} as const;
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+} as const;
 
 interface HeroPlan {
   id: string;
@@ -29,10 +44,10 @@ const HOME_PLANS: HeroPlan[] = [
     price: 799,
     speed: '50/12.5Mbps',
     type: 'fwa',
-    description: 'Fast downloads for streaming, video calls & work from home',
+    description: 'Stream your favourite shows without buffering.',
     badge: 'Entry',
     badgeColor: 'green',
-    features: ['Uncapped data', 'Pro installation', 'Basic support'],
+    features: ['No contracts', 'Uncapped data', 'Free installation'],
   },
   {
     id: 'skyfibre-home-max',
@@ -40,11 +55,11 @@ const HOME_PLANS: HeroPlan[] = [
     price: 999,
     speed: '100/25Mbps',
     type: 'fwa',
-    description: '4K streaming, gaming & multiple simultaneous users',
+    description: 'Everyone streams. Nobody buffers.',
     badge: 'Popular',
     badgeColor: 'orange',
     featured: true,
-    features: ['Uncapped data', 'Pro installation', 'Basic support'],
+    features: ['No contracts', 'Uncapped data', 'Free installation'],
   },
   {
     id: 'skyfibre-home-ultra',
@@ -52,10 +67,10 @@ const HOME_PLANS: HeroPlan[] = [
     price: 1299,
     speed: '200/50Mbps',
     type: 'fwa',
-    description: 'Premium speeds for power users & large households',
+    description: 'Enough bandwidth for the whole house.',
     badge: 'Best Value',
     badgeColor: 'orange',
-    features: ['Uncapped data', 'Pro installation', 'Basic support'],
+    features: ['No contracts', 'Uncapped data', 'Free installation'],
   },
   {
     id: 'skyfibre-home-pro-100',
@@ -63,14 +78,15 @@ const HOME_PLANS: HeroPlan[] = [
     price: 1199,
     speed: '100/25Mbps',
     type: 'fwa',
-    description: 'All-inclusive with Managed WiFi, Static IP & extended support',
+    description: 'Work from home without the connection anxiety.',
     badge: 'WFH Ready',
     badgeColor: 'blue',
-    features: ['Managed WiFi included', 'Static IP included', 'Support until 9pm'],
+    features: ['No contracts', 'Managed WiFi', 'Support until 9pm'],
   },
 ];
 
 // SOHO/Work from Home Plans
+// Source: products/connectivity/soho/CircleTel_WorkConnect_SOHO_Product_Portfolio_v1_1.md
 const WFH_PLANS: HeroPlan[] = [
   {
     id: 'wc-starter',
@@ -78,20 +94,20 @@ const WFH_PLANS: HeroPlan[] = [
     price: 799,
     speed: '50Mbps',
     type: 'fibre',
-    description: 'HD video calls, cloud backup, VoIP ready',
-    features: ['25GB cloud backup', '2 email accounts', 'VoIP QoS'],
+    description: 'Never say "sorry, my internet dropped" again.',
+    features: ['No contracts', '25GB cloud backup', 'VoIP ready'],
   },
   {
     id: 'wc-plus',
     name: 'WorkConnect Plus',
-    price: 999,
+    price: 1099, // Corrected: was 999, spec says R1,099
     speed: '100Mbps',
     type: 'fibre',
-    description: 'Multi-device, team calls, fast uploads',
+    description: 'Stable enough for back-to-back video calls.',
     badge: 'Popular',
     badgeColor: 'orange',
     featured: true,
-    features: ['50GB cloud backup', '5 email accounts', 'Priority support'],
+    features: ['No contracts', '50GB cloud backup', 'Priority support'],
   },
   {
     id: 'wc-pro',
@@ -99,10 +115,10 @@ const WFH_PLANS: HeroPlan[] = [
     price: 1499,
     speed: '200Mbps',
     type: '5g',
-    description: 'Enterprise-grade for power users',
+    description: 'Upload large files in minutes, not hours.',
     badge: 'Uncapped',
     badgeColor: 'orange',
-    features: ['100GB cloud backup', '10 email accounts', 'Static IP'],
+    features: ['No contracts', '100GB cloud backup', 'Static IP'],
   },
   {
     id: 'wfh-backup',
@@ -110,45 +126,46 @@ const WFH_PLANS: HeroPlan[] = [
     price: 399,
     speed: '5G',
     type: '5g',
-    description: 'Auto-switch when primary fails',
+    description: 'Stay online even when your primary connection fails.',
     badge: 'Add-on',
     badgeColor: 'green',
   },
 ];
 
-// Business/SME Plans
+// Business/SME Plans - SkyFibre Business (MTN Tarana G1 FWA)
+// Source: products/connectivity/fixed-wireless/SkyFibre_SMB_Commercial_Product_Spec_v2_0.md
 const BUSINESS_PLANS: HeroPlan[] = [
   {
-    id: 'skyfibre-50',
-    name: 'SkyFibre 50',
+    id: 'skyfibre-biz-50',
+    name: 'SkyFibre Business 50',
     price: 1299,
     speed: '50/12.5Mbps',
     type: 'fwa',
-    description: 'Uncapped, static IP, 99.9% SLA',
-    features: ['Static IP', '99.9% SLA', '24/7 support'],
+    description: 'Stable for always-on operations. Zero downtime guarantee.',
+    features: ['No contracts', 'Static IP included', 'Truly uncapped'],
   },
   {
-    id: 'skyfibre-100',
-    name: 'SkyFibre 100',
-    price: 1599,
+    id: 'skyfibre-biz-100',
+    name: 'SkyFibre Business 100',
+    price: 1499,
     speed: '100/25Mbps',
     type: 'fwa',
-    description: 'Business-grade with priority support',
+    description: 'Run your business without worrying about connectivity.',
     badge: 'Popular',
     badgeColor: 'orange',
     featured: true,
-    features: ['Static IP', '99.9% SLA', '4hr response'],
+    features: ['No contracts', 'Static IP included', 'Truly uncapped'],
   },
   {
-    id: 'skyfibre-200',
-    name: 'SkyFibre 200',
+    id: 'skyfibre-biz-200',
+    name: 'SkyFibre Business 200',
     price: 1899,
     speed: '200/50Mbps',
     type: 'fwa',
-    description: 'High-bandwidth for demanding teams',
+    description: 'Handle demanding workloads without slowdowns.',
     badge: 'Enterprise',
     badgeColor: 'blue',
-    features: ['Multiple IPs', '99.99% SLA', 'Dedicated support'],
+    features: ['No contracts', 'Static IP included', 'Truly uncapped'],
   },
   {
     id: 'biz-failover',
@@ -156,9 +173,10 @@ const BUSINESS_PLANS: HeroPlan[] = [
     price: 399,
     speed: '5G',
     type: '5g',
-    description: 'Automatic backup when primary fails',
+    description: 'Never go offline — auto-switches when primary fails.',
     badge: 'Add-on',
     badgeColor: 'green',
+    features: ['Auto-switchover', '50GB data/month', 'Tozed 5G CPE'],
   },
 ];
 
@@ -195,11 +213,58 @@ const TYPE_LABELS: Record<string, string> = {
   fwa: 'Fixed Wireless',
 };
 
+// Map plan IDs to their product page slugs (for WorkConnect products)
+const PLAN_SLUGS: Record<string, string> = {
+  'wc-starter': 'workconnect-starter',
+  'wc-plus': 'workconnect-plus',
+  'wc-pro': 'workconnect-pro',
+};
+
+// Generate the correct "Learn More" link based on plan type
+function getPlanLink(planId: string, segment: SegmentType): string {
+  // WorkConnect plans link to their dedicated product pages
+  if (segment === 'wfh' && PLAN_SLUGS[planId]) {
+    return `/workconnect/${PLAN_SLUGS[planId]}`;
+  }
+  // Failover add-on links to SOHO page
+  if (planId === 'wfh-backup' || planId === 'biz-failover') {
+    return segment === 'wfh' ? '/soho' : '/business';
+  }
+  // Default: link to packages page with plan param
+  return `/packages?plan=${planId}`;
+}
+
+// Technology-based visual differentiation - eliminates "same card" AI slop
+const TYPE_STYLES: Record<string, { gradient: string; badgeBg: string; badgeText: string }> = {
+  fibre: {
+    gradient: 'bg-gradient-to-br from-blue-50 to-white',
+    badgeBg: 'bg-blue-100',
+    badgeText: 'text-blue-700'
+  },
+  '5g': {
+    gradient: 'bg-gradient-to-br from-purple-50 to-white',
+    badgeBg: 'bg-purple-100',
+    badgeText: 'text-purple-700'
+  },
+  fwa: {
+    gradient: 'bg-gradient-to-br from-circleTel-orange-light to-white',
+    badgeBg: 'bg-circleTel-orange/10',
+    badgeText: 'text-circleTel-orange'
+  },
+  lte: {
+    gradient: 'bg-gradient-to-br from-emerald-50 to-white',
+    badgeBg: 'bg-emerald-100',
+    badgeText: 'text-emerald-700'
+  },
+};
+
 interface PlanCardsProps {
   activeSegment?: SegmentType;
 }
 
 export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   // Select plans based on segment
   const plans = activeSegment === 'business'
     ? BUSINESS_PLANS
@@ -212,8 +277,14 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
     <section className="bg-white py-12 md:py-20">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 md:mb-12">
-          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-circleTel-navy">
+        <motion.div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 md:mb-12"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+        >
+          <h2 className="font-heading text-display-2-mobile md:text-display-2 text-circleTel-navy">
             {config.title}
           </h2>
           <Link
@@ -223,20 +294,31 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
             {config.viewAllText}
             <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Cards Grid with Staggered Animation */}
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           {plans.map((plan) => {
             const TypeIcon = TYPE_ICONS[plan.type];
+            const typeStyle = TYPE_STYLES[plan.type] || TYPE_STYLES.fwa;
 
             return (
-              <div
+              <motion.div
                 key={plan.id}
+                variants={prefersReducedMotion ? undefined : cardVariants}
+                whileHover={prefersReducedMotion ? undefined : { scale: 1.02, y: -4 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                 className={cn(
-                  'relative bg-white rounded-2xl p-6 transition-all duration-300',
+                  'relative rounded-2xl p-6 transition-shadow duration-300 cursor-pointer',
+                  typeStyle.gradient,
                   plan.featured
-                    ? 'ring-2 ring-circleTel-orange shadow-xl scale-[1.02] z-10'
+                    ? 'ring-2 ring-circleTel-orange shadow-xl z-10'
                     : 'shadow-lg hover:shadow-xl border border-gray-100'
                 )}
               >
@@ -246,9 +328,9 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
                     className={cn(
                       'absolute -top-3 right-4 px-3 py-1 rounded-full text-xs font-semibold',
                       plan.badgeColor === 'green'
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-emerald-500 text-white'
                         : plan.badgeColor === 'blue'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-circleTel-navy text-white'
                         : 'bg-circleTel-orange text-white'
                     )}
                   >
@@ -257,7 +339,7 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
                 )}
 
                 {/* Plan Name */}
-                <h3 className="font-heading text-xl font-semibold text-circleTel-navy mb-2">
+                <h3 className="font-heading text-display-4-mobile md:text-display-4 text-circleTel-navy mb-2">
                   {plan.name}
                 </h3>
 
@@ -269,11 +351,18 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
                   <span className="text-circleTel-grey600">/mo</span>
                 </div>
 
-                {/* Speed + Type */}
+                {/* Speed + Type with tech badge */}
                 <div className="flex items-center gap-2 mb-3">
-                  <TypeIcon className="h-4 w-4 text-circleTel-grey600" />
-                  <span className="font-body text-sm text-circleTel-grey600">
-                    {TYPE_LABELS[plan.type]} {plan.speed}
+                  <span className={cn(
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium',
+                    typeStyle.badgeBg,
+                    typeStyle.badgeText
+                  )}>
+                    <TypeIcon className="h-3 w-3" />
+                    {TYPE_LABELS[plan.type]}
+                  </span>
+                  <span className="font-data text-sm font-semibold text-circleTel-navy">
+                    {plan.speed}
                   </span>
                 </div>
 
@@ -287,7 +376,7 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
                   <ul className="mb-4 space-y-1">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-1.5 text-xs text-circleTel-grey600">
-                        <span className="text-green-500">✓</span>
+                        <span className="text-emerald-500">✓</span>
                         {feature}
                       </li>
                     ))}
@@ -300,14 +389,14 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
                   className="w-full border-circleTel-navy text-circleTel-navy hover:bg-circleTel-navy hover:text-white transition-colors mt-auto"
                   asChild
                 >
-                  <Link href={`/packages?plan=${plan.id}`}>
+                  <Link href={getPlanLink(plan.id, activeSegment)}>
                     Learn More
                   </Link>
                 </Button>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Promotional Banner (optional - can be enabled when promotions are active) */}
         {/* <div className="mt-8 p-4 bg-circleTel-orange/10 rounded-xl text-center">
