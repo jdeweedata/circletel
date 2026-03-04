@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArchiveBold, PiArrowsClockwiseBold, PiBellBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiRadioBold, PiShieldCheckBold, PiShoppingCartBold, PiSparklesBold, PiSquaresFourBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowsClockwiseBold, PiBellBold, PiBriefcaseBold, PiBuildingsBold, PiCalendarBold, PiCaretDownBold, PiCaretLeftBold, PiCaretRightBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiImageBold, PiLightningBold, PiLinkBold, PiListBold, PiMapPinBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiRadioBold, PiReceiptBold, PiShieldCheckBold, PiShoppingCartBold, PiSidebarSimpleBold, PiSparkleBold, PiSquaresFourBold, PiTargetBold, PiTestTubeBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUserPlusBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -109,7 +109,7 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'Dashboard', href: '/admin/field-ops', icon: PiSquaresFourBold },
           { name: 'Technicians', href: '/admin/field-ops/technicians', icon: PiUsersBold },
-          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: Briefcase },
+          { name: 'Jobs', href: '/admin/field-ops/jobs', icon: PiBriefcaseBold },
           { name: 'Installation Schedule', href: '/admin/orders/installations', icon: PiCalendarBold }
         ]
       },
@@ -132,7 +132,7 @@ const navigationSections: NavSection[] = [
       },
       {
         name: 'Corporate Clients',
-        icon: Briefcase,
+        icon: PiBriefcaseBold,
         description: 'Enterprise multi-site accounts',
         children: [
           { name: 'All Corporates', href: '/admin/corporate', icon: PiBuildingsBold },
@@ -161,7 +161,7 @@ const navigationSections: NavSection[] = [
       {
         name: 'CPQ Builder',
         href: '/admin/cpq',
-        icon: PiSparklesBold,
+        icon: PiSparkleBold,
         description: 'AI-powered quote configuration wizard'
       },
       {
@@ -174,11 +174,11 @@ const navigationSections: NavSection[] = [
       },
       {
         name: 'Competitor Analysis',
-        icon: Target,
+        icon: PiTargetBold,
         children: [
           { name: 'Dashboard', href: '/admin/competitor-analysis', icon: PiSquaresFourBold },
           { name: 'Providers', href: '/admin/competitor-analysis/providers', icon: PiBuildingsBold },
-          { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: LinkIcon }
+          { name: 'Matching', href: '/admin/competitor-analysis/matching', icon: PiLinkBold }
         ]
       },
     ]
@@ -192,7 +192,7 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'Dashboard', href: '/admin/marketing', icon: PiSquaresFourBold },
           { name: 'Promotions', href: '/admin/marketing/promotions', icon: PiPercentBold },
-          { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: Target },
+          { name: 'Campaigns', href: '/admin/marketing/campaigns', icon: PiTargetBold },
           { name: 'Analytics', href: '/admin/marketing/analytics', icon: PiChartBarBold }
         ]
       },
@@ -228,7 +228,7 @@ const navigationSections: NavSection[] = [
         icon: PiRadioBold,
         children: [
           { name: 'Dashboard', href: '/admin/coverage', icon: PiSquaresFourBold },
-          { name: 'Analytics', href: '/admin/coverage/analytics', icon: PiActivityBold },
+          { name: 'Analytics', href: '/admin/coverage/analytics', icon: PiPulseBold },
           { name: 'Testing', href: '/admin/coverage/testing', icon: PiTestTubeBold },
           { name: 'Providers', href: '/admin/coverage/providers', icon: PiBuildingsBold },
           { name: 'Maps', href: '/admin/coverage/maps', icon: PiMapTrifoldBold },
@@ -239,7 +239,7 @@ const navigationSections: NavSection[] = [
       {
         name: 'Diagnostics',
         href: '/admin/diagnostics',
-        icon: PiActivityBold,
+        icon: PiPulseBold,
         description: 'Monitor subscriber connection health'
       },
     ]
@@ -253,7 +253,7 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'Dashboard', href: '/admin/billing', icon: PiSquaresFourBold },
           { name: 'Customers', href: '/admin/billing/customers', icon: PiUserCheckBold },
-          { name: 'Invoices', href: '/admin/billing/invoices', icon: Receipt },
+          { name: 'Invoices', href: '/admin/billing/invoices', icon: PiReceiptBold },
           { name: 'Outstanding', href: '/admin/finance/outstanding', icon: PiWarningCircleBold },
           { name: 'AR Analytics', href: '/admin/finance/ar-analytics', icon: PiTrendUpBold },
         ]
@@ -262,8 +262,8 @@ const navigationSections: NavSection[] = [
         name: 'Payments',
         icon: RandSign,
         children: [
-          { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiActivityBold },
-          { name: 'Transactions', href: '/admin/payments/transactions', icon: Receipt },
+          { name: 'Provider Monitoring', href: '/admin/payments/monitoring', icon: PiPulseBold },
+          { name: 'Transactions', href: '/admin/payments/transactions', icon: PiReceiptBold },
           { name: 'Reconciliation', href: '/admin/finance/reconciliation', icon: PiArrowsClockwiseBold },
           { name: 'Webhooks', href: '/admin/payments/webhooks', icon: PiLightningBold },
           { name: 'Settings', href: '/admin/payments/settings', icon: PiGearBold }
@@ -288,13 +288,13 @@ const navigationSections: NavSection[] = [
       },
       {
         name: 'Integrations',
-        icon: LinkIcon,
+        icon: PiLinkBold,
         children: [
           { name: 'Overview', href: '/admin/integrations', icon: PiSquaresFourBold },
           { name: 'Interstellio RADIUS', href: '/admin/integrations/interstellio', icon: PiRadioBold },
           { name: 'OAuth Tokens', href: '/admin/integrations/oauth', icon: PiGearBold },
           { name: 'Webhooks', href: '/admin/integrations/webhooks', icon: PiLightningBold },
-          { name: 'API Health', href: '/admin/integrations/apis', icon: PiActivityBold },
+          { name: 'API Health', href: '/admin/integrations/apis', icon: PiPulseBold },
           { name: 'Cron Jobs', href: '/admin/integrations/cron', icon: PiClockBold }
         ]
       },
@@ -304,7 +304,7 @@ const navigationSections: NavSection[] = [
         children: [
           { name: 'Pages', href: '/admin/cms', icon: PiFileTextBold },
           { name: 'Media Library', href: '/admin/cms/media', icon: PiImageBold },
-          { name: 'Page Builder', href: '/admin/cms/builder', icon: PanelTop }
+          { name: 'Page Builder', href: '/admin/cms/builder', icon: PiSidebarSimpleBold }
         ]
       },
     ]

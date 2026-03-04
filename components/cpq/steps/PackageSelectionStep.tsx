@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsDownUpBold, PiCheckCircleBold, PiFunnelBold, PiPackageBold, PiSparklesBold, PiSpinnerBold, PiStarBold } from 'react-icons/pi';
+import { PiArrowsDownUpBold, PiCheckCircleBold, PiFunnelBold, PiPackageBold, PiSparkleBold, PiSpinnerBold, PiStarBold } from 'react-icons/pi';
 
 /**
  * Step 3: Package Selection
@@ -216,7 +216,7 @@ export function PackageSelectionStep({
             </>
           ) : (
             <>
-              <PiSparklesBold className="h-4 w-4 mr-2" />
+              <PiSparkleBold className="h-4 w-4 mr-2" />
               Get AI Recommendations
             </>
           )}

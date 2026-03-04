@@ -1,5 +1,5 @@
 'use client';
-import { PiCalculatorBold, PiCopyBold, PiCpuBold, PiDotsThreeBold, PiFileTextBold, PiHardDriveBold, PiHeadphonesBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiServerBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWrenchBold } from 'react-icons/pi';
+import { PiCalculatorBold, PiCopyBold, PiCpuBold, PiDesktopTowerBold, PiDotsThreeBold, PiFileTextBold, PiHardDriveBold, PiHeadphonesBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,7 +106,7 @@ interface ProductCostBreakdownProps {
 // Category configuration
 const CATEGORY_CONFIG: Record<CostComponentCategory, { label: string; icon: React.ReactNode; color: string }> = {
   provider: { label: 'Provider/Wholesale', icon: <PiPackageBold className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
-  infrastructure: { label: 'Infrastructure', icon: <PiServerBold className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
+  infrastructure: { label: 'Infrastructure', icon: <PiDesktopTowerBold className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
   platform: { label: 'Platform/BSS', icon: <PiCpuBold className="h-4 w-4" />, color: 'bg-indigo-100 text-indigo-800' },
   hardware: { label: 'Hardware/CPE', icon: <PiHardDriveBold className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
   addon_service: { label: 'Add-on Service', icon: <PiPlusBold className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckCircleBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -385,7 +385,7 @@ export default function CoverageStage({
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 {coverageData?.available ? (
-                  <PiWifiBold className="h-5 w-5 text-green-600" />
+                  <PiWifiHighBold className="h-5 w-5 text-green-600" />
                 ) : (
                   <PiWifiSlashBold className="h-5 w-5 text-red-600" />
                 )}

@@ -5,7 +5,7 @@
  */
 
 'use client';
-import { PiArrowRightBold, PiCheckCircleBold, PiCurrencyDollarBold, PiFileTextBold, PiLinkBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiCurrencyDollarBold, PiFileTextBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -103,7 +103,7 @@ export default function AgentsLandingPage() {
             {/* Shareable Links */}
             <Card>
               <CardHeader>
-                <PiLinkBold className="h-12 w-12 text-circleTel-orange mb-4" />
+                <Link className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Shareable Links</CardTitle>
                 <CardDescription>
                   Get your unique quote request link to share with potential customers

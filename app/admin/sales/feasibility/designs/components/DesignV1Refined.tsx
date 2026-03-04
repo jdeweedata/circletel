@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparkleBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -333,7 +333,7 @@ export function DesignV1Refined() {
                   className="flex-1 min-h-[200px] bg-gray-50/50 border-gray-200 focus:bg-white focus:border-circleTel-orange resize-none font-mono text-sm leading-relaxed"
                 />
                 <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
-                  <PiSparklesBold className="w-3 h-3" />
+                  <PiSparkleBold className="w-3 h-3" />
                   Addresses or GPS coordinates (e.g., -26.1076, 28.0567)
                 </p>
               </div>

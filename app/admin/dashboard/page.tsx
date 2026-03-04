@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiBellBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiFileTextBold, PiLightningBold, PiPackageBold, PiPercentBold, PiPlusBold, PiShieldBold, PiShoppingCartBold, PiStackBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBellBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiFileTextBold, PiLightningBold, PiPackageBold, PiPercentBold, PiPlusBold, PiPulseBold, PiShieldBold, PiShoppingCartBold, PiStackBold, PiTargetBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
         title: 'Coverage Leads',
         value: stats.totalLeads.toString(),
         description: `${stats.newLeadsThisMonth} new this month`,
-        icon: Target,
+        icon: PiTargetBold,
         color: 'text-cyan-600',
         bgColor: 'bg-cyan-100',
         href: '/admin/coverage'
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
         title: 'Lead Conversion',
         value: `${leadConversionRate}%`,
         description: 'Leads converted to orders',
-        icon: BarChart,
+        icon: PiChartBarBold,
         color: 'text-pink-600',
         bgColor: 'bg-pink-100',
         href: '/admin/coverage'
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
         title: 'ARPU',
         value: `R${arpu.toLocaleString()}`,
         description: 'Average Revenue Per User',
-        icon: PiActivityBold,
+        icon: PiPulseBold,
         color: 'text-amber-600',
         bgColor: 'bg-amber-100',
         href: '/admin/billing'
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
     {
       title: 'Coverage Leads',
       description: 'View coverage requests',
-      icon: Target,
+      icon: PiTargetBold,
       href: '/admin/coverage',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },

@@ -1,5 +1,5 @@
 'use client';
-import { PiDeviceMobileBold, PiHeadphonesBold, PiLightningBold, PiMoneyBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiDeviceMobileBold, PiHeadphonesBold, PiLightningBold, PiMoneyBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 
 const benefits = [
@@ -10,7 +10,7 @@ const benefits = [
     description: 'recurring commission on every customer you refer.',
   },
   {
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     title: 'Full Product Range',
     stat: 'Fibre • LTE • 5G',
     description: 'home, business, and rural connectivity solutions.',

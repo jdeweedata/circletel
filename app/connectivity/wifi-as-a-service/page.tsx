@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCurrencyDollarBold, PiGearBold, PiLightningBold, PiShieldBold, PiTrendUpBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCurrencyDollarBold, PiGearBold, PiLightningBold, PiShieldBold, PiTrendUpBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -96,7 +96,7 @@ const WifiAsAService = () => {
               <div className="lg:w-1/2">
                 <div className="grid grid-cols-2 gap-6">
                   <Card className="p-6 text-center">
-                    <PiWifiBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiWifiHighBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">99.9% Uptime</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Guaranteed reliability</p>
                   </Card>

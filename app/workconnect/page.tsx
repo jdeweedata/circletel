@@ -1,4 +1,4 @@
-import { PiArrowRightBold, PiCheckCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiWifiHighBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { client } from '@/lib/sanity/client';
@@ -40,7 +40,7 @@ export default async function WorkConnectPage() {
       <section className="bg-circleTel-grey200 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
-            <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
+            <PiWifiHighBold className="w-4 h-4 text-circleTel-orange" />
             <span className="text-sm font-medium text-circleTel-orange">
               Built for Remote Work
             </span>

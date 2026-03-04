@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiBriefcaseBold, PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -229,7 +229,7 @@ export function LicensedWirelessLeadCapture({
           {/* Business Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4" />
+              <PiBriefcaseBold className="w-4 h-4" />
               Business Type <span className="text-red-600">*</span>
             </Label>
             <RadioGroup

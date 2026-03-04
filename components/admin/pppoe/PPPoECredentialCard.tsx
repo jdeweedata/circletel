@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiPaperPlaneRightBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiPaperPlaneRightBold, PiWarningCircleBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -176,7 +176,7 @@ export function PPPoECredentialCard({
     return (
       <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
         <div className="flex items-center gap-3">
-          <PiWifiBold className="h-5 w-5 text-orange-500" />
+          <PiWifiHighBold className="h-5 w-5 text-orange-500" />
           <div>
             <p className="font-mono text-sm">{credential.pppoeUsername}</p>
             <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export function PPPoECredentialCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <PiWifiBold className="h-5 w-5 text-orange-500" />
+          <PiWifiHighBold className="h-5 w-5 text-orange-500" />
           PPPoE Credentials
         </CardTitle>
         {getStatusBadge()}
@@ -330,7 +330,7 @@ export function PPPoECredentialCard({
               {isProvisioning ? (
                 <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <PiWifiBold className="h-4 w-4 mr-2" />
+                <PiWifiHighBold className="h-4 w-4 mr-2" />
               )}
               Provision to Router
             </Button>

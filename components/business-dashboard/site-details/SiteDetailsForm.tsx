@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiFloppyDiskBold, PiInfoBold, PiMapPinBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCameraBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiDoorBold, PiFloppyDiskBold, PiInfoBold, PiMapPinBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
 
 /**
  * Site Details Form Component
@@ -168,13 +168,13 @@ const FORM_STEPS: FormStep[] = [
     id: 'access',
     title: 'Access Information',
     description: 'Site access and contacts',
-    icon: DoorOpen,
+    icon: PiDoorBold,
   },
   {
     id: 'photos',
     title: 'Site Photos',
     description: 'Upload site images',
-    icon: Camera,
+    icon: PiCameraBold,
   },
 ];
 
@@ -1032,7 +1032,7 @@ export function SiteDetailsForm({
             {currentStep === 4 && (
               <>
                 <Alert>
-                  <Camera className="h-4 w-4" />
+                  <PiCameraBold className="h-4 w-4" />
                   <AlertTitle>Site Photos Required</AlertTitle>
                   <AlertDescription>
                     Upload at least one photo showing the proposed equipment location and cable entry points.
@@ -1065,7 +1065,7 @@ export function SiteDetailsForm({
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Camera className="w-10 h-10 text-gray-400" />
+                        <PiCameraBold className="w-10 h-10 text-gray-400" />
                         <p className="font-medium">Click to upload photos</p>
                         <p className="text-sm text-gray-500">JPG, PNG, or HEIC (max 10MB each)</p>
                       </div>

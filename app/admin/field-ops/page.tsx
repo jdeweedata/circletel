@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiEyeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiPlusBold, PiRadioBold, PiTrendUpBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBriefcaseBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiEyeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiPlusBold, PiRadioBold, PiTrendUpBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -701,7 +701,7 @@ export default function FieldOpsPage() {
       <Tabs defaultValue="map" className="space-y-4">
         <TabsList className="bg-gray-100/80 p-1 rounded-lg">
           <TabsTrigger value="map" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
-            <MapPinned className="h-4 w-4 mr-2" />
+            <PiMapPinBold className="h-4 w-4 mr-2" />
             Map View
           </TabsTrigger>
           <TabsTrigger value="technicians" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
@@ -709,7 +709,7 @@ export default function FieldOpsPage() {
             Technicians
           </TabsTrigger>
           <TabsTrigger value="jobs" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
-            <Briefcase className="h-4 w-4 mr-2" />
+            <PiBriefcaseBold className="h-4 w-4 mr-2" />
             Today's Jobs
           </TabsTrigger>
         </TabsList>
@@ -759,7 +759,7 @@ export default function FieldOpsPage() {
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 text-center max-w-sm">
                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-circleTel-orange/20 to-orange-100 flex items-center justify-center">
-                          <MapPinned className="h-8 w-8 text-circleTel-orange" />
+                          <PiMapPinBold className="h-8 w-8 text-circleTel-orange" />
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">Map Integration Coming Soon</h3>
                         <p className="text-sm text-gray-500 leading-relaxed">
@@ -967,7 +967,7 @@ export default function FieldOpsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-100 rounded-lg">
-                    <Briefcase className="h-5 w-5 text-amber-600" />
+                    <PiBriefcaseBold className="h-5 w-5 text-amber-600" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">Today's Jobs</CardTitle>
@@ -1113,7 +1113,7 @@ export default function FieldOpsPage() {
                       <TableCell colSpan={9} className="text-center py-12">
                         <div className="flex flex-col items-center text-gray-500">
                           <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                            <Briefcase className="h-6 w-6 text-gray-400" />
+                            <PiBriefcaseBold className="h-6 w-6 text-gray-400" />
                           </div>
                           <p className="font-medium text-gray-600">No jobs scheduled</p>
                           <p className="text-sm text-gray-400 mt-1">Create a new job to get started</p>

@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiTrendUpBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiPulseBold, PiTrendUpBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,7 +195,7 @@ export default function PaymentMonitoringDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                <PiActivityBold className="h-8 w-8 text-blue-600" />
+                <PiPulseBold className="h-8 w-8 text-blue-600" />
                 <div>
                   <div className="text-2xl font-bold text-blue-900">
                     {healthData.summary.total_providers}

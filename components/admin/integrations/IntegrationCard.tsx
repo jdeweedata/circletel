@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowSquareOutBold, PiCheckCircleBold, PiClockBold, PiKeyBold, PiQuestionBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiCheckCircleBold, PiClockBold, PiKeyBold, PiPulseBold, PiQuestionBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -98,7 +98,7 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         {/* Health Status */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <PiActivityBold className="h-4 w-4 text-gray-400" />
+            <PiPulseBold className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-600">Status:</span>
           </div>
           <Badge

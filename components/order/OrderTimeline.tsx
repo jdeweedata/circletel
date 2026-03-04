@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -152,7 +152,7 @@ export function OrderTimeline({
     {
       id: 'active',
       label: 'Service Active',
-      icon: PiWifiBold,
+      icon: PiWifiHighBold,
       status: getStepStatus('active', activationDate),
       date: activationDate,
       description: activationDate

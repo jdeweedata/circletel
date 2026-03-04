@@ -40,7 +40,7 @@ const VirtualDesktopsHero = () => {
                 <p className="text-sm">Enterprise-grade security for your data</p>
               </div>
               <div className="bg-circleTel-lightNeutral p-6 rounded-lg flex flex-col items-center text-center">
-                <PiSparklesBold className="text-circleTel-orange h-12 w-12 mb-4" />
+                <PiSparkleBold className="text-circleTel-orange h-12 w-12 mb-4" />
                 <h3 className="font-bold mb-2">Easy Management</h3>
                 <p className="text-sm">Simplified IT administration and support</p>
               </div>

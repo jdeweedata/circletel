@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -657,7 +657,7 @@ export default function SiteEditPage() {
             {site.pppoeUsername && (
               <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
                 <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-1">
-                  <PiWifiBold className="w-4 h-4" />
+                  <PiWifiHighBold className="w-4 h-4" />
                   PPPoE Username
                 </div>
                 <p className="font-mono text-emerald-800">{site.pppoeUsername}</p>

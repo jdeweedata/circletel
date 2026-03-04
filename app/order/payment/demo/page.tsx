@@ -1,3 +1,4 @@
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretRightBold, PiCheckCircleBold, PiMoneyBold, PiQrCodeBold, PiReceiptBold, PiShieldBold, PiTicketBold } from 'react-icons/pi';
 "use client";
 
 import { useState } from "react";
@@ -54,7 +55,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "scan-to-pay",
     name: "Scan to Pay",
     description: "QR code & digital wallets",
-    icon: QrCode,
+    icon: PiQrCodeBold,
     color: "purple",
     brands: ["SnapScan", "Zapper", "All QR wallets"],
     features: ["Universal QR", "Multiple wallets"],
@@ -64,7 +65,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "payflex",
     name: "Payflex",
     description: "Buy Now, Pay Later",
-    icon: Receipt,
+    icon: PiReceiptBold,
     color: "pink",
     brands: ["4 installments", "Interest-free"],
     features: ["Full payment upfront", "No interest"],

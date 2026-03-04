@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEyeBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiUserPlusBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBriefcaseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEyeBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiUserPlusBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -427,7 +427,7 @@ export default function JobsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-gray-500" />
+              <PiBriefcaseBold className="h-5 w-5 text-gray-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.total}</p>
                 <p className="text-xs text-gray-500">Total Jobs</p>
@@ -619,7 +619,7 @@ export default function JobsPage() {
               {jobs.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center py-8 text-gray-500">
-                    <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <PiBriefcaseBold className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No jobs found</p>
                     <p className="text-sm">Create your first job to get started</p>
                   </TableCell>

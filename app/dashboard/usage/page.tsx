@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiLightningBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiLightningBold, PiPulseBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -182,7 +182,7 @@ function UsagePageContent() {
                 <p className="text-xs text-gray-500 mt-1">This month</p>
               </div>
               <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <PiActivityBold className="h-6 w-6 text-purple-600" />
+                <PiPulseBold className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -280,7 +280,7 @@ function UsagePageContent() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <PiActivityBold className="h-5 w-5 text-blue-600" />
+                      <PiPulseBold className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{test.date}</p>
@@ -314,7 +314,7 @@ function UsagePageContent() {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
-              <PiActivityBold className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <PiPulseBold className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p className="text-base">No speed tests recorded yet</p>
               <p className="text-sm mt-2">Run your first speed test to track performance</p>
             </div>

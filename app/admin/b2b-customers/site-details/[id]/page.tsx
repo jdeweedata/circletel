@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCameraBold, PiCheckCircleBold, PiClockBold, PiDoorBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Admin B2B Site Details View Page
@@ -464,7 +464,7 @@ export default function AdminSiteDetailsViewPage({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DoorOpen className="h-5 w-5 text-circleTel-orange" />
+              <PiDoorBold className="h-5 w-5 text-circleTel-orange" />
               Access Information
             </CardTitle>
           </CardHeader>
@@ -559,7 +559,7 @@ export default function AdminSiteDetailsViewPage({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5 text-circleTel-orange" />
+              <PiCameraBold className="h-5 w-5 text-circleTel-orange" />
               Site Photos ({siteDetails.site_photos.length})
             </CardTitle>
           </CardHeader>

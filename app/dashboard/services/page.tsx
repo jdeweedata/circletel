@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiCalendarBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -169,7 +169,7 @@ function ServiceCard({ service }: { service: Service }) {
 
   const getServiceIcon = () => {
     const type = service.service_type.toLowerCase();
-    if (type.includes('fibre')) return <PiWifiBold className="h-6 w-6" />;
+    if (type.includes('fibre')) return <PiWifiHighBold className="h-6 w-6" />;
     if (type.includes('lte') || type.includes('5g')) return <PiTrendUpBold className="h-6 w-6" />;
     return <PiLightningBold className="h-6 w-6" />;
   };

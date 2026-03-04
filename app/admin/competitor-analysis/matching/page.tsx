@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiMagnifyingGlassBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Product Matching Page
@@ -153,7 +153,7 @@ export default function MatchingPage() {
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
         >
-          <LinkIcon className="w-5 h-5" />
+          <Link className="w-5 h-5" />
           Create Match
         </button>
       </div>
@@ -177,7 +177,7 @@ export default function MatchingPage() {
       {/* Filters */}
       <div className="flex gap-4">
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search matches..."
@@ -293,7 +293,7 @@ function MatchCard({ match, onDelete }: MatchCardProps) {
           </div>
 
           {/* Arrow */}
-          <LinkIcon className="w-5 h-5 text-gray-400" />
+          <Link className="w-5 h-5 text-gray-400" />
 
           {/* Competitor Product */}
           <div className="flex items-center gap-3">

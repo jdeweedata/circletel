@@ -1,4 +1,4 @@
-import { PiDeviceMobileBold, PiGlobeBold, PiLightningBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
+import { PiDeviceMobileBold, PiGlobeBold, PiLightningBold, PiRadioBold, PiWifiHighBold } from 'react-icons/pi';
 
 export interface CategoryTheme {
   color: string
@@ -12,7 +12,7 @@ export const PRODUCT_CATEGORY_THEMES: Record<string, CategoryTheme> = {
   business_fibre: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', icon: PiGlobeBold },
   lte: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: PiLightningBold },
   '5g': { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: PiRadioBold },
-  wireless: { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: PiWifiBold },
+  wireless: { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: PiWifiHighBold },
   fibre_consumer: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: PiGlobeBold },
   fibre: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: PiGlobeBold },
 

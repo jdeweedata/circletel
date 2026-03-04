@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowRightBold, PiBatteryFullBold, PiBookOpenBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFileTextBold, PiGlobeBold, PiShieldCheckBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBatteryFullBold, PiBookOpenBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFileTextBold, PiGlobeBold, PiPulseBold, PiShieldCheckBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -15,7 +15,7 @@ const Resources = () => {
       id: "it-health",
       title: "IT Health Assessment",
       description: "Get a comprehensive evaluation of your current IT infrastructure with actionable recommendations",
-      icon: <PiActivityBold className="h-8 w-8 text-green-600" />,
+      icon: <PiPulseBold className="h-8 w-8 text-green-600" />,
       badge: "Free",
       badgeColor: "bg-green-500",
       features: ["Network Security Audit", "Performance Analysis", "Risk Assessment", "Improvement Roadmap"],
@@ -54,7 +54,7 @@ const Resources = () => {
       id: "wifi-toolkit",
       title: "Wi-Fi Planning Toolkit",
       description: "Professional tools and calculators for planning your business Wi-Fi deployment",
-      icon: <PiWifiBold className="h-8 w-8 text-orange-600" />,
+      icon: <PiWifiHighBold className="h-8 w-8 text-orange-600" />,
       badge: "Tools",
       badgeColor: "bg-orange-500",
       features: ["Coverage Calculator", "Access Point Planner", "Speed Requirements", "Security Checklist"],

@@ -1,3 +1,4 @@
+import { PiCaretRightBold } from 'react-icons/pi';
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -19,7 +20,7 @@ const promotionalOffers = [
     id: 2,
     title: "FREE Managed WiFi Pro for 6 months",
     description: "Enterprise-grade WiFi with 24/7 monitoring and support.",
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     color: "bg-gradient-to-br from-circleTel-blue-600 to-circleTel-blue-700",
     badge: "New Customers",
     cta: "Learn More"

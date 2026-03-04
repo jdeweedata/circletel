@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCalendarBold, PiCheckBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCalendarBold, PiCheckBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiPrinterBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, use } from 'react';
 import Image from 'next/image';
@@ -376,7 +376,7 @@ export default function QuotePreviewPage({ params }: Props) {
             onClick={() => window.print()}
             className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2"
           >
-            <Printer className="w-4 h-4" />
+            <PiPrinterBold className="w-4 h-4" />
             Print
           </button>
           <button

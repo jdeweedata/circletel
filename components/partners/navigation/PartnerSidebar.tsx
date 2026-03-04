@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
+import { PiCaretLeftBold, PiCaretRightBold} from 'react-icons/pi';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

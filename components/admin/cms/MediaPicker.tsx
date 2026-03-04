@@ -1,5 +1,5 @@
 'use client';
-import { PiImageBold, PiSpinnerBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
+import { PiImageBold, PiLinkBold, PiSpinnerBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Media Picker Modal
@@ -165,7 +165,7 @@ export function MediaPicker({
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             )}
           >
-            <ImageIcon className="w-4 h-4" />
+            <PiImageBold className="w-4 h-4" />
             Media Library
           </button>
           <button
@@ -189,7 +189,7 @@ export function MediaPicker({
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             )}
           >
-            <Link className="w-4 h-4" />
+            <PiLinkBold className="w-4 h-4" />
             URL
           </button>
         </div>

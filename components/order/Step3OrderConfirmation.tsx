@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiUserBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,7 +118,7 @@ export function Step3OrderConfirmation({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
+              <PiWifiHighBold className="w-5 h-5 text-circleTel-orange" />
               Selected Package
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={() => onEdit(1)}>

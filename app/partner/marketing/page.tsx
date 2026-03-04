@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretDownBold, PiDownloadSimpleBold, PiEyeBold, PiFileBold, PiFileTextBold, PiFunnelBold, PiImageBold, PiListBold, PiMagnifyingGlassBold } from 'react-icons/pi';
+import { PiCaretDownBold, PiDownloadSimpleBold, PiEyeBold, PiFileBold, PiFileTextBold, PiFunnelBold, PiGridNineBold, PiImageBold, PiListBold, PiMagnifyingGlassBold, PiVideoCameraBold } from 'react-icons/pi';
 
 /**
  * Partner Marketing Materials Page
@@ -57,9 +57,9 @@ function getCategoryIcon(category: string) {
     case 'banner':
     case 'social':
     case 'flyer':
-      return <ImageIcon className="w-5 h-5" />;
+      return <PiImageBold className="w-5 h-5" />;
     case 'video':
-      return <Video className="w-5 h-5" />;
+      return <PiVideoCameraBold className="w-5 h-5" />;
     case 'document':
     case 'template':
       return <PiFileTextBold className="w-5 h-5" />;
@@ -302,7 +302,7 @@ export default function PartnerMarketingPage() {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Grid3X3 className="w-5 h-5" />
+            <PiGridNineBold className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
@@ -330,7 +330,7 @@ export default function PartnerMarketingPage() {
       ) : assets.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ImageIcon className="w-8 h-8 text-gray-400" />
+            <PiImageBold className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="font-medium text-gray-900 mb-1">No assets found</h3>
           <p className="text-gray-500">

@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretRightBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold } from 'react-icons/pi';
+import { PiCalendarCheckBold, PiCaretRightBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -57,7 +57,7 @@ export function OrdersRequiringAttentionWidget() {
           status: 'ready_to_schedule',
           count: ordersData.filter((o: any) => o.status === 'payment_method_registered').length,
           label: 'Ready to Schedule',
-          icon: CalendarCheck,
+          icon: PiCalendarCheckBold,
           color: 'text-blue-600',
           bgColor: 'bg-blue-50',
           href: '/admin/orders?filter=ready_to_schedule'

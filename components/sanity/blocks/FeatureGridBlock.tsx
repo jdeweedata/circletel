@@ -1,5 +1,5 @@
 'use client';
-import { PiClockBold, PiGlobeBold, PiHeadphonesBold, PiLightningBold, PiServerBold, PiShieldBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiClockBold, PiGlobeBold, PiHeadphonesBold, PiLightningBold, PiDesktopTowerBold, PiShieldBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 
 // Icon mapping for dynamic icon selection

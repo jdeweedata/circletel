@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiCreditCardBold, PiFloppyDiskBold, PiMapPinBold, PiPhoneBold, PiSparklesBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiCreditCardBold, PiFloppyDiskBold, PiMapPinBold, PiPhoneBold, PiSignatureBold, PiSparkleBold, PiTextboxBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -79,7 +79,7 @@ const SECTIONS = [
   { id: 'billing', title: 'Billing', icon: PiCreditCardBold, required: false },
   { id: 'technical', title: 'Technical', icon: PiWrenchBold, required: false },
   { id: 'address', title: 'Address', icon: PiMapPinBold, required: false },
-  { id: 'contract', title: 'Contract', icon: FileSignature, required: false },
+  { id: 'contract', title: 'Contract', icon: PiSignatureBold, required: false },
 ];
 
 // Styled form input component
@@ -435,7 +435,7 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.company}
             defaultOpen={true}
           >
-            <FormInput
+            <PiTextboxBold
               label="Corporate Code"
               required
               placeholder="UNJ"
@@ -445,14 +445,14 @@ export default function NewCorporatePage() {
               className="uppercase font-mono text-lg tracking-wider"
               hint="Used in account numbers: CT-UNJ-001"
             />
-            <FormInput
+            <PiTextboxBold
               label="Company Name"
               required
               placeholder="Unjani Clinics NPC"
               value={formData.companyName}
               onChange={(e) => handleInputChange('companyName', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Trading Name"
               placeholder="Unjani Clinics"
               value={formData.tradingName}
@@ -476,13 +476,13 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <FormInput
+            <PiTextboxBold
               label="CIPC Registration Number"
               placeholder="2014/089277/08"
               value={formData.registrationNumber}
               onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="VAT Number"
               placeholder="4123456789"
               value={formData.vatNumber}
@@ -501,20 +501,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.primary}
             defaultOpen={true}
           >
-            <FormInput
+            <PiTextboxBold
               label="Full Name"
               required
               placeholder="Lynda Toussaint"
               value={formData.primaryContactName}
               onChange={(e) => handleInputChange('primaryContactName', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Position / Title"
               placeholder="Chief Executive Officer"
               value={formData.primaryContactPosition}
               onChange={(e) => handleInputChange('primaryContactPosition', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Email Address"
               required
               type="email"
@@ -522,7 +522,7 @@ export default function NewCorporatePage() {
               value={formData.primaryContactEmail}
               onChange={(e) => handleInputChange('primaryContactEmail', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -542,20 +542,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.billing}
             defaultOpen={false}
           >
-            <FormInput
+            <PiTextboxBold
               label="Contact Name"
               placeholder="Finance Manager"
               value={formData.billingContactName}
               onChange={(e) => handleInputChange('billingContactName', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Email Address"
               type="email"
               placeholder="finance@company.co.za"
               value={formData.billingContactEmail}
               onChange={(e) => handleInputChange('billingContactEmail', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -575,20 +575,20 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.technical}
             defaultOpen={false}
           >
-            <FormInput
+            <PiTextboxBold
               label="Contact Name"
               placeholder="IT Manager"
               value={formData.technicalContactName}
               onChange={(e) => handleInputChange('technicalContactName', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Email Address"
               type="email"
               placeholder="it@company.co.za"
               value={formData.technicalContactEmail}
               onChange={(e) => handleInputChange('technicalContactEmail', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -609,14 +609,14 @@ export default function NewCorporatePage() {
             defaultOpen={false}
           >
             <div className="md:col-span-2">
-              <FormInput
+              <PiTextboxBold
                 label="Street Address"
                 placeholder="123 Main Road, Building A"
                 value={formData.physicalAddress.street}
                 onChange={(e) => handleInputChange('physicalAddress.street', e.target.value)}
               />
             </div>
-            <FormInput
+            <PiTextboxBold
               label="City"
               placeholder="Midrand"
               value={formData.physicalAddress.city}
@@ -640,7 +640,7 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <FormInput
+            <PiTextboxBold
               label="Postal Code"
               placeholder="1685"
               value={formData.physicalAddress.postal_code}
@@ -659,7 +659,7 @@ export default function NewCorporatePage() {
             isComplete={sectionCompletion.contract}
             defaultOpen={false}
           >
-            <FormInput
+            <PiTextboxBold
               label="Expected Sites"
               type="number"
               placeholder="252"
@@ -668,13 +668,13 @@ export default function NewCorporatePage() {
               hint="Total number of sites to deploy"
             />
             <div /> {/* Spacer */}
-            <FormInput
+            <PiTextboxBold
               label="Contract Start Date"
               type="date"
               value={formData.contractStartDate}
               onChange={(e) => handleInputChange('contractStartDate', e.target.value)}
             />
-            <FormInput
+            <PiTextboxBold
               label="Contract End Date"
               type="date"
               value={formData.contractEndDate}
@@ -700,7 +700,7 @@ export default function NewCorporatePage() {
                 {requiredComplete ? (
                   <>
                     <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                      <PiSparklesBold className="w-5 h-5 text-emerald-600" />
+                      <PiSparkleBold className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-emerald-700">Ready to create</p>

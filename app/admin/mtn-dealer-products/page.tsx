@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalculatorBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiUploadSimpleBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCalculatorBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiUploadSimpleBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';

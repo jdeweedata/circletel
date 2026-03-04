@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArrowUpRightBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -282,7 +282,7 @@ export default function AmbassadorEarningsPage() {
                       )}
                     >
                       {conversion.commission_status === 'paid' ? (
-                        <ArrowUpRight className="w-4 h-4" />
+                        <PiArrowUpRightBold className="w-4 h-4" />
                       ) : (
                         <PiClockBold className="w-4 h-4" />
                       )}

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiShieldBold, PiStarBold, PiUploadSimpleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiShieldBold, PiStarBold, PiUploadSimpleBold, PiVideoCameraBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ interface Plan {
 // Features for remote work
 const FEATURES = [
   {
-    icon: Video,
+    icon: PiVideoCameraBold,
     title: 'HD Video Calls',
     description: 'Crystal-clear Zoom, Teams & Meet calls with symmetric upload speeds.',
   },
@@ -49,7 +49,7 @@ const FEATURES = [
 const WHY_CIRCLETEL = [
   { icon: PiShieldBold, label: 'Dedicated support' },
   { icon: PiClockBold, label: 'Same-day install' },
-  { icon: PiWifiBold, label: 'Fibre & 5G options' },
+  { icon: PiWifiHighBold, label: 'Fibre & 5G options' },
   { icon: PiCellSignalFullBold, label: '99.9% uptime' },
 ];
 
@@ -123,7 +123,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
-              <Video className="w-4 h-4 text-circleTel-orange" />
+              <PiVideoCameraBold className="w-4 h-4 text-circleTel-orange" />
               <span className="text-sm font-medium text-circleTel-orange">Built for Remote Work</span>
             </div>
 
@@ -260,7 +260,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
 
                 {/* Speed */}
                 <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
-                  <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
+                  <PiWifiHighBold className="w-4 h-4 text-circleTel-orange" />
                   <span className="font-body text-sm font-medium text-circleTel-navy">
                     {plan.speed} {plan.type === '5g' ? '5G' : 'Fibre'}
                   </span>

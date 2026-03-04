@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiCheckCircleBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiCheckCircleBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Step 2: Location & Coverage
@@ -373,7 +373,7 @@ export function LocationCoverageStep({
                     </>
                   ) : (
                     <>
-                      <PiWifiBold className="h-4 w-4 mr-1" />
+                      <PiWifiHighBold className="h-4 w-4 mr-1" />
                       Check Coverage
                     </>
                   )}
@@ -421,7 +421,7 @@ export function LocationCoverageStep({
               </>
             ) : (
               <>
-                <PiWifiBold className="h-4 w-4 mr-2" />
+                <PiWifiHighBold className="h-4 w-4 mr-2" />
                 Check All Sites
               </>
             )}

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparklesBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBroadcastBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiCursorBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparkleBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -106,7 +106,7 @@ export type { CoverageDetail, DetailedCoverage, MatchingProduct, SiteResult };
 // ============================================================================
 
 const speedOptions = [
-  { value: 100, label: '100 Mbps', icon: PiWifiBold },
+  { value: 100, label: '100 Mbps', icon: PiWifiHighBold },
   { value: 200, label: '200 Mbps', icon: PiCellSignalFullBold },
   { value: 500, label: '500 Mbps', icon: PiRouterBold },
   { value: 1000, label: '1 Gbps', icon: PiLightningBold },
@@ -190,9 +190,9 @@ const getTechIcon = (tech: string) => {
     case 'fibre': return <PiGlobeBold className="h-4 w-4 text-blue-500" />;
     case 'lte': return <PiCellSignalFullBold className="h-4 w-4 text-green-500" />;
     case '5g': return <PiLightningBold className="h-4 w-4 text-purple-500" />;
-    case 'tarana': return <Antenna className="h-4 w-4 text-orange-500" />;
-    case 'starlink': return <PiSparklesBold className="h-4 w-4 text-cyan-500" />;
-    default: return <PiWifiBold className="h-4 w-4 text-gray-500" />;
+    case 'tarana': return <PiBroadcastBold className="h-4 w-4 text-orange-500" />;
+    case 'starlink': return <PiSparkleBold className="h-4 w-4 text-cyan-500" />;
+    default: return <PiWifiHighBold className="h-4 w-4 text-gray-500" />;
   }
 };
 
@@ -922,7 +922,7 @@ export default function FeasibilityPage() {
                       <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
                         <div className="px-4 py-3 bg-white/5 border-b border-white/5">
                           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <PiWifiBold className="h-3 w-3 text-circleTel-orange" />
+                            <PiWifiHighBold className="h-3 w-3 text-circleTel-orange" />
                             Service Requirements
                           </h3>
                         </div>
@@ -1052,7 +1052,7 @@ export default function FeasibilityPage() {
                           <div className="flex items-center justify-between mt-3 pt-3 border-t border-dashed border-white/5">
                             <div className="flex items-center gap-4">
                               <p className="text-[10px] text-slate-600 font-bold flex items-center gap-1.5 uppercase tracking-wider">
-                                <MousePointer className="h-3 w-3" />
+                                <PiCursorBold className="h-3 w-3" />
                                 Map Selection Enabled
                               </p>
                             </div>
@@ -1069,7 +1069,7 @@ export default function FeasibilityPage() {
                         disabled={siteCount === 0 || !formData.companyName}
                         className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 disabled:shadow-none transition-all duration-500 active:scale-[0.98] border-none"
                       >
-                        <PiSparklesBold className="h-4 w-4 mr-3 animate-pulse" />
+                        <PiSparkleBold className="h-4 w-4 mr-3 animate-pulse" />
                         Initialize Scan
                         {siteCount > 0 && (
                           <span className="ml-4 px-2.5 py-1 bg-black/20 rounded font-bold text-[10px]">
@@ -1464,7 +1464,7 @@ export default function FeasibilityPage() {
               </div>
               {step === 'form' && (
                 <div className="bg-circleTel-orange/90 backdrop-blur-sm text-white rounded-lg px-3 py-1.5 text-xs font-medium shadow-lg flex items-center gap-1.5">
-                  <MousePointer className="h-3 w-3" />
+                  <PiCursorBold className="h-3 w-3" />
                   Click to add location
                 </div>
               )}

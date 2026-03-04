@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckBold, PiInfoBold, PiLightningBold, PiTrendDownBold, PiTrendUpBold, PiUserBold, PiWarningBold, PiWifiBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckBold, PiInfoBold, PiLightningBold, PiTrendDownBold, PiTrendUpBold, PiUserBold, PiWarningBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -109,7 +109,7 @@ export function PackageCard({
         {/* Service Type Badge */}
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-xs">
-            <PiWifiBold className="h-3 w-3 mr-1" />
+            <PiWifiHighBold className="h-3 w-3 mr-1" />
             {service_type}
           </Badge>
           {hasPromotion && (

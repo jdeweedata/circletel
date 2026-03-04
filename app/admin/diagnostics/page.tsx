@@ -1,5 +1,5 @@
 'use client'
-import { PiActivityBold, PiArrowRightBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiMagnifyingGlassBold, PiQuestionBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiWifiBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiMagnifyingGlassBold, PiPulseBold, PiQuestionBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiWifiHighBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
@@ -265,7 +265,7 @@ export default function DiagnosticsPage() {
           <DiagnosticsStatCard
             title="Total Subscribers"
             value={data.stats.total}
-            icon={<PiActivityBold className="h-5 w-5" />}
+            icon={<PiPulseBold className="h-5 w-5" />}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
             subtitle="All monitored connections"
@@ -410,7 +410,7 @@ export default function DiagnosticsPage() {
           ) : !data?.data?.length ? (
             <div className="text-center py-16">
               <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <PiActivityBold className="w-8 h-8 text-gray-400" />
+                <PiPulseBold className="w-8 h-8 text-gray-400" />
               </div>
               <p className="text-lg font-medium text-gray-700 mb-1">No diagnostics data found</p>
               <p className="text-sm text-gray-500">

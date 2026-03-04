@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileTextBold, PiImageBold, PiMagicWandBold, PiMagnifyingGlassBold, PiSparklesBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileTextBold, PiImageBold, PiLightbulbBold, PiMagicWandBold, PiMagnifyingGlassBold, PiSparkleBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - AI Generator Panel
@@ -317,7 +317,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <PiSparklesBold className="w-5 h-5 text-orange-500" />
+        <PiSparkleBold className="w-5 h-5 text-orange-500" />
         <h3 className="font-medium text-gray-900">AI Content Generator</h3>
       </div>
 
@@ -382,7 +382,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
         <ModeButton
           active={mode === 'enhance'}
           onClick={() => setMode('enhance')}
-          icon={<PiSparklesBold className="w-4 h-4" />}
+          icon={<PiSparkleBold className="w-4 h-4" />}
           label="Enhance"
           disabled={!selectedBlock}
         />
@@ -395,13 +395,13 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
         <ModeButton
           active={mode === 'image'}
           onClick={() => setMode('image')}
-          icon={<ImageIcon className="w-4 h-4" />}
+          icon={<PiImageBold className="w-4 h-4" />}
           label="Image"
         />
         <ModeButton
           active={mode === 'suggestions'}
           onClick={() => setMode('suggestions')}
-          icon={<Lightbulb className="w-4 h-4" />}
+          icon={<PiLightbulbBold className="w-4 h-4" />}
           label="Ideas"
           disabled={!selectedBlock}
         />
@@ -545,7 +545,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
           </>
         ) : (
           <>
-            <PiSparklesBold className="w-4 h-4" />
+            <PiSparkleBold className="w-4 h-4" />
             {mode === 'suggestions' ? 'Get Ideas' : 'Generate'}
           </>
         )}

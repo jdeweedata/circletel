@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiClockBold, PiHeadphonesBold, PiLightningBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiStarBold, PiTrendUpBold, PiUsersBold, PiXBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiClockBold, PiHeadphonesBold, PiLightningBold, PiPhoneBold, PiShieldBold, PiSparkleBold, PiStarBold, PiTrendUpBold, PiUsersBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -197,7 +197,7 @@ export default function BundlesPage() {
             {/* Trust badge */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm text-white/90">
-                <PiSparklesBold className="h-4 w-4 text-circleTel-orange" />
+                <PiSparkleBold className="h-4 w-4 text-circleTel-orange" />
                 <span>Trusted by 200+ South African businesses</span>
                 <div className="flex -space-x-1 ml-2">
                   {[...Array(5)].map((_, i) => (
@@ -431,7 +431,7 @@ export default function BundlesPage() {
               <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                 <Link href="/contact?type=custom">
                   Build Custom Bundle
-                  <PiSparklesBold className="ml-2 h-4 w-4" />
+                  <PiSparkleBold className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>

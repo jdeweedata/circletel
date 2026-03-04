@@ -1,5 +1,5 @@
 'use client';
-import { PiCellSignalFullBold, PiFunnelBold, PiLightningBold, PiSpinnerBold, PiWifiBold } from 'react-icons/pi';
+import { PiCellSignalFullBold, PiFunnelBold, PiLightningBold, PiSpinnerBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -104,7 +104,7 @@ export default function FiveGDealsPage() {
                 <span className="text-sm">Up to 100Mbps</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                <PiWifiBold className="h-5 w-5 text-circleTel-orange" />
+                <PiWifiHighBold className="h-5 w-5 text-circleTel-orange" />
                 <span className="text-sm">Free Router</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiChatBold, PiCheckCircleBold, PiCreditCardBold, PiMagnifyingGlassBold, PiPlusBold, PiShoppingCartBold, PiUserBold, PiWifiBold, PiXBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiChatBold, PiCheckCircleBold, PiCreditCardBold, PiMagnifyingGlassBold, PiPlusBold, PiShoppingCartBold, PiUserBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -352,7 +352,7 @@ export default function CustomerDetailPage() {
             value="services"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <PiWifiBold className="w-4 h-4 mr-2" />
+            <PiWifiHighBold className="w-4 h-4 mr-2" />
             Services ({services.length})
           </TabsTrigger>
           <TabsTrigger

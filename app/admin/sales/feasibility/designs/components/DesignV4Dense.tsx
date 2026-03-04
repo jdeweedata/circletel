@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiLightningBold, PiPaperPlaneRightBold, PiShieldBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiKeyboardBold, PiLightningBold, PiPaperPlaneRightBold, PiShieldBold, PiTerminalBold } from 'react-icons/pi';
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -38,7 +38,7 @@ export function DesignV4Dense() {
         <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-1.5 bg-amber-500/20 rounded">
-              <Terminal className="w-4 h-4 text-amber-500" />
+              <PiTerminalBold className="w-4 h-4 text-amber-500" />
             </div>
             <span className="font-mono text-sm text-slate-400 uppercase tracking-widest">
               B2B_FEASIBILITY
@@ -48,7 +48,7 @@ export function DesignV4Dense() {
           </div>
           <div className="flex items-center gap-4 text-xs font-mono text-slate-500">
             <span className="flex items-center gap-1.5">
-              <Keyboard className="w-3.5 h-3.5" />
+              <PiKeyboardBold className="w-3.5 h-3.5" />
               <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400">Tab</kbd>
               navigate
             </span>

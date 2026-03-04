@@ -1,4 +1,4 @@
-import { PiCheckCircleBold, PiGlobeBold, PiLightningBold, PiServerBold, PiShieldBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiDesktopTowerBold, PiGlobeBold, PiLightningBold, PiShieldBold } from 'react-icons/pi';
 import React from 'react'
 
 interface PerformanceFeature {
@@ -66,7 +66,7 @@ export default function PerformanceSection({ data = defaultData }: PerformanceSe
         {/* Performance Metrics */}
         <div className="grid md:grid-cols-4 gap-6 mb-16">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center hover:bg-white/20 transition-all">
-            <PiServerBold className="w-12 h-12 mx-auto mb-3 text-orange-400" />
+            <PiDesktopTowerBold className="w-12 h-12 mx-auto mb-3 text-orange-400" />
             <div className="text-3xl font-bold mb-2">99.9%</div>
             <p className="text-gray-300">Uptime SLA</p>
           </div>

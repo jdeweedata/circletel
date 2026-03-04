@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiShoppingCartBold, PiTrashBold, PiWarningCircleBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarCheckBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiShoppingCartBold, PiTrashBold, PiWarningCircleBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -283,7 +283,7 @@ export default function AdminOrdersPageEnhanced() {
       pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: PiClockBold },
       payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: PiCreditCardBold },
       payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: PiCheckCircleBold },
-      installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: CalendarCheck },
+      installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: PiCalendarCheckBold },
       installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: PiWrenchBold },
       installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: PiCheckCircleBold },
       active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: PiLightningBold },
@@ -509,7 +509,7 @@ export default function AdminOrdersPageEnhanced() {
               onClick={() => handleQuickFilter('ready_to_schedule')}
               className="flex items-center gap-2"
             >
-              <CalendarCheck className="h-4 w-4" />
+              <PiCalendarCheckBold className="h-4 w-4" />
               Ready to Schedule
               {quickFilterCounts.readyToSchedule > 0 && (
                 <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200">
@@ -805,7 +805,7 @@ export default function AdminOrdersPageEnhanced() {
                                 )}
                                 {order.status === 'payment_method_registered' && (
                                   <DropdownMenuItem onClick={() => handleQuickAction(order, 'schedule')}>
-                                    <CalendarCheck className="h-4 w-4 mr-2" />
+                                    <PiCalendarCheckBold className="h-4 w-4 mr-2" />
                                     Schedule Installation
                                   </DropdownMenuItem>
                                 )}

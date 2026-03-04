@@ -1,4 +1,4 @@
-import { PiBuildingsBold, PiCheckSquareBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiMapPinBold, PiQuestionBold, PiSquaresFourBold, PiTrendUpBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCheckSquareBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiMapPinBold, PiQuestionBold, PiSignatureBold, PiSquaresFourBold, PiTrendUpBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * Business Dashboard Navigation Configuration
  *
@@ -59,13 +59,13 @@ export const BUSINESS_NAV_ITEMS: NavItem[] = [
   {
     label: 'Contracts',
     href: '/business/dashboard/contracts',
-    icon: FileSignature,
+    icon: PiSignatureBold,
     description: 'Review and sign contracts',
   },
   {
     label: 'Services',
     href: '/business/dashboard/services',
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     description: 'Active services',
   },
   {
@@ -116,7 +116,7 @@ export const BUSINESS_MOBILE_NAV: NavItem[] = [
   {
     label: 'Services',
     href: '/business/dashboard/services',
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
   },
   {
     label: 'Support',
@@ -147,7 +147,7 @@ export const JOURNEY_STAGE_NAV: Record<string, NavItem> = {
   contract: {
     label: 'Sign Contract',
     href: '/business/dashboard/contracts',
-    icon: FileSignature,
+    icon: PiSignatureBold,
   },
   installation: {
     label: 'Installation Status',
@@ -157,6 +157,6 @@ export const JOURNEY_STAGE_NAV: Record<string, NavItem> = {
   go_live: {
     label: 'Service Activation',
     href: '/business/dashboard/services',
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
   },
 };

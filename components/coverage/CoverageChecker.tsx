@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingBold, PiCheckCircleBold, PiHouseBold, PiMapPinBold, PiSpinnerBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingBold, PiCheckCircleBold, PiHouseBold, PiMapPinBold, PiSpinnerBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

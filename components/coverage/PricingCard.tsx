@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiLightningBold, PiStarBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiLightningBold, PiStarBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ const getSignalIcon = (quality: string) => {
     case 'excellent':
       return <PiCheckCircleBold className="h-4 w-4 text-green-500" />;
     case 'good':
-      return <PiWifiBold className="h-4 w-4 text-blue-500" />;
+      return <PiWifiHighBold className="h-4 w-4 text-blue-500" />;
     default:
       return <PiLightningBold className="h-4 w-4 text-orange-500" />;
   }

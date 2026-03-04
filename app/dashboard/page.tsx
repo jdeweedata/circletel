@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsDownUpBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowsDownUpBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -363,7 +363,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           } : undefined}
           subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
           description="Connected and billing"
-          icon={<PiWifiBold className="h-5 w-5" />}
+          icon={<PiWifiHighBold className="h-5 w-5" />}
           href="/dashboard/services"
         />
 

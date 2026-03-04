@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiPhoneBold, PiTrendUpBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiPhoneBold, PiTrendUpBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 /**
  * Business Dashboard Home Page
@@ -141,7 +141,7 @@ function StatsCards({ stats, loading }: { stats: DashboardData['stats'] | null; 
     {
       title: 'Active Services',
       value: stats?.activeServices ?? 0,
-      icon: PiWifiBold,
+      icon: PiWifiHighBold,
       href: '/business/dashboard/services',
       color: 'text-green-600',
       bgColor: 'bg-green-50',

@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretDownBold, PiCaretRightBold } from 'react-icons/pi';
+import { PiCaretDownBold, PiCaretRightBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ export interface CategorySectionProps {
  *   title="Connectivity"
  *   description="Fibre and wireless internet packages"
  *   count={12}
- *   icon={<Wifi className="h-5 w-5" />}
+ *   icon={<PiWifiHighBold className="h-5 w-5" />}
  *   color="blue"
  *   defaultExpanded={true}
  * >

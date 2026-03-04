@@ -1,4 +1,4 @@
-import { PiBellBold, PiCaretDownBold, PiCaretLeftBold, PiCheckSquareBold, PiCreditCardBold, PiCubeBold, PiCurrencyDollarBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiLightningBold, PiListBold, PiShieldBold, PiShoppingCartBold, PiSquaresFourBold, PiStackBold, PiUserBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiBellBold, PiCaretDownBold, PiCaretLeftBold, PiCheckSquareBold, PiCreditCardBold, PiCubeBold, PiCurrencyDollarBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiLightningBold, PiListBold, PiShieldBold, PiShoppingCartBold, PiSquaresFourBold, PiStackBold, PiUserBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 import React from 'react';
 
 export const Sidebar: React.FC = () => {
@@ -15,7 +15,7 @@ export const Sidebar: React.FC = () => {
     { icon: PiLightningBold, label: 'Zoho Integration' },
     { icon: PiStackBold, label: 'Integrations', hasSub: true },
     { icon: PiGlobeBold, label: 'CMS Management' },
-    { icon: PiWifiBold, label: 'Coverage', hasSub: true },
+    { icon: PiWifiHighBold, label: 'Coverage', hasSub: true },
     { icon: PiFileTextBold, label: 'Billing & Revenue', hasSub: true },
     { icon: PiCurrencyDollarBold, label: 'Payments', hasSub: true },
   ];

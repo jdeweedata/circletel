@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowsClockwiseBold, PiClockBold, PiPlugBold, PiServerBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiClockBold, PiPlugBold, PiDesktopTowerBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import {
@@ -94,7 +94,7 @@ export function ActiveSessionsTable({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <PiWifiBold className="h-5 w-5 text-green-500" />
+            <PiWifiHighBold className="h-5 w-5 text-green-500" />
             <span className="font-medium">{sessions.length} Active Sessions</span>
           </div>
           {onRefresh && (
@@ -123,7 +123,7 @@ export function ActiveSessionsTable({
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2 text-gray-500">
-                      <PiWifiBold className="h-8 w-8 text-gray-300" />
+                      <PiWifiHighBold className="h-8 w-8 text-gray-300" />
                       <p>No active sessions</p>
                     </div>
                   </TableCell>
@@ -165,7 +165,7 @@ export function ActiveSessionsTable({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
-                        <PiServerBold className="h-3 w-3 text-gray-400" />
+                        <PiDesktopTowerBold className="h-3 w-3 text-gray-400" />
                         <span>{session.nasIpAddress}</span>
                       </div>
                     </TableCell>

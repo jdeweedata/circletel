@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckBold, PiCopyBold, PiDotsThreeBold, PiDownloadSimpleBold, PiGridFourBold, PiImageBold, PiListBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckBold, PiCopyBold, PiDotsThreeBold, PiDownloadSimpleBold, PiFolderBold, PiGridFourBold, PiImageBold, PiListBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Media Library
@@ -274,7 +274,7 @@ export function MediaLibrary({
                   : 'hover:bg-gray-100 text-gray-700'
               )}
             >
-              <Folder className="w-4 h-4" />
+              <PiFolderBold className="w-4 h-4" />
               <span>All Files</span>
               <span className="ml-auto text-xs text-gray-500">
                 {media.length}
@@ -291,7 +291,7 @@ export function MediaLibrary({
                     : 'hover:bg-gray-100 text-gray-700'
                 )}
               >
-                <Folder className="w-4 h-4" />
+                <PiFolderBold className="w-4 h-4" />
                 <span className="truncate">{folder.name}</span>
                 <span className="ml-auto text-xs text-gray-500">
                   {folder.count}
@@ -315,7 +315,7 @@ export function MediaLibrary({
             </div>
           ) : media.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <ImageIcon className="w-12 h-12 mb-4 text-gray-300" />
+              <PiImageBold className="w-12 h-12 mb-4 text-gray-300" />
               <p className="text-sm">No media files found</p>
               <p className="text-xs mt-1">Upload images or drag and drop</p>
             </div>

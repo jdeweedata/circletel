@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCellSignalFullBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMapTrifoldBold, PiTrendUpBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCellSignalFullBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMapTrifoldBold, PiPulseBold, PiTrendUpBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -260,7 +260,7 @@ export default function AdminCoveragePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <PiActivityBold className="h-4 w-4 text-muted-foreground" />
+              <PiPulseBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -334,7 +334,7 @@ export default function AdminCoveragePage() {
               Overview
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex items-center gap-2">
-              <PiActivityBold className="h-4 w-4" />
+              <PiPulseBold className="h-4 w-4" />
               Recent Activity
             </TabsTrigger>
             <PermissionGate permissions={[PERMISSIONS.COVERAGE.RUN_TESTS]}>
@@ -415,7 +415,7 @@ export default function AdminCoveragePage() {
                     variant="outline"
                     onClick={() => window.open('/api/coverage/mtn/monitoring?action=health', '_blank')}
                   >
-                    <PiActivityBold className="h-4 w-4 mr-2" />
+                    <PiPulseBold className="h-4 w-4 mr-2" />
                     View API Health
                   </Button>
                 </CardContent>
@@ -427,7 +427,7 @@ export default function AdminCoveragePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <PiActivityBold className="h-5 w-5" />
+                  <PiPulseBold className="h-5 w-5" />
                   Recent Coverage Requests
                 </CardTitle>
                 <CardDescription>

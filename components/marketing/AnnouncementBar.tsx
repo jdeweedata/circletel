@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowRightBold, PiSparklesBold, PiXBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiSparkleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -156,7 +156,7 @@ export function AnnouncementBar({
       }}
     >
       {/* Sparkle icon for visual interest */}
-      <PiSparklesBold className="w-4 h-4 flex-shrink-0 hidden sm:block" />
+      <PiSparkleBold className="w-4 h-4 flex-shrink-0 hidden sm:block" />
 
       {/* Main message */}
       <div className="flex items-center gap-2 text-center flex-wrap justify-center">

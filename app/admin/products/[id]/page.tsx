@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiFileTextBold, PiPackageBold, PiPencilSimpleBold, PiSpinnerBold, PiStarBold, PiTrendUpBold, PiUploadSimpleBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiFileTextBold, PiPackageBold, PiPencilSimpleBold, PiSpinnerBold, PiStarBold, PiTrendUpBold, PiUploadSimpleBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -533,7 +533,7 @@ export default function ProductDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <PiWifiBold className="h-5 w-5 text-blue-600" />
+                <PiWifiHighBold className="h-5 w-5 text-blue-600" />
                 Technical Specifications
               </CardTitle>
             </CardHeader>

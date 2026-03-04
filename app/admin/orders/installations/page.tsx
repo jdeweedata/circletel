@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPaperPlaneRightBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWrenchBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCalendarCheckBold, PiChatBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPaperPlaneRightBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWrenchBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -243,7 +243,7 @@ export default function AdminInstallationsPage() {
       installation_scheduled: {
         label: 'Scheduled',
         className: 'bg-purple-100 text-purple-800',
-        icon: CalendarCheck
+        icon: PiCalendarCheckBold
       },
       installation_in_progress: {
         label: 'In Progress',
@@ -505,7 +505,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">Scheduled</p>
                 <p className="text-2xl font-bold text-purple-600">{stats.scheduled}</p>
               </div>
-              <CalendarCheck className="h-8 w-8 text-purple-400" />
+              <PiCalendarCheckBold className="h-8 w-8 text-purple-400" />
             </div>
           </CardContent>
         </Card>
@@ -765,7 +765,7 @@ export default function AdminInstallationsPage() {
                               title="Schedule installation and assign technician"
                               className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                             >
-                              <CalendarCheck className="h-4 w-4 mr-1" />
+                              <PiCalendarCheckBold className="h-4 w-4 mr-1" />
                               Schedule
                             </Button>
                           )}

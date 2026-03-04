@@ -1,5 +1,5 @@
 'use client';
-import { PiTruckBold, PiWifiBold } from 'react-icons/pi';
+import { PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -125,7 +125,7 @@ export function ProductOrderCard({
           <div className="p-4 md:p-6 border-b">
             <div className="flex items-center gap-4">
               <div className="w-16 h-20 md:w-20 md:h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <PiWifiBold className="h-8 w-8 text-gray-400" />
+                <PiWifiHighBold className="h-8 w-8 text-gray-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-gray-900 truncate">

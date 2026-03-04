@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiKeyBold, PiShieldBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiKeyBold, PiPulseBold, PiShieldBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
@@ -171,7 +171,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
     healthy: { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', icon: PiCheckCircleBold },
     degraded: { color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', icon: PiWarningBold },
     down: { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', icon: PiXCircleBold },
-    unknown: { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', icon: PiActivityBold }
+    unknown: { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', icon: PiPulseBold }
   };
 
   if (isLoading) {
@@ -283,7 +283,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
             <Card>
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                  <PiActivityBold className="h-6 w-6" />
+                  <PiPulseBold className="h-6 w-6" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Response</p>

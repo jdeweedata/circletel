@@ -1,4 +1,4 @@
-import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiEnvelopeBold, PiHeadphonesBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiEnvelopeBold, PiHeadphonesBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiWifiHighBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -102,7 +102,7 @@ export default async function WorkConnectProductPage({
             {/* Content */}
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
-                <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
+                <PiWifiHighBold className="w-4 h-4 text-circleTel-orange" />
                 <span className="text-sm font-medium text-circleTel-orange">
                   WorkConnect SOHO
                 </span>

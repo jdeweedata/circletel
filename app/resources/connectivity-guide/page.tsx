@@ -1,4 +1,4 @@
-import { PiActivityBold, PiArrowRightBold, PiBuildingBold, PiDownloadSimpleBold, PiGlobeBold, PiGraphBold, PiMapTrifoldBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingBold, PiDownloadSimpleBold, PiGlobeBold, PiGraphBold, PiMapTrifoldBold, PiPulseBold, PiRadioBold, PiWifiHighBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -32,7 +32,7 @@ export default function ConnectivityGuide() {
                   <PiGlobeBold size={40} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute bottom-0 left-0 h-32 w-32 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  <PiWifiBold size={48} className="text-circleTel-orange" />
+                  <PiWifiHighBold size={48} className="text-circleTel-orange" />
                 </div>
               </div>
             </div>

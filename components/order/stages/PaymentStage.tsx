@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiCreditCardBold, PiDeviceMobileBold, PiInfoBold, PiLockBold, PiMapPinBold, PiPackageBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiCreditCardBold, PiDeviceMobileBold, PiInfoBold, PiLockBold, PiMapPinBold, PiPackageBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -371,7 +371,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <CardTitle className="flex items-center justify-between text-lg font-bold">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-green-100 rounded-xl">
-                          <PiSparklesBold className="h-5 w-5 text-green-600" />
+                          <PiSparkleBold className="h-5 w-5 text-green-600" />
                         </div>
                         <span>Pricing</span>
                       </div>

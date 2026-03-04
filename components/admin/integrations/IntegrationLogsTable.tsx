@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiUserBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiPulseBold, PiUserBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +56,7 @@ export function IntegrationLogsTable({
       case 'retry':
         return <PiArrowsClockwiseBold className="w-4 h-4 text-blue-600 animate-spin" />;
       default:
-        return <PiActivityBold className="w-4 h-4 text-gray-600" />;
+        return <PiPulseBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -85,7 +85,7 @@ export function IntegrationLogsTable({
       case 'sync':
         return <PiArrowCounterClockwiseBold className="w-4 h-4 text-orange-600" />;
       default:
-        return <PiActivityBold className="w-4 h-4 text-gray-600" />;
+        return <PiPulseBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -133,7 +133,7 @@ export function IntegrationLogsTable({
   if (logs.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <PiActivityBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <PiPulseBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
         <p className="font-medium mb-1">{emptyMessage}</p>
         <p className="text-sm">Logs will appear here when activity occurs</p>
       </div>

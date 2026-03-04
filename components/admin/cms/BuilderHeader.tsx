@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowSquareOutBold, PiCheckBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFloppyDiskBold, PiGlobeBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowClockwiseBold, PiArrowCounterClockwiseBold, PiArrowLeftBold, PiArrowSquareOutBold, PiCheckBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFloppyDiskBold, PiGlobeBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Header Component
@@ -176,7 +176,7 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
           )}
           title="Undo (Ctrl+Z)"
         >
-          <Undo2 className="w-4 h-4" />
+          <PiArrowCounterClockwiseBold className="w-4 h-4" />
         </button>
         <button
           onClick={redo}
@@ -189,7 +189,7 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
           )}
           title="Redo (Ctrl+Shift+Z)"
         >
-          <Redo2 className="w-4 h-4" />
+          <PiArrowClockwiseBold className="w-4 h-4" />
         </button>
       </div>
 

@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiEnvelopeBold, PiPaperPlaneRightBold, PiSpinnerBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCalendarPlusBold, PiEnvelopeBold, PiPaperPlaneRightBold, PiSpinnerBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useZohoCRM, useZohoMail, useZohoCalendar } from '@/hooks/use-zoho-mcp';
@@ -259,7 +259,7 @@ export function ZohoQuickActions() {
                   </>
                 ) : (
                   <>
-                    <CalendarPlus className="mr-2 h-4 w-4" />
+                    <PiCalendarPlusBold className="mr-2 h-4 w-4" />
                     Create Event
                   </>
                 )}

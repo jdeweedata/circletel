@@ -1,4 +1,4 @@
-import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiShieldBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiFileCheckBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiReceiptBold, PiShieldBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 export interface DashboardTab {
   id: string;
@@ -28,7 +28,7 @@ export const dashboardTabs: DashboardTab[] = [
   {
     id: 'services',
     label: 'Services',
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     href: '/dashboard/services',
     routes: [
       '/dashboard/services',
@@ -75,19 +75,19 @@ export const dashboardTabs: DashboardTab[] = [
 export const sidebarConfig: Record<string, SidebarItem[]> = {
   dashboard: [], // No sidebar items - full-width content for dashboard home
   services: [
-    { label: 'My Services', href: '/dashboard/services', icon: PiWifiBold },
+    { label: 'My Services', href: '/dashboard/services', icon: PiWifiHighBold },
     { label: 'Usage', href: '/dashboard/usage', icon: PiChartBarBold },
     { label: 'Upgrade Plan', href: '/dashboard/services/upgrade', icon: PiArrowUpBold },
     { label: 'Downgrade Plan', href: '/dashboard/services/downgrade', icon: PiArrowDownBold },
   ],
   billing: [
-    { label: 'Overview', href: '/dashboard/billing', icon: Receipt },
+    { label: 'Overview', href: '/dashboard/billing', icon: PiReceiptBold },
     { label: 'Orders', href: '/dashboard/orders', icon: PiPackageBold },
     { label: 'Payment Method', href: '/dashboard/payment-method', icon: PiCreditCardBold },
   ],
   account: [
     { label: 'Profile', href: '/dashboard/profile', icon: PiUserBold },
-    { label: 'KYC Documents', href: '/dashboard/kyc', icon: FileCheck },
+    { label: 'KYC Documents', href: '/dashboard/kyc', icon: PiFileCheckBold },
     { label: 'Compliance', href: '/dashboard/compliance', icon: PiShieldBold },
   ],
   help: [

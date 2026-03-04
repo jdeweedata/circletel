@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiChartBarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiPulseBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -340,7 +340,7 @@ export const OrchestratorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Active Workflows</CardTitle>
-            <PiActivityBold className="h-4 w-4 text-muted-foreground" />
+            <PiPulseBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeWorkflows.length}</div>
@@ -403,7 +403,7 @@ export const OrchestratorDashboard: React.FC = () => {
           {activeWorkflows.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
-                <PiActivityBold className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <PiPulseBold className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No active workflows</p>
               </CardContent>
             </Card>

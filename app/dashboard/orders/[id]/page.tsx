@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiHouseBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiTruckBold, PiWarningCircleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiHouseBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiTruckBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
       site_survey_completed: <PiCheckCircleBold className="h-6 w-6 text-gray-400" />,
       installation_scheduled: <PiCalendarBold className="h-6 w-6 text-gray-400" />,
       installation_completed: <PiWrenchBold className="h-6 w-6 text-gray-400" />,
-      service_activated: <PiWifiBold className="h-6 w-6 text-gray-400" />,
+      service_activated: <PiWifiHighBold className="h-6 w-6 text-gray-400" />,
     };
 
     return iconMap[eventType] || <PiClockBold className="h-6 w-6 text-gray-400" />;

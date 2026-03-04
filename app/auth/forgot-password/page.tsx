@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold} from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckCircleBold, PiPaperPlaneRightBold, PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiPaperPlaneRightBold, PiPencilSimpleBold, PiSparkleBold, PiSpinnerBold } from 'react-icons/pi';
 
 /**
  * Step 1: Needs Assessment
@@ -89,7 +89,7 @@ export function NeedsAssessmentStep({
       {/* AI Input Section */}
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-6 border border-orange-200">
         <div className="flex items-center gap-2 mb-4">
-          <PiSparklesBold className="h-5 w-5 text-circleTel-orange" />
+          <PiSparkleBold className="h-5 w-5 text-circleTel-orange" />
           <h2 className="text-lg font-semibold text-gray-900">
             Describe Your Requirements
           </h2>
@@ -119,7 +119,7 @@ export function NeedsAssessmentStep({
                 </>
               ) : (
                 <>
-                  <PiSparklesBold className="h-4 w-4 mr-2" />
+                  <PiSparkleBold className="h-4 w-4 mr-2" />
                   Parse with AI
                 </>
               )}
@@ -128,7 +128,7 @@ export function NeedsAssessmentStep({
               variant="outline"
               onClick={() => setShowManualForm(!showManualForm)}
             >
-              <Edit3 className="h-4 w-4 mr-2" />
+              <PiPencilSimpleBold className="h-4 w-4 mr-2" />
               {showManualForm ? 'Hide Form' : 'Manual Entry'}
             </Button>
           </div>

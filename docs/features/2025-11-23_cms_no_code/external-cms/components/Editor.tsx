@@ -1,4 +1,4 @@
-import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCircleBold, PiFloppyDiskBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCircleBold, PiFloppyDiskBold} from 'react-icons/pi';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPageById, savePage } from '../services/storageService';

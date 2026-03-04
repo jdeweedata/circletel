@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiClockCounterClockwiseBold, PiCreditCardBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiTrayBold, PiTrendUpBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiClockCounterClockwiseBold, PiCreditCardBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPhoneBold, PiPrinterBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiTrayBold, PiTrendUpBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -421,7 +421,7 @@ export default function AdminOrderDetailPage() {
         label: "Active",
         subLabel: "Service live",
         status: getStepStatus(order.status, 'Active'),
-        icon: PiWifiBold,
+        icon: PiWifiHighBold,
         date: order.activation_date ? formatShortDate(order.activation_date) : undefined
       },
     ];
@@ -537,7 +537,7 @@ export default function AdminOrderDetailPage() {
                 orderId={order.id}
               />
               <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 gap-2">
-                <Printer size={16} />
+                <PiPrinterBold size={16} />
                 <span className="hidden lg:inline">Print</span>
               </Button>
               <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 gap-2">

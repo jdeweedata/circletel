@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingOfficeBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendDownBold, PiTrendUpBold, PiXCircleBold } from 'react-icons/pi';
+import { PiBuildingOfficeBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Competitor Analysis Dashboard
@@ -203,7 +203,7 @@ export default function CompetitorAnalysisDashboard() {
       {stats?.alerts && stats.alerts.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <h3 className="font-semibold text-amber-800 flex items-center gap-2 mb-3">
-            <ExclamationTriangleIcon className="w-5 h-5" />
+            <PiWarningBold className="w-5 h-5" />
             Alerts ({stats.alerts.length})
           </h3>
           <div className="space-y-2">

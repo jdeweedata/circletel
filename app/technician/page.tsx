@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiNavigationArrowBold, PiPhoneBold, PiPlayCircleBold, PiSignOutBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBriefcaseBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiNavigationArrowBold, PiPhoneBold, PiPlayCircleBold, PiSignOutBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -255,7 +255,7 @@ export default function TechnicianDashboard() {
         <div className="grid grid-cols-2 gap-3">
           <Card>
             <CardContent className="py-4 text-center">
-              <Briefcase className="h-6 w-6 text-circleTel-orange mx-auto mb-1" />
+              <PiBriefcaseBold className="h-6 w-6 text-circleTel-orange mx-auto mb-1" />
               <p className="text-2xl font-bold">{assigned_jobs.length}</p>
               <p className="text-xs text-gray-500">Pending Jobs</p>
             </CardContent>
@@ -364,7 +364,7 @@ export default function TechnicianDashboard() {
           {assigned_jobs.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-gray-500">
-                <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <PiBriefcaseBold className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No jobs assigned</p>
               </CardContent>
             </Card>

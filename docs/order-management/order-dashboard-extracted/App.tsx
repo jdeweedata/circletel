@@ -1,4 +1,4 @@
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBellBold, PiCalendarBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileBold, PiFileTextBold, PiMagnifyingGlassBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiTrayBold, PiUserBold, PiWalletBold, PiWarningBold, PiWifiBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBellBold, PiCalendarBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileBold, PiFileTextBold, PiMagnifyingGlassBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiPrinterBold, PiTrayBold, PiUserBold, PiWalletBold, PiWarningBold, PiWifiHighBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { WorkflowStepper } from './components/WorkflowStepper';
@@ -13,7 +13,7 @@ const initialWorkflow: WorkflowStep[] = [
   { id: 4, label: "Scheduled", subLabel: "Install booked", status: "completed", icon: PiCalendarBold, date: "Nov 9, 14:30" },
   { id: 5, label: "Installation", subLabel: "Tech on-site", status: "active", icon: PiWrenchBold, date: "Nov 21" },
   { id: 6, label: "Completion", subLabel: "Work finished", status: "pending", icon: PiCheckSquareBold },
-  { id: 7, label: "Active", subLabel: "Service live", status: "pending", icon: PiWifiBold },
+  { id: 7, label: "Active", subLabel: "Service live", status: "pending", icon: PiWifiHighBold },
 ];
 
 const initialOrder: OrderData = {
@@ -174,7 +174,7 @@ function App() {
                 <PiPencilSimpleBold size={16} /> <span className="hidden sm:inline">Edit</span>
               </button>
               <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm">
-                <Printer size={16} /> <span className="hidden sm:inline">Print</span>
+                <PiPrinterBold size={16} /> <span className="hidden sm:inline">Print</span>
               </button>
               <button className="flex items-center gap-2 px-3 py-2 bg-primary border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-600 transition-all shadow-sm">
                 <PiDownloadSimpleBold size={16} /> <span className="hidden sm:inline">Export</span>
@@ -312,7 +312,7 @@ function App() {
                     </div>
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Speed</p>
-                       <p className="text-sm text-gray-900 flex items-center gap-1"><PiWifiBold size={14} className="text-gray-400" /> {order.package.speed}</p>
+                       <p className="text-sm text-gray-900 flex items-center gap-1"><PiWifiHighBold size={14} className="text-gray-400" /> {order.package.speed}</p>
                     </div>
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Monthly Price</p>

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalculatorBold, PiCalendarBold, PiCellSignalFullBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiFileTextBold, PiGiftBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalculatorBold, PiCalendarBold, PiCellSignalFullBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiFileTextBold, PiGiftBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -590,7 +590,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <PiWifiBold className="h-5 w-5 text-circleTel-orange" />
+                  <PiWifiHighBold className="h-5 w-5 text-circleTel-orange" />
                   Data Bundle
                 </CardTitle>
               </CardHeader>

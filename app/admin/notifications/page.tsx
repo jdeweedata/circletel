@@ -5,7 +5,7 @@
  */
 
 'use client';
-import { PiActivityBold, PiBellBold, PiCurrencyDollarBold, PiFunnelBold, PiInfoBold, PiMagnifyingGlassBold, PiUserBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiBellBold, PiCurrencyDollarBold, PiFunnelBold, PiInfoBold, PiMagnifyingGlassBold, PiPulseBold, PiUserBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -77,7 +77,7 @@ function getNotificationIcon(type: string, priority: string) {
     case 'error_alert':
       return <PiWarningCircleBold className={`h-5 w-5 ${iconClass}`} />;
     case 'performance_warning':
-      return <PiActivityBold className={`h-5 w-5 ${iconClass}`} />;
+      return <PiPulseBold className={`h-5 w-5 ${iconClass}`} />;
     default:
       return <PiBellBold className={`h-5 w-5 ${iconClass}`} />;
   }

@@ -1,5 +1,5 @@
 'use client';
-import { PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
+import { PiCalendarCheckBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -69,7 +69,7 @@ export function OrderStatusDistributionWidget() {
         },
         installation_scheduled: {
           label: 'Scheduled',
-          icon: CalendarCheck,
+          icon: PiCalendarCheckBold,
           color: 'text-purple-600',
           bgColor: 'bg-purple-100'
         },

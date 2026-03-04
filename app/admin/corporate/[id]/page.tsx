@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiKeyBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiShieldBold, PiSparklesBold, PiTrendUpBold, PiUploadSimpleBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiKeyBold, PiMagnifyingGlassBold, PiMapPinBold, PiPencilBold, PiPhoneBold, PiPlusBold, PiShieldBold, PiSparkleBold, PiTargetBold, PiTrendUpBold, PiUploadSimpleBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -416,7 +416,7 @@ export default function CorporateDetailPage() {
               onClick={() => router.push(`/admin/corporate/${corporateId}/edit`)}
               className="bg-white hover:bg-slate-50 border-slate-200"
             >
-              <Pencil className="h-4 w-4 mr-2" />
+              <PiPencilBold className="h-4 w-4 mr-2" />
               Edit Details
             </Button>
             <Button
@@ -577,7 +577,7 @@ export default function CorporateDetailPage() {
                   </div>
 
                   <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
-                    <Target className="w-5 h-5 text-ui-text-muted" />
+                    <PiTargetBold className="w-5 h-5 text-ui-text-muted" />
                     <div>
                       <p className="muted-text-sm">Target Deployment</p>
                       <p className="font-medium text-ui-text-primary">
@@ -794,7 +794,7 @@ export default function CorporateDetailPage() {
                                 router.push(`/admin/corporate/${corporateId}/sites/${site.id}`);
                               }}
                             >
-                              <Pencil className="h-4 w-4 text-ui-text-muted" />
+                              <PiPencilBold className="h-4 w-4 text-ui-text-muted" />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -861,7 +861,7 @@ export default function CorporateDetailPage() {
                       </>
                     ) : (
                       <>
-                        <PiSparklesBold className="h-4 w-4 mr-2" />
+                        <PiSparkleBold className="h-4 w-4 mr-2" />
                         Generate Missing Credentials
                       </>
                     )}

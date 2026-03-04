@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCloudBold, PiServerBold, PiShieldBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCloudBold, PiDesktopTowerBold, PiShieldBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -126,7 +126,7 @@ const SmallBusinessServices = () => {
               <div className="md:w-1/2">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div className="p-4 bg-circleTel-lightNeutral rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
-                    <PiServerBold className="h-10 w-10 text-circleTel-orange" />
+                    <PiDesktopTowerBold className="h-10 w-10 text-circleTel-orange" />
                   </div>
                   <div className="p-4 bg-circleTel-lightNeutral rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
                     <PiCloudBold className="h-10 w-10 text-circleTel-orange" />

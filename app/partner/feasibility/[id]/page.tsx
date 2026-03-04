@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiClockBold, PiEnvelopeBold, PiGaugeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiClockBold, PiEnvelopeBold, PiGaugeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';

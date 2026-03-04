@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiHeartBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiSpinnerBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiHeartBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiSpinnerBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -735,7 +735,7 @@ function PackagesContent() {
 
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-                <PiWifiBold className="w-8 h-8 text-circleTel-orange" />
+                <PiWifiHighBold className="w-8 h-8 text-circleTel-orange" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Reliable Connection</h3>
               <p className="text-gray-600">

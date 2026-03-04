@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowRightBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiDotsThreeBold, PiEyeBold, PiEyeSlashBold, PiMagnifyingGlassBold, PiMegaphoneBold, PiPencilSimpleBold, PiPlusBold, PiSparklesBold, PiSpinnerBold, PiTrashBold, PiXBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiDotsThreeBold, PiEyeBold, PiEyeSlashBold, PiMagnifyingGlassBold, PiMegaphoneBold, PiPencilSimpleBold, PiPlusBold, PiSparkleBold, PiSpinnerBold, PiTrashBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Marketing Announcements Admin Page
@@ -65,7 +65,7 @@ function AnnouncementPreview({
       className="w-full py-2.5 px-4 flex items-center justify-center gap-3 text-sm font-medium rounded-lg"
       style={{ backgroundColor: bgColor, color: textColor }}
     >
-      <PiSparklesBold className="w-4 h-4 flex-shrink-0" />
+      <PiSparkleBold className="w-4 h-4 flex-shrink-0" />
       <div className="flex items-center gap-2 text-center flex-wrap justify-center">
         <span className="text-xs sm:text-sm">{message || 'Your announcement message here...'}</span>
         {linkText && (

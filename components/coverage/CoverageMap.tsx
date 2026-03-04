@@ -1,5 +1,5 @@
 'use client';
-import { PiMagnifyingGlassBold, PiMapPinBold, PiSpinnerBold, PiStackBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiMagnifyingGlassBold, PiMapPinBold, PiSpinnerBold, PiStackBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, OverlayView } from '@react-google-maps/api';
@@ -267,7 +267,7 @@ export default function CoverageMap({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           {coverage.available ? (
-            <PiWifiBold className="h-4 w-4 text-green-600" />
+            <PiWifiHighBold className="h-4 w-4 text-green-600" />
           ) : (
             <PiWifiSlashBold className="h-4 w-4 text-red-600" />
           )}

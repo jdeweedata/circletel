@@ -1,5 +1,5 @@
 'use client';
-import { PiFloppyDiskBold, PiMapPinBold, PiUserBold, PiWifiBold, PiXBold } from 'react-icons/pi';
+import { PiFloppyDiskBold, PiMapPinBold, PiUserBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import React from 'react';
 import {
@@ -320,7 +320,7 @@ export function SiteEditSheet({
           {site.pppoeUsername && (
             <div className="p-4 bg-green-50 rounded-lg space-y-2">
               <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
-                <PiWifiBold className="w-4 h-4" />
+                <PiWifiHighBold className="w-4 h-4" />
                 PPPoE Credentials
               </div>
               <p className="font-mono text-sm text-green-800">{site.pppoeUsername}</p>

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiGridFourBold, PiListBold, PiMapTrifoldBold, PiSparklesBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiGridFourBold, PiGridNineBold, PiListBold, PiMapTrifoldBold, PiSparkleBold, PiTerminalBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,7 +43,7 @@ const designs = [
     id: 'v4',
     label: 'Power User',
     shortLabel: 'Dense',
-    icon: Terminal,
+    icon: PiTerminalBold,
     description: 'Terminal-style, maximum efficiency',
     color: 'from-slate-600 to-zinc-800'
   },
@@ -51,7 +51,7 @@ const designs = [
     id: 'v5',
     label: 'Bento Grid',
     shortLabel: 'Bento',
-    icon: Grid3X3,
+    icon: PiGridNineBold,
     description: 'Expandable tiles, modern feel',
     color: 'from-sky-500 to-indigo-600'
   }
@@ -133,7 +133,7 @@ export default function FeasibilityDesignsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <PiSparklesBold className="w-4 h-4" />
+            <PiSparkleBold className="w-4 h-4" />
             <span>Static preview • Not functional</span>
           </div>
         </motion.div>

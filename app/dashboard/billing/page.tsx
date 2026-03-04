@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWalletBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiPlusBold, PiReceiptBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWalletBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
@@ -307,7 +307,7 @@ export default function BillingPage() {
               data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
               data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
           >
-            <Receipt className="h-5 w-5" />
+            <PiReceiptBold className="h-5 w-5" />
             <span className="hidden sm:inline">Payment History</span>
           </TabsTrigger>
           <TabsTrigger
@@ -509,7 +509,7 @@ export default function BillingPage() {
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <Receipt className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <PiReceiptBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                     <p>No payment history</p>
                     <p className="text-sm mt-1">Your payment transactions will appear here</p>
                   </div>

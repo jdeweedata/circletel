@@ -1,5 +1,5 @@
 'use client';
-import { PiMinusBold, PiTrendDownBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiMinusBold, PiTrendDownBold, PiTrendUpBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ import type { SharedStatCardProps } from './types';
  *   trend={{ value: 5, isPositive: true }}
  *   subtitle="Connected"
  *   description="All services operational"
- *   icon={<Wifi className="h-4 w-4" />}
+ *   icon={<PiWifiHighBold className="h-4 w-4" />}
  *   href="/dashboard/services"
  * />
  * ```

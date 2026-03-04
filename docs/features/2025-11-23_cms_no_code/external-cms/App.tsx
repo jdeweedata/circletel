@@ -1,3 +1,4 @@
+import { PiLayoutBold } from 'react-icons/pi';
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -9,7 +10,7 @@ import PageRenderer from './components/PageRenderer';
 const App: React.FC = () => {
   return (
     <Router>
-      <Layout>
+      <PiLayoutBold>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/create" element={<Wizard />} />

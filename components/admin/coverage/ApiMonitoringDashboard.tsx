@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiLightningBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiLightningBold, PiPulseBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -170,7 +170,7 @@ export function ApiMonitoringDashboard() {
       case 'healthy': return <PiCheckCircleBold className="h-5 w-5" />;
       case 'degraded': return <PiWarningCircleBold className="h-5 w-5" />;
       case 'unhealthy': return <PiWarningCircleBold className="h-5 w-5" />;
-      default: return <PiActivityBold className="h-5 w-5" />;
+      default: return <PiPulseBold className="h-5 w-5" />;
     }
   };
 

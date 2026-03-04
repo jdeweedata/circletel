@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockCounterClockwiseBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockCounterClockwiseBold, PiCloudArrowUpBold, PiCloudSlashBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -93,7 +93,7 @@ export function AdminProductCard({
   // Get sync status indicator
   const getSyncStatus = () => {
     if (!integrationStatus || !integrationStatus.syncStatus) {
-      return { icon: CloudOff, text: 'Not Synced', color: 'text-gray-400' };
+      return { icon: PiCloudSlashBold, text: 'Not Synced', color: 'text-gray-400' };
     }
     switch (integrationStatus.syncStatus) {
       case 'ok':
@@ -103,7 +103,7 @@ export function AdminProductCard({
       case 'pending':
         return { icon: PiArrowsClockwiseBold, text: 'Syncing', color: 'text-blue-500', spinning: true };
       default:
-        return { icon: CloudOff, text: 'Not Synced', color: 'text-gray-400' };
+        return { icon: PiCloudSlashBold, text: 'Not Synced', color: 'text-gray-400' };
     }
   };
 
@@ -200,7 +200,7 @@ export function AdminProductCard({
             )}
             {hasEditPermission && onPublish && product.source_admin_product_id && (
               <DropdownMenuItem onClick={() => onPublish(product)}>
-                <UploadCloud className="w-4 h-4 mr-2" />
+                <PiCloudArrowUpBold className="w-4 h-4 mr-2" />
                 Publish
               </DropdownMenuItem>
             )}

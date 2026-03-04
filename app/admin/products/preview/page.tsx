@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCubeBold, PiDotsThreeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiMagnifyingGlassBold, PiMonitorBold, PiPackageBold, PiPlusBold, PiSpinnerBold, PiStarBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArchiveBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCubeBold, PiDotsThreeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiMagnifyingGlassBold, PiMonitorBold, PiPackageBold, PiPencilBold, PiPlusBold, PiSpinnerBold, PiStarBold, PiTrashBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ type SortOrder = 'asc' | 'desc';
 
 // Category icons and colors
 const categoryConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
-  connectivity: { icon: PiWifiBold, color: 'text-blue-600', bg: 'bg-blue-100' },
+  connectivity: { icon: PiWifiHighBold, color: 'text-blue-600', bg: 'bg-blue-100' },
   hardware: { icon: PiMonitorBold, color: 'text-purple-600', bg: 'bg-purple-100' },
   software: { icon: PiGearBold, color: 'text-green-600', bg: 'bg-green-100' },
   services: { icon: PiFileTextBold, color: 'text-orange-600', bg: 'bg-orange-100' },
@@ -335,7 +335,7 @@ export default function AdminProductsV2() {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/products/${product.id}/edit`}>
-                            <Pencil className="h-4 w-4 mr-2" />
+                            <PiPencilBold className="h-4 w-4 mr-2" />
                             Edit
                           </Link>
                         </DropdownMenuItem>

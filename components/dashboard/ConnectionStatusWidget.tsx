@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiClockBold, PiGlobeBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiPulseBold, PiArrowsClockwiseBold, PiClockBold, PiGlobeBold, PiWarningCircleBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -113,7 +113,7 @@ export function ConnectionStatusWidget() {
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-full ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
               {isConnected ? (
-                <PiWifiBold className="w-5 h-5 text-green-600" />
+                <PiWifiHighBold className="w-5 h-5 text-green-600" />
               ) : (
                 <PiWifiSlashBold className="w-5 h-5 text-red-600" />
               )}
@@ -155,7 +155,7 @@ export function ConnectionStatusWidget() {
                   )}
                   {status.totalSessionsToday > 0 && (
                     <span className="flex items-center gap-1">
-                      <PiActivityBold className="w-3.5 h-3.5" />
+                      <PiPulseBold className="w-3.5 h-3.5" />
                       {status.totalSessionsToday} session{status.totalSessionsToday !== 1 ? 's' : ''} today
                     </span>
                   )}

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowDownBold, PiArrowUpBold, PiCellSignalFullBold, PiCheckCircleBold, PiPlugBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiCellSignalFullBold, PiCheckCircleBold, PiPlugBold, PiRadioBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge';
 import { ServicePackage } from '@/lib/partners/feasibility-types';

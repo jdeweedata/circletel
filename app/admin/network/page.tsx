@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCaretRightBold, PiClockBold, PiLightningBold, PiPlusBold, PiServerBold, PiUsersBold, PiWarningBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiArrowCircleDownBold, PiArrowsClockwiseBold, PiCaretRightBold, PiClockBold, PiDesktopTowerBold, PiLightningBold, PiPlusBold, PiPulseBold, PiUsersBold, PiWarningBold, PiWarningCircleBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -167,7 +167,7 @@ export default function NetworkDashboardPage() {
             {allProvidersUp && !hasOpenOutages ? (
               <>
                 <div className="p-2 bg-green-100 rounded-full">
-                  <PiWifiBold className="w-5 h-5 text-green-600" />
+                  <PiWifiHighBold className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-green-800">All Systems Operational</p>
@@ -217,7 +217,7 @@ export default function NetworkDashboardPage() {
                 <p className="text-2xl font-bold text-gray-900">{data.stats.eventsToday}</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
-                <PiActivityBold className="w-6 h-6 text-purple-600" />
+                <PiPulseBold className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -231,7 +231,7 @@ export default function NetworkDashboardPage() {
                 <p className="text-2xl font-bold text-gray-900">{data.stats.disconnectsToday}</p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
-                <ArrowDownCircle className="w-6 h-6 text-red-600" />
+                <PiArrowCircleDownBold className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </CardContent>
@@ -259,7 +259,7 @@ export default function NetworkDashboardPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <PiServerBold className="w-5 h-5" />
+              <PiDesktopTowerBold className="w-5 h-5" />
               Provider Status
             </CardTitle>
           </CardHeader>
@@ -361,14 +361,14 @@ export default function NetworkDashboardPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <PiActivityBold className="w-5 h-5" />
+            <PiPulseBold className="w-5 h-5" />
             Recent Connection Events
           </CardTitle>
         </CardHeader>
         <CardContent>
           {data.recentEvents.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <PiActivityBold className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <PiPulseBold className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No recent events</p>
             </div>
           ) : (

@@ -1,5 +1,5 @@
 'use client';
-import { PiHouseBold, PiWifiBold, PiXBold } from 'react-icons/pi';
+import { PiHouseBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import React from 'react';
 import Image from 'next/image';
@@ -107,7 +107,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
                 </div>
               ) : product.metadata?.router_included ? (
                 <div className="hidden md:flex absolute -right-16 top-8 w-24 h-36 bg-gray-100 rounded-lg items-center justify-center">
-                  <PiWifiBold className="h-10 w-10 text-gray-300" />
+                  <PiWifiHighBold className="h-10 w-10 text-gray-300" />
                 </div>
               ) : null}
             </div>

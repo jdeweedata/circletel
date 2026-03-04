@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiCopyBold, PiCurrencyDollarBold, PiLinkBold, PiPlusBold, PiShoppingCartBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowUpRightBold, PiCopyBold, PiCurrencyDollarBold, PiCursorClickBold, PiPlusBold, PiShoppingCartBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -123,7 +123,7 @@ export default function AmbassadorDashboard() {
     {
       label: 'Total Clicks',
       value: ambassador.total_clicks.toLocaleString(),
-      icon: MousePointerClick,
+      icon: PiCursorClickBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
@@ -217,7 +217,7 @@ export default function AmbassadorDashboard() {
               href="/ambassadors/codes"
               className="text-sm text-circleTel-orange hover:underline flex items-center gap-1"
             >
-              Manage <ArrowUpRight className="w-3 h-3" />
+              Manage <PiArrowUpRightBold className="w-3 h-3" />
             </Link>
           </div>
 
@@ -309,7 +309,7 @@ export default function AmbassadorDashboard() {
                         {isConversion ? (
                           <PiShoppingCartBold className="w-4 h-4" />
                         ) : (
-                          <MousePointerClick className="w-4 h-4" />
+                          <PiCursorClickBold className="w-4 h-4" />
                         )}
                       </div>
                       <div>
@@ -356,7 +356,7 @@ export default function AmbassadorDashboard() {
             className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
-              <PiLinkBold className="w-5 h-5 text-blue-600" />
+              <Link className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">Create New Code</p>

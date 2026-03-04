@@ -1,4 +1,4 @@
-import { PiCloudBold, PiLaptopBold, PiServerBold } from 'react-icons/pi';
+import { PiCloudBold, PiDesktopTowerBold, PiLaptopBold} from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -24,7 +24,7 @@ export default function CloudMigration() {
                   <PiCloudBold size={100} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <PiServerBold size={40} className="text-circleTel-orange" />
+                  <PiDesktopTowerBold size={40} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute -left-4 bottom-0 h-32 w-32 rounded-full bg-white flex items-center justify-center shadow-lg">
                   <PiLaptopBold size={48} className="text-circleTel-orange" />

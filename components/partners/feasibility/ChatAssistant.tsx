@@ -1,5 +1,5 @@
 'use client';
-import { PiPaperPlaneRightBold, PiRobotBold, PiSparklesBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
+import { PiPaperPlaneRightBold, PiRobotBold, PiSparkleBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ export function ChatAssistant({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <PiSparklesBold className="w-8 h-8 mx-auto mb-3 text-circleTel-orange/60" />
+              <PiSparkleBold className="w-8 h-8 mx-auto mb-3 text-circleTel-orange/60" />
               <p className="text-sm">
                 Tell me about your client&apos;s connectivity needs.
               </p>
@@ -156,7 +156,7 @@ export function ChatAssistant({
                 </>
               ) : (
                 <>
-                  <PiSparklesBold className="w-4 h-4 mr-2" />
+                  <PiSparkleBold className="w-4 h-4 mr-2" />
                   Extract & Fill Form
                 </>
               )}

@@ -1,5 +1,5 @@
 'use client';
-import { PiCreditCardBold, PiFileTextBold, PiGearBold, PiHeadphonesBold, PiQuestionBold, PiShoppingCartBold } from 'react-icons/pi';
+import { PiCreditCardBold, PiFileTextBold, PiGearBold, PiHeadphonesBold, PiQuestionBold, PiShoppingCartBold, PiUserCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -55,7 +55,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'update-profile',
     title: 'My Profile',
-    icon: UserCircle,
+    icon: PiUserCircleBold,
     href: '/dashboard/profile',
     description: 'Update your details',
     iconBg: 'bg-purple-100',

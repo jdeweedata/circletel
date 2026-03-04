@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiClockCounterClockwiseBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiStarBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiClockCounterClockwiseBold, PiCloudArrowUpBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiStarBold, PiToggleLeftBold, PiToggleRightBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -340,12 +340,12 @@ export function ProductsList({
                     <DropdownMenuItem onClick={() => onToggleStatus(product)}>
                       {product.is_active ? (
                         <>
-                          <ToggleLeft className="w-4 h-4 mr-2" />
+                          <PiToggleLeftBold className="w-4 h-4 mr-2" />
                           Deactivate
                         </>
                       ) : (
                         <>
-                          <ToggleRight className="w-4 h-4 mr-2" />
+                          <PiToggleRightBold className="w-4 h-4 mr-2" />
                           Activate
                         </>
                       )}
@@ -353,7 +353,7 @@ export function ProductsList({
                   )}
                   {hasEditPermission && onPublish && product.source_admin_product_id && (
                     <DropdownMenuItem onClick={() => onPublish(product)}>
-                      <UploadCloud className="w-4 h-4 mr-2" />
+                      <PiCloudArrowUpBold className="w-4 h-4 mr-2" />
                       Publish to catalogue
                     </DropdownMenuItem>
                   )}

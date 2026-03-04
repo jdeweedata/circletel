@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowsClockwiseBold, PiPlusBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiPlusBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -126,7 +126,7 @@ export function PPPoECredentialsSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </CardTitle>
         </CardHeader>
@@ -143,7 +143,7 @@ export function PPPoECredentialsSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </CardTitle>
         </CardHeader>
@@ -163,7 +163,7 @@ export function PPPoECredentialsSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PiWifiBold className="h-5 w-5 text-orange-500" />
+              <PiWifiHighBold className="h-5 w-5 text-orange-500" />
               PPPoE Credentials
             </CardTitle>
           </CardHeader>
@@ -197,7 +197,7 @@ export function PPPoECredentialsSection({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </h3>
           <Button variant="outline" size="sm" onClick={fetchCredentials}>

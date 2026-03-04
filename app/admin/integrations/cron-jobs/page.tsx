@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiPlayCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiPlayCircleBold, PiPulseBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -308,7 +308,7 @@ export default function CronJobsPage() {
                     </div>
 
                     <div className="flex items-start gap-2">
-                      <PiActivityBold className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <PiPulseBold className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Endpoint</p>
                         <p className="text-sm font-mono text-gray-600 dark:text-gray-300">

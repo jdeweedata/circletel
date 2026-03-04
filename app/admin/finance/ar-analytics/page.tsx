@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMinusBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMinusBold, PiPulseBold, PiTargetBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * AR Analytics Dashboard
@@ -316,7 +316,7 @@ export default function ARAnalyticsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
+              <PiTargetBold className="h-4 w-4" />
               Collection Rate
             </CardDescription>
           </CardHeader>
@@ -334,7 +334,7 @@ export default function ARAnalyticsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <PiActivityBold className="h-4 w-4" />
+              <PiPulseBold className="h-4 w-4" />
               Notifications Sent
             </CardDescription>
           </CardHeader>
@@ -565,7 +565,7 @@ export default function ARAnalyticsPage() {
                     <p className="text-sm text-muted-foreground">Failed</p>
                   </div>
                   <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                    <PiActivityBold className="h-6 w-6 mx-auto text-blue-500 mb-2" />
+                    <PiPulseBold className="h-6 w-6 mx-auto text-blue-500 mb-2" />
                     <div className="text-xl font-bold">{data.notifications.delivery_rate.toFixed(1)}%</div>
                     <p className="text-sm text-muted-foreground">Delivery Rate</p>
                   </div>

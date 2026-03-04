@@ -1,5 +1,5 @@
 'use client';
-import { PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMapPinBold, PiPackageBold, PiPlugBold, PiRadioBold, PiSpinnerBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMapPinBold, PiPackageBold, PiPlugBold, PiRadioBold, PiSpinnerBold, PiTrashBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -440,7 +440,7 @@ export function CoverageResults({
       <CardHeader className="pb-3 border-b">
         <CardTitle className="flex items-center justify-between text-lg">
           <span className="flex items-center gap-2">
-            <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
+            <PiWifiHighBold className="w-5 h-5 text-circleTel-orange" />
             Coverage Results
           </span>
           {allComplete && anyHasCoverage && !hasSelectedPackages && onGenerateQuote && (

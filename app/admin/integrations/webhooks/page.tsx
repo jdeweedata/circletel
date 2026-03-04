@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiPlayCircleBold, PiSpinnerBold, PiTestTubeBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiPlayCircleBold, PiPulseBold, PiSpinnerBold, PiTestTubeBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -351,7 +351,7 @@ export default function WebhookMonitorPage() {
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={autoRefresh ? 'border-green-500 text-green-600' : ''}
           >
-            <PiActivityBold className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
+            <PiPulseBold className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
             {autoRefresh ? 'Auto-Refresh On' : 'Auto-Refresh Off'}
           </Button>
 
@@ -387,7 +387,7 @@ export default function WebhookMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{summary.total}</p>
                 </div>
-                <PiActivityBold className="w-8 h-8 text-gray-400" />
+                <PiPulseBold className="w-8 h-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -513,7 +513,7 @@ export default function WebhookMonitorPage() {
 
           {filteredLogs.length === 0 ? (
             <div className="text-center py-12">
-              <PiActivityBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <PiPulseBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
                 No webhook logs found
               </p>

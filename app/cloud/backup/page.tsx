@@ -1,4 +1,4 @@
-import { PiCloudBold } from 'react-icons/pi';
+import { PiCloudBold} from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

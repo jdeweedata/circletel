@@ -1,4 +1,4 @@
-import { PiServerBold } from 'react-icons/pi';
+import { PiDesktopTowerBold} from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -21,7 +21,7 @@ export default function CloudHosting() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative">
                 <div className="h-64 w-64 rounded-lg bg-circleTel-orange/10 flex items-center justify-center">
-                  <PiServerBold size={100} className="text-circleTel-orange" />
+                  <PiDesktopTowerBold size={100} className="text-circleTel-orange" />
                 </div>
               </div>
             </div>

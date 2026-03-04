@@ -5,7 +5,7 @@
  */
 
 'use client'
-import { PiBookBold, PiCalculatorBold, PiChatCircleBold, PiClipboardTextBold, PiCpuBold, PiCurrencyDollarBold, PiEyeBold, PiGearBold, PiHandshakeBold, PiHeadphonesBold, PiMagnifyingGlassBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiServerBold, PiShieldBold, PiSparklesBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUsersBold } from 'react-icons/pi';
+import { PiBookBold, PiCalculatorBold, PiChatCircleBold, PiClipboardTextBold, PiCpuBold, PiCurrencyDollarBold, PiEyeBold, PiGearBold, PiHandshakeBold, PiHeadphonesBold, PiMagnifyingGlassBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiDesktopTowerBold, PiShieldBold, PiSparkleBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { RoleTemplate, ROLE_TEMPLATES, DEPARTMENTS } from '@/lib/rbac/role-templates'

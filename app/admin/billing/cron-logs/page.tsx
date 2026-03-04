@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBuildingBold, PiCaretDownBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBuildingBold, PiCaretDownBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiPlayBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -136,7 +136,7 @@ export default function CronLogsPage() {
                 {runningAction ? (
                   <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <Play className="h-4 w-4 mr-2" />
+                  <PiPlayBold className="h-4 w-4 mr-2" />
                 )}
                 Run Now
                 <PiCaretDownBold className="h-4 w-4 ml-2" />
@@ -148,7 +148,7 @@ export default function CronLogsPage() {
                 Dry Run (Preview)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleRunCron(false)}>
-                <Play className="h-4 w-4 mr-2" />
+                <PiPlayBold className="h-4 w-4 mr-2" />
                 Run Now (Live)
               </DropdownMenuItem>
             </DropdownMenuContent>

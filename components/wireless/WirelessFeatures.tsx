@@ -1,3 +1,4 @@
+import { PiShieldBold, PiTruckBold } from 'react-icons/pi';
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,7 +16,7 @@ export function WirelessFeatures() {
       description: "Enterprise-grade reliability with guaranteed service level agreements"
     },
     {
-      icon: PiWifiBold,
+      icon: PiWifiHighBold,
       title: "Free Static IP",
       description: "Included with every business package for remote access and management"
     },

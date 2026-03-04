@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBatteryChargingBold, PiBuildingsBold, PiCellSignalFullBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBatteryChargingBold, PiBuildingsBold, PiCellSignalFullBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';

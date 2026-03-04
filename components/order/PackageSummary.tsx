@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiLightningBold, PiPackageBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiLightningBold, PiPackageBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import { PackageDetails } from '@/lib/order/types';
@@ -36,7 +36,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
             <div className="flex-shrink-0 w-10 h-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-              <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
+              <PiWifiHighBold className="w-5 h-5 text-circleTel-orange" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 text-sm mb-1">

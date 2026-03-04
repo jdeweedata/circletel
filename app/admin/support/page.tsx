@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold, PiTicketBold, PiUserBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowUpRightBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold, PiTicketBold, PiUserBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -463,7 +463,7 @@ export default function SupportPage() {
                           router.push(`/admin/support/tickets/${ticket.id}`);
                         }}
                       >
-                        <ArrowUpRight className="h-4 w-4" />
+                        <PiArrowUpRightBold className="h-4 w-4" />
                       </Button>
                     </td>
                   </tr>

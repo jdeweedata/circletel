@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiPlusBold, PiTrashBold, PiTrendUpBold, PiUserCheckBold, PiUsersBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiPlusBold, PiTrashBold, PiTrendUpBold, PiUserCheckBold, PiUserMinusBold, PiUsersBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -380,7 +380,7 @@ export default function TechniciansPage() {
         <TechnicianStatCard title="Total Technicians" value={stats.total} subtitle="Active team members" icon={<PiUsersBold className="h-5 w-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
         <TechnicianStatCard title="Available" value={stats.available} subtitle="Ready for assignment" icon={<PiUserCheckBold className="h-5 w-5" />} iconBgColor="bg-green-100" iconColor="text-green-600" />
         <TechnicianStatCard title="On Job" value={stats.onJob} subtitle="Currently working" icon={<PiWrenchBold className="h-5 w-5" />} iconBgColor="bg-orange-100" iconColor="text-circleTel-orange" />
-        <TechnicianStatCard title="Offline" value={stats.offline} subtitle="Not on duty" icon={<UserX className="h-5 w-5" />} iconBgColor="bg-gray-100" iconColor="text-gray-600" />
+        <TechnicianStatCard title="Offline" value={stats.offline} subtitle="Not on duty" icon={<PiUserMinusBold className="h-5 w-5" />} iconBgColor="bg-gray-100" iconColor="text-gray-600" />
       </div>
 
       <Card className="border border-gray-200 shadow-sm">

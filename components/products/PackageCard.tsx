@@ -1,5 +1,5 @@
 'use client'
-import { PiCheckBold } from 'react-icons/pi';
+import { PiCheckBold} from 'react-icons/pi';
 
 import { PackageTier } from '@/lib/types/strapi'
 import { Button } from '@/components/ui/button'

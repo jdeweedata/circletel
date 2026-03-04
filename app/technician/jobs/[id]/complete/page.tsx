@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCameraBold, PiCheckCircleBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -232,7 +232,7 @@ export default function CompleteJobPage() {
                 className="flex-1"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Camera className="h-4 w-4 mr-2" />
+                <PiCameraBold className="h-4 w-4 mr-2" />
                 Take Photo
               </Button>
               <Button

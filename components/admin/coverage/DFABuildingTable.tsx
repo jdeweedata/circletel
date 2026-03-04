@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsDownUpBold, PiBuildingBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold } from 'react-icons/pi';
+import { PiArrowsDownUpBold, PiBuildingBold, PiCaretDoubleLeftBold, PiCaretDoubleRightBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -339,7 +339,7 @@ export function DFABuildingTable({
             onClick={() => onPageChange(1)}
             disabled={pagination.page === 1 || loading}
           >
-            <ChevronsLeft className="h-4 w-4" />
+            <PiCaretDoubleLeftBold className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -366,7 +366,7 @@ export function DFABuildingTable({
             onClick={() => onPageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages || loading}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <PiCaretDoubleRightBold className="h-4 w-4" />
           </Button>
         </div>
       </div>

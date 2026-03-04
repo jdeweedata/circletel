@@ -1,3 +1,4 @@
+import { PiBuildingsBold, PiCaretRightBold, PiPackageBold, PiQrCodeBold, PiReceiptBold, PiShieldBold, PiStorefrontBold } from 'react-icons/pi';
 "use client";
 
 import * as React from "react";
@@ -185,11 +186,11 @@ const OrderFlowJourney: React.FC = () => {
     { id: "instant-eft", icon: <PiLightningBold className="w-6 h-6" />, label: "Instant EFT", description: "Real-time via Ozow", color: "green" },
     { id: "capitec", icon: <PiDeviceMobileBold className="w-6 h-6" />, label: "Capitec Pay", description: "Fast Capitec payments", color: "blue" },
     { id: "bank-eft", icon: <PiBuildingsBold className="w-6 h-6" />, label: "Bank EFT", description: "Online banking transfer", color: "purple" },
-    { id: "scan-to-pay", icon: <QrCode className="w-6 h-6" />, label: "Scan to Pay", description: "SnapScan, Zapper", color: "orange" },
+    { id: "scan-to-pay", icon: <PiQrCodeBold className="w-6 h-6" />, label: "Scan to Pay", description: "SnapScan, Zapper", color: "orange" },
     { id: "payflex", icon: <PiCalendarBold className="w-6 h-6" />, label: "Payflex", description: "Buy now, pay later", color: "green" },
-    { id: "1voucher", icon: <Receipt className="w-6 h-6" />, label: "1Voucher", description: "Cash vouchers", color: "blue" },
-    { id: "paymyway", icon: <Store className="w-6 h-6" />, label: "paymyway", description: "Pay at 24k+ stores", color: "purple" },
-    { id: "scode", icon: <Receipt className="w-6 h-6" />, label: "SCode Retail", description: "6k+ retail outlets", color: "orange" },
+    { id: "1voucher", icon: <PiReceiptBold className="w-6 h-6" />, label: "1Voucher", description: "Cash vouchers", color: "blue" },
+    { id: "paymyway", icon: <PiStorefrontBold className="w-6 h-6" />, label: "paymyway", description: "Pay at 24k+ stores", color: "purple" },
+    { id: "scode", icon: <PiReceiptBold className="w-6 h-6" />, label: "SCode Retail", description: "6k+ retail outlets", color: "orange" },
   ];
 
   // ============================================================================

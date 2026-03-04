@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowUpRightBold, PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -219,7 +219,7 @@ function CorporateCard({
 
       {/* Hover Arrow */}
       <div className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <ArrowUpRight className="w-4 h-4 text-slate-400" />
+        <PiArrowUpRightBold className="w-4 h-4 text-slate-400" />
       </div>
     </button>
   );

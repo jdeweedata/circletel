@@ -1,5 +1,5 @@
 'use client'
-import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiTrophyBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiTrophyBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { SpecGridSection } from '@/lib/types/strapi'
 

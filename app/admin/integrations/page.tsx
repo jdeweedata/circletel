@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiChartBarBold, PiGearBold, PiKeyBold, PiSpinnerBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiChartBarBold, PiGearBold, PiKeyBold, PiPulseBold, PiSpinnerBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -192,7 +192,7 @@ export default function IntegrationsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full max-w-4xl grid-cols-6 bg-white shadow-sm p-1">
           <TabsTrigger value="all" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <PiActivityBold className="h-4 w-4 mr-2" />
+            <PiPulseBold className="h-4 w-4 mr-2" />
             All
           </TabsTrigger>
           <TabsTrigger value="health" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
@@ -281,7 +281,7 @@ export default function IntegrationsPage() {
               <CardContent className="p-12 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                    <PiActivityBold className="h-8 w-8 text-muted-foreground" />
+                    <PiPulseBold className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <p className="text-muted-foreground font-medium">No integrations found matching your filters</p>
                   <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
@@ -437,7 +437,7 @@ function HealthDashboardContent({
           <CardContent>
             {integrations.filter(i => i.consecutive_failures >= 3 || i.health_status === 'down').length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <PiActivityBold className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                <PiPulseBold className="h-8 w-8 mx-auto mb-2 text-green-500" />
                 <p>All integrations are healthy!</p>
               </div>
             ) : (

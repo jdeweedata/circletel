@@ -1,5 +1,5 @@
 'use client';
-import { PiGearBold, PiImageBold, PiPaperPlaneRightBold, PiSparklesBold, PiXBold } from 'react-icons/pi';
+import { PiGearBold, PiImageBold, PiPaperPlaneRightBold, PiSparkleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Properties Panel
@@ -185,7 +185,7 @@ function ImageEditor({ block, onUpdate }: BlockEditorProps) {
               onClick={() => setShowMediaPicker(true)}
               className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-lg"
             >
-              <ImageIcon className="w-6 h-6 mr-2" />
+              <PiImageBold className="w-6 h-6 mr-2" />
               Change Image
             </button>
           </div>
@@ -194,7 +194,7 @@ function ImageEditor({ block, onUpdate }: BlockEditorProps) {
             onClick={() => setShowMediaPicker(true)}
             className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 hover:border-orange-500 hover:text-orange-500 transition-colors"
           >
-            <ImageIcon className="w-8 h-8 mb-2" />
+            <PiImageBold className="w-8 h-8 mb-2" />
             <span className="text-sm">Select Image</span>
           </button>
         )}
@@ -511,7 +511,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
               : 'text-gray-500 hover:text-gray-700'
           )}
         >
-          <PiSparklesBold className="w-4 h-4 inline mr-1" />
+          <PiSparkleBold className="w-4 h-4 inline mr-1" />
           AI
         </button>
       </div>

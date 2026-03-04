@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiPlayBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -213,7 +213,7 @@ export default function ReconciliationPage() {
               {reconciling ? (
                 <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Play className="h-4 w-4 mr-2" />
+                <PiPlayBold className="h-4 w-4 mr-2" />
               )}
               Run Reconciliation
             </Button>

@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiDeviceMobileBold, PiEyeBold, PiEyeSlashBold, PiGearBold, PiInfoBold, PiStackBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiDeviceMobileBold, PiEyeBold, PiEyeSlashBold, PiGearBold, PiInfoBold, PiStackBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,7 +87,7 @@ export default function LayerControls({
     if (serviceType.includes('5g') || serviceType.includes('lte')) {
       return <PiDeviceMobileBold className="h-3 w-3" />;
     }
-    return <PiWifiBold className="h-3 w-3" />;
+    return <PiWifiHighBold className="h-3 w-3" />;
   };
 
   const enabledLayersCount = layers.filter(layer => layer.enabled).length;

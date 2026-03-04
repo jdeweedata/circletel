@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiPercentBold, PiSparklesBold, PiSpinnerBold, PiTrendUpBold, PiWarningBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiPercentBold, PiSparkleBold, PiSpinnerBold, PiTrendUpBold, PiWarningBold } from 'react-icons/pi';
 
 /**
  * Step 5: Pricing & Discounts
@@ -308,7 +308,7 @@ export function PricingDiscountsStep({
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <PiSparklesBold className="h-5 w-5 text-circleTel-orange" />
+            <PiSparkleBold className="h-5 w-5 text-circleTel-orange" />
             <h3 className="font-semibold text-gray-900">AI Pricing Intelligence</h3>
           </div>
           <Button
@@ -323,7 +323,7 @@ export function PricingDiscountsStep({
               </>
             ) : (
               <>
-                <PiSparklesBold className="h-4 w-4 mr-2" />
+                <PiSparkleBold className="h-4 w-4 mr-2" />
                 Analyze Pricing
               </>
             )}

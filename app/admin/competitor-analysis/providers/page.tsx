@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiGlobeBold, PiPlusBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiGlobeBold, PiMagnifyingGlassBold, PiPlusBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Provider Management Page
@@ -134,7 +134,7 @@ export default function ProvidersPage() {
       <div className="flex flex-wrap gap-4">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search providers..."

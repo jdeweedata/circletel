@@ -1,5 +1,5 @@
 'use client';
-import { PiChartBarBold, PiDownloadSimpleBold, PiFunnelBold } from 'react-icons/pi';
+import { PiDownloadSimpleBold, PiFunnelBold} from 'react-icons/pi';
 
 /**
  * Competitor Analytics Page
@@ -308,7 +308,7 @@ export default function AnalyticsPage() {
         {/* Market Position by Provider */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <PiChartBarBold className="w-5 h-5 text-orange-500" />
+            <BarChart className="w-5 h-5 text-orange-500" />
             Average Price by Provider
           </h3>
           <MarketPositionChart
@@ -323,7 +323,7 @@ export default function AnalyticsPage() {
         {/* Price by Product Type */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <PiChartBarBold className="w-5 h-5 text-blue-500" />
+            <BarChart className="w-5 h-5 text-blue-500" />
             Average Price by Product Type
           </h3>
           <MarketSegmentChart segments={segmentData} height={300} />
@@ -332,7 +332,7 @@ export default function AnalyticsPage() {
         {/* Price by Technology */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <PiChartBarBold className="w-5 h-5 text-green-500" />
+            <BarChart className="w-5 h-5 text-green-500" />
             Average Price by Technology
           </h3>
           <MarketSegmentChart segments={techSegmentData} height={300} />
@@ -341,7 +341,7 @@ export default function AnalyticsPage() {
         {/* Price Distribution */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <PiChartBarBold className="w-5 h-5 text-purple-500" />
+            <BarChart className="w-5 h-5 text-purple-500" />
             Price Distribution
           </h3>
           <PriceDistributionChart data={priceDistribution} height={300} />

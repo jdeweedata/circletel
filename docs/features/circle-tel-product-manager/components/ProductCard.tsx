@@ -1,4 +1,4 @@
-import { PiArrowDownBold, PiArrowUpBold, PiCheckCircleBold, PiCopyBold, PiDatabaseBold, PiDeviceMobileBold, PiDotsThreeBold, PiDotsThreeVerticalBold, PiEyeBold, PiGlobeBold, PiLightningBold, PiPencilSimpleBold, PiRadioBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckCircleBold, PiCopyBold, PiDatabaseBold, PiDeviceMobileBold, PiDotsThreeBold, PiDotsThreeVerticalBold, PiEyeBold, PiGlobeBold, PiLightningBold, PiPencilSimpleBold, PiRadioBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 import React from 'react';
 import { Product } from '../types';
 
@@ -13,7 +13,7 @@ const getCategoryTheme = (category: string) => {
     case 'business': return { color: 'text-slate-600', bg: 'bg-slate-100', border: 'border-slate-200', icon: PiDeviceMobileBold };
     case 'lte': return { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: PiLightningBold };
     case '5g': return { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: PiRadioBold };
-    case 'wireless': return { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: PiWifiBold };
+    case 'wireless': return { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: PiWifiHighBold };
     case 'fibre_consumer': return { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: PiGlobeBold };
     default: return { color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100', icon: PiGlobeBold };
   }

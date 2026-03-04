@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowRightBold, PiMapPinBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiMapPinBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -154,7 +154,7 @@ const CoverageCheck = () => {
                     </>
                   ) : (
                     <>
-                      <PiWifiBold size={20} />
+                      <PiWifiHighBold size={20} />
                       Check Coverage
                       <PiArrowRightBold size={20} />
                     </>

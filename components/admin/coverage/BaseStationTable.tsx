@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsDownUpBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiRadioBold } from 'react-icons/pi';
+import { PiArrowsDownUpBold, PiCaretDoubleLeftBold, PiCaretDoubleRightBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiRadioBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -244,7 +244,7 @@ export function BaseStationTable({
             onClick={() => onPageChange(1)}
             disabled={pagination.page === 1 || loading}
           >
-            <ChevronsLeft className="h-4 w-4" />
+            <PiCaretDoubleLeftBold className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -271,7 +271,7 @@ export function BaseStationTable({
             onClick={() => onPageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages || loading}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <PiCaretDoubleRightBold className="h-4 w-4" />
           </Button>
         </div>
       </div>

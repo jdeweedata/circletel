@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiLightningBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiLightningBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -155,7 +155,7 @@ function TechIcon({ tech }: { tech: string }) {
       return <PiRadioBold className="w-4 h-4" />;
     case '5g':
     case 'lte':
-      return <PiWifiBold className="w-4 h-4" />;
+      return <PiWifiHighBold className="w-4 h-4" />;
     default:
       return <PiLightningBold className="w-4 h-4" />;
   }
@@ -1142,7 +1142,7 @@ export default function FeasibilityPage() {
                   disabled={!formData.companyName || parseSites(formData.sites).length === 0}
                   className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white gap-2 px-8"
                 >
-                  <PiSparklesBold className="w-4 h-4" />
+                  <PiSparkleBold className="w-4 h-4" />
                   Check Feasibility
                   <PiArrowRightBold className="w-4 h-4" />
                 </Button>
@@ -1324,7 +1324,7 @@ export default function FeasibilityPage() {
                                 {result.recommendedPackages.length > 0 && (
                                   <div className="pt-3 border-t border-gray-200">
                                     <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                      <PiSparklesBold className="w-4 h-4 text-circleTel-orange" />
+                                      <PiSparkleBold className="w-4 h-4 text-circleTel-orange" />
                                       Best Options for Quote
                                     </p>
                                     <div className="flex flex-wrap gap-2">

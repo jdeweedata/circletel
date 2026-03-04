@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCaretRightBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCaretRightBold, PiCheckBold, PiEnvelopeBold, PiFileMagnifyingGlassBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,7 @@ const steps = [
   { id: 1, label: 'Client', icon: PiBuildingsBold, description: 'Business details' },
   { id: 2, label: 'Requirements', icon: PiLightningBold, description: 'Service specs' },
   { id: 3, label: 'Sites', icon: PiMapPinBold, description: 'Locations' },
-  { id: 4, label: 'Review', icon: FileSearch, description: 'Confirm & submit' },
+  { id: 4, label: 'Review', icon: PiFileMagnifyingGlassBold, description: 'Confirm & submit' },
 ];
 
 export function DesignV2Stepper() {
@@ -371,7 +371,7 @@ export function DesignV2Stepper() {
             >
               <div className="text-center mb-8">
                 <div className="inline-flex p-4 bg-gradient-to-br from-circleTel-orange to-amber-500 rounded-3xl shadow-xl shadow-orange-500/30 mb-4">
-                  <FileSearch className="w-8 h-8 text-white" />
+                  <PiFileMagnifyingGlassBold className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Review & Submit</h2>
                 <p className="text-gray-500 mt-2">Confirm the details before checking feasibility</p>

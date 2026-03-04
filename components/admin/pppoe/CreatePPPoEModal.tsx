@@ -1,5 +1,5 @@
 'use client'
-import { PiCheckCircleBold, PiCopyBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiCopyBold, PiSpinnerBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import {
@@ -98,7 +98,7 @@ export function CreatePPPoEModal({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             {createdCredential ? 'PPPoE Credentials Created' : 'Create PPPoE Credentials'}
           </DialogTitle>
           <DialogDescription>
@@ -225,7 +225,7 @@ export function CreatePPPoEModal({
                   </>
                 ) : (
                   <>
-                    <PiWifiBold className="h-4 w-4 mr-2" />
+                    <PiWifiHighBold className="h-4 w-4 mr-2" />
                     Create Credentials
                   </>
                 )}

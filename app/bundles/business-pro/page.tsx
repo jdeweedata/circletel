@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBatteryFullBold, PiCheckBold, PiCloudBold, PiLightningBold, PiServerBold, PiShieldBold, PiStarBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBatteryFullBold, PiCheckBold, PiCloudBold, PiDesktopTowerBold, PiLightningBold, PiShieldBold, PiStarBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const BusinessPro = () => {
                 {/* Text Content */}
                 <div className="w-full lg:w-1/2">
                   <Badge className="bg-circleTel-orange text-white mb-4">
-                    <PiWifiBold className="h-4 w-4 mr-2" />
+                    <PiWifiHighBold className="h-4 w-4 mr-2" />
                     Business Pro Bundle
                   </Badge>
                   <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
@@ -116,7 +116,7 @@ const BusinessPro = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <PiWifiBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiWifiHighBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">High-Speed Internet</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -136,7 +136,7 @@ const BusinessPro = () => {
 
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <PiServerBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiDesktopTowerBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">IT Monitoring</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -169,7 +169,7 @@ const BusinessPro = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
-                    <PiWifiBold className="h-5 w-5 text-circleTel-orange mr-2" />
+                    <PiWifiHighBold className="h-5 w-5 text-circleTel-orange mr-2" />
                     Connectivity Features
                   </h3>
                   <ul className="space-y-3">
@@ -191,7 +191,7 @@ const BusinessPro = () => {
 
                 <div>
                   <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
-                    <PiServerBold className="h-5 w-5 text-circleTel-orange mr-2" />
+                    <PiDesktopTowerBold className="h-5 w-5 text-circleTel-orange mr-2" />
                     IT Support Features
                   </h3>
                   <ul className="space-y-3">

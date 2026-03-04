@@ -1,4 +1,4 @@
-import { PiCalendarBold, PiCaretDownBold, PiCaretRightBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiGearBold, PiHouseBold, PiStackBold, PiTagBold, PiUsersBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCaretDownBold, PiCaretRightBold, PiChartBarBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiGearBold, PiHouseBold, PiShoppingBagBold, PiStackBold, PiTagBold, PiUsersBold } from 'react-icons/pi';
 import React from 'react';
 
 export const Sidebar: React.FC = () => {
@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
         
         {/* Active Item Group */}
         <div className="bg-slate-800/50 border-l-4 border-primary-500 my-1">
-          <MenuItem icon={<ShoppingBag size={18} />} label="Product Catalog" active hasSubmenu expanded />
+          <MenuItem icon={<PiShoppingBagBold size={18} />} label="Product Catalog" active hasSubmenu expanded />
           <div className="ml-10 flex flex-col gap-1 pb-2">
             <SubMenuItem label="Items" />
             <SubMenuItem label="Subscription Items" active />
@@ -47,7 +47,7 @@ export const Sidebar: React.FC = () => {
         <MenuItem icon={<PiCubeBold size={18} />} label="Expenses" hasSubmenu />
         <MenuItem icon={<PiClockBold size={18} />} label="Time Tracking" />
         <MenuItem icon={<PiCalendarBold size={18} />} label="Events" />
-        <MenuItem icon={<BarChart2 size={18} />} label="Reports" />
+        <MenuItem icon={<PiChartBarBold size={18} />} label="Reports" />
       </nav>
 
       {/* Footer Settings */}

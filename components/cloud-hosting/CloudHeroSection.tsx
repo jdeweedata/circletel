@@ -1,4 +1,4 @@
-import { PiCloudBold, PiLightningBold, PiServerBold, PiShieldBold } from 'react-icons/pi';
+import { PiCloudBold, PiDesktopTowerBold, PiLightningBold, PiShieldBold } from 'react-icons/pi';
 import React from 'react'
 import Link from 'next/link'
 
@@ -99,7 +99,7 @@ export default function CloudHeroSection({ data }: CloudHeroProps) {
           </div>
           <div className="text-center animate-float animation-delay-2000 group">
             <div className="inline-flex p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 group-hover:bg-white/20 transition-all shadow-xl">
-              <PiServerBold className="w-10 h-10 text-blue-400 group-hover:scale-110 transition-transform" />
+              <PiDesktopTowerBold className="w-10 h-10 text-blue-400 group-hover:scale-110 transition-transform" />
             </div>
             <p className="mt-4 text-base text-gray-300 font-medium">Scalable</p>
           </div>

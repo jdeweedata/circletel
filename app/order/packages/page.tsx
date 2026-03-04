@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -281,7 +281,7 @@ export default function OrderPackagesPage() {
           <div className="flex justify-center mb-8">
             <TabsList className="grid w-full max-w-md grid-cols-2 h-12">
               <TabsTrigger value="fibre" className="text-base">
-                <PiWifiBold className="h-4 w-4 mr-2" />
+                <PiWifiHighBold className="h-4 w-4 mr-2" />
                 Fibre ({fibreCount})
               </TabsTrigger>
               <TabsTrigger value="wireless" className="text-base">

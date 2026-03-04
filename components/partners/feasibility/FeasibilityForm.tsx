@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiClockBold, PiGaugeBold, PiMapPinBold, PiPlusBold, PiShieldBold, PiTrashBold, PiWifiBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiClockBold, PiGaugeBold, PiMapPinBold, PiPlusBold, PiShieldBold, PiTrashBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -158,7 +158,7 @@ export function FeasibilityForm({
         {/* Contention Selection */}
         <section>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <PiWifiBold className="w-4 h-4" />
+            <PiWifiHighBold className="w-4 h-4" />
             Contention Ratio
           </h3>
           <div className="grid grid-cols-2 gap-2">

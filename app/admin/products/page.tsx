@@ -1,5 +1,5 @@
 'use client';
-import { PiArchiveBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCodeBold, PiColumnsBold, PiCopyBold, PiDownloadSimpleBold, PiGridFourBold, PiHardDriveBold, PiHeadphonesBold, PiListBold, PiMagnifyingGlassBold, PiPackageBold, PiPlusBold, PiSlidersHorizontalBold, PiTrendDownBold, PiWarningBold, PiWifiBold, PiXBold } from 'react-icons/pi';
+import { PiArchiveBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCodeBold, PiColumnsBold, PiCopyBold, PiDownloadSimpleBold, PiGridFourBold, PiHardDriveBold, PiHeadphonesBold, PiListBold, PiMagnifyingGlassBold, PiPackageBold, PiPlusBold, PiSlidersHorizontalBold, PiTrendDownBold, PiWarningBold, PiWifiHighBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -407,7 +407,7 @@ export default function AdminProducts() {
     connectivity: {
       label: 'Connectivity',
       description: 'Fibre and wireless internet packages',
-      icon: <PiWifiBold className="h-5 w-5" />,
+      icon: <PiWifiHighBold className="h-5 w-5" />,
       color: 'blue' as const,
     },
     hardware: {
@@ -907,7 +907,7 @@ export default function AdminProducts() {
               Active
             </CardTitle>
             <div className="p-2 rounded-lg bg-green-100">
-              <PiWifiBold className="h-5 w-5 text-green-600" />
+              <PiWifiHighBold className="h-5 w-5 text-green-600" />
             </div>
           </CardHeader>
           <CardContent>

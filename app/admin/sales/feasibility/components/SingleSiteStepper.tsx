@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBroadcastBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -128,9 +128,9 @@ const getTechIcon = (tech: string) => {
     case 'fibre': return <PiGlobeBold className="h-4 w-4 text-blue-500" />;
     case 'lte': return <PiCellSignalFullBold className="h-4 w-4 text-green-500" />;
     case '5g': return <PiLightningBold className="h-4 w-4 text-purple-500" />;
-    case 'tarana': case 'skyfibre': case 'wireless': return <Antenna className="h-4 w-4 text-orange-500" />;
-    case 'starlink': return <PiSparklesBold className="h-4 w-4 text-cyan-500" />;
-    default: return <PiWifiBold className="h-4 w-4 text-gray-500" />;
+    case 'tarana': case 'skyfibre': case 'wireless': return <PiBroadcastBold className="h-4 w-4 text-orange-500" />;
+    case 'starlink': return <PiSparkleBold className="h-4 w-4 text-cyan-500" />;
+    default: return <PiWifiHighBold className="h-4 w-4 text-gray-500" />;
   }
 };
 
@@ -787,7 +787,7 @@ export function SingleSiteStepper() {
                     {isLoading ? (
                       <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
                     ) : (
-                      <PiSparklesBold className="h-4 w-4 mr-3 animate-pulse text-white" />
+                      <PiSparkleBold className="h-4 w-4 mr-3 animate-pulse text-white" />
                     )}
                     {isLoading ? 'Scanning Infrastructure...' : 'Initiate Scan'}
                   </Button>

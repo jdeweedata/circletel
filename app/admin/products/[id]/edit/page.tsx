@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCalculatorBold, PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiPercentBold, PiSpinnerBold, PiStackBold, PiTagBold, PiTrendUpBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCalculatorBold, PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiPercentBold, PiSpinnerBold, PiStackBold, PiTagBold, PiTrendUpBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -753,7 +753,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <PiWifiBold className="h-5 w-5 text-blue-600" />
+                    <PiWifiHighBold className="h-5 w-5 text-blue-600" />
                     Connectivity Specifications
                   </CardTitle>
                   <CardDescription>

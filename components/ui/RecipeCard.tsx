@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold } from 'react-icons/pi';
+import { PiArrowRightBold} from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiLightningBold, PiMapPinBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiLightningBold, PiMapPinBold } from 'react-icons/pi';
 
 import React from 'react';
 import { PiHouseBold, PiBuildingsBold, PiBriefcaseBold } from 'react-icons/pi';

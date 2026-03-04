@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiGearBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiShieldBold, PiUserCheckBold, PiUsersBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiGearBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPulseBold, PiShieldBold, PiUserCheckBold, PiUserMinusBold, PiUsersBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -336,7 +336,7 @@ export default function AdminUsersPage() {
           </Link>
           <Link href="/admin/users/activity">
             <Button variant="outline">
-              <PiActivityBold className="mr-2 h-4 w-4" />
+              <PiPulseBold className="mr-2 h-4 w-4" />
               Activity Logs
             </Button>
           </Link>
@@ -565,7 +565,7 @@ export default function AdminUsersPage() {
                                 )}
                                 {hasPermission(PERMISSIONS.USERS.DELETE) && (
                                   <DropdownMenuItem className="text-red-600">
-                                    <UserX className="w-4 h-4 mr-2" />
+                                    <PiUserMinusBold className="w-4 h-4 mr-2" />
                                     Deactivate
                                   </DropdownMenuItem>
                                 )}

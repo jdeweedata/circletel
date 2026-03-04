@@ -1,4 +1,4 @@
-import { PiActivityBold, PiBatteryFullBold, PiBookBold, PiBookOpenBold, PiClipboardTextBold, PiCloudBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiFileTextBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiLaptopBold, PiPackageBold, PiPowerBold, PiRocketBold, PiServerBold, PiShieldCheckBold, PiSquaresFourBold, PiTrendUpBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiBatteryFullBold, PiBookBold, PiBookOpenBold, PiClipboardTextBold, PiCloudBold, PiCurrencyDollarBold, PiDesktopTowerBold, PiDeviceMobileBold, PiFileTextBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiLaptopBold, PiPackageBold, PiPowerBold, PiPulseBold, PiRocketBold, PiShieldCheckBold, PiSquaresFourBold, PiTrendUpBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 import type { IconType } from 'react-icons';
 
 // Type definitions for proper typing
@@ -20,7 +20,7 @@ export const managedITItems: NavigationItem[] = [
   {
     name: "Complete IT Management",
     href: "/services",
-    icon: PiServerBold,
+    icon: PiDesktopTowerBold,
     description: "Full-service IT management and support for your business"
   },
   {
@@ -100,7 +100,7 @@ export const connectivityItems: NavigationItem[] = [
   {
     name: "Wi-Fi as a Service",
     href: "/connectivity/wifi-as-a-service",
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     description: "Enterprise-grade Wi-Fi without capital expense"
   },
   {
@@ -140,7 +140,7 @@ export const cloudHostingItems: NavigationItem[] = [
   {
     name: "Hosting Solutions",
     href: "/cloud/hosting",
-    icon: PiServerBold,
+    icon: PiDesktopTowerBold,
     description: "Reliable hosting for your business applications"
   },
   {
@@ -177,7 +177,7 @@ export const resourcesItems: NavigationItem[] = [
   {
     name: "IT Health Assessment",
     href: "/resources/it-health",
-    icon: PiActivityBold,
+    icon: PiPulseBold,
     description: "Evaluate your IT infrastructure"
   },
   {
@@ -195,7 +195,7 @@ export const resourcesItems: NavigationItem[] = [
   {
     name: "Wi-Fi Toolkit",
     href: "/resources/wifi-toolkit",
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     description: "Planning tools for Wi-Fi deployments"
   }
 ];

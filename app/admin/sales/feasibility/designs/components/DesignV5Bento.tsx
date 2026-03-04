@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparkleBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,7 +39,7 @@ export function DesignV5Bento() {
         >
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-gradient-to-br from-circleTel-orange to-amber-500 rounded-2xl shadow-lg shadow-orange-300/40">
-              <PiSparklesBold className="w-6 h-6 text-white" />
+              <PiSparkleBold className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight">B2B Feasibility</h1>

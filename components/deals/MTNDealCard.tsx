@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCaretRightBold, PiCellSignalFullBold, PiChatBold, PiDatabaseBold, PiDeviceMobileBold, PiGiftBold, PiLightningBold, PiPhoneBold, PiWifiBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCaretRightBold, PiCellSignalFullBold, PiChatBold, PiDatabaseBold, PiDeviceMobileBold, PiGiftBold, PiLightningBold, PiPhoneBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

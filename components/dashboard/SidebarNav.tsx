@@ -1,5 +1,5 @@
 'use client';
-import { PiCaretLeftBold, PiCaretRightBold, PiCreditCardBold, PiGearBold, PiHouseBold, PiPackageBold, PiQuestionBold } from 'react-icons/pi';
+import { PiCaretLeftBold, PiCaretRightBold, PiCreditCardBold, PiGearBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiUserCircleBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,7 +21,7 @@ interface NavItem {
 
 const items: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: PiHouseBold },
-  { label: 'Accounts', href: '/dashboard/profile', icon: UserCircle },
+  { label: 'Accounts', href: '/dashboard/profile', icon: PiUserCircleBold },
   { label: 'Orders', href: '/dashboard/orders', icon: PiPackageBold },
   { label: 'Billing', href: '/dashboard/billing', icon: PiCreditCardBold },
   { label: 'Help & Support', href: '#', icon: PiQuestionBold, disabled: true },

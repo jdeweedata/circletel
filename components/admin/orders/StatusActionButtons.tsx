@@ -1,5 +1,5 @@
 'use client';
-import { PiCalendarBold, PiCheckCircleBold, PiCreditCardBold, PiPlayCircleBold, PiUploadSimpleBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
+import { PiCalendarBold, PiCheckCircleBold, PiCreditCardBold, PiPauseCircleBold, PiPlayCircleBold, PiUploadSimpleBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -170,7 +170,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'suspended',
       label: 'Suspend Service',
-      icon: PauseCircle,
+      icon: PiPauseCircleBold,
       variant: 'secondary',
       description: 'Temporarily suspend the service',
       requiresInput: true,

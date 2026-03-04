@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowsClockwiseBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiPulseBold, PiShieldBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
@@ -176,7 +176,7 @@ export default function AdminUserActivityPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <PiActivityBold className="w-8 h-8 text-circleTel-orange" />
+            <PiPulseBold className="w-8 h-8 text-circleTel-orange" />
             User Activity
           </h1>
           <p className="text-gray-600 mt-2">
@@ -376,7 +376,7 @@ export default function AdminUserActivityPage() {
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-12">
-              <PiActivityBold className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <PiPulseBold className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No activity logs found</p>
             </div>
           ) : (

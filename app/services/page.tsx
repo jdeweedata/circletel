@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiDatabaseBold, PiGraphBold, PiHardDriveBold, PiHeadphonesBold, PiLightningBold, PiServerBold, PiShieldBold, PiTrendUpBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiDatabaseBold, PiDesktopTowerBold, PiGraphBold, PiHardDriveBold, PiHeadphonesBold, PiLightningBold, PiShieldBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ import RecipeCard from '@/components/ui/RecipeCard';
 // Icons for recipe cards
 const BasicIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <PiServerBold className="h-6 w-6" />
+    <PiDesktopTowerBold className="h-6 w-6" />
   </div>
 );
 
@@ -92,7 +92,7 @@ const Services = () => {
                       <div className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-xl shadow-md border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl">
                         <div className="text-center">
                           <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                            <PiServerBold className="h-10 w-10 text-blue-600" />
+                            <PiDesktopTowerBold className="h-10 w-10 text-blue-600" />
                           </div>
                           <h3 className="text-xl font-bold text-circleTel-navy mb-2">Basic IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>

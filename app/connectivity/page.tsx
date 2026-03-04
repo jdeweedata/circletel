@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckBold, PiClockBold, PiGlobeBold, PiGraphBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiGlobeBold, PiGraphBold, PiLightningBold, PiShieldBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ const Connectivity = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                    <PiWifiBold className="h-8 w-8 text-orange-600" />
+                    <PiWifiHighBold className="h-8 w-8 text-orange-600" />
                   </div>
                   <CardTitle className="text-lg">Scalable Solution</CardTitle>
                 </CardHeader>
@@ -121,7 +121,7 @@ const Connectivity = () => {
               <Card className="border-2 border-circleTel-orange">
                 <CardHeader>
                   <div className="flex items-center justify-center w-16 h-16 bg-circleTel-orange/10 rounded-full mx-auto mb-4">
-                    <PiWifiBold className="h-8 w-8 text-circleTel-orange" />
+                    <PiWifiHighBold className="h-8 w-8 text-circleTel-orange" />
                   </div>
                   <CardTitle className="text-center">Wi-Fi as a Service</CardTitle>
                   <Badge className="mx-auto bg-circleTel-orange">Featured</Badge>

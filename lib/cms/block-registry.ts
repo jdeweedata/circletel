@@ -1,3 +1,4 @@
+import { PiCursorBold, PiGridNineBold, PiImagesBold, PiLayoutBold, PiSelectionBold, PiTextAaBold, PiTextboxBold, PiVideoCameraBold } from 'react-icons/pi';
 /**
  * CMS Page Builder - Block Registry
  *
@@ -52,7 +53,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'hero',
     label: 'Hero Section',
     description: 'Large header section with headline, subline, and CTA',
-    icon: Layout,
+    icon: PiLayoutBold,
     category: 'layout',
     defaultContent: {
       headline: 'Your Headline Here',
@@ -82,7 +83,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'text',
     label: 'Text Block',
     description: 'Rich text content with formatting options',
-    icon: Type,
+    icon: PiTextAaBold,
     category: 'content',
     defaultContent: {
       html: '<p>Start typing your content here...</p>',
@@ -129,7 +130,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'cta',
     label: 'Call to Action',
     description: 'Prominent CTA section with buttons',
-    icon: MousePointer,
+    icon: PiCursorBold,
     category: 'conversion',
     defaultContent: {
       headline: 'Ready to Get Started?',
@@ -157,7 +158,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'feature_grid',
     label: 'Feature Grid',
     description: 'Grid of features with icons and descriptions',
-    icon: Grid3X3,
+    icon: PiGridNineBold,
     category: 'content',
     defaultContent: {
       columns: 3,
@@ -260,7 +261,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'video',
     label: 'Video',
     description: 'Embedded video from YouTube or Vimeo',
-    icon: Video,
+    icon: PiVideoCameraBold,
     category: 'media',
     defaultContent: {
       url: '',
@@ -285,7 +286,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'gallery',
     label: 'Image Gallery',
     description: 'Multiple images in grid or carousel',
-    icon: Images,
+    icon: PiImagesBold,
     category: 'media',
     defaultContent: {
       images: [],
@@ -308,7 +309,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'form',
     label: 'Form',
     description: 'Contact form or lead generation form',
-    icon: FormInput,
+    icon: PiTextboxBold,
     category: 'conversion',
     defaultContent: {
       formType: 'contact',
@@ -359,7 +360,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'spacer',
     label: 'Spacer',
     description: 'Vertical spacing between blocks',
-    icon: Space,
+    icon: PiSelectionBold,
     category: 'utility',
     defaultContent: {
       size: 'md',

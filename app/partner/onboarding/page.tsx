@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiMapPinBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiMapPinBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -316,7 +316,7 @@ export default function PartnerOnboardingPage() {
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <PiSparklesBold className="w-8 h-8 text-green-600" />
+                        <PiSparkleBold className="w-8 h-8 text-green-600" />
                       </div>
                       <h2 className="text-2xl font-bold text-circleTel-navy">Almost there!</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Review your details and submit</p>

@@ -1,3 +1,4 @@
+import { PiTruckBold } from 'react-icons/pi';
 "use client"
 
 import { useState, useEffect } from "react"
@@ -51,7 +52,7 @@ const features = [
     description: "With selected SIM + Device orders."
   },
   {
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     title: "FREE router.",
     description: "With Pure Wireless Plus."
   },

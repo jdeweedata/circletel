@@ -1,5 +1,5 @@
 'use client'
-import { PiActivityBold, PiArrowsClockwiseBold, PiDatabaseBold, PiGaugeBold, PiRadioBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiPulseBold, PiArrowsClockwiseBold, PiDatabaseBold, PiGaugeBold, PiRadioBold, PiWarningCircleBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -287,7 +287,7 @@ export function CustomerRadiusSection({
           {/* Connection Status */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <PiWifiBold className="h-4 w-4 text-gray-500" />
+              <PiWifiHighBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Connection Status</span>
             </div>
             <SubscriberStatusBadge status={status} />
@@ -301,7 +301,7 @@ export function CustomerRadiusSection({
           {/* Active Sessions */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <PiActivityBold className="h-4 w-4 text-gray-500" />
+              <PiPulseBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Active Sessions</span>
             </div>
             <p className="text-2xl font-bold">{sessions.length}</p>

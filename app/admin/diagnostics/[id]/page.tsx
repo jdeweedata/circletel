@@ -1,5 +1,5 @@
 'use client'
-import { PiActivityBold, PiArrowDownBold, PiArrowLeftBold, PiArrowSquareOutBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiQuestionBold, PiSpinnerBold, PiTicketBold, PiTrendDownBold, PiUserBold, PiWarningBold, PiWifiBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowDownBold, PiArrowLeftBold, PiArrowSquareOutBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiPlayBold, PiPulseBold, PiQuestionBold, PiSpinnerBold, PiTicketBold, PiTrendDownBold, PiUserBold, PiWarningBold, PiWifiHighBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -297,7 +297,7 @@ export default function DiagnosticsDetailPage() {
               {analyzing ? (
                 <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <Play className="w-4 h-4 mr-2" />
+                <PiPlayBold className="w-4 h-4 mr-2" />
               )}
               {analyzing ? 'Analyzing...' : 'Run Analysis'}
             </Button>
@@ -446,7 +446,7 @@ export default function DiagnosticsDetailPage() {
                 diagnostics.is_session_active ? 'bg-green-100' : 'bg-gray-100'
               )}>
                 {diagnostics.is_session_active ? (
-                  <PiWifiBold className="w-6 h-6 text-green-600" />
+                  <PiWifiHighBold className="w-6 h-6 text-green-600" />
                 ) : (
                   <PiWifiSlashBold className="w-6 h-6 text-gray-500" />
                 )}
@@ -486,7 +486,7 @@ export default function DiagnosticsDetailPage() {
               {diagnostics.last_session_duration_seconds > 0 && (
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">
-                    <PiActivityBold className="w-4 h-4 text-gray-400" />
+                    <PiPulseBold className="w-4 h-4 text-gray-400" />
                     <p className="text-xs text-gray-500">Duration</p>
                   </div>
                   <p className="font-semibold text-gray-900">
@@ -547,7 +547,7 @@ export default function DiagnosticsDetailPage() {
             <StatCard
               title="Total Sessions"
               value={diagnostics.total_sessions_7days}
-              icon={<PiActivityBold className="h-5 w-5" />}
+              icon={<PiPulseBold className="h-5 w-5" />}
               iconBgColor="bg-blue-100"
               iconColor="text-blue-600"
             />
@@ -650,7 +650,7 @@ export default function DiagnosticsDetailPage() {
           {recent_events.length === 0 ? (
             <div className="text-center py-12">
               <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <PiActivityBold className="w-8 h-8 text-gray-400" />
+                <PiPulseBold className="w-8 h-8 text-gray-400" />
               </div>
               <p className="text-lg font-medium text-gray-700 mb-1">No events recorded</p>
               <p className="text-sm text-gray-500">

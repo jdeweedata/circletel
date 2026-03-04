@@ -1,3 +1,4 @@
+import { PiShieldBold } from 'react-icons/pi';
 
 import React from 'react';
 

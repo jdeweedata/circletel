@@ -1,5 +1,5 @@
 'use client'
-import { PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
+import { PiSparkleBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { DealCard, DealCategory } from './DealCard'
@@ -114,11 +114,11 @@ export function DealCardsGrid({
         {/* Section Header */}
         {showTitle && (
           <div className="flex items-center justify-center gap-2 mb-8">
-            <PiSparklesBold className="w-5 h-5 text-[#F5841E]" />
+            <PiSparkleBold className="w-5 h-5 text-[#F5841E]" />
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {title}
             </h2>
-            <PiSparklesBold className="w-5 h-5 text-[#F5841E]" />
+            <PiSparkleBold className="w-5 h-5 text-[#F5841E]" />
           </div>
         )}
 

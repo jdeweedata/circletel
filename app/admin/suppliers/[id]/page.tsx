@@ -1,5 +1,5 @@
 'use client'
-import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiSparklesBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiSparkleBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -304,7 +304,7 @@ export default function SupplierDetailPage() {
             {enriching ? (
               <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <PiSparklesBold className="w-4 h-4 mr-2" />
+              <PiSparkleBold className="w-4 h-4 mr-2" />
             )}
             {enriching ? 'Enriching...' : 'AI Enrich'}
           </Button>
@@ -364,7 +364,7 @@ export default function SupplierDetailPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <PiSparklesBold className="w-4 h-4 text-purple-600" />
+                <PiSparkleBold className="w-4 h-4 text-purple-600" />
                 <CardTitle className="text-lg">AI Enrichment Status</CardTitle>
               </div>
               {enrichmentStats.pending > 0 && enrichmentStats.cost_estimate && (

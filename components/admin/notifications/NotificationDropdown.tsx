@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiBellBold, PiCurrencyDollarBold, PiInfoBold, PiUserBold, PiWarningBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
+import { PiBellBold, PiCurrencyDollarBold, PiInfoBold, PiPulseBold, PiUserBold, PiWarningBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CircleTel Notification System - Notification Dropdown Component
@@ -66,7 +66,7 @@ function getNotificationIcon(type: string, priority: string) {
     case 'error_alert':
       return <PiWarningCircleBold className={`h-4 w-4 ${iconClass}`} />;
     case 'performance_warning':
-      return <PiActivityBold className={`h-4 w-4 ${iconClass}`} />;
+      return <PiPulseBold className={`h-4 w-4 ${iconClass}`} />;
     default:
       return <PiBellBold className={`h-4 w-4 ${iconClass}`} />;
   }

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiCheckBold, PiClockBold, PiLightningBold, PiShieldBold, PiSpinnerBold, PiTrendUpBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiLightningBold, PiShieldBold, PiSpinnerBold, PiTrendUpBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiGaugeBold, PiHeadphonesBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiServerBold, PiShieldBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiDesktopTowerBold, PiEnvelopeBold, PiGaugeBold, PiHeadphonesBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -51,7 +51,7 @@ const ENTERPRISE_SOLUTIONS: Solution[] = [
     tagline: 'WiFi-as-a-Service for Venues',
     description: 'Fully managed WiFi infrastructure for commercial venues. We handle everything from design to maintenance.',
     priceRange: 'R1,499 - R14,999/mo',
-    icon: PiWifiBold,
+    icon: PiWifiHighBold,
     features: [
       'Enterprise WiFi 6/6E APs',
       'Cloud-managed dashboard',
@@ -83,7 +83,7 @@ const ENTERPRISE_BENEFITS = [
     description: 'Named account manager and priority 24/7 technical support.',
   },
   {
-    icon: PiServerBold,
+    icon: PiDesktopTowerBold,
     title: 'Custom Solutions',
     description: 'Tailored infrastructure design for your specific requirements.',
   },

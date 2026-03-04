@@ -1,5 +1,5 @@
 'use client'
-import { PiCheckCircleBold, PiQuestionBold, PiWarningBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiQuestionBold, PiWarningBold, PiWifiHighBold, PiXCircleBold } from 'react-icons/pi';
 
 
 type ProviderStatus = 'operational' | 'degraded' | 'outage' | 'unknown'
@@ -72,7 +72,7 @@ export function ProviderStatusCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <PiWifiBold className="h-5 w-5 text-gray-400" />
+          <PiWifiHighBold className="h-5 w-5 text-gray-400" />
           <span className="font-medium text-ui-text-primary">{name}</span>
         </div>
         <Icon className={`h-5 w-5 ${config.iconColor}`} />

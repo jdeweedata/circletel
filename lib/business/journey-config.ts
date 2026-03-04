@@ -1,4 +1,4 @@
-import { PiBuildingsBold, PiFileTextBold, PiLightningBold, PiMapPinBold, PiWrenchBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiFileTextBold, PiLightningBold, PiMapPinBold, PiSignatureBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * B2B Business Journey Configuration
  *
@@ -215,7 +215,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Review your service agreement and sign digitally. Your contract includes all terms, pricing, and SLA commitments.',
     adminDescription:
       'Contract sent for signature. Monitor signing status.',
-    icon: FileSignature,
+    icon: PiSignatureBold,
     requiredDocuments: [],
     nextAction: 'Sign contract',
     estimatedDuration: '1-2 days',

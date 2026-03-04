@@ -1,5 +1,5 @@
 'use client';
-import { PiCheckBold, PiLightningBold, PiRouterBold, PiWifiBold } from 'react-icons/pi';
+import { PiCheckBold, PiLightningBold, PiRouterBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -137,7 +137,7 @@ export function ProductCard({
       <CardHeader>
         <CardTitle className="text-2xl">{productName}</CardTitle>
         <CardDescription className="flex items-center gap-2 text-lg">
-          <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
+          <PiWifiHighBold className="w-5 h-5 text-circleTel-orange" />
           {productSpeed}
         </CardDescription>
         {service_type && (

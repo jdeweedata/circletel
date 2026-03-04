@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold, PiInfoBold, PiLockBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold, PiInfoBold, PiLockBold, PiPhoneBold, PiPhoneCallBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -373,7 +373,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
               <SecurityBadge icon={<PiCheckCircleBold className="h-5 w-5" />} text="Secure Checkout" />
               <SecurityBadge icon={<PiShieldBold className="h-5 w-5" />} text="Data Protected" />
               <SecurityBadge icon={<PiLockBold className="h-5 w-5" />} text="No Hidden Fees" />
-              <SecurityBadge icon={<PhoneCall className="h-5 w-5" />} text="24/7 Support" />
+              <SecurityBadge icon={<PiPhoneCallBold className="h-5 w-5" />} text="24/7 Support" />
             </div>
           </div>
 
@@ -445,7 +445,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                   {/* Help Section */}
                   <div className="bg-blue-50 rounded-lg p-4 space-y-2">
                     <div className="flex items-center gap-2 text-blue-900 font-semibold">
-                      <PhoneCall className="h-5 w-5" />
+                      <PiPhoneCallBold className="h-5 w-5" />
                       Need help?
                     </div>
                     <p className="text-sm text-blue-800">

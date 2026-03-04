@@ -1,5 +1,5 @@
 'use client';
-import { PiBellBold, PiCheckCircleBold, PiEnvelopeBold, PiMegaphoneBold, PiPackageBold, PiShieldCheckBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
+import { PiBellBold, PiCheckCircleBold, PiEnvelopeBold, PiEnvelopeSimpleBold, PiMegaphoneBold, PiNewspaperBold, PiPackageBold, PiShieldCheckBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -300,7 +300,7 @@ function UnsubscribeContent() {
                 {/* Unsubscribed All Banner */}
                 {preferences.unsubscribed_all && (
                   <Alert className="mb-6 border-amber-200 bg-amber-50">
-                    <MailX className="h-4 w-4 text-amber-600" />
+                    <PiEnvelopeSimpleBold className="h-4 w-4 text-amber-600" />
                     <AlertTitle className="text-amber-800">You're Unsubscribed</AlertTitle>
                     <AlertDescription className="text-amber-700">
                       You have unsubscribed from all marketing emails. 
@@ -353,7 +353,7 @@ function UnsubscribeContent() {
                     {/* Newsletter */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
-                        <Newspaper className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
+                        <PiNewspaperBold className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
                         <div>
                           <Label htmlFor="newsletter" className="font-medium">
                             Newsletter
@@ -426,7 +426,7 @@ function UnsubscribeContent() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <h3 className="font-medium text-circleTel-navy flex items-center gap-2">
-                            <MailX className="h-5 w-5 text-red-500" />
+                            <PiEnvelopeSimpleBold className="h-5 w-5 text-red-500" />
                             Unsubscribe from All Marketing
                           </h3>
                           <p className="text-sm text-circleTel-secondaryNeutral mt-1">

@@ -1,5 +1,5 @@
 'use client';
-import { PiActivityBold, PiArrowLeftBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFunnelBold, PiMagnifyingGlassBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFunnelBold, PiMagnifyingGlassBold, PiPulseBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
@@ -266,7 +266,7 @@ export default function IntegrationLogsPage({
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <PiActivityBold className="h-5 w-5 text-gray-600" />
+                  <PiPulseBold className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{stats.total}</div>

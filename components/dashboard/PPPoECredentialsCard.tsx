@@ -1,5 +1,5 @@
 'use client'
-import { PiCheckCircleBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiQuestionBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
+import { PiCheckCircleBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiQuestionBold, PiWifiHighBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -116,7 +116,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             Connection Details
           </CardTitle>
         </CardHeader>
@@ -150,7 +150,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <PiWifiBold className="h-5 w-5 text-orange-500" />
+            <PiWifiHighBold className="h-5 w-5 text-orange-500" />
             Connection Details
           </CardTitle>
           {credential.provisioningStatus === 'provisioned' ? (

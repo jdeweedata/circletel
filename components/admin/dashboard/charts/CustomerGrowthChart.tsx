@@ -1,4 +1,5 @@
 'use client';
+import {} from 'react-icons/pi';
 
 import {
   BarChart,

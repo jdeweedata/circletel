@@ -1,4 +1,4 @@
-import { PiChartLineUpBold, PiChatPlusBold, PiCheckCircleBold, PiLaptopBold, PiLightningBold, PiPlugBold, PiRadioBold, PiShieldCheckBold, PiWifiBold } from 'react-icons/pi';
+import { PiChartLineUpBold, PiChatPlusBold, PiCheckCircleBold, PiLaptopBold, PiLightningBold, PiPlugBold, PiRadioBold, PiShieldCheckBold, PiWifiHighBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -120,7 +120,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-blue-600 rounded-full p-3 text-white">
-                  <PiWifiBold size={32} />
+                  <PiWifiHighBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">5G Wireless</h3>
@@ -182,7 +182,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-green-600 rounded-full p-3 text-white">
-                  <PiWifiBold size={32} />
+                  <PiWifiHighBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">Fixed Wireless</h3>

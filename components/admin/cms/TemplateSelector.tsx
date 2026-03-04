@@ -1,5 +1,5 @@
 'use client';
-import { PiClockBold, PiFileTextBold, PiSparklesBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
+import { PiClockBold, PiFileTextBold, PiSparkleBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Template Selector Modal
@@ -139,7 +139,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
                 <p className="text-xs text-gray-500 mt-1">Start from scratch</p>
                 {selectedTemplate === null && (
                   <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <PiSparklesBold className="w-3 h-3 text-white" />
+                    <PiSparkleBold className="w-3 h-3 text-white" />
                   </div>
                 )}
               </button>
@@ -186,7 +186,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
 
                     {isSelected && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                        <PiSparklesBold className="w-3 h-3 text-white" />
+                        <PiSparkleBold className="w-3 h-3 text-white" />
                       </div>
                     )}
                   </button>

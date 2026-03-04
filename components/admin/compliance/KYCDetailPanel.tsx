@@ -1,5 +1,5 @@
 'use client';
-import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiShieldBold, PiUserBold, PiWarningCircleBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCameraBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiShieldBold, PiUserBold, PiWarningCircleBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -259,7 +259,7 @@ export function KYCDetailPanel({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Camera className="h-5 w-5 text-circleTel-orange" />
+                <PiCameraBold className="h-5 w-5 text-circleTel-orange" />
                 Verification Details
               </CardTitle>
             </CardHeader>

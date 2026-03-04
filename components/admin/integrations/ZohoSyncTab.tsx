@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiUserBold, PiXCircleBold } from 'react-icons/pi';
+import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileXlsBold, PiPackageBold, PiSpinnerBold, PiUserBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,7 +137,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
   const entityIcons = {
     customer: <PiUserBold className="h-4 w-4" />,
     subscription: <PiPackageBold className="h-4 w-4" />,
-    invoice: <FileSpreadsheet className="h-4 w-4" />,
+    invoice: <PiFileXlsBold className="h-4 w-4" />,
     payment: <PiCreditCardBold className="h-4 w-4" />,
   };
 

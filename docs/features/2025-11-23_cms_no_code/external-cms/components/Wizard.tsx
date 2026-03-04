@@ -1,4 +1,4 @@
-import { PiMagicWandBold, PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
+import { PiMagicWandBold, PiSparkleBold, PiSpinnerBold } from 'react-icons/pi';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generatePageContent, generateImage, improvePrompt } from '../services/geminiService';
@@ -130,7 +130,7 @@ const Wizard: React.FC = () => {
                     }`}
                     title="Enhance with AI"
                   >
-                    {enhancing ? <PiSpinnerBold size={18} className="animate-spin" /> : <PiSparklesBold size={18} />}
+                    {enhancing ? <PiSpinnerBold size={18} className="animate-spin" /> : <PiSparkleBold size={18} />}
                   </button>
                 </div>
                 {enhancing && <p className="text-xs text-purple-600 font-medium animate-pulse">Refining your idea...</p>}

@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiCheckBold, PiCopyBold, PiCurrencyDollarBold, PiPencilSimpleBold, PiPlusBold, PiShoppingCartBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiCheckBold, PiCopyBold, PiCurrencyDollarBold, PiCursorClickBold, PiPencilSimpleBold, PiPlusBold, PiShoppingCartBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -301,7 +301,7 @@ export default function AmbassadorCodesPage() {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <MousePointerClick className="w-4 h-4 mx-auto text-blue-500 mb-1" />
+                  <PiCursorClickBold className="w-4 h-4 mx-auto text-blue-500 mb-1" />
                   <p className="text-sm font-semibold">{code.total_clicks}</p>
                   <p className="text-xs text-gray-500">Clicks</p>
                 </div>

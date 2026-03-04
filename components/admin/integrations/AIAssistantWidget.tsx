@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowsClockwiseBold, PiChatBold, PiPaperPlaneRightBold, PiSparklesBold, PiSpinnerBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
+import { PiArrowsClockwiseBold, PiChatBold, PiPaperPlaneRightBold, PiSparkleBold, PiSpinnerBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -196,7 +196,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
           {/* Header */}
           <div className="bg-gradient-to-r from-circleTel-orange to-orange-500 p-4 flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
-              <PiSparklesBold className="h-5 w-5" />
+              <PiSparkleBold className="h-5 w-5" />
               <div>
                 <h3 className="font-semibold text-sm">Integration Assistant</h3>
                 <p className="text-xs text-white/80">Powered by Gemini AI</p>
@@ -330,7 +330,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
           <span className="absolute -top-1 -right-1 flex h-4 w-4">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 items-center justify-center">
-              <PiSparklesBold className="h-2.5 w-2.5 text-white" />
+              <PiSparkleBold className="h-2.5 w-2.5 text-white" />
             </span>
           </span>
         )}

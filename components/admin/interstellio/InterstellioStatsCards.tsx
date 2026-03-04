@@ -1,5 +1,5 @@
 'use client'
-import { PiActivityBold, PiArrowDownBold, PiArrowUpBold, PiHardDriveBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import { PiPulseBold, PiArrowDownBold, PiArrowUpBold, PiHardDriveBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -38,14 +38,14 @@ export function InterstellioStatsCards({
       title: 'Active Sessions',
       value: stats?.activeSessions ?? 0,
       subtitle: 'Currently connected',
-      icon: PiWifiBold,
+      icon: PiWifiHighBold,
       color: 'bg-green-500',
     },
     {
       title: 'Linked Services',
       value: linkedServices,
       subtitle: 'Connected to CircleTel customers',
-      icon: PiActivityBold,
+      icon: PiPulseBold,
       color: 'bg-purple-500',
     },
     {

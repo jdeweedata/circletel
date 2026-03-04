@@ -1,4 +1,4 @@
-import { PiCurrencyDollarBold, PiFolderOpenBold, PiHouseBold, PiImageBold, PiMegaphoneBold, PiUserBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
+import { PiBriefcaseBold, PiCurrencyDollarBold, PiFolderOpenBold, PiHouseBold, PiImageBold, PiMegaphoneBold, PiUserBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
 
 export interface PartnerTab {
   id: string;
@@ -28,7 +28,7 @@ export const partnerTabs: PartnerTab[] = [
   {
     id: 'business',
     label: 'Business',
-    icon: Briefcase,
+    icon: PiBriefcaseBold,
     href: '/partner/leads',
     routes: ['/partner/leads'],
   },

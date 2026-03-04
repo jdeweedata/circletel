@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiCopyBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiCopyBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiShieldBold, PiSparkleBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -251,7 +251,7 @@ Acme Corp"`}
                   </>
                 ) : (
                   <>
-                    <PiSparklesBold className="h-4 w-4" />
+                    <PiSparkleBold className="h-4 w-4" />
                     Parse Email
                   </>
                 )}
@@ -338,13 +338,13 @@ Acme Corp"`}
               {/* Requirements */}
               <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
                 <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                  <PiWifiBold className="h-4 w-4 text-purple-500" />
+                  <PiWifiHighBold className="h-4 w-4 text-purple-500" />
                   <span className="text-sm font-semibold text-slate-700">Requirements</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
                   {parseResult.requirements.bandwidth_mbps && (
                     <div className="flex items-center gap-2">
-                      <PiWifiBold className="h-3.5 w-3.5 text-slate-400" />
+                      <PiWifiHighBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">{parseResult.requirements.bandwidth_mbps} Mbps</span>
                     </div>
                   )}
