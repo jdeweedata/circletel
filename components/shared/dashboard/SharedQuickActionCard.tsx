@@ -1,4 +1,5 @@
 'use client';
+import { PiPackageBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -17,7 +18,7 @@ import { iconColorMap } from './types';
  * <SharedQuickActionCard
  *   title="View Orders"
  *   description="Manage customer orders"
- *   icon={Package}
+ *   icon={PiPackageBold}
  *   colorVariant="blue"
  *   href="/admin/orders"
  * />
@@ -86,7 +87,7 @@ export function SharedQuickActionCard({
  * ```tsx
  * <SharedQuickActionCardCompact
  *   title="View Orders"
- *   icon={Package}
+ *   icon={PiPackageBold}
  *   colorVariant="blue"
  *   href="/admin/orders"
  * />

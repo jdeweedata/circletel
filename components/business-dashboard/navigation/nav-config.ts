@@ -1,3 +1,4 @@
+import { IconType } from 'react-icons';
 import { PiBuildingsBold, PiCheckSquareBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiMapPinBold, PiQuestionBold, PiSignatureBold, PiSquaresFourBold, PiTrendUpBold, PiWifiHighBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * Business Dashboard Navigation Configuration
@@ -11,7 +12,7 @@ import { PiBuildingsBold, PiCheckSquareBold, PiCreditCardBold, PiFileTextBold, P
 export interface NavItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconType;
   description?: string;
   badge?: string;
   children?: NavItem[];

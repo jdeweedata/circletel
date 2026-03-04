@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTargetBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 /**
  * Marketing Dashboard
@@ -268,7 +268,7 @@ export default function MarketingDashboardPage() {
           <StatCard
             title="Conversion Rate"
             value={`${stats?.conversionRate || 0}%`}
-            icon={Target}
+            icon={PiTargetBold}
             description="Promo to purchase"
             trend={{ value: 3.2, positive: true }}
           />

@@ -1,9 +1,10 @@
+import { IconType } from 'react-icons';
 import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiFileCheckBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiReceiptBold, PiShieldBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 export interface DashboardTab {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon: IconType;
   href: string;
   routes: string[]; // All routes that belong to this tab (for active detection)
 }
@@ -11,7 +12,7 @@ export interface DashboardTab {
 export interface SidebarItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconType;
   badge?: string | number;
   disabled?: boolean;
 }

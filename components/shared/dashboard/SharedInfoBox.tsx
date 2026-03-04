@@ -1,4 +1,5 @@
 'use client';
+import { PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,7 @@ import { infoBoxVariantMap } from './types';
  *
  * @example
  * ```tsx
- * <SharedInfoBox variant="orange" title="Account Number" icon={User}>
+ * <SharedInfoBox variant="orange" title="Account Number" icon={PiUserBold}>
  *   <p className="text-lg font-bold">CT-2025-00001</p>
  *   <p className="text-sm">Use this number when contacting support</p>
  * </SharedInfoBox>
@@ -53,7 +54,7 @@ export function SharedInfoBox({
  *   label="Account Number"
  *   value="CT-2025-00001"
  *   hint="Use this number when contacting support"
- *   icon={User}
+ *   icon={PiUserBold}
  * />
  * ```
  */
@@ -96,7 +97,7 @@ export function SharedHighlightBox({
  *
  * @example
  * ```tsx
- * <SharedAlertBox variant="red" icon={AlertCircle}>
+ * <SharedAlertBox variant="red" icon={PiWarningCircleBold}>
  *   Payment is overdue. Please update your payment method.
  * </SharedAlertBox>
  * ```

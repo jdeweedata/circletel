@@ -1,4 +1,4 @@
-import { PiShieldBold, PiTruckBold } from 'react-icons/pi';
+import { PiShieldBold, PiStarBold, PiTruckBold } from 'react-icons/pi';
 "use client"
 
 import { Button } from "@/components/ui/button"

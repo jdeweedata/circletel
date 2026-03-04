@@ -1,4 +1,5 @@
 'use client';
+import { IconType } from 'react-icons';
 import { PiCheckBold, PiCircleBold } from 'react-icons/pi';
 
 
@@ -7,7 +8,7 @@ export interface WorkflowStep {
   label: string;
   subLabel?: string;
   status: 'completed' | 'active' | 'pending';
-  icon?: LucideIcon;
+  icon?: IconType;
   date?: string;
 }
 

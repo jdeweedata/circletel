@@ -1,9 +1,10 @@
 'use client';
+import { IconType } from 'react-icons';
 import { PiClockBold, PiGlobeBold, PiHeadphonesBold, PiLightningBold, PiDesktopTowerBold, PiShieldBold, PiUsersBold, PiWifiHighBold } from 'react-icons/pi';
 
 
 // Icon mapping for dynamic icon selection
-const iconMap: Record<string, LucideIcon> = {
+const iconMap: Record<string, IconType> = {
   wifi: Wifi,
   shield: Shield,
   clock: Clock,

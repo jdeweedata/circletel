@@ -1,5 +1,5 @@
 'use client';
-import { PiPackageBold } from 'react-icons/pi';
+import { PiPackageBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ import type { SharedEmptyStateProps } from './types';
  * <SharedEmptyState
  *   title="No Services Yet"
  *   description="You don't have any active services. Browse our packages to get started."
- *   icon={Wifi}
+ *   icon={PiWifiHighBold}
  *   ctaText="Browse Packages"
  *   ctaHref="/packages"
  * />

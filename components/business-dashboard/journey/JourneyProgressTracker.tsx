@@ -1,4 +1,5 @@
 'use client';
+import { IconType } from 'react-icons';
 import { PiCheckCircleBold, PiCircleBold, PiClockBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
@@ -55,7 +56,7 @@ interface StageIndicatorProps {
 // Helper Functions
 // ============================================================================
 
-function getStatusIcon(status: JourneyStageStatus): LucideIcon {
+function getStatusIcon(status: JourneyStageStatus): IconType {
   switch (status) {
     case 'completed':
       return CheckCircle2;

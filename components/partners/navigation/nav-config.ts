@@ -1,9 +1,10 @@
+import { IconType } from 'react-icons';
 import { PiBriefcaseBold, PiCurrencyDollarBold, PiFolderOpenBold, PiHouseBold, PiImageBold, PiMegaphoneBold, PiUserBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
 
 export interface PartnerTab {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon: IconType;
   href: string;
   routes: string[]; // All routes that belong to this tab (for active detection)
 }
@@ -11,7 +12,7 @@ export interface PartnerTab {
 export interface SidebarItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconType;
   badge?: string | number;
   disabled?: boolean;
 }

@@ -1,10 +1,11 @@
+import { IconType } from 'react-icons';
 import { PiDeviceMobileBold, PiGlobeBold, PiLightningBold, PiRadioBold, PiWifiHighBold } from 'react-icons/pi';
 
 export interface CategoryTheme {
   color: string
   bg: string
   border: string
-  icon: LucideIcon
+  icon: IconType
 }
 
 export const PRODUCT_CATEGORY_THEMES: Record<string, CategoryTheme> = {

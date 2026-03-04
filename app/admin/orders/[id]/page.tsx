@@ -554,7 +554,7 @@ export default function AdminOrderDetailPage() {
             label="Package"
             value={order.package_name}
             subtitle={order.package_speed}
-            icon={Package}
+            icon={PiPackageBold}
             iconBg="bg-gradient-to-br from-orange-500 to-orange-600"
           />
           <StatCard
@@ -568,7 +568,7 @@ export default function AdminOrderDetailPage() {
             label="Payment Status"
             value={order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
             subtitle={order.payment_date ? `Paid ${new Date(order.payment_date).toLocaleDateString()}` : 'Awaiting payment'}
-            icon={CreditCard}
+            icon={PiCreditCardBold}
             iconBg={order.payment_status === 'paid'
               ? "bg-gradient-to-br from-emerald-500 to-green-600"
               : "bg-gradient-to-br from-amber-500 to-orange-500"}
@@ -636,7 +636,7 @@ export default function AdminOrderDetailPage() {
               <div className="space-y-6">
                 {/* Customer Information */}
                 <SectionCard
-                  icon={User}
+                  icon={PiUserBold}
                   title="Customer Information"
                   headerGradient="from-blue-50 to-white"
                   iconGradient="from-blue-500 to-indigo-600"
@@ -689,7 +689,7 @@ export default function AdminOrderDetailPage() {
                 {/* Residential Address (KYC) */}
                 {order.residential_address && (
                   <SectionCard
-                    icon={MapPin}
+                    icon={PiMapPinBold}
                     title="Current Address"
                     headerGradient="from-emerald-50 to-white"
                     iconGradient="from-emerald-500 to-green-600"
@@ -737,7 +737,7 @@ export default function AdminOrderDetailPage() {
 
                 {/* Package Details */}
                 <SectionCard
-                  icon={Package}
+                  icon={PiPackageBold}
                   title="Package Details"
                   headerGradient="from-circleTel-orange/10 to-white"
                   iconGradient="from-circleTel-orange to-circleTel-warm-orange"
@@ -797,7 +797,7 @@ export default function AdminOrderDetailPage() {
 
                 {/* Timeline */}
                 <SectionCard
-                  icon={Clock}
+                  icon={PiClockBold}
                   title="Timeline"
                   headerGradient="from-cyan-50 to-white"
                   iconGradient="from-cyan-500 to-blue-600"
@@ -832,7 +832,7 @@ export default function AdminOrderDetailPage() {
               <div className="space-y-6">
                 {/* Installation Address */}
                 <SectionCard
-                  icon={MapPin}
+                  icon={PiMapPinBold}
                   title="Installation Address"
                   headerGradient="from-amber-50 to-white"
                   iconGradient="from-amber-500 to-circleTel-orange"
@@ -885,7 +885,7 @@ export default function AdminOrderDetailPage() {
                 {/* Installation Documentation */}
                 {order.installation_document_url && (
                   <SectionCard
-                    icon={FileText}
+                    icon={PiFileTextBold}
                     title="Installation Documentation"
                     headerGradient="from-ui-bg to-white"
                     iconGradient="from-ui-text-muted to-ui-text-secondary"
@@ -931,7 +931,7 @@ export default function AdminOrderDetailPage() {
               <div className="space-y-6">
                 {/* Payment Information */}
                 <SectionCard
-                  icon={CreditCard}
+                  icon={PiCreditCardBold}
                   title="Payment Information"
                   headerGradient="from-green-50 to-white"
                   iconGradient="from-green-500 to-emerald-600"
@@ -982,7 +982,7 @@ export default function AdminOrderDetailPage() {
                 {/* Billing Address */}
                 {!order.billing_same_as_installation && order.billing_address && (
                   <SectionCard
-                    icon={FileText}
+                    icon={PiFileTextBold}
                     title="Billing Address"
                     headerGradient="from-ui-bg to-white"
                     iconGradient="from-ui-text-muted to-ui-text-secondary"
@@ -1036,7 +1036,7 @@ export default function AdminOrderDetailPage() {
                 {/* Notes */}
                 {(order.technician_notes || order.internal_notes) && (
                   <SectionCard
-                    icon={FileText}
+                    icon={PiFileTextBold}
                     title="Notes"
                     headerGradient="from-ui-bg to-white"
                     iconGradient="from-ui-text-muted to-ui-text-secondary"

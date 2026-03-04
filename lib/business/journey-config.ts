@@ -1,3 +1,4 @@
+import { IconType } from 'react-icons';
 import { PiBuildingsBold, PiFileTextBold, PiLightningBold, PiMapPinBold, PiSignatureBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * B2B Business Journey Configuration
@@ -36,7 +37,7 @@ export interface JourneyStage {
   description: string;
   customerDescription: string; // What the customer sees
   adminDescription: string; // What admin sees
-  icon: LucideIcon;
+  icon: IconType;
   requiredDocuments: RequiredDocument[];
   rfiChecklist?: RFIChecklistItem[]; // RFI checklist for site_details stage
   nextAction: string;

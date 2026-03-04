@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiClipboardTextBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiHighBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -366,7 +366,7 @@ export default function SiteEditPage() {
             number={1}
             title="Site Status"
             description="Update the deployment status of this site"
-            icon={Check}
+            icon={PiCheckBold}
             isComplete={formData.status === 'active'}
           >
             <div className="md:col-span-2">
@@ -397,7 +397,7 @@ export default function SiteEditPage() {
             number={2}
             title="Site Details"
             description="Basic information about this location"
-            icon={MapPin}
+            icon={PiMapPinBold}
             isComplete={!!formData.siteName && !!formData.city}
           >
             <div>
@@ -475,7 +475,7 @@ export default function SiteEditPage() {
             number={3}
             title="Site Contact"
             description="Local contact person at this site"
-            icon={User}
+            icon={PiUserBold}
             isComplete={!!formData.siteContactName}
           >
             <div>
@@ -517,7 +517,7 @@ export default function SiteEditPage() {
             number={4}
             title="Site Readiness (RFI)"
             description="Infrastructure readiness checklist"
-            icon={ClipboardCheck}
+            icon={PiClipboardTextBold}
             isComplete={formData.rfiStatus === 'approved'}
           >
             <div className="md:col-span-2 space-y-4">
@@ -621,7 +621,7 @@ export default function SiteEditPage() {
             number={5}
             title="Installation Details"
             description="Router and installation information"
-            icon={Wifi}
+            icon={PiWifiHighBold}
             isComplete={!!formData.routerSerial}
           >
             <div>

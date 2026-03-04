@@ -1,4 +1,4 @@
-import { PiTruckBold } from 'react-icons/pi';
+import { PiCheckBold, PiStarBold, PiTruckBold, PiWifiHighBold } from 'react-icons/pi';
 "use client"
 
 import { useState, useEffect } from "react"

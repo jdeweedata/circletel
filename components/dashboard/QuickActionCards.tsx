@@ -1,4 +1,5 @@
 'use client';
+import { IconType } from 'react-icons';
 import { PiCreditCardBold, PiFileTextBold, PiGearBold, PiHeadphonesBold, PiQuestionBold, PiShoppingCartBold, PiUserCircleBold } from 'react-icons/pi';
 
 import React from 'react';
@@ -8,7 +9,7 @@ import { cn } from '@/lib/utils';
 interface QuickAction {
   id: string;
   title: string;
-  icon: LucideIcon;
+  icon: IconType;
   href: string;
   description: string;
   iconBg: string;

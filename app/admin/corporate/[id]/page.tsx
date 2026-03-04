@@ -434,14 +434,14 @@ export default function CorporateDetailPage() {
           <StatCard
             label="Total Sites"
             value={corporate.totalSites}
-            icon={MapPin}
+            icon={PiMapPinBold}
             iconBg="bg-gradient-to-br from-violet-500 to-purple-600"
             iconColor="text-white"
           />
           <StatCard
             label="Active Sites"
             value={corporate.activeSites}
-            icon={CheckCircle}
+            icon={PiCheckCircleBold}
             iconBg="bg-gradient-to-br from-emerald-500 to-green-600"
             iconColor="text-white"
             trend={corporate.activeSites > 0 ? `${Math.round((corporate.activeSites / corporate.totalSites) * 100)}% of total` : undefined}
@@ -449,14 +449,14 @@ export default function CorporateDetailPage() {
           <StatCard
             label="Pending Sites"
             value={corporate.pendingSites}
-            icon={Clock}
+            icon={PiClockBold}
             iconBg="bg-gradient-to-br from-amber-500 to-orange-500"
             iconColor="text-white"
           />
           <StatCard
             label="Target Sites"
             value={corporate.expectedSites || '—'}
-            icon={Target}
+            icon={PiTargetBold}
             iconBg="bg-gradient-to-br from-blue-500 to-indigo-600"
             iconColor="text-white"
             trend={corporate.expectedSites ? `${deploymentProgress}% deployed` : undefined}
@@ -628,7 +628,7 @@ export default function CorporateDetailPage() {
                     position={corporate.primaryContactPosition}
                     email={corporate.primaryContactEmail}
                     phone={corporate.primaryContactPhone}
-                    icon={Shield}
+                    icon={PiShieldBold}
                     accentColor="bg-orange-500"
                   />
                   {corporate.billingContactName && (
@@ -637,7 +637,7 @@ export default function CorporateDetailPage() {
                       name={corporate.billingContactName}
                       email={corporate.billingContactEmail}
                       phone={corporate.billingContactPhone}
-                      icon={FileText}
+                      icon={PiFileTextBold}
                       accentColor="bg-emerald-500"
                     />
                   )}
@@ -647,7 +647,7 @@ export default function CorporateDetailPage() {
                       name={corporate.technicalContactName}
                       email={corporate.technicalContactEmail}
                       phone={corporate.technicalContactPhone}
-                      icon={Key}
+                      icon={PiKeyBold}
                       accentColor="bg-blue-500"
                     />
                   )}

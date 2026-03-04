@@ -1,3 +1,4 @@
+import { IconType } from 'react-icons';
 import { PiCursorBold, PiGridNineBold, PiImagesBold, PiLayoutBold, PiSelectionBold, PiTextAaBold, PiTextboxBold, PiVideoCameraBold } from 'react-icons/pi';
 /**
  * CMS Page Builder - Block Registry
@@ -31,7 +32,7 @@ export interface BlockDefinition<T = Record<string, unknown>> {
   type: BlockType;
   label: string;
   description: string;
-  icon: LucideIcon;
+  icon: IconType;
   category: BlockCategory;
   defaultContent: T;
   defaultSettings: BlockSettings;

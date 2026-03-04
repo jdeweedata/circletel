@@ -1,4 +1,4 @@
-import { PiArrowLeftBold} from 'react-icons/pi';
+import { PiArrowLeftBold, PiCreditCardBold, PiFileTextBold } from 'react-icons/pi';
 /**
  * Invoice Detail Page
  * /dashboard/invoices/[id]

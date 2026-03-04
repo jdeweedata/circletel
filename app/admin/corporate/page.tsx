@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowSquareOutBold, PiArrowUpRightBold, PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
+import { PiArrowSquareOutBold, PiArrowUpRightBold, PiBriefcaseBold, PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -341,33 +341,33 @@ export default function CorporateListPage() {
           <StatCard
             label="Total Corporates"
             value={stats.totalCorporates}
-            icon={Briefcase}
+            icon={PiBriefcaseBold}
             color="orange"
           />
           <StatCard
             label="Active Corporates"
             value={stats.activeCorporates}
-            icon={CheckCircle}
+            icon={PiCheckCircleBold}
             color="emerald"
             subtitle={stats.totalCorporates > 0 ? `${Math.round((stats.activeCorporates / stats.totalCorporates) * 100)}% of total` : undefined}
           />
           <StatCard
             label="Total Sites"
             value={stats.totalSites}
-            icon={MapPin}
+            icon={PiMapPinBold}
             color="violet"
           />
           <StatCard
             label="Active Sites"
             value={stats.activeSites}
-            icon={Users}
+            icon={PiUsersBold}
             color="sky"
             subtitle={stats.totalSites > 0 ? `${Math.round((stats.activeSites / stats.totalSites) * 100)}% deployed` : undefined}
           />
           <StatCard
             label="Pending Sites"
             value={stats.pendingSites}
-            icon={Clock}
+            icon={PiClockBold}
             color="amber"
             subtitle="Awaiting deployment"
           />

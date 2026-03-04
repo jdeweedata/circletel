@@ -362,7 +362,7 @@ export default function MTNDealerProductsPage() {
             <StatsCard
               title="Total Products"
               value={stats?.stats?.total || 0}
-              icon={Package}
+              icon={PiPackageBold}
               description={`${stats?.stats?.by_status?.active || 0} active`}
             />
             <StatsCard
@@ -374,7 +374,7 @@ export default function MTNDealerProductsPage() {
             <StatsCard
               title="With Device"
               value={stats?.stats?.by_device?.with_device || 0}
-              icon={Smartphone}
+              icon={PiDeviceMobileBold}
               description={`${stats?.stats?.by_device?.sim_only || 0} SIM only`}
             />
             <StatsCard

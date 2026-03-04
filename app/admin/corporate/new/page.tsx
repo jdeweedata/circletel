@@ -1,5 +1,5 @@
 'use client';
-import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiCreditCardBold, PiFloppyDiskBold, PiMapPinBold, PiPhoneBold, PiSignatureBold, PiSparkleBold, PiTextboxBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiCreditCardBold, PiFloppyDiskBold, PiMapPinBold, PiPhoneBold, PiSignatureBold, PiSparkleBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -430,12 +430,12 @@ export default function NewCorporatePage() {
             number={1}
             title="Company Information"
             description="Basic company details and registration numbers"
-            icon={Building2}
+            icon={PiBuildingsBold}
             required={true}
             isComplete={sectionCompletion.company}
             defaultOpen={true}
           >
-            <PiTextboxBold
+            <Input
               label="Corporate Code"
               required
               placeholder="UNJ"
@@ -445,14 +445,14 @@ export default function NewCorporatePage() {
               className="uppercase font-mono text-lg tracking-wider"
               hint="Used in account numbers: CT-UNJ-001"
             />
-            <PiTextboxBold
+            <Input
               label="Company Name"
               required
               placeholder="Unjani Clinics NPC"
               value={formData.companyName}
               onChange={(e) => handleInputChange('companyName', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Trading Name"
               placeholder="Unjani Clinics"
               value={formData.tradingName}
@@ -476,13 +476,13 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <PiTextboxBold
+            <Input
               label="CIPC Registration Number"
               placeholder="2014/089277/08"
               value={formData.registrationNumber}
               onChange={(e) => handleInputChange('registrationNumber', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="VAT Number"
               placeholder="4123456789"
               value={formData.vatNumber}
@@ -496,25 +496,25 @@ export default function NewCorporatePage() {
             number={2}
             title="Primary Contact"
             description="Main point of contact at corporate headquarters"
-            icon={User}
+            icon={PiUserBold}
             required={true}
             isComplete={sectionCompletion.primary}
             defaultOpen={true}
           >
-            <PiTextboxBold
+            <Input
               label="Full Name"
               required
               placeholder="Lynda Toussaint"
               value={formData.primaryContactName}
               onChange={(e) => handleInputChange('primaryContactName', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Position / Title"
               placeholder="Chief Executive Officer"
               value={formData.primaryContactPosition}
               onChange={(e) => handleInputChange('primaryContactPosition', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Email Address"
               required
               type="email"
@@ -522,7 +522,7 @@ export default function NewCorporatePage() {
               value={formData.primaryContactEmail}
               onChange={(e) => handleInputChange('primaryContactEmail', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -537,25 +537,25 @@ export default function NewCorporatePage() {
             number={3}
             title="Billing Contact"
             description="Finance department contact for invoices and payments"
-            icon={CreditCard}
+            icon={PiCreditCardBold}
             required={false}
             isComplete={sectionCompletion.billing}
             defaultOpen={false}
           >
-            <PiTextboxBold
+            <Input
               label="Contact Name"
               placeholder="Finance Manager"
               value={formData.billingContactName}
               onChange={(e) => handleInputChange('billingContactName', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Email Address"
               type="email"
               placeholder="finance@company.co.za"
               value={formData.billingContactEmail}
               onChange={(e) => handleInputChange('billingContactEmail', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -570,25 +570,25 @@ export default function NewCorporatePage() {
             number={4}
             title="Technical Contact"
             description="IT department contact for installations and support"
-            icon={Wrench}
+            icon={PiWrenchBold}
             required={false}
             isComplete={sectionCompletion.technical}
             defaultOpen={false}
           >
-            <PiTextboxBold
+            <Input
               label="Contact Name"
               placeholder="IT Manager"
               value={formData.technicalContactName}
               onChange={(e) => handleInputChange('technicalContactName', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Email Address"
               type="email"
               placeholder="it@company.co.za"
               value={formData.technicalContactEmail}
               onChange={(e) => handleInputChange('technicalContactEmail', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Phone Number"
               type="tel"
               placeholder="082 123 4567"
@@ -603,20 +603,20 @@ export default function NewCorporatePage() {
             number={5}
             title="Headquarters Address"
             description="Physical address of the corporate head office"
-            icon={MapPin}
+            icon={PiMapPinBold}
             required={false}
             isComplete={sectionCompletion.address}
             defaultOpen={false}
           >
             <div className="md:col-span-2">
-              <PiTextboxBold
+              <Input
                 label="Street Address"
                 placeholder="123 Main Road, Building A"
                 value={formData.physicalAddress.street}
                 onChange={(e) => handleInputChange('physicalAddress.street', e.target.value)}
               />
             </div>
-            <PiTextboxBold
+            <Input
               label="City"
               placeholder="Midrand"
               value={formData.physicalAddress.city}
@@ -640,7 +640,7 @@ export default function NewCorporatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <PiTextboxBold
+            <Input
               label="Postal Code"
               placeholder="1685"
               value={formData.physicalAddress.postal_code}
@@ -654,12 +654,12 @@ export default function NewCorporatePage() {
             number={6}
             title="Contract Details"
             description="Deployment scope and contract timeline"
-            icon={FileSignature}
+            icon={PiSignatureBold}
             required={false}
             isComplete={sectionCompletion.contract}
             defaultOpen={false}
           >
-            <PiTextboxBold
+            <Input
               label="Expected Sites"
               type="number"
               placeholder="252"
@@ -668,13 +668,13 @@ export default function NewCorporatePage() {
               hint="Total number of sites to deploy"
             />
             <div /> {/* Spacer */}
-            <PiTextboxBold
+            <Input
               label="Contract Start Date"
               type="date"
               value={formData.contractStartDate}
               onChange={(e) => handleInputChange('contractStartDate', e.target.value)}
             />
-            <PiTextboxBold
+            <Input
               label="Contract End Date"
               type="date"
               value={formData.contractEndDate}

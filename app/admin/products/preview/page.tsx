@@ -193,21 +193,21 @@ export default function AdminProductsV2() {
           <StatCard
             label="Total"
             value={stats.total}
-            icon={Package}
+            icon={PiPackageBold}
             color="bg-gray-100 text-gray-600"
             filterKey="all"
           />
           <StatCard
             label="Active"
             value={stats.active}
-            icon={CheckCircle}
+            icon={PiCheckCircleBold}
             color="bg-green-100 text-green-600"
             filterKey="active"
           />
           <StatCard
             label="Draft"
             value={stats.draft}
-            icon={FileText}
+            icon={PiFileTextBold}
             color="bg-yellow-100 text-yellow-600"
             filterKey="draft"
           />
@@ -221,7 +221,7 @@ export default function AdminProductsV2() {
           <StatCard
             label="Featured"
             value={stats.featured}
-            icon={Star}
+            icon={PiStarBold}
             color="bg-purple-100 text-purple-600"
             filterKey="featured"
           />
