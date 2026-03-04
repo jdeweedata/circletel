@@ -171,3 +171,8 @@ docs/emandate/
 # Skills lock file (local state)
 skills-lock.json
 __pycache__/
+
+# Sanity Studio
+sanity-studio/.sanity/
+sanity-studio/dist/
+sanity-studio/node_modules/
