@@ -1,4 +1,4 @@
-import { PiBuildingsBold, PiCaretRightBold, PiCheckBold, PiCreditCardBold, PiDeviceMobileBold, PiLightningBold, PiLockBold, PiMapPinBold, PiPackageBold, PiQrCodeBold, PiReceiptBold, PiShieldBold, PiStorefrontBold, PiUserBold } from 'react-icons/pi';
+import { PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckBold, PiCreditCardBold, PiDeviceMobileBold, PiEnvelopeBold, PiEyeBold, PiHouseBold, PiLightningBold, PiLockBold, PiMapPinBold, PiPackageBold, PiQrCodeBold, PiReceiptBold, PiShieldBold, PiStorefrontBold, PiUserBold } from 'react-icons/pi';
 "use client";
 
 import * as React from "react";

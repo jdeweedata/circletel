@@ -1,4 +1,4 @@
-import { PiCheckCircleBold, PiFileTextBold, PiPackageBold, PiTruckBold } from 'react-icons/pi';
+import { PiArrowRightBold, PiCalendarBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiHouseBold, PiPackageBold, PiPhoneBold, PiTruckBold } from 'react-icons/pi';
 "use client"
 
 import { useEffect, useState } from "react"

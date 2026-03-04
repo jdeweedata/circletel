@@ -35,6 +35,22 @@ const LUCIDE_TO_PHOSPHOR = {
   'Star': 'PiStarBold',
   'Lock': 'PiLockBold',
   'Smartphone': 'PiDeviceMobileBold',
+  'Video': 'PiVideoCameraBold',
+  'Radio': 'PiRadioBold',
+  'Camera': 'PiCameraBold',
+  'Printer': 'PiPrinterBold',
+  'Phone': 'PiPhoneBold',
+  'Mail': 'PiEnvelopeBold',
+  'Settings': 'PiGearBold',
+  'Eye': 'PiEyeBold',
+  'Loader2': 'PiSpinnerBold',
+  'Router': 'PiRouterBold',
+  'ShoppingCart': 'PiShoppingCartBold',
+  'Download': 'PiDownloadSimpleBold',
+  'Upload': 'PiUploadSimpleBold',
+  'Play': 'PiPlayBold',
+  'Pause': 'PiPauseBold',
+  'Home': 'PiHouseBold',
 };
 
 // Phosphor icons that are used but might not be imported
@@ -46,6 +62,13 @@ const PHOSPHOR_ICONS = [
   'PiUserBold', 'PiUsersBold', 'PiBuildingsBold', 'PiTargetBold',
   'PiKeyBold', 'PiClipboardTextBold', 'PiSignatureBold', 'PiWrenchBold',
   'PiPencilBold', 'PiArrowUpRightBold', 'PiBriefcaseBold', 'PiWarningCircleBold',
+  'PiVideoCameraBold', 'PiRadioBold', 'PiCameraBold', 'PiPrinterBold',
+  'PiPhoneBold', 'PiEnvelopeBold', 'PiGearBold', 'PiEyeBold',
+  'PiSpinnerBold', 'PiRouterBold', 'PiShoppingCartBold',
+  'PiDownloadSimpleBold', 'PiUploadSimpleBold', 'PiPlayBold', 'PiPauseBold',
+  'PiHouseBold', 'PiCaretDownBold', 'PiCaretRightBold', 'PiCaretLeftBold',
+  'PiArrowLeftBold', 'PiArrowRightBold', 'PiXBold', 'PiPlusBold',
+  'PiMagnifyingGlassBold', 'PiTrashBold', 'PiCopyBold', 'PiCalendarBold',
 ];
 
 function getAllFiles(dir, extensions = ['.tsx', '.ts']) {
