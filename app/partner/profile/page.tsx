@@ -1,4 +1,5 @@
 'use client'
+import { PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiEnvelopeBold, PiFloppyDiskBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiTrophyBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,21 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Building2,
-  CreditCard,
-  Edit,
-  Save,
-  X,
-  CheckCircle,
-  Award,
-  Calendar,
-  Clock,
-} from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -216,18 +202,18 @@ export default function PartnerProfilePage() {
           </Badge>
           {!editing && partner.status === 'pending' && (
             <Button onClick={handleEdit}>
-              <Edit className="h-4 w-4 mr-2" />
+              <PiPencilSimpleBold className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
           )}
           {editing && (
             <>
               <Button variant="outline" onClick={handleCancel} disabled={submitting}>
-                <X className="h-4 w-4 mr-2" />
+                <PiXBold className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={submitting}>
-                <Save className="h-4 w-4 mr-2" />
+                <PiFloppyDiskBold className="h-4 w-4 mr-2" />
                 {submitting ? 'Saving...' : 'Save Changes'}
               </Button>
             </>
@@ -242,7 +228,7 @@ export default function PartnerProfilePage() {
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-yellow-700" />
+                  <PiClockBold className="h-5 w-5 text-yellow-700" />
                 </div>
               </div>
               <div>
@@ -262,7 +248,7 @@ export default function PartnerProfilePage() {
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-green-700" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-700" />
                 </div>
               </div>
               <div className="flex-1">
@@ -302,7 +288,7 @@ export default function PartnerProfilePage() {
                 <div>
                   <Label className="text-gray-600">Business Name</Label>
                   <div className="flex items-center mt-1">
-                    <Building2 className="h-4 w-4 mr-2 text-gray-400" />
+                    <PiBuildingsBold className="h-4 w-4 mr-2 text-gray-400" />
                     <span className="font-medium">{partner.business_name}</span>
                   </div>
                 </div>
@@ -349,7 +335,7 @@ export default function PartnerProfilePage() {
                     />
                   ) : (
                     <div className="flex items-center mt-1">
-                      <User className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiUserBold className="h-4 w-4 mr-2 text-gray-400" />
                       <span className="font-medium">{partner.contact_person}</span>
                     </div>
                   )}
@@ -367,7 +353,7 @@ export default function PartnerProfilePage() {
                     />
                   ) : (
                     <div className="flex items-center mt-1">
-                      <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiEnvelopeBold className="h-4 w-4 mr-2 text-gray-400" />
                       <a href={`mailto:${partner.email}`} className="text-circleTel-orange hover:underline">
                         {partner.email}
                       </a>
@@ -387,7 +373,7 @@ export default function PartnerProfilePage() {
                     />
                   ) : (
                     <div className="flex items-center mt-1">
-                      <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiPhoneBold className="h-4 w-4 mr-2 text-gray-400" />
                       <a href={`tel:${partner.phone}`} className="text-circleTel-orange hover:underline">
                         {partner.phone}
                       </a>
@@ -406,7 +392,7 @@ export default function PartnerProfilePage() {
                     />
                   ) : partner.alternative_phone ? (
                     <div className="flex items-center mt-1">
-                      <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiPhoneBold className="h-4 w-4 mr-2 text-gray-400" />
                       <span className="font-medium">{partner.alternative_phone}</span>
                     </div>
                   ) : (
@@ -434,7 +420,7 @@ export default function PartnerProfilePage() {
                   />
                 ) : (
                   <div className="flex items-start mt-1">
-                    <MapPin className="h-4 w-4 mr-2 mt-1 text-gray-400" />
+                    <PiMapPinBold className="h-4 w-4 mr-2 mt-1 text-gray-400" />
                     <div>
                       <p className="font-medium">{partner.street_address}</p>
                       {partner.suburb && <p className="text-sm text-gray-600">{partner.suburb}</p>}
@@ -501,7 +487,7 @@ export default function PartnerProfilePage() {
                   <div>
                     <Label className="text-gray-600">Bank Name</Label>
                     <div className="flex items-center mt-1">
-                      <CreditCard className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiCreditCardBold className="h-4 w-4 mr-2 text-gray-400" />
                       <span className="font-medium">{partner.bank_name}</span>
                     </div>
                   </div>
@@ -546,7 +532,7 @@ export default function PartnerProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Award className={`h-5 w-5 mr-2 ${TIER_COLORS[partner.tier]}`} />
+                <PiTrophyBold className={`h-5 w-5 mr-2 ${TIER_COLORS[partner.tier]}`} />
                 <span className="capitalize">{partner.tier} Partner</span>
               </CardTitle>
             </CardHeader>
@@ -624,7 +610,7 @@ export default function PartnerProfilePage() {
               <div>
                 <Label className="text-gray-600">Member Since</Label>
                 <div className="flex items-center mt-1 text-sm text-gray-700">
-                  <Calendar className="h-3 w-3 mr-1" />
+                  <PiCalendarBold className="h-3 w-3 mr-1" />
                   {format(new Date(partner.created_at), 'MMMM yyyy')}
                 </div>
               </div>

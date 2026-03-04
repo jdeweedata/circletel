@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Payment Test Page
@@ -15,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, XCircle, Loader2, ExternalLink } from 'lucide-react';
 
 export default function PaymentTestPage() {
   const [amount, setAmount] = useState('99.00');
@@ -194,7 +194,7 @@ export default function PaymentTestPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
               ) : (
@@ -208,9 +208,9 @@ export default function PaymentTestPage() {
         {result && (
           <Alert variant={result.success ? 'default' : 'destructive'}>
             {result.success ? (
-              <CheckCircle2 className="h-4 w-4" />
+              <PiCheckCircleBold className="h-4 w-4" />
             ) : (
-              <XCircle className="h-4 w-4" />
+              <PiXCircleBold className="h-4 w-4" />
             )}
             <AlertDescription>
               <p className="font-medium">{result.message}</p>
@@ -226,7 +226,7 @@ export default function PaymentTestPage() {
                   rel="noopener noreferrer"
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-2"
                 >
-                  Open Payment Page <ExternalLink className="h-3 w-3" />
+                  Open Payment Page <PiArrowSquareOutBold className="h-3 w-3" />
                 </a>
               )}
             </AlertDescription>
@@ -254,9 +254,9 @@ export default function PaymentTestPage() {
               {webhookStatus && (
                 <Alert variant={webhookStatus.found ? 'default' : 'destructive'}>
                   {webhookStatus.found ? (
-                    <CheckCircle2 className="h-4 w-4" />
+                    <PiCheckCircleBold className="h-4 w-4" />
                   ) : (
-                    <XCircle className="h-4 w-4" />
+                    <PiXCircleBold className="h-4 w-4" />
                   )}
                   <AlertDescription>
                     {webhookStatus.found ? (

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Mail, MapPin } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
@@ -33,7 +32,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
         
         <div className="flex items-start">
           <div className="bg-circleTel-lightNeutral rounded-full p-3 mr-3 text-circleTel-orange">
-            <Mail size={20} />
+            <PiEnvelopeBold size={20} />
           </div>
           <div>
             <h3 className="font-bold text-circleTel-navy">Email</h3>
@@ -43,7 +42,7 @@ const ContactInformation: React.FC<ContactInformationProps> = ({ className }) =>
         
         <div className="flex items-start">
           <div className="bg-circleTel-lightNeutral rounded-full p-3 mr-3 text-circleTel-orange">
-            <MapPin size={20} />
+            <PiMapPinBold size={20} />
           </div>
           <div>
             <h3 className="font-bold text-circleTel-navy">Address</h3>

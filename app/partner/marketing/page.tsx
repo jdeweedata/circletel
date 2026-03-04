@@ -1,4 +1,5 @@
 'use client';
+import { PiCaretDownBold, PiDownloadSimpleBold, PiEyeBold, PiFileBold, PiFileTextBold, PiFunnelBold, PiImageBold, PiListBold, PiMagnifyingGlassBold } from 'react-icons/pi';
 
 /**
  * Partner Marketing Materials Page
@@ -11,19 +12,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  Download,
-  Search,
-  Grid3X3,
-  List,
-  Image as ImageIcon,
-  FileText,
-  Video,
-  File,
-  Filter,
-  Eye,
-  ChevronDown,
-} from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface AssetVariation {
@@ -74,9 +62,9 @@ function getCategoryIcon(category: string) {
       return <Video className="w-5 h-5" />;
     case 'document':
     case 'template':
-      return <FileText className="w-5 h-5" />;
+      return <PiFileTextBold className="w-5 h-5" />;
     default:
-      return <File className="w-5 h-5" />;
+      return <PiFileBold className="w-5 h-5" />;
   }
 }
 
@@ -132,13 +120,13 @@ function AssetCard({
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             title="Preview"
           >
-            <Eye className="w-5 h-5" />
+            <PiEyeBold className="w-5 h-5" />
           </button>
           <button
             onClick={() => onDownload(asset)}
             className="flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
-            <Download className="w-4 h-4" />
+            <PiDownloadSimpleBold className="w-4 h-4" />
             <span className="text-sm font-medium">Download</span>
           </button>
         </div>
@@ -169,14 +157,14 @@ function AssetCard({
             className="p-3 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition-colors"
             title="Preview"
           >
-            <Eye className="w-5 h-5" />
+            <PiEyeBold className="w-5 h-5" />
           </button>
           <button
             onClick={() => onDownload(asset)}
             className="p-3 bg-circleTel-orange rounded-full text-white hover:bg-orange-600 transition-colors"
             title="Download"
           >
-            <Download className="w-5 h-5" />
+            <PiDownloadSimpleBold className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -277,7 +265,7 @@ export default function PartnerMarketingPage() {
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Search */}
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search assets..."
@@ -300,8 +288,8 @@ export default function PartnerMarketingPage() {
               </option>
             ))}
           </select>
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <PiFunnelBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <PiCaretDownBold className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         </div>
 
         {/* View toggle */}
@@ -324,7 +312,7 @@ export default function PartnerMarketingPage() {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <List className="w-5 h-5" />
+            <PiListBold className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -441,7 +429,7 @@ export default function PartnerMarketingPage() {
                         download
                         className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition-colors"
                       >
-                        <Download className="w-4 h-4" />
+                        <PiDownloadSimpleBold className="w-4 h-4" />
                         {variation.label}
                         {variation.width && variation.height && (
                           <span className="text-gray-500">
@@ -468,7 +456,7 @@ export default function PartnerMarketingPage() {
                 disabled={downloading === previewAsset.id}
                 className="flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
               >
-                <Download className="w-4 h-4" />
+                <PiDownloadSimpleBold className="w-4 h-4" />
                 {downloading === previewAsset.id ? 'Downloading...' : 'Download'}
               </button>
             </div>

@@ -1,18 +1,18 @@
-import { Book, Activity, Laptop, Wifi, DollarSign, Users, BookOpen, FileText, Cloud, Server, ShieldCheck, TrendingUp, Rocket, Network, Globe, Battery, Power, Package, ClipboardList, Handshake, LayoutDashboard, Smartphone } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { PiActivityBold, PiBatteryFullBold, PiBookBold, PiBookOpenBold, PiClipboardTextBold, PiCloudBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiFileTextBold, PiGlobeBold, PiGraphBold, PiHandshakeBold, PiLaptopBold, PiPackageBold, PiPowerBold, PiRocketBold, PiServerBold, PiShieldCheckBold, PiSquaresFourBold, PiTrendUpBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
+import type { IconType } from 'react-icons';
 
 // Type definitions for proper typing
 export type NavigationItem = {
   name: string;
   href: string;
-  icon?: LucideIcon;
+  icon?: IconType;
   description?: string;
 };
 
 export type NavigationSection = {
   name: string;
   items: NavigationItem[];
-  icon?: LucideIcon;
+  icon?: IconType;
 };
 
 // Updated managedITItems - now includes items from itSolutionsItems
@@ -20,43 +20,43 @@ export const managedITItems: NavigationItem[] = [
   {
     name: "Complete IT Management",
     href: "/services",
-    icon: Server,
+    icon: PiServerBold,
     description: "Full-service IT management and support for your business"
   },
   {
     name: "Small Business IT",
     href: "/services/small-business",
-    icon: Laptop,
+    icon: PiLaptopBold,
     description: "Tailored IT solutions for small businesses"
   },
   {
     name: "Mid-Size Business IT",
     href: "/services/mid-size",
-    icon: TrendingUp,
+    icon: PiTrendUpBold,
     description: "IT solutions for established mid-size companies"
   },
   {
     name: "Growth-Ready IT",
     href: "/services/growth-ready",
-    icon: Rocket,
+    icon: PiRocketBold,
     description: "Scalable IT solutions for rapidly growing businesses"
   },
   {
     name: "Security Solutions",
     href: "/services/security",
-    icon: ShieldCheck,
+    icon: PiShieldCheckBold,
     description: "Protect your business with our security solutions"
   },
   {
     name: "Service Bundles",
     href: "/bundles",
-    icon: Package,
+    icon: PiPackageBold,
     description: "Combined IT and connectivity packages at discounted rates"
   },
   {
     name: "Value-Driven Pricing",
     href: "/pricing",
-    icon: DollarSign,
+    icon: PiCurrencyDollarBold,
     description: "Transparent pricing plans for all services"
   }
 ];
@@ -66,31 +66,31 @@ export const itSolutionsItems: NavigationItem[] = [
   {
     name: "Small Business Recipes",
     href: "/services/small-business",
-    icon: Laptop,
+    icon: PiLaptopBold,
     description: "IT solutions tailored for small businesses"
   },
   {
     name: "Mid-Size Business Recipes",
     href: "/services/mid-size",
-    icon: TrendingUp,
+    icon: PiTrendUpBold,
     description: "IT solutions for growing mid-size companies"
   },
   {
     name: "Growth-Ready Recipes",
     href: "/services/growth-ready",
-    icon: Rocket,
+    icon: PiRocketBold,
     description: "Scalable IT solutions for rapid growth"
   },
   {
     name: "Service Bundles",
     href: "/bundles",
-    icon: Package,
+    icon: PiPackageBold,
     description: "Combined IT and connectivity packages at discounted rates"
   },
   {
     name: "Value-Driven Pricing",
     href: "/pricing",
-    icon: DollarSign,
+    icon: PiCurrencyDollarBold,
     description: "Transparent pricing plans for all services"
   }
 ];
@@ -100,31 +100,31 @@ export const connectivityItems: NavigationItem[] = [
   {
     name: "Wi-Fi as a Service",
     href: "/connectivity/wifi-as-a-service",
-    icon: Wifi,
+    icon: PiWifiBold,
     description: "Enterprise-grade Wi-Fi without capital expense"
   },
   {
     name: "Fixed Wireless",
     href: "/connectivity/fixed-wireless",
-    icon: Network,
+    icon: PiGraphBold,
     description: "Fast and reliable wireless internet connectivity"
   },
   {
     name: "Fibre",
     href: "/connectivity/fibre",
-    icon: Globe,
+    icon: PiGlobeBold,
     description: "High-speed fibre internet solutions"
   },
   {
     name: "Mobile Deals",
     href: "/deals",
-    icon: Smartphone,
+    icon: PiDeviceMobileBold,
     description: "Mobile deals with devices and SIM-only options"
   },
   {
     name: "Connectivity Guide",
     href: "/resources/connectivity-guide",
-    icon: Book,
+    icon: PiBookBold,
     description: "Comprehensive guide to connectivity options"
   }
 ];
@@ -134,25 +134,25 @@ export const cloudHostingItems: NavigationItem[] = [
   {
     name: "Cloud Migration",
     href: "/cloud/migration",
-    icon: Cloud,
+    icon: PiCloudBold,
     description: "Seamless transition to cloud infrastructure"
   },
   {
     name: "Hosting Solutions",
     href: "/cloud/hosting",
-    icon: Server,
+    icon: PiServerBold,
     description: "Reliable hosting for your business applications"
   },
   {
     name: "Backup & Recovery",
     href: "/cloud/backup",
-    icon: Cloud,
+    icon: PiCloudBold,
     description: "Secure cloud backup and disaster recovery"
   },
   {
     name: "Virtual Desktops",
     href: "/cloud/virtual-desktops",
-    icon: Laptop,
+    icon: PiLaptopBold,
     description: "Remote desktop solutions for flexible work"
   }
 ];
@@ -165,37 +165,37 @@ export const resourcesItems: NavigationItem[] = [
   {
     name: "Resources Hub",
     href: "/resources",
-    icon: Book,
+    icon: PiBookBold,
     description: "Helpful guides and resources"
   },
   {
     name: "Client Forms",
     href: "/forms",
-    icon: ClipboardList,
+    icon: PiClipboardTextBold,
     description: "Surveys and audit forms for clients"
   },
   {
     name: "IT Health Assessment",
     href: "/resources/it-health",
-    icon: Activity,
+    icon: PiActivityBold,
     description: "Evaluate your IT infrastructure"
   },
   {
     name: "Power Backup Solutions",
     href: "/resources/power-backup",
-    icon: Battery,
+    icon: PiBatteryFullBold,
     description: "UPS and power protection for your business"
   },
   {
     name: "Connectivity Guide",
     href: "/resources/connectivity-guide",
-    icon: Globe,
+    icon: PiGlobeBold,
     description: "Guide to business connectivity options"
   },
   {
     name: "Wi-Fi Toolkit",
     href: "/resources/wifi-toolkit",
-    icon: Wifi,
+    icon: PiWifiBold,
     description: "Planning tools for Wi-Fi deployments"
   }
 ];
@@ -205,13 +205,13 @@ export const partnerItems: NavigationItem[] = [
   {
     name: "Become a Partner",
     href: "/become-a-partner",
-    icon: Handshake,
+    icon: PiHandshakeBold,
     description: "Join our partner program and earn recurring commissions"
   },
   {
     name: "Partner Portal",
     href: "/partner/login",
-    icon: LayoutDashboard,
+    icon: PiSquaresFourBold,
     description: "Access your partner dashboard and resources"
   }
 ];

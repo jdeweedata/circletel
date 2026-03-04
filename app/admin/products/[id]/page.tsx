@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiFileTextBold, PiPackageBold, PiPencilSimpleBold, PiSpinnerBold, PiStarBold, PiTrendUpBold, PiUploadSimpleBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -14,29 +15,6 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { ProviderLogo } from '@/components/products/ProviderLogo';
-import {
-  ArrowLeft,
-  Edit,
-  Archive,
-  ToggleLeft,
-  ToggleRight,
-  DollarSign,
-  History,
-  Package,
-  Star,
-  TrendingUp,
-  Calendar,
-  User,
-  FileText,
-  Wifi,
-  Download,
-  Upload,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  AlertCircle,
-} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -211,7 +189,7 @@ export default function ProductDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-gray-600 font-medium">Loading product details...</p>
         </div>
       </div>
@@ -224,7 +202,7 @@ export default function ProductDetailPage() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" asChild>
             <Link href="/admin/products">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <PiArrowLeftBold className="mr-2 h-4 w-4" />
               Back to Products
             </Link>
           </Button>
@@ -232,7 +210,7 @@ export default function ProductDetailPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <PiWarningCircleBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
               <p className="text-gray-600 mb-6">{error || 'The product you are looking for does not exist.'}</p>
               <Button asChild>
@@ -260,7 +238,7 @@ export default function ProductDetailPage() {
               className="mt-1 p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
               title="Back to Products"
             >
-              <ArrowLeft size={24} />
+              <PiArrowLeftBold size={24} />
             </Link>
 
             {/* Product ID and Status */}
@@ -313,11 +291,11 @@ export default function ProductDetailPage() {
                 </div>
                 {product.is_active ? (
                   <div className="p-2 bg-green-100 rounded-full">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   </div>
                 ) : (
                   <div className="p-2 bg-gray-100 rounded-full">
-                    <XCircle className="h-5 w-5 text-gray-400" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-400" />
                   </div>
                 )}
               </div>
@@ -332,7 +310,7 @@ export default function ProductDetailPage() {
                   <p className="text-lg font-bold text-gray-900 capitalize mt-1">{product.category}</p>
                 </div>
                 <div className="p-2 bg-blue-100 rounded-full">
-                  <Package className="h-5 w-5 text-blue-600" />
+                  <PiPackageBold className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
             </CardContent>
@@ -347,7 +325,7 @@ export default function ProductDetailPage() {
                     <p className="text-lg font-bold text-yellow-900 mt-1">Yes</p>
                   </div>
                   <div className="p-2 bg-yellow-100 rounded-full">
-                    <Star className="h-5 w-5 text-yellow-600 fill-current" />
+                    <PiStarBold className="h-5 w-5 text-yellow-600 fill-current" />
                   </div>
                 </div>
               </CardContent>
@@ -363,7 +341,7 @@ export default function ProductDetailPage() {
                     <p className="text-lg font-bold text-green-900 mt-1">Yes</p>
                   </div>
                   <div className="p-2 bg-green-100 rounded-full">
-                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    <PiTrendUpBold className="h-5 w-5 text-green-600" />
                   </div>
                 </div>
               </CardContent>
@@ -423,7 +401,7 @@ export default function ProductDetailPage() {
                     <ul className="mt-2 space-y-2">
                       {product.metadata.features.map((feature: string, index: number) => (
                         <li key={index} className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                          <PiCheckCircleBold className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                           <span className="text-gray-900">{feature}</span>
                         </li>
                       ))}
@@ -441,7 +419,7 @@ export default function ProductDetailPage() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                    <Calendar className="h-4 w-4" />
+                    <PiCalendarBold className="h-4 w-4" />
                     Created
                   </div>
                   <p className="text-sm font-medium text-gray-900">
@@ -457,7 +435,7 @@ export default function ProductDetailPage() {
 
                 <div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                    <Calendar className="h-4 w-4" />
+                    <PiCalendarBold className="h-4 w-4" />
                     Last Updated
                   </div>
                   <p className="text-sm font-medium text-gray-900">
@@ -474,7 +452,7 @@ export default function ProductDetailPage() {
                     <Separator />
                     <div>
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                        <Clock className="h-4 w-4" />
+                        <PiClockBold className="h-4 w-4" />
                         Contract Duration
                       </div>
                       <p className="text-sm font-medium text-gray-900">
@@ -494,7 +472,7 @@ export default function ProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-circleTel-orange" />
+                  <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
                   Pricing Information
                 </CardTitle>
               </CardHeader>
@@ -542,7 +520,7 @@ export default function ProductDetailPage() {
                   className="w-full"
                   onClick={() => setAuditHistoryModalOpen(true)}
                 >
-                  <History className="mr-2 h-4 w-4" />
+                  <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
                   View Full History
                 </Button>
               </CardContent>
@@ -555,7 +533,7 @@ export default function ProductDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Wifi className="h-5 w-5 text-blue-600" />
+                <PiWifiBold className="h-5 w-5 text-blue-600" />
                 Technical Specifications
               </CardTitle>
             </CardHeader>
@@ -564,7 +542,7 @@ export default function ProductDetailPage() {
                 {product.pricing?.download_speed && (
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
-                      <Download className="h-4 w-4" />
+                      <PiDownloadSimpleBold className="h-4 w-4" />
                       Download Speed
                     </div>
                     <p className="text-3xl font-bold text-blue-900">
@@ -577,7 +555,7 @@ export default function ProductDetailPage() {
                 {product.pricing?.upload_speed && (
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-2 text-sm text-green-900 mb-2">
-                      <Upload className="h-4 w-4" />
+                      <PiUploadSimpleBold className="h-4 w-4" />
                       Upload Speed
                     </div>
                     <p className="text-3xl font-bold text-green-900">

@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowsClockwiseBold, PiClockBold, PiPlugBold, PiServerBold, PiWifiBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import {
@@ -21,7 +22,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Unplug, Clock, Wifi, Server, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -94,12 +94,12 @@ export function ActiveSessionsTable({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-green-500" />
+            <PiWifiBold className="h-5 w-5 text-green-500" />
             <span className="font-medium">{sessions.length} Active Sessions</span>
           </div>
           {onRefresh && (
             <Button variant="outline" size="sm" onClick={onRefresh}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Refresh
             </Button>
           )}
@@ -123,7 +123,7 @@ export function ActiveSessionsTable({
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2 text-gray-500">
-                      <Wifi className="h-8 w-8 text-gray-300" />
+                      <PiWifiBold className="h-8 w-8 text-gray-300" />
                       <p>No active sessions</p>
                     </div>
                   </TableCell>
@@ -159,13 +159,13 @@ export function ActiveSessionsTable({
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                        <Clock className="h-3 w-3 mr-1" />
+                        <PiClockBold className="h-3 w-3 mr-1" />
                         {session.duration.formatted}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
-                        <Server className="h-3 w-3 text-gray-400" />
+                        <PiServerBold className="h-3 w-3 text-gray-400" />
                         <span>{session.nasIpAddress}</span>
                       </div>
                     </TableCell>
@@ -182,7 +182,7 @@ export function ActiveSessionsTable({
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={() => setDisconnectingSession(session)}
                         >
-                          <Unplug className="h-4 w-4 mr-1" />
+                          <PiPlugBold className="h-4 w-4 mr-1" />
                           Disconnect
                         </Button>
                       )}

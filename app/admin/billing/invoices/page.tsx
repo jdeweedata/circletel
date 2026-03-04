@@ -1,10 +1,10 @@
 'use client';
+import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiMagnifyingGlassBold, PiPlusBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Download, MoreHorizontal, RefreshCw, Eye, Mail, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface Invoice {
@@ -112,7 +112,7 @@ export default function InvoicesPage() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2 text-gray-500">
-          <RefreshCw className="h-5 w-5 animate-spin" />
+          <PiArrowsClockwiseBold className="h-5 w-5 animate-spin" />
           <span>Loading invoices...</span>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function InvoicesPage() {
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
+              <PiWarningCircleBold className="h-5 w-5" />
               <span>{error}</span>
             </div>
             <Button onClick={fetchInvoices} variant="outline" className="mt-4">
@@ -147,11 +147,11 @@ export default function InvoicesPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchInvoices}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark" disabled>
-            <Plus className="h-4 w-4 mr-2" />
+            <PiPlusBold className="h-4 w-4 mr-2" />
             Create Invoice
           </Button>
         </div>
@@ -210,7 +210,7 @@ export default function InvoicesPage() {
           {/* Search and Export */}
           <div className="mb-4 flex justify-between items-center">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search invoices..."
@@ -220,7 +220,7 @@ export default function InvoicesPage() {
               />
             </div>
             <Button variant="outline" disabled>
-              <Download className="h-4 w-4 mr-2" />
+              <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
               Export
             </Button>
           </div>
@@ -294,14 +294,14 @@ export default function InvoicesPage() {
                         <div className="flex items-center justify-end gap-1">
                           <Link href={`/admin/billing/invoices/${invoice.id}`}>
                             <Button variant="ghost" size="icon" title="View Invoice">
-                              <Eye className="h-4 w-4" />
+                              <PiEyeBold className="h-4 w-4" />
                             </Button>
                           </Link>
                           <Button variant="ghost" size="icon" title="Send Reminder" disabled>
-                            <Mail className="h-4 w-4" />
+                            <PiEnvelopeBold className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
+                            <PiDotsThreeBold className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>

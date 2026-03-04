@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiClockCounterClockwiseBold, PiCreditCardBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiTrayBold, PiTrendUpBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -8,36 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import {
-  ArrowLeft,
-  Package,
-  User,
-  MapPin,
-  CreditCard,
-  Calendar,
-  FileText,
-  Phone,
-  Mail,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Printer,
-  Download,
-  Inbox,
-  Banknote,
-  Wrench,
-  CheckSquare,
-  Wifi,
-  TrendingUp,
-  ChevronRight,
-  Loader2,
-  Zap,
-  Shield,
-  Eye,
-  Settings,
-  History,
-  Sparkles,
-} from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { WorkflowStepper, WorkflowStep } from '@/components/admin/orders/WorkflowStepper';
 import { StatusActionButtons } from '@/components/admin/orders/StatusActionButtons';
@@ -143,7 +114,7 @@ function StatCard({
               "text-xs flex items-center gap-1 mt-1",
               trend.positive ? "text-emerald-600" : "text-ui-text-muted"
             )}>
-              {trend.positive && <TrendingUp className="w-3 h-3" />}
+              {trend.positive && <PiTrendUpBold className="w-3 h-3" />}
               {trend.label}
             </p>
           )}
@@ -243,7 +214,7 @@ function WorkflowStepItem({
         !isCompleted && !isActive && "bg-ui-bg border-ui-border"
       )}>
         {isCompleted ? (
-          <CheckCircle className="w-5 h-5 text-white" />
+          <PiCheckCircleBold className="w-5 h-5 text-white" />
         ) : (
           <Icon className={cn(
             "w-5 h-5",
@@ -402,7 +373,7 @@ export default function AdminOrderDetailPage() {
         label: "Order Received",
         subLabel: "Order created",
         status: order.status === 'pending' ? 'active' : 'completed',
-        icon: Inbox,
+        icon: PiTrayBold,
         date: order.created_at ? formatShortDate(order.created_at) : undefined
       },
       {
@@ -410,7 +381,7 @@ export default function AdminOrderDetailPage() {
         label: "Payment Method",
         subLabel: "Method registered",
         status: getStepStatus(order.status, 'Payment Method'),
-        icon: CreditCard,
+        icon: PiCreditCardBold,
         date: order.payment_date ? formatShortDate(order.payment_date) : undefined
       },
       {
@@ -418,7 +389,7 @@ export default function AdminOrderDetailPage() {
         label: "Payment Confirmed",
         subLabel: "Deposit received",
         status: getStepStatus(order.status, 'Payment Confirmed'),
-        icon: Banknote,
+        icon: PiMoneyBold,
         date: order.payment_date ? formatShortDate(order.payment_date) : undefined
       },
       {
@@ -426,7 +397,7 @@ export default function AdminOrderDetailPage() {
         label: "Scheduled",
         subLabel: "Install booked",
         status: getStepStatus(order.status, 'Scheduled'),
-        icon: Calendar,
+        icon: PiCalendarBold,
         date: order.installation_scheduled_date ? formatShortDate(order.installation_scheduled_date) : undefined
       },
       {
@@ -434,7 +405,7 @@ export default function AdminOrderDetailPage() {
         label: "Installation",
         subLabel: "Tech on-site",
         status: getStepStatus(order.status, 'Installation'),
-        icon: Wrench,
+        icon: PiWrenchBold,
         date: order.installation_scheduled_date ? formatShortDate(order.installation_scheduled_date) : undefined
       },
       {
@@ -442,7 +413,7 @@ export default function AdminOrderDetailPage() {
         label: "Completion",
         subLabel: "Work finished",
         status: getStepStatus(order.status, 'Completion'),
-        icon: CheckSquare,
+        icon: PiCheckSquareBold,
         date: order.installation_completed_date ? formatShortDate(order.installation_completed_date) : undefined
       },
       {
@@ -450,7 +421,7 @@ export default function AdminOrderDetailPage() {
         label: "Active",
         subLabel: "Service live",
         status: getStepStatus(order.status, 'Active'),
-        icon: Wifi,
+        icon: PiWifiBold,
         date: order.activation_date ? formatShortDate(order.activation_date) : undefined
       },
     ];
@@ -464,7 +435,7 @@ export default function AdminOrderDetailPage() {
           <div className="text-center">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-circleTel-orange/30 border-t-circleTel-orange rounded-full animate-spin mx-auto"></div>
-              <Package className="w-6 h-6 text-circleTel-orange absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+              <PiPackageBold className="w-6 h-6 text-circleTel-orange absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
             </div>
             <p className="muted-text mt-6 font-medium">Loading order details...</p>
           </div>
@@ -480,13 +451,13 @@ export default function AdminOrderDetailPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="h-10 w-10 text-red-400" />
+              <PiWarningCircleBold className="h-10 w-10 text-red-400" />
             </div>
             <h2 className="section-heading mb-2">Order Not Found</h2>
             <p className="muted-text mb-6">{error || 'The order you are looking for does not exist.'}</p>
             <Link href="/admin/orders">
               <Button className="bg-circleTel-orange hover:bg-circleTel-warm-orange shadow-lg shadow-circleTel-orange/25">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <PiArrowLeftBold className="h-4 w-4 mr-2" />
                 Back to Orders
               </Button>
             </Link>
@@ -517,7 +488,7 @@ export default function AdminOrderDetailPage() {
                 href="/admin/orders"
                 className="mt-1 p-2.5 rounded-xl bg-ui-card shadow-sm border border-ui-border text-ui-text-muted hover:text-ui-text-primary hover:shadow-md transition-all"
               >
-                <ArrowLeft size={20} />
+                <PiArrowLeftBold size={20} />
               </Link>
 
               <div>
@@ -570,7 +541,7 @@ export default function AdminOrderDetailPage() {
                 <span className="hidden lg:inline">Print</span>
               </Button>
               <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 gap-2">
-                <Download size={16} />
+                <PiDownloadSimpleBold size={16} />
                 <span className="hidden lg:inline">Export</span>
               </Button>
             </div>
@@ -632,28 +603,28 @@ export default function AdminOrderDetailPage() {
               value="overview"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
-              <Eye className="w-4 h-4 mr-2" />
+              <PiEyeBold className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="installation"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
-              <Settings className="w-4 h-4 mr-2" />
+              <PiGearBold className="w-4 h-4 mr-2" />
               Installation
             </TabsTrigger>
             <TabsTrigger
               value="financials"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
-              <Banknote className="w-4 h-4 mr-2" />
+              <PiMoneyBold className="w-4 h-4 mr-2" />
               Financials
             </TabsTrigger>
             <TabsTrigger
               value="history"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-4 py-2.5 transition-all"
             >
-              <History className="w-4 h-4 mr-2" />
+              <PiClockCounterClockwiseBold className="w-4 h-4 mr-2" />
               History
             </TabsTrigger>
           </TabsList>
@@ -686,13 +657,13 @@ export default function AdminOrderDetailPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
                         <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
-                          <Mail className="h-4 w-4 text-blue-600" />
+                          <PiEnvelopeBold className="h-4 w-4 text-blue-600" />
                         </div>
                         <a href={`mailto:${order.email}`} className="text-sm text-blue-600 hover:underline truncate">{order.email}</a>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
                         <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
-                          <Phone className="h-4 w-4 text-emerald-600" />
+                          <PiPhoneBold className="h-4 w-4 text-emerald-600" />
                         </div>
                         <a href={`tel:${order.phone}`} className="body-text hover:text-ui-text-primary">{order.phone}</a>
                       </div>
@@ -724,7 +695,7 @@ export default function AdminOrderDetailPage() {
                     iconGradient="from-emerald-500 to-green-600"
                     badge={order.kyc_address_verified && (
                       <Badge className="bg-emerald-50 text-emerald-700 border-0 gap-1">
-                        <Shield className="h-3 w-3" />
+                        <PiShieldBold className="h-3 w-3" />
                         KYC Verified
                       </Badge>
                     )}
@@ -922,7 +893,7 @@ export default function AdminOrderDetailPage() {
                     <div className="flex items-center justify-between p-4 border border-ui-border rounded-xl bg-ui-bg hover:bg-ui-border/30 transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 bg-ui-card border border-ui-border rounded-xl flex items-center justify-center">
-                          <FileText className="h-6 w-6 text-blue-600" />
+                          <PiFileTextBold className="h-6 w-6 text-blue-600" />
                         </div>
                         <div className="overflow-hidden">
                           <p className="font-medium text-sm text-ui-text-primary truncate max-w-[180px]">
@@ -944,7 +915,7 @@ export default function AdminOrderDetailPage() {
                           window.open(url, '_blank');
                         }}
                       >
-                        <Download className="h-4 w-4" />
+                        <PiDownloadSimpleBold className="h-4 w-4" />
                         Download
                       </Button>
                     </div>

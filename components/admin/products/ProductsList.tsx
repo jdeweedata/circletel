@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiClockCounterClockwiseBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiStarBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -8,24 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ProviderLogo } from '@/components/products/ProviderLogo';
-import {
-  Package,
-  Edit,
-  Eye,
-  MoreHorizontal,
-  ToggleLeft,
-  ToggleRight,
-  Copy,
-  Archive,
-  DollarSign,
-  History,
-  Star,
-  TrendingUp,
-  GripVertical,
-  UploadCloud,
-  ArrowDown,
-  ArrowUp,
-} from 'lucide-react';
 import { getCategoryTheme, getStatusStripeColor, formatCategoryName } from '@/lib/admin/product-category-theme';
 import {
   DropdownMenu,
@@ -191,7 +174,7 @@ export function ProductsList({
                   {...dragHandleProps}
                   className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
                 >
-                  <GripVertical className="h-4 w-4 text-gray-400" />
+                  <PiDotsSixVerticalBold className="h-4 w-4 text-gray-400" />
                 </div>
               )}
             </div>
@@ -211,7 +194,7 @@ export function ProductsList({
                   </div>
                 ) : (
                   <div className="h-12 w-12 bg-circleTel-lightNeutral rounded-lg flex items-center justify-center">
-                    <Package className="h-6 w-6 text-circleTel-orange" />
+                    <PiPackageBold className="h-6 w-6 text-circleTel-orange" />
                   </div>
                 )}
               </div>
@@ -244,13 +227,13 @@ export function ProductsList({
                 {columnVisibility.status && getStatusBadge(product)}
                 {columnVisibility.featuredPopular && product.is_featured && (
                   <Badge className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
-                    <Star className="w-3 h-3 mr-1 fill-current" />
+                    <PiStarBold className="w-3 h-3 mr-1 fill-current" />
                     Featured
                   </Badge>
                 )}
                 {columnVisibility.featuredPopular && product.is_popular && (
                   <Badge className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
-                    <TrendingUp className="w-3 h-3 mr-1" />
+                    <PiTrendUpBold className="w-3 h-3 mr-1" />
                     Popular
                   </Badge>
                 )}
@@ -271,10 +254,10 @@ export function ProductsList({
                 )}
                 {columnVisibility.speed && product.pricing?.download_speed && product.pricing?.upload_speed && (
                   <span className="flex items-center gap-1">
-                    <ArrowDown size={12} className="text-emerald-500" />
+                    <PiArrowDownBold size={12} className="text-emerald-500" />
                     <span className="font-medium">{product.pricing.download_speed}</span>
                     <span className="text-gray-400">/</span>
-                    <ArrowUp size={12} className="text-blue-500" />
+                    <PiArrowUpBold size={12} className="text-blue-500" />
                     <span className="font-medium">{product.pricing.upload_speed}</span>
                     <span className="text-gray-400">Mbps</span>
                   </span>
@@ -314,7 +297,7 @@ export function ProductsList({
                 className="hover:bg-circleTel-orange/10"
               >
                 <Link href={`/admin/products/${product.id}`}>
-                  <Eye className="h-4 w-4 mr-1" />
+                  <PiEyeBold className="h-4 w-4 mr-1" />
                   View
                 </Link>
               </Button>
@@ -327,7 +310,7 @@ export function ProductsList({
                   className="hover:bg-circleTel-orange/10"
                 >
                   <Link href={`/admin/products/${product.id}/edit`}>
-                    <Edit className="h-4 w-4 mr-1" />
+                    <PiPencilSimpleBold className="h-4 w-4 mr-1" />
                     Edit
                   </Link>
                 </Button>
@@ -337,19 +320,19 @@ export function ProductsList({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
+                    <PiDotsThreeBold className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {hasPricingPermission && onPriceEdit && (
                     <DropdownMenuItem onClick={() => onPriceEdit(product)}>
-                      <DollarSign className="w-4 h-4 mr-2" />
+                      <PiCurrencyDollarBold className="w-4 h-4 mr-2" />
                       Edit Price
                     </DropdownMenuItem>
                   )}
                   {onViewAuditHistory && (
                     <DropdownMenuItem onClick={() => onViewAuditHistory(product)}>
-                      <History className="w-4 h-4 mr-2" />
+                      <PiClockCounterClockwiseBold className="w-4 h-4 mr-2" />
                       View History
                     </DropdownMenuItem>
                   )}
@@ -376,7 +359,7 @@ export function ProductsList({
                   )}
                   {hasCreatePermission && onDuplicate && (
                     <DropdownMenuItem onClick={() => onDuplicate(product)}>
-                      <Copy className="w-4 h-4 mr-2" />
+                      <PiCopyBold className="w-4 h-4 mr-2" />
                       Duplicate
                     </DropdownMenuItem>
                   )}
@@ -385,7 +368,7 @@ export function ProductsList({
                       onClick={() => onArchive(product)}
                       className="text-red-600"
                     >
-                      <Archive className="w-4 h-4 mr-2" />
+                      <PiArchiveBold className="w-4 h-4 mr-2" />
                       Archive
                     </DropdownMenuItem>
                   )}

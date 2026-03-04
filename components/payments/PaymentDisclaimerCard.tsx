@@ -1,5 +1,5 @@
+import { PiFileTextBold, PiLockBold, PiShieldBold, PiWarningCircleBold } from 'react-icons/pi';
 import Link from 'next/link';
-import { Lock, Shield, AlertCircle, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PaymentDisclaimerCardProps {
@@ -24,7 +24,7 @@ export function PaymentDisclaimerCard({
     return (
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
         <div className="flex items-start gap-3">
-          <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <PiShieldBold className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm text-blue-900 font-semibold mb-2">Secure Payment Processing</p>
             <p className="text-xs text-blue-800 mb-3">
@@ -36,7 +36,7 @@ export function PaymentDisclaimerCard({
                 target="_blank"
                 className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
               >
-                <FileText className="h-3 w-3" />
+                <PiFileTextBold className="h-3 w-3" />
                 Payment Terms
               </Link>
               {showRefundPolicy && (
@@ -45,7 +45,7 @@ export function PaymentDisclaimerCard({
                   target="_blank"
                   className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
                 >
-                  <FileText className="h-3 w-3" />
+                  <PiFileTextBold className="h-3 w-3" />
                   Refund Policy
                 </Link>
               )}
@@ -61,7 +61,7 @@ export function PaymentDisclaimerCard({
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-600 rounded-lg">
-            <Lock className="h-6 w-6 text-white" />
+            <PiLockBold className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-lg font-bold text-blue-900">
             Secure Payment Processing
@@ -72,7 +72,7 @@ export function PaymentDisclaimerCard({
         {/* Security Information */}
         <div className="bg-white/70 rounded-lg p-4 border border-blue-200">
           <div className="flex items-start gap-3 mb-3">
-            <Shield className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <PiShieldBold className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-gray-900 mb-1">
                 PCI DSS Level 1 Certified
@@ -85,7 +85,7 @@ export function PaymentDisclaimerCard({
           </div>
 
           <div className="flex items-start gap-3">
-            <Lock className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <PiLockBold className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-gray-900 mb-1">
                 Your Data is Protected
@@ -101,7 +101,7 @@ export function PaymentDisclaimerCard({
         {/* Merchant Information */}
         <div className="bg-white/70 rounded-lg p-4 border border-blue-200">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <PiWarningCircleBold className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-gray-900 mb-1">
                 Merchant of Record
@@ -125,7 +125,7 @@ export function PaymentDisclaimerCard({
               target="_blank"
               className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
             >
-              <FileText className="h-4 w-4" />
+              <PiFileTextBold className="h-4 w-4" />
               Terms & Conditions
             </Link>
             <Link
@@ -133,7 +133,7 @@ export function PaymentDisclaimerCard({
               target="_blank"
               className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
             >
-              <FileText className="h-4 w-4" />
+              <PiFileTextBold className="h-4 w-4" />
               Privacy Policy
             </Link>
             <Link
@@ -141,7 +141,7 @@ export function PaymentDisclaimerCard({
               target="_blank"
               className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
             >
-              <FileText className="h-4 w-4" />
+              <PiFileTextBold className="h-4 w-4" />
               Payment Terms
             </Link>
             {showRefundPolicy && (
@@ -150,7 +150,7 @@ export function PaymentDisclaimerCard({
                 target="_blank"
                 className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
               >
-                <FileText className="h-4 w-4" />
+                <PiFileTextBold className="h-4 w-4" />
                 Refund Policy
               </Link>
             )}
@@ -163,7 +163,7 @@ export function PaymentDisclaimerCard({
             Secured by NetCash
           </p>
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-green-600" />
+            <PiShieldBold className="h-4 w-4 text-green-600" />
             <span className="text-xs font-semibold text-green-700">256-bit SSL Encryption</span>
           </div>
         </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiFileTextBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useRef } from 'react';
 import {
@@ -14,7 +15,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2, Upload, FileText, CheckCircle } from 'lucide-react';
 
 interface InstallationCompletionModalProps {
   open: boolean;
@@ -141,7 +141,7 @@ export function InstallationCompletionModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <PiCheckCircleBold className="h-5 w-5 text-green-600" />
               Complete Installation
             </DialogTitle>
             <DialogDescription>
@@ -175,14 +175,14 @@ export function InstallationCompletionModal({
 
                 {!selectedFile ? (
                   <div className="space-y-3">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+                    <PiUploadSimpleBold className="h-12 w-12 text-gray-400 mx-auto" />
                     <div>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
                       >
-                        <Upload className="h-4 w-4 mr-2" />
+                        <PiUploadSimpleBold className="h-4 w-4 mr-2" />
                         Select Document
                       </Button>
                     </div>
@@ -192,7 +192,7 @@ export function InstallationCompletionModal({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <FileText className="h-12 w-12 text-green-600 mx-auto" />
+                    <PiFileTextBold className="h-12 w-12 text-green-600 mx-auto" />
                     <div className="space-y-1">
                       <p className="font-medium text-gray-900">{selectedFile.name}</p>
                       <p className="text-sm text-gray-500">{formatFileSize(selectedFile.size)}</p>
@@ -230,14 +230,14 @@ export function InstallationCompletionModal({
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {/* Info Alert */}
             <Alert>
-              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <PiWarningCircleBold className="h-4 w-4 text-blue-600" />
               <AlertDescription>
                 <strong>Next Step:</strong> After completing installation, you can activate the service
                 and start billing once the payment method is verified.
@@ -257,12 +257,12 @@ export function InstallationCompletionModal({
             <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Completing...
                 </>
               ) : (
                 <>
-                  <CheckCircle className="mr-2 h-4 w-4" />
+                  <PiCheckCircleBold className="mr-2 h-4 w-4" />
                   Complete Installation
                 </>
               )}

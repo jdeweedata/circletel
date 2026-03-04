@@ -1,5 +1,5 @@
+import { PiQuotesBold } from 'react-icons/pi';
 import React from 'react'
-import { Quote } from 'lucide-react'
 
 interface TestimonialStatsProps {
   data?: {
@@ -49,7 +49,7 @@ export default function TestimonialStats({ data }: TestimonialStatsProps) {
 
           {/* Testimonial Section */}
           <div className="bg-white rounded-2xl p-8 shadow-2xl relative">
-            <Quote className="absolute top-4 right-4 w-12 h-12 text-circleTel-orange/20" />
+            <PiQuotesBold className="absolute top-4 right-4 w-12 h-12 text-circleTel-orange/20" />
             
             <div className="space-y-4">
               <div className="flex items-center space-x-1 mb-4">

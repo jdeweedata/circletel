@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiSpinnerBold, PiUserPlusBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -11,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, UserPlus, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const leadSchema = z.object({
@@ -68,7 +68,7 @@ export function ZohoLeadForm({ onSuccess, className }: ZohoLeadFormProps) {
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <UserPlus className="h-5 w-5" />
+          <PiUserPlusBold className="h-5 w-5" />
           Create Zoho Lead
         </CardTitle>
         <CardDescription>
@@ -78,7 +78,7 @@ export function ZohoLeadForm({ onSuccess, className }: ZohoLeadFormProps) {
       <CardContent>
         {success && (
           <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle2 className="h-4 w-4" />
+            <PiCheckCircleBold className="h-4 w-4" />
             <AlertDescription className="text-green-800">
               Lead created successfully in Zoho CRM!
             </AlertDescription>
@@ -203,7 +203,7 @@ export function ZohoLeadForm({ onSuccess, className }: ZohoLeadFormProps) {
             >
               {createLead.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Creating Lead...
                 </>
               ) : (

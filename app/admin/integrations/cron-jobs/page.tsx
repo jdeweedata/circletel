@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiPlayCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,18 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Activity,
-  RefreshCw,
-  Loader2,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  PlayCircle,
-  Calendar,
-  AlertCircle,
-  Zap,
-} from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 interface CronJob {
@@ -111,14 +100,14 @@ export default function CronJobsPage() {
     if (status === 'success') {
       return (
         <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
+          <PiCheckCircleBold className="w-3 h-3 mr-1" />
           Success
         </Badge>
       );
     }
     return (
       <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-        <XCircle className="w-3 h-3 mr-1" />
+        <PiXCircleBold className="w-3 h-3 mr-1" />
         Failed
       </Badge>
     );
@@ -143,7 +132,7 @@ export default function CronJobsPage() {
   if (isLoading && !cronJobs.length) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -168,7 +157,7 @@ export default function CronJobsPage() {
             onClick={() => fetchCronJobs()}
             disabled={isLoading}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -184,7 +173,7 @@ export default function CronJobsPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total Jobs</p>
                   <p className="text-2xl font-bold">{summary.total}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-gray-400" />
+                <PiCalendarBold className="w-8 h-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -196,7 +185,7 @@ export default function CronJobsPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
                   <p className="text-2xl font-bold text-green-600">{summary.active}</p>
                 </div>
-                <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <PiCheckCircleBold className="w-8 h-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
@@ -208,7 +197,7 @@ export default function CronJobsPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Inactive</p>
                   <p className="text-2xl font-bold text-gray-600">{summary.inactive}</p>
                 </div>
-                <XCircle className="w-8 h-8 text-gray-400" />
+                <PiXCircleBold className="w-8 h-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -267,7 +256,7 @@ export default function CronJobsPage() {
         {filteredJobs.length === 0 ? (
           <Card>
             <CardContent className="pt-12 pb-12 text-center">
-              <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <PiCalendarBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
                 No cron jobs found matching your filters
               </p>
@@ -302,7 +291,7 @@ export default function CronJobsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <PiCalendarBold className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Schedule</p>
                         <p className="text-sm font-medium">{job.humanReadableSchedule}</p>
@@ -311,7 +300,7 @@ export default function CronJobsPage() {
                     </div>
 
                     <div className="flex items-start gap-2">
-                      <Zap className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <PiLightningBold className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Integration</p>
                         <p className="text-sm font-medium">{job.integrationSlug}</p>
@@ -319,7 +308,7 @@ export default function CronJobsPage() {
                     </div>
 
                     <div className="flex items-start gap-2">
-                      <Activity className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <PiActivityBold className="w-4 h-4 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Endpoint</p>
                         <p className="text-sm font-mono text-gray-600 dark:text-gray-300">
@@ -333,7 +322,7 @@ export default function CronJobsPage() {
                     {job.lastRunAt ? (
                       <>
                         <div className="flex items-start gap-2">
-                          <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
+                          <PiClockBold className="w-4 h-4 text-gray-400 mt-0.5" />
                           <div>
                             <p className="text-xs text-gray-500 dark:text-gray-400">Last Run</p>
                             <p className="text-sm font-medium">
@@ -347,7 +336,7 @@ export default function CronJobsPage() {
 
                         {job.lastRunDurationMs !== null && (
                           <div className="flex items-start gap-2">
-                            <Zap className="w-4 h-4 text-gray-400 mt-0.5" />
+                            <PiLightningBold className="w-4 h-4 text-gray-400 mt-0.5" />
                             <div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">Duration</p>
                               <p className="text-sm font-medium">{job.lastRunDurationMs}ms</p>
@@ -357,7 +346,7 @@ export default function CronJobsPage() {
                       </>
                     ) : (
                       <div className="flex items-start gap-2">
-                        <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <PiClockBold className="w-4 h-4 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Last Run</p>
                           <p className="text-sm text-gray-400">Never executed</p>
@@ -367,7 +356,7 @@ export default function CronJobsPage() {
 
                     {job.nextRunAt && (
                       <div className="flex items-start gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <PiCalendarBold className="w-4 h-4 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Next Run</p>
                           <p className="text-sm font-medium">
@@ -387,7 +376,7 @@ export default function CronJobsPage() {
                     className="flex-1"
                     disabled={!job.isActive}
                   >
-                    <PlayCircle className="w-4 h-4 mr-2" />
+                    <PiPlayCircleBold className="w-4 h-4 mr-2" />
                     Trigger Now
                   </Button>
                   <Button
@@ -395,7 +384,7 @@ export default function CronJobsPage() {
                     size="sm"
                     className="flex-1"
                   >
-                    <Clock className="w-4 h-4 mr-2" />
+                    <PiClockBold className="w-4 h-4 mr-2" />
                     View History
                   </Button>
                 </div>
@@ -410,7 +399,7 @@ export default function CronJobsPage() {
         <Card className="border-red-300 dark:border-red-800">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle className="w-5 h-5" />
+              <PiWarningCircleBold className="w-5 h-5" />
               <p className="text-sm">{error}</p>
             </div>
           </CardContent>

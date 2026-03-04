@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -19,7 +20,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Search, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AuditLog {
@@ -100,13 +100,13 @@ export default function AdminAuditLogsPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return <PiCheckCircleBold className="w-4 h-4 text-green-600" />;
       case 'failure':
-        return <XCircle className="w-4 h-4 text-red-600" />;
+        return <PiXCircleBold className="w-4 h-4 text-red-600" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-600" />;
+        return <PiClockBold className="w-4 h-4 text-yellow-600" />;
       default:
-        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
+        return <PiWarningBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -149,7 +149,7 @@ export default function AdminAuditLogsPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <Shield className="w-12 h-12 text-red-600" />
+              <PiShieldBold className="w-12 h-12 text-red-600" />
             </div>
             <CardTitle className="text-center">Access Denied</CardTitle>
             <CardDescription className="text-center">
@@ -225,7 +225,7 @@ export default function AdminAuditLogsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search email, action, or IP..."
                 value={searchQuery}
@@ -324,7 +324,7 @@ export default function AdminAuditLogsPage() {
                         <div className="text-sm text-gray-900">{log.action.replace(/_/g, ' ')}</div>
                         {log.is_suspicious && (
                           <Badge variant="destructive" className="mt-1">
-                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            <PiWarningBold className="w-3 h-3 mr-1" />
                             Suspicious
                           </Badge>
                         )}

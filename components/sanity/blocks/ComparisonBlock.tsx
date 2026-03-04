@@ -1,6 +1,6 @@
 'use client';
+import { PiCheckBold, PiMinusBold, PiXBold } from 'react-icons/pi';
 
-import { Check, X, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ComparisonColumn {
@@ -28,13 +28,13 @@ interface ComparisonBlockProps {
 
 function renderValue(value: string) {
   if (value === 'yes') {
-    return <Check className="w-5 h-5 text-emerald-500 mx-auto" />;
+    return <PiCheckBold className="w-5 h-5 text-emerald-500 mx-auto" />;
   }
   if (value === 'no') {
-    return <X className="w-5 h-5 text-red-400 mx-auto" />;
+    return <PiXBold className="w-5 h-5 text-red-400 mx-auto" />;
   }
   if (value === 'partial') {
-    return <Minus className="w-5 h-5 text-amber-500 mx-auto" />;
+    return <PiMinusBold className="w-5 h-5 text-amber-500 mx-auto" />;
   }
   return <span className="text-sm text-circleTel-navy">{value}</span>;
 }

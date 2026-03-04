@@ -1,6 +1,5 @@
 "use client"
 
-import { ShoppingCart, Star, Wifi, Truck, Settings, Gauge } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -101,27 +100,27 @@ const packages = {
 
 const features = [
   {
-    icon: Star,
+    icon: PiStarBold,
     title: "Save R1 000 on hardware.",
     description: "With selected SIM + Device orders."
   },
   {
-    icon: Wifi,
+    icon: PiWifiBold,
     title: "FREE router.",
     description: "With Pure Wireless Plus."
   },
   {
-    icon: Truck,
+    icon: PiTruckBold,
     title: "FREE delivery.",
     description: "With any SIM and/or device order."
   },
   {
-    icon: Settings,
+    icon: PiGearBold,
     title: "No setup required.",
     description: "Insert your SIM and you're good to go."
   },
   {
-    icon: Gauge,
+    icon: PiGaugeBold,
     title: "Uncapped thresholds and throttling.",
     description: "See Ts&Cs for a detailed breakdown. »"
   }
@@ -159,7 +158,7 @@ export function WirelessPackagesSection() {
         >
           <span className="flex items-center gap-2">
             <span className="font-semibold">{pkg.price}</span>
-            <ShoppingCart className="w-4 h-4 group-hover:animate-pulse" />
+            <PiShoppingCartBold className="w-4 h-4 group-hover:animate-pulse" />
           </span>
         </Button>
       </CardFooter>

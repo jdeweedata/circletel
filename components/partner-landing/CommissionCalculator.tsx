@@ -1,7 +1,7 @@
 'use client';
+import { PiCalculatorBold, PiMoneyBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState } from 'react';
-import { Calculator, TrendingUp, Banknote, Users } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 // Simplified commission rate - 30% recurring

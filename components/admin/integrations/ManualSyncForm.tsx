@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, RotateCcw } from 'lucide-react';
 
 interface ManualSyncFormProps {
   onSync: (entityType: string, entityId: string) => Promise<void>;
@@ -75,12 +75,12 @@ export function ManualSyncForm({
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               Syncing...
             </>
           ) : (
             <>
-              <RotateCcw className="h-4 w-4 mr-2" />
+              <PiArrowCounterClockwiseBold className="h-4 w-4 mr-2" />
               Trigger Sync
             </>
           )}

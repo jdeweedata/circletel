@@ -1,8 +1,8 @@
 'use client';
+import { PiBellBold, PiCaretDownBold, PiListBold, PiMagnifyingGlassBold, PiSignOutBold } from 'react-icons/pi';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, Bell, LogOut, ChevronDown, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +42,7 @@ export default function DashboardHeader({
               className="h-9 w-9"
               aria-label="Open navigation menu"
             >
-              <Menu className="h-5 w-5 text-gray-700" />
+              <PiListBold className="h-5 w-5 text-gray-700" />
             </Button>
           )}
           <Link href="/dashboard" className="flex items-center">
@@ -80,7 +80,7 @@ export default function DashboardHeader({
           <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
             <div className="relative w-full">
               <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <Search className="h-4 w-4" />
+                <PiMagnifyingGlassBold className="h-4 w-4" />
               </span>
               <input
                 type="search"
@@ -100,7 +100,7 @@ export default function DashboardHeader({
             className="hidden sm:inline-flex h-9 w-9"
             aria-label="Notifications"
           >
-            <Bell className="h-5 w-5 text-gray-600" />
+            <PiBellBold className="h-5 w-5 text-gray-600" />
           </Button>
 
           {/* User Menu Dropdown */}
@@ -126,7 +126,7 @@ export default function DashboardHeader({
                 />
               </div>
 
-              <ChevronDown className="h-4 w-4 text-gray-400 hidden sm:block" />
+              <PiCaretDownBold className="h-4 w-4 text-gray-400 hidden sm:block" />
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56">
@@ -143,7 +143,7 @@ export default function DashboardHeader({
                 onClick={onSignOut}
                 className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <PiSignOutBold className="mr-2 h-4 w-4" />
                 <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

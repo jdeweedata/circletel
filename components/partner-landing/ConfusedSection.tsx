@@ -1,7 +1,7 @@
 'use client';
+import { PiQuestionBold } from 'react-icons/pi';
 
 import Link from 'next/link';
-import { HelpCircle } from 'lucide-react';
 
 export function ConfusedSection() {
   return (
@@ -63,7 +63,7 @@ export function ConfusedSection() {
               href="/help/connectivity-guide"
               className="inline-flex items-center gap-2 text-circleTel-orange font-semibold hover:underline"
             >
-              <HelpCircle className="h-5 w-5" />
+              <PiQuestionBold className="h-5 w-5" />
               Read our beginner's guide
             </Link>
           </div>

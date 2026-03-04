@@ -1,20 +1,9 @@
 'use client';
+import { PiActivityBold, PiArrowLeftBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFunnelBold, PiMagnifyingGlassBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  RefreshCw,
-  Search,
-  Download,
-  Activity,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Filter,
-  Calendar,
-} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -234,7 +223,7 @@ export default function IntegrationLogsPage({
             className="hover:bg-gray-200"
           >
             <Link href="/admin/integrations">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <PiArrowLeftBold className="h-4 w-4 mr-2" />
               Back
             </Link>
           </Button>
@@ -255,7 +244,7 @@ export default function IntegrationLogsPage({
             onClick={handleExportCSV}
             disabled={logs.length === 0}
           >
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
           <Button
@@ -264,7 +253,7 @@ export default function IntegrationLogsPage({
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -277,7 +266,7 @@ export default function IntegrationLogsPage({
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Activity className="h-5 w-5 text-gray-600" />
+                  <PiActivityBold className="h-5 w-5 text-gray-600" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold">{stats.total}</div>
@@ -291,7 +280,7 @@ export default function IntegrationLogsPage({
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-600">{stats.success}</div>
@@ -305,7 +294,7 @@ export default function IntegrationLogsPage({
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-100 rounded-lg">
-                  <XCircle className="h-5 w-5 text-red-600" />
+                  <PiXCircleBold className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
@@ -319,7 +308,7 @@ export default function IntegrationLogsPage({
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Clock className="h-5 w-5 text-yellow-600" />
+                  <PiClockBold className="h-5 w-5 text-yellow-600" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
@@ -353,7 +342,7 @@ export default function IntegrationLogsPage({
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search logs..."
                 value={searchQuery}
@@ -365,7 +354,7 @@ export default function IntegrationLogsPage({
             {/* Log Type Filter */}
             <Select value={logTypeFilter} onValueChange={setLogTypeFilter}>
               <SelectTrigger className="w-full md:w-[150px]">
-                <Filter className="w-4 h-4 mr-2" />
+                <PiFunnelBold className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Log Type" />
               </SelectTrigger>
               <SelectContent>
@@ -392,7 +381,7 @@ export default function IntegrationLogsPage({
             {/* Date Range Filter */}
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger className="w-full md:w-[150px]">
-                <Calendar className="w-4 h-4 mr-2" />
+                <PiCalendarBold className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Date Range" />
               </SelectTrigger>
               <SelectContent>
@@ -431,7 +420,7 @@ export default function IntegrationLogsPage({
               >
                 {isRefreshing ? (
                   <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                     Loading...
                   </>
                 ) : (

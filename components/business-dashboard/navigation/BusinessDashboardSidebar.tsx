@@ -1,4 +1,5 @@
 'use client';
+import { PiCaretLeftBold, PiCaretRightBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Business Dashboard Sidebar
@@ -11,7 +12,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -81,7 +81,7 @@ export function BusinessDashboardSidebar({
             </Link>
             {isBlocked && (
               <div className="flex items-center gap-1 mt-2 text-xs text-red-600">
-                <AlertCircle className="h-3 w-3" />
+                <PiWarningCircleBold className="h-3 w-3" />
                 <span>Action required</span>
               </div>
             )}
@@ -201,10 +201,10 @@ export function BusinessDashboardSidebar({
           className={cn('w-full', collapsed && 'px-0')}
         >
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           ) : (
             <>
-              <ChevronLeft className="h-4 w-4 mr-2" />
+              <PiCaretLeftBold className="h-4 w-4 mr-2" />
               <span>Collapse</span>
             </>
           )}

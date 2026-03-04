@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiPlusBold, PiTrashBold, PiTrendUpBold, PiUserCheckBold, PiUsersBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,24 +30,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Users,
-  Plus,
-  RefreshCw,
-  Phone,
-  Mail,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  MapPin,
-  CheckCircle,
-  Search,
-  Wrench,
-  UserCheck,
-  UserX,
-  Eye,
-  TrendingUp,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import {
@@ -158,13 +141,13 @@ function TechnicianCard({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><PiDotsThreeBold className="h-4 w-4" /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(tech)}><Edit className="h-4 w-4 mr-2" />Edit</DropdownMenuItem>
-            <DropdownMenuItem><Eye className="h-4 w-4 mr-2" />View Schedule</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(tech)}><PiPencilSimpleBold className="h-4 w-4 mr-2" />Edit</DropdownMenuItem>
+            <DropdownMenuItem><PiEyeBold className="h-4 w-4 mr-2" />View Schedule</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={() => onDelete(tech.id)}><Trash2 className="h-4 w-4 mr-2" />Deactivate</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" onClick={() => onDelete(tech.id)}><PiTrashBold className="h-4 w-4 mr-2" />Deactivate</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -174,12 +157,12 @@ function TechnicianCard({
       </div>
       <div className="space-y-2 mb-4">
         <a href={`tel:${tech.phone}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors">
-          <div className="h-8 w-8 bg-orange-50 rounded-lg flex items-center justify-center"><Phone className="h-4 w-4 text-circleTel-orange" /></div>
+          <div className="h-8 w-8 bg-orange-50 rounded-lg flex items-center justify-center"><PiPhoneBold className="h-4 w-4 text-circleTel-orange" /></div>
           <span>{tech.phone}</span>
         </a>
         {tech.email && (
           <a href={`mailto:${tech.email}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors">
-            <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center"><Mail className="h-4 w-4 text-blue-600" /></div>
+            <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center"><PiEnvelopeBold className="h-4 w-4 text-blue-600" /></div>
             <span className="truncate">{tech.email}</span>
           </a>
         )}
@@ -197,7 +180,7 @@ function TechnicianCard({
       )}
       {tech.location_updated_at && (
         <div className="pt-4 mt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
-          <MapPin className="h-3.5 w-3.5" /><span>Last seen: {new Date(tech.location_updated_at).toLocaleString()}</span>
+          <PiMapPinBold className="h-3.5 w-3.5" /><span>Last seen: {new Date(tech.location_updated_at).toLocaleString()}</span>
         </div>
       )}
     </div>
@@ -311,7 +294,7 @@ export default function TechniciansPage() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-[400px]"><RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" /></div>;
+    return <div className="flex items-center justify-center min-h-[400px]"><PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" /></div>;
   }
 
   return (
@@ -323,16 +306,16 @@ export default function TechniciansPage() {
             <p className="text-sm text-gray-500 mt-1">Manage your team of {technicians.length} field technicians</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={fetchTechnicians} className="gap-2"><RefreshCw className="h-4 w-4" />Refresh</Button>
+            <Button variant="outline" onClick={fetchTechnicians} className="gap-2"><PiArrowsClockwiseBold className="h-4 w-4" />Refresh</Button>
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2 shadow-md"><Plus className="h-4 w-4" />Add Technician</Button>
+                <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2 shadow-md"><PiPlusBold className="h-4 w-4" />Add Technician</Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <form onSubmit={handleSubmit}>
                   <DialogHeader>
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-circleTel-orange/10 rounded-lg"><Users className="h-5 w-5 text-circleTel-orange" /></div>
+                      <div className="p-2 bg-circleTel-orange/10 rounded-lg"><PiUsersBold className="h-5 w-5 text-circleTel-orange" /></div>
                       <div>
                         <DialogTitle>{editingTechnician ? 'Edit Technician' : 'Add Technician'}</DialogTitle>
                         <DialogDescription>{editingTechnician ? 'Update technician details' : 'Add a new field technician to the system'}</DialogDescription>
@@ -374,7 +357,7 @@ export default function TechniciansPage() {
                       <div className="flex flex-wrap gap-2">
                         {SKILL_OPTIONS.map((skill) => (
                           <Badge key={skill.value} variant={formData.skills?.includes(skill.value) ? 'default' : 'outline'} className={cn("cursor-pointer transition-colors", formData.skills?.includes(skill.value) && "bg-circleTel-orange hover:bg-orange-600")} onClick={() => toggleSkill(skill.value)}>
-                            {formData.skills?.includes(skill.value) && <CheckCircle className="h-3 w-3 mr-1" />}{skill.label}
+                            {formData.skills?.includes(skill.value) && <PiCheckCircleBold className="h-3 w-3 mr-1" />}{skill.label}
                           </Badge>
                         ))}
                       </div>
@@ -383,7 +366,7 @@ export default function TechniciansPage() {
                   <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                     <Button type="submit" disabled={submitting} className="bg-circleTel-orange hover:bg-orange-600">
-                      {submitting ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}{editingTechnician ? 'Update' : 'Create'}
+                      {submitting ? <PiArrowsClockwiseBold className="h-4 w-4 animate-spin mr-2" /> : null}{editingTechnician ? 'Update' : 'Create'}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -394,9 +377,9 @@ export default function TechniciansPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <TechnicianStatCard title="Total Technicians" value={stats.total} subtitle="Active team members" icon={<Users className="h-5 w-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-        <TechnicianStatCard title="Available" value={stats.available} subtitle="Ready for assignment" icon={<UserCheck className="h-5 w-5" />} iconBgColor="bg-green-100" iconColor="text-green-600" />
-        <TechnicianStatCard title="On Job" value={stats.onJob} subtitle="Currently working" icon={<Wrench className="h-5 w-5" />} iconBgColor="bg-orange-100" iconColor="text-circleTel-orange" />
+        <TechnicianStatCard title="Total Technicians" value={stats.total} subtitle="Active team members" icon={<PiUsersBold className="h-5 w-5" />} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
+        <TechnicianStatCard title="Available" value={stats.available} subtitle="Ready for assignment" icon={<PiUserCheckBold className="h-5 w-5" />} iconBgColor="bg-green-100" iconColor="text-green-600" />
+        <TechnicianStatCard title="On Job" value={stats.onJob} subtitle="Currently working" icon={<PiWrenchBold className="h-5 w-5" />} iconBgColor="bg-orange-100" iconColor="text-circleTel-orange" />
         <TechnicianStatCard title="Offline" value={stats.offline} subtitle="Not on duty" icon={<UserX className="h-5 w-5" />} iconBgColor="bg-gray-100" iconColor="text-gray-600" />
       </div>
 
@@ -404,7 +387,7 @@ export default function TechniciansPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input placeholder="Search by name, employee ID, or phone..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -437,12 +420,12 @@ export default function TechniciansPage() {
         <Card className="border border-gray-200 shadow-sm">
           <CardContent className="py-12">
             <div className="text-center">
-              <div className="mx-auto h-16 w-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4"><Users className="h-8 w-8 text-gray-400" /></div>
+              <div className="mx-auto h-16 w-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4"><PiUsersBold className="h-8 w-8 text-gray-400" /></div>
               {technicians.length === 0 ? (
                 <>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No technicians yet</h3>
                   <p className="text-gray-500 mb-4">Add your first technician to start managing field operations</p>
-                  <Button onClick={() => setDialogOpen(true)} className="bg-circleTel-orange hover:bg-orange-600"><Plus className="h-4 w-4 mr-2" />Add Technician</Button>
+                  <Button onClick={() => setDialogOpen(true)} className="bg-circleTel-orange hover:bg-orange-600"><PiPlusBold className="h-4 w-4 mr-2" />Add Technician</Button>
                 </>
               ) : (
                 <>

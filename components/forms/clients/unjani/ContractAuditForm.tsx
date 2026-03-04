@@ -1,7 +1,7 @@
+import { PiBuildingsBold, PiCalendarBold, PiFileTextBold, PiPhoneBold, PiUsersBold } from 'react-icons/pi';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Users, FileText, Calendar, Phone } from 'lucide-react';
 
 import { FormLayout } from '../../common/FormLayout';
 import { ProgressBar } from '../../common/ProgressBar';
@@ -195,7 +195,7 @@ export function UnjaniContractAuditForm() {
         {/* Section 1: Clinic Information */}
         <FormSection
           title="1. Clinic Identification"
-          icon={<Building2 className="w-6 h-6" />}
+          icon={<PiBuildingsBold className="w-6 h-6" />}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SelectField
@@ -234,7 +234,7 @@ export function UnjaniContractAuditForm() {
         {/* Section 2: Current Service Provider */}
         <FormSection
           title="2. Current Service Provider Information"
-          icon={<Users className="w-6 h-6" />}
+          icon={<PiUsersBold className="w-6 h-6" />}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SelectField
@@ -276,7 +276,7 @@ export function UnjaniContractAuditForm() {
         <FormSection
           title="3. Contract Details"
           subtitle="Critical information for determining migration readiness and rollout priority"
-          icon={<FileText className="w-6 h-6" />}
+          icon={<PiFileTextBold className="w-6 h-6" />}
         >
           <div className="space-y-6">
             <RadioGroup
@@ -340,7 +340,7 @@ export function UnjaniContractAuditForm() {
         {/* Section 4: Migration Planning */}
         <FormSection
           title="4. Migration Readiness & Rollout Priority"
-          icon={<Calendar className="w-6 h-6" />}
+          icon={<PiCalendarBold className="w-6 h-6" />}
         >
           {priority && (
             <Alert className="mb-6">
@@ -385,7 +385,7 @@ export function UnjaniContractAuditForm() {
         {/* Section 5: Contact Information */}
         <FormSection
           title="5. Contact Person on Site"
-          icon={<Phone className="w-6 h-6" />}
+          icon={<PiPhoneBold className="w-6 h-6" />}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField

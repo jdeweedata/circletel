@@ -1,8 +1,8 @@
 'use client';
+import { PiDownloadSimpleBold, PiMagnifyingGlassBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download, Search } from 'lucide-react';
 import type { Transaction } from '@/lib/types/billing';
 
 interface TransactionsListProps {
@@ -63,7 +63,7 @@ export default function TransactionsList({ transactions }: TransactionsListProps
         </div>
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
               placeholder="Search transactions..."
@@ -71,7 +71,7 @@ export default function TransactionsList({ transactions }: TransactionsListProps
             />
           </div>
           <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>

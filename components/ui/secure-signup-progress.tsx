@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckCircleBold, PiLockBold } from 'react-icons/pi';
 
 import { cn } from '@/lib/utils';
-import { Lock, CheckCircle2 } from 'lucide-react';
 
 export type SecureSignupStep = 'coverage' | 'package' | 'account';
 
@@ -40,7 +40,7 @@ export function SecureSignupProgress({
       <div className={cn('w-full', className)}>
         {showSecureBadge && (
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Lock className="h-4 w-4 text-green-600" />
+            <PiLockBold className="h-4 w-4 text-green-600" />
             <span className="text-sm font-semibold text-gray-700 tracking-wide">
               SECURE SIGNUP
             </span>
@@ -75,7 +75,7 @@ export function SecureSignupProgress({
       <div className={cn('flex items-center gap-4', className)}>
         {showSecureBadge && (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-            <Lock className="h-3.5 w-3.5 text-green-600" />
+            <PiLockBold className="h-3.5 w-3.5 text-green-600" />
             <span className="text-xs font-semibold text-green-700 tracking-wide">
               SECURE
             </span>
@@ -96,7 +96,7 @@ export function SecureSignupProgress({
                 )}
               >
                 {index < currentStepIndex ? (
-                  <CheckCircle2 className="h-4 w-4" />
+                  <PiCheckCircleBold className="h-4 w-4" />
                 ) : (
                   step.number
                 )}
@@ -140,7 +140,7 @@ export function SecureSignupProgress({
                 )}
               >
                 {index < currentStepIndex ? (
-                  <CheckCircle2 className="h-5 w-5" />
+                  <PiCheckCircleBold className="h-5 w-5" />
                 ) : (
                   step.number
                 )}
@@ -171,7 +171,7 @@ export function SecureSignupProgress({
     <div className={cn('w-full', className)}>
       {showSecureBadge && (
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Lock className="h-5 w-5 text-green-600" />
+          <PiLockBold className="h-5 w-5 text-green-600" />
           <span className="text-base font-semibold text-gray-700 tracking-wide">
             SECURE SIGNUP
           </span>
@@ -194,7 +194,7 @@ export function SecureSignupProgress({
                 )}
               >
                 {index < currentStepIndex ? (
-                  <CheckCircle2 className="h-8 w-8 md:h-10 md:w-10" />
+                  <PiCheckCircleBold className="h-8 w-8 md:h-10 md:w-10" />
                 ) : (
                   step.number
                 )}

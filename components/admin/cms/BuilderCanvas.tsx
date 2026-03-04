@@ -1,4 +1,5 @@
 'use client';
+import { PiCopyBold, PiDotsSixVerticalBold, PiGearBold, PiPlusBold, PiTrashBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Builder Canvas
@@ -31,7 +32,6 @@ import { cn } from '@/lib/utils';
 import { usePageBuilderStore, selectSelectedBlock } from '@/lib/cms/store';
 import { BLOCK_DEFINITIONS } from '@/lib/cms/block-registry';
 import type { ContentBlock, BlockType } from '@/lib/cms/types';
-import { Plus, GripVertical, Trash2, Copy, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 // ============================================
@@ -101,7 +101,7 @@ function SortableBlock({ block, children }: SortableBlockProps) {
           className="p-1.5 bg-white rounded shadow cursor-grab hover:bg-gray-50"
           title="Drag to reorder"
         >
-          <GripVertical className="w-4 h-4 text-gray-500" />
+          <PiDotsSixVerticalBold className="w-4 h-4 text-gray-500" />
         </div>
         <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded shadow">
           {definition?.label || block.type}
@@ -114,7 +114,7 @@ function SortableBlock({ block, children }: SortableBlockProps) {
           className="p-1.5 bg-white rounded shadow hover:bg-gray-50"
           title="Duplicate"
         >
-          <Copy className="w-4 h-4 text-gray-500" />
+          <PiCopyBold className="w-4 h-4 text-gray-500" />
         </button>
         <button
           onClick={(e) => {
@@ -124,7 +124,7 @@ function SortableBlock({ block, children }: SortableBlockProps) {
           className="p-1.5 bg-white rounded shadow hover:bg-red-50"
           title="Delete"
         >
-          <Trash2 className="w-4 h-4 text-red-500" />
+          <PiTrashBold className="w-4 h-4 text-red-500" />
         </button>
       </div>
 
@@ -172,7 +172,7 @@ function AddBlockButton({ index }: AddBlockButtonProps) {
           'hover:bg-orange-200 transition-colors'
         )}
       >
-        <Plus className="w-4 h-4" />
+        <PiPlusBold className="w-4 h-4" />
         Add Block
       </button>
 
@@ -286,7 +286,7 @@ function EmptyCanvas() {
   return (
     <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
       <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-        <Plus className="w-8 h-8 text-orange-600" />
+        <PiPlusBold className="w-8 h-8 text-orange-600" />
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">Start Building Your Page</h3>
       <p className="text-gray-500 mb-6 text-center max-w-md">

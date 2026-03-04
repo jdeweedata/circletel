@@ -1,21 +1,8 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCaretRightBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Building2,
-  Zap,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  Shield,
-  FileSearch,
-  ChevronRight
-} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,9 +17,9 @@ import { speedOptions, contentionOptions } from '../shared/options-config';
 // Aesthetic: Soft, approachable, focused - one thing at a time
 
 const steps = [
-  { id: 1, label: 'Client', icon: Building2, description: 'Business details' },
-  { id: 2, label: 'Requirements', icon: Zap, description: 'Service specs' },
-  { id: 3, label: 'Sites', icon: MapPin, description: 'Locations' },
+  { id: 1, label: 'Client', icon: PiBuildingsBold, description: 'Business details' },
+  { id: 2, label: 'Requirements', icon: PiLightningBold, description: 'Service specs' },
+  { id: 3, label: 'Sites', icon: PiMapPinBold, description: 'Locations' },
   { id: 4, label: 'Review', icon: FileSearch, description: 'Confirm & submit' },
 ];
 
@@ -85,7 +72,7 @@ export function DesignV2Stepper() {
                       isUpcoming && "bg-gray-100"
                     )}>
                       {isCompleted ? (
-                        <Check className="w-6 h-6 text-white" />
+                        <PiCheckBold className="w-6 h-6 text-white" />
                       ) : (
                         <Icon className={cn(
                           "w-6 h-6",
@@ -136,7 +123,7 @@ export function DesignV2Stepper() {
             >
               <div className="text-center mb-8">
                 <div className="inline-flex p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl shadow-xl shadow-blue-500/30 mb-4">
-                  <Building2 className="w-8 h-8 text-white" />
+                  <PiBuildingsBold className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Client Details</h2>
                 <p className="text-gray-500 mt-2">Tell us about your business client</p>
@@ -160,7 +147,7 @@ export function DesignV2Stepper() {
                   <div>
                     <Label htmlFor="v2-contact" className="text-sm font-semibold text-gray-700 mb-2 block">Contact Name</Label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <PiUserBold className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <Input
                         id="v2-contact"
                         placeholder="John Smith"
@@ -173,7 +160,7 @@ export function DesignV2Stepper() {
                   <div>
                     <Label htmlFor="v2-phone" className="text-sm font-semibold text-gray-700 mb-2 block">Phone</Label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <PiPhoneBold className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <Input
                         id="v2-phone"
                         placeholder="082 123 4567"
@@ -188,7 +175,7 @@ export function DesignV2Stepper() {
                 <div>
                   <Label htmlFor="v2-email" className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <PiEnvelopeBold className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <Input
                       id="v2-email"
                       type="email"
@@ -215,7 +202,7 @@ export function DesignV2Stepper() {
             >
               <div className="text-center mb-8">
                 <div className="inline-flex p-4 bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl shadow-xl shadow-violet-500/30 mb-4">
-                  <Zap className="w-8 h-8 text-white" />
+                  <PiLightningBold className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Service Requirements</h2>
                 <p className="text-gray-500 mt-2">What does the client need?</p>
@@ -241,7 +228,7 @@ export function DesignV2Stepper() {
                         >
                           {isSelected && (
                             <div className="absolute top-3 right-3 w-6 h-6 bg-violet-500 rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-white" />
+                              <PiCheckBold className="w-4 h-4 text-white" />
                             </div>
                           )}
                           <span className={cn(
@@ -278,7 +265,7 @@ export function DesignV2Stepper() {
                             "w-6 h-6 rounded-full border-2 flex items-center justify-center",
                             isSelected ? "border-violet-500 bg-violet-500" : "border-gray-300"
                           )}>
-                            {isSelected && <Check className="w-4 h-4 text-white" />}
+                            {isSelected && <PiCheckBold className="w-4 h-4 text-white" />}
                           </div>
                           <div className="flex-1">
                             <span className={cn(
@@ -317,7 +304,7 @@ export function DesignV2Stepper() {
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, needFailover: !!checked }))}
                       className="border-gray-300 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500"
                     />
-                    <Shield className="w-5 h-5 text-gray-500" />
+                    <PiShieldBold className="w-5 h-5 text-gray-500" />
                     <span className="text-base font-medium text-gray-700">Failover Required</span>
                   </label>
                 </div>
@@ -337,7 +324,7 @@ export function DesignV2Stepper() {
             >
               <div className="text-center mb-8">
                 <div className="inline-flex p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-xl shadow-emerald-500/30 mb-4">
-                  <MapPin className="w-8 h-8 text-white" />
+                  <PiMapPinBold className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Sites to Check</h2>
                 <p className="text-gray-500 mt-2">Enter addresses or GPS coordinates, one per line</p>
@@ -396,7 +383,7 @@ export function DesignV2Stepper() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 rounded-xl">
-                        <Building2 className="w-5 h-5 text-blue-600" />
+                        <PiBuildingsBold className="w-5 h-5 text-blue-600" />
                       </div>
                       <h3 className="font-semibold text-gray-900">Client</h3>
                     </div>
@@ -404,7 +391,7 @@ export function DesignV2Stepper() {
                       onClick={() => setCurrentStep(1)}
                       className="text-sm text-circleTel-orange font-medium hover:underline flex items-center gap-1"
                     >
-                      Edit <ChevronRight className="w-4 h-4" />
+                      Edit <PiCaretRightBold className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -432,7 +419,7 @@ export function DesignV2Stepper() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-violet-100 rounded-xl">
-                        <Zap className="w-5 h-5 text-violet-600" />
+                        <PiLightningBold className="w-5 h-5 text-violet-600" />
                       </div>
                       <h3 className="font-semibold text-gray-900">Requirements</h3>
                     </div>
@@ -440,7 +427,7 @@ export function DesignV2Stepper() {
                       onClick={() => setCurrentStep(2)}
                       className="text-sm text-circleTel-orange font-medium hover:underline flex items-center gap-1"
                     >
-                      Edit <ChevronRight className="w-4 h-4" />
+                      Edit <PiCaretRightBold className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -457,7 +444,7 @@ export function DesignV2Stepper() {
                     )}
                     {formData.needFailover && (
                       <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium flex items-center gap-1">
-                        <Shield className="w-3 h-3" /> Failover
+                        <PiShieldBold className="w-3 h-3" /> Failover
                       </span>
                     )}
                   </div>
@@ -468,7 +455,7 @@ export function DesignV2Stepper() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-emerald-100 rounded-xl">
-                        <MapPin className="w-5 h-5 text-emerald-600" />
+                        <PiMapPinBold className="w-5 h-5 text-emerald-600" />
                       </div>
                       <h3 className="font-semibold text-gray-900">Sites ({siteCount})</h3>
                     </div>
@@ -476,7 +463,7 @@ export function DesignV2Stepper() {
                       onClick={() => setCurrentStep(3)}
                       className="text-sm text-circleTel-orange font-medium hover:underline flex items-center gap-1"
                     >
-                      Edit <ChevronRight className="w-4 h-4" />
+                      Edit <PiCaretRightBold className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -506,7 +493,7 @@ export function DesignV2Stepper() {
               currentStep === 1 && "opacity-0 pointer-events-none"
             )}
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <PiArrowLeftBold className="w-5 h-5 mr-2" />
             Back
           </Button>
 
@@ -517,14 +504,14 @@ export function DesignV2Stepper() {
               className="h-14 px-8 text-base rounded-xl bg-gradient-to-r from-circleTel-orange to-amber-500 hover:from-circleTel-orange hover:to-amber-400 shadow-lg shadow-orange-300/50"
             >
               Continue
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <PiArrowRightBold className="w-5 h-5 ml-2" />
             </Button>
           ) : (
             <Button
               className="h-14 px-10 text-base rounded-xl bg-gradient-to-r from-circleTel-orange to-amber-500 hover:from-circleTel-orange hover:to-amber-400 shadow-xl shadow-orange-300/50"
             >
               <span>Check Feasibility</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <PiArrowRightBold className="w-5 h-5 ml-2" />
             </Button>
           )}
         </div>

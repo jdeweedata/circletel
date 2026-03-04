@@ -1,4 +1,5 @@
 'use client';
+import { PiFloppyDiskBold, PiMapPinBold, PiUserBold, PiWifiBold, PiXBold } from 'react-icons/pi';
 
 import React from 'react';
 import {
@@ -19,7 +20,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, MapPin, User, Wifi } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CorporateSite {
@@ -163,7 +163,7 @@ export function SiteEditSheet({
         <SheetHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-orange-600" />
+              <PiMapPinBold className="w-5 h-5 text-orange-600" />
             </div>
             <div>
               <SheetTitle className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export function SiteEditSheet({
           {/* Site Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <MapPin className="w-4 h-4" />
+              <PiMapPinBold className="w-4 h-4" />
               Site Details
             </div>
             <div className="space-y-3">
@@ -274,7 +274,7 @@ export function SiteEditSheet({
           {/* Contact Details */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <User className="w-4 h-4" />
+              <PiUserBold className="w-4 h-4" />
               Site Contact
             </div>
             <div className="space-y-3">
@@ -320,7 +320,7 @@ export function SiteEditSheet({
           {site.pppoeUsername && (
             <div className="p-4 bg-green-50 rounded-lg space-y-2">
               <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
-                <Wifi className="w-4 h-4" />
+                <PiWifiBold className="w-4 h-4" />
                 PPPoE Credentials
               </div>
               <p className="font-mono text-sm text-green-800">{site.pppoeUsername}</p>
@@ -337,7 +337,7 @@ export function SiteEditSheet({
             onClick={() => onOpenChange(false)}
             disabled={saving}
           >
-            <X className="w-4 h-4 mr-2" />
+            <PiXBold className="w-4 h-4 mr-2" />
             Cancel
           </Button>
           <Button
@@ -352,7 +352,7 @@ export function SiteEditSheet({
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <PiFloppyDiskBold className="w-4 h-4 mr-2" />
                 Save Changes
               </>
             )}

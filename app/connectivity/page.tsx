@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiGlobeBold, PiGraphBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Wifi, Network, Globe, ArrowRight, Check, Zap, Shield, Clock } from 'lucide-react';
 
 const Connectivity = () => {
   return (
@@ -50,7 +50,7 @@ const Connectivity = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                    <Zap className="h-8 w-8 text-blue-600" />
+                    <PiLightningBold className="h-8 w-8 text-blue-600" />
                   </div>
                   <CardTitle className="text-lg">High Performance</CardTitle>
                 </CardHeader>
@@ -64,7 +64,7 @@ const Connectivity = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                    <Shield className="h-8 w-8 text-green-600" />
+                    <PiShieldBold className="h-8 w-8 text-green-600" />
                   </div>
                   <CardTitle className="text-lg">Enterprise Security</CardTitle>
                 </CardHeader>
@@ -78,7 +78,7 @@ const Connectivity = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                    <Clock className="h-8 w-8 text-purple-600" />
+                    <PiClockBold className="h-8 w-8 text-purple-600" />
                   </div>
                   <CardTitle className="text-lg">24/7 Monitoring</CardTitle>
                 </CardHeader>
@@ -92,7 +92,7 @@ const Connectivity = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                    <Wifi className="h-8 w-8 text-orange-600" />
+                    <PiWifiBold className="h-8 w-8 text-orange-600" />
                   </div>
                   <CardTitle className="text-lg">Scalable Solution</CardTitle>
                 </CardHeader>
@@ -121,7 +121,7 @@ const Connectivity = () => {
               <Card className="border-2 border-circleTel-orange">
                 <CardHeader>
                   <div className="flex items-center justify-center w-16 h-16 bg-circleTel-orange/10 rounded-full mx-auto mb-4">
-                    <Wifi className="h-8 w-8 text-circleTel-orange" />
+                    <PiWifiBold className="h-8 w-8 text-circleTel-orange" />
                   </div>
                   <CardTitle className="text-center">Wi-Fi as a Service</CardTitle>
                   <Badge className="mx-auto bg-circleTel-orange">Featured</Badge>
@@ -129,19 +129,19 @@ const Connectivity = () => {
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Enterprise-grade equipment</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">24/7 monitoring & support</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">No capital expenditure</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Regular upgrades included</span>
                     </li>
                   </ul>
@@ -155,26 +155,26 @@ const Connectivity = () => {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
-                    <Network className="h-8 w-8 text-blue-600" />
+                    <PiGraphBold className="h-8 w-8 text-blue-600" />
                   </div>
                   <CardTitle className="text-center">Fixed Wireless</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Fast deployment</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">High-speed connectivity</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Reliable performance</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Business-grade SLAs</span>
                     </li>
                   </ul>
@@ -188,26 +188,26 @@ const Connectivity = () => {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mx-auto mb-4">
-                    <Globe className="h-8 w-8 text-emerald-600" />
+                    <PiGlobeBold className="h-8 w-8 text-emerald-600" />
                   </div>
                   <CardTitle className="text-center">Fibre Solutions</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Ultra-high speeds</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Symmetric upload/download</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Low latency</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Future-proof technology</span>
                     </li>
                   </ul>
@@ -236,7 +236,7 @@ const Connectivity = () => {
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                   <Link href="/resources/connectivity-guide">
-                    Connectivity Guide <ArrowRight className="ml-2 h-4 w-4" />
+                    Connectivity Guide <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>

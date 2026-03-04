@@ -1,15 +1,4 @@
-import {
-  Home,
-  Briefcase,
-  DollarSign,
-  User,
-  Users,
-  FolderOpen,
-  UserPlus,
-  ImageIcon,
-  Megaphone,
-  type LucideIcon,
-} from 'lucide-react';
+import { PiCurrencyDollarBold, PiFolderOpenBold, PiHouseBold, PiImageBold, PiMegaphoneBold, PiUserBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
 
 export interface PartnerTab {
   id: string;
@@ -32,7 +21,7 @@ export const partnerTabs: PartnerTab[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: Home,
+    icon: PiHouseBold,
     href: '/partner/dashboard',
     routes: ['/partner/dashboard'],
   },
@@ -46,21 +35,21 @@ export const partnerTabs: PartnerTab[] = [
   {
     id: 'marketing',
     label: 'Marketing',
-    icon: Megaphone,
+    icon: PiMegaphoneBold,
     href: '/partner/marketing',
     routes: ['/partner/marketing'],
   },
   {
     id: 'earnings',
     label: 'Earnings',
-    icon: DollarSign,
+    icon: PiCurrencyDollarBold,
     href: '/partner/commissions',
     routes: ['/partner/commissions'],
   },
   {
     id: 'account',
     label: 'Account',
-    icon: User,
+    icon: PiUserBold,
     href: '/partner/profile',
     routes: ['/partner/profile', '/partner/resources'],
   },
@@ -70,18 +59,18 @@ export const partnerTabs: PartnerTab[] = [
 export const sidebarConfig: Record<string, SidebarItem[]> = {
   dashboard: [], // No sidebar items - full-width content for dashboard home
   business: [
-    { label: 'All Leads', href: '/partner/leads', icon: Users },
-    { label: 'New Lead', href: '/partner/leads/new', icon: UserPlus },
+    { label: 'All Leads', href: '/partner/leads', icon: PiUsersBold },
+    { label: 'New Lead', href: '/partner/leads/new', icon: PiUserPlusBold },
   ],
   marketing: [
-    { label: 'Marketing Materials', href: '/partner/marketing', icon: ImageIcon },
+    { label: 'Marketing Materials', href: '/partner/marketing', icon: PiImageBold },
   ],
   earnings: [
-    { label: 'Commissions', href: '/partner/commissions', icon: DollarSign },
+    { label: 'Commissions', href: '/partner/commissions', icon: PiCurrencyDollarBold },
   ],
   account: [
-    { label: 'Profile', href: '/partner/profile', icon: User },
-    { label: 'Resources', href: '/partner/resources', icon: FolderOpen },
+    { label: 'Profile', href: '/partner/profile', icon: PiUserBold },
+    { label: 'Resources', href: '/partner/resources', icon: PiFolderOpenBold },
   ],
 };
 

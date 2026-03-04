@@ -1,22 +1,11 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiLightningBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Activity, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock,
-  Database,
-  RefreshCw,
-  Download,
-  Zap
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MonitoringData {
@@ -162,7 +151,7 @@ export function ApiMonitoringDashboard() {
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center h-96">
-        <RefreshCw className="h-8 w-8 animate-spin text-orange-500" />
+        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-orange-500" />
       </div>
     );
   }
@@ -178,10 +167,10 @@ export function ApiMonitoringDashboard() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'healthy': return <CheckCircle className="h-5 w-5" />;
-      case 'degraded': return <AlertCircle className="h-5 w-5" />;
-      case 'unhealthy': return <AlertCircle className="h-5 w-5" />;
-      default: return <Activity className="h-5 w-5" />;
+      case 'healthy': return <PiCheckCircleBold className="h-5 w-5" />;
+      case 'degraded': return <PiWarningCircleBold className="h-5 w-5" />;
+      case 'unhealthy': return <PiWarningCircleBold className="h-5 w-5" />;
+      default: return <PiActivityBold className="h-5 w-5" />;
     }
   };
 
@@ -210,15 +199,15 @@ export function ApiMonitoringDashboard() {
             size="sm"
             onClick={() => setAutoRefresh(!autoRefresh)}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
             {autoRefresh ? 'Auto' : 'Manual'}
           </Button>
           <Button variant="outline" size="sm" onClick={fetchMonitoringData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Button variant="outline" size="sm" onClick={handleExportCsv}>
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
         </div>
@@ -237,7 +226,7 @@ export function ApiMonitoringDashboard() {
               }`}
             >
               <div className="flex items-center gap-2">
-                <AlertCircle className={`h-5 w-5 ${
+                <PiWarningCircleBold className={`h-5 w-5 ${
                   alert.level === 'critical' ? 'text-red-600' :
                   alert.level === 'warning' ? 'text-yellow-600' :
                   'text-blue-600'
@@ -277,9 +266,9 @@ export function ApiMonitoringDashboard() {
                 {data.summary.metrics.successRate.toFixed(1)}%
               </span>
               {data.summary.metrics.successRate >= 95 ? (
-                <TrendingUp className="h-5 w-5 text-green-500" />
+                <PiTrendUpBold className="h-5 w-5 text-green-500" />
               ) : (
-                <TrendingDown className="h-5 w-5 text-red-500" />
+                <PiTrendDownBold className="h-5 w-5 text-red-500" />
               )}
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -297,7 +286,7 @@ export function ApiMonitoringDashboard() {
               <span className="text-2xl font-bold">
                 {data.summary.metrics.avgResponseTime.toFixed(0)}ms
               </span>
-              <Clock className="h-5 w-5 text-blue-500" />
+              <PiClockBold className="h-5 w-5 text-blue-500" />
             </div>
             <p className="text-xs text-gray-500 mt-1">
               P95: {data.mtn.performance.p95ResponseTime.toFixed(0)}ms
@@ -314,7 +303,7 @@ export function ApiMonitoringDashboard() {
               <span className="text-2xl font-bold">
                 {data.summary.metrics.cacheHitRate.toFixed(1)}%
               </span>
-              <Database className="h-5 w-5 text-purple-500" />
+              <PiDatabaseBold className="h-5 w-5 text-purple-500" />
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {data.cache.stats.hits} hits / {data.cache.stats.hits + data.cache.stats.misses} total
@@ -498,7 +487,7 @@ export function ApiMonitoringDashboard() {
                 className="w-full"
                 onClick={handleResetMetrics}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
                 Reset Metrics
               </Button>
               <Button
@@ -506,7 +495,7 @@ export function ApiMonitoringDashboard() {
                 className="w-full"
                 onClick={handleClearCache}
               >
-                <Database className="h-4 w-4 mr-2" />
+                <PiDatabaseBold className="h-4 w-4 mr-2" />
                 Clear All Caches
               </Button>
               <Button
@@ -514,7 +503,7 @@ export function ApiMonitoringDashboard() {
                 className="w-full"
                 onClick={handleExportCsv}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                 Export Metrics (CSV)
               </Button>
             </CardContent>
@@ -527,22 +516,22 @@ export function ApiMonitoringDashboard() {
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
+                <PiLightningBold className="h-4 w-4 text-green-500" />
                 <span className="text-sm">Request Deduplication</span>
                 <Badge variant="secondary">Active</Badge>
               </div>
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
+                <PiLightningBold className="h-4 w-4 text-green-500" />
                 <span className="text-sm">8s Timeout Controls</span>
                 <Badge variant="secondary">Active</Badge>
               </div>
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
+                <PiLightningBold className="h-4 w-4 text-green-500" />
                 <span className="text-sm">Adaptive Cache Keys</span>
                 <Badge variant="secondary">Active</Badge>
               </div>
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
+                <PiLightningBold className="h-4 w-4 text-green-500" />
                 <span className="text-sm">Parallel Layer Queries</span>
                 <Badge variant="secondary">Active</Badge>
               </div>

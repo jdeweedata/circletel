@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiEyeBold, PiPencilSimpleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Preview Banner Component
@@ -8,7 +9,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, X, ExternalLink, Edit } from 'lucide-react';
 import type { PageStatus } from '@/lib/cms/types';
 
 interface PreviewBannerProps {
@@ -55,7 +55,7 @@ export default function PreviewBanner({ pageId, pageTitle, status }: PreviewBann
           {/* Left: Preview indicator */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3 py-1 bg-orange-500 rounded-full">
-              <Eye className="w-4 h-4" />
+              <PiEyeBold className="w-4 h-4" />
               <span className="text-sm font-medium">Preview Mode</span>
             </div>
             <span className="text-sm text-gray-300 hidden sm:inline">
@@ -74,7 +74,7 @@ export default function PreviewBanner({ pageId, pageTitle, status }: PreviewBann
               href={`/admin/cms/pages/${pageId}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
             >
-              <Edit className="w-4 h-4" />
+              <PiPencilSimpleBold className="w-4 h-4" />
               <span className="hidden sm:inline">Edit Page</span>
             </a>
             {status === 'published' && (
@@ -84,7 +84,7 @@ export default function PreviewBanner({ pageId, pageTitle, status }: PreviewBann
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <PiArrowSquareOutBold className="w-4 h-4" />
                 <span className="hidden sm:inline">View Live</span>
               </a>
             )}
@@ -93,7 +93,7 @@ export default function PreviewBanner({ pageId, pageTitle, status }: PreviewBann
               disabled={isExiting}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
             >
-              <X className="w-4 h-4" />
+              <PiXBold className="w-4 h-4" />
               <span className="hidden sm:inline">
                 {isExiting ? 'Exiting...' : 'Exit Preview'}
               </span>

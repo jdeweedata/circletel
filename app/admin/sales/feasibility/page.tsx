@@ -1,47 +1,10 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsCounterClockwiseBold, PiBuildingsBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiGlobeBold, PiGridFourBold, PiLightningBold, PiListBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiShieldWarningBold, PiSparklesBold, PiSpinnerBold, PiStackBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import {
-  MapPin,
-  Building2,
-  User,
-  Mail,
-  Phone,
-  Wifi,
-  Users,
-  DollarSign,
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  FileText,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  RefreshCcw,
-  Download,
-  ChevronRight,
-  Sparkles,
-  Zap,
-  Globe,
-  Signal,
-  Router,
-  Antenna,
-  MousePointer,
-  Navigation,
-  List,
-  Eye,
-  ArrowLeft,
-  Copy,
-  Check,
-  Clock,
-  LayoutGrid,
-  Layers,
-  Package
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -143,10 +106,10 @@ export type { CoverageDetail, DetailedCoverage, MatchingProduct, SiteResult };
 // ============================================================================
 
 const speedOptions = [
-  { value: 100, label: '100 Mbps', icon: Wifi },
-  { value: 200, label: '200 Mbps', icon: Signal },
-  { value: 500, label: '500 Mbps', icon: Router },
-  { value: 1000, label: '1 Gbps', icon: Zap },
+  { value: 100, label: '100 Mbps', icon: PiWifiBold },
+  { value: 200, label: '200 Mbps', icon: PiCellSignalFullBold },
+  { value: 500, label: '500 Mbps', icon: PiRouterBold },
+  { value: 1000, label: '1 Gbps', icon: PiLightningBold },
 ];
 
 const contentionOptions = [
@@ -224,12 +187,12 @@ const getMarkerIcon = (status: string): google.maps.Symbol => ({
 
 const getTechIcon = (tech: string) => {
   switch (tech.toLowerCase()) {
-    case 'fibre': return <Globe className="h-4 w-4 text-blue-500" />;
-    case 'lte': return <Signal className="h-4 w-4 text-green-500" />;
-    case '5g': return <Zap className="h-4 w-4 text-purple-500" />;
+    case 'fibre': return <PiGlobeBold className="h-4 w-4 text-blue-500" />;
+    case 'lte': return <PiCellSignalFullBold className="h-4 w-4 text-green-500" />;
+    case '5g': return <PiLightningBold className="h-4 w-4 text-purple-500" />;
     case 'tarana': return <Antenna className="h-4 w-4 text-orange-500" />;
-    case 'starlink': return <Sparkles className="h-4 w-4 text-cyan-500" />;
-    default: return <Wifi className="h-4 w-4 text-gray-500" />;
+    case 'starlink': return <PiSparklesBold className="h-4 w-4 text-cyan-500" />;
+    default: return <PiWifiBold className="h-4 w-4 text-gray-500" />;
   }
 };
 
@@ -766,7 +729,7 @@ export default function FeasibilityPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <PiXCircleBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900">Failed to load Google Maps</h2>
           <p className="text-gray-500 mt-2">Please check your API key configuration.</p>
         </div>
@@ -780,9 +743,9 @@ export default function FeasibilityPage() {
 
   // Progress steps for Multiple Sites mode
   const progressSteps = [
-    { id: 'form', label: 'Enter Details', icon: FileText },
-    { id: 'checking', label: 'Check Coverage', icon: Signal },
-    { id: 'results', label: 'Review & Quote', icon: Package },
+    { id: 'form', label: 'Enter Details', icon: PiFileTextBold },
+    { id: 'checking', label: 'Check Coverage', icon: PiCellSignalFullBold },
+    { id: 'results', label: 'Review & Quote', icon: PiPackageBold },
   ];
 
   return (
@@ -792,7 +755,7 @@ export default function FeasibilityPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="p-2.5 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-xl shadow-lg shadow-orange-500/20">
-              <MapPin className="h-6 w-6 text-white" />
+              <PiMapPinBold className="h-6 w-6 text-white" />
             </div>
             <div>
               <div>
@@ -813,7 +776,7 @@ export default function FeasibilityPage() {
                 onClick={() => setIsEmailParseOpen(true)}
                 className="gap-2 border-circleTel-orange/30 text-circleTel-orange hover:bg-circleTel-orange/5 hover:border-circleTel-orange/50"
               >
-                <Mail className="h-4 w-4" />
+                <PiEnvelopeBold className="h-4 w-4" />
                 <span className="hidden sm:inline">Parse Email</span>
               </Button>
 
@@ -834,7 +797,7 @@ export default function FeasibilityPage() {
                 value="single"
                 className="flex items-center gap-2 rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white text-slate-400 transition-all duration-300"
               >
-                <MapPin className="h-4 w-4" />
+                <PiMapPinBold className="h-4 w-4" />
                 <span className="font-semibold uppercase tracking-wider text-[10px]">Single Site</span>
                 <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Quick check</span>
               </TabsTrigger>
@@ -842,7 +805,7 @@ export default function FeasibilityPage() {
                 value="multiple"
                 className="flex items-center gap-2 rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white text-slate-400 transition-all duration-300"
               >
-                <Layers className="h-4 w-4" />
+                <PiStackBold className="h-4 w-4" />
                 <span className="font-semibold uppercase tracking-wider text-[10px]">Multiple Sites</span>
                 <span className="hidden sm:inline text-[8px] opacity-70 ml-1">Bulk quotes</span>
               </TabsTrigger>
@@ -875,7 +838,7 @@ export default function FeasibilityPage() {
                   </div>
                   {step !== 'form' && (
                     <Button variant="outline" size="sm" onClick={resetForm} className="gap-1.5">
-                      <ArrowLeft className="h-4 w-4" />
+                      <PiArrowLeftBold className="h-4 w-4" />
                       Start Over
                     </Button>
                   )}
@@ -893,12 +856,12 @@ export default function FeasibilityPage() {
                           isComplete ? 'bg-green-500/20 text-green-400 border border-green-500/20' :
                             'bg-white/5 text-slate-600 border border-white/5'
                           }`}>
-                          {isComplete ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                          {isComplete ? <PiCheckCircleBold className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                         </div>
                         <span className={`text-[10px] font-bold uppercase tracking-tighter hidden sm:inline ${isActive ? 'text-white' : isComplete ? 'text-green-400' : 'text-slate-600'
                           }`}>{s.label}</span>
                         {idx < progressSteps.length - 1 && (
-                          <ChevronRight className="h-3 w-3 text-white/5 mx-1" />
+                          <PiCaretRightBold className="h-3 w-3 text-white/5 mx-1" />
                         )}
                       </div>
                     );
@@ -919,7 +882,7 @@ export default function FeasibilityPage() {
                       <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
                         <div className="px-4 py-3 bg-white/5 border-b border-white/5">
                           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <Building2 className="h-3 w-3 text-circleTel-orange" />
+                            <PiBuildingsBold className="h-3 w-3 text-circleTel-orange" />
                             Client Details
                           </h3>
                         </div>
@@ -959,7 +922,7 @@ export default function FeasibilityPage() {
                       <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
                         <div className="px-4 py-3 bg-white/5 border-b border-white/5">
                           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <Wifi className="h-3 w-3 text-circleTel-orange" />
+                            <PiWifiBold className="h-3 w-3 text-circleTel-orange" />
                             Service Requirements
                           </h3>
                         </div>
@@ -1024,7 +987,7 @@ export default function FeasibilityPage() {
                                 Budget (Optional)
                               </label>
                               <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                                <PiCurrencyDollarBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                                 <Input
                                   type="number"
                                   placeholder="Per site"
@@ -1047,7 +1010,7 @@ export default function FeasibilityPage() {
                                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, failover: !!checked }))}
                                   className="border-white/20 data-[state=checked]:bg-green-500"
                                 />
-                                <Shield className="h-3 w-3" />
+                                <PiShieldBold className="h-3 w-3" />
                                 <span className="text-[10px] font-black uppercase">Failover</span>
                               </label>
                             </div>
@@ -1059,7 +1022,7 @@ export default function FeasibilityPage() {
                       <div className="bg-white/5 rounded-xl border border-white/5 shadow-xl overflow-hidden backdrop-blur-sm">
                         <div className="px-4 py-3 bg-white/5 border-b border-white/5 flex items-center justify-between">
                           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <MapPin className="h-3 w-3 text-circleTel-orange" />
+                            <PiMapPinBold className="h-3 w-3 text-circleTel-orange" />
                             Sites to Check
                           </h3>
                           <span className={`text-[10px] font-black px-3 py-1 rounded-full border shadow-[0_0_10px_rgba(255,255,255,0.05)] ${siteCount > 0 ? 'bg-circleTel-orange/20 border-circleTel-orange/30 text-circleTel-orange' : 'bg-white/5 border-white/10 text-slate-600'
@@ -1082,7 +1045,7 @@ export default function FeasibilityPage() {
                                 className="absolute top-2 right-2 p-1.5 text-slate-500 hover:text-white hover:bg-white/10 rounded-md transition-all opacity-0 group-hover:opacity-100"
                                 title="Clear all"
                               >
-                                <XCircle className="h-4 w-4" />
+                                <PiXCircleBold className="h-4 w-4" />
                               </button>
                             )}
                           </div>
@@ -1106,7 +1069,7 @@ export default function FeasibilityPage() {
                         disabled={siteCount === 0 || !formData.companyName}
                         className="w-full bg-circleTel-orange hover:bg-circleTel-bright-orange text-white py-8 text-sm font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 disabled:shadow-none transition-all duration-500 active:scale-[0.98] border-none"
                       >
-                        <Sparkles className="h-4 w-4 mr-3 animate-pulse" />
+                        <PiSparklesBold className="h-4 w-4 mr-3 animate-pulse" />
                         Initialize Scan
                         {siteCount > 0 && (
                           <span className="ml-4 px-2.5 py-1 bg-black/20 rounded font-bold text-[10px]">
@@ -1132,7 +1095,7 @@ export default function FeasibilityPage() {
                         <div className="relative inline-flex mb-6">
                           <div className="absolute inset-0 bg-circleTel-orange/20 rounded-full animate-ping" />
                           <div className="relative p-5 bg-circleTel-orange rounded-full shadow-[0_0_30px_rgba(245,132,30,0.4)]">
-                            <Loader2 className="h-10 w-10 animate-spin text-white" />
+                            <PiSpinnerBold className="h-10 w-10 animate-spin text-white" />
                           </div>
                         </div>
                         <h2 className="text-2xl font-black text-white uppercase tracking-widest mt-4">Analyzing Coverage</h2>
@@ -1172,13 +1135,13 @@ export default function FeasibilityPage() {
                                     'bg-white/5 text-slate-600'
                                 }`}>
                                 {result.status === 'checking' ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
                                 ) : result.status === 'complete' ? (
-                                  <ShieldCheck className="h-4 w-4" />
+                                  <PiShieldCheckBold className="h-4 w-4" />
                                 ) : result.status === 'error' ? (
-                                  <ShieldAlert className="h-4 w-4" />
+                                  <PiShieldWarningBold className="h-4 w-4" />
                                 ) : (
-                                  <Clock className="h-4 w-4" />
+                                  <PiClockBold className="h-4 w-4" />
                                 )}
                               </div>
                               <span className="text-sm font-bold flex-1 truncate text-slate-300">{result.address}</span>
@@ -1202,21 +1165,21 @@ export default function FeasibilityPage() {
                       <div className="grid grid-cols-3 gap-3">
                         <div className="bg-green-500/5 rounded-xl border border-green-500/20 p-4 text-center shadow-[0_0_20px_rgba(34,197,94,0.05)] backdrop-blur-sm group hover:border-green-500/40 transition-all duration-300">
                           <div className="inline-flex p-2.5 bg-green-500/20 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <ShieldCheck className="h-5 w-5 text-green-400" />
+                            <PiShieldCheckBold className="h-5 w-5 text-green-400" />
                           </div>
                           <span className="text-2xl font-black text-white block tracking-tighter">{completedCount}</span>
                           <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">Fiber Found</p>
                         </div>
                         <div className="bg-red-500/5 rounded-xl border border-red-500/20 p-4 text-center shadow-[0_0_20px_rgba(239,68,68,0.05)] backdrop-blur-sm group hover:border-red-500/40 transition-all duration-300">
                           <div className="inline-flex p-2.5 bg-red-500/20 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <ShieldAlert className="h-5 w-5 text-red-400" />
+                            <PiShieldWarningBold className="h-5 w-5 text-red-400" />
                           </div>
                           <span className="text-2xl font-black text-white block tracking-tighter">{errorCount}</span>
                           <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-1">No Density</p>
                         </div>
                         <div className="bg-white/5 rounded-xl border border-white/10 p-4 text-center shadow-[0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-sm group hover:border-white/20 transition-all duration-300">
                           <div className="inline-flex p-2.5 bg-white/10 rounded-lg mb-2 group-hover:scale-110 transition-transform">
-                            <MapPin className="h-5 w-5 text-slate-400" />
+                            <PiMapPinBold className="h-5 w-5 text-slate-400" />
                           </div>
                           <span className="text-2xl font-black text-white block tracking-tighter">{siteResults.length}</span>
                           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Total Sites</p>
@@ -1227,7 +1190,7 @@ export default function FeasibilityPage() {
                       {isLoadingPackages && (
                         <div className="flex items-center gap-4 p-5 bg-circleTel-orange/10 border border-circleTel-orange/30 rounded-xl backdrop-blur-md">
                           <div className="p-2 bg-circleTel-orange rounded-lg">
-                            <Loader2 className="h-5 w-5 animate-spin text-white" />
+                            <PiSpinnerBold className="h-5 w-5 animate-spin text-white" />
                           </div>
                           <div>
                             <span className="text-sm font-bold text-white block uppercase tracking-wide">Optimizing Packages</span>
@@ -1240,7 +1203,7 @@ export default function FeasibilityPage() {
                       <div className="bg-white/5 rounded-xl border border-white/10 shadow-xl overflow-hidden backdrop-blur-sm">
                         <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <MapPin className="h-3 w-3 text-circleTel-orange" />
+                            <PiMapPinBold className="h-3 w-3 text-circleTel-orange" />
                             Site Results
                           </span>
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
@@ -1304,7 +1267,7 @@ export default function FeasibilityPage() {
                                         </select>
                                         {sitePackageSelections[index] && (
                                           <div className="flex items-center gap-1.5 mt-1.5 text-green-600">
-                                            <CheckCircle2 className="h-3.5 w-3.5" />
+                                            <PiCheckCircleBold className="h-3.5 w-3.5" />
                                             <span className="text-xs font-medium">
                                               {availablePackages.find(p => p.id === sitePackageSelections[index])?.name}
                                             </span>
@@ -1324,7 +1287,7 @@ export default function FeasibilityPage() {
                                     onClick={(e) => { e.stopPropagation(); retrySite(index); }}
                                     className="flex-shrink-0"
                                   >
-                                    <RefreshCcw className="h-3.5 w-3.5 mr-1" />
+                                    <PiArrowsCounterClockwiseBold className="h-3.5 w-3.5 mr-1" />
                                     Retry
                                   </Button>
                                 )}
@@ -1371,7 +1334,7 @@ export default function FeasibilityPage() {
                         {generatedQuoteIds.length > 0 ? (
                           <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 text-center">
                             <div className="inline-flex p-3 bg-green-100 rounded-full mb-3">
-                              <CheckCircle2 className="h-6 w-6 text-green-600" />
+                              <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                             </div>
                             <h3 className="text-lg font-bold text-green-800">
                               {generatedQuoteIds.length} Quote{generatedQuoteIds.length !== 1 ? 's' : ''} Created!
@@ -1383,7 +1346,7 @@ export default function FeasibilityPage() {
                               onClick={() => window.open('/admin/quotes', '_blank')}
                               className="bg-green-600 hover:bg-green-700 text-white"
                             >
-                              <Eye className="h-4 w-4 mr-2" />
+                              <PiEyeBold className="h-4 w-4 mr-2" />
                               View Quotes
                             </Button>
                           </div>
@@ -1399,12 +1362,12 @@ export default function FeasibilityPage() {
                           >
                             {isGeneratingQuotes ? (
                               <>
-                                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                <PiSpinnerBold className="h-5 w-5 animate-spin mr-2" />
                                 Generating Quotes...
                               </>
                             ) : (
                               <>
-                                <FileText className="h-5 w-5 mr-2" />
+                                <PiFileTextBold className="h-5 w-5 mr-2" />
                                 Generate Quotes
                                 <span className="ml-2 px-2.5 py-0.5 bg-white/20 rounded-full text-sm">
                                   {Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length} site{Object.keys(sitePackageSelections).filter(k => sitePackageSelections[Number(k)]).length !== 1 ? 's' : ''}
@@ -1424,7 +1387,7 @@ export default function FeasibilityPage() {
                 {!isLoaded ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-circleTel-midnight-navy">
                     <div className="text-center">
-                      <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-3" />
+                      <PiSpinnerBold className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-3" />
                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Initializing Map Engine</p>
                     </div>
                   </div>
@@ -1487,7 +1450,7 @@ export default function FeasibilityPage() {
               <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
                 <div className="bg-black/60 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 px-4 py-2.5 flex items-center gap-3">
                   <div className="p-1.5 bg-circleTel-orange/20 rounded-lg">
-                    <MapPin className="h-4 w-4 text-circleTel-orange" />
+                    <PiMapPinBold className="h-4 w-4 text-circleTel-orange" />
                   </div>
                   <div>
                     <span className="text-lg font-black text-white tracking-tighter">
@@ -1512,7 +1475,7 @@ export default function FeasibilityPage() {
               <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 px-4 py-2.5 group hover:border-circleTel-orange/30 transition-all">
                 <div className="flex items-center gap-3">
                   <div className="p-1.5 bg-white/5 rounded-lg group-hover:bg-circleTel-orange/10 transition-colors">
-                    <Building2 className="h-4 w-4 text-slate-400 group-hover:text-circleTel-orange" />
+                    <PiBuildingsBold className="h-4 w-4 text-slate-400 group-hover:text-circleTel-orange" />
                   </div>
                   <span className="text-xs font-black text-white uppercase tracking-wider">{formData.companyName}</span>
                 </div>

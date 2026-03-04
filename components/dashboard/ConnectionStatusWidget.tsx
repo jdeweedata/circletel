@@ -1,19 +1,11 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiClockBold, PiGlobeBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Wifi,
-  WifiOff,
-  RefreshCw,
-  Clock,
-  Globe,
-  Activity,
-  AlertCircle
-} from 'lucide-react';
 
 interface ConnectionStatus {
   isConnected: boolean;
@@ -121,9 +113,9 @@ export function ConnectionStatusWidget() {
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-full ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
               {isConnected ? (
-                <Wifi className="w-5 h-5 text-green-600" />
+                <PiWifiBold className="w-5 h-5 text-green-600" />
               ) : (
-                <WifiOff className="w-5 h-5 text-red-600" />
+                <PiWifiSlashBold className="w-5 h-5 text-red-600" />
               )}
             </div>
             <div>
@@ -144,26 +136,26 @@ export function ConnectionStatusWidget() {
 
               {status.error ? (
                 <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
+                  <PiWarningCircleBold className="w-3.5 h-3.5" />
                   {status.error}
                 </p>
               ) : (
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-sm text-gray-600">
                   {status.ipAddress && (
                     <span className="flex items-center gap-1">
-                      <Globe className="w-3.5 h-3.5" />
+                      <PiGlobeBold className="w-3.5 h-3.5" />
                       {status.ipAddress}
                     </span>
                   )}
                   {status.sessionDuration && (
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
+                      <PiClockBold className="w-3.5 h-3.5" />
                       {formatDuration(status.sessionDuration)}
                     </span>
                   )}
                   {status.totalSessionsToday > 0 && (
                     <span className="flex items-center gap-1">
-                      <Activity className="w-3.5 h-3.5" />
+                      <PiActivityBold className="w-3.5 h-3.5" />
                       {status.totalSessionsToday} session{status.totalSessionsToday !== 1 ? 's' : ''} today
                     </span>
                   )}
@@ -179,7 +171,7 @@ export function ConnectionStatusWidget() {
             disabled={refreshing}
             className="h-8 w-8 p-0"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 

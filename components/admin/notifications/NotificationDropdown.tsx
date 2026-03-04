@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiBellBold, PiCurrencyDollarBold, PiInfoBold, PiUserBold, PiWarningBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CircleTel Notification System - Notification Dropdown Component
@@ -8,16 +9,6 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import {
-  Bell,
-  AlertCircle,
-  AlertTriangle,
-  Info,
-  DollarSign,
-  User,
-  Activity,
-  X,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -65,19 +56,19 @@ function getNotificationIcon(type: string, priority: string) {
 
   switch (type) {
     case 'product_approval':
-      return <AlertTriangle className={`h-4 w-4 ${iconClass}`} />;
+      return <PiWarningBold className={`h-4 w-4 ${iconClass}`} />;
     case 'price_change':
-      return <DollarSign className={`h-4 w-4 ${iconClass}`} />;
+      return <PiCurrencyDollarBold className={`h-4 w-4 ${iconClass}`} />;
     case 'system_update':
-      return <Info className={`h-4 w-4 ${iconClass}`} />;
+      return <PiInfoBold className={`h-4 w-4 ${iconClass}`} />;
     case 'user_activity':
-      return <User className={`h-4 w-4 ${iconClass}`} />;
+      return <PiUserBold className={`h-4 w-4 ${iconClass}`} />;
     case 'error_alert':
-      return <AlertCircle className={`h-4 w-4 ${iconClass}`} />;
+      return <PiWarningCircleBold className={`h-4 w-4 ${iconClass}`} />;
     case 'performance_warning':
-      return <Activity className={`h-4 w-4 ${iconClass}`} />;
+      return <PiActivityBold className={`h-4 w-4 ${iconClass}`} />;
     default:
-      return <Bell className={`h-4 w-4 ${iconClass}`} />;
+      return <PiBellBold className={`h-4 w-4 ${iconClass}`} />;
   }
 }
 
@@ -103,7 +94,7 @@ export function NotificationDropdown({
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-circleTel-orange" />
+          <PiBellBold className="h-5 w-5 text-circleTel-orange" />
           <h3 className="font-semibold text-circleTel-navy">Notifications</h3>
           {unreadCount > 0 && (
             <span className="text-xs text-muted-foreground">
@@ -130,12 +121,12 @@ export function NotificationDropdown({
         </div>
       ) : error ? (
         <Alert variant="destructive" className="m-4">
-          <AlertCircle className="h-4 w-4" />
+          <PiWarningCircleBold className="h-4 w-4" />
           <AlertDescription>Failed to load notifications</AlertDescription>
         </Alert>
       ) : visibleNotifications.length === 0 ? (
         <div className="p-8 text-center">
-          <Bell className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
+          <PiBellBold className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
           <p className="text-sm text-muted-foreground">No notifications</p>
         </div>
       ) : (
@@ -226,7 +217,7 @@ function NotificationItem({ notification, onClick, onDismiss }: NotificationItem
             }}
             aria-label="Dismiss notification"
           >
-            <X className="h-3 w-3" />
+            <PiXBold className="h-3 w-3" />
           </Button>
         </div>
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">

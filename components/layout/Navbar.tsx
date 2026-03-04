@@ -1,8 +1,8 @@
 'use client';
+import { PiListBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Logo } from '@/components/navigation/Logo';
 import { DesktopNavigationMenu } from '@/components/navigation/NavigationMenu';
@@ -38,7 +38,7 @@ export function Navbar() {
               aria-label="Toggle menu"
               className="text-circleTel-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary p-2 rounded-md"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <PiXBold size={24} /> : <PiListBold size={24} />}
             </button>
           )}
         </div>

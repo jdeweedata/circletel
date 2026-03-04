@@ -1,7 +1,7 @@
 'use client';
+import { PiCaretUpBold } from 'react-icons/pi';
 
 import React, { useState, ReactNode } from 'react';
-import { ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CollapsibleSectionProps {
@@ -42,7 +42,7 @@ export function CollapsibleSection({
             <p className="text-gray-600 text-sm mt-1">{description}</p>
           )}
         </div>
-        <ChevronUp
+        <PiCaretUpBold
           className={cn(
             'w-5 h-5 text-circleTel-orange transition-transform duration-200 flex-shrink-0 ml-4',
             !isOpen && 'rotate-180'

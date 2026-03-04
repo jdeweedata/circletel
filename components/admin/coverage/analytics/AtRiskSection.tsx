@@ -1,7 +1,7 @@
 'use client';
+import { PiFolderOpenBold, PiWarningBold } from 'react-icons/pi';
 
 import React from 'react';
-import { AlertTriangle, FolderOpen } from 'lucide-react';
 
 export interface AtRiskProvider {
   name: string;
@@ -46,7 +46,7 @@ export function AtRiskSection({ providers, errorCollections }: AtRiskSectionProp
       {/* At Risk Providers */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <PiWarningBold className="h-5 w-5 text-amber-500" />
           <h3 className="font-semibold text-gray-900">At Risk Providers</h3>
         </div>
         <div className="p-5">
@@ -95,7 +95,7 @@ export function AtRiskSection({ providers, errorCollections }: AtRiskSectionProp
       {/* Error Collections */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-          <FolderOpen className="h-5 w-5 text-blue-500" />
+          <PiFolderOpenBold className="h-5 w-5 text-blue-500" />
           <h3 className="font-semibold text-gray-900">Error Collections</h3>
         </div>
         <div className="p-5">

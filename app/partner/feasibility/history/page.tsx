@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiMapPinBold, PiPlusBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -6,15 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  ArrowLeft,
-  Building2,
-  Calendar,
-  MapPin,
-  Plus,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
 import {
   PartnerFeasibilityRequest,
   STATUS_LABELS,
@@ -88,7 +80,7 @@ export default function FeasibilityHistoryPage() {
         <div className="flex items-center gap-4">
           <Link href="/partner/feasibility">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+              <PiArrowLeftBold className="w-5 h-5" />
             </Button>
           </Link>
           <div>
@@ -102,7 +94,7 @@ export default function FeasibilityHistoryPage() {
         </div>
         <Link href="/partner/feasibility">
           <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-            <Plus className="w-4 h-4 mr-2" />
+            <PiPlusBold className="w-4 h-4 mr-2" />
             New Request
           </Button>
         </Link>
@@ -128,7 +120,7 @@ export default function FeasibilityHistoryPage() {
         ) : requests.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <PiBuildingsBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500">No feasibility requests yet</p>
               <Link href="/partner/feasibility">
                 <Button className="mt-4 bg-circleTel-orange hover:bg-circleTel-orange-dark">
@@ -168,12 +160,12 @@ export default function FeasibilityHistoryPage() {
 
                   <div className="flex items-center gap-6 mt-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
+                      <PiMapPinBold className="w-4 h-4" />
                       {request.site_count}{' '}
                       {request.site_count === 1 ? 'site' : 'sites'}
                     </div>
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <PiCalendarBold className="w-4 h-4" />
                       {formatDate(request.created_at)}
                     </div>
                     {request.bandwidth_required && (
@@ -197,7 +189,7 @@ export default function FeasibilityHistoryPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1 || loading}
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
+            <PiCaretLeftBold className="w-4 h-4 mr-1" />
             Previous
           </Button>
           <span className="text-sm text-gray-500">
@@ -209,7 +201,7 @@ export default function FeasibilityHistoryPage() {
             disabled={page === totalPages || loading}
           >
             Next
-            <ChevronRight className="w-4 h-4 ml-1" />
+            <PiCaretRightBold className="w-4 h-4 ml-1" />
           </Button>
         </div>
       )}

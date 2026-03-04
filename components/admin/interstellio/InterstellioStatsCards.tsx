@@ -1,7 +1,7 @@
 'use client'
+import { PiActivityBold, PiArrowDownBold, PiArrowUpBold, PiHardDriveBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card, CardContent } from '@/components/ui/card'
-import { Users, Wifi, Activity, HardDrive, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface InterstellioStats {
@@ -31,21 +31,21 @@ export function InterstellioStatsCards({
       title: 'Total Subscribers',
       value: stats?.totalSubscribers ?? 0,
       subtitle: `${stats?.activeSubscribers ?? 0} active, ${stats?.inactiveSubscribers ?? 0} inactive`,
-      icon: Users,
+      icon: PiUsersBold,
       color: 'bg-blue-500',
     },
     {
       title: 'Active Sessions',
       value: stats?.activeSessions ?? 0,
       subtitle: 'Currently connected',
-      icon: Wifi,
+      icon: PiWifiBold,
       color: 'bg-green-500',
     },
     {
       title: 'Linked Services',
       value: linkedServices,
       subtitle: 'Connected to CircleTel customers',
-      icon: Activity,
+      icon: PiActivityBold,
       color: 'bg-purple-500',
     },
     {
@@ -54,16 +54,16 @@ export function InterstellioStatsCards({
       subtitle: (
         <span className="flex items-center gap-2 text-xs">
           <span className="flex items-center">
-            <ArrowUp className="w-3 h-3 mr-0.5 text-green-500" />
+            <PiArrowUpBold className="w-3 h-3 mr-0.5 text-green-500" />
             {stats?.totalUsage?.uploadGb?.toFixed(2) ?? '0'} GB
           </span>
           <span className="flex items-center">
-            <ArrowDown className="w-3 h-3 mr-0.5 text-blue-500" />
+            <PiArrowDownBold className="w-3 h-3 mr-0.5 text-blue-500" />
             {stats?.totalUsage?.downloadGb?.toFixed(2) ?? '0'} GB
           </span>
         </span>
       ),
-      icon: HardDrive,
+      icon: PiHardDriveBold,
       color: 'bg-orange-500',
     },
   ]

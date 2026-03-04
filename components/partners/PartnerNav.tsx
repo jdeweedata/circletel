@@ -1,17 +1,9 @@
 'use client'
+import { PiCurrencyDollarBold, PiFolderOpenBold, PiHandshakeBold, PiHouseBold, PiSignOutBold, PiUserBold, PiUsersBold } from 'react-icons/pi';
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import {
-  Home,
-  Users,
-  DollarSign,
-  FolderOpen,
-  User,
-  LogOut,
-  Handshake,
-} from 'lucide-react'
 
 interface NavItem {
   name: string
@@ -24,31 +16,31 @@ const navigation: NavItem[] = [
   {
     name: 'Dashboard',
     href: '/partner/dashboard',
-    icon: Home,
+    icon: PiHouseBold,
     description: 'Overview and key metrics',
   },
   {
     name: 'Leads',
     href: '/partner/leads',
-    icon: Users,
+    icon: PiUsersBold,
     description: 'Manage your assigned leads',
   },
   {
     name: 'Commissions',
     href: '/partner/commissions',
-    icon: DollarSign,
+    icon: PiCurrencyDollarBold,
     description: 'Track your earnings',
   },
   {
     name: 'Resources',
     href: '/partner/resources',
-    icon: FolderOpen,
+    icon: PiFolderOpenBold,
     description: 'Marketing materials',
   },
   {
     name: 'Profile',
     href: '/partner/profile',
-    icon: User,
+    icon: PiUserBold,
     description: 'Update your information',
   },
 ]
@@ -62,7 +54,7 @@ export function PartnerNav() {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-circleTel-orange flex items-center justify-center">
-            <Handshake className="h-6 w-6 text-white" />
+            <PiHandshakeBold className="h-6 w-6 text-white" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-circleTel-navy">
@@ -131,7 +123,7 @@ export function PartnerNav() {
             window.location.href = '/auth/logout'
           }}
         >
-          <LogOut className="h-5 w-5 mr-3 text-gray-400" />
+          <PiSignOutBold className="h-5 w-5 mr-3 text-gray-400" />
           Sign Out
         </button>
       </div>

@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckBold, PiCheckCircleBold, PiCopyBold } from 'react-icons/pi';
 
 import React from 'react';
-import { CheckCircle, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +48,7 @@ export function OrderCreatedBanner({
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 p-1.5 bg-green-100 rounded-full">
-          <CheckCircle className="w-5 h-5 text-green-600" />
+          <PiCheckCircleBold className="w-5 h-5 text-green-600" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-green-900 mb-1">
@@ -69,9 +69,9 @@ export function OrderCreatedBanner({
               title={copied ? 'Copied!' : 'Copy order number'}
             >
               {copied ? (
-                <Check className="w-4 h-4 text-green-600" />
+                <PiCheckBold className="w-4 h-4 text-green-600" />
               ) : (
-                <Copy className="w-4 h-4 text-green-600" />
+                <PiCopyBold className="w-4 h-4 text-green-600" />
               )}
             </button>
           </div>

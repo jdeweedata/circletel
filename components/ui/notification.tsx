@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface NotificationProps {
@@ -63,7 +62,7 @@ export function Notification({
         }}
         className="flex-shrink-0 p-1 hover:bg-black/10 rounded transition-colors"
       >
-        <X className="w-4 h-4" />
+        <PiXBold className="w-4 h-4" />
       </button>
     </div>
   )

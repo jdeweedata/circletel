@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiHardDriveBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,7 +21,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { ArrowUp, ArrowDown, HardDrive, RefreshCw } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 
 interface UsageDataPoint {
@@ -111,7 +111,7 @@ export function UsageChart({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <HardDrive className="h-5 w-5" />
+            <PiHardDriveBold className="h-5 w-5" />
             {title}
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export function UsageChart({
             )}
             {onRefresh && (
               <Button variant="outline" size="sm" onClick={onRefresh}>
-                <RefreshCw className="h-4 w-4" />
+                <PiArrowsClockwiseBold className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -140,17 +140,17 @@ export function UsageChart({
         {summary && (
           <div className="flex items-center gap-6 mt-4 text-sm">
             <div className="flex items-center gap-2">
-              <ArrowUp className="h-4 w-4 text-green-500" />
+              <PiArrowUpBold className="h-4 w-4 text-green-500" />
               <span className="text-gray-600">Upload:</span>
               <span className="font-medium">{summary.totalUploadGb.toFixed(2)} GB</span>
             </div>
             <div className="flex items-center gap-2">
-              <ArrowDown className="h-4 w-4 text-blue-500" />
+              <PiArrowDownBold className="h-4 w-4 text-blue-500" />
               <span className="text-gray-600">Download:</span>
               <span className="font-medium">{summary.totalDownloadGb.toFixed(2)} GB</span>
             </div>
             <div className="flex items-center gap-2">
-              <HardDrive className="h-4 w-4 text-purple-500" />
+              <PiHardDriveBold className="h-4 w-4 text-purple-500" />
               <span className="text-gray-600">Total:</span>
               <span className="font-medium">{summary.totalCombinedGb.toFixed(2)} GB</span>
             </div>
@@ -165,7 +165,7 @@ export function UsageChart({
             onClick={() => setShowUpload(!showUpload)}
             className={showUpload ? 'bg-green-500 hover:bg-green-600' : ''}
           >
-            <ArrowUp className="h-3 w-3 mr-1" />
+            <PiArrowUpBold className="h-3 w-3 mr-1" />
             Upload
           </Button>
           <Button
@@ -174,7 +174,7 @@ export function UsageChart({
             onClick={() => setShowDownload(!showDownload)}
             className={showDownload ? 'bg-blue-500 hover:bg-blue-600' : ''}
           >
-            <ArrowDown className="h-3 w-3 mr-1" />
+            <PiArrowDownBold className="h-3 w-3 mr-1" />
             Download
           </Button>
         </div>

@@ -1,20 +1,9 @@
 'use client';
+import { PiArchiveBold, PiArrowCounterClockwiseBold, PiCheckCircleBold, PiClockCounterClockwiseBold, PiPauseBold, PiPencilSimpleBold, PiPlayCircleBold, PiRocketBold, PiTrashBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import {
-  Rocket,
-  Pause,
-  Archive,
-  Edit,
-  History,
-  Trash2,
-  RotateCcw,
-  PlayCircle,
-  AlertTriangle,
-  CheckCircle
-} from 'lucide-react';
 import { Product } from '@/lib/types/products';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
@@ -55,7 +44,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onViewHistory}
         >
-          <History className="mr-2 h-4 w-4" />
+          <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
           History
         </Button>
         <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
@@ -64,7 +53,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             size="sm"
             onClick={onEdit}
           >
-            <Edit className="mr-2 h-4 w-4" />
+            <PiPencilSimpleBold className="mr-2 h-4 w-4" />
             Edit Draft
           </Button>
         </PermissionGate>
@@ -78,7 +67,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             {loading === 'publish' ? (
               <span className="animate-spin mr-2">⏳</span>
             ) : (
-              <Rocket className="mr-2 h-4 w-4" />
+              <PiRocketBold className="mr-2 h-4 w-4" />
             )}
             Publish to Catalogue
           </Button>
@@ -96,7 +85,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onViewHistory}
         >
-          <History className="mr-2 h-4 w-4" />
+          <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
           History
         </Button>
         <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
@@ -109,7 +98,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             {loading === 'deactivate' ? (
               <span className="animate-spin mr-2">⏳</span>
             ) : (
-              <Pause className="mr-2 h-4 w-4" />
+              <PiPauseBold className="mr-2 h-4 w-4" />
             )}
             Deactivate
           </Button>
@@ -120,7 +109,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             size="sm"
             onClick={onEdit}
           >
-            <Edit className="mr-2 h-4 w-4" />
+            <PiPencilSimpleBold className="mr-2 h-4 w-4" />
             Edit Product
           </Button>
         </PermissionGate>
@@ -137,7 +126,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onViewHistory}
         >
-          <History className="mr-2 h-4 w-4" />
+          <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
           History
         </Button>
         <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
@@ -151,7 +140,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             {loading === 'reactivate' ? (
               <span className="animate-spin mr-2">⏳</span>
             ) : (
-              <PlayCircle className="mr-2 h-4 w-4" />
+              <PiPlayCircleBold className="mr-2 h-4 w-4" />
             )}
             Reactivate
           </Button>
@@ -162,7 +151,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             size="sm"
             onClick={onArchive}
           >
-            <Archive className="mr-2 h-4 w-4" />
+            <PiArchiveBold className="mr-2 h-4 w-4" />
             Archive
           </Button>
         </PermissionGate>
@@ -172,7 +161,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             size="sm"
             onClick={onEdit}
           >
-            <Edit className="mr-2 h-4 w-4" />
+            <PiPencilSimpleBold className="mr-2 h-4 w-4" />
             Edit Product
           </Button>
         </PermissionGate>
@@ -189,7 +178,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onViewHistory}
         >
-          <History className="mr-2 h-4 w-4" />
+          <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
           History
         </Button>
         <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
@@ -202,7 +191,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
             {loading === 'restore' ? (
               <span className="animate-spin mr-2">⏳</span>
             ) : (
-              <RotateCcw className="mr-2 h-4 w-4" />
+              <PiArrowCounterClockwiseBold className="mr-2 h-4 w-4" />
             )}
             Restore to Draft
           </Button>
@@ -222,7 +211,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onViewHistory}
         >
-          <History className="mr-2 h-4 w-4" />
+          <PiClockCounterClockwiseBold className="mr-2 h-4 w-4" />
           History
         </Button>
       <PermissionGate permissions={[PERMISSIONS.PRODUCTS.EDIT]}>
@@ -231,7 +220,7 @@ export const ProductLifecycleActions: React.FC<ProductLifecycleActionsProps> = (
           size="sm"
           onClick={onEdit}
         >
-          <Edit className="mr-2 h-4 w-4" />
+          <PiPencilSimpleBold className="mr-2 h-4 w-4" />
           Edit
         </Button>
       </PermissionGate>

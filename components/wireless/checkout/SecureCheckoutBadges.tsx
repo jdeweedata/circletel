@@ -1,26 +1,26 @@
+import { PiCheckCircleBold, PiCreditCardBold, PiLockBold, PiShieldBold } from 'react-icons/pi';
 "use client"
 
-import { Shield, Lock, CreditCard, CheckCircle } from "lucide-react"
 
 export function SecureCheckoutBadges() {
   const badges = [
     {
-      icon: Lock,
+      icon: PiLockBold,
       text: "Secure Checkout",
       subtext: "256-bit SSL Encryption"
     },
     {
-      icon: Shield,
+      icon: PiShieldBold,
       text: "PCI DSS Compliant",
       subtext: "Your data is protected"
     },
     {
-      icon: CreditCard,
+      icon: PiCreditCardBold,
       text: "Safe Payments",
       subtext: "Verified by major banks"
     },
     {
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       text: "Money Back Guarantee",
       subtext: "14-day satisfaction guarantee"
     }

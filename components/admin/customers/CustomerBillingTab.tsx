@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiFileTextBold, PiPackageBold, PiPaperPlaneRightBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,15 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Package,
-  FileText,
-  Send,
-  RefreshCw,
-  CheckCircle,
-  AlertCircle,
-  ExternalLink,
-} from 'lucide-react';
 import Link from 'next/link';
 import { CustomerPaymentMethods } from './CustomerPaymentMethods';
 
@@ -217,7 +209,7 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+        <PiArrowsClockwiseBold className="h-6 w-6 animate-spin text-gray-400" />
         <span className="ml-2 text-gray-500">Loading billing data...</span>
       </div>
     );
@@ -228,7 +220,7 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
       <Card className="border-red-200 bg-red-50">
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 text-red-600">
-            <AlertCircle className="h-5 w-5" />
+            <PiWarningCircleBold className="h-5 w-5" />
             <span>{error}</span>
           </div>
           <Button onClick={fetchBillingData} variant="outline" className="mt-4">
@@ -251,9 +243,9 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
           }`}
         >
           {actionResult.type === 'success' ? (
-            <CheckCircle className="h-5 w-5" />
+            <PiCheckCircleBold className="h-5 w-5" />
           ) : (
-            <AlertCircle className="h-5 w-5" />
+            <PiWarningCircleBold className="h-5 w-5" />
           )}
           <span>{actionResult.message}</span>
         </div>
@@ -263,7 +255,7 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-circleTel-orange" />
+            <PiPackageBold className="h-5 w-5 text-circleTel-orange" />
             Services & Billing Settings
           </CardTitle>
         </CardHeader>
@@ -337,9 +329,9 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
                         className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
                       >
                         {actionLoading === `generate-${service.id}` ? (
-                          <RefreshCw className="h-4 w-4 animate-spin mr-1" />
+                          <PiArrowsClockwiseBold className="h-4 w-4 animate-spin mr-1" />
                         ) : (
-                          <FileText className="h-4 w-4 mr-1" />
+                          <PiFileTextBold className="h-4 w-4 mr-1" />
                         )}
                         Generate Invoice
                       </Button>
@@ -356,12 +348,12 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-500" />
+            <PiFileTextBold className="h-5 w-5 text-blue-500" />
             Invoice History
           </CardTitle>
           <Link href={`/admin/billing/invoices?customer=${customerId}`}>
             <Button variant="ghost" size="sm">
-              View All <ExternalLink className="h-4 w-4 ml-1" />
+              View All <PiArrowSquareOutBold className="h-4 w-4 ml-1" />
             </Button>
           </Link>
         </CardHeader>
@@ -377,7 +369,7 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-blue-600" />
+                      <PiFileTextBold className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">{invoice.invoice_number}</p>
@@ -401,9 +393,9 @@ export function CustomerBillingTab({ customerId }: CustomerBillingTabProps) {
                         disabled={actionLoading === `paynow-${invoice.id}`}
                       >
                         {actionLoading === `paynow-${invoice.id}` ? (
-                          <RefreshCw className="h-4 w-4 animate-spin" />
+                          <PiArrowsClockwiseBold className="h-4 w-4 animate-spin" />
                         ) : (
-                          <Send className="h-4 w-4" />
+                          <PiPaperPlaneRightBold className="h-4 w-4" />
                         )}
                       </Button>
                     )}

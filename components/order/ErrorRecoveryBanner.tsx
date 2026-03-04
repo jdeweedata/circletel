@@ -1,15 +1,7 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCreditCardBold, PiFloppyDiskBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
-import {
-  AlertCircle,
-  RefreshCw,
-  CreditCard,
-  Save,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-} from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -139,7 +131,7 @@ export function ErrorRecoveryBanner({
       id: 'retry',
       label: retryCount > 0 ? `Try Again (Attempt ${retryCount + 1})` : 'Try Again',
       description: 'Attempt the payment again',
-      icon: <RefreshCw className="w-4 h-4" />,
+      icon: <PiArrowsClockwiseBold className="w-4 h-4" />,
       onClick: onRetry,
       variant: 'primary',
       disabled: retryCount >= 3, // Max 3 retries
@@ -152,7 +144,7 @@ export function ErrorRecoveryBanner({
       id: 'goback',
       label: 'Go Back & Fix',
       description: 'Return to the previous step',
-      icon: <CreditCard className="w-4 h-4" />,
+      icon: <PiCreditCardBold className="w-4 h-4" />,
       onClick: onGoBack,
       variant: 'primary',
     });
@@ -164,7 +156,7 @@ export function ErrorRecoveryBanner({
       id: 'save',
       label: 'Save & Pay Later',
       description: 'We\'ll email you a link to complete payment',
-      icon: <Save className="w-4 h-4" />,
+      icon: <PiFloppyDiskBold className="w-4 h-4" />,
       onClick: onSaveForLater,
       variant: 'secondary',
     });
@@ -196,7 +188,7 @@ export function ErrorRecoveryBanner({
       <div className="p-4 pb-3">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 p-1.5 bg-red-100 rounded-full">
-            <AlertCircle className="w-5 h-5 text-red-600" />
+            <PiWarningCircleBold className="w-5 h-5 text-red-600" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-red-900 mb-1">
@@ -259,9 +251,9 @@ export function ErrorRecoveryBanner({
         >
           <span>Technical Details</span>
           {showTechnicalDetails ? (
-            <ChevronUp className="w-4 h-4" />
+            <PiCaretUpBold className="w-4 h-4" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <PiCaretDownBold className="w-4 h-4" />
           )}
         </button>
 
@@ -298,7 +290,7 @@ export function ErrorRecoveryBanner({
             href="mailto:contactus@circletel.co.za"
             className="flex items-center gap-1 text-red-700 hover:text-red-900 hover:underline"
           >
-            <ExternalLink className="w-3 h-3" />
+            <PiArrowSquareOutBold className="w-3 h-3" />
             contactus@circletel.co.za
           </a>
         </div>

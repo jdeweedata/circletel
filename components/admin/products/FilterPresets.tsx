@@ -1,4 +1,5 @@
 'use client';
+import { PiBookmarkBold, PiPlusBold, PiTrashBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { ProductFilters } from '@/lib/types/products';
@@ -20,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Bookmark, Plus, Trash2 } from 'lucide-react';
 
 interface FilterPreset {
   id: string;
@@ -117,7 +117,7 @@ export function FilterPresets({ currentFilters, onApplyPreset }: FilterPresetsPr
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
-            <Bookmark className="h-4 w-4 mr-2" />
+            <PiBookmarkBold className="h-4 w-4 mr-2" />
             Presets
           </Button>
         </DropdownMenuTrigger>
@@ -152,7 +152,7 @@ export function FilterPresets({ currentFilters, onApplyPreset }: FilterPresetsPr
                       handleDeletePreset(preset.id);
                     }}
                   >
-                    <Trash2 className="h-3 w-3 text-red-600" />
+                    <PiTrashBold className="h-3 w-3 text-red-600" />
                   </Button>
                 </DropdownMenuItem>
               ))}
@@ -161,7 +161,7 @@ export function FilterPresets({ currentFilters, onApplyPreset }: FilterPresetsPr
 
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsCreating(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <PiPlusBold className="h-4 w-4 mr-2" />
             Save Current Filters
           </DropdownMenuItem>
         </DropdownMenuContent>

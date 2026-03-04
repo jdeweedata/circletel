@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEyeBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiUserPlusBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,20 +39,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Briefcase,
-  Plus,
-  RefreshCw,
-  MapPin,
-  Phone,
-  MoreHorizontal,
-  Eye,
-  UserPlus,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Calendar,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   FieldJob,
@@ -240,7 +227,7 @@ export default function JobsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -255,7 +242,7 @@ export default function JobsPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchJobs}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -264,7 +251,7 @@ export default function JobsPage() {
           }}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <PiPlusBold className="h-4 w-4 mr-2" />
                 Create Job
               </Button>
             </DialogTrigger>
@@ -425,7 +412,7 @@ export default function JobsPage() {
                     Cancel
                   </Button>
                   <Button type="submit" disabled={submitting}>
-                    {submitting && <RefreshCw className="h-4 w-4 animate-spin mr-2" />}
+                    {submitting && <PiArrowsClockwiseBold className="h-4 w-4 animate-spin mr-2" />}
                     Create Job
                   </Button>
                 </DialogFooter>
@@ -451,7 +438,7 @@ export default function JobsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-yellow-500" />
+              <PiClockBold className="h-5 w-5 text-yellow-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.pending}</p>
                 <p className="text-xs text-gray-500">Pending</p>
@@ -462,7 +449,7 @@ export default function JobsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-blue-500" />
+              <PiUserPlusBold className="h-5 w-5 text-blue-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.assigned}</p>
                 <p className="text-xs text-gray-500">Assigned</p>
@@ -473,7 +460,7 @@ export default function JobsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-orange-500" />
+              <PiArrowsClockwiseBold className="h-5 w-5 text-orange-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.inProgress}</p>
                 <p className="text-xs text-gray-500">In Progress</p>
@@ -484,7 +471,7 @@ export default function JobsPage() {
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <PiCheckCircleBold className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.completed}</p>
                 <p className="text-xs text-gray-500">Completed</p>
@@ -563,7 +550,7 @@ export default function JobsPage() {
                     <TableCell>
                       {job.scheduled_date ? (
                         <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3 text-gray-400" />
+                          <PiCalendarBold className="h-3 w-3 text-gray-400" />
                           {new Date(job.scheduled_date).toLocaleDateString()}
                           {job.scheduled_time_start && (
                             <span className="text-gray-500"> {job.scheduled_time_start}</span>
@@ -594,7 +581,7 @@ export default function JobsPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
+                            <PiDotsThreeBold className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -602,14 +589,14 @@ export default function JobsPage() {
                             setSelectedJob(job);
                             setAssignDialogOpen(true);
                           }}>
-                            <UserPlus className="h-4 w-4 mr-2" />
+                            <PiUserPlusBold className="h-4 w-4 mr-2" />
                             Assign Technician
                           </DropdownMenuItem>
                           {job.latitude && job.longitude && (
                             <DropdownMenuItem onClick={() => {
                               window.open(`https://www.google.com/maps?q=${job.latitude},${job.longitude}`, '_blank');
                             }}>
-                              <MapPin className="h-4 w-4 mr-2" />
+                              <PiMapPinBold className="h-4 w-4 mr-2" />
                               View on Map
                             </DropdownMenuItem>
                           )}
@@ -619,7 +606,7 @@ export default function JobsPage() {
                               className="text-red-600"
                               onClick={() => handleStatusChange(job.id, 'cancelled')}
                             >
-                              <XCircle className="h-4 w-4 mr-2" />
+                              <PiXCircleBold className="h-4 w-4 mr-2" />
                               Cancel Job
                             </DropdownMenuItem>
                           )}

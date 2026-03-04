@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -6,15 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { 
-  Camera, 
-  CheckCircle2, 
-  ArrowLeft,
-  Upload,
-  X,
-  RefreshCw,
-  AlertCircle,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { FieldJob, JOB_TYPE_LABELS } from '@/lib/types/technician-tracking';
 
@@ -129,7 +121,7 @@ export default function CompleteJobPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -139,7 +131,7 @@ export default function CompleteJobPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <PiWarningCircleBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <p className="text-gray-600">Job not found</p>
             <Button className="mt-4" onClick={() => router.push('/technician')}>
               Back to Dashboard
@@ -161,7 +153,7 @@ export default function CompleteJobPage() {
             className="text-white hover:bg-white/20"
             onClick={() => router.back()}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <PiArrowLeftBold className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="font-semibold">Complete Job</h1>
@@ -227,7 +219,7 @@ export default function CompleteJobPage() {
                       onClick={() => removePhoto(index)}
                       className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
                     >
-                      <X className="h-4 w-4" />
+                      <PiXBold className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
@@ -254,7 +246,7 @@ export default function CompleteJobPage() {
                   }
                 }}
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <PiUploadSimpleBold className="h-4 w-4 mr-2" />
                 Upload
               </Button>
             </div>
@@ -271,9 +263,9 @@ export default function CompleteJobPage() {
           disabled={submitting}
         >
           {submitting ? (
-            <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+            <PiArrowsClockwiseBold className="h-5 w-5 animate-spin mr-2" />
           ) : (
-            <CheckCircle2 className="h-5 w-5 mr-2" />
+            <PiCheckCircleBold className="h-5 w-5 mr-2" />
           )}
           {submitting ? 'Completing...' : 'Complete Job'}
         </Button>

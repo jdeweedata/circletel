@@ -1,34 +1,34 @@
 'use client';
+import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiTrophyBold } from 'react-icons/pi';
 
-import { Shield, Award, Zap, Clock, CheckCircle2 } from 'lucide-react';
 
 const badges = [
   {
-    icon: Shield,
+    icon: PiShieldBold,
     label: 'ICASA Licensed',
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
   },
   {
-    icon: Award,
+    icon: PiTrophyBold,
     label: 'B-BBEE Level 4',
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
   },
   {
-    icon: CheckCircle2,
+    icon: PiCheckCircleBold,
     label: 'POPIA Compliant',
     color: 'text-green-600',
     bgColor: 'bg-green-100',
   },
   {
-    icon: Zap,
+    icon: PiLightningBold,
     label: 'MTN Partner',
     color: 'text-yellow-600',
     bgColor: 'bg-yellow-100',
   },
   {
-    icon: Clock,
+    icon: PiClockBold,
     label: '24/7 Support',
     color: 'text-circleTel-orange',
     bgColor: 'bg-orange-100',

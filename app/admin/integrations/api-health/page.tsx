@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiQuestionBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,19 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Activity,
-  RefreshCw,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  HelpCircle,
-  TrendingUp,
-  TrendingDown,
-  Clock,
-  Zap,
-} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
@@ -112,13 +100,13 @@ export default function APIHealthMonitorPage() {
   const getHealthIcon = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
+        return <PiCheckCircleBold className="w-5 h-5 text-green-600" />;
       case 'degraded':
-        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
+        return <PiWarningBold className="w-5 h-5 text-yellow-600" />;
       case 'down':
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <PiXCircleBold className="w-5 h-5 text-red-600" />;
       default:
-        return <HelpCircle className="w-5 h-5 text-gray-400" />;
+        return <PiQuestionBold className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -173,7 +161,7 @@ export default function APIHealthMonitorPage() {
   if (isLoading && !integrations.length) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -198,7 +186,7 @@ export default function APIHealthMonitorPage() {
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={autoRefresh ? 'border-green-500 text-green-600' : ''}
           >
-            <Activity className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
+            <PiActivityBold className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
             {autoRefresh ? 'Auto-Refresh On' : 'Auto-Refresh Off'}
           </Button>
 
@@ -208,7 +196,7 @@ export default function APIHealthMonitorPage() {
             onClick={() => fetchHealthData()}
             disabled={isLoading}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -224,7 +212,7 @@ export default function APIHealthMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{summary.total}</p>
                 </div>
-                <Activity className="w-8 h-8 text-gray-400" />
+                <PiActivityBold className="w-8 h-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -236,7 +224,7 @@ export default function APIHealthMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Healthy</p>
                   <p className="text-2xl font-bold text-green-600">{summary.healthy}</p>
                 </div>
-                <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <PiCheckCircleBold className="w-8 h-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
@@ -248,7 +236,7 @@ export default function APIHealthMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Degraded</p>
                   <p className="text-2xl font-bold text-yellow-600">{summary.degraded}</p>
                 </div>
-                <AlertTriangle className="w-8 h-8 text-yellow-400" />
+                <PiWarningBold className="w-8 h-8 text-yellow-400" />
               </div>
             </CardContent>
           </Card>
@@ -260,7 +248,7 @@ export default function APIHealthMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Down</p>
                   <p className="text-2xl font-bold text-red-600">{summary.down}</p>
                 </div>
-                <XCircle className="w-8 h-8 text-red-400" />
+                <PiXCircleBold className="w-8 h-8 text-red-400" />
               </div>
             </CardContent>
           </Card>
@@ -272,7 +260,7 @@ export default function APIHealthMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Active Alerts</p>
                   <p className="text-2xl font-bold text-orange-600">{summary.activeAlerts}</p>
                 </div>
-                <Zap className="w-8 h-8 text-orange-400" />
+                <PiLightningBold className="w-8 h-8 text-orange-400" />
               </div>
             </CardContent>
           </Card>
@@ -284,7 +272,7 @@ export default function APIHealthMonitorPage() {
         <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
-              <Clock className="w-4 h-4" />
+              <PiClockBold className="w-4 h-4" />
               <span>
                 Last health check: {formatDistanceToNow(new Date(summary.lastCheckAt), { addSuffix: true })}
               </span>
@@ -349,7 +337,7 @@ export default function APIHealthMonitorPage() {
         {filteredIntegrations.length === 0 ? (
           <Card className="lg:col-span-2">
             <CardContent className="pt-12 pb-12 text-center">
-              <Activity className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <PiActivityBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
                 No integrations found matching your filters
               </p>
@@ -384,7 +372,7 @@ export default function APIHealthMonitorPage() {
                 {integration.has_active_alert && (
                   <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3">
                     <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      <PiLightningBold className="w-4 h-4 text-red-600 dark:text-red-400" />
                       <span className="text-sm text-red-800 dark:text-red-200">
                         {integration.consecutive_failures} consecutive failures
                       </span>
@@ -395,14 +383,14 @@ export default function APIHealthMonitorPage() {
                 {/* Last Check Time */}
                 {integration.health_last_checked_at ? (
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <Clock className="w-4 h-4" />
+                    <PiClockBold className="w-4 h-4" />
                     <span>
                       Checked {formatDistanceToNow(new Date(integration.health_last_checked_at), { addSuffix: true })}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Clock className="w-4 h-4" />
+                    <PiClockBold className="w-4 h-4" />
                     <span>Never checked</span>
                   </div>
                 )}
@@ -446,7 +434,7 @@ export default function APIHealthMonitorPage() {
         <Card className="border-red-300 dark:border-red-800">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertTriangle className="w-5 h-5" />
+              <PiWarningBold className="w-5 h-5" />
               <p className="text-sm">{error}</p>
             </div>
           </CardContent>

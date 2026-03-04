@@ -1,10 +1,10 @@
 'use client';
+import { PiBuildingsBold, PiCalendarBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPackageBold, PiPhoneBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Mail, Phone, MapPin, Calendar, FileText, Package } from 'lucide-react';
 
 interface QuotePreviewProps {
   formData: {
@@ -137,7 +137,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
         {/* Customer Information */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-circleTel-orange" />
+            <PiBuildingsBold className="w-6 h-6 text-circleTel-orange" />
             Customer Information
           </h2>
           <Card className="p-6 bg-gray-50">
@@ -158,7 +158,7 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
               <div>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-circleTel-orange mt-0.5" />
+                    <PiEnvelopeBold className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Contact Person</p>
                       <p className="font-semibold text-gray-900">{formData.contact_name}</p>
@@ -166,14 +166,14 @@ export function QuotePreview({ formData, items, mtnDeals, pricing }: QuotePrevie
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-circleTel-orange mt-0.5" />
+                    <PiPhoneBold className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Phone</p>
                       <p className="font-semibold text-gray-900">{formData.contact_phone}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-circleTel-orange mt-0.5" />
+                    <PiMapPinBold className="w-5 h-5 text-circleTel-orange mt-0.5" />
                     <div>
                       <p className="text-xs text-gray-500">Service Address</p>
                       <p className="font-semibold text-gray-900">{formData.service_address}</p>

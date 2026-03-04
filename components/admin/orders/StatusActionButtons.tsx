@@ -1,18 +1,9 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiCreditCardBold, PiPlayCircleBold, PiUploadSimpleBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import {
-  CreditCard,
-  Calendar,
-  PlayCircle,
-  CheckCircle,
-  XCircle,
-  PauseCircle,
-  AlertTriangle,
-  Upload
-} from 'lucide-react';
 import { StatusUpdateModal } from './StatusUpdateModal';
 import { InstallationCompletionModal } from './InstallationCompletionModal';
 import { OrderActivationModal } from './OrderActivationModal';
@@ -42,14 +33,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'payment_method_pending',
       label: 'Request Payment Method',
-      icon: CreditCard,
+      icon: PiCreditCardBold,
       variant: 'default',
       description: 'Ask customer to register their payment method',
     },
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,
@@ -59,14 +50,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'payment_method_registered',
       label: 'Confirm Payment Method',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       variant: 'default',
       description: 'Mark payment method as registered',
     },
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,
@@ -76,7 +67,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'installation_scheduled',
       label: 'Schedule Installation',
-      icon: Calendar,
+      icon: PiCalendarBold,
       variant: 'default',
       description: 'Set installation date and time',
       requiresInput: true,
@@ -84,7 +75,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,
@@ -94,14 +85,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'installation_in_progress',
       label: 'Start Installation',
-      icon: PlayCircle,
+      icon: PiPlayCircleBold,
       variant: 'default',
       description: 'Mark installation as started',
     },
     {
       status: 'installation_scheduled',
       label: 'Reschedule',
-      icon: Calendar,
+      icon: PiCalendarBold,
       variant: 'secondary',
       description: 'Reschedule installation date',
       requiresInput: true,
@@ -109,7 +100,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,
@@ -119,7 +110,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'installation_completed',
       label: 'Complete Installation',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       variant: 'default',
       description: 'Mark installation as completed with document upload',
       requiresInput: true, // Will use custom modal
@@ -127,7 +118,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'installation_scheduled',
       label: 'Reschedule',
-      icon: Calendar,
+      icon: PiCalendarBold,
       variant: 'secondary',
       description: 'Client unavailable - Reschedule',
       requiresInput: true,
@@ -135,7 +126,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'failed',
       label: 'Mark as Failed',
-      icon: AlertTriangle,
+      icon: PiWarningBold,
       variant: 'destructive',
       description: 'Installation failed',
       requiresInput: true,
@@ -143,7 +134,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,
@@ -153,7 +144,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'active',
       label: 'Activate Service',
-      icon: PlayCircle,
+      icon: PiPlayCircleBold,
       variant: 'default',
       description: 'Activate service and start billing',
       requiresInput: true, // Will use custom modal
@@ -161,7 +152,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'upload_document',
       label: 'Upload Document',
-      icon: Upload,
+      icon: PiUploadSimpleBold,
       variant: 'outline',
       description: 'Upload or update installation proof',
       requiresInput: true,
@@ -169,7 +160,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'failed',
       label: 'Mark as Failed',
-      icon: AlertTriangle,
+      icon: PiWarningBold,
       variant: 'destructive',
       description: 'Service activation failed',
       requiresInput: true,
@@ -187,7 +178,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'upload_document',
       label: 'Upload Document',
-      icon: Upload,
+      icon: PiUploadSimpleBold,
       variant: 'outline',
       description: 'Upload or update installation proof',
       requiresInput: true,
@@ -195,7 +186,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'cancelled',
       label: 'Cancel Service',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Permanently cancel the service',
       requiresInput: true,
@@ -205,14 +196,14 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'active',
       label: 'Reactivate Service',
-      icon: PlayCircle,
+      icon: PiPlayCircleBold,
       variant: 'default',
       description: 'Reactivate the suspended service',
     },
     {
       status: 'cancelled',
       label: 'Cancel Service',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Permanently cancel the service',
       requiresInput: true,
@@ -222,7 +213,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'installation_scheduled',
       label: 'Reschedule Installation',
-      icon: Calendar,
+      icon: PiCalendarBold,
       variant: 'default',
       description: 'Schedule a new installation attempt',
       requiresInput: true,
@@ -230,7 +221,7 @@ const STATUS_ACTIONS: Record<string, StatusAction[]> = {
     {
       status: 'cancelled',
       label: 'Cancel Order',
-      icon: XCircle,
+      icon: PiXCircleBold,
       variant: 'destructive',
       description: 'Cancel this order',
       requiresInput: true,

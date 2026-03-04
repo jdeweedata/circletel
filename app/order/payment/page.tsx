@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiCheckCircleBold, PiCreditCardBold, PiLockBold, PiShieldBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,16 +9,6 @@ import { PackageSummary } from '@/components/order/PackageSummary';
 import { OrderCreatedBanner } from '@/components/order/OrderCreatedBanner';
 import { ErrorRecoveryBanner, ErrorType } from '@/components/order/ErrorRecoveryBanner';
 import { toast } from 'sonner';
-import {
-  CreditCard,
-  ArrowRight,
-  ArrowLeft,
-  Loader2,
-  Shield,
-  Lock,
-  CheckCircle,
-  AlertCircle
-} from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
@@ -341,7 +332,7 @@ export default function PaymentPage() {
         {/* Header */}
         <div className="text-center mb-8 lg:mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-circleTel-orange/10 rounded-full mb-4">
-            <CreditCard className="w-8 h-8 text-circleTel-orange" />
+            <PiCreditCardBold className="w-8 h-8 text-circleTel-orange" />
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
             Complete Your Payment
@@ -365,7 +356,7 @@ export default function PaymentPage() {
               {/* Security Badge */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <PiShieldBold className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-green-900 mb-1">
                       Secure Payment Processing
@@ -422,7 +413,7 @@ export default function PaymentPage() {
                   {/* Validation Charge Notice */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <PiCheckCircleBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="text-sm font-medium text-blue-900 mb-1">
                           Payment Method Validation
@@ -458,7 +449,7 @@ export default function PaymentPage() {
                 <div className="border-2 border-circleTel-orange bg-circleTel-orange/5 rounded-lg p-6">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="p-3 bg-circleTel-orange rounded-lg">
-                      <CreditCard className="w-6 h-6 text-white" />
+                      <PiCreditCardBold className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
@@ -503,7 +494,7 @@ export default function PaymentPage() {
                     </div>
                     <div className="flex-shrink-0">
                       <div className="p-2 bg-green-100 rounded-full">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                       </div>
                     </div>
                   </div>
@@ -529,7 +520,7 @@ export default function PaymentPage() {
                     className="object-contain"
                   />
                 </div>
-                <Lock className="h-4 w-4 text-gray-500" />
+                <PiLockBold className="h-4 w-4 text-gray-500" />
               </div>
 
               {/* Action Buttons */}
@@ -540,7 +531,7 @@ export default function PaymentPage() {
                   disabled={isProcessing}
                   className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <PiArrowLeftBold className="w-5 h-5" />
                   Back
                 </button>
 
@@ -552,13 +543,13 @@ export default function PaymentPage() {
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <PiSpinnerBold className="w-5 h-5 animate-spin" />
                       Processing...
                     </>
                   ) : (
                     <>
                       Proceed to Payment
-                      <ArrowRight className="w-5 h-5" />
+                      <PiArrowRightBold className="w-5 h-5" />
                     </>
                   )}
                 </button>

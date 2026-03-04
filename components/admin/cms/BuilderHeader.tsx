@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiCheckBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFloppyDiskBold, PiGlobeBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Header Component
@@ -10,20 +11,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePageBuilderStore, selectCanUndo, selectCanRedo } from '@/lib/cms/store';
 import { cn } from '@/lib/utils';
-import {
-  ArrowLeft,
-  Save,
-  Eye,
-  EyeOff,
-  Globe,
-  Undo2,
-  Redo2,
-  ExternalLink,
-  FileText,
-  Loader2,
-  Check,
-  AlertCircle,
-} from 'lucide-react';
 
 interface BuilderHeaderProps {
   className?: string;
@@ -154,13 +141,13 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           title="Back to CMS"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
+          <PiArrowLeftBold className="w-5 h-5 text-gray-600" />
         </button>
 
         <div className="h-6 w-px bg-gray-200" />
 
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-orange-500" />
+          <PiFileTextBold className="w-5 h-5 text-orange-500" />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
               {currentPage?.title || 'Untitled Page'}
@@ -211,19 +198,19 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
         {/* Save Status Indicator */}
         {saveStatus === 'saving' && (
           <span className="flex items-center gap-1 text-xs text-gray-500">
-            <Loader2 className="w-3 h-3 animate-spin" />
+            <PiSpinnerBold className="w-3 h-3 animate-spin" />
             Saving...
           </span>
         )}
         {saveStatus === 'saved' && (
           <span className="flex items-center gap-1 text-xs text-green-600">
-            <Check className="w-3 h-3" />
+            <PiCheckBold className="w-3 h-3" />
             Saved
           </span>
         )}
         {saveStatus === 'error' && (
           <span className="flex items-center gap-1 text-xs text-red-600">
-            <AlertCircle className="w-3 h-3" />
+            <PiWarningCircleBold className="w-3 h-3" />
             Failed to save
           </span>
         )}
@@ -240,12 +227,12 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
         >
           {isPreviewing ? (
             <>
-              <EyeOff className="w-4 h-4" />
+              <PiEyeSlashBold className="w-4 h-4" />
               Exit Preview
             </>
           ) : (
             <>
-              <Eye className="w-4 h-4" />
+              <PiEyeBold className="w-4 h-4" />
               Preview
             </>
           )}
@@ -260,9 +247,9 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
             title="Open preview in new tab"
           >
             {isOpeningPreview ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 animate-spin" />
             ) : (
-              <ExternalLink className="w-4 h-4" />
+              <PiArrowSquareOutBold className="w-4 h-4" />
             )}
           </button>
         )}
@@ -279,9 +266,9 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
           )}
         >
           {isSaving ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <PiSpinnerBold className="w-4 h-4 animate-spin" />
           ) : (
-            <Save className="w-4 h-4" />
+            <PiFloppyDiskBold className="w-4 h-4" />
           )}
           Save
         </button>
@@ -299,9 +286,9 @@ export function BuilderHeader({ className }: BuilderHeaderProps) {
           title={isDirty ? 'Save changes first' : 'Publish page'}
         >
           {isPublishing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <PiSpinnerBold className="w-4 h-4 animate-spin" />
           ) : (
-            <Globe className="w-4 h-4" />
+            <PiGlobeBold className="w-4 h-4" />
           )}
           Publish
         </button>

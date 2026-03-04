@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockCounterClockwiseBold, PiCopyBold, PiCurrencyDollarBold, PiDotsSixVerticalBold, PiDotsThreeBold, PiEyeBold, PiPackageBold, PiPencilSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -7,24 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
-import {
-  Package,
-  Edit,
-  Eye,
-  Copy,
-  Archive,
-  DollarSign,
-  History,
-  GripVertical,
-  UploadCloud,
-  CheckCircle2,
-  CloudOff,
-  RefreshCw,
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  MoreHorizontal,
-} from 'lucide-react';
 import { getCategoryTheme, formatCategoryName } from '@/lib/admin/product-category-theme';
 import {
   DropdownMenu,
@@ -114,11 +97,11 @@ export function AdminProductCard({
     }
     switch (integrationStatus.syncStatus) {
       case 'ok':
-        return { icon: CheckCircle2, text: 'Synced', color: 'text-emerald-500' };
+        return { icon: PiCheckCircleBold, text: 'Synced', color: 'text-emerald-500' };
       case 'failed':
-        return { icon: AlertCircle, text: 'Failed', color: 'text-red-500' };
+        return { icon: PiWarningCircleBold, text: 'Failed', color: 'text-red-500' };
       case 'pending':
-        return { icon: RefreshCw, text: 'Syncing', color: 'text-blue-500', spinning: true };
+        return { icon: PiArrowsClockwiseBold, text: 'Syncing', color: 'text-blue-500', spinning: true };
       default:
         return { icon: CloudOff, text: 'Not Synced', color: 'text-gray-400' };
     }
@@ -162,7 +145,7 @@ export function AdminProductCard({
             {...dragHandleProps}
             className="cursor-grab active:cursor-grabbing p-0.5 bg-white/80 rounded border border-gray-200 shadow-sm"
           >
-            <GripVertical className="h-3.5 w-3.5 text-gray-400" />
+            <PiDotsSixVerticalBold className="h-3.5 w-3.5 text-gray-400" />
           </div>
         )}
       </div>
@@ -181,37 +164,37 @@ export function AdminProductCard({
               size="sm"
               className="h-7 w-7 p-0 bg-white/90 backdrop-blur-sm border border-gray-200 shadow-sm hover:bg-white rounded-lg"
             >
-              <MoreHorizontal className="h-4 w-4 text-gray-600" />
+              <PiDotsThreeBold className="h-4 w-4 text-gray-600" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             {onView && (
               <DropdownMenuItem onClick={() => onView(product)}>
-                <Eye className="w-4 h-4 mr-2" />
+                <PiEyeBold className="w-4 h-4 mr-2" />
                 View Details
               </DropdownMenuItem>
             )}
             {onEdit && hasEditPermission && (
               <DropdownMenuItem onClick={() => onEdit(product)}>
-                <Edit className="w-4 h-4 mr-2" />
+                <PiPencilSimpleBold className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>
             )}
             {onPriceEdit && hasPricingPermission && (
               <DropdownMenuItem onClick={() => onPriceEdit(product)}>
-                <DollarSign className="w-4 h-4 mr-2" />
+                <PiCurrencyDollarBold className="w-4 h-4 mr-2" />
                 Edit Price
               </DropdownMenuItem>
             )}
             {onViewAuditHistory && (
               <DropdownMenuItem onClick={() => onViewAuditHistory(product)}>
-                <History className="w-4 h-4 mr-2" />
+                <PiClockCounterClockwiseBold className="w-4 h-4 mr-2" />
                 View History
               </DropdownMenuItem>
             )}
             {hasCreatePermission && onDuplicate && (
               <DropdownMenuItem onClick={() => onDuplicate(product)}>
-                <Copy className="w-4 h-4 mr-2" />
+                <PiCopyBold className="w-4 h-4 mr-2" />
                 Duplicate
               </DropdownMenuItem>
             )}
@@ -223,13 +206,13 @@ export function AdminProductCard({
             )}
             {hasEditPermission && onResync && integrationStatus && (
               <DropdownMenuItem onClick={() => onResync(product)}>
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
                 Re-sync
               </DropdownMenuItem>
             )}
             {hasDeletePermission && onArchive && (
               <DropdownMenuItem onClick={() => onArchive(product)} className="text-red-600">
-                <Archive className="w-4 h-4 mr-2" />
+                <PiArchiveBold className="w-4 h-4 mr-2" />
                 Archive
               </DropdownMenuItem>
             )}
@@ -291,7 +274,7 @@ export function AdminProductCard({
               {/* Download Speed */}
               {product.pricing?.download_speed && (
                 <div className="flex items-center gap-2">
-                  <ArrowDown className="h-4 w-4 text-emerald-500" />
+                  <PiArrowDownBold className="h-4 w-4 text-emerald-500" />
                   <div>
                     <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wide">
                       DOWN
@@ -306,7 +289,7 @@ export function AdminProductCard({
               {/* Upload Speed */}
               {product.pricing?.upload_speed && (
                 <div className="flex items-center gap-2">
-                  <ArrowUp className="h-4 w-4 text-blue-500" />
+                  <PiArrowUpBold className="h-4 w-4 text-blue-500" />
                   <div>
                     <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wide">
                       UP

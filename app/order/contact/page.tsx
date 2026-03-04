@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -13,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, User, ArrowLeft, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 
 // Validation schema for contact form
 const contactSchema = z.object({
@@ -195,7 +195,7 @@ export default function ContactPage() {
                       htmlFor="personal"
                       className="flex flex-col items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 peer-data-[state=checked]:border-circleTel-orange peer-data-[state=checked]:bg-orange-50 cursor-pointer transition-all"
                     >
-                      <User className="mb-2 h-6 w-6" />
+                      <PiUserBold className="mb-2 h-6 w-6" />
                       <div className="text-center">
                         <p className="font-semibold">Personal</p>
                         <p className="text-xs text-gray-500">For home use</p>
@@ -212,7 +212,7 @@ export default function ContactPage() {
                       htmlFor="business"
                       className="flex flex-col items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-4 hover:bg-gray-50 peer-data-[state=checked]:border-circleTel-orange peer-data-[state=checked]:bg-orange-50 cursor-pointer transition-all"
                     >
-                      <Building2 className="mb-2 h-6 w-6" />
+                      <PiBuildingsBold className="mb-2 h-6 w-6" />
                       <div className="text-center">
                         <p className="font-semibold">Business</p>
                         <p className="text-xs text-gray-500">For company use</p>
@@ -227,7 +227,7 @@ export default function ContactPage() {
                 <div className="space-y-2">
                   <Label htmlFor="contactName">Full Name *</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <PiUserBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="contactName"
                       placeholder="John Doe"
@@ -243,7 +243,7 @@ export default function ContactPage() {
                 <div className="space-y-2">
                   <Label htmlFor="contactPhone">Phone Number *</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <PiPhoneBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="contactPhone"
                       placeholder="0821234567"
@@ -260,7 +260,7 @@ export default function ContactPage() {
               <div className="space-y-2">
                 <Label htmlFor="contactEmail">Email Address *</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <PiEnvelopeBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="contactEmail"
                     type="email"
@@ -278,7 +278,7 @@ export default function ContactPage() {
               {customerType === 'business' && (
                 <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h3 className="font-semibold text-circleTel-navy flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
+                    <PiBuildingsBold className="h-5 w-5" />
                     Business Details
                   </h3>
 
@@ -319,7 +319,7 @@ export default function ContactPage() {
               {/* Billing Address */}
               <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="font-semibold text-circleTel-navy flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
+                  <PiMapPinBold className="h-5 w-5" />
                   Billing Address
                 </h3>
 
@@ -398,7 +398,7 @@ export default function ContactPage() {
                   disabled={isSubmitting}
                   className="gap-2"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <PiArrowLeftBold className="h-4 w-4" />
                   Back to Account
                 </Button>
 
@@ -408,7 +408,7 @@ export default function ContactPage() {
                   className="bg-circleTel-orange hover:bg-orange-600 text-white gap-2"
                 >
                   {isSubmitting ? 'Saving...' : 'Continue to Installation'}
-                  <ArrowRight className="h-4 w-4" />
+                  <PiArrowRightBold className="h-4 w-4" />
                 </Button>
               </div>
             </form>

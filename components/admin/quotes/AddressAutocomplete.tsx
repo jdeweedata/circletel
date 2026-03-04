@@ -1,8 +1,8 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Loader2 } from 'lucide-react';
 
 /**
  * Suppress Google Maps Places API deprecation warning.
@@ -141,7 +141,7 @@ export function AddressAutocomplete({
       />
       {isLoading && (
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-          <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+          <PiSpinnerBold className="w-4 h-4 animate-spin text-gray-400" />
         </div>
       )}
       {isReady && (

@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiDeviceMobileBold, PiEyeBold, PiEyeSlashBold, PiGearBold, PiInfoBold, PiStackBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,19 +8,6 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  Layers,
-  Eye,
-  EyeOff,
-  Settings,
-  Wifi,
-  Smartphone,
-  Building2,
-  Users,
-  ChevronDown,
-  ChevronUp,
-  Info
-} from 'lucide-react';
 import { ServiceType } from '@/lib/coverage/types';
 import { SERVICE_TYPE_MAPPING } from '@/lib/coverage/mtn/types';
 
@@ -61,13 +49,13 @@ export default function LayerControls({
   const layerGroups: LayerGroup[] = [
     {
       name: 'Business Services',
-      icon: <Building2 className="h-4 w-4" />,
+      icon: <PiBuildingsBold className="h-4 w-4" />,
       layers: layers.filter(layer => layer.source === 'business'),
       color: 'orange'
     },
     {
       name: 'Consumer Services',
-      icon: <Users className="h-4 w-4" />,
+      icon: <PiUsersBold className="h-4 w-4" />,
       layers: layers.filter(layer => layer.source === 'consumer'),
       color: 'blue'
     }
@@ -97,9 +85,9 @@ export default function LayerControls({
 
   const getSignalIcon = (serviceType: ServiceType) => {
     if (serviceType.includes('5g') || serviceType.includes('lte')) {
-      return <Smartphone className="h-3 w-3" />;
+      return <PiDeviceMobileBold className="h-3 w-3" />;
     }
-    return <Wifi className="h-3 w-3" />;
+    return <PiWifiBold className="h-3 w-3" />;
   };
 
   const enabledLayersCount = layers.filter(layer => layer.enabled).length;
@@ -109,7 +97,7 @@ export default function LayerControls({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Layers className="h-5 w-5" />
+            <PiStackBold className="h-5 w-5" />
             Coverage Layers
             <Badge variant="outline" className="text-xs">
               {enabledLayersCount} active
@@ -120,7 +108,7 @@ export default function LayerControls({
             size="sm"
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
-            <Settings className="h-4 w-4" />
+            <PiGearBold className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
@@ -134,7 +122,7 @@ export default function LayerControls({
             onClick={() => layers.forEach(layer => !layer.enabled && onLayerToggle(layer.serviceType))}
             disabled={enabledLayersCount === layers.length}
           >
-            <Eye className="h-3 w-3 mr-1" />
+            <PiEyeBold className="h-3 w-3 mr-1" />
             Show All
           </Button>
           <Button
@@ -143,7 +131,7 @@ export default function LayerControls({
             onClick={() => layers.forEach(layer => layer.enabled && onLayerToggle(layer.serviceType))}
             disabled={enabledLayersCount === 0}
           >
-            <EyeOff className="h-3 w-3 mr-1" />
+            <PiEyeSlashBold className="h-3 w-3 mr-1" />
             Hide All
           </Button>
         </div>
@@ -172,9 +160,9 @@ export default function LayerControls({
                 </Badge>
               </div>
               {expandedGroups.has(group.name) ? (
-                <ChevronUp className="h-4 w-4" />
+                <PiCaretUpBold className="h-4 w-4" />
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <PiCaretDownBold className="h-4 w-4" />
               )}
             </button>
 
@@ -249,7 +237,7 @@ export default function LayerControls({
             <Separator />
             <div className="space-y-3">
               <h4 className="text-sm font-medium flex items-center gap-2">
-                <Info className="h-4 w-4" />
+                <PiInfoBold className="h-4 w-4" />
                 Layer Information
               </h4>
               <div className="text-xs text-gray-600 space-y-2">

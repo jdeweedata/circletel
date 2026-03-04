@@ -1,4 +1,5 @@
 'use client';
+import { PiGearBold, PiImageBold, PiPaperPlaneRightBold, PiSparklesBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Properties Panel
@@ -10,7 +11,6 @@ import { usePageBuilderStore, selectSelectedBlock } from '@/lib/cms/store';
 import { BLOCK_DEFINITIONS } from '@/lib/cms/block-registry';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { X, Settings, Sparkles, Image as ImageIcon, Send } from 'lucide-react';
 import type { ContentBlock, SEOMetadata, PageStatus } from '@/lib/cms/types';
 import { AIGeneratorPanel } from './AIGeneratorPanel';
 import { MediaPicker } from './MediaPicker';
@@ -487,7 +487,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
               : 'text-gray-500 hover:text-gray-700'
           )}
         >
-          <Settings className="w-4 h-4 inline mr-1" />
+          <PiGearBold className="w-4 h-4 inline mr-1" />
           {selectedBlock ? 'Block' : 'Page'}
         </button>
         <button
@@ -499,7 +499,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
               : 'text-gray-500 hover:text-gray-700'
           )}
         >
-          <Send className="w-4 h-4 inline mr-1" />
+          <PiPaperPlaneRightBold className="w-4 h-4 inline mr-1" />
           Publish
         </button>
         <button
@@ -511,7 +511,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
               : 'text-gray-500 hover:text-gray-700'
           )}
         >
-          <Sparkles className="w-4 h-4 inline mr-1" />
+          <PiSparklesBold className="w-4 h-4 inline mr-1" />
           AI
         </button>
       </div>
@@ -536,7 +536,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
                     onClick={() => selectBlock(null)}
                     className="p-1 hover:bg-gray-100 rounded"
                   >
-                    <X className="w-4 h-4 text-gray-500" />
+                    <PiXBold className="w-4 h-4 text-gray-500" />
                   </button>
                 </div>
 
@@ -587,7 +587,7 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
 
         {sidebarTab === 'publish' && !currentPage?.id && (
           <div className="text-center py-8">
-            <Send className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <PiPaperPlaneRightBold className="w-8 h-8 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500 mb-2">Save the page first</p>
             <p className="text-xs text-gray-400">
               Publishing options will be available after saving.

@@ -1,10 +1,10 @@
 'use client';
+import { PiCalendarBold, PiCheckBold, PiInfoBold, PiLightningBold, PiTrendDownBold, PiTrendUpBold, PiUserBold, PiWarningBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, Wifi, Zap, Info, TrendingUp, TrendingDown, Calendar, User, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -93,7 +93,7 @@ export function PackageCard({
       {/* Popular Badge */}
       {isPopular && (
         <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-1 text-xs font-bold uppercase rounded-bl-lg shadow-md">
-          <Zap className="inline h-3 w-3 mr-1" />
+          <PiLightningBold className="inline h-3 w-3 mr-1" />
           Most Popular
         </div>
       )}
@@ -109,7 +109,7 @@ export function PackageCard({
         {/* Service Type Badge */}
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-xs">
-            <Wifi className="h-3 w-3 mr-1" />
+            <PiWifiBold className="h-3 w-3 mr-1" />
             {service_type}
           </Badge>
           {hasPromotion && (
@@ -149,7 +149,7 @@ export function PackageCard({
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                    <Info className="h-4 w-4" />
+                    <PiInfoBold className="h-4 w-4" />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80" align="start">
@@ -160,12 +160,12 @@ export function PackageCard({
                     {lastUpdatedAt && (
                       <div className="space-y-1 text-xs">
                         <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="h-3 w-3" />
+                          <PiCalendarBold className="h-3 w-3" />
                           <span>Last updated: {format(new Date(lastUpdatedAt), 'PPp')}</span>
                         </div>
                         {lastUpdatedBy && (
                           <div className="flex items-center gap-2 text-gray-600">
-                            <User className="h-3 w-3" />
+                            <PiUserBold className="h-3 w-3" />
                             <span>By: {lastUpdatedBy}</span>
                           </div>
                         )}
@@ -189,9 +189,9 @@ export function PackageCard({
                                   </span>
                                   <div className="flex items-center gap-1">
                                     {priceIncreased ? (
-                                      <TrendingUp className="h-3 w-3 text-red-500" />
+                                      <PiTrendUpBold className="h-3 w-3 text-red-500" />
                                     ) : (
-                                      <TrendingDown className="h-3 w-3 text-green-500" />
+                                      <PiTrendDownBold className="h-3 w-3 text-green-500" />
                                     )}
                                     <span className={priceIncreased ? 'text-red-600' : 'text-green-600'}>
                                       R{priceDiff.toFixed(0)}
@@ -259,7 +259,7 @@ export function PackageCard({
           <ul className="space-y-2">
             {features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <PiCheckBold className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>{feature}</span>
               </li>
             ))}
@@ -269,7 +269,7 @@ export function PackageCard({
         {/* Installation Warning */}
         {hasInstallationWarning && (
           <Alert className="border-amber-200 bg-amber-50">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <PiWarningBold className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-xs text-amber-800">
               {installationWarning?.installationNote || 'Special installation requirements may apply'}
               {installationWarning?.nearestBaseStation && (

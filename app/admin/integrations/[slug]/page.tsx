@@ -1,24 +1,7 @@
 'use client';
+import { PiActivityBold, PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiKeyBold, PiShieldBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, use } from 'react';
-import { 
-  ArrowLeft, 
-  Activity, 
-  Settings, 
-  FileText, 
-  Key, 
-  Webhook, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  RefreshCw, 
-  Shield,
-  Save,
-  ExternalLink,
-  Play,
-  History
-} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -185,17 +168,17 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
   };
 
   const statusConfig = {
-    healthy: { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', icon: CheckCircle },
-    degraded: { color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', icon: AlertTriangle },
-    down: { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', icon: XCircle },
-    unknown: { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', icon: Activity }
+    healthy: { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', icon: PiCheckCircleBold },
+    degraded: { color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', icon: PiWarningBold },
+    down: { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', icon: PiXCircleBold },
+    unknown: { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', icon: PiActivityBold }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa]">
         <div className="flex flex-col items-center gap-2">
-          <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+          <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
           <p className="text-muted-foreground">Loading integration details...</p>
         </div>
       </div>
@@ -220,7 +203,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
         <div className="flex items-start gap-4">
           <Button variant="ghost" size="icon" asChild className="mt-1">
             <Link href="/admin/integrations">
-              <ArrowLeft className="h-5 w-5" />
+              <PiArrowLeftBold className="h-5 w-5" />
             </Link>
           </Button>
           <div>
@@ -238,16 +221,16 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
             </p>
             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Shield className="h-3 w-3" />
+                <PiShieldBold className="h-3 w-3" />
                 {data.integration.provider || 'Internal'}
               </span>
               <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+                <PiClockBold className="h-3 w-3" />
                 Updated {new Date(data.integration.updated_at).toLocaleDateString()}
               </span>
               {data.integration.docs_url && (
                 <a href={data.integration.docs_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-circleTel-orange hover:underline">
-                  <ExternalLink className="h-3 w-3" />
+                  <PiArrowSquareOutBold className="h-3 w-3" />
                   Documentation
                 </a>
               )}
@@ -256,11 +239,11 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchData} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button onClick={handleSaveChanges} disabled={isSaving} className="bg-circleTel-orange hover:bg-orange-600">
-            <Save className="h-4 w-4 mr-2" />
+            <PiFloppyDiskBold className="h-4 w-4 mr-2" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
@@ -289,7 +272,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
             <Card>
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                  <CheckCircle className="h-6 w-6" />
+                  <PiCheckCircleBold className="h-6 w-6" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Uptime (7d)</p>
@@ -300,7 +283,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
             <Card>
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Activity className="h-6 w-6" />
+                  <PiActivityBold className="h-6 w-6" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Response</p>
@@ -311,7 +294,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
             <Card>
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                  <AlertTriangle className="h-6 w-6" />
+                  <PiWarningBold className="h-6 w-6" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Error Rate</p>
@@ -395,7 +378,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                      <Key className="h-4 w-4" />
+                      <PiKeyBold className="h-4 w-4" />
                       OAuth Status
                     </CardTitle>
                   </CardHeader>
@@ -454,7 +437,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
                     <div key={webhook.id} className="flex items-start justify-between p-4 border rounded-lg">
                       <div>
                         <div className="flex items-center gap-2 font-medium">
-                          <Webhook className="h-4 w-4 text-muted-foreground" />
+                          <PiWebhooksLogoBold className="h-4 w-4 text-muted-foreground" />
                           {webhook.url}
                         </div>
                         <div className="flex gap-2 mt-2">
@@ -563,7 +546,7 @@ export default function IntegrationDetailPage({ params }: { params: Promise<{ sl
                     <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-                          <Clock className="h-5 w-5 text-gray-500" />
+                          <PiClockBold className="h-5 w-5 text-gray-500" />
                         </div>
                         <div>
                           <p className="font-medium">{job.name}</p>

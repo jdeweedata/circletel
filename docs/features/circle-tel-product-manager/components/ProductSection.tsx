@@ -1,5 +1,5 @@
+import { PiCaretDownBold, PiCaretRightBold, PiCubeBold } from 'react-icons/pi';
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Box } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
 
@@ -22,11 +22,11 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ category, produc
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="p-1 rounded hover:bg-slate-200 text-slate-400 transition-colors">
-            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            {isOpen ? <PiCaretDownBold size={16} /> : <PiCaretRightBold size={16} />}
         </div>
         
         <div className="flex items-center gap-2">
-            <Box size={14} className="text-slate-400" />
+            <PiCubeBold size={14} className="text-slate-400" />
             <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-primary-600 transition-colors">
             {category.replace('_', ' ')}
             </h2>

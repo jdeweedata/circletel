@@ -1,7 +1,7 @@
 'use client'
+import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiTrophyBold, PiWifiBold } from 'react-icons/pi';
 
 import { SpecGridSection } from '@/lib/types/strapi'
-import { Wifi, Zap, Clock, Shield, Award, CheckCircle } from 'lucide-react'
 
 interface SpecGridProps {
   section: SpecGridSection

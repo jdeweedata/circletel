@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckBold, PiLockBold } from 'react-icons/pi';
 
 import React from 'react';
-import { Lock, Check } from 'lucide-react';
 
 interface Step {
   id: number;
@@ -63,7 +63,7 @@ export function TopProgressBar({ currentStep }: TopProgressBarProps) {
                     }
                   `}>
                     {step.completed ? (
-                      <Check className="w-5 h-5" strokeWidth={3} />
+                      <PiCheckBold className="w-5 h-5" strokeWidth={3} />
                     ) : (
                       <span>{step.id}</span>
                     )}
@@ -126,7 +126,7 @@ export function TopProgressBar({ currentStep }: TopProgressBarProps) {
                   }
                 `}>
                   {step.completed ? (
-                    <Check className="w-4 h-4" strokeWidth={3} />
+                    <PiCheckBold className="w-4 h-4" strokeWidth={3} />
                   ) : (
                     <span>{step.id}</span>
                   )}
@@ -144,7 +144,7 @@ export function TopProgressBar({ currentStep }: TopProgressBarProps) {
 
       {/* Secure Badge - Desktop Only */}
       <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
-        <Lock className="w-4 h-4 text-white" />
+        <PiLockBold className="w-4 h-4 text-white" />
         <span className="text-sm font-semibold text-white">Secure</span>
       </div>
     </div>

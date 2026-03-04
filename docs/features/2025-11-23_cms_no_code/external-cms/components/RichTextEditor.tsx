@@ -1,7 +1,7 @@
+import { PiListBold, PiListNumbersBold, PiQuotesBold, PiTextBBold, PiTextHBold, PiTextItalicBold } from 'react-icons/pi';
 import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Italic, List, ListOrdered, Heading2, Heading3, Quote } from 'lucide-react';
 
 interface RichTextEditorProps {
   content: string;
@@ -41,7 +41,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('bold') ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Bold"
         >
-          <Bold size={16} />
+          <PiTextBBold size={16} />
         </button>
         <button
           type="button"
@@ -50,7 +50,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('italic') ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Italic"
         >
-          <Italic size={16} />
+          <PiTextItalicBold size={16} />
         </button>
         
         <div className="w-px h-4 bg-gray-300 mx-2"></div>
@@ -61,7 +61,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('bulletList') ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Bullet List"
         >
-          <List size={16} />
+          <PiListBold size={16} />
         </button>
         <button
           type="button"
@@ -69,7 +69,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('orderedList') ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Ordered List"
         >
-          <ListOrdered size={16} />
+          <PiListNumbersBold size={16} />
         </button>
 
         <div className="w-px h-4 bg-gray-300 mx-2"></div>
@@ -80,7 +80,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Heading 2"
         >
-          <Heading2 size={16} />
+          <PiTextHBold size={16} />
         </button>
         <button
           type="button"
@@ -88,7 +88,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Heading 3"
         >
-          <Heading3 size={16} />
+          <PiTextHBold size={16} />
         </button>
         
          <div className="w-px h-4 bg-gray-300 mx-2"></div>
@@ -99,7 +99,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChange }) =>
           className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('blockquote') ? 'bg-gray-200 text-black' : 'text-gray-500'}`}
           title="Quote"
         >
-          <Quote size={16} />
+          <PiQuotesBold size={16} />
         </button>
       </div>
       <EditorContent editor={editor} />

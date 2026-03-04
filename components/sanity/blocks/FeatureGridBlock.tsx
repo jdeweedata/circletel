@@ -1,6 +1,6 @@
 'use client';
+import { PiClockBold, PiGlobeBold, PiHeadphonesBold, PiLightningBold, PiServerBold, PiShieldBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
-import { LucideIcon, Wifi, Shield, Clock, Headphones, Zap, Globe, Server, Users } from 'lucide-react';
 
 // Icon mapping for dynamic icon selection
 const iconMap: Record<string, LucideIcon> = {

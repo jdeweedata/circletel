@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowLeftBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -109,7 +109,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
-            <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-4" />
+            <PiSpinnerBold className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-4" />
             <p className="text-gray-600">Loading product...</p>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             onClick={() => router.back()}
             className="text-gray-600 hover:text-gray-900 -ml-2"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>

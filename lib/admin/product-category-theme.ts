@@ -1,4 +1,4 @@
-import { Globe, Zap, Radio, Wifi, Smartphone, type LucideIcon } from 'lucide-react'
+import { PiDeviceMobileBold, PiGlobeBold, PiLightningBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
 
 export interface CategoryTheme {
   color: string
@@ -9,22 +9,22 @@ export interface CategoryTheme {
 
 export const PRODUCT_CATEGORY_THEMES: Record<string, CategoryTheme> = {
   // ISP/Telecom categories
-  business_fibre: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', icon: Globe },
-  lte: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: Zap },
-  '5g': { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: Radio },
-  wireless: { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: Wifi },
-  fibre_consumer: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: Globe },
-  fibre: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: Globe },
+  business_fibre: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', icon: PiGlobeBold },
+  lte: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: PiLightningBold },
+  '5g': { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: PiRadioBold },
+  wireless: { color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100', icon: PiWifiBold },
+  fibre_consumer: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: PiGlobeBold },
+  fibre: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', icon: PiGlobeBold },
 
   // General product categories
-  connectivity: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', icon: Globe },
-  hardware: { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100', icon: Smartphone },
-  software: { color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', icon: Globe },
-  services: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: Globe },
-  bundles: { color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100', icon: Globe },
+  connectivity: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', icon: PiGlobeBold },
+  hardware: { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100', icon: PiDeviceMobileBold },
+  software: { color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', icon: PiGlobeBold },
+  services: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', icon: PiGlobeBold },
+  bundles: { color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100', icon: PiGlobeBold },
 
   // Default fallback
-  default: { color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100', icon: Globe },
+  default: { color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100', icon: PiGlobeBold },
 }
 
 /**

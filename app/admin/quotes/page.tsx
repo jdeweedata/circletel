@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCalendarBold, PiEyeBold, PiFileTextBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Eye, Calendar, Building2, FileText, Plus } from 'lucide-react';
 import type { BusinessQuote } from '@/lib/quotes/types';
 
 interface QuoteWithDetails extends BusinessQuote {
@@ -132,7 +132,7 @@ export default function AdminQuotesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -166,7 +166,7 @@ export default function AdminQuotesPage() {
           onClick={() => router.push('/admin/quotes/new')}
           className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <PiPlusBold className="w-4 h-4 mr-2" />
           New Quote
         </Button>
       </div>
@@ -177,7 +177,7 @@ export default function AdminQuotesPage() {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="text"
                 placeholder="Search by company, quote number, or email..."
@@ -252,7 +252,7 @@ export default function AdminQuotesPage() {
         {filteredQuotes.length === 0 ? (
           <Card>
             <CardContent className="pt-6 text-center py-12">
-              <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <PiFileTextBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-circleTel-secondaryNeutral">
                 {searchTerm ? 'No quotes match your search' : 'No quotes found'}
               </p>
@@ -281,7 +281,7 @@ export default function AdminQuotesPage() {
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-circleTel-secondaryNeutral">
-                      <Building2 className="w-4 h-4" />
+                      <PiBuildingsBold className="w-4 h-4" />
                       <span className="font-medium">{quote.company_name}</span>
                     </div>
 
@@ -298,7 +298,7 @@ export default function AdminQuotesPage() {
                     </div>
 
                     <div className="flex items-center gap-2 text-xs text-circleTel-secondaryNeutral">
-                      <Calendar className="w-3 h-3" />
+                      <PiCalendarBold className="w-3 h-3" />
                       <span>Created {formatDate(quote.created_at)}</span>
                       {quote.created_by_admin && (
                         <span>by {quote.created_by_admin.full_name}</span>
@@ -325,7 +325,7 @@ export default function AdminQuotesPage() {
                         router.push(`/admin/quotes/${quote.id}`);
                       }}
                     >
-                      <Eye className="w-4 h-4 mr-2" />
+                      <PiEyeBold className="w-4 h-4 mr-2" />
                       View Details
                     </Button>
                   </div>

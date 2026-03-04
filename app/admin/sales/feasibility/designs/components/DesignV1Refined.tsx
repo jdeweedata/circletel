@@ -1,19 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Building2,
-  Zap,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  ArrowRight,
-  Check,
-  Shield,
-  Sparkles
-} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -64,7 +53,7 @@ export function DesignV1Refined() {
           >
             <div className="flex items-center gap-4 mb-3">
               <div className="p-3 bg-gradient-to-br from-circleTel-orange to-amber-600 rounded-2xl shadow-lg shadow-orange-500/30">
-                <Zap className="w-7 h-7 text-white" />
+                <PiLightningBold className="w-7 h-7 text-white" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white tracking-tight">
@@ -99,7 +88,7 @@ export function DesignV1Refined() {
               <div className="px-6 pt-6 pb-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30 group-hover:scale-105 transition-transform duration-300">
-                    <Building2 className="w-5 h-5 text-white" />
+                    <PiBuildingsBold className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h2 className="text-base font-semibold text-gray-900 tracking-tight">Client Details</h2>
@@ -126,7 +115,7 @@ export function DesignV1Refined() {
                 <div>
                   <Label htmlFor="v1-contact" className="text-sm font-semibold text-gray-700">Contact Name</Label>
                   <div className="relative mt-2">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <PiUserBold className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="v1-contact"
                       placeholder="John Smith"
@@ -140,7 +129,7 @@ export function DesignV1Refined() {
                 <div>
                   <Label htmlFor="v1-email" className="text-sm font-semibold text-gray-700">Email</Label>
                   <div className="relative mt-2">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <PiEnvelopeBold className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="v1-email"
                       type="email"
@@ -155,7 +144,7 @@ export function DesignV1Refined() {
                 <div>
                   <Label htmlFor="v1-phone" className="text-sm font-semibold text-gray-700">Phone</Label>
                   <div className="relative mt-2">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <PiPhoneBold className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="v1-phone"
                       placeholder="082 123 4567"
@@ -181,7 +170,7 @@ export function DesignV1Refined() {
               <div className="px-6 pt-6 pb-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform duration-300">
-                    <Zap className="w-5 h-5 text-white" />
+                    <PiLightningBold className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h2 className="text-base font-semibold text-gray-900 tracking-tight">Requirements</h2>
@@ -212,7 +201,7 @@ export function DesignV1Refined() {
                           {isSelected && (
                             <div className="absolute top-2 right-2">
                               <div className="w-5 h-5 bg-circleTel-orange rounded-full flex items-center justify-center">
-                                <Check className="w-3 h-3 text-white" />
+                                <PiCheckBold className="w-3 h-3 text-white" />
                               </div>
                             </div>
                           )}
@@ -251,7 +240,7 @@ export function DesignV1Refined() {
                               "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
                               isSelected ? "border-circleTel-orange bg-circleTel-orange" : "border-gray-300"
                             )}>
-                              {isSelected && <Check className="w-3 h-3 text-white" />}
+                              {isSelected && <PiCheckBold className="w-3 h-3 text-white" />}
                             </div>
                             <div className="text-left">
                               <span className={cn(
@@ -293,7 +282,7 @@ export function DesignV1Refined() {
                         className="border-gray-300 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
                       />
                       <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-gray-500" />
+                        <PiShieldBold className="w-4 h-4 text-gray-500" />
                         <span className="text-sm font-medium text-gray-700">Failover</span>
                       </div>
                     </label>
@@ -316,7 +305,7 @@ export function DesignV1Refined() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform duration-300">
-                      <MapPin className="w-5 h-5 text-white" />
+                      <PiMapPinBold className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h2 className="text-base font-semibold text-gray-900 tracking-tight">Sites to Check</h2>
@@ -344,7 +333,7 @@ export function DesignV1Refined() {
                   className="flex-1 min-h-[200px] bg-gray-50/50 border-gray-200 focus:bg-white focus:border-circleTel-orange resize-none font-mono text-sm leading-relaxed"
                 />
                 <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3" />
+                  <PiSparklesBold className="w-3 h-3" />
                   Addresses or GPS coordinates (e.g., -26.1076, 28.0567)
                 </p>
               </div>
@@ -361,7 +350,7 @@ export function DesignV1Refined() {
         >
           <button className="group relative px-10 py-4 bg-gradient-to-r from-circleTel-orange to-amber-500 text-white font-bold text-lg rounded-2xl shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 hover:scale-[1.02] transition-all duration-300 flex items-center gap-3">
             <span>Check Feasibility</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <PiArrowRightBold className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shine" />
           </button>
         </motion.div>

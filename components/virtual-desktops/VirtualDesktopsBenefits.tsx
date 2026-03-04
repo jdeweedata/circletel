@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { TrendingDown, Settings, Users, Clock } from 'lucide-react';
 
 const VirtualDesktopsBenefits = () => {
   return (
@@ -16,7 +15,7 @@ const VirtualDesktopsBenefits = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="text-center p-6">
             <div className="bg-circleTel-lightNeutral rounded-full p-4 inline-flex mb-4">
-              <TrendingDown className="text-circleTel-orange h-8 w-8" />
+              <PiTrendDownBold className="text-circleTel-orange h-8 w-8" />
             </div>
             <h3 className="font-bold text-xl mb-2">Cost Reduction</h3>
             <p className="text-circleTel-secondaryNeutral">
@@ -26,7 +25,7 @@ const VirtualDesktopsBenefits = () => {
           
           <div className="text-center p-6">
             <div className="bg-circleTel-lightNeutral rounded-full p-4 inline-flex mb-4">
-              <Settings className="text-circleTel-orange h-8 w-8" />
+              <PiGearBold className="text-circleTel-orange h-8 w-8" />
             </div>
             <h3 className="font-bold text-xl mb-2">Simplified Management</h3>
             <p className="text-circleTel-secondaryNeutral">
@@ -36,7 +35,7 @@ const VirtualDesktopsBenefits = () => {
           
           <div className="text-center p-6">
             <div className="bg-circleTel-lightNeutral rounded-full p-4 inline-flex mb-4">
-              <Users className="text-circleTel-orange h-8 w-8" />
+              <PiUsersBold className="text-circleTel-orange h-8 w-8" />
             </div>
             <h3 className="font-bold text-xl mb-2">Enhanced Collaboration</h3>
             <p className="text-circleTel-secondaryNeutral">
@@ -46,7 +45,7 @@ const VirtualDesktopsBenefits = () => {
           
           <div className="text-center p-6">
             <div className="bg-circleTel-lightNeutral rounded-full p-4 inline-flex mb-4">
-              <Clock className="text-circleTel-orange h-8 w-8" />
+              <PiClockBold className="text-circleTel-orange h-8 w-8" />
             </div>
             <h3 className="font-bold text-xl mb-2">Business Continuity</h3>
             <p className="text-circleTel-secondaryNeutral">

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiCheckCircleBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Step 2: Location & Coverage
@@ -7,18 +8,6 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import {
-  MapPin,
-  Plus,
-  Trash2,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Wifi,
-  Search,
-  RotateCcw,
-  Navigation,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -238,7 +227,7 @@ export function LocationCoverageStep({
             {showBulkInput ? 'Hide Bulk' : 'Bulk Add'}
           </Button>
           <Button onClick={handleAddSite}>
-            <Plus className="h-4 w-4 mr-1" />
+            <PiPlusBold className="h-4 w-4 mr-1" />
             Add Site
           </Button>
         </div>
@@ -266,10 +255,10 @@ export function LocationCoverageStep({
       <div className="space-y-4">
         {data.sites.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
-            <MapPin className="h-12 w-12 mx-auto text-gray-300" />
+            <PiMapPinBold className="h-12 w-12 mx-auto text-gray-300" />
             <p className="mt-4 text-gray-500">No sites added yet</p>
             <Button onClick={handleAddSite} className="mt-4">
-              <Plus className="h-4 w-4 mr-1" />
+              <PiPlusBold className="h-4 w-4 mr-1" />
               Add Your First Site
             </Button>
           </div>
@@ -292,7 +281,7 @@ export function LocationCoverageStep({
                   onClick={() => handleRemoveSite(site.index)}
                   className="text-red-500 hover:text-red-700"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <PiTrashBold className="h-4 w-4" />
                 </Button>
               </div>
 
@@ -347,7 +336,7 @@ export function LocationCoverageStep({
                   <div className="flex items-center gap-2">
                     {site.coverage_result?.is_feasible ? (
                       <>
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                         <span className="text-green-700 font-medium">Coverage Available</span>
                         {site.coverage_result.recommended_technology && (
                           <span className="text-sm text-gray-500 ml-2">
@@ -357,7 +346,7 @@ export function LocationCoverageStep({
                       </>
                     ) : (
                       <>
-                        <XCircle className="h-5 w-5 text-red-500" />
+                        <PiXCircleBold className="h-5 w-5 text-red-500" />
                         <span className="text-red-700 font-medium">Limited Coverage</span>
                       </>
                     )}
@@ -374,17 +363,17 @@ export function LocationCoverageStep({
                 >
                   {checkingIndex === site.index ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 mr-1 animate-spin" />
                       Checking...
                     </>
                   ) : site.coverage_checked ? (
                     <>
-                      <RotateCcw className="h-4 w-4 mr-1" />
+                      <PiArrowCounterClockwiseBold className="h-4 w-4 mr-1" />
                       Recheck
                     </>
                   ) : (
                     <>
-                      <Wifi className="h-4 w-4 mr-1" />
+                      <PiWifiBold className="h-4 w-4 mr-1" />
                       Check Coverage
                     </>
                   )}
@@ -427,12 +416,12 @@ export function LocationCoverageStep({
           >
             {checkingIndex !== null ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 Checking Coverage...
               </>
             ) : (
               <>
-                <Wifi className="h-4 w-4 mr-2" />
+                <PiWifiBold className="h-4 w-4 mr-2" />
                 Check All Sites
               </>
             )}
@@ -443,7 +432,7 @@ export function LocationCoverageStep({
       {/* All Checked Summary */}
       {data.all_sites_checked && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-          <CheckCircle2 className="h-6 w-6 text-green-500 mx-auto mb-2" />
+          <PiCheckCircleBold className="h-6 w-6 text-green-500 mx-auto mb-2" />
           <p className="text-green-700 font-medium">
             All {data.sites.length} sites have been checked
           </p>

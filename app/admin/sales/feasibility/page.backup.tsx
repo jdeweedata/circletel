@@ -1,30 +1,8 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiLightningBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiRadioBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  MapPin,
-  Building2,
-  Zap,
-  ArrowRight,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  FileText,
-  Send,
-  RotateCcw,
-  Wifi,
-  Radio,
-  Globe,
-  Phone,
-  Mail,
-  User,
-  DollarSign,
-  Shield,
-  ChevronDown,
-  Sparkles
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -148,9 +126,9 @@ function CoverageBadge({ available, label, confidence }: {
         : "bg-gray-50 text-gray-400 border border-gray-200"
     )}>
       {available ? (
-        <CheckCircle2 className="w-4 h-4" />
+        <PiCheckCircleBold className="w-4 h-4" />
       ) : (
-        <XCircle className="w-4 h-4" />
+        <PiXCircleBold className="w-4 h-4" />
       )}
       <span>{label}</span>
       {available && confidence && (
@@ -171,15 +149,15 @@ function CoverageBadge({ available, label, confidence }: {
 function TechIcon({ tech }: { tech: string }) {
   switch (tech.toLowerCase()) {
     case 'fibre':
-      return <Globe className="w-4 h-4" />;
+      return <PiGlobeBold className="w-4 h-4" />;
     case 'tarana':
     case 'wireless':
-      return <Radio className="w-4 h-4" />;
+      return <PiRadioBold className="w-4 h-4" />;
     case '5g':
     case 'lte':
-      return <Wifi className="w-4 h-4" />;
+      return <PiWifiBold className="w-4 h-4" />;
     default:
-      return <Zap className="w-4 h-4" />;
+      return <PiLightningBold className="w-4 h-4" />;
   }
 }
 
@@ -227,7 +205,7 @@ function DetailedCoverageTable({
       <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
+            <PiMapPinBold className="w-4 h-4" />
             Coverage Analysis
           </h4>
           {coordinates && (
@@ -265,12 +243,12 @@ function DetailedCoverageTable({
                 <td className="px-4 py-2.5">
                   {row.data.available ? (
                     <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <PiCheckCircleBold className="w-4 h-4" />
                       Available
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-gray-400">
-                      <XCircle className="w-4 h-4" />
+                      <PiXCircleBold className="w-4 h-4" />
                       No Coverage
                     </span>
                   )}
@@ -914,7 +892,7 @@ export default function FeasibilityPage() {
         <div className="relative px-6 py-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-circleTel-orange/20 rounded-lg">
-              <Zap className="w-6 h-6 text-circleTel-orange" />
+              <PiLightningBold className="w-6 h-6 text-circleTel-orange" />
             </div>
             <h1 className="text-2xl font-bold text-white">B2B Feasibility Check</h1>
           </div>
@@ -940,7 +918,7 @@ export default function FeasibilityPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-blue-100 rounded-lg">
-                      <Building2 className="w-4 h-4 text-blue-600" />
+                      <PiBuildingsBold className="w-4 h-4 text-blue-600" />
                     </div>
                     <CardTitle className="text-base">Client Details</CardTitle>
                   </div>
@@ -959,7 +937,7 @@ export default function FeasibilityPage() {
                   <div>
                     <Label htmlFor="contactName" className="text-sm font-medium">Contact Name</Label>
                     <div className="relative mt-1.5">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <PiUserBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="contactName"
                         placeholder="John Smith"
@@ -972,7 +950,7 @@ export default function FeasibilityPage() {
                   <div>
                     <Label htmlFor="contactEmail" className="text-sm font-medium">Email</Label>
                     <div className="relative mt-1.5">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <PiEnvelopeBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="contactEmail"
                         type="email"
@@ -986,7 +964,7 @@ export default function FeasibilityPage() {
                   <div>
                     <Label htmlFor="contactPhone" className="text-sm font-medium">Phone</Label>
                     <div className="relative mt-1.5">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <PiPhoneBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="contactPhone"
                         placeholder="082 123 4567"
@@ -1004,7 +982,7 @@ export default function FeasibilityPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-purple-100 rounded-lg">
-                      <Zap className="w-4 h-4 text-purple-600" />
+                      <PiLightningBold className="w-4 h-4 text-purple-600" />
                     </div>
                     <CardTitle className="text-base">Requirements</CardTitle>
                   </div>
@@ -1120,7 +1098,7 @@ export default function FeasibilityPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-emerald-100 rounded-lg">
-                      <MapPin className="w-4 h-4 text-emerald-600" />
+                      <PiMapPinBold className="w-4 h-4 text-emerald-600" />
                     </div>
                     <CardTitle className="text-base">Sites to Check</CardTitle>
                   </div>
@@ -1144,11 +1122,11 @@ export default function FeasibilityPage() {
                     </span>
                     <div className="flex gap-2">
                       <Badge variant="outline" className="text-xs">
-                        <MapPin className="w-3 h-3 mr-1" />
+                        <PiMapPinBold className="w-3 h-3 mr-1" />
                         Address
                       </Badge>
                       <Badge variant="outline" className="text-xs">
-                        <Globe className="w-3 h-3 mr-1" />
+                        <PiGlobeBold className="w-3 h-3 mr-1" />
                         GPS
                       </Badge>
                     </div>
@@ -1164,9 +1142,9 @@ export default function FeasibilityPage() {
                   disabled={!formData.companyName || parseSites(formData.sites).length === 0}
                   className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white gap-2 px-8"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <PiSparklesBold className="w-4 h-4" />
                   Check Feasibility
-                  <ArrowRight className="w-4 h-4" />
+                  <PiArrowRightBold className="w-4 h-4" />
                 </Button>
               </div>
             </motion.div>
@@ -1186,7 +1164,7 @@ export default function FeasibilityPage() {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
-                        <Building2 className="w-5 h-5 text-gray-400" />
+                        <PiBuildingsBold className="w-5 h-5 text-gray-400" />
                         <span className="font-semibold text-gray-900">{formData.companyName}</span>
                       </div>
                       <div className="h-6 w-px bg-gray-200" />
@@ -1204,7 +1182,7 @@ export default function FeasibilityPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Button variant="outline" size="sm" onClick={resetForm}>
-                        <RotateCcw className="w-4 h-4 mr-2" />
+                        <PiArrowCounterClockwiseBold className="w-4 h-4 mr-2" />
                         New Check
                       </Button>
                       {step === 'results' && selectedSites.size > 0 && (
@@ -1215,9 +1193,9 @@ export default function FeasibilityPage() {
                           className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
                         >
                           {isGenerating ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                           ) : (
-                            <FileText className="w-4 h-4 mr-2" />
+                            <PiFileTextBold className="w-4 h-4 mr-2" />
                           )}
                           {isGenerating ? 'Generating...' : `Generate ${selectedSites.size} Quote${selectedSites.size > 1 ? 's' : ''}`}
                         </Button>
@@ -1265,19 +1243,19 @@ export default function FeasibilityPage() {
                             />
                           )}
                           {result.status === 'checking' && (
-                            <Loader2 className="w-5 h-5 text-circleTel-orange animate-spin mt-0.5" />
+                            <PiSpinnerBold className="w-5 h-5 text-circleTel-orange animate-spin mt-0.5" />
                           )}
                           {result.status === 'pending' && (
                             <div className="w-5 h-5 rounded border-2 border-gray-300 mt-0.5" />
                           )}
                           {result.status === 'error' && (
-                            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                            <PiWarningCircleBold className="w-5 h-5 text-red-500 mt-0.5" />
                           )}
 
                           {/* Site info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                              <PiMapPinBold className="w-4 h-4 text-gray-400 flex-shrink-0" />
                               <span className="font-medium text-gray-900 truncate">
                                 {result.address || result.input}
                               </span>
@@ -1302,7 +1280,7 @@ export default function FeasibilityPage() {
                                   onClick={() => retrySite(result.id)}
                                   className="ml-auto"
                                 >
-                                  <RotateCcw className="w-4 h-4 mr-1" />
+                                  <PiArrowCounterClockwiseBold className="w-4 h-4 mr-1" />
                                   Retry
                                 </Button>
                               </div>
@@ -1346,7 +1324,7 @@ export default function FeasibilityPage() {
                                 {result.recommendedPackages.length > 0 && (
                                   <div className="pt-3 border-t border-gray-200">
                                     <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                      <Sparkles className="w-4 h-4 text-circleTel-orange" />
+                                      <PiSparklesBold className="w-4 h-4 text-circleTel-orange" />
                                       Best Options for Quote
                                     </p>
                                     <div className="flex flex-wrap gap-2">
@@ -1367,7 +1345,7 @@ export default function FeasibilityPage() {
 
                                 {result.recommendedPackages.length === 0 && (
                                   <p className="text-sm text-amber-600 flex items-center gap-2 pt-2">
-                                    <AlertCircle className="w-4 h-4" />
+                                    <PiWarningCircleBold className="w-4 h-4" />
                                     No packages match requirements. Consider adjusting speed/budget.
                                   </p>
                                 )}
@@ -1420,9 +1398,9 @@ export default function FeasibilityPage() {
                             className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white gap-2"
                           >
                             {isGenerating ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <PiSpinnerBold className="w-4 h-4 animate-spin" />
                             ) : (
-                              <Send className="w-4 h-4" />
+                              <PiPaperPlaneRightBold className="w-4 h-4" />
                             )}
                             {isGenerating ? 'Generating...' : `Generate ${selectedSites.size > 0 ? `${selectedSites.size} ` : ''}Quote${selectedSites.size !== 1 ? 's' : ''}`}
                           </Button>

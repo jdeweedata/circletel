@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiInfoBold, PiPhoneBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -13,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, User, Phone, ArrowLeft, ArrowRight, Clock, Info, CheckCircle2 } from 'lucide-react';
 
 // Validation schema for installation form
 const installationSchema = z.object({
@@ -161,7 +161,7 @@ export default function InstallationPage() {
                 </div>
                 <div className="pt-3 border-t border-gray-200">
                   <div className="flex items-start gap-2 text-sm">
-                    <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <PiInfoBold className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                     <p className="text-gray-600">
                       Professional installation is included at no extra cost. Our technician will ensure everything is set up correctly.
                     </p>
@@ -185,7 +185,7 @@ export default function InstallationPage() {
               {/* Installation Dates */}
               <div className="space-y-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-2 text-circleTel-navy">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                  <PiCalendarBold className="h-5 w-5 text-blue-600" />
                   <h3 className="font-semibold">Select Installation Dates</h3>
                 </div>
 
@@ -193,7 +193,7 @@ export default function InstallationPage() {
                   <div className="space-y-2">
                     <Label htmlFor="preferredDate">Preferred Date *</Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
+                      <PiCalendarBold className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
                       <Input
                         id="preferredDate"
                         type="date"
@@ -214,7 +214,7 @@ export default function InstallationPage() {
                   <div className="space-y-2">
                     <Label htmlFor="alternativeDate">Alternative Date (Optional)</Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
+                      <PiCalendarBold className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
                       <Input
                         id="alternativeDate"
                         type="date"
@@ -231,7 +231,7 @@ export default function InstallationPage() {
                 </div>
 
                 <div className="flex items-start gap-2 mt-3 p-3 bg-white rounded border border-blue-200">
-                  <Clock className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <PiClockBold className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
                     <p className="font-medium text-gray-700">Installation Window</p>
                     <p className="text-gray-600">
@@ -266,7 +266,7 @@ export default function InstallationPage() {
                   <div className="space-y-2">
                     <Label htmlFor="onsiteContactName">Contact Name *</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <PiUserBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="onsiteContactName"
                         placeholder="John Doe"
@@ -283,7 +283,7 @@ export default function InstallationPage() {
                   <div className="space-y-2">
                     <Label htmlFor="onsiteContactPhone">Contact Phone *</Label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <PiPhoneBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="onsiteContactPhone"
                         placeholder="0821234567"
@@ -320,19 +320,19 @@ export default function InstallationPage() {
 
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <p>Free professional installation included</p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <p>No long-term contracts - cancel anytime with 30 days notice</p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <p>24/7 technical support included</p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <p>14-day money-back guarantee if you're not satisfied</p>
                   </div>
                 </div>
@@ -382,7 +382,7 @@ export default function InstallationPage() {
                   disabled={isSubmitting}
                   className="gap-2"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <PiArrowLeftBold className="h-4 w-4" />
                   Back to Contact
                 </Button>
 
@@ -392,7 +392,7 @@ export default function InstallationPage() {
                   className="bg-circleTel-orange hover:bg-orange-600 text-white gap-2"
                 >
                   {isSubmitting ? 'Processing...' : 'Continue to Payment'}
-                  <ArrowRight className="h-4 w-4" />
+                  <PiArrowRightBold className="h-4 w-4" />
                 </Button>
               </div>
             </form>

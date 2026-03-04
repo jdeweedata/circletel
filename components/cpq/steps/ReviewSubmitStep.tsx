@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiFileTextBold, PiMapPinBold, PiPackageBold, PiPencilSimpleBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Step 7: Review & Submit
@@ -7,19 +8,6 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  FileText,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Download,
-  Edit,
-  Building2,
-  MapPin,
-  Package,
-  DollarSign,
-  User,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -156,7 +144,7 @@ export function ReviewSubmitStep({
       {hasErrors && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
-            <AlertCircle className="h-5 w-5" />
+            <PiWarningCircleBold className="h-5 w-5" />
             Please fix the following errors:
           </div>
           <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
@@ -171,11 +159,11 @@ export function ReviewSubmitStep({
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-gray-400" />
+            <PiBuildingsBold className="h-5 w-5 text-gray-400" />
             <h3 className="font-semibold text-gray-900">Customer</h3>
           </div>
           <Button variant="ghost" size="sm">
-            <Edit className="h-4 w-4 mr-1" />
+            <PiPencilSimpleBold className="h-4 w-4 mr-1" />
             Edit
           </Button>
         </div>
@@ -206,11 +194,11 @@ export function ReviewSubmitStep({
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-gray-400" />
+            <PiMapPinBold className="h-5 w-5 text-gray-400" />
             <h3 className="font-semibold text-gray-900">Locations ({locations.length})</h3>
           </div>
           <Button variant="ghost" size="sm">
-            <Edit className="h-4 w-4 mr-1" />
+            <PiPencilSimpleBold className="h-4 w-4 mr-1" />
             Edit
           </Button>
         </div>
@@ -225,9 +213,9 @@ export function ReviewSubmitStep({
                 <span>{loc.address || 'No address'}</span>
               </div>
               {loc.coverage_result?.is_feasible ? (
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <PiCheckCircleBold className="h-4 w-4 text-green-500" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-amber-500" />
+                <PiWarningCircleBold className="h-4 w-4 text-amber-500" />
               )}
             </div>
           ))}
@@ -238,11 +226,11 @@ export function ReviewSubmitStep({
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-gray-400" />
+            <PiPackageBold className="h-5 w-5 text-gray-400" />
             <h3 className="font-semibold text-gray-900">Packages & Add-ons</h3>
           </div>
           <Button variant="ghost" size="sm">
-            <Edit className="h-4 w-4 mr-1" />
+            <PiPencilSimpleBold className="h-4 w-4 mr-1" />
             Edit
           </Button>
         </div>
@@ -288,7 +276,7 @@ export function ReviewSubmitStep({
       {/* Pricing Summary */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center gap-2 mb-4">
-          <DollarSign className="h-5 w-5 text-gray-400" />
+          <PiCurrencyDollarBold className="h-5 w-5 text-gray-400" />
           <h3 className="font-semibold text-gray-900">Pricing</h3>
         </div>
 
@@ -341,7 +329,7 @@ export function ReviewSubmitStep({
       {/* Actions */}
       <div className="flex items-center justify-between">
         <Button variant="outline" disabled={isSubmitting}>
-          <Download className="h-4 w-4 mr-2" />
+          <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
           Preview PDF
         </Button>
 
@@ -352,12 +340,12 @@ export function ReviewSubmitStep({
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               Creating Quote...
             </>
           ) : (
             <>
-              <CheckCircle2 className="h-4 w-4 mr-2" />
+              <PiCheckCircleBold className="h-4 w-4 mr-2" />
               Create Quote
             </>
           )}

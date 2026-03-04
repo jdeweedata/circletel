@@ -1,11 +1,11 @@
 'use client';
+import { PiCalendarBold, PiClockCounterClockwiseBold, PiFileTextBold, PiMinusBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiUserBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { History, TrendingUp, TrendingDown, Minus, User, Calendar, FileText, Loader2, AlertCircle, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -77,9 +77,9 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
 
   const getPriceTrendIcon = (oldPrice: number | null, newPrice: number | null) => {
     if (oldPrice === null || newPrice === null) return null;
-    if (newPrice > oldPrice) return <TrendingUp className="h-4 w-4 text-red-500" />;
-    if (newPrice < oldPrice) return <TrendingDown className="h-4 w-4 text-green-500" />;
-    return <Minus className="h-4 w-4 text-gray-400" />;
+    if (newPrice > oldPrice) return <PiTrendUpBold className="h-4 w-4 text-red-500" />;
+    if (newPrice < oldPrice) return <PiTrendDownBold className="h-4 w-4 text-green-500" />;
+    return <PiMinusBold className="h-4 w-4 text-gray-400" />;
   };
 
   const getActionBadge = (action: string) => {
@@ -104,7 +104,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
             <div className="flex-1">
               <DialogTitle className="flex items-center gap-2 text-xl">
                 <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
-                  <History className="h-5 w-5 text-circleTel-orange" />
+                  <PiClockCounterClockwiseBold className="h-5 w-5 text-circleTel-orange" />
                 </div>
                 <div>
                   <div className="text-gray-900">Audit History</div>
@@ -118,7 +118,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
               onClick={onClose}
               className="h-8 w-8 p-0 hover:bg-gray-100"
             >
-              <X className="h-4 w-4" />
+              <PiXBold className="h-4 w-4" />
             </Button>
           </div>
           <DialogDescription className="text-gray-600 mt-2">
@@ -130,14 +130,14 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
         <div className="px-6 py-4 overflow-y-auto max-h-[calc(85vh-140px)]">
           {loading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mb-3" />
+              <PiSpinnerBold className="h-10 w-10 animate-spin text-circleTel-orange mb-3" />
               <span className="text-gray-600 font-medium">Loading audit history...</span>
             </div>
           )}
 
           {error && (
             <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-4 rounded-lg flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <PiWarningCircleBold className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-semibold text-base">Error Loading History</p>
                 <p className="text-sm mt-1">{error}</p>
@@ -156,7 +156,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
           {!loading && !error && auditLogs.length === 0 && (
             <div className="text-center py-16 text-gray-500">
               <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <History className="h-10 w-10 text-gray-300" />
+                <PiClockCounterClockwiseBold className="h-10 w-10 text-gray-300" />
               </div>
               <p className="text-lg font-medium text-gray-700">No audit history available</p>
               <p className="text-sm mt-1">Changes to this product will appear here</p>
@@ -185,7 +185,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
                       )}
                     </div>
                     <span className="text-sm text-gray-600 flex items-center gap-1.5 font-medium">
-                      <Calendar className="h-4 w-4 text-gray-400" />
+                      <PiCalendarBold className="h-4 w-4 text-gray-400" />
                       {format(new Date(log.changed_at), 'PPp')}
                     </span>
                   </div>
@@ -194,7 +194,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
                   {(log.price_changes.monthly_price.changed || log.price_changes.setup_fee.changed) && (
                     <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-4 space-y-3">
                       <p className="text-xs font-bold text-orange-900 uppercase tracking-wider flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
+                        <PiTrendUpBold className="h-4 w-4" />
                         Price Changes
                       </p>
 
@@ -250,7 +250,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
                   {log.change_reason && (
                     <div className="flex items-start gap-3 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
                       <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <FileText className="h-4 w-4 text-blue-600" />
+                        <PiFileTextBold className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
                         <p className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Reason:</p>
@@ -263,7 +263,7 @@ export function AuditHistoryModal({ productId, productName, open, onClose }: Aud
                   {log.changed_by_name && (
                     <div className="flex items-center gap-2 text-sm text-gray-600 pt-3 border-t border-gray-200">
                       <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center">
-                        <User className="h-3.5 w-3.5 text-gray-600" />
+                        <PiUserBold className="h-3.5 w-3.5 text-gray-600" />
                       </div>
                       <span>
                         Changed by <span className="font-semibold text-gray-900">{log.changed_by_name}</span>

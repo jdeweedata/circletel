@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsDownUpBold, PiBuildingBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -19,17 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Search,
-  MapPin,
-  ArrowUpDown,
-  Building,
-  Package,
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface DFABuilding {
@@ -147,7 +137,7 @@ export function DFABuildingTable({
     >
       <div className="flex items-center gap-1">
         {children}
-        <ArrowUpDown
+        <PiArrowsDownUpBold
           className={`h-3 w-3 ${currentSort.by === column ? 'text-purple-500' : 'text-gray-400'}`}
         />
       </div>
@@ -161,7 +151,7 @@ export function DFABuildingTable({
         {/* Search row */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search building name, ID, or address..."
               value={searchValue}
@@ -272,7 +262,7 @@ export function DFABuildingTable({
             ) : buildings.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                  <Building className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <PiBuildingBold className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                   <p>No buildings found</p>
                 </TableCell>
               </TableRow>
@@ -300,7 +290,7 @@ export function DFABuildingTable({
                         href={`/admin/coverage/dfa-buildings/map?lat=${building.latitude}&lng=${building.longitude}&zoom=17&highlight=${building.id}`}
                       >
                         <Button variant="ghost" size="sm">
-                          <MapPin className="h-4 w-4 mr-1" />
+                          <PiMapPinBold className="h-4 w-4 mr-1" />
                           Map
                         </Button>
                       </Link>
@@ -308,7 +298,7 @@ export function DFABuildingTable({
                         href={`/admin/sales/feasibility?lat=${building.latitude}&lng=${building.longitude}&address=${encodeURIComponent(building.streetAddress || '')}`}
                       >
                         <Button variant="ghost" size="sm">
-                          <Package className="h-4 w-4 mr-1" />
+                          <PiPackageBold className="h-4 w-4 mr-1" />
                           Quote
                         </Button>
                       </Link>
@@ -357,7 +347,7 @@ export function DFABuildingTable({
             onClick={() => onPageChange(pagination.page - 1)}
             disabled={pagination.page === 1 || loading}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <PiCaretLeftBold className="h-4 w-4" />
           </Button>
           <span className="text-sm text-gray-600 px-2">
             Page {pagination.page} of {pagination.totalPages}
@@ -368,7 +358,7 @@ export function DFABuildingTable({
             onClick={() => onPageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages || loading}
           >
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"

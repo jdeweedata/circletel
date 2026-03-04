@@ -1,17 +1,8 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import {
-  DollarSign,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Download,
-  Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Ambassador {
@@ -154,28 +145,28 @@ export default function AmbassadorEarningsPage() {
     {
       label: 'Total Earned',
       value: `R${ambassador.total_earnings.toFixed(2)}`,
-      icon: DollarSign,
+      icon: PiCurrencyDollarBold,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
       label: 'Pending Payout',
       value: `R${ambassador.pending_earnings.toFixed(2)}`,
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
     },
     {
       label: 'Total Paid Out',
       value: `R${lifetimePaid.toFixed(2)}`,
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
       label: 'Commission Rate',
       value: `${ambassador.commission_rate}%`,
-      icon: TrendingUp,
+      icon: PiTrendUpBold,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
@@ -217,14 +208,14 @@ export default function AmbassadorEarningsPage() {
               Payout History
             </h2>
             <button className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
-              <Download className="w-4 h-4" />
+              <PiDownloadSimpleBold className="w-4 h-4" />
               Export
             </button>
           </div>
 
           {earnings.length === 0 ? (
             <div className="text-center py-8">
-              <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <PiCalendarBold className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No earnings history yet</p>
               <p className="text-sm text-gray-400 mt-1">
                 Your first payout will appear here
@@ -266,7 +257,7 @@ export default function AmbassadorEarningsPage() {
 
           {recentConversions.length === 0 ? (
             <div className="text-center py-8">
-              <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <PiTrendUpBold className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No conversions yet</p>
               <p className="text-sm text-gray-400 mt-1">
                 Share your code to start earning
@@ -293,7 +284,7 @@ export default function AmbassadorEarningsPage() {
                       {conversion.commission_status === 'paid' ? (
                         <ArrowUpRight className="w-4 h-4" />
                       ) : (
-                        <Clock className="w-4 h-4" />
+                        <PiClockBold className="w-4 h-4" />
                       )}
                     </div>
                     <div>

@@ -3,7 +3,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle } from 'lucide-react';
 
 interface ContactFormRendererProps {
   formData: {
@@ -72,7 +71,7 @@ const ContactFormRenderer: React.FC<ContactFormRendererProps> = ({
 
 const SuccessMessage: React.FC = () => (
   <div className="bg-green-50 border border-green-200 rounded-md p-6 text-center">
-    <CheckCircle className="mx-auto text-green-500 mb-3" size={40} />
+    <PiCheckCircleBold className="mx-auto text-green-500 mb-3" size={40} />
     <h3 className="text-lg font-bold text-green-800 mb-2">Thank You!</h3>
     <p className="text-green-700">
       We've received your message and will get back to you within 24 hours.

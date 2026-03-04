@@ -1,6 +1,6 @@
 'use client'
+import { PiCheckCircleBold, PiInfoBold, PiWarningBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
-import { AlertCircle, AlertTriangle, Info, Wrench, CheckCircle } from 'lucide-react'
 
 type Severity = 'critical' | 'major' | 'minor' | 'maintenance'
 
@@ -29,7 +29,7 @@ interface IncidentTimelineProps {
 
 const severityConfig = {
   critical: {
-    icon: AlertCircle,
+    icon: PiWarningCircleBold,
     label: 'Critical',
     bgColor: 'bg-red-50',
     borderColor: 'border-red-200',
@@ -37,7 +37,7 @@ const severityConfig = {
     badgeColor: 'bg-red-100 text-red-700',
   },
   major: {
-    icon: AlertTriangle,
+    icon: PiWarningBold,
     label: 'Major',
     bgColor: 'bg-orange-50',
     borderColor: 'border-orange-200',
@@ -45,7 +45,7 @@ const severityConfig = {
     badgeColor: 'bg-orange-100 text-orange-700',
   },
   minor: {
-    icon: Info,
+    icon: PiInfoBold,
     label: 'Minor',
     bgColor: 'bg-yellow-50',
     borderColor: 'border-yellow-200',
@@ -53,7 +53,7 @@ const severityConfig = {
     badgeColor: 'bg-yellow-100 text-yellow-700',
   },
   maintenance: {
-    icon: Wrench,
+    icon: PiWrenchBold,
     label: 'Maintenance',
     bgColor: 'bg-blue-50',
     borderColor: 'border-blue-200',
@@ -188,7 +188,7 @@ export function IncidentTimeline({ incidents }: IncidentTimelineProps) {
           Active Incidents
         </h2>
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-          <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+          <PiCheckCircleBold className="h-8 w-8 text-green-500 mx-auto mb-2" />
           <p className="text-green-800 font-medium">No active incidents</p>
           <p className="text-green-600 text-sm mt-1">
             All systems are operating normally

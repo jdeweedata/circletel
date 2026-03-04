@@ -1,5 +1,8 @@
-import { LucideIcon } from 'lucide-react';
+import { IconType } from 'react-icons';
 import { ReactNode } from 'react';
+
+// Type alias for icon components (compatible with Phosphor via react-icons)
+export type IconComponent = IconType;
 
 /**
  * Shared Dashboard Component Types
@@ -59,8 +62,8 @@ export interface SharedQuickActionCardProps {
   title: string;
   /** Description text */
   description: string;
-  /** Lucide icon component */
-  icon: LucideIcon;
+  /** Icon component (Phosphor via react-icons) */
+  icon: IconComponent;
   /** Link destination (optional - can use onClick instead) */
   href?: string;
   /** Click handler (optional - can use href instead) */
@@ -100,7 +103,7 @@ export interface SharedEmptyStateProps {
   /** Description text */
   description: string;
   /** Icon to display */
-  icon?: LucideIcon;
+  icon?: IconComponent;
   /** CTA button text */
   ctaText?: string;
   /** CTA link destination */
@@ -125,7 +128,7 @@ export interface SharedInfoBoxProps {
   /** Optional title */
   title?: string;
   /** Optional icon */
-  icon?: LucideIcon;
+  icon?: IconComponent;
   /** Additional CSS classes */
   className?: string;
 }

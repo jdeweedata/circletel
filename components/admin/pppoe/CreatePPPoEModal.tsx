@@ -1,4 +1,5 @@
 'use client'
+import { PiCheckCircleBold, PiCopyBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import {
@@ -12,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Loader2, Wifi, AlertCircle, CheckCircle2, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CreatePPPoEModalProps {
@@ -98,7 +98,7 @@ export function CreatePPPoEModal({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             {createdCredential ? 'PPPoE Credentials Created' : 'Create PPPoE Credentials'}
           </DialogTitle>
           <DialogDescription>
@@ -112,7 +112,7 @@ export function CreatePPPoEModal({
           <div className="space-y-4 py-4">
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                 <span className="font-medium text-green-800">Credentials Generated</span>
               </div>
 
@@ -128,7 +128,7 @@ export function CreatePPPoEModal({
                       size="icon"
                       onClick={() => handleCopy(createdCredential.username, 'Username')}
                     >
-                      <Copy className="h-4 w-4" />
+                      <PiCopyBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export function CreatePPPoEModal({
                       size="icon"
                       onClick={() => handleCopy(createdCredential.password, 'Password')}
                     >
-                      <Copy className="h-4 w-4" />
+                      <PiCopyBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -152,7 +152,7 @@ export function CreatePPPoEModal({
             </div>
 
             <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <PiWarningCircleBold className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800">
                 Save these credentials now. The password cannot be recovered once this dialog is
                 closed (only revealed with audit logging).
@@ -220,12 +220,12 @@ export function CreatePPPoEModal({
               <Button onClick={handleCreate} disabled={isCreating}>
                 {isCreating ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                     Creating...
                   </>
                 ) : (
                   <>
-                    <Wifi className="h-4 w-4 mr-2" />
+                    <PiWifiBold className="h-4 w-4 mr-2" />
                     Create Credentials
                   </>
                 )}

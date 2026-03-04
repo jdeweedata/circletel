@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowRightBold, PiCheckCircleBold, PiSignInBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Loader2, LogIn, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -86,19 +86,19 @@ export default function PaymentCallbackPage() {
             {/* Status Icon */}
             {isSuccess ? (
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+                <PiCheckCircleBold className="w-12 h-12 text-green-600" />
               </div>
             ) : isCancelled ? (
               <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <XCircle className="w-12 h-12 text-amber-600" />
+                <PiXCircleBold className="w-12 h-12 text-amber-600" />
               </div>
             ) : isError ? (
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <XCircle className="w-12 h-12 text-red-600" />
+                <PiXCircleBold className="w-12 h-12 text-red-600" />
               </div>
             ) : (
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Loader2 className="w-12 h-12 text-gray-400 animate-spin" />
+                <PiSpinnerBold className="w-12 h-12 text-gray-400 animate-spin" />
               </div>
             )}
 
@@ -128,7 +128,7 @@ export default function PaymentCallbackPage() {
             {/* Auth Status and Navigation */}
             {loading ? (
               <div className="flex items-center justify-center gap-2 text-gray-500">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
                 <span>Checking session...</span>
               </div>
             ) : (user || session) ? (
@@ -142,7 +142,7 @@ export default function PaymentCallbackPage() {
                   className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 >
                   Go to Billing Now
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <PiArrowRightBold className="w-4 h-4 ml-2" />
                 </Button>
               </>
             ) : (
@@ -157,7 +157,7 @@ export default function PaymentCallbackPage() {
                   onClick={handleGoToBilling}
                   className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 >
-                  <LogIn className="w-4 h-4 mr-2" />
+                  <PiSignInBold className="w-4 h-4 mr-2" />
                   Log In to Continue
                 </Button>
               </>

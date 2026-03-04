@@ -1,23 +1,10 @@
 'use client';
+import { PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMapPinBold, PiPackageBold, PiPlugBold, PiRadioBold, PiSpinnerBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  MapPin,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Loader2,
-  Wifi,
-  Radio,
-  Cable,
-  Signal,
-  Filter,
-  Package,
-  Trash2,
-} from 'lucide-react';
 import {
   PartnerFeasibilitySite,
   CoverageResult,
@@ -166,7 +153,7 @@ function CoverageSiteCard({
       {/* Site Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start gap-2">
-          <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+          <PiMapPinBold className="w-5 h-5 text-gray-400 mt-0.5" />
           <div>
             <p className="font-medium text-gray-900">{site.address}</p>
             {site.latitude && site.longitude && (
@@ -182,7 +169,7 @@ function CoverageSiteCard({
       {/* Loading State */}
       {(isPending || isChecking) && (
         <div className="flex items-center gap-2 text-gray-500 py-4">
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <PiSpinnerBold className="w-5 h-5 animate-spin" />
           <span className="text-sm">
             {isChecking ? 'Checking coverage...' : 'Waiting to check...'}
           </span>
@@ -192,7 +179,7 @@ function CoverageSiteCard({
       {/* Failed State */}
       {isFailed && (
         <div className="flex items-center gap-2 text-red-600 py-4">
-          <XCircle className="w-5 h-5" />
+          <PiXCircleBold className="w-5 h-5" />
           <span className="text-sm">Failed to check coverage</span>
         </div>
       )}
@@ -202,7 +189,7 @@ function CoverageSiteCard({
         <div className="space-y-3">
           {!hasCoverage && (
             <div className="flex items-center gap-2 text-amber-600 py-2">
-              <XCircle className="w-5 h-5" />
+              <PiXCircleBold className="w-5 h-5" />
               <span className="text-sm">No coverage available at this location</span>
             </div>
           )}
@@ -222,7 +209,7 @@ function CoverageSiteCard({
         <div className="mt-4 pt-4 border-t">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Package className="w-4 h-4 text-circleTel-orange" />
+              <PiPackageBold className="w-4 h-4 text-circleTel-orange" />
               <span className="font-medium text-gray-900">Available Packages</span>
             </div>
             <span className="text-sm text-gray-500">
@@ -234,7 +221,7 @@ function CoverageSiteCard({
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {/* Technology filter */}
             <div className="flex items-center gap-1">
-              <Filter className="w-4 h-4 text-gray-400" />
+              <PiFunnelBold className="w-4 h-4 text-gray-400" />
               <div className="flex gap-1">
                 {TECH_FILTERS.map((f) => (
                   <button
@@ -311,33 +298,33 @@ function StatusBadge({
     case 'pending':
       return (
         <Badge variant="outline" className="text-gray-500">
-          <Clock className="w-3 h-3 mr-1" />
+          <PiClockBold className="w-3 h-3 mr-1" />
           Pending
         </Badge>
       );
     case 'checking':
       return (
         <Badge variant="outline" className="text-blue-500">
-          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          <PiSpinnerBold className="w-3 h-3 mr-1 animate-spin" />
           Checking
         </Badge>
       );
     case 'complete':
       return hasCoverage ? (
         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-          <CheckCircle className="w-3 h-3 mr-1" />
+          <PiCheckCircleBold className="w-3 h-3 mr-1" />
           Available
         </Badge>
       ) : (
         <Badge variant="outline" className="text-amber-600">
-          <XCircle className="w-3 h-3 mr-1" />
+          <PiXCircleBold className="w-3 h-3 mr-1" />
           No Coverage
         </Badge>
       );
     case 'failed':
       return (
         <Badge variant="destructive">
-          <XCircle className="w-3 h-3 mr-1" />
+          <PiXCircleBold className="w-3 h-3 mr-1" />
           Failed
         </Badge>
       );
@@ -453,7 +440,7 @@ export function CoverageResults({
       <CardHeader className="pb-3 border-b">
         <CardTitle className="flex items-center justify-between text-lg">
           <span className="flex items-center gap-2">
-            <Wifi className="w-5 h-5 text-circleTel-orange" />
+            <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
             Coverage Results
           </span>
           {allComplete && anyHasCoverage && !hasSelectedPackages && onGenerateQuote && (
@@ -504,7 +491,7 @@ export function CoverageResults({
           <div className="mt-6 border-t pt-4">
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Package className="w-4 h-4 text-circleTel-orange" />
+                <PiPackageBold className="w-4 h-4 text-circleTel-orange" />
                 Selected Packages Summary
               </h4>
 
@@ -560,7 +547,7 @@ export function CoverageResults({
                     onClick={onClearSelection}
                     className="flex-1"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <PiTrashBold className="w-4 h-4 mr-2" />
                     Clear Selection
                   </Button>
                 )}
@@ -569,7 +556,7 @@ export function CoverageResults({
                     onClick={onGenerateQuote}
                     className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark"
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" />
+                    <PiCheckCircleBold className="w-4 h-4 mr-2" />
                     Generate Quote
                   </Button>
                 )}

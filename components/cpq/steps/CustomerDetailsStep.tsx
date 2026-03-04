@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiEnvelopeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 /**
  * Step 6: Customer Details
@@ -7,15 +8,6 @@
  */
 
 import { useCallback, useState } from 'react';
-import {
-  Building2,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Search,
-  Loader2,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -118,9 +110,9 @@ export function CustomerDetailsStep({
             disabled={isSearching || !searchQuery.trim()}
           >
             {isSearching ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin" />
             ) : (
-              <Search className="h-4 w-4" />
+              <PiMagnifyingGlassBold className="h-4 w-4" />
             )}
           </Button>
         </div>
@@ -129,7 +121,7 @@ export function CustomerDetailsStep({
       {/* Company Information */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Building2 className="h-5 w-5 text-gray-400" />
+          <PiBuildingsBold className="h-5 w-5 text-gray-400" />
           <h3 className="font-semibold text-gray-900">Company Information</h3>
         </div>
 
@@ -192,7 +184,7 @@ export function CustomerDetailsStep({
       {/* Primary Contact */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center gap-2 mb-4">
-          <User className="h-5 w-5 text-gray-400" />
+          <PiUserBold className="h-5 w-5 text-gray-400" />
           <h3 className="font-semibold text-gray-900">Primary Contact</h3>
         </div>
 
@@ -202,7 +194,7 @@ export function CustomerDetailsStep({
               Full Name <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiUserBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="primary_name"
                 className="pl-10"
@@ -228,7 +220,7 @@ export function CustomerDetailsStep({
               Email <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiEnvelopeBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="primary_email"
                 type="email"
@@ -243,7 +235,7 @@ export function CustomerDetailsStep({
           <div className="space-y-2">
             <Label htmlFor="primary_phone">Phone Number</Label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiPhoneBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="primary_phone"
                 type="tel"
@@ -260,7 +252,7 @@ export function CustomerDetailsStep({
       {/* Secondary Contact (Optional) */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex items-center gap-2 mb-4">
-          <User className="h-5 w-5 text-gray-400" />
+          <PiUserBold className="h-5 w-5 text-gray-400" />
           <h3 className="font-semibold text-gray-900">Secondary Contact (Optional)</h3>
         </div>
 
@@ -288,7 +280,7 @@ export function CustomerDetailsStep({
           <div className="space-y-2">
             <Label htmlFor="secondary_email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiEnvelopeBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="secondary_email"
                 type="email"
@@ -303,7 +295,7 @@ export function CustomerDetailsStep({
           <div className="space-y-2">
             <Label htmlFor="secondary_phone">Phone Number</Label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiPhoneBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 id="secondary_phone"
                 type="tel"

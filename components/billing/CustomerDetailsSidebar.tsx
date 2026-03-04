@@ -1,7 +1,7 @@
 'use client';
+import { PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 import { Button } from '@/components/ui/button';
-import { X, User, Phone, Mail, MapPin } from 'lucide-react';
 import type { CustomerDetails } from '@/lib/types/billing';
 
 interface CustomerDetailsSidebarProps {
@@ -31,7 +31,7 @@ export default function CustomerDetailsSidebar({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Customer Details</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
+            <PiXBold className="h-4 w-4" />
           </Button>
         </div>
 
@@ -40,7 +40,7 @@ export default function CustomerDetailsSidebar({
           {/* Basic Information */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-              <User className="h-4 w-4 mr-2 text-circleTel-orange" />
+              <PiUserBold className="h-4 w-4 mr-2 text-circleTel-orange" />
               Basic Information
             </h3>
             <div className="space-y-3">
@@ -63,7 +63,7 @@ export default function CustomerDetailsSidebar({
                   Email
                 </label>
                 <div className="mt-1 text-sm text-gray-900 flex items-center">
-                  <Mail className="h-3 w-3 mr-2 text-gray-400" />
+                  <PiEnvelopeBold className="h-3 w-3 mr-2 text-gray-400" />
                   {details.email}
                 </div>
               </div>
@@ -73,7 +73,7 @@ export default function CustomerDetailsSidebar({
           {/* Contact Information */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-              <Phone className="h-4 w-4 mr-2 text-circleTel-orange" />
+              <PiPhoneBold className="h-4 w-4 mr-2 text-circleTel-orange" />
               Contact Information
             </h3>
             <div className="space-y-3">
@@ -97,7 +97,7 @@ export default function CustomerDetailsSidebar({
           {/* Physical Address */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-circleTel-orange" />
+              <PiMapPinBold className="h-4 w-4 mr-2 text-circleTel-orange" />
               Physical Address
             </h3>
             <div className="space-y-1 text-sm text-gray-900">
@@ -112,7 +112,7 @@ export default function CustomerDetailsSidebar({
           {/* Mailing Address */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-circleTel-orange" />
+              <PiMapPinBold className="h-4 w-4 mr-2 text-circleTel-orange" />
               Mailing Address
             </h3>
             <div className="space-y-1 text-sm text-gray-900">

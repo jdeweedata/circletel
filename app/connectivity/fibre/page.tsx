@@ -1,11 +1,7 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiCloudBold, PiGlobeBold, PiLightningBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
-import {
-  Zap, Shield, Clock, TrendingUp,
-  CheckCircle2, ArrowRight, Building2,
-  Cloud, Phone, Globe, ChevronRight, Loader2
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
@@ -84,7 +80,7 @@ function SpeedTierCard({
         <ul className="space-y-3 mb-6">
           {features.slice(0, 5).map((feature, idx) => (
             <li key={idx} className="flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-circleTel-orange shrink-0 mt-0.5" />
+              <PiCheckCircleBold className="w-5 h-5 text-circleTel-orange shrink-0 mt-0.5" />
               <span className="text-sm text-gray-600">{feature}</span>
             </li>
           ))}
@@ -102,7 +98,7 @@ function SpeedTierCard({
         >
           <Link href="/quotes/request" className="flex items-center justify-center gap-2">
             Get Started
-            <ArrowRight size={16} />
+            <PiArrowRightBold size={16} />
           </Link>
         </Button>
       </div>
@@ -141,33 +137,33 @@ export default function FibrePage() {
   }));
 
   const useCases = [
-    { icon: Building2, title: 'Large Offices', desc: 'High-density workplaces with 50+ employees' },
-    { icon: Cloud, title: 'Cloud-First', desc: 'Companies running critical apps in the cloud' },
-    { icon: Phone, title: 'VoIP & Video', desc: 'Businesses relying on voice and video calls' },
-    { icon: Globe, title: 'Multi-Site', desc: 'Organizations with distributed locations' }
+    { icon: PiBuildingsBold, title: 'Large Offices', desc: 'High-density workplaces with 50+ employees' },
+    { icon: PiCloudBold, title: 'Cloud-First', desc: 'Companies running critical apps in the cloud' },
+    { icon: PiPhoneBold, title: 'VoIP & Video', desc: 'Businesses relying on voice and video calls' },
+    { icon: PiGlobeBold, title: 'Multi-Site', desc: 'Organizations with distributed locations' }
   ];
 
   const benefits = [
     {
-      icon: Zap,
+      icon: PiLightningBold,
       title: 'Symmetrical Speeds',
       description: 'Equal upload and download speeds for seamless cloud operations and video conferencing.',
       stat: 'Up to 100Mbps'
     },
     {
-      icon: Shield,
+      icon: PiShieldBold,
       title: 'Enterprise SLA',
       description: 'Service Level Agreement with guaranteed uptime and priority support.',
       stat: 'SLA Included'
     },
     {
-      icon: Clock,
+      icon: PiClockBold,
       title: 'Low Latency',
       description: 'Dedicated fibre connection ensures minimal latency for real-time applications.',
       stat: '<5ms'
     },
     {
-      icon: TrendingUp,
+      icon: PiTrendUpBold,
       title: 'Scalable',
       description: 'Easily upgrade your speed tier as your business grows.',
       stat: 'Flexible'
@@ -216,7 +212,7 @@ export default function FibrePage() {
               >
                 <Link href="#pricing" className="flex items-center gap-2">
                   View Pricing
-                  <ArrowRight size={18} />
+                  <PiArrowRightBold size={18} />
                 </Link>
               </Button>
               <Button
@@ -277,7 +273,7 @@ export default function FibrePage() {
 
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 text-circleTel-orange animate-spin" />
+              <PiSpinnerBold className="w-8 h-8 text-circleTel-orange animate-spin" />
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -435,7 +431,7 @@ export default function FibrePage() {
               >
                 <Link href="/contact" className="flex items-center gap-2">
                   Get a Quote
-                  <ChevronRight size={18} />
+                  <PiCaretRightBold size={18} />
                 </Link>
               </Button>
               <Button

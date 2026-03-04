@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Admin KYC Review Page
@@ -18,19 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  FileText,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Search,
-  Eye,
-  Filter,
-  Download,
-  RefreshCw,
-  ExternalLink,
-  Shield
-} from 'lucide-react';
 import DocumentViewer from '@/components/admin/kyc/DocumentViewer';
 import SessionViewer from '@/components/admin/kyc/SessionViewer';
 
@@ -153,10 +141,10 @@ export default function AdminKycPage() {
   // Get status badge
   const getStatusBadge = (status: string) => {
     const badges = {
-      pending: <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>,
-      under_review: <Badge variant="secondary" className="bg-blue-100 text-blue-800"><Eye className="w-3 h-3 mr-1" />Under Review</Badge>,
-      approved: <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>,
-      rejected: <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>,
+      pending: <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><PiClockBold className="w-3 h-3 mr-1" />Pending</Badge>,
+      under_review: <Badge variant="secondary" className="bg-blue-100 text-blue-800"><PiEyeBold className="w-3 h-3 mr-1" />Under Review</Badge>,
+      approved: <Badge variant="default" className="bg-green-500"><PiCheckCircleBold className="w-3 h-3 mr-1" />Approved</Badge>,
+      rejected: <Badge variant="destructive"><PiXCircleBold className="w-3 h-3 mr-1" />Rejected</Badge>,
     };
     return badges[status as keyof typeof badges] || badges.pending;
   };
@@ -231,7 +219,7 @@ export default function AdminKycPage() {
           <p className="text-gray-600 mt-1">Review and verify customer KYC documents and Didit sessions</p>
         </div>
         <Button onClick={() => { fetchDocuments(); fetchSessions(); }} variant="outline">
-          <RefreshCw className="w-4 h-4 mr-2" />
+          <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
           Refresh
         </Button>
       </div>
@@ -240,11 +228,11 @@ export default function AdminKycPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="sessions" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
+            <PiShieldBold className="w-4 h-4" />
             Didit Sessions ({sessions.length})
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
+            <PiFileTextBold className="w-4 h-4" />
             Documents ({documents.length})
           </TabsTrigger>
         </TabsList>
@@ -288,7 +276,7 @@ export default function AdminKycPage() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Search by customer name, email, or session ID..."
                       value={searchQuery}
@@ -299,7 +287,7 @@ export default function AdminKycPage() {
                 </div>
                 <Select value={selectedVerificationResult} onValueChange={setSelectedVerificationResult}>
                   <SelectTrigger className="w-full md:w-[200px]">
-                    <Filter className="w-4 h-4 mr-2" />
+                    <PiFunnelBold className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Verification Result" />
                   </SelectTrigger>
                   <SelectContent>
@@ -324,12 +312,12 @@ export default function AdminKycPage() {
             <CardContent>
               {sessionsLoading ? (
                 <div className="text-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-gray-400" />
+                  <PiArrowsClockwiseBold className="w-8 h-8 animate-spin mx-auto text-gray-400" />
                   <p className="text-gray-600 mt-2">Loading sessions...</p>
                 </div>
               ) : filteredSessions.length === 0 ? (
                 <div className="text-center py-12">
-                  <Shield className="w-12 h-12 mx-auto text-gray-300" />
+                  <PiShieldBold className="w-12 h-12 mx-auto text-gray-300" />
                   <p className="text-gray-600 mt-2">No sessions found</p>
                 </div>
               ) : (
@@ -342,7 +330,7 @@ export default function AdminKycPage() {
                     >
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Shield className="w-6 h-6 text-blue-600" />
+                          <PiShieldBold className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -350,7 +338,7 @@ export default function AdminKycPage() {
                             {getStatusBadge(session.status)}
                             {session.verification_result === 'approved' && (
                               <Badge variant="default" className="bg-green-500">
-                                <CheckCircle className="w-3 h-3 mr-1" />
+                                <PiCheckCircleBold className="w-3 h-3 mr-1" />
                                 Verified
                               </Badge>
                             )}
@@ -366,7 +354,7 @@ export default function AdminKycPage() {
                               <>
                                 <span>•</span>
                                 <span className="flex items-center gap-1 text-blue-600">
-                                  <ExternalLink className="w-3 h-3" />
+                                  <PiArrowSquareOutBold className="w-3 h-3" />
                                   Didit Links Available
                                 </span>
                               </>
@@ -376,7 +364,7 @@ export default function AdminKycPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
+                          <PiEyeBold className="w-4 h-4 mr-2" />
                           View Details
                         </Button>
                       </div>
@@ -433,7 +421,7 @@ export default function AdminKycPage() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Search by customer name, email, or filename..."
                       value={searchQuery}
@@ -444,7 +432,7 @@ export default function AdminKycPage() {
                 </div>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                   <SelectTrigger className="w-full md:w-[200px]">
-                    <Filter className="w-4 h-4 mr-2" />
+                    <PiFunnelBold className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -470,12 +458,12 @@ export default function AdminKycPage() {
             <CardContent>
               {loading ? (
                 <div className="text-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-gray-400" />
+                  <PiArrowsClockwiseBold className="w-8 h-8 animate-spin mx-auto text-gray-400" />
                   <p className="text-gray-600 mt-2">Loading documents...</p>
                 </div>
               ) : filteredDocuments.length === 0 ? (
                 <div className="text-center py-12">
-                  <FileText className="w-12 h-12 mx-auto text-gray-300" />
+                  <PiFileTextBold className="w-12 h-12 mx-auto text-gray-300" />
                   <p className="text-gray-600 mt-2">No documents found</p>
                 </div>
               ) : (
@@ -487,7 +475,7 @@ export default function AdminKycPage() {
                       onClick={() => setSelectedDocument(doc)}
                     >
                       <div className="flex items-center gap-4 flex-1">
-                        <FileText className="w-10 h-10 text-gray-400" />
+                        <PiFileTextBold className="w-10 h-10 text-gray-400" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-medium truncate">{doc.customer_name}</p>
@@ -505,7 +493,7 @@ export default function AdminKycPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
+                          <PiEyeBold className="w-4 h-4 mr-2" />
                           Review
                         </Button>
                       </div>

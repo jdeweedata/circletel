@@ -1,4 +1,5 @@
 'use client';
+import { PiEnvelopeBold, PiPaperPlaneRightBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Mail, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SendEmailDialogProps {
@@ -105,7 +105,7 @@ export function SendEmailDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm" className={triggerClassName}>
-            <Mail className="h-4 w-4 mr-2" />
+            <PiEnvelopeBold className="h-4 w-4 mr-2" />
             Send Email
           </Button>
         )}
@@ -177,12 +177,12 @@ export function SendEmailDialog({
           <Button onClick={handleSend} disabled={sending}>
             {sending ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 Sending...
               </>
             ) : (
               <>
-                <Send className="h-4 w-4 mr-2" />
+                <PiPaperPlaneRightBold className="h-4 w-4 mr-2" />
                 Send Email
               </>
             )}

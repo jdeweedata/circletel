@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold, PiTicketBold, PiUserBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,22 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import {
-  Ticket,
-  Plus,
-  Search,
-  Filter,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Calendar,
-  ArrowUpRight,
-} from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -188,7 +173,7 @@ export default function SupportPage() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
         </div>
       </div>
     );
@@ -213,7 +198,7 @@ export default function SupportPage() {
         </div>
         <Link href="/admin/support/tickets/new">
           <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-            <Plus className="w-4 h-4 mr-2" />
+            <PiPlusBold className="w-4 h-4 mr-2" />
             New Ticket
           </Button>
         </Link>
@@ -230,7 +215,7 @@ export default function SupportPage() {
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                <Ticket className="h-5 w-5 text-circleTel-orange" />
+                <PiTicketBold className="h-5 w-5 text-circleTel-orange" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -246,7 +231,7 @@ export default function SupportPage() {
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <AlertCircle className="h-5 w-5 text-green-600" />
+                <PiWarningCircleBold className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.open}</p>
@@ -262,7 +247,7 @@ export default function SupportPage() {
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-yellow-600" />
+                <PiClockBold className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
@@ -278,7 +263,7 @@ export default function SupportPage() {
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.resolved}</p>
@@ -294,7 +279,7 @@ export default function SupportPage() {
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                <XCircle className="h-5 w-5 text-gray-600" />
+                <PiXCircleBold className="h-5 w-5 text-gray-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.closed}</p>
@@ -315,7 +300,7 @@ export default function SupportPage() {
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Filter className="h-5 w-5 text-circleTel-orange" />
+              <PiFunnelBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Filters</h3>
           </div>
@@ -323,7 +308,7 @@ export default function SupportPage() {
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search tickets..."
                 value={searchQuery}
@@ -370,7 +355,7 @@ export default function SupportPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                <Ticket className="h-5 w-5 text-circleTel-orange" />
+                <PiTicketBold className="h-5 w-5 text-circleTel-orange" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">Tickets</h3>
             </div>
@@ -382,7 +367,7 @@ export default function SupportPage() {
         <div className="overflow-x-auto">
           {error ? (
             <div className="p-6 text-center">
-              <AlertCircle className="h-12 w-12 mx-auto mb-3 text-red-400" />
+              <PiWarningCircleBold className="h-12 w-12 mx-auto mb-3 text-red-400" />
               <p className="text-sm text-red-600">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchTickets} className="mt-4">
                 Retry
@@ -390,7 +375,7 @@ export default function SupportPage() {
             </div>
           ) : filteredTickets.length === 0 ? (
             <div className="p-6 text-center">
-              <Ticket className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <PiTicketBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p className="text-sm text-gray-500">No tickets found</p>
             </div>
           ) : (
@@ -437,7 +422,7 @@ export default function SupportPage() {
                       {ticket.customers ? (
                         <div className="flex items-center gap-2">
                           <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                            <User className="h-4 w-4 text-blue-600" />
+                            <PiUserBold className="h-4 w-4 text-blue-600" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
@@ -465,7 +450,7 @@ export default function SupportPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <Calendar className="h-3 w-3" />
+                        <PiCalendarBold className="h-3 w-3" />
                         {formatDate(ticket.created_at)}
                       </div>
                     </td>
@@ -502,7 +487,7 @@ export default function SupportPage() {
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <PiCaretLeftBold className="h-4 w-4" />
               </Button>
               <span className="text-sm text-gray-600">
                 Page {currentPage} of {totalPages}
@@ -513,7 +498,7 @@ export default function SupportPage() {
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
-                <ChevronRight className="h-4 w-4" />
+                <PiCaretRightBold className="h-4 w-4" />
               </Button>
             </div>
           </div>

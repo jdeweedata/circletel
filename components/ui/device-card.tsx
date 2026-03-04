@@ -1,9 +1,9 @@
+import { PiShoppingCartBold } from 'react-icons/pi';
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart } from "lucide-react"
 
 export interface DeviceFeature {
   title: string
@@ -121,7 +121,7 @@ export function DeviceCard({
         >
           <Link href={buyNowUrl}>
             Buy now
-            <ShoppingCart className="w-4 h-4 ml-2" />
+            <PiShoppingCartBold className="w-4 h-4 ml-2" />
           </Link>
         </Button>
       </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileTextBold, PiShieldBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,19 +9,6 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import {
-  Upload,
-  FileText,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  AlertCircle,
-  Shield,
-  Building2,
-  FileCheck,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
 import {
   BusinessType,
   DocumentCategory,
@@ -194,7 +182,7 @@ export default function PartnerComplianceVerificationPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-circleTel-orange animate-spin mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 text-circleTel-orange animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading compliance requirements...</p>
         </div>
       </div>
@@ -240,13 +228,13 @@ export default function PartnerComplianceVerificationPage() {
                 )}
                 {status === 'uploaded' && (
                   <Badge variant="default" className="text-xs bg-green-600">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    <PiCheckCircleBold className="w-3 h-3 mr-1" />
                     Uploaded
                   </Badge>
                 )}
                 {status === 'rejected' && (
                   <Badge variant="destructive" className="text-xs">
-                    <XCircle className="w-3 h-3 mr-1" />
+                    <PiXCircleBold className="w-3 h-3 mr-1" />
                     Rejected
                   </Badge>
                 )}
@@ -259,7 +247,7 @@ export default function PartnerComplianceVerificationPage() {
               onClick={() => toggleCategory(docInfo.category)}
               className="ml-2"
             >
-              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {isExpanded ? <PiCaretUpBold className="w-4 h-4" /> : <PiCaretDownBold className="w-4 h-4" />}
             </Button>
           </div>
         </CardHeader>
@@ -290,7 +278,7 @@ export default function PartnerComplianceVerificationPage() {
 
               {docInfo.notes && (
                 <Alert>
-                  <AlertCircle className="h-4 w-4" />
+                  <PiWarningCircleBold className="h-4 w-4" />
                   <AlertDescription className="text-xs">{docInfo.notes}</AlertDescription>
                 </Alert>
               )}
@@ -330,7 +318,7 @@ export default function PartnerComplianceVerificationPage() {
                     }}
                   />
                   <div className="flex flex-col items-center text-center">
-                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <PiUploadSimpleBold className="w-8 h-8 text-gray-400 mb-2" />
                     <p className="text-sm font-medium text-gray-700">
                       Click to upload {docInfo.title}
                     </p>
@@ -353,7 +341,7 @@ export default function PartnerComplianceVerificationPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Shield className="w-8 h-8 text-circleTel-orange" />
+            <PiShieldBold className="w-8 h-8 text-circleTel-orange" />
             <h1 className="text-3xl font-bold text-circleTel-navy">
               FICA/CIPC Compliance Verification
             </h1>
@@ -367,7 +355,7 @@ export default function PartnerComplianceVerificationPage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-circleTel-orange" />
+              <PiBuildingsBold className="w-5 h-5 text-circleTel-orange" />
               Compliance Progress
             </CardTitle>
           </CardHeader>
@@ -398,7 +386,7 @@ export default function PartnerComplianceVerificationPage() {
 
               {isComplete && (
                 <Alert className="bg-green-50 border-green-200">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
                     All required documents uploaded! You can now submit for review.
                   </AlertDescription>
@@ -412,7 +400,7 @@ export default function PartnerComplianceVerificationPage() {
         {requiredDocs.length > 0 && (
           <div className="mb-6">
             <h2 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-circleTel-orange" />
+              <PiFileTextBold className="w-5 h-5 text-circleTel-orange" />
               Required Documents
             </h2>
             <div className="space-y-3">
@@ -425,7 +413,7 @@ export default function PartnerComplianceVerificationPage() {
         {optionalDocs.length > 0 && (
           <div className="mb-6">
             <h2 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-gray-400" />
+              <PiFileTextBold className="w-5 h-5 text-gray-400" />
               Optional Documents (Recommended)
             </h2>
             <div className="space-y-3">
@@ -450,7 +438,7 @@ export default function PartnerComplianceVerificationPage() {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                 Submitting...
               </>
             ) : (

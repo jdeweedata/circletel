@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiFileBold, PiFileTextBold, PiImageBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Upload, X, FileText, Image, File, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface UploadedFile {
@@ -229,9 +229,9 @@ export default function CreateSupportTicketPage() {
 
   // Get file icon
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="w-4 h-4 text-blue-500" />;
-    if (type.includes('pdf') || type.includes('document')) return <FileText className="w-4 h-4 text-red-500" />;
-    return <File className="w-4 h-4 text-gray-500" />;
+    if (type.startsWith('image/')) return <PiImageBold className="w-4 h-4 text-blue-500" />;
+    if (type.includes('pdf') || type.includes('document')) return <PiFileTextBold className="w-4 h-4 text-red-500" />;
+    return <PiFileBold className="w-4 h-4 text-gray-500" />;
   };
 
   // Generate ticket number
@@ -313,7 +313,7 @@ export default function CreateSupportTicketPage() {
         <Card>
           <CardContent className="p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <PiCheckCircleBold className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Ticket Created Successfully!
@@ -491,7 +491,7 @@ export default function CreateSupportTicketPage() {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <PiUploadSimpleBold className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-700">Drag & Drop files here</p>
                 <p className="text-xs text-gray-500 mb-3">or Browse Files from your computer</p>
                 
@@ -541,7 +541,7 @@ export default function CreateSupportTicketPage() {
                           <span className="text-xs text-red-500">{file.error}</span>
                         )}
                         {file.path && !file.uploading && (
-                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          <PiCheckCircleBold className="w-3 h-3 text-green-500" />
                         )}
                       </div>
                       <button
@@ -550,7 +550,7 @@ export default function CreateSupportTicketPage() {
                         className="text-red-500 hover:text-red-700 p-1"
                         disabled={file.uploading}
                       >
-                        <X className="w-4 h-4" />
+                        <PiXBold className="w-4 h-4" />
                       </button>
                     </div>
                   ))}

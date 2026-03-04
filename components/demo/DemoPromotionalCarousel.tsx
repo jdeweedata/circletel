@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, ChevronRight, Gift, Wifi, Smartphone, CreditCard } from "lucide-react"
 import { useState } from "react"
 
 const promotionalOffers = [
@@ -11,7 +10,7 @@ const promotionalOffers = [
     id: 1,
     title: "Get the latest iPhone 15 Pro, on us",
     description: "With select CircleTel Business Internet plans and qualifying trade-in.",
-    icon: Smartphone,
+    icon: PiDeviceMobileBold,
     color: "bg-gradient-to-br from-circleTel-orange to-circleTel-red",
     badge: "Limited Time",
     cta: "View Details"
@@ -20,7 +19,7 @@ const promotionalOffers = [
     id: 2,
     title: "FREE Managed WiFi Pro for 6 months",
     description: "Enterprise-grade WiFi with 24/7 monitoring and support.",
-    icon: Wifi,
+    icon: PiWifiBold,
     color: "bg-gradient-to-br from-circleTel-blue-600 to-circleTel-blue-700",
     badge: "New Customers",
     cta: "Learn More"
@@ -29,7 +28,7 @@ const promotionalOffers = [
     id: 3,
     title: "R2,500 Installation Credit",
     description: "Professional installation and setup at no cost for qualified businesses.",
-    icon: Gift,
+    icon: PiGiftBold,
     color: "bg-gradient-to-br from-circleTel-red to-circleTel-orange",
     badge: "Business Special",
     cta: "Get Credit"
@@ -38,7 +37,7 @@ const promotionalOffers = [
     id: 4,
     title: "Plus, get a R1,000 Account Credit",
     description: "Applied to your first bill when you sign up for select business plans.",
-    icon: CreditCard,
+    icon: PiCreditCardBold,
     color: "bg-gradient-to-br from-circleTel-navy to-circleTel-secondaryNeutral",
     badge: "Online Only",
     cta: "Claim Now"
@@ -134,7 +133,7 @@ export function DemoPromotionalCarousel() {
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border border-circleTel-gray-200 w-12 h-12"
             onClick={prevSlide}
           >
-            <ChevronLeft className="w-6 h-6 text-circleTel-navy" />
+            <PiCaretLeftBold className="w-6 h-6 text-circleTel-navy" />
           </Button>
 
           <Button
@@ -143,7 +142,7 @@ export function DemoPromotionalCarousel() {
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border border-circleTel-gray-200 w-12 h-12"
             onClick={nextSlide}
           >
-            <ChevronRight className="w-6 h-6 text-circleTel-navy" />
+            <PiCaretRightBold className="w-6 h-6 text-circleTel-navy" />
           </Button>
 
           {/* Dots Indicator */}

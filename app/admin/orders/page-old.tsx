@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiShoppingCartBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -13,19 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ShoppingCart,
-  Search,
-  Eye,
-  RefreshCw,
-  Filter,
-  Download,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Package,
-  AlertCircle
-} from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface Order {
@@ -140,10 +128,10 @@ export default function AdminOrdersPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; variant: any; icon: any }> = {
-      pending: { label: 'Pending', variant: 'secondary' as any, icon: Clock },
-      active: { label: 'Active', variant: 'default' as any, icon: CheckCircle },
-      cancelled: { label: 'Cancelled', variant: 'destructive' as any, icon: XCircle },
-      completed: { label: 'Completed', variant: 'default' as any, icon: Package }
+      pending: { label: 'Pending', variant: 'secondary' as any, icon: PiClockBold },
+      active: { label: 'Active', variant: 'default' as any, icon: PiCheckCircleBold },
+      cancelled: { label: 'Cancelled', variant: 'destructive' as any, icon: PiXCircleBold },
+      completed: { label: 'Completed', variant: 'default' as any, icon: PiPackageBold }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -179,28 +167,28 @@ export default function AdminOrdersPage() {
     {
       title: 'Total Orders',
       value: stats.total,
-      icon: ShoppingCart,
+      icon: PiShoppingCartBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
       title: 'Pending',
       value: stats.pending,
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     },
     {
       title: 'Active',
       value: stats.active,
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Total Revenue',
       value: `R${stats.totalRevenue.toLocaleString()}`,
-      icon: Package,
+      icon: PiPackageBold,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     }
@@ -246,7 +234,7 @@ export default function AdminOrdersPage() {
             onClick={fetchOrders}
             className="flex items-center gap-2"
           >
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             Refresh
           </Button>
           <Button
@@ -254,7 +242,7 @@ export default function AdminOrdersPage() {
             size="sm"
             className="flex items-center gap-2"
           >
-            <Download className="h-4 w-4" />
+            <PiDownloadSimpleBold className="h-4 w-4" />
             Export
           </Button>
         </div>
@@ -285,7 +273,7 @@ export default function AdminOrdersPage() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by order number, name, email, or phone..."
                   value={searchQuery}
@@ -346,7 +334,7 @@ export default function AdminOrdersPage() {
         <CardContent>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <PiWarningCircleBold className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 font-medium">No orders found</p>
               <p className="text-gray-500 text-sm mt-1">
                 {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all'
@@ -426,7 +414,7 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-4 text-right">
                         <Link href={`/admin/orders/${order.id}`}>
                           <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                            <Eye className="h-4 w-4" />
+                            <PiEyeBold className="h-4 w-4" />
                             View
                           </Button>
                         </Link>

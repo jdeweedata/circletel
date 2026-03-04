@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiCreditCardBold, PiEnvelopeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Public Invoice Payment Page
@@ -18,17 +19,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  CreditCard,
-  CheckCircle,
-  Shield,
-  AlertCircle,
-  XCircle,
-  Phone,
-  Mail,
-  Building2,
-  Loader2,
-} from 'lucide-react';
 
 interface InvoiceData {
   id: string;
@@ -114,7 +104,7 @@ export default function PublicPaymentPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle className="h-10 w-10 text-green-600" />
+              <PiCheckCircleBold className="h-10 w-10 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">
               Payment Successful!
@@ -146,7 +136,7 @@ export default function PublicPaymentPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-              <XCircle className="h-10 w-10 text-orange-600" />
+              <PiXCircleBold className="h-10 w-10 text-orange-600" />
             </div>
             <h1 className="text-2xl font-bold text-orange-700 dark:text-orange-400 mb-2">
               Payment Cancelled
@@ -170,7 +160,7 @@ export default function PublicPaymentPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <CheckCircle className="h-10 w-10 text-blue-600" />
+              <PiCheckCircleBold className="h-10 w-10 text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-2">
               Invoice Already Paid
@@ -206,7 +196,7 @@ export default function PublicPaymentPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <AlertCircle className="h-10 w-10 text-red-600" />
+              <PiWarningCircleBold className="h-10 w-10 text-red-600" />
             </div>
             <h1 className="text-2xl font-bold text-red-700 dark:text-red-400 mb-2">
               Error
@@ -218,7 +208,7 @@ export default function PublicPaymentPage() {
               </Button>
               <Button variant="outline" asChild className="w-full">
                 <a href="tel:0860247253">
-                  <Phone className="mr-2 h-4 w-4" />
+                  <PiPhoneBold className="mr-2 h-4 w-4" />
                   Call Support: 0860 247 253
                 </a>
               </Button>
@@ -290,7 +280,7 @@ export default function PublicPaymentPage() {
         <Card className="border-0 shadow-md">
           <CardHeader className="text-center pb-2 pt-4">
             <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-primary" />
+              <PiCreditCardBold className="h-5 w-5 text-primary" />
             </div>
             <CardTitle className="text-lg">Invoice {invoice?.invoice_number}</CardTitle>
             <CardDescription>
@@ -346,12 +336,12 @@ export default function PublicPaymentPage() {
               >
                 {initiatingPayment ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-5 w-5 animate-spin" />
                     Connecting to Payment Gateway...
                   </>
                 ) : (
                   <>
-                    <CreditCard className="mr-2 h-5 w-5" />
+                    <PiCreditCardBold className="mr-2 h-5 w-5" />
                     Pay {formatCurrency(invoice?.amount_due || 0)} Now
                   </>
                 )}
@@ -366,7 +356,7 @@ export default function PublicPaymentPage() {
 
             {/* Security Notice */}
             <div className="flex items-start gap-2 text-xs text-muted-foreground bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-              <Shield className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <PiShieldBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium text-green-700 dark:text-green-400">Secure Payment</p>
                 <p>
@@ -380,7 +370,7 @@ export default function PublicPaymentPage() {
             {/* Manual EFT Details */}
             <div className="border rounded-lg p-3">
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
+                <PiBuildingsBold className="h-4 w-4" />
                 Manual EFT Payment
               </h4>
               <p className="text-xs text-muted-foreground mb-2">
@@ -425,14 +415,14 @@ export default function PublicPaymentPage() {
                   href="mailto:contactus@circletel.co.za"
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
-                  <Mail className="h-3 w-3" />
+                  <PiEnvelopeBold className="h-3 w-3" />
                   contactus@circletel.co.za
                 </a>
                 <a
                   href="https://wa.me/27824873900"
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
-                  <Phone className="h-3 w-3" />
+                  <PiPhoneBold className="h-3 w-3" />
                   082 487 3900
                 </a>
               </div>
@@ -465,12 +455,12 @@ export default function PublicPaymentPage() {
         >
           {initiatingPayment ? (
             <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              <PiSpinnerBold className="mr-2 h-5 w-5 animate-spin" />
               Connecting...
             </>
           ) : (
             <>
-              <CreditCard className="mr-2 h-5 w-5" />
+              <PiCreditCardBold className="mr-2 h-5 w-5" />
               Pay {formatCurrency(invoice?.amount_due || 0)} Now
             </>
           )}

@@ -1,4 +1,5 @@
 'use client';
+import { PiChatBold, PiCheckCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -19,7 +20,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, MessageSquare, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 // =============================================================================
@@ -131,7 +131,7 @@ export function WhatsAppSendDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-emerald-600" />
+            <PiChatBold className="h-5 w-5 text-emerald-600" />
             Send WhatsApp Notification
           </DialogTitle>
           <DialogDescription>
@@ -182,12 +182,12 @@ export function WhatsAppSendDialog({
                 <span className="text-sm text-gray-600">WhatsApp Consent</span>
                 {hasConsent ? (
                   <Badge className="bg-emerald-100 text-emerald-800">
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    <PiCheckCircleBold className="h-3 w-3 mr-1" />
                     Consented
                   </Badge>
                 ) : (
                   <Badge variant="destructive">
-                    <XCircle className="h-3 w-3 mr-1" />
+                    <PiXCircleBold className="h-3 w-3 mr-1" />
                     No consent
                   </Badge>
                 )}
@@ -197,7 +197,7 @@ export function WhatsAppSendDialog({
             {/* Warning if can't send */}
             {!canSend && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <PiWarningCircleBold className="h-5 w-5 text-amber-600 mt-0.5" />
                 <div>
                   <p className="font-semibold text-amber-900">Cannot send WhatsApp</p>
                   <p className="text-sm text-amber-800">
@@ -247,9 +247,9 @@ export function WhatsAppSendDialog({
                   : 'bg-red-50 border border-red-200'
               }`}>
                 {result.success ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+                  <PiCheckCircleBold className="h-5 w-5 text-emerald-600 mt-0.5" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                  <PiXCircleBold className="h-5 w-5 text-red-600 mt-0.5" />
                 )}
                 <div>
                   <p className={`font-semibold ${
@@ -280,12 +280,12 @@ export function WhatsAppSendDialog({
             >
               {sending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <MessageSquare className="h-4 w-4 mr-2" />
+                  <PiChatBold className="h-4 w-4 mr-2" />
                   Send WhatsApp
                 </>
               )}

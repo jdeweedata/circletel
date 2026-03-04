@@ -1,10 +1,10 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCurrencyDollarBold, PiDotsThreeBold, PiMagnifyingGlassBold, PiUserCheckBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, MoreHorizontal, RefreshCw, AlertCircle, Users, DollarSign, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 
 interface Customer {
@@ -101,7 +101,7 @@ export default function CustomersPage() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2 text-gray-500">
-          <RefreshCw className="h-5 w-5 animate-spin" />
+          <PiArrowsClockwiseBold className="h-5 w-5 animate-spin" />
           <span>Loading customers...</span>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function CustomersPage() {
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
+              <PiWarningCircleBold className="h-5 w-5" />
               <span>{error}</span>
             </div>
             <Button onClick={fetchCustomers} variant="outline" className="mt-4">
@@ -135,7 +135,7 @@ export default function CustomersPage() {
           <p className="text-gray-500 mt-1">Manage customer billing and accounts</p>
         </div>
         <Button variant="outline" onClick={fetchCustomers}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
           Refresh
         </Button>
       </div>
@@ -145,7 +145,7 @@ export default function CustomersPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Total Customers</CardTitle>
-            <Users className="h-4 w-4 text-blue-500" />
+            <PiUsersBold className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
@@ -157,7 +157,7 @@ export default function CustomersPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Active Customers</CardTitle>
-            <UserCheck className="h-4 w-4 text-green-500" />
+            <PiUserCheckBold className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -169,7 +169,7 @@ export default function CustomersPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Total Outstanding</CardTitle>
-            <DollarSign className="h-4 w-4 text-orange-500" />
+            <PiCurrencyDollarBold className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
@@ -190,7 +190,7 @@ export default function CustomersPage() {
         <CardContent>
           <div className="mb-4">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search customers..."
@@ -278,7 +278,7 @@ export default function CustomersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link href={`/admin/customers/${customer.id}`}>
                           <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
+                            <PiDotsThreeBold className="h-4 w-4" />
                           </Button>
                         </Link>
                       </td>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingBold, PiCaretDownBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,17 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  RefreshCw,
-  Play,
-  ChevronDown,
-  Mail,
-  MessageSquare,
-  Building,
-} from 'lucide-react';
 
 interface CronLog {
   id: string;
@@ -108,12 +98,12 @@ export default function CronLogsPage() {
 
   const getStatusIcon = (log: CronLog) => {
     if (log.dry_run) {
-      return <Clock className="h-5 w-5 text-blue-500" />;
+      return <PiClockBold className="h-5 w-5 text-blue-500" />;
     }
     if (log.failed > 0) {
-      return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+      return <PiWarningCircleBold className="h-5 w-5 text-yellow-500" />;
     }
-    return <CheckCircle className="h-5 w-5 text-green-500" />;
+    return <PiCheckCircleBold className="h-5 w-5 text-green-500" />;
   };
 
   const latestRun = logs[0];
@@ -121,7 +111,7 @@ export default function CronLogsPage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+        <PiArrowsClockwiseBold className="h-6 w-6 animate-spin text-gray-400" />
         <span className="ml-2 text-gray-500">Loading cron logs...</span>
       </div>
     );
@@ -137,24 +127,24 @@ export default function CronLogsPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchLogs}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
                 {runningAction ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Play className="h-4 w-4 mr-2" />
                 )}
                 Run Now
-                <ChevronDown className="h-4 w-4 ml-2" />
+                <PiCaretDownBold className="h-4 w-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => handleRunCron(true)}>
-                <Clock className="h-4 w-4 mr-2" />
+                <PiClockBold className="h-4 w-4 mr-2" />
                 Dry Run (Preview)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleRunCron(false)}>
@@ -171,7 +161,7 @@ export default function CronLogsPage() {
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
+              <PiWarningCircleBold className="h-5 w-5" />
               <span>{error}</span>
             </div>
           </CardContent>
@@ -186,7 +176,7 @@ export default function CronLogsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <Clock className="h-4 w-4" />
+              <PiClockBold className="h-4 w-4" />
               Last Run: {formatDate(latestRun.run_date)}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -268,15 +258,15 @@ export default function CronLogsPage() {
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Building className="h-4 w-4" />
+                      <PiBuildingBold className="h-4 w-4" />
                       {log.zoho_synced}
                     </div>
                     <div className="flex items-center gap-1">
-                      <Mail className="h-4 w-4" />
+                      <PiEnvelopeBold className="h-4 w-4" />
                       {log.emails_sent}
                     </div>
                     <div className="flex items-center gap-1">
-                      <MessageSquare className="h-4 w-4" />
+                      <PiChatBold className="h-4 w-4" />
                       {log.sms_sent}
                     </div>
                     {log.failed > 0 && (

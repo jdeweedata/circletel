@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCurrencyDollarBold, PiGearBold, PiLightningBold, PiShieldBold, PiTrendUpBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,27 +8,26 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Wifi, Shield, Clock, TrendingUp, Users, DollarSign, ArrowRight, Zap, Settings } from 'lucide-react';
 
 const WifiAsAService = () => {
   const benefits = [
     {
-      icon: <DollarSign className="h-8 w-8 text-green-600" />,
+      icon: <PiCurrencyDollarBold className="h-8 w-8 text-green-600" />,
       title: "No Capital Expenditure",
       description: "Get enterprise-grade Wi-Fi without the upfront hardware costs"
     },
     {
-      icon: <Shield className="h-8 w-8 text-blue-600" />,
+      icon: <PiShieldBold className="h-8 w-8 text-blue-600" />,
       title: "Enterprise Security",
       description: "Advanced security protocols and network segmentation included"
     },
     {
-      icon: <Clock className="h-8 w-8 text-purple-600" />,
+      icon: <PiClockBold className="h-8 w-8 text-purple-600" />,
       title: "24/7 Monitoring",
       description: "Proactive monitoring and management for optimal performance"
     },
     {
-      icon: <TrendingUp className="h-8 w-8 text-orange-600" />,
+      icon: <PiTrendUpBold className="h-8 w-8 text-orange-600" />,
       title: "Scalable Solution",
       description: "Easily expand coverage as your business grows"
     }
@@ -96,22 +96,22 @@ const WifiAsAService = () => {
               <div className="lg:w-1/2">
                 <div className="grid grid-cols-2 gap-6">
                   <Card className="p-6 text-center">
-                    <Wifi className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiWifiBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">99.9% Uptime</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Guaranteed reliability</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Zap className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <PiLightningBold className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">Gigabit Speeds</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">High-performance connectivity</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                    <PiShieldBold className="h-12 w-12 text-green-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">Bank-Grade Security</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">WPA3 & network isolation</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Settings className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                    <PiGearBold className="h-12 w-12 text-purple-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">Zero Maintenance</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Fully managed solution</p>
                   </Card>
@@ -160,7 +160,7 @@ const WifiAsAService = () => {
                 <ul className="space-y-4">
                   {features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <Check className="h-6 w-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-6 w-6 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-circleTel-navy">{feature}</span>
                     </li>
                   ))}
@@ -170,24 +170,24 @@ const WifiAsAService = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-6">
                   <Card className="p-6">
-                    <Users className="h-8 w-8 text-circleTel-orange mb-4" />
+                    <PiUsersBold className="h-8 w-8 text-circleTel-orange mb-4" />
                     <h4 className="font-bold text-circleTel-navy mb-2">500+ Concurrent Users</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Support for high-density environments</p>
                   </Card>
                   <Card className="p-6">
-                    <Shield className="h-8 w-8 text-blue-600 mb-4" />
+                    <PiShieldBold className="h-8 w-8 text-blue-600 mb-4" />
                     <h4 className="font-bold text-circleTel-navy mb-2">Guest Network Isolation</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Secure guest access separate from corporate network</p>
                   </Card>
                 </div>
                 <div className="space-y-6 sm:mt-12">
                   <Card className="p-6">
-                    <Clock className="h-8 w-8 text-green-600 mb-4" />
+                    <PiClockBold className="h-8 w-8 text-green-600 mb-4" />
                     <h4 className="font-bold text-circleTel-navy mb-2">Real-time Analytics</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Detailed usage and performance insights</p>
                   </Card>
                   <Card className="p-6">
-                    <TrendingUp className="h-8 w-8 text-purple-600 mb-4" />
+                    <PiTrendUpBold className="h-8 w-8 text-purple-600 mb-4" />
                     <h4 className="font-bold text-circleTel-navy mb-2">Automatic Scaling</h4>
                     <p className="text-sm text-circleTel-secondaryNeutral">Add capacity as your business grows</p>
                   </Card>
@@ -221,7 +221,7 @@ const WifiAsAService = () => {
                   </CardContent>
                   {index < process.length - 1 && (
                     <div className="hidden lg:block absolute -right-6 top-1/2 transform -translate-y-1/2">
-                      <ArrowRight className="h-6 w-6 text-circleTel-orange" />
+                      <PiArrowRightBold className="h-6 w-6 text-circleTel-orange" />
                     </div>
                   )}
                 </Card>
@@ -249,10 +249,10 @@ const WifiAsAService = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-left">
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />2-3 Access Points</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Basic Analytics</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />8/5 Support</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Guest Network</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />2-3 Access Points</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Basic Analytics</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />8/5 Support</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Guest Network</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -266,10 +266,10 @@ const WifiAsAService = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-left">
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />5-8 Access Points</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Advanced Analytics</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />24/7 Support</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Network Segmentation</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />5-8 Access Points</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Advanced Analytics</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />24/7 Support</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Network Segmentation</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -282,10 +282,10 @@ const WifiAsAService = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-left">
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />10+ Access Points</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Real-time Monitoring</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Priority Support</li>
-                    <li className="flex items-center"><Check className="h-4 w-4 text-green-500 mr-2" />Custom Configuration</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />10+ Access Points</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Real-time Monitoring</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Priority Support</li>
+                    <li className="flex items-center"><PiCheckBold className="h-4 w-4 text-green-500 mr-2" />Custom Configuration</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -309,7 +309,7 @@ const WifiAsAService = () => {
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                   <Link href="/resources/wifi-toolkit">
-                    Wi-Fi Planning Tool <ArrowRight className="ml-2 h-4 w-4" />
+                    Wi-Fi Planning Tool <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>

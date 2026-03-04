@@ -1,7 +1,7 @@
 'use client';
+import { PiBellBold, PiCheckCircleBold, PiQuestionBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, Bell } from 'lucide-react';
 
 interface HealthSummary {
   total: number;
@@ -22,42 +22,42 @@ export function HealthSummaryCards({ summary }: HealthSummaryCardsProps) {
     {
       label: 'Total Integrations',
       value: summary.total,
-      icon: CheckCircle2,
+      icon: PiCheckCircleBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
       label: 'Healthy',
       value: summary.healthy,
-      icon: CheckCircle2,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
       label: 'Degraded',
       value: summary.degraded,
-      icon: AlertTriangle,
+      icon: PiWarningBold,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
     },
     {
       label: 'Down',
       value: summary.down,
-      icon: XCircle,
+      icon: PiXCircleBold,
       color: 'text-red-600',
       bgColor: 'bg-red-50',
     },
     {
       label: 'Unknown',
       value: summary.unknown,
-      icon: HelpCircle,
+      icon: PiQuestionBold,
       color: 'text-gray-600',
       bgColor: 'bg-gray-50',
     },
     {
       label: 'Active Alerts',
       value: summary.activeAlerts,
-      icon: Bell,
+      icon: PiBellBold,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
     },

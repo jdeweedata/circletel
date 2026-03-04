@@ -1,3 +1,4 @@
+import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEyeBold } from 'react-icons/pi';
 import React from 'react';
 import {
   Table,
@@ -15,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Eye, Download, RefreshCw } from 'lucide-react';
 
 export interface Payment {
   id: string;
@@ -115,20 +115,20 @@ export function PaymentsTable({
                           size="icon"
                           className="h-8 w-8"
                         >
-                          <MoreHorizontal className="h-4 w-4" />
+                          <PiDotsThreeBold className="h-4 w-4" />
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         {onViewDetails && (
                           <DropdownMenuItem onClick={() => onViewDetails(payment)}>
-                            <Eye className="mr-2 h-4 w-4" />
+                            <PiEyeBold className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
                         )}
                         {onDownloadReceipt && payment.status === 'success' && (
                           <DropdownMenuItem onClick={() => onDownloadReceipt(payment)}>
-                            <Download className="mr-2 h-4 w-4" />
+                            <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
                             Download Receipt
                           </DropdownMenuItem>
                         )}
@@ -137,7 +137,7 @@ export function PaymentsTable({
                             onClick={() => onRefund(payment)}
                             className="text-red-600"
                           >
-                            <RefreshCw className="mr-2 h-4 w-4" />
+                            <PiArrowsClockwiseBold className="mr-2 h-4 w-4" />
                             Refund Payment
                           </DropdownMenuItem>
                         )}

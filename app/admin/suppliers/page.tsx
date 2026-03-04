@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiPackageBold, PiTrendUpBold, PiTruckBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
@@ -13,17 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Package,
-  RefreshCw,
-  ExternalLink,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Truck,
-  Box,
-  TrendingUp,
-} from 'lucide-react'
 import { SupplierWithStats, SyncStatus } from '@/lib/suppliers/types'
 
 export default function SuppliersPage() {
@@ -82,28 +72,28 @@ export default function SuppliersPage() {
       case 'success':
         return (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <CheckCircle className="w-3 h-3 mr-1" />
+            <PiCheckCircleBold className="w-3 h-3 mr-1" />
             Success
           </Badge>
         )
       case 'syncing':
         return (
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+            <PiArrowsClockwiseBold className="w-3 h-3 mr-1 animate-spin" />
             Syncing
           </Badge>
         )
       case 'failed':
         return (
           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200" title={error || 'Sync failed'}>
-            <AlertCircle className="w-3 h-3 mr-1" />
+            <PiWarningCircleBold className="w-3 h-3 mr-1" />
             Failed
           </Badge>
         )
       default:
         return (
           <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-            <Clock className="w-3 h-3 mr-1" />
+            <PiClockBold className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         )
@@ -144,7 +134,7 @@ export default function SuppliersPage() {
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
           <Button variant="outline" onClick={() => router.push('/admin/suppliers/products')}>
-            <Package className="w-4 h-4 mr-2" />
+            <PiPackageBold className="w-4 h-4 mr-2" />
             View All Products
           </Button>
         </div>
@@ -159,7 +149,7 @@ export default function SuppliersPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-gray-500">
-              <Truck className="w-4 h-4 mr-1" />
+              <PiTruckBold className="w-4 h-4 mr-1" />
               Active suppliers
             </div>
           </CardContent>
@@ -172,7 +162,7 @@ export default function SuppliersPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-gray-500">
-              <Box className="w-4 h-4 mr-1" />
+              <PiCubeBold className="w-4 h-4 mr-1" />
               Across all suppliers
             </div>
           </CardContent>
@@ -185,7 +175,7 @@ export default function SuppliersPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-gray-500">
-              <CheckCircle className="w-4 h-4 mr-1" />
+              <PiCheckCircleBold className="w-4 h-4 mr-1" />
               Products available
             </div>
           </CardContent>
@@ -198,7 +188,7 @@ export default function SuppliersPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-gray-500">
-              <TrendingUp className="w-4 h-4 mr-1" />
+              <PiTrendUpBold className="w-4 h-4 mr-1" />
               Currently listed
             </div>
           </CardContent>
@@ -216,12 +206,12 @@ export default function SuppliersPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
               <span className="ml-2 text-gray-500">Loading suppliers...</span>
             </div>
           ) : suppliers.length === 0 ? (
             <div className="text-center py-12">
-              <Truck className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <PiTruckBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500">No suppliers configured yet</p>
             </div>
           ) : (
@@ -247,7 +237,7 @@ export default function SuppliersPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                          <Truck className="w-5 h-5 text-orange-600" />
+                          <PiTruckBold className="w-5 h-5 text-orange-600" />
                         </div>
                         <div>
                           <div className="font-medium">{supplier.name}</div>
@@ -256,7 +246,7 @@ export default function SuppliersPage() {
                               {supplier.code}
                             </span>
                             {supplier.website_url && (
-                              <ExternalLink className="w-3 h-3" />
+                              <PiArrowSquareOutBold className="w-3 h-3" />
                             )}
                           </div>
                         </div>
@@ -301,7 +291,7 @@ export default function SuppliersPage() {
                           handleSync(supplier.id)
                         }}
                       >
-                        <RefreshCw className={`w-4 h-4 mr-1 ${syncing === supplier.id ? 'animate-spin' : ''}`} />
+                        <PiArrowsClockwiseBold className={`w-4 h-4 mr-1 ${syncing === supplier.id ? 'animate-spin' : ''}`} />
                         {syncing === supplier.id ? 'Syncing...' : 'Sync'}
                       </Button>
                     </TableCell>

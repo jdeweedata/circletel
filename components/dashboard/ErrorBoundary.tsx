@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowsClockwiseBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { Component, ReactNode } from 'react';
-import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -76,7 +76,7 @@ export class DashboardErrorBoundary extends Component<Props, State> {
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <AlertCircle className="h-8 w-8 text-red-500" />
+                <PiWarningCircleBold className="h-8 w-8 text-red-500" />
                 <CardTitle className="text-2xl">Something went wrong</CardTitle>
               </div>
             </CardHeader>
@@ -113,7 +113,7 @@ export class DashboardErrorBoundary extends Component<Props, State> {
                   onClick={this.handleReset}
                   className="flex items-center gap-2"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <PiArrowsClockwiseBold className="h-4 w-4" />
                   Try Again
                 </Button>
                 <Button

@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiLightningBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, ArrowDown, ArrowUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductShowcaseCardProps {
@@ -51,7 +51,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
       {product.is_featured && (
         <div className="absolute top-4 right-4 z-10">
           <Badge className="bg-circleTel-orange text-white font-bold">
-            <Zap className="h-3 w-3 mr-1" />
+            <PiLightningBold className="h-3 w-3 mr-1" />
             Popular
           </Badge>
         </div>
@@ -88,7 +88,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
           <div className="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
             {product.speed_down && (
               <div className="flex items-center gap-2">
-                <ArrowDown className="h-4 w-4 text-emerald-500" />
+                <PiArrowDownBold className="h-4 w-4 text-emerald-500" />
                 <span className="font-semibold text-gray-900">{product.speed_down}</span>
                 <span className="text-xs text-gray-500">Mbps</span>
               </div>
@@ -98,7 +98,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
             )}
             {product.speed_up && (
               <div className="flex items-center gap-2">
-                <ArrowUp className="h-4 w-4 text-blue-500" />
+                <PiArrowUpBold className="h-4 w-4 text-blue-500" />
                 <span className="font-semibold text-gray-900">{product.speed_up}</span>
                 <span className="text-xs text-gray-500">Mbps</span>
               </div>
@@ -133,7 +133,7 @@ export function ProductShowcaseCard({ product, onViewDeal }: ProductShowcaseCard
           <ul className="space-y-2 mb-6">
             {product.features.slice(0, 3).map((feature, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                <Check className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                <PiCheckBold className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <span className="line-clamp-1">{feature}</span>
               </li>
             ))}

@@ -1,3 +1,4 @@
+import { PiBuildingsBold, PiCheckSquareBold, PiCreditCardBold, PiFileTextBold, PiGearBold, PiMapPinBold, PiQuestionBold, PiSquaresFourBold, PiTrendUpBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * Business Dashboard Navigation Configuration
  *
@@ -6,21 +7,6 @@
  * @module components/business-dashboard/navigation/nav-config
  */
 
-import {
-  LayoutDashboard,
-  FileText,
-  CheckSquare,
-  Building2,
-  Wrench,
-  CreditCard,
-  HelpCircle,
-  Settings,
-  TrendingUp,
-  FileSignature,
-  MapPin,
-  Wifi,
-  type LucideIcon,
-} from 'lucide-react';
 
 export interface NavItem {
   label: string;
@@ -43,31 +29,31 @@ export const BUSINESS_NAV_ITEMS: NavItem[] = [
   {
     label: 'Dashboard',
     href: '/business/dashboard',
-    icon: LayoutDashboard,
+    icon: PiSquaresFourBold,
     description: 'Overview and journey status',
   },
   {
     label: 'Journey',
     href: '/business/dashboard/journey',
-    icon: TrendingUp,
+    icon: PiTrendUpBold,
     description: 'Track your onboarding progress',
   },
   {
     label: 'Quotes',
     href: '/business/dashboard/quotes',
-    icon: FileText,
+    icon: PiFileTextBold,
     description: 'View and manage quotes',
   },
   {
     label: 'Verification',
     href: '/business/dashboard/verification',
-    icon: CheckSquare,
+    icon: PiCheckSquareBold,
     description: 'Business verification status',
   },
   {
     label: 'Site Details',
     href: '/business/dashboard/site-details',
-    icon: MapPin,
+    icon: PiMapPinBold,
     description: 'Property and installation info',
   },
   {
@@ -79,13 +65,13 @@ export const BUSINESS_NAV_ITEMS: NavItem[] = [
   {
     label: 'Services',
     href: '/business/dashboard/services',
-    icon: Wifi,
+    icon: PiWifiBold,
     description: 'Active services',
   },
   {
     label: 'Billing',
     href: '/business/dashboard/billing',
-    icon: CreditCard,
+    icon: PiCreditCardBold,
     description: 'Invoices and payments',
   },
 ];
@@ -97,13 +83,13 @@ export const BUSINESS_SECONDARY_NAV: NavItem[] = [
   {
     label: 'Support',
     href: '/business/dashboard/support',
-    icon: HelpCircle,
+    icon: PiQuestionBold,
     description: 'Get help',
   },
   {
     label: 'Settings',
     href: '/business/dashboard/settings',
-    icon: Settings,
+    icon: PiGearBold,
     description: 'Account settings',
   },
 ];
@@ -115,27 +101,27 @@ export const BUSINESS_MOBILE_NAV: NavItem[] = [
   {
     label: 'Home',
     href: '/business/dashboard',
-    icon: LayoutDashboard,
+    icon: PiSquaresFourBold,
   },
   {
     label: 'Journey',
     href: '/business/dashboard/journey',
-    icon: TrendingUp,
+    icon: PiTrendUpBold,
   },
   {
     label: 'Quotes',
     href: '/business/dashboard/quotes',
-    icon: FileText,
+    icon: PiFileTextBold,
   },
   {
     label: 'Services',
     href: '/business/dashboard/services',
-    icon: Wifi,
+    icon: PiWifiBold,
   },
   {
     label: 'Support',
     href: '/business/dashboard/support',
-    icon: HelpCircle,
+    icon: PiQuestionBold,
   },
 ];
 
@@ -146,17 +132,17 @@ export const JOURNEY_STAGE_NAV: Record<string, NavItem> = {
   quote_request: {
     label: 'Request Quote',
     href: '/business/dashboard/quotes/new',
-    icon: FileText,
+    icon: PiFileTextBold,
   },
   business_verification: {
     label: 'Complete Verification',
     href: '/business/dashboard/verification',
-    icon: CheckSquare,
+    icon: PiCheckSquareBold,
   },
   site_details: {
     label: 'Submit Site Details',
     href: '/business/dashboard/site-details',
-    icon: MapPin,
+    icon: PiMapPinBold,
   },
   contract: {
     label: 'Sign Contract',
@@ -166,11 +152,11 @@ export const JOURNEY_STAGE_NAV: Record<string, NavItem> = {
   installation: {
     label: 'Installation Status',
     href: '/business/dashboard/installation',
-    icon: Wrench,
+    icon: PiWrenchBold,
   },
   go_live: {
     label: 'Service Activation',
     href: '/business/dashboard/services',
-    icon: Wifi,
+    icon: PiWifiBold,
   },
 };

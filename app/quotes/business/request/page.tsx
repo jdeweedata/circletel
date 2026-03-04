@@ -1,9 +1,9 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BusinessQuoteRequestForm from '@/components/quotes/BusinessQuoteRequestForm';
-import { Loader2 } from 'lucide-react';
 
 export default function BusinessQuoteRequestPage() {
   const router = useRouter();
@@ -111,7 +111,7 @@ export default function BusinessQuoteRequestPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }

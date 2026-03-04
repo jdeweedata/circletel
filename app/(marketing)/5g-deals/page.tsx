@@ -1,8 +1,8 @@
 'use client';
+import { PiCellSignalFullBold, PiFunnelBold, PiLightningBold, PiSpinnerBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Signal, Wifi, Zap, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProductShowcaseCard } from '@/components/products';
@@ -85,7 +85,7 @@ export default function FiveGDealsPage() {
         <div className="container mx-auto px-4 py-12 md:py-20 relative">
           <div className="max-w-3xl">
             <Badge className="bg-circleTel-orange text-white mb-4">
-              <Signal className="h-3 w-3 mr-1" />
+              <PiCellSignalFullBold className="h-3 w-3 mr-1" />
               5G Home Internet
             </Badge>
 
@@ -100,15 +100,15 @@ export default function FiveGDealsPage() {
 
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                <Zap className="h-5 w-5 text-circleTel-orange" />
+                <PiLightningBold className="h-5 w-5 text-circleTel-orange" />
                 <span className="text-sm">Up to 100Mbps</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                <Wifi className="h-5 w-5 text-circleTel-orange" />
+                <PiWifiBold className="h-5 w-5 text-circleTel-orange" />
                 <span className="text-sm">Free Router</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2">
-                <Signal className="h-5 w-5 text-circleTel-orange" />
+                <PiCellSignalFullBold className="h-5 w-5 text-circleTel-orange" />
                 <span className="text-sm">No Landline</span>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function FiveGDealsPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-500" />
+            <PiFunnelBold className="h-4 w-4 text-gray-500" />
             <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
@@ -149,7 +149,7 @@ export default function FiveGDealsPage() {
         {loading && (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <Loader2 className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-4" />
+              <PiSpinnerBold className="h-10 w-10 animate-spin text-circleTel-orange mx-auto mb-4" />
               <p className="text-gray-600">Loading 5G deals...</p>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function FiveGDealsPage() {
         {!loading && !error && products.length === 0 && (
           <div className="text-center py-20">
             <div className="max-w-md mx-auto">
-              <Signal className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <PiCellSignalFullBold className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 No 5G packages available
               </h3>

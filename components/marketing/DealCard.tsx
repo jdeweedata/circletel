@@ -1,9 +1,9 @@
 'use client'
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCopyBold, PiTagBold } from 'react-icons/pi';
 
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Copy, Check, Clock, ArrowRight, Tag } from 'lucide-react'
 
 export type DealCategory = 'FIBRE' | 'LTE' | '5G' | 'VOIP' | 'BUSINESS'
 
@@ -223,12 +223,12 @@ export function DealCard({
               hover:bg-gray-100 hover:border-gray-400
             "
           >
-            <Tag className="w-4 h-4 text-gray-500" />
+            <PiTagBold className="w-4 h-4 text-gray-500" />
             <span className="flex-1 text-left text-gray-700">{promoCode}</span>
             {copied ? (
-              <Check className="w-4 h-4 text-green-600" />
+              <PiCheckBold className="w-4 h-4 text-green-600" />
             ) : (
-              <Copy className="w-4 h-4 text-gray-400" />
+              <PiCopyBold className="w-4 h-4 text-gray-400" />
             )}
           </button>
         )}
@@ -238,7 +238,7 @@ export function DealCard({
           {/* Countdown Timer */}
           {timeRemaining ? (
             <div className="flex items-center gap-1 text-xs text-orange-600">
-              <Clock className="w-3.5 h-3.5" />
+              <PiClockBold className="w-3.5 h-3.5" />
               <span>{timeRemaining}</span>
             </div>
           ) : (
@@ -253,7 +253,7 @@ export function DealCard({
             "
           >
             View Deal
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <PiArrowRightBold className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </span>
         </div>
       </div>

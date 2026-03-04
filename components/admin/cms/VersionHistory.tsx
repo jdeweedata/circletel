@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiClockCounterClockwiseBold, PiEyeBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Version History Component
@@ -8,19 +9,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import {
-  History,
-  RotateCcw,
-  Eye,
-  Clock,
-  User,
-  ChevronDown,
-  ChevronUp,
-  Loader2,
-  AlertCircle,
-  CheckCircle,
-  X,
-} from 'lucide-react';
 import type { ContentBlock } from '@/lib/cms/types';
 
 // ============================================
@@ -92,7 +80,7 @@ function PreviewModal({
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
-            <X className="w-5 h-5" />
+            <PiXBold className="w-5 h-5" />
           </button>
         </div>
 
@@ -154,12 +142,12 @@ function PreviewModal({
           >
             {isRestoring ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
                 Restoring...
               </>
             ) : (
               <>
-                <RotateCcw className="w-4 h-4" />
+                <PiArrowCounterClockwiseBold className="w-4 h-4" />
                 Restore This Version
               </>
             )}
@@ -265,14 +253,14 @@ export function VersionHistory({
         className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-gray-600" />
+          <PiClockCounterClockwiseBold className="w-4 h-4 text-gray-600" />
           <span className="font-medium text-gray-900">Version History</span>
           <span className="text-sm text-gray-500">v{currentVersion}</span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-gray-500" />
+          <PiCaretUpBold className="w-4 h-4 text-gray-500" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-500" />
+          <PiCaretDownBold className="w-4 h-4 text-gray-500" />
         )}
       </button>
 
@@ -282,7 +270,7 @@ export function VersionHistory({
           {/* Success Message */}
           {restoreSuccess && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <PiCheckCircleBold className="w-4 h-4 text-green-600" />
               <p className="text-sm text-green-700">
                 Version restored successfully!
               </p>
@@ -292,7 +280,7 @@ export function VersionHistory({
           {/* Error Message */}
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-600" />
+              <PiWarningCircleBold className="w-4 h-4 text-red-600" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -300,14 +288,14 @@ export function VersionHistory({
           {/* Loading State */}
           {isLoading && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+              <PiSpinnerBold className="w-6 h-6 text-gray-400 animate-spin" />
             </div>
           )}
 
           {/* Empty State */}
           {!isLoading && versions.length === 0 && (
             <div className="text-center py-8">
-              <History className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+              <PiClockCounterClockwiseBold className="w-8 h-8 text-gray-300 mx-auto mb-2" />
               <p className="text-sm text-gray-500">No version history yet</p>
               <p className="text-xs text-gray-400 mt-1">
                 Versions are created when you save changes
@@ -335,12 +323,12 @@ export function VersionHistory({
                       </p>
                       <div className="flex items-center gap-3 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
+                          <PiClockBold className="w-3 h-3" />
                           {new Date(version.created_at).toLocaleString()}
                         </span>
                         {version.admin_users?.full_name && (
                           <span className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
+                            <PiUserBold className="w-3 h-3" />
                             {version.admin_users.full_name}
                           </span>
                         )}
@@ -354,7 +342,7 @@ export function VersionHistory({
                       className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                       title="Preview"
                     >
-                      <Eye className="w-4 h-4" />
+                      <PiEyeBold className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleRestore(version)}
@@ -362,7 +350,7 @@ export function VersionHistory({
                       className="p-2 text-orange-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                       title="Restore"
                     >
-                      <RotateCcw className="w-4 h-4" />
+                      <PiArrowCounterClockwiseBold className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

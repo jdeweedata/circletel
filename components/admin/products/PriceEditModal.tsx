@@ -1,4 +1,5 @@
 'use client';
+import { PiCurrencyDollarBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { DollarSign, Loader2 } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -78,7 +78,7 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-orange-500" />
+            <PiCurrencyDollarBold className="h-5 w-5 text-orange-500" />
             Edit Pricing - {product.name}
           </DialogTitle>
           <DialogDescription>
@@ -201,7 +201,7 @@ export function PriceEditModal({ product, open, onClose, onSave }: PriceEditModa
             disabled={saving || !hasChanges || !changeReason.trim()}
             className="bg-orange-500 hover:bg-orange-600"
           >
-            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {saving && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
             {saving ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>

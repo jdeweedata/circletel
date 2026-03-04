@@ -1,10 +1,10 @@
 'use client';
+import { PiCaretDownBold, PiCaretUpBold, PiDotsSixVerticalBold, PiPlusBold, PiXBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown, X, Plus, GripVertical } from 'lucide-react';
 
 interface FeaturesEditorProps {
   features: string[];
@@ -55,7 +55,7 @@ export function FeaturesEditor({ features, onChange }: FeaturesEditorProps) {
             <div key={index} className="flex items-center gap-2 group">
               {/* Drag Handle */}
               <div className="flex flex-col gap-0.5 opacity-50 group-hover:opacity-100 transition-opacity">
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <PiDotsSixVerticalBold className="h-4 w-4 text-muted-foreground" />
               </div>
 
               {/* Move Buttons */}
@@ -68,7 +68,7 @@ export function FeaturesEditor({ features, onChange }: FeaturesEditorProps) {
                   disabled={index === 0}
                   type="button"
                 >
-                  <ChevronUp className="h-3 w-3" />
+                  <PiCaretUpBold className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -78,7 +78,7 @@ export function FeaturesEditor({ features, onChange }: FeaturesEditorProps) {
                   disabled={index === features.length - 1}
                   type="button"
                 >
-                  <ChevronDown className="h-3 w-3" />
+                  <PiCaretDownBold className="h-3 w-3" />
                 </Button>
               </div>
 
@@ -98,7 +98,7 @@ export function FeaturesEditor({ features, onChange }: FeaturesEditorProps) {
                 onClick={() => removeFeature(index)}
                 type="button"
               >
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
             </div>
           ))}
@@ -125,7 +125,7 @@ export function FeaturesEditor({ features, onChange }: FeaturesEditorProps) {
           className="flex-1"
         />
         <Button onClick={addFeature} type="button" disabled={!newFeature.trim()}>
-          <Plus className="h-4 w-4 mr-2" />
+          <PiPlusBold className="h-4 w-4 mr-2" />
           Add
         </Button>
       </div>

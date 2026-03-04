@@ -1,8 +1,8 @@
 'use client';
+import { PiHouseBold, PiWifiBold, PiXBold } from 'react-icons/pi';
 
 import React from 'react';
 import Image from 'next/image';
-import { Home, Wifi, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ProductHeroProps {
@@ -49,7 +49,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
             onClick={onClose}
             className="rounded-full hover:bg-gray-100"
           >
-            <X className="h-5 w-5" />
+            <PiXBold className="h-5 w-5" />
           </Button>
         </div>
       )}
@@ -67,7 +67,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
               {/* Large Data Display */}
               <div className="text-left md:text-center">
                 <div className="flex items-center gap-2 mb-3">
-                  <Home className="h-5 w-5 text-gray-500" />
+                  <PiHouseBold className="h-5 w-5 text-gray-500" />
                   <span className="text-sm text-gray-500 uppercase tracking-wider font-medium">
                     HOME INTERNET
                   </span>
@@ -107,7 +107,7 @@ export function ProductHero({ product, onClose }: ProductHeroProps) {
                 </div>
               ) : product.metadata?.router_included ? (
                 <div className="hidden md:flex absolute -right-16 top-8 w-24 h-36 bg-gray-100 rounded-lg items-center justify-center">
-                  <Wifi className="h-10 w-10 text-gray-300" />
+                  <PiWifiBold className="h-10 w-10 text-gray-300" />
                 </div>
               ) : null}
             </div>

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingCart, Star, Wifi, Truck, Settings, Gauge, Check, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 
@@ -47,27 +46,27 @@ const wirelessPackages = {
 
 const features = [
   {
-    icon: Star,
+    icon: PiStarBold,
     title: "Save R1 000 on hardware.",
     description: "With selected SIM + Device orders."
   },
   {
-    icon: Wifi,
+    icon: PiWifiBold,
     title: "FREE router.",
     description: "With Pure Wireless Plus."
   },
   {
-    icon: Truck,
+    icon: PiTruckBold,
     title: "FREE delivery.",
     description: "With any SIM and/or device order."
   },
   {
-    icon: Settings,
+    icon: PiGearBold,
     title: "No setup required.",
     description: "Insert your SIM and you're good to go."
   },
   {
-    icon: Gauge,
+    icon: PiGaugeBold,
     title: "Uncapped thresholds and throttling.",
     description: "See Ts&Cs for a detailed breakdown. »"
   }
@@ -120,7 +119,7 @@ export function WirelessPackagesSection() {
         >
           <span className="flex items-center justify-center gap-2">
             <span>{pkg.price}</span>
-            <ShoppingCart className="w-4 h-4 group-hover:animate-pulse" />
+            <PiShoppingCartBold className="w-4 h-4 group-hover:animate-pulse" />
           </span>
         </Button>
       </div>
@@ -194,19 +193,19 @@ export function WirelessPackagesSection() {
 
               <div className="space-y-3 mb-4">
                 <div className="flex items-center gap-2 text-sm text-circleTel-navy">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>Uncapped data usage</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-circleTel-navy">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>No throttling or FUP</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-circleTel-navy">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>Month-to-month contract</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-circleTel-navy">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                   <span>24/7 customer support</span>
                 </div>
               </div>

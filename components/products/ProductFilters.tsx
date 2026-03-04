@@ -1,4 +1,5 @@
 'use client';
+import { PiFunnelBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,6 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Filter, X } from 'lucide-react';
 import type { ProductCategory, ServiceType, ProductFilters } from '@/lib/types/products';
 import { formatPrice } from '@/lib/types/products';
 
@@ -130,7 +130,7 @@ export function ProductFilters({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+            <PiFunnelBold className="h-5 w-5" />
             Filters
           </CardTitle>
           {hasActiveFilters() && (
@@ -140,7 +140,7 @@ export function ProductFilters({
               onClick={handleReset}
               className="h-8 px-2"
             >
-              <X className="h-4 w-4 mr-1" />
+              <PiXBold className="h-4 w-4 mr-1" />
               Clear
             </Button>
           )}

@@ -1,4 +1,5 @@
 'use client';
+import { PiCaretDownBold, PiChartBarBold, PiMapPinBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import {
@@ -9,15 +10,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import {
-  ChevronDown,
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  XCircle,
-  MapPin,
-  AlertCircle,
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface ServiceManageDropdownProps {
@@ -68,7 +60,7 @@ export function ServiceManageDropdown({
           className={`border-circleTel-orange text-circleTel-orange hover:bg-orange-50 hover:text-circleTel-orange font-semibold ${className}`}
         >
           Manage
-          <ChevronDown className="ml-2 h-4 w-4" />
+          <PiCaretDownBold className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -78,7 +70,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/usage?service=${serviceId}`}
             className="cursor-pointer flex items-center"
           >
-            <BarChart3 className="mr-2 h-4 w-4 text-blue-600" />
+            <PiChartBarBold className="mr-2 h-4 w-4 text-blue-600" />
             <span>View Usage</span>
           </Link>
         </DropdownMenuItem>
@@ -91,7 +83,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/services/upgrade?service=${serviceId}`}
             className="cursor-pointer flex items-center"
           >
-            <TrendingUp className="mr-2 h-4 w-4 text-green-600" />
+            <PiTrendUpBold className="mr-2 h-4 w-4 text-green-600" />
             <span>Upgrade Package</span>
           </Link>
         </DropdownMenuItem>
@@ -102,7 +94,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/services/downgrade?service=${serviceId}`}
             className="cursor-pointer flex items-center"
           >
-            <TrendingDown className="mr-2 h-4 w-4 text-yellow-600" />
+            <PiTrendDownBold className="mr-2 h-4 w-4 text-yellow-600" />
             <span>Downgrade Package</span>
           </Link>
         </DropdownMenuItem>
@@ -115,7 +107,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/services/cancel?service=${serviceId}`}
             className="cursor-pointer flex items-center"
           >
-            <XCircle className="mr-2 h-4 w-4 text-red-600" />
+            <PiXCircleBold className="mr-2 h-4 w-4 text-red-600" />
             <span>Cancel Service</span>
           </Link>
         </DropdownMenuItem>
@@ -126,7 +118,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/services/relocate?service=${serviceId}`}
             className="cursor-pointer flex items-center"
           >
-            <MapPin className="mr-2 h-4 w-4 text-purple-600" />
+            <PiMapPinBold className="mr-2 h-4 w-4 text-purple-600" />
             <span>Relocate Service</span>
           </Link>
         </DropdownMenuItem>
@@ -139,7 +131,7 @@ export function ServiceManageDropdown({
             href={`/dashboard/tickets/new?service=${serviceId}&package=${encodeURIComponent(packageName)}`}
             className="cursor-pointer flex items-center"
           >
-            <AlertCircle className="mr-2 h-4 w-4 text-orange-600" />
+            <PiWarningCircleBold className="mr-2 h-4 w-4 text-orange-600" />
             <span>Log Issue</span>
           </Link>
         </DropdownMenuItem>

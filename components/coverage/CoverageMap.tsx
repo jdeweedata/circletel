@@ -1,4 +1,5 @@
 'use client';
+import { PiMagnifyingGlassBold, PiMapPinBold, PiSpinnerBold, PiStackBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, OverlayView } from '@react-google-maps/api';
@@ -6,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, MapPin, Search, Layers, Wifi, WifiOff } from 'lucide-react';
 import { Coordinates, ServiceType, CoverageResponse, ServiceCoverage } from '@/lib/coverage/types';
 import { MTNServiceCoverage } from '@/lib/coverage/mtn/types';
 
@@ -267,9 +267,9 @@ export default function CoverageMap({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           {coverage.available ? (
-            <Wifi className="h-4 w-4 text-green-600" />
+            <PiWifiBold className="h-4 w-4 text-green-600" />
           ) : (
-            <WifiOff className="h-4 w-4 text-red-600" />
+            <PiWifiSlashBold className="h-4 w-4 text-red-600" />
           )}
           <span className="font-medium">
             {coverage.available ? 'Coverage Available' : 'No Coverage'}
@@ -351,9 +351,9 @@ export default function CoverageMap({
                 size="icon"
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Search className="h-4 w-4" />
+                  <PiMagnifyingGlassBold className="h-4 w-4" />
                 )}
               </Button>
             </div>
@@ -365,7 +365,7 @@ export default function CoverageMap({
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Layers className="h-4 w-4" />
+              <PiStackBold className="h-4 w-4" />
               Coverage Layers
             </CardTitle>
           </CardHeader>
@@ -441,7 +441,7 @@ export default function CoverageMap({
                   <Card className="max-w-sm shadow-lg">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
+                        <PiMapPinBold className="h-4 w-4" />
                         {selectedMarker.address || 'Coverage Information'}
                       </CardTitle>
                     </CardHeader>
@@ -467,7 +467,7 @@ export default function CoverageMap({
                 >
                   <Card className="shadow-lg">
                     <CardContent className="p-4 flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 animate-spin" />
                       <span className="text-sm">Checking coverage...</span>
                     </CardContent>
                   </Card>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDotsThreeVerticalBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiPhoneBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,20 +29,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Search,
-  Filter,
-  Download,
-  MoreVertical,
-  Eye,
-  Mail,
-  Phone,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  RefreshCw,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -219,28 +206,28 @@ export default function AdminConsumerOrdersPage() {
       case 'active':
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
-            <CheckCircle className="w-3 h-3 mr-1" />
+            <PiCheckCircleBold className="w-3 h-3 mr-1" />
             Active
           </Badge>
         );
       case 'cancelled':
         return (
           <Badge className="bg-red-100 text-red-800 border-red-200">
-            <XCircle className="w-3 h-3 mr-1" />
+            <PiXCircleBold className="w-3 h-3 mr-1" />
             Cancelled
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <Clock className="w-3 h-3 mr-1" />
+            <PiClockBold className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
       default:
         return (
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-            <AlertCircle className="w-3 h-3 mr-1" />
+            <PiWarningCircleBold className="w-3 h-3 mr-1" />
             {status.replace(/_/g, ' ')}
           </Badge>
         );
@@ -287,11 +274,11 @@ export default function AdminConsumerOrdersPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchOrders} disabled={loading}>
-            <RefreshCw className={cn('w-4 h-4 mr-2', loading && 'animate-spin')} />
+            <PiArrowsClockwiseBold className={cn('w-4 h-4 mr-2', loading && 'animate-spin')} />
             Refresh
           </Button>
           <Button onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
+            <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
         </div>
@@ -354,7 +341,7 @@ export default function AdminConsumerOrdersPage() {
             {/* Search */}
             <div className="md:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Search by order number, customer, email, phone, or package..."
                   value={searchTerm}
@@ -398,7 +385,7 @@ export default function AdminConsumerOrdersPage() {
           </div>
 
           <div className="mt-4 flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <PiFunnelBold className="w-4 h-4 text-gray-500" />
             <span className="text-sm text-gray-600">Date Range:</span>
             <div className="flex gap-2">
               <Button
@@ -439,11 +426,11 @@ export default function AdminConsumerOrdersPage() {
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+              <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-gray-400" />
             </div>
           ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <AlertCircle className="w-12 h-12 mb-4" />
+              <PiWarningCircleBold className="w-12 h-12 mb-4" />
               <p className="text-lg font-medium">No orders found</p>
               <p className="text-sm">Try adjusting your filters</p>
             </div>
@@ -480,11 +467,11 @@ export default function AdminConsumerOrdersPage() {
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-1 text-xs">
-                          <Mail className="w-3 h-3 text-gray-400" />
+                          <PiEnvelopeBold className="w-3 h-3 text-gray-400" />
                           <span className="text-gray-600">{order.email}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs">
-                          <Phone className="w-3 h-3 text-gray-400" />
+                          <PiPhoneBold className="w-3 h-3 text-gray-400" />
                           <span className="text-gray-600">{order.phone}</span>
                         </div>
                       </div>
@@ -516,7 +503,7 @@ export default function AdminConsumerOrdersPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
-                            <MoreVertical className="w-4 h-4" />
+                            <PiDotsThreeVerticalBold className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -524,16 +511,16 @@ export default function AdminConsumerOrdersPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
                             <Link href={`/orders/${order.id}`}>
-                              <Eye className="w-4 h-4 mr-2" />
+                              <PiEyeBold className="w-4 h-4 mr-2" />
                               View Details
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <Mail className="w-4 h-4 mr-2" />
+                            <PiEnvelopeBold className="w-4 h-4 mr-2" />
                             Email Customer
                           </DropdownMenuItem>
                           <DropdownMenuItem>
-                            <Phone className="w-4 h-4 mr-2" />
+                            <PiPhoneBold className="w-4 h-4 mr-2" />
                             Call Customer
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />

@@ -2,30 +2,6 @@
 
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
-import {
-  Home,
-  Building2,
-  CreditCard,
-  Check,
-  ChevronRight,
-  ChevronLeft,
-  Eye,
-  EyeOff,
-  MapPin,
-  Package,
-  Shield,
-  Zap,
-  User,
-  Mail,
-  Phone,
-  Lock,
-  Calendar,
-  TrendingUp,
-  Smartphone,
-  QrCode,
-  Receipt,
-  Store,
-} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadGoogleMapsService } from '@/lib/googleMapsLoader';
 import type { PlaceResult } from '@/services/googleMaps';
@@ -165,10 +141,10 @@ const OrderFlowJourney: React.FC = () => {
   const total = subtotal + onceOffFees + vat;
 
   const tabs = [
-    { id: 0, title: "Account", icon: <User className="w-4 h-4" /> },
-    { id: 1, title: "Service Address", icon: <MapPin className="w-4 h-4" /> },
-    { id: 2, title: "Payment", icon: <CreditCard className="w-4 h-4" /> },
-    { id: 3, title: "Confirmation", icon: <Check className="w-4 h-4" /> },
+    { id: 0, title: "Account", icon: <PiUserBold className="w-4 h-4" /> },
+    { id: 1, title: "Service Address", icon: <PiMapPinBold className="w-4 h-4" /> },
+    { id: 2, title: "Payment", icon: <PiCreditCardBold className="w-4 h-4" /> },
+    { id: 3, title: "Confirmation", icon: <PiCheckBold className="w-4 h-4" /> },
   ];
 
   // SA Provinces
@@ -205,12 +181,12 @@ const OrderFlowJourney: React.FC = () => {
 
   // Payment methods
   const paymentMethods = [
-    { id: "card", icon: <CreditCard className="w-6 h-6" />, label: "Card Payment", description: "Visa, Mastercard, Amex", color: "orange" },
-    { id: "instant-eft", icon: <Zap className="w-6 h-6" />, label: "Instant EFT", description: "Real-time via Ozow", color: "green" },
-    { id: "capitec", icon: <Smartphone className="w-6 h-6" />, label: "Capitec Pay", description: "Fast Capitec payments", color: "blue" },
-    { id: "bank-eft", icon: <Building2 className="w-6 h-6" />, label: "Bank EFT", description: "Online banking transfer", color: "purple" },
+    { id: "card", icon: <PiCreditCardBold className="w-6 h-6" />, label: "Card Payment", description: "Visa, Mastercard, Amex", color: "orange" },
+    { id: "instant-eft", icon: <PiLightningBold className="w-6 h-6" />, label: "Instant EFT", description: "Real-time via Ozow", color: "green" },
+    { id: "capitec", icon: <PiDeviceMobileBold className="w-6 h-6" />, label: "Capitec Pay", description: "Fast Capitec payments", color: "blue" },
+    { id: "bank-eft", icon: <PiBuildingsBold className="w-6 h-6" />, label: "Bank EFT", description: "Online banking transfer", color: "purple" },
     { id: "scan-to-pay", icon: <QrCode className="w-6 h-6" />, label: "Scan to Pay", description: "SnapScan, Zapper", color: "orange" },
-    { id: "payflex", icon: <Calendar className="w-6 h-6" />, label: "Payflex", description: "Buy now, pay later", color: "green" },
+    { id: "payflex", icon: <PiCalendarBold className="w-6 h-6" />, label: "Payflex", description: "Buy now, pay later", color: "green" },
     { id: "1voucher", icon: <Receipt className="w-6 h-6" />, label: "1Voucher", description: "Cash vouchers", color: "blue" },
     { id: "paymyway", icon: <Store className="w-6 h-6" />, label: "paymyway", description: "Pay at 24k+ stores", color: "purple" },
     { id: "scode", icon: <Receipt className="w-6 h-6" />, label: "SCode Retail", description: "6k+ retail outlets", color: "orange" },
@@ -443,7 +419,7 @@ const OrderFlowJourney: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full mb-4">
-            <TrendingUp className="w-8 h-8 text-white" />
+            <PiTrendUpBold className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">CircleTel Order Journey</h1>
           <p className="text-slate-600">Complete your connectivity order in 3 simple steps</p>
@@ -483,11 +459,11 @@ const OrderFlowJourney: React.FC = () => {
                       : "bg-slate-50 text-slate-400 cursor-not-allowed"
                   }`}
                 >
-                  {index < activeTab ? <Check className="w-4 h-4" /> : tab.icon}
+                  {index < activeTab ? <PiCheckBold className="w-4 h-4" /> : tab.icon}
                   <span className="hidden sm:inline text-sm font-medium">{tab.title}</span>
                   <span className="sm:hidden text-sm font-medium">{index + 1}</span>
                 </button>
-                {index < tabs.length - 1 && <ChevronRight className="w-5 h-5 text-slate-300 mx-1" />}
+                {index < tabs.length - 1 && <PiCaretRightBold className="w-5 h-5 text-slate-300 mx-1" />}
               </React.Fragment>
             ))}
           </div>
@@ -521,7 +497,7 @@ const OrderFlowJourney: React.FC = () => {
                         : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                   >
-                    <Mail className="w-5 h-5 inline mr-2" />
+                    <PiEnvelopeBold className="w-5 h-5 inline mr-2" />
                     Email & Password
                   </button>
                   <button
@@ -582,7 +558,7 @@ const OrderFlowJourney: React.FC = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                         >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPassword ? <PiEyeSlashBold className="w-5 h-5" /> : <PiEyeBold className="w-5 h-5" />}
                         </button>
                       </div>
                       {errors.password && <p className="text-red-600 text-sm mt-1">⚠ {errors.password}</p>}
@@ -735,7 +711,7 @@ const OrderFlowJourney: React.FC = () => {
                         : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                   >
-                    <Home className="w-5 h-5 inline mr-2" />
+                    <PiHouseBold className="w-5 h-5 inline mr-2" />
                     Residential
                   </button>
                   <button
@@ -749,7 +725,7 @@ const OrderFlowJourney: React.FC = () => {
                         : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                   >
-                    <Building2 className="w-5 h-5 inline mr-2" />
+                    <PiBuildingsBold className="w-5 h-5 inline mr-2" />
                     Business
                   </button>
                 </div>
@@ -795,7 +771,7 @@ const OrderFlowJourney: React.FC = () => {
                     {errors.street && <p className="text-red-600 text-sm mt-1">⚠ {errors.street}</p>}
                     {!errors.street && autocompleteError && (
                       <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
-                        <Zap className="w-3 h-3" />
+                        <PiLightningBold className="w-3 h-3" />
                         {autocompleteError}
                       </p>
                     )}
@@ -900,7 +876,7 @@ const OrderFlowJourney: React.FC = () => {
                   <div className="bg-gradient-to-br from-[#F5831F] to-[#e67516] text-white rounded-lg p-5 shadow-md">
                     <div className="flex items-start gap-3 mb-4">
                       <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                        <Package className="w-6 h-6" />
+                        <PiPackageBold className="w-6 h-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-lg">{selectedPackage.name}</h3>
@@ -910,7 +886,7 @@ const OrderFlowJourney: React.FC = () => {
                     <ul className="space-y-1 text-sm">
                       {selectedPackage.features.map((feature, idx) => (
                         <li key={idx} className="flex items-center gap-2">
-                          <Check className="w-4 h-4" />
+                          <PiCheckBold className="w-4 h-4" />
                           {feature}
                         </li>
                       ))}
@@ -920,7 +896,7 @@ const OrderFlowJourney: React.FC = () => {
                   {/* Installation Address */}
                   <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                     <h3 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#F5831F]" />
+                      <PiMapPinBold className="w-4 h-4 text-[#F5831F]" />
                       Installation Address
                     </h3>
                     <p className="text-sm text-slate-700">
@@ -991,7 +967,7 @@ const OrderFlowJourney: React.FC = () => {
                           <p className="text-xs text-slate-600">{method.description}</p>
                         </div>
                         {formData.paymentMethod === method.id && (
-                          <Check className="w-5 h-5 text-[#F5831F]" />
+                          <PiCheckBold className="w-5 h-5 text-[#F5831F]" />
                         )}
                       </button>
                     ))}
@@ -1057,15 +1033,15 @@ const OrderFlowJourney: React.FC = () => {
                   {/* Security Features */}
                   <div className="grid grid-cols-3 gap-3 mb-6">
                     <div className="bg-green-50 rounded-lg p-3 text-center border border-green-200">
-                      <Lock className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                      <PiLockBold className="w-5 h-5 text-green-600 mx-auto mb-1" />
                       <p className="text-xs font-medium text-green-900">256-bit SSL</p>
                     </div>
                     <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
-                      <Shield className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+                      <PiShieldBold className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                       <p className="text-xs font-medium text-blue-900">PCI DSS</p>
                     </div>
                     <div className="bg-purple-50 rounded-lg p-3 text-center border border-purple-200">
-                      <Check className="w-5 h-5 text-purple-600 mx-auto mb-1" />
+                      <PiCheckBold className="w-5 h-5 text-purple-600 mx-auto mb-1" />
                       <p className="text-xs font-medium text-purple-900">Verified</p>
                     </div>
                   </div>
@@ -1102,7 +1078,7 @@ const OrderFlowJourney: React.FC = () => {
                 className="p-12 text-center"
               >
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="w-10 h-10 text-green-600" />
+                  <PiCheckBold className="w-10 h-10 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-slate-900 mb-3">Order Confirmed!</h2>
                 <p className="text-slate-600 mb-2">
@@ -1191,7 +1167,7 @@ const OrderFlowJourney: React.FC = () => {
                   : "bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:shadow-sm"
               }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <PiCaretLeftBold className="w-5 h-5" />
               Back
             </button>
 
@@ -1201,14 +1177,14 @@ const OrderFlowJourney: React.FC = () => {
                 className="px-6 py-3 bg-[#F5831F] hover:bg-[#e67516] text-white font-semibold rounded-lg transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
               >
                 Continue
-                <ChevronRight className="w-5 h-5" />
+                <PiCaretRightBold className="w-5 h-5" />
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 className="px-8 py-3 bg-[#F5831F] hover:bg-[#e67516] text-white font-semibold rounded-lg transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
               >
-                <Shield className="w-5 h-5" />
+                <PiShieldBold className="w-5 h-5" />
                 Complete Secure Payment
               </button>
             )}

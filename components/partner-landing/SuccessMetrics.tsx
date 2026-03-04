@@ -1,11 +1,11 @@
 'use client';
+import { PiMoneyBold, PiTrendUpBold, PiTrophyBold, PiUsersBold } from 'react-icons/pi';
 
 import { useEffect, useState, useRef } from 'react';
-import { Users, TrendingUp, Award, Banknote } from 'lucide-react';
 
 const metrics = [
   {
-    icon: Users,
+    icon: PiUsersBold,
     value: 200,
     suffix: '+',
     prefix: '',
@@ -13,7 +13,7 @@ const metrics = [
     description: 'Across South Africa',
   },
   {
-    icon: Banknote,
+    icon: PiMoneyBold,
     value: 2.5,
     suffix: 'M+',
     prefix: 'R',
@@ -22,7 +22,7 @@ const metrics = [
     decimals: 1,
   },
   {
-    icon: TrendingUp,
+    icon: PiTrendUpBold,
     value: 18500,
     suffix: '',
     prefix: 'R',
@@ -31,7 +31,7 @@ const metrics = [
     format: true,
   },
   {
-    icon: Award,
+    icon: PiTrophyBold,
     value: 98,
     suffix: '%',
     prefix: '',

@@ -1,6 +1,6 @@
 'use client';
+import { PiHandshakeBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
-import { Handshake, TrendingUp, Users } from 'lucide-react';
 
 export function WhatIsSection() {
   return (
@@ -13,7 +13,7 @@ export function WhatIsSection() {
             <div>
               <div className="inline-flex items-center gap-2 mb-4">
                 <div className="p-3 bg-circleTel-orange bg-opacity-10 rounded-full">
-                  <Handshake className="h-6 w-6 text-circleTel-orange" />
+                  <PiHandshakeBold className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold text-circleTel-navy mb-4">
@@ -32,7 +32,7 @@ export function WhatIsSection() {
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="mr-4 p-3 bg-circleTel-orange bg-opacity-10 rounded-full flex-shrink-0">
-                  <TrendingUp className="text-circleTel-orange" size={24} />
+                  <PiTrendUpBold className="text-circleTel-orange" size={24} />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-circleTel-navy mb-2">Recurring Income</h4>
@@ -44,7 +44,7 @@ export function WhatIsSection() {
 
               <div className="flex items-start">
                 <div className="mr-4 p-3 bg-circleTel-orange bg-opacity-10 rounded-full flex-shrink-0">
-                  <Users className="text-circleTel-orange" size={24} />
+                  <PiUsersBold className="text-circleTel-orange" size={24} />
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-circleTel-navy mb-2">No Barriers to Entry</h4>

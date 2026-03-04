@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiFileTextBold, PiPaperPlaneRightBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,19 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  MessageSquare,
-  Send,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Eye,
-  RefreshCw,
-  Loader2,
-  Users,
-  FileText,
-  TrendingUp,
-} from 'lucide-react';
 import { BulkWhatsAppPanel } from '@/components/admin/billing/BulkWhatsAppPanel';
 import { toast } from 'sonner';
 
@@ -134,13 +122,13 @@ export default function WhatsAppDashboardPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'sent':
-        return <Badge variant="outline"><Clock className="h-3 w-3 mr-1" />Sent</Badge>;
+        return <Badge variant="outline"><PiClockBold className="h-3 w-3 mr-1" />Sent</Badge>;
       case 'delivered':
-        return <Badge className="bg-blue-100 text-blue-800"><CheckCircle2 className="h-3 w-3 mr-1" />Delivered</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800"><PiCheckCircleBold className="h-3 w-3 mr-1" />Delivered</Badge>;
       case 'read':
-        return <Badge className="bg-emerald-100 text-emerald-800"><Eye className="h-3 w-3 mr-1" />Read</Badge>;
+        return <Badge className="bg-emerald-100 text-emerald-800"><PiEyeBold className="h-3 w-3 mr-1" />Read</Badge>;
       case 'failed':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
+        return <Badge variant="destructive"><PiXCircleBold className="h-3 w-3 mr-1" />Failed</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -149,7 +137,7 @@ export default function WhatsAppDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -160,7 +148,7 @@ export default function WhatsAppDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-emerald-600" />
+            <PiChatBold className="h-6 w-6 text-emerald-600" />
             WhatsApp Notifications
           </h1>
           <p className="text-gray-600">
@@ -168,7 +156,7 @@ export default function WhatsAppDashboardPage() {
           </p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -179,7 +167,7 @@ export default function WhatsAppDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-100 rounded-lg">
-                <Send className="h-5 w-5 text-emerald-600" />
+                <PiPaperPlaneRightBold className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.totalSent}</p>
@@ -193,7 +181,7 @@ export default function WhatsAppDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.delivered}</p>
@@ -207,7 +195,7 @@ export default function WhatsAppDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <Eye className="h-5 w-5 text-purple-600" />
+                <PiEyeBold className="h-5 w-5 text-purple-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.read}</p>
@@ -221,7 +209,7 @@ export default function WhatsAppDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-100 rounded-lg">
-                <XCircle className="h-5 w-5 text-red-600" />
+                <PiXCircleBold className="h-5 w-5 text-red-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.failed}</p>
@@ -235,7 +223,7 @@ export default function WhatsAppDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-amber-100 rounded-lg">
-                <Users className="h-5 w-5 text-amber-600" />
+                <PiUsersBold className="h-5 w-5 text-amber-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.customersWithConsent}</p>
@@ -260,7 +248,7 @@ export default function WhatsAppDashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                  <PiFileTextBold className="h-5 w-5" />
                   Today's Invoices
                 </CardTitle>
                 <CardDescription>

@@ -1,20 +1,11 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  RefreshCw,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  Loader2,
-  ChevronRight,
-  Zap
-} from 'lucide-react';
 
 interface PaymentSyncStats {
   stats: {
@@ -101,13 +92,13 @@ export function PaymentSyncStatusWidget() {
   const getHealthIcon = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <PiCheckCircleBold className="h-4 w-4 text-green-600" />;
       case 'degraded':
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+        return <PiWarningBold className="h-4 w-4 text-yellow-600" />;
       case 'unhealthy':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <PiXCircleBold className="h-4 w-4 text-red-600" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
+        return <PiClockBold className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -116,13 +107,13 @@ export function PaymentSyncStatusWidget() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             ZOHO Payment Sync
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </CardContent>
       </Card>
@@ -134,13 +125,13 @@ export function PaymentSyncStatusWidget() {
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             ZOHO Payment Sync
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-sm text-red-600">
-            <AlertTriangle className="h-4 w-4" />
+            <PiWarningBold className="h-4 w-4" />
             <span>{error}</span>
           </div>
           <Button
@@ -164,7 +155,7 @@ export function PaymentSyncStatusWidget() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
+              <PiArrowsClockwiseBold className="h-4 w-4" />
               ZOHO Payment Sync
             </CardTitle>
             <CardDescription className="text-xs mt-1">
@@ -197,7 +188,7 @@ export function PaymentSyncStatusWidget() {
         {/* Today's Payments */}
         <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg mb-4">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-blue-600" />
+            <PiLightningBold className="h-4 w-4 text-blue-600" />
             <span className="text-sm font-medium text-blue-900">Today&apos;s Payments</span>
           </div>
           <span className="text-lg font-bold text-blue-700">{data.paymentsToday}</span>
@@ -241,13 +232,13 @@ export function PaymentSyncStatusWidget() {
             className="flex-1"
             onClick={fetchSyncStats}
           >
-            <RefreshCw className="h-3 w-3 mr-1" />
+            <PiArrowsClockwiseBold className="h-3 w-3 mr-1" />
             Refresh
           </Button>
           <Link href="/admin/billing/payments" className="flex-1">
             <Button variant="outline" size="sm" className="w-full">
               View All
-              <ChevronRight className="h-3 w-3 ml-1" />
+              <PiCaretRightBold className="h-3 w-3 ml-1" />
             </Button>
           </Link>
         </div>

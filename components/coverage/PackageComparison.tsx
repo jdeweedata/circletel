@@ -1,20 +1,9 @@
 'use client';
+import { PiArrowRightBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiRouterBold, PiUploadSimpleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  CheckCircle,
-  X,
-  Zap,
-  Upload,
-  Download,
-  DollarSign,
-  Clock,
-  Router,
-  Wrench,
-  ArrowRight,
-} from 'lucide-react';
 
 interface ServicePackage {
   id: string;
@@ -82,7 +71,7 @@ export function PackageComparison({
                     className="absolute top-4 right-4 w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
                     aria-label="Remove from comparison"
                   >
-                    <X className="w-4 h-4 text-gray-600" />
+                    <PiXBold className="w-4 h-4 text-gray-600" />
                   </button>
                 )}
 
@@ -129,7 +118,7 @@ export function PackageComparison({
                 {/* Speed */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-                    <Download className="w-4 h-4 text-green-600" />
+                    <PiDownloadSimpleBold className="w-4 h-4 text-green-600" />
                     <div>
                       <p className="text-xs text-gray-600">Download</p>
                       <p className="font-bold text-circleTel-navy">
@@ -138,7 +127,7 @@ export function PackageComparison({
                     </div>
                   </div>
                   <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                    <Upload className="w-4 h-4 text-blue-600" />
+                    <PiUploadSimpleBold className="w-4 h-4 text-blue-600" />
                     <div>
                       <p className="text-xs text-gray-600">Upload</p>
                       <p className="font-bold text-circleTel-navy">
@@ -152,7 +141,7 @@ export function PackageComparison({
                 <div className="space-y-2 pt-2 border-t border-gray-200">
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2 text-gray-600">
-                      <Wrench className="w-4 h-4" />
+                      <PiWrenchBold className="w-4 h-4" />
                       Installation
                     </span>
                     <span className="font-semibold">
@@ -163,7 +152,7 @@ export function PackageComparison({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2 text-gray-600">
-                      <Router className="w-4 h-4" />
+                      <PiRouterBold className="w-4 h-4" />
                       Router
                     </span>
                     <span className="font-semibold">
@@ -188,9 +177,9 @@ export function PackageComparison({
                           }`}
                         >
                           {hasFeature ? (
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                            <PiCheckCircleBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                           ) : (
-                            <X className="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" />
+                            <PiXBold className="w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0" />
                           )}
                           <span className={hasFeature ? '' : 'line-through'}>
                             {feature}
@@ -212,7 +201,7 @@ export function PackageComparison({
                   size="lg"
                 >
                   Select This Package
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <PiArrowRightBold className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
             </Card>
@@ -286,9 +275,9 @@ export function PackageComparison({
                     {packages.map((pkg) => (
                       <td key={pkg.id} className="text-center p-3">
                         {pkg.router_included ? (
-                          <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
+                          <PiCheckCircleBold className="w-5 h-5 text-green-600 mx-auto" />
                         ) : (
-                          <X className="w-5 h-5 text-gray-300 mx-auto" />
+                          <PiXBold className="w-5 h-5 text-gray-300 mx-auto" />
                         )}
                       </td>
                     ))}
@@ -299,9 +288,9 @@ export function PackageComparison({
                       {packages.map((pkg) => (
                         <td key={pkg.id} className="text-center p-3">
                           {pkg.features.includes(feature) ? (
-                            <CheckCircle className="w-5 h-5 text-green-600 mx-auto" />
+                            <PiCheckCircleBold className="w-5 h-5 text-green-600 mx-auto" />
                           ) : (
-                            <X className="w-5 h-5 text-gray-300 mx-auto" />
+                            <PiXBold className="w-5 h-5 text-gray-300 mx-auto" />
                           )}
                         </td>
                       ))}

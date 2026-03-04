@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Product Matching Page
@@ -9,15 +10,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  MagnifyingGlassIcon,
-  LinkIcon,
-  CheckCircleIcon,
-  XMarkIcon,
-  ArrowPathIcon,
-  FunnelIcon,
-  BuildingOfficeIcon,
-} from '@heroicons/react/24/outline';
 import type {
   CompetitorProduct,
   ProductCompetitorMatch,
@@ -313,7 +305,7 @@ function MatchCard({ match, onDelete }: MatchCardProps) {
               />
             ) : (
               <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                <BuildingOfficeIcon className="w-5 h-5 text-gray-400" />
+                <PiBuildingOfficeBold className="w-5 h-5 text-gray-400" />
               </div>
             )}
             <div>
@@ -358,7 +350,7 @@ function MatchCard({ match, onDelete }: MatchCardProps) {
             onClick={onDelete}
             className="p-2 text-gray-400 hover:text-red-500 transition-colors"
           >
-            <XMarkIcon className="w-5 h-5" />
+            <PiXBold className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -461,7 +453,7 @@ function CreateMatchModal({
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">Create Product Match</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <XMarkIcon className="w-6 h-6" />
+            <PiXBold className="w-6 h-6" />
           </button>
         </div>
 

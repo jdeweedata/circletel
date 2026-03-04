@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiChartBarBold, PiGiftBold, PiMegaphoneBold, PiPercentBold, PiPlusBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 /**
  * Marketing Dashboard
@@ -9,20 +10,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {
-  Megaphone,
-  TrendingUp,
-  Users,
-  Gift,
-  Plus,
-  ArrowRight,
-  BarChart3,
-  Target,
-  Percent,
-  Calendar,
-  RefreshCw,
-  Loader2,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MarketingStats {
@@ -71,7 +58,7 @@ function StatCard({
               trend.positive ? 'text-green-600' : 'text-red-600'
             )}
           >
-            <TrendingUp
+            <PiTrendUpBold
               className={cn('h-4 w-4', !trend.positive && 'rotate-180')}
             />
             {trend.value}%
@@ -117,7 +104,7 @@ function QuickAction({
         <p className="font-medium text-gray-900">{title}</p>
         <p className="text-sm text-gray-500">{description}</p>
       </div>
-      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-circleTel-orange group-hover:translate-x-1 transition-all" />
+      <PiArrowRightBold className="h-5 w-5 text-gray-400 group-hover:text-circleTel-orange group-hover:translate-x-1 transition-all" />
     </Link>
   );
 }
@@ -147,7 +134,7 @@ function RecentPromotionRow({ promotion }: { promotion: Promotion }) {
     >
       <div className="flex items-center gap-3">
         <div className="p-2 bg-circleTel-orange/10 rounded-lg">
-          <Gift className="h-4 w-4 text-circleTel-orange" />
+          <PiGiftBold className="h-4 w-4 text-circleTel-orange" />
         </div>
         <div>
           <p className="font-medium text-gray-900">{promotion.name}</p>
@@ -237,14 +224,14 @@ export default function MarketingDashboardPage() {
             onClick={fetchData}
             disabled={loading}
           >
-            <RefreshCw
+            <PiArrowsClockwiseBold
               className={cn('h-4 w-4 mr-2', loading && 'animate-spin')}
             />
             Refresh
           </Button>
           <Link href="/admin/marketing/promotions/new">
             <Button>
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               New Promotion
             </Button>
           </Link>
@@ -260,7 +247,7 @@ export default function MarketingDashboardPage() {
       {/* Stats Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -342,15 +329,15 @@ export default function MarketingDashboardPage() {
           <div className="bg-white rounded-xl border border-gray-200">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
               </div>
             ) : recentPromotions.length === 0 ? (
               <div className="text-center py-12">
-                <Gift className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <PiGiftBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500">No promotions yet</p>
                 <Link href="/admin/marketing/promotions/new">
                   <Button variant="outline" className="mt-4">
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PiPlusBold className="h-4 w-4 mr-2" />
                     Create your first promotion
                   </Button>
                 </Link>
@@ -369,7 +356,7 @@ export default function MarketingDashboardPage() {
       {/* Coming Soon Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-8 text-center">
-          <Users className="h-10 w-10 text-gray-400 mx-auto mb-4" />
+          <PiUsersBold className="h-10 w-10 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-700">
             Ambassador Portal
           </h3>
@@ -381,7 +368,7 @@ export default function MarketingDashboardPage() {
           </span>
         </div>
         <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-8 text-center">
-          <Megaphone className="h-10 w-10 text-gray-400 mx-auto mb-4" />
+          <PiMegaphoneBold className="h-10 w-10 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-700">
             Social Media Integration
           </h3>

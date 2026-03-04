@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiCheckCircleBold, PiFunnelBold, PiGlobeBold, PiPlusBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Provider Management Page
@@ -8,16 +9,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  BuildingOfficeIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  PlusIcon,
-  ArrowPathIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  GlobeAltIcon,
-} from '@heroicons/react/24/outline';
 import type { ProviderStats, ProviderType } from '@/lib/competitor-analysis/types';
 
 export default function ProvidersPage() {
@@ -134,7 +125,7 @@ export default function ProvidersPage() {
         <button
           className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
         >
-          <PlusIcon className="w-5 h-5" />
+          <PiPlusBold className="w-5 h-5" />
           Add Provider
         </button>
       </div>
@@ -239,7 +230,7 @@ function ProviderRow({ provider, onScrape, isScraping }: ProviderRowProps) {
             />
           ) : (
             <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <BuildingOfficeIcon className="w-6 h-6 text-gray-400" />
+              <PiBuildingOfficeBold className="w-6 h-6 text-gray-400" />
             </div>
           )}
         </div>
@@ -255,12 +246,12 @@ function ProviderRow({ provider, onScrape, isScraping }: ProviderRowProps) {
             </Link>
             {provider.is_active ? (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                <CheckCircleIcon className="w-3 h-3" />
+                <PiCheckCircleBold className="w-3 h-3" />
                 Active
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                <XCircleIcon className="w-3 h-3" />
+                <PiXCircleBold className="w-3 h-3" />
                 Inactive
               </span>
             )}
@@ -274,7 +265,7 @@ function ProviderRow({ provider, onScrape, isScraping }: ProviderRowProps) {
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-orange-600"
             >
-              <GlobeAltIcon className="w-4 h-4" />
+              <PiGlobeBold className="w-4 h-4" />
               Website
             </a>
             <span>|</span>
@@ -322,7 +313,7 @@ function ProviderRow({ provider, onScrape, isScraping }: ProviderRowProps) {
             className="p-2 text-gray-400 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Trigger scrape"
           >
-            <ArrowPathIcon className={`w-5 h-5 ${isScraping ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-5 h-5 ${isScraping ? 'animate-spin' : ''}`} />
           </button>
           <Link
             href={`/admin/competitor-analysis/providers/${provider.slug}`}

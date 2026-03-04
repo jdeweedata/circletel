@@ -1,8 +1,8 @@
 'use client';
+import { PiChatBold, PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { CheckCircle2, XCircle, Loader2, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 // =============================================================================
@@ -100,7 +100,7 @@ export default function WhatsAppOptInPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-gray-600">Validating...</p>
         </div>
       </div>
@@ -113,7 +113,7 @@ export default function WhatsAppOptInPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+            <PiCheckCircleBold className="w-10 h-10 text-green-600" />
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -151,7 +151,7 @@ export default function WhatsAppOptInPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-10 h-10 text-red-600" />
+            <PiXCircleBold className="w-10 h-10 text-red-600" />
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -199,7 +199,7 @@ export default function WhatsAppOptInPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-10 h-10 text-red-600" />
+            <PiXCircleBold className="w-10 h-10 text-red-600" />
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -238,7 +238,7 @@ export default function WhatsAppOptInPage() {
         {/* Header */}
         <div className="bg-gradient-to-r from-circleTel-orange to-orange-500 p-6 text-center">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageSquare className="w-8 h-8 text-white" />
+            <PiChatBold className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">
             WhatsApp Notifications
@@ -257,15 +257,15 @@ export default function WhatsAppOptInPage() {
 
           <ul className="space-y-3 mb-6">
             <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <PiCheckCircleBold className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
               <span className="text-gray-700">Invoice reminders before due date</span>
             </li>
             <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <PiCheckCircleBold className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
               <span className="text-gray-700">Easy Pay Now links for quick payments</span>
             </li>
             <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <PiCheckCircleBold className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
               <span className="text-gray-700">Payment confirmations instantly</span>
             </li>
           </ul>
@@ -295,12 +295,12 @@ export default function WhatsAppOptInPage() {
           >
             {confirming ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <PiSpinnerBold className="w-5 h-5 animate-spin" />
                 Enabling...
               </>
             ) : (
               <>
-                <MessageSquare className="w-5 h-5" />
+                <PiChatBold className="w-5 h-5" />
                 Enable WhatsApp
               </>
             )}

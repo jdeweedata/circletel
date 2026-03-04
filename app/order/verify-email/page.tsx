@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiArrowsCounterClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiPencilSimpleBold, PiQuestionBold, PiTrayBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Email Verification Page
@@ -18,7 +19,6 @@ import { OrderBreadcrumb } from '@/components/order/OrderBreadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, CheckCircle2, RefreshCcw, ArrowRight, Inbox, Clock, AlertCircle, ChevronDown, ChevronUp, HelpCircle, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function VerifyEmailPage() {
@@ -103,7 +103,7 @@ export default function VerifyEmailPage() {
           <CardHeader className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white pb-10 pt-12 px-8">
             <div className="flex flex-col items-center text-center">
               <div className="h-20 w-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-6 animate-bounce">
-                <Mail className="h-10 w-10 text-white" />
+                <PiEnvelopeBold className="h-10 w-10 text-white" />
               </div>
               <CardTitle className="text-3xl font-bold mb-3">
                 Check Your Email
@@ -118,7 +118,7 @@ export default function VerifyEmailPage() {
             {/* Urgency Timer Banner */}
             {urgencyTimer > 0 && (
               <Alert className={`border-2 ${urgencyTimer < 180 ? 'border-red-300 bg-red-50' : 'border-orange-300 bg-orange-50'}`}>
-                <AlertCircle className={`h-5 w-5 ${urgencyTimer < 180 ? 'text-red-600' : 'text-orange-600'}`} />
+                <PiWarningCircleBold className={`h-5 w-5 ${urgencyTimer < 180 ? 'text-red-600' : 'text-orange-600'}`} />
                 <AlertDescription className={`${urgencyTimer < 180 ? 'text-red-900' : 'text-orange-900'} text-base font-semibold`}>
                   {urgencyTimer < 180 ? '🔥 Urgent: ' : '⏰ '}Please verify within {formatTime(urgencyTimer)} to keep your session active
                 </AlertDescription>
@@ -128,7 +128,7 @@ export default function VerifyEmailPage() {
             {/* Wrong Email Option */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3">
-                <Edit2 className="h-5 w-5 text-gray-600" />
+                <PiPencilSimpleBold className="h-5 w-5 text-gray-600" />
                 <span className="text-sm text-gray-700">
                   Sent to: <span className="font-semibold">{user?.email}</span>
                 </span>
@@ -146,7 +146,7 @@ export default function VerifyEmailPage() {
             {/* Instructions */}
             <div className="space-y-6">
               <Alert className="border-blue-200 bg-blue-50/50">
-                <Inbox className="h-5 w-5 text-blue-600" />
+                <PiTrayBold className="h-5 w-5 text-blue-600" />
                 <AlertDescription className="text-blue-900 text-base">
                   <span className="font-semibold">Next steps:</span> Click the verification link in your email to activate your account
                 </AlertDescription>
@@ -154,7 +154,7 @@ export default function VerifyEmailPage() {
 
               <div className="space-y-4">
                 <h3 className="font-semibold text-circleTel-navy text-lg flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   What to do:
                 </h3>
                 <ol className="space-y-4 ml-2">
@@ -213,12 +213,12 @@ export default function VerifyEmailPage() {
                   </>
                 ) : countdown > 0 ? (
                   <>
-                    <Clock className="h-4 w-4 mr-2" />
+                    <PiClockBold className="h-4 w-4 mr-2" />
                     Resend in {countdown}s
                   </>
                 ) : (
                   <>
-                    <RefreshCcw className="h-4 w-4 mr-2" />
+                    <PiArrowsCounterClockwiseBold className="h-4 w-4 mr-2" />
                     Didn't receive it? Resend email
                   </>
                 )}
@@ -229,7 +229,7 @@ export default function VerifyEmailPage() {
                 className="w-full h-14 text-base bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
               >
                 Continue to Dashboard
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <PiArrowRightBold className="h-4 w-4 ml-2" />
               </Button>
             </div>
 
@@ -241,10 +241,10 @@ export default function VerifyEmailPage() {
                 className="w-full flex items-center justify-between text-base font-semibold text-gray-900 hover:bg-gray-50 py-4"
               >
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-blue-600" />
+                  <PiQuestionBold className="h-5 w-5 text-blue-600" />
                   Need help? Troubleshooting FAQ
                 </div>
-                {showFAQ ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                {showFAQ ? <PiCaretUpBold className="h-5 w-5" /> : <PiCaretDownBold className="h-5 w-5" />}
               </Button>
 
               {showFAQ && (
@@ -304,7 +304,7 @@ export default function VerifyEmailPage() {
         {/* Security Note */}
         <div className="mt-8 text-center">
           <p className="text-sm text-circleTel-secondaryNeutral">
-            <CheckCircle2 className="h-4 w-4 inline mr-1.5 text-green-600" />
+            <PiCheckCircleBold className="h-4 w-4 inline mr-1.5 text-green-600" />
             Your information is secure and will never be shared with third parties
           </p>
         </div>

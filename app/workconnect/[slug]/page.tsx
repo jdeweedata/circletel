@@ -1,3 +1,4 @@
+import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiEnvelopeBold, PiHeadphonesBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -6,18 +7,6 @@ import { client } from '@/lib/sanity/client';
 import { urlFor } from '@/lib/sanity/image';
 import { WORKCONNECT_PRODUCT_QUERY, WORKCONNECT_SLUGS_QUERY } from '@/lib/sanity/queries';
 import { Button } from '@/components/ui/button';
-import {
-  CheckCircle2,
-  Wifi,
-  Cloud,
-  Mail,
-  Headphones,
-  Shield,
-  Zap,
-  ArrowRight,
-  MapPin,
-  Info
-} from 'lucide-react';
 
 interface WorkConnectProduct {
   _id: string;
@@ -113,7 +102,7 @@ export default async function WorkConnectProductPage({
             {/* Content */}
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
-                <Wifi className="w-4 h-4 text-circleTel-orange" />
+                <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
                 <span className="text-sm font-medium text-circleTel-orange">
                   WorkConnect SOHO
                 </span>
@@ -144,7 +133,7 @@ export default async function WorkConnectProductPage({
                 >
                   <Link href="/?segment=wfh">
                     Check Coverage
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <PiArrowRightBold className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
@@ -162,15 +151,15 @@ export default async function WorkConnectProductPage({
               {/* Quick features */}
               <div className="flex flex-wrap gap-4 text-sm text-circleTel-grey600">
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   No contracts
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   Free installation
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   Uncapped data
                 </span>
               </div>
@@ -256,7 +245,7 @@ export default async function WorkConnectProductPage({
           {/* Technology Note */}
           <div className="max-w-2xl mx-auto mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
             <div className="flex gap-3">
-              <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <PiInfoBold className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800">
                 <p className="font-semibold mb-1">Upload Speed Note</p>
                 <p>
@@ -315,7 +304,7 @@ export default async function WorkConnectProductPage({
           <div className="max-w-xl mx-auto">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-circleTel-orange z-10" />
+                <PiMapPinBold className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-circleTel-orange z-10" />
                 <input
                   type="text"
                   placeholder="Enter your address"
@@ -329,7 +318,7 @@ export default async function WorkConnectProductPage({
               >
                 <Link href="/?segment=wfh">
                   Check Coverage
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             </div>

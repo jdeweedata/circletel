@@ -1,7 +1,7 @@
 'use client';
+import { PiQuotesBold } from 'react-icons/pi';
 
 import Image from 'next/image';
-import { Quote } from 'lucide-react';
 import { urlFor } from '@/lib/sanity/image';
 
 interface TestimonialBlockProps {
@@ -30,7 +30,7 @@ export function TestimonialBlock({
           {/* Quote Icon */}
           <div className="flex justify-center mb-8">
             <div className="w-16 h-16 bg-circleTel-orange/20 rounded-full flex items-center justify-center">
-              <Quote className="w-8 h-8 text-circleTel-orange" />
+              <PiQuotesBold className="w-8 h-8 text-circleTel-orange" />
             </div>
           </div>
 

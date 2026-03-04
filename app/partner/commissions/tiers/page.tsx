@@ -1,4 +1,5 @@
 'use client'
+import { PiCalculatorBold, PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiTrendUpBold, PiTrophyBold } from 'react-icons/pi';
 
 import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { TrendingUp, Calculator, Award, DollarSign, CheckCircle, Info } from 'lucide-react'
 
 interface CommissionTier {
   tier: number
@@ -165,7 +165,7 @@ export default function CommissionTiersPage() {
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-start space-x-3">
-            <Info className="h-5 w-5 text-blue-600 mt-1" />
+            <PiInfoBold className="h-5 w-5 text-blue-600 mt-1" />
             <div className="flex-1">
               <h3 className="font-semibold text-blue-900 mb-2">How Commission Tiers Work</h3>
               <ul className="text-sm text-blue-800 space-y-1">
@@ -184,7 +184,7 @@ export default function CommissionTiersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Calculator className="h-5 w-5 mr-2 text-circleTel-orange" />
+            <PiCalculatorBold className="h-5 w-5 mr-2 text-circleTel-orange" />
             Commission Calculator
           </CardTitle>
           <CardDescription>
@@ -273,7 +273,7 @@ export default function CommissionTiersPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 flex items-center">
-                      <TrendingUp className="h-4 w-4 mr-1" />
+                      <PiTrendUpBold className="h-4 w-4 mr-1" />
                       5-Year Lifetime Value (with renewals)
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
@@ -297,7 +297,7 @@ export default function CommissionTiersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Award className="h-5 w-5 mr-2 text-circleTel-orange" />
+            <PiTrophyBold className="h-5 w-5 mr-2 text-circleTel-orange" />
             Commission Tier Breakdown
           </CardTitle>
           <CardDescription>
@@ -372,14 +372,14 @@ export default function CommissionTiersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+            <PiCheckCircleBold className="h-5 w-5 mr-2 text-green-600" />
             Commission Benefits
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="p-4 border rounded-lg">
-              <DollarSign className="h-8 w-8 text-green-600 mb-2" />
+              <PiCurrencyDollarBold className="h-8 w-8 text-green-600 mb-2" />
               <h3 className="font-semibold mb-1">Lifetime Commissions</h3>
               <p className="text-sm text-gray-600">
                 Earn commissions on renewals and upgrades without time limitation
@@ -387,7 +387,7 @@ export default function CommissionTiersPage() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <TrendingUp className="h-8 w-8 text-blue-600 mb-2" />
+              <PiTrendUpBold className="h-8 w-8 text-blue-600 mb-2" />
               <h3 className="font-semibold mb-1">Higher Tiers = Higher Rates</h3>
               <p className="text-sm text-gray-600">
                 Enterprise packages (R2,000+) earn 4.125% vs 1.425% for entry-level
@@ -395,7 +395,7 @@ export default function CommissionTiersPage() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <Award className="h-8 w-8 text-purple-600 mb-2" />
+              <PiTrophyBold className="h-8 w-8 text-purple-600 mb-2" />
               <h3 className="font-semibold mb-1">Protected Rates</h3>
               <p className="text-sm text-gray-600">
                 Commission rates guaranteed with 90 days' notice required for changes
@@ -403,7 +403,7 @@ export default function CommissionTiersPage() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <CheckCircle className="h-8 w-8 text-orange-600 mb-2" />
+              <PiCheckCircleBold className="h-8 w-8 text-orange-600 mb-2" />
               <h3 className="font-semibold mb-1">Customer Ownership</h3>
               <p className="text-sm text-gray-600">
                 Permanent customer attribution - you own the customer relationship
@@ -411,7 +411,7 @@ export default function CommissionTiersPage() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <DollarSign className="h-8 w-8 text-green-600 mb-2" />
+              <PiCurrencyDollarBold className="h-8 w-8 text-green-600 mb-2" />
               <h3 className="font-semibold mb-1">Monthly Payouts</h3>
               <p className="text-sm text-gray-600">
                 Reliable payment schedule by the 25th of each month
@@ -419,7 +419,7 @@ export default function CommissionTiersPage() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <TrendingUp className="h-8 w-8 text-blue-600 mb-2" />
+              <PiTrendUpBold className="h-8 w-8 text-blue-600 mb-2" />
               <h3 className="font-semibold mb-1">Focus on High-Value</h3>
               <p className="text-sm text-gray-600">
                 Target enterprise clients for maximum commission potential

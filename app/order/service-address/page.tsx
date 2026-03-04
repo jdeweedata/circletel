@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiHouseBold, PiMapPinBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,7 +8,6 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { TopProgressBar } from '@/components/order/TopProgressBar';
 import { PackageSummary } from '@/components/order/PackageSummary';
 import { toast } from 'sonner';
-import { MapPin, Building2, Home, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
@@ -37,19 +37,19 @@ interface PropertyTypeOption {
 }
 
 const residentialOptions: PropertyTypeOption[] = [
-  { value: 'freestanding_home', label: 'Freestanding Home (Single Dwelling Unit – SDU)', icon: Home },
-  { value: 'gated_estate', label: 'Gated Estate or Security Estate', icon: Building2 },
-  { value: 'apartment_complex', label: 'Apartment / Flat Complex', icon: Building2 },
-  { value: 'townhouse', label: 'Townhouse', icon: Home },
+  { value: 'freestanding_home', label: 'Freestanding Home (Single Dwelling Unit – SDU)', icon: PiHouseBold },
+  { value: 'gated_estate', label: 'Gated Estate or Security Estate', icon: PiBuildingsBold },
+  { value: 'apartment_complex', label: 'Apartment / Flat Complex', icon: PiBuildingsBold },
+  { value: 'townhouse', label: 'Townhouse', icon: PiHouseBold },
 ];
 
 const businessOptions: PropertyTypeOption[] = [
-  { value: 'office_business_park', label: 'Office or Business Park', icon: Building2 },
-  { value: 'industrial_warehouse', label: 'Industrial or Warehouse', icon: Building2 },
-  { value: 'educational_facility', label: 'Educational Facility', icon: Building2 },
-  { value: 'healthcare_facility', label: 'Healthcare Facility', icon: Building2 },
-  { value: 'freestanding_building', label: 'Free Standing Building', icon: Building2 },
-  { value: 'soho', label: 'Small Office Home Office (SOHO)', icon: Home },
+  { value: 'office_business_park', label: 'Office or Business Park', icon: PiBuildingsBold },
+  { value: 'industrial_warehouse', label: 'Industrial or Warehouse', icon: PiBuildingsBold },
+  { value: 'educational_facility', label: 'Educational Facility', icon: PiBuildingsBold },
+  { value: 'healthcare_facility', label: 'Healthcare Facility', icon: PiBuildingsBold },
+  { value: 'freestanding_building', label: 'Free Standing Building', icon: PiBuildingsBold },
+  { value: 'soho', label: 'Small Office Home Office (SOHO)', icon: PiHouseBold },
 ];
 
 export default function ServiceAddressPage() {
@@ -358,7 +358,7 @@ export default function ServiceAddressPage() {
         {/* Header */}
         <div className="text-center mb-8 lg:mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-circleTel-orange/10 rounded-full mb-4">
-            <MapPin className="w-8 h-8 text-circleTel-orange" />
+            <PiMapPinBold className="w-8 h-8 text-circleTel-orange" />
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
             Confirm Service Address
@@ -397,7 +397,7 @@ export default function ServiceAddressPage() {
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <Home className={`w-8 h-8 mb-3 ${
+                    <PiHouseBold className={`w-8 h-8 mb-3 ${
                       serviceType === 'residential' ? 'text-circleTel-orange' : 'text-gray-400'
                     }`} />
                     <h3 className="font-semibold text-gray-900 mb-1">Residential</h3>
@@ -416,7 +416,7 @@ export default function ServiceAddressPage() {
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <Building2 className={`w-8 h-8 mb-3 ${
+                    <PiBuildingsBold className={`w-8 h-8 mb-3 ${
                       serviceType === 'business' ? 'text-circleTel-orange' : 'text-gray-400'
                     }`} />
                     <h3 className="font-semibold text-gray-900 mb-1">Business</h3>
@@ -429,7 +429,7 @@ export default function ServiceAddressPage() {
               <div className="space-y-6 mb-8">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <PiMapPinBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-blue-900 mb-1">
                         Service Address (from Coverage Check)
@@ -486,7 +486,7 @@ export default function ServiceAddressPage() {
                   onClick={handleBack}
                   className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <PiArrowLeftBold className="w-5 h-5" />
                   Back
                 </button>
 
@@ -497,7 +497,7 @@ export default function ServiceAddressPage() {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {authLoading ? 'Loading...' : 'Create Order'}
-                  {!authLoading && <ArrowRight className="w-5 h-5" />}
+                  {!authLoading && <PiArrowRightBold className="w-5 h-5" />}
                 </button>
               </div>
             </div>

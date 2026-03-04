@@ -1,5 +1,5 @@
+import { PiMagnifyingGlassBold, PiMapPinBold, PiXBold } from 'react-icons/pi';
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -362,7 +362,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-circleTel-orange"></div>
           </div>
         ) : (
-          <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral h-4 w-4 sm:h-5 sm:w-5" />
+          <PiMagnifyingGlassBold className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral h-4 w-4 sm:h-5 sm:w-5" />
         )}
         <Input
           ref={inputRef}
@@ -385,7 +385,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             className="absolute right-14 sm:right-16 md:right-20 top-1/2 transform -translate-y-1/2 text-circleTel-secondaryNeutral hover:text-circleTel-navy transition-colors z-10"
             type="button"
           >
-            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+            <PiXBold className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         )}
         {showLocationButton && (
@@ -407,7 +407,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             className="w-full border-2 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white transition-all"
             type="button"
           >
-            <MapPin className="h-4 w-4 mr-2" />
+            <PiMapPinBold className="h-4 w-4 mr-2" />
             Can't find your address? Select on map
           </Button>
         </div>
@@ -453,7 +453,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
               )}
             >
               <div className="flex items-start gap-2 sm:gap-3">
-                <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-circleTel-secondaryNeutral mt-0.5 sm:mt-1 flex-shrink-0" />
+                <PiMagnifyingGlassBold className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-circleTel-secondaryNeutral mt-0.5 sm:mt-1 flex-shrink-0" />
                 <div>
                   <div className="font-medium text-sm sm:text-base text-circleTel-navy">
                     {suggestion.address}

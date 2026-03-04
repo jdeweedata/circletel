@@ -1,4 +1,5 @@
 'use client';
+import { PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFileTextBold, PiPhoneBold, PiQuestionBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Customer Support Page
@@ -12,17 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  HelpCircle,
-  Phone,
-  Mail,
-  MessageSquare,
-  Clock,
-  FileText,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-} from 'lucide-react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
 interface FAQItem {
@@ -149,7 +139,7 @@ export default function SupportPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full bg-orange-100 p-3">
-                <Phone className="h-6 w-6 text-circleTel-orange" />
+                <PiPhoneBold className="h-6 w-6 text-circleTel-orange" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600">Call Us</p>
@@ -169,7 +159,7 @@ export default function SupportPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full bg-orange-100 p-3">
-                <Mail className="h-6 w-6 text-circleTel-orange" />
+                <PiEnvelopeBold className="h-6 w-6 text-circleTel-orange" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600">Email Us</p>
@@ -189,7 +179,7 @@ export default function SupportPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full bg-orange-100 p-3">
-                <MessageSquare className="h-6 w-6 text-circleTel-orange" />
+                <PiChatBold className="h-6 w-6 text-circleTel-orange" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600">My Tickets</p>
@@ -211,7 +201,7 @@ export default function SupportPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+            <PiFileTextBold className="h-5 w-5" />
             Submit a Support Request
           </CardTitle>
           <CardDescription>
@@ -221,7 +211,7 @@ export default function SupportPage() {
         <CardContent>
           {submitSuccess ? (
             <Alert className="bg-green-50 border-green-200">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <PiCheckCircleBold className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
                 Your support request has been submitted successfully! Redirecting to your tickets...
               </AlertDescription>
@@ -230,7 +220,7 @@ export default function SupportPage() {
             <form onSubmit={handleSubmitTicket} className="space-y-4">
               {submitError && (
                 <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
+                  <PiWarningCircleBold className="h-4 w-4" />
                   <AlertDescription>{submitError}</AlertDescription>
                 </Alert>
               )}
@@ -290,7 +280,7 @@ export default function SupportPage() {
               <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                     Submitting...
                   </>
                 ) : (
@@ -306,7 +296,7 @@ export default function SupportPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
+            <PiQuestionBold className="h-5 w-5" />
             Frequently Asked Questions
           </CardTitle>
           <CardDescription>Find quick answers to common questions</CardDescription>
@@ -360,7 +350,7 @@ export default function SupportPage() {
       <Card className="bg-gray-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">
-            <Clock className="h-5 w-5 text-circleTel-orange mt-1" />
+            <PiClockBold className="h-5 w-5 text-circleTel-orange mt-1" />
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">Support Hours</h3>
               <p className="text-sm text-gray-600">Monday - Friday: 8:00 AM - 5:00 PM SAST</p>

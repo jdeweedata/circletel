@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEyeBold, PiLightningBold, PiMagnifyingGlassBold, PiShieldBold, PiShieldWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, RefreshCw, Eye, CheckCircle2, XCircle, Shield, ShieldAlert, Zap, Download, RotateCcw } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface WebhookLog {
@@ -81,7 +81,7 @@ export default function WebhookLogsPage() {
           <p className="text-gray-600 mt-1">Monitor payment provider webhooks</p>
         </div>
         <Button onClick={fetchWebhooks} disabled={loading} className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -109,7 +109,7 @@ export default function WebhookLogsPage() {
         <CardHeader><CardTitle>Filters</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -134,7 +134,7 @@ export default function WebhookLogsPage() {
         <CardHeader><CardTitle>Webhook Logs ({webhooks.length})</CardTitle></CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex justify-center py-12"><RefreshCw className="h-8 w-8 animate-spin" /></div>
+            <div className="flex justify-center py-12"><PiArrowsClockwiseBold className="h-8 w-8 animate-spin" /></div>
           ) : webhooks.length === 0 ? (
             <div className="text-center py-12 text-gray-500">No webhooks found</div>
           ) : (
@@ -160,16 +160,16 @@ export default function WebhookLogsPage() {
                     <TableCell>{getStatusBadge(webhook.status)}</TableCell>
                     <TableCell>
                       {webhook.signature_verified ? (
-                        <Shield className="h-4 w-4 text-green-600" />
+                        <PiShieldBold className="h-4 w-4 text-green-600" />
                       ) : (
-                        <ShieldAlert className="h-4 w-4 text-red-600" />
+                        <PiShieldWarningBold className="h-4 w-4 text-red-600" />
                       )}
                     </TableCell>
                     <TableCell className="text-sm">{webhook.processing_duration_ms ? `${webhook.processing_duration_ms}ms` : '—'}</TableCell>
                     <TableCell className="text-sm">{new Date(webhook.received_at).toLocaleString()}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm" onClick={() => { setSelectedWebhook(webhook); setDetailsOpen(true); }}>
-                        <Eye className="h-4 w-4" />
+                        <PiEyeBold className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

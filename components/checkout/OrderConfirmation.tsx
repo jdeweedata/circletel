@@ -1,21 +1,10 @@
 'use client';
+import { PiCalendarBold, PiChatCircleBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFacebookLogoBold, PiMapPinBold, PiPhoneBold, PiShareBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  CheckCircle,
-  Download,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin,
-  Share2,
-  Twitter,
-  Facebook,
-  MessageCircle
-} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface OrderData {
@@ -116,7 +105,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
         <CardContent className="pt-8 pb-8 text-center">
           <div className="flex justify-center mb-4">
             <div className="h-20 w-20 rounded-full bg-green-500 flex items-center justify-center">
-              <CheckCircle className="h-12 w-12 text-white" />
+              <PiCheckCircleBold className="h-12 w-12 text-white" />
             </div>
           </div>
 
@@ -136,7 +125,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
 
           {emailSent && (
             <div className="mt-6 flex items-center justify-center gap-2 text-sm text-green-700 bg-green-100 py-2 px-4 rounded-lg inline-flex">
-              <Mail className="h-4 w-4" />
+              <PiEnvelopeBold className="h-4 w-4" />
               <span>Confirmation email sent to {orderData.customer.email}</span>
             </div>
           )}
@@ -150,7 +139,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-orange-500" />
+                <PiCalendarBold className="h-5 w-5 text-orange-500" />
                 What Happens Next?
               </CardTitle>
             </CardHeader>
@@ -236,7 +225,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
 
               <div className="pt-4 border-t">
                 <div className="flex items-start gap-2">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                  <PiMapPinBold className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-600">Installation Address</p>
                     <p className="text-gray-900">
@@ -254,7 +243,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Share2 className="h-5 w-5 text-orange-500" />
+                <PiShareBold className="h-5 w-5 text-orange-500" />
                 Share the Good News
               </CardTitle>
             </CardHeader>
@@ -278,7 +267,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
                   onClick={() => handleShare('facebook')}
                   className="flex-1"
                 >
-                  <Facebook className="h-4 w-4 mr-2" />
+                  <PiFacebookLogoBold className="h-4 w-4 mr-2" />
                   Facebook
                 </Button>
                 <Button
@@ -287,7 +276,7 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
                   onClick={() => handleShare('whatsapp')}
                   className="flex-1"
                 >
-                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <PiChatCircleBold className="h-4 w-4 mr-2" />
                   WhatsApp
                 </Button>
               </div>
@@ -305,21 +294,21 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start" asChild>
                 <a href="tel:0123456789">
-                  <Phone className="h-4 w-4 mr-2" />
+                  <PiPhoneBold className="h-4 w-4 mr-2" />
                   Call Us: 012 345 6789
                 </a>
               </Button>
 
               <Button variant="outline" className="w-full justify-start" asChild>
                 <a href="mailto:support@circletel.co.za">
-                  <Mail className="h-4 w-4 mr-2" />
+                  <PiEnvelopeBold className="h-4 w-4 mr-2" />
                   Email Support
                 </a>
               </Button>
 
               <Button variant="outline" className="w-full justify-start" asChild>
                 <a href="https://wa.me/27824873900" target="_blank">
-                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <PiChatCircleBold className="h-4 w-4 mr-2" />
                   WhatsApp Chat
                 </a>
               </Button>
@@ -337,13 +326,13 @@ export function OrderConfirmation({ orderData, className }: OrderConfirmationPro
                 className="w-full justify-start"
                 onClick={handleDownloadInvoice}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                 Download Invoice
               </Button>
 
               <Button variant="outline" className="w-full justify-start" asChild>
                 <a href="/terms" target="_blank">
-                  <Download className="h-4 w-4 mr-2" />
+                  <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                   Terms & Conditions
                 </a>
               </Button>

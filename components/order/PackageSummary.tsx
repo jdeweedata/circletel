@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckCircleBold, PiLightningBold, PiPackageBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
-import { Package, Wifi, Zap, CheckCircle } from 'lucide-react';
 import { PackageDetails } from '@/lib/order/types';
 
 // South African VAT rate (15%)
@@ -36,7 +36,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
             <div className="flex-shrink-0 w-10 h-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-              <Wifi className="w-5 h-5 text-circleTel-orange" />
+              <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 text-sm mb-1">
@@ -52,7 +52,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
                       key={index}
                       className="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-0.5 rounded"
                     >
-                      <CheckCircle className="w-3 h-3 text-green-600" />
+                      <PiCheckCircleBold className="w-3 h-3 text-green-600" />
                       {feature}
                     </span>
                   ))}
@@ -89,7 +89,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
     <div className="bg-gradient-to-br from-circleTel-orange/5 to-orange-50 rounded-xl border-2 border-circleTel-orange/20 p-6">
       <div className="flex items-start gap-4 mb-4">
         <div className="flex-shrink-0 w-14 h-14 bg-circleTel-orange rounded-xl flex items-center justify-center shadow-lg">
-          <Package className="w-7 h-7 text-white" />
+          <PiPackageBold className="w-7 h-7 text-white" />
         </div>
         <div className="flex-1">
           <div className="flex items-start justify-between gap-4 mb-2">
@@ -98,7 +98,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
                 {pkg.name}
               </h3>
               <div className="flex items-center gap-2 text-gray-700">
-                <Zap className="w-4 h-4 text-circleTel-orange" />
+                <PiLightningBold className="w-4 h-4 text-circleTel-orange" />
                 <span className="font-medium">
                   {pkg.speed || `${pkg.speed_down}Mbps Down / ${pkg.speed_up}Mbps Up`}
                 </span>
@@ -144,7 +144,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
                   key={index}
                   className="flex items-start gap-2 text-sm text-gray-700"
                 >
-                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>{feature}</span>
                 </div>
               ))}
@@ -172,7 +172,7 @@ export function PackageSummary({ package: pkg, compact = false, showVatInclusive
                 )}
                 {pkg.router_included && (
                   <div className="flex items-center gap-1 text-green-700">
-                    <CheckCircle className="w-4 h-4" />
+                    <PiCheckCircleBold className="w-4 h-4" />
                     <span className="font-medium">Router Included</span>
                   </div>
                 )}

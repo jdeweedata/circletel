@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowRightBold, PiBatteryFullBold, PiBookOpenBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiFileTextBold, PiGlobeBold, PiShieldCheckBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,20 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Activity,
-  Battery,
-  Globe,
-  Wifi,
-  FileText,
-  Download,
-  ArrowRight,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  Users,
-  ShieldCheck
-} from 'lucide-react';
 
 const Resources = () => {
   const mainResources = [
@@ -28,7 +15,7 @@ const Resources = () => {
       id: "it-health",
       title: "IT Health Assessment",
       description: "Get a comprehensive evaluation of your current IT infrastructure with actionable recommendations",
-      icon: <Activity className="h-8 w-8 text-green-600" />,
+      icon: <PiActivityBold className="h-8 w-8 text-green-600" />,
       badge: "Free",
       badgeColor: "bg-green-500",
       features: ["Network Security Audit", "Performance Analysis", "Risk Assessment", "Improvement Roadmap"],
@@ -41,7 +28,7 @@ const Resources = () => {
       id: "power-backup",
       title: "Power Backup Solutions",
       description: "Protect your business from power outages with our comprehensive UPS and backup power guide",
-      icon: <Battery className="h-8 w-8 text-blue-600" />,
+      icon: <PiBatteryFullBold className="h-8 w-8 text-blue-600" />,
       badge: "Guide",
       badgeColor: "bg-blue-500",
       features: ["UPS Sizing Calculator", "Backup Time Estimates", "Cost Analysis", "Installation Guide"],
@@ -54,7 +41,7 @@ const Resources = () => {
       id: "connectivity-guide",
       title: "Business Connectivity Guide",
       description: "Complete guide to choosing the right internet connectivity for your business needs",
-      icon: <Globe className="h-8 w-8 text-purple-600" />,
+      icon: <PiGlobeBold className="h-8 w-8 text-purple-600" />,
       badge: "Guide",
       badgeColor: "bg-purple-500",
       features: ["Speed Requirements", "Technology Comparison", "Cost Calculator", "Provider Evaluation"],
@@ -67,7 +54,7 @@ const Resources = () => {
       id: "wifi-toolkit",
       title: "Wi-Fi Planning Toolkit",
       description: "Professional tools and calculators for planning your business Wi-Fi deployment",
-      icon: <Wifi className="h-8 w-8 text-orange-600" />,
+      icon: <PiWifiBold className="h-8 w-8 text-orange-600" />,
       badge: "Tools",
       badgeColor: "bg-orange-500",
       features: ["Coverage Calculator", "Access Point Planner", "Speed Requirements", "Security Checklist"],
@@ -83,21 +70,21 @@ const Resources = () => {
       title: "IT Budget Template",
       description: "Spreadsheet template for planning your annual IT budget",
       type: "Download",
-      icon: <Download className="h-5 w-5" />,
+      icon: <PiDownloadSimpleBold className="h-5 w-5" />,
       link: "#"
     },
     {
       title: "Security Checklist",
       description: "25-point security checklist for small businesses",
       type: "PDF",
-      icon: <ShieldCheck className="h-5 w-5" />,
+      icon: <PiShieldCheckBold className="h-5 w-5" />,
       link: "#"
     },
     {
       title: "Network Documentation Template",
       description: "Template for documenting your network infrastructure",
       type: "Download",
-      icon: <FileText className="h-5 w-5" />,
+      icon: <PiFileTextBold className="h-5 w-5" />,
       link: "#"
     }
   ];
@@ -186,7 +173,7 @@ const Resources = () => {
                         <div>
                           <CardTitle className="text-xl mb-2">{resource.title}</CardTitle>
                           <div className="flex items-center text-sm text-circleTel-secondaryNeutral">
-                            <Clock className="h-4 w-4 mr-1" />
+                            <PiClockBold className="h-4 w-4 mr-1" />
                             <span>{resource.time} to complete</span>
                           </div>
                         </div>
@@ -201,7 +188,7 @@ const Resources = () => {
                       <ul className="space-y-2">
                         {resource.features.map((feature, featureIndex) => (
                           <li key={featureIndex} className="flex items-center text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                            <PiCheckCircleBold className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -214,7 +201,7 @@ const Resources = () => {
                       variant={resource.popular ? 'default' : 'outline'}
                     >
                       <Link href={resource.link}>
-                        {resource.cta} <ArrowRight className="ml-2 h-4 w-4" />
+                        {resource.cta} <PiArrowRightBold className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </CardContent>
@@ -266,7 +253,7 @@ const Resources = () => {
             <div className="max-w-4xl mx-auto">
               <Card className="bg-gradient-to-r from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20">
                 <CardContent className="p-8 text-center">
-                  <Users className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                  <PiUsersBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                   <h3 className="text-2xl font-bold text-circleTel-navy mb-4">
                     Need Expert Guidance?
                   </h3>

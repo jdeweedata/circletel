@@ -1,20 +1,9 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiLightningBold, PiPencilSimpleBold, PiRouterBold, PiUploadSimpleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Download,
-  Upload,
-  DollarSign,
-  Wrench,
-  Router,
-  Wifi,
-  CheckCircle,
-  Edit,
-  Zap,
-  Calendar,
-} from 'lucide-react';
 
 interface ServicePackage {
   id: string;
@@ -57,7 +46,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
             </div>
             {onEdit && (
               <Button variant="outline" size="sm" onClick={onEdit}>
-                <Edit className="w-4 h-4 mr-2" />
+                <PiPencilSimpleBold className="w-4 h-4 mr-2" />
                 Change Package
               </Button>
             )}
@@ -70,7 +59,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Wifi className="w-5 h-5 text-circleTel-orange" />
+              <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
               Package Details
             </CardTitle>
           </CardHeader>
@@ -87,7 +76,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                 <div className="flex items-center gap-2 mb-1">
-                  <Download className="w-4 h-4 text-green-600" />
+                  <PiDownloadSimpleBold className="w-4 h-4 text-green-600" />
                   <p className="text-xs text-gray-600">Download</p>
                 </div>
                 <p className="text-xl font-bold text-green-700">{pkg.speed_down}</p>
@@ -96,7 +85,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
 
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-2 mb-1">
-                  <Upload className="w-4 h-4 text-blue-600" />
+                  <PiUploadSimpleBold className="w-4 h-4 text-blue-600" />
                   <p className="text-xs text-gray-600">Upload</p>
                 </div>
                 <p className="text-xl font-bold text-blue-700">{pkg.speed_up}</p>
@@ -118,7 +107,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
               <ul className="space-y-2">
                 {pkg.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <PiCheckCircleBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -129,7 +118,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
             <div className="pt-4 border-t space-y-2">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-gray-600">
-                  <Wrench className="w-4 h-4" />
+                  <PiWrenchBold className="w-4 h-4" />
                   Installation
                 </span>
                 {installationFee > 0 ? (
@@ -143,7 +132,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
 
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-gray-600">
-                  <Router className="w-4 h-4" />
+                  <PiRouterBold className="w-4 h-4" />
                   Router
                 </span>
                 {pkg.router_included ? (
@@ -162,7 +151,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
         <Card className="border-circleTel-orange">
           <CardHeader className="bg-gradient-to-br from-orange-50 to-white">
             <CardTitle className="text-lg flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-circleTel-orange" />
+              <PiCurrencyDollarBold className="w-5 h-5 text-circleTel-orange" />
               Pricing Summary
             </CardTitle>
           </CardHeader>
@@ -191,7 +180,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
               {hasPromo && pkg.promotion_months && (
                 <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-green-600" />
+                    <PiLightningBold className="w-4 h-4 text-green-600" />
                     <div>
                       <p className="text-sm font-semibold text-green-700">
                         Special Offer - Save R{savings.toFixed(2)}/month
@@ -246,7 +235,7 @@ export function Step1PackageConfirmation({ package: pkg, onEdit }: Step1PackageC
             <div className="pt-4 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <PiCalendarBold className="w-4 h-4 text-gray-500" />
                   <p className="text-sm font-medium">Then each month</p>
                 </div>
                 <p className="text-lg font-bold text-gray-700">

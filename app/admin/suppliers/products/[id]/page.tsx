@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiHouseBold, PiInfoBold, PiMapPinBold, PiPackageBold, PiStackBold, PiTagBold, PiTrendDownBold, PiTrendUpBold, PiTruckBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -24,26 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  ArrowLeft,
-  Box,
-  MapPin,
-  TrendingUp,
-  TrendingDown,
-  ExternalLink,
-  Package,
-  Clock,
-  Tag,
-  Building,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  RefreshCw,
-  Layers,
-  Info,
-  Home,
-  Truck,
-} from 'lucide-react'
 import { SupplierProduct, Supplier } from '@/lib/suppliers/types'
 
 interface ProductWithDetails extends SupplierProduct {
@@ -136,7 +117,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin" className="flex items-center gap-1">
-                  <Home className="h-4 w-4" />
+                  <PiHouseBold className="h-4 w-4" />
                   Admin
                 </Link>
               </BreadcrumbLink>
@@ -145,7 +126,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin/suppliers" className="flex items-center gap-1">
-                  <Truck className="h-4 w-4" />
+                  <PiTruckBold className="h-4 w-4" />
                   Suppliers
                 </Link>
               </BreadcrumbLink>
@@ -165,7 +146,7 @@ export default function ProductDetailPage() {
 
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" disabled>
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
         </div>
@@ -190,7 +171,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin" className="flex items-center gap-1">
-                  <Home className="h-4 w-4" />
+                  <PiHouseBold className="h-4 w-4" />
                   Admin
                 </Link>
               </BreadcrumbLink>
@@ -199,7 +180,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin/suppliers" className="flex items-center gap-1">
-                  <Truck className="h-4 w-4" />
+                  <PiTruckBold className="h-4 w-4" />
                   Suppliers
                 </Link>
               </BreadcrumbLink>
@@ -219,13 +200,13 @@ export default function ProductDetailPage() {
 
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers/products')}>
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Product Details</h1>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
-            <AlertCircle className="w-12 h-12 mx-auto text-red-400 mb-4" />
+            <PiWarningCircleBold className="w-12 h-12 mx-auto text-red-400 mb-4" />
             <p className="text-gray-600 mb-4">{error}</p>
             <Button variant="outline" onClick={() => router.push('/admin/suppliers/products')}>
               Back to Products
@@ -246,7 +227,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin" className="flex items-center gap-1">
-                  <Home className="h-4 w-4" />
+                  <PiHouseBold className="h-4 w-4" />
                   Admin
                 </Link>
               </BreadcrumbLink>
@@ -255,7 +236,7 @@ export default function ProductDetailPage() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/admin/suppliers" className="flex items-center gap-1">
-                  <Truck className="h-4 w-4" />
+                  <PiTruckBold className="h-4 w-4" />
                   Suppliers
                 </Link>
               </BreadcrumbLink>
@@ -275,13 +256,13 @@ export default function ProductDetailPage() {
 
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers/products')}>
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Product Details</h1>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
-            <Package className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+            <PiPackageBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
             <p className="text-gray-500">Product not found</p>
           </CardContent>
         </Card>
@@ -300,7 +281,7 @@ export default function ProductDetailPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/admin" className="flex items-center gap-1">
-                <Home className="h-4 w-4" />
+                <PiHouseBold className="h-4 w-4" />
                 Admin
               </Link>
             </BreadcrumbLink>
@@ -309,7 +290,7 @@ export default function ProductDetailPage() {
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/admin/suppliers" className="flex items-center gap-1">
-                <Truck className="h-4 w-4" />
+                <PiTruckBold className="h-4 w-4" />
                 Suppliers
               </Link>
             </BreadcrumbLink>
@@ -336,7 +317,7 @@ export default function ProductDetailPage() {
             onClick={() => router.push('/admin/suppliers/products')}
             className="mt-1"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
@@ -364,36 +345,36 @@ export default function ProductDetailPage() {
         <div className="flex flex-wrap items-center gap-2 ml-12 md:ml-0">
           {product.is_active ? (
             <Badge className="bg-green-100 text-green-700 border-green-200">
-              <CheckCircle className="w-3 h-3 mr-1" />
+              <PiCheckCircleBold className="w-3 h-3 mr-1" />
               Active
             </Badge>
           ) : (
             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-              <XCircle className="w-3 h-3 mr-1" />
+              <PiXCircleBold className="w-3 h-3 mr-1" />
               Inactive
             </Badge>
           )}
           {product.is_discontinued && (
             <Badge variant="destructive">
-              <AlertCircle className="w-3 h-3 mr-1" />
+              <PiWarningCircleBold className="w-3 h-3 mr-1" />
               Discontinued
             </Badge>
           )}
           {product.in_stock ? (
             <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-              <Package className="w-3 h-3 mr-1" />
+              <PiPackageBold className="w-3 h-3 mr-1" />
               In Stock ({product.stock_total})
             </Badge>
           ) : (
             <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
-              <Package className="w-3 h-3 mr-1" />
+              <PiPackageBold className="w-3 h-3 mr-1" />
               Out of Stock
             </Badge>
           )}
           {product.product_url && (
             <Button variant="outline" size="sm" asChild>
               <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-1" />
+                <PiArrowSquareOutBold className="w-4 h-4 mr-1" />
                 View at Supplier
               </a>
             </Button>
@@ -431,7 +412,7 @@ export default function ProductDetailPage() {
                       }}
                     />
                   ) : (
-                    <Box className="w-16 h-16 text-gray-300" />
+                    <PiCubeBold className="w-16 h-16 text-gray-300" />
                   )}
                 </div>
               </CardContent>
@@ -441,7 +422,7 @@ export default function ProductDetailPage() {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Info className="w-5 h-5 text-gray-400" />
+                  <PiInfoBold className="w-5 h-5 text-gray-400" />
                   Product Details
                 </CardTitle>
               </CardHeader>
@@ -456,14 +437,14 @@ export default function ProductDetailPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
-                      <Building className="w-4 h-4" />
+                      <PiBuildingBold className="w-4 h-4" />
                       Manufacturer
                     </label>
                     <p className="mt-1 text-gray-900">{product.manufacturer || '-'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
-                      <Tag className="w-4 h-4" />
+                      <PiTagBold className="w-4 h-4" />
                       Category
                     </label>
                     <p className="mt-1 text-gray-900">
@@ -492,7 +473,7 @@ export default function ProductDetailPage() {
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-gray-600"
                         >
-                          <ExternalLink className="w-4 h-4" />
+                          <PiArrowSquareOutBold className="w-4 h-4" />
                         </a>
                       )}
                     </div>
@@ -518,9 +499,9 @@ export default function ProductDetailPage() {
                       {priceChanged && (
                         <span className={`flex items-center text-sm ${priceIncreased ? 'text-red-500' : 'text-green-500'}`}>
                           {priceIncreased ? (
-                            <TrendingUp className="w-4 h-4 mr-1" />
+                            <PiTrendUpBold className="w-4 h-4 mr-1" />
                           ) : (
-                            <TrendingDown className="w-4 h-4 mr-1" />
+                            <PiTrendDownBold className="w-4 h-4 mr-1" />
                           )}
                           from {formatPrice(product.previous_cost_price)}
                         </span>
@@ -564,7 +545,7 @@ export default function ProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-gray-400" />
+                  <PiMapPinBold className="w-5 h-5 text-gray-400" />
                   Stock by Branch
                 </CardTitle>
               </CardHeader>
@@ -629,7 +610,7 @@ export default function ProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-gray-400" />
+                  <PiStackBold className="w-5 h-5 text-gray-400" />
                   Specifications
                 </CardTitle>
               </CardHeader>
@@ -653,7 +634,7 @@ export default function ProductDetailPage() {
                   </Table>
                 ) : (
                   <div className="text-center py-8 text-gray-400">
-                    <Layers className="w-8 h-8 mx-auto mb-2" />
+                    <PiStackBold className="w-8 h-8 mx-auto mb-2" />
                     <p>No specifications available</p>
                   </div>
                 )}
@@ -670,14 +651,14 @@ export default function ProductDetailPage() {
                   <ul className="space-y-2">
                     {product.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <PiCheckCircleBold className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <div className="text-center py-8 text-gray-400">
-                    <CheckCircle className="w-8 h-8 mx-auto mb-2" />
+                    <PiCheckCircleBold className="w-8 h-8 mx-auto mb-2" />
                     <p>No features listed</p>
                   </div>
                 )}
@@ -693,7 +674,7 @@ export default function ProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <RefreshCw className="w-5 h-5 text-gray-400" />
+                  <PiArrowsClockwiseBold className="w-5 h-5 text-gray-400" />
                   Sync Information
                 </CardTitle>
               </CardHeader>
@@ -714,7 +695,7 @@ export default function ProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-gray-400" />
+                  <PiClockBold className="w-5 h-5 text-gray-400" />
                   Timestamps
                 </CardTitle>
               </CardHeader>

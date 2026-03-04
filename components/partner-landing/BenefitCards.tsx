@@ -1,40 +1,40 @@
 'use client';
+import { PiDeviceMobileBold, PiHeadphonesBold, PiLightningBold, PiMoneyBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
-import { Banknote, Wifi, Smartphone, Users, Headphones, Zap } from 'lucide-react';
 
 const benefits = [
   {
-    icon: Banknote,
+    icon: PiMoneyBold,
     title: 'High Commissions',
     stat: '30%',
     description: 'recurring commission on every customer you refer.',
   },
   {
-    icon: Wifi,
+    icon: PiWifiBold,
     title: 'Full Product Range',
     stat: 'Fibre • LTE • 5G',
     description: 'home, business, and rural connectivity solutions.',
   },
   {
-    icon: Smartphone,
+    icon: PiDeviceMobileBold,
     title: 'Work From Anywhere',
     stat: '100%',
     description: 'remote. Share links via WhatsApp, social media, or in person.',
   },
   {
-    icon: Users,
+    icon: PiUsersBold,
     title: 'Dedicated Support',
     stat: '1-on-1',
     description: 'partner manager to help you close deals faster.',
   },
   {
-    icon: Headphones,
+    icon: PiHeadphonesBold,
     title: 'Local Support',
     stat: '24/7',
     description: 'South African support team. No overseas call centres.',
   },
   {
-    icon: Zap,
+    icon: PiLightningBold,
     title: 'Fast Onboarding',
     stat: '5 min',
     description: 'to sign up and get your unique referral link.',

@@ -1,7 +1,7 @@
 'use client';
+import { PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type SegmentType = 'business' | 'wfh' | 'home';
@@ -116,7 +116,7 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className, variant
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 shadow-md rounded-full flex items-center justify-center text-circleTel-navy"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <PiCaretLeftBold className="w-5 h-5" />
         </button>
       )}
       {isMobile && canScrollRight && (
@@ -125,7 +125,7 @@ export function SegmentTabs({ activeSegment, onSegmentChange, className, variant
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/90 shadow-md rounded-full flex items-center justify-center text-circleTel-navy"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-5 h-5" />
+          <PiCaretRightBold className="w-5 h-5" />
         </button>
       )}
 

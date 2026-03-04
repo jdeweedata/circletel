@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiInfoBold, PiLockBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -13,7 +14,6 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Eye, EyeOff, Info, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -413,7 +413,7 @@ export default function AccountPage() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                            <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p className="text-xs">We'll send order updates to this email</p>
@@ -449,7 +449,7 @@ export default function AccountPage() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                            <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p className="text-xs">Must be at least 8 characters</p>
@@ -476,9 +476,9 @@ export default function AccountPage() {
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                           >
                             {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
+                              <PiEyeSlashBold className="w-4 h-4" />
                             ) : (
-                              <Eye className="w-4 h-4" />
+                              <PiEyeBold className="w-4 h-4" />
                             )}
                           </button>
                         </div>
@@ -498,7 +498,7 @@ export default function AccountPage() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                            <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p className="text-xs">We'll send a verification code to this number</p>
@@ -574,7 +574,7 @@ export default function AccountPage() {
                     disabled={isSubmitting || isGoogleLoading}
                     className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                   >
-                    <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <PiLockBold className="w-4 h-4 sm:w-5 sm:h-5" />
                     {isSubmitting ? 'Creating account...' : 'Create account'}
                   </button>
 
@@ -585,7 +585,7 @@ export default function AccountPage() {
                       onClick={handleBack}
                       className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <PiArrowLeftBold className="w-4 h-4" />
                       Back to Packages
                     </button>
                   </div>

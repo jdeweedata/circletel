@@ -4,21 +4,12 @@
  */
 
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiEnvelopeBold, PiInfoBold, PiPhoneBold, PiWarningBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  AlertCircle,
-  AlertTriangle,
-  RefreshCw,
-  ArrowLeft,
-  Phone,
-  Mail,
-  Info,
-  XCircle,
-} from 'lucide-react';
 import { mapPaymentError, shouldSuggestAlternative, getAlternativePaymentSuggestion, PaymentErrorCode } from '@/lib/payment/payment-errors';
 import { getRetryInfo } from '@/lib/payment/payment-persistence';
 
@@ -49,12 +40,12 @@ export function PaymentErrorDisplay({
 
   const getSeverityIcon = () => {
     if (errorInfo.code === PaymentErrorCode.CANCELLED || errorInfo.code === PaymentErrorCode.ABANDONED) {
-      return <Info className="h-5 w-5 text-blue-500" />;
+      return <PiInfoBold className="h-5 w-5 text-blue-500" />;
     }
     if (showAlternative) {
-      return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+      return <PiWarningBold className="h-5 w-5 text-amber-500" />;
     }
-    return <XCircle className="h-5 w-5 text-red-500" />;
+    return <PiXCircleBold className="h-5 w-5 text-red-500" />;
   };
 
   const getSeverityColor = () => {
@@ -90,7 +81,7 @@ export function PaymentErrorDisplay({
       {/* Retry Count Warning */}
       {retryCount > 0 && (
         <Alert>
-          <Info className="h-4 w-4" />
+          <PiInfoBold className="h-4 w-4" />
           <AlertDescription>
             You've attempted payment {retryCount} time{retryCount !== 1 ? 's' : ''}.
             {retryCount >= 3 && ' After multiple attempts, we recommend contacting support for assistance.'}
@@ -115,7 +106,7 @@ export function PaymentErrorDisplay({
               size="lg"
               variant={retryCount >= 3 ? 'outline' : 'default'}
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Try Payment Again
             </Button>
           )}
@@ -123,7 +114,7 @@ export function PaymentErrorDisplay({
           {/* Too Many Retries Warning */}
           {retryCount >= 5 && (
             <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
+              <PiWarningBold className="h-4 w-4" />
               <AlertDescription>
                 Maximum retry attempts reached. Please contact support or try a different payment method.
               </AlertDescription>
@@ -138,7 +129,7 @@ export function PaymentErrorDisplay({
               className="w-full"
               size="lg"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <PiArrowLeftBold className="h-4 w-4 mr-2" />
               Back to Order Summary
             </Button>
           )}
@@ -150,7 +141,7 @@ export function PaymentErrorDisplay({
               size="lg"
               onClick={() => window.location.href = 'tel:0860247253'}
             >
-              <Phone className="h-4 w-4 mr-2" />
+              <PiPhoneBold className="h-4 w-4 mr-2" />
               Call Support
             </Button>
             <Button
@@ -158,7 +149,7 @@ export function PaymentErrorDisplay({
               size="lg"
               onClick={() => window.location.href = 'mailto:support@circletel.co.za'}
             >
-              <Mail className="h-4 w-4 mr-2" />
+              <PiEnvelopeBold className="h-4 w-4 mr-2" />
               Email Support
             </Button>
           </div>
@@ -170,7 +161,7 @@ export function PaymentErrorDisplay({
         <Card className="border-amber-200 bg-amber-50" data-testid="alternative-payment-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-amber-900">
-              <AlertTriangle className="h-5 w-5" />
+              <PiWarningBold className="h-5 w-5" />
               Alternative Payment Options
             </CardTitle>
             <CardDescription className="text-amber-800">
@@ -246,7 +237,7 @@ export function PaymentErrorBanner({
 
   return (
     <Alert variant="destructive" className="mb-4">
-      <AlertCircle className="h-4 w-4" />
+      <PiWarningCircleBold className="h-4 w-4" />
       <AlertTitle>Payment Failed</AlertTitle>
       <AlertDescription className="flex items-center justify-between">
         <span>{errorInfo.userMessage}</span>

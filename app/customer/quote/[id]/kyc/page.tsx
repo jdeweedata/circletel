@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { LightKYCSession } from '@/components/compliance/LightKYCSession';
 import { KYCStatusBadge } from '@/components/compliance/KYCStatusBadge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface KYCPageProps {
   params: Promise<{ id: string }>;
@@ -169,7 +169,7 @@ export default function KYCPage({ params }: KYCPageProps) {
         <Card className="w-full max-w-md">
           <CardContent className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
               <p className="text-sm text-circleTel-secondaryNeutral">
                 Loading KYC verification...
               </p>
@@ -187,7 +187,7 @@ export default function KYCPage({ params }: KYCPageProps) {
         <Card className="w-full max-w-md">
           <CardContent className="py-8">
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
 
@@ -196,7 +196,7 @@ export default function KYCPage({ params }: KYCPageProps) {
               variant="outline"
               className="w-full mt-4"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
               Try Again
             </Button>
           </CardContent>
@@ -248,7 +248,7 @@ export default function KYCPage({ params }: KYCPageProps) {
             <CardContent className="space-y-4">
               {error && (
                 <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
+                  <PiWarningCircleBold className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -260,12 +260,12 @@ export default function KYCPage({ params }: KYCPageProps) {
               >
                 {isCreatingSession ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                     Creating new session...
                   </>
                 ) : (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
+                    <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
                     Retry Verification
                   </>
                 )}
@@ -311,7 +311,7 @@ export default function KYCPage({ params }: KYCPageProps) {
             ) : (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-3" />
+                  <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-3" />
                   <p className="text-sm text-circleTel-secondaryNeutral">
                     Preparing verification session...
                   </p>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiLockBold, PiShieldBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import Link from 'next/link';
-import { ArrowLeft, Eye, EyeOff, Lock, Shield } from 'lucide-react';
 
 // Login form validation schema
 const loginSchema = z.object({
@@ -177,7 +177,7 @@ export default function AdminLoginPage() {
               {/* Admin Badge */}
               <div className="flex justify-center mb-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
-                  <Shield className="h-6 w-6 text-circleTel-orange" />
+                  <PiShieldBold className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
 
@@ -245,9 +245,9 @@ export default function AdminLoginPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                           {showPassword ? (
-                            <EyeOff className="w-4 h-4" />
+                            <PiEyeSlashBold className="w-4 h-4" />
                           ) : (
-                            <Eye className="w-4 h-4" />
+                            <PiEyeBold className="w-4 h-4" />
                           )}
                         </button>
                       </div>
@@ -274,7 +274,7 @@ export default function AdminLoginPage() {
                   disabled={isSubmitting}
                   className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PiLockBold className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isSubmitting ? 'Signing in...' : 'Sign in'}
                 </button>
               </form>
@@ -285,7 +285,7 @@ export default function AdminLoginPage() {
                   href="/"
                   className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <PiArrowLeftBold className="w-4 h-4" />
                   Back to Home
                 </Link>
               </div>

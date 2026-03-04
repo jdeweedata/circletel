@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFileTextBold, PiHandshakeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,21 +19,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  ArrowLeft,
-  Building,
-  Mail,
-  Phone,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  FileText,
-  Handshake,
-  Loader2,
-  MapPin,
-} from 'lucide-react';
 
 interface Partner {
   id: string;
@@ -168,8 +154,8 @@ export default function PendingApprovalsPage() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-      pending: { variant: 'secondary', icon: <Clock className="h-3 w-3 mr-1" /> },
-      under_review: { variant: 'outline', icon: <AlertCircle className="h-3 w-3 mr-1" /> },
+      pending: { variant: 'secondary', icon: <PiClockBold className="h-3 w-3 mr-1" /> },
+      under_review: { variant: 'outline', icon: <PiWarningCircleBold className="h-3 w-3 mr-1" /> },
     };
 
     const { variant, icon } = config[status] || { variant: 'outline' as const, icon: null };
@@ -210,7 +196,7 @@ export default function PendingApprovalsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => router.push('/admin/partners')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
           <div>
@@ -225,13 +211,13 @@ export default function PendingApprovalsPage() {
       {/* Applications Queue */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : partners.length === 0 ? (
         <Card>
           <CardContent className="py-16">
             <div className="text-center">
-              <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <PiCheckCircleBold className="h-12 w-12 text-green-500 mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-gray-900 mb-2">All Caught Up!</h2>
               <p className="text-gray-600">No pending partner applications to review.</p>
               <Button
@@ -254,7 +240,7 @@ export default function PendingApprovalsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                        <Handshake className="h-6 w-6 text-circleTel-orange" />
+                        <PiHandshakeBold className="h-6 w-6 text-circleTel-orange" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg text-gray-900">
@@ -279,7 +265,7 @@ export default function PendingApprovalsPage() {
                     <div className="space-y-1">
                       <Label className="text-gray-500 text-xs uppercase">Email</Label>
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-gray-400" />
+                        <PiEnvelopeBold className="h-4 w-4 text-gray-400" />
                         <a href={`mailto:${partner.email}`} className="text-blue-600 hover:underline text-sm">
                           {partner.email}
                         </a>
@@ -289,7 +275,7 @@ export default function PendingApprovalsPage() {
                     <div className="space-y-1">
                       <Label className="text-gray-500 text-xs uppercase">Phone</Label>
                       <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
+                        <PiPhoneBold className="h-4 w-4 text-gray-400" />
                         <span className="text-sm">{partner.phone}</span>
                       </div>
                     </div>
@@ -297,7 +283,7 @@ export default function PendingApprovalsPage() {
                     <div className="space-y-1">
                       <Label className="text-gray-500 text-xs uppercase">Business Type</Label>
                       <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-gray-400" />
+                        <PiBuildingBold className="h-4 w-4 text-gray-400" />
                         <span className="text-sm capitalize">{partner.business_type.replace('_', ' ')}</span>
                       </div>
                     </div>
@@ -305,7 +291,7 @@ export default function PendingApprovalsPage() {
                     <div className="space-y-1">
                       <Label className="text-gray-500 text-xs uppercase">Location</Label>
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <PiMapPinBold className="h-4 w-4 text-gray-400" />
                         <span className="text-sm">{partner.city}, {partner.province}</span>
                       </div>
                     </div>
@@ -313,7 +299,7 @@ export default function PendingApprovalsPage() {
                     <div className="space-y-1">
                       <Label className="text-gray-500 text-xs uppercase">Compliance Status</Label>
                       <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-gray-400" />
+                        <PiFileTextBold className="h-4 w-4 text-gray-400" />
                         {getComplianceStatus(partner.compliance_status)}
                       </div>
                     </div>
@@ -338,9 +324,9 @@ export default function PendingApprovalsPage() {
                     disabled={processingId === partner.id}
                   >
                     {processingId === partner.id ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                      <PiCheckCircleBold className="h-4 w-4 mr-2" />
                     )}
                     Quick Approve
                   </Button>
@@ -354,7 +340,7 @@ export default function PendingApprovalsPage() {
                         disabled={processingId === partner.id}
                         onClick={() => setSelectedPartnerId(partner.id)}
                       >
-                        <XCircle className="h-4 w-4 mr-2" />
+                        <PiXCircleBold className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
                     </AlertDialogTrigger>

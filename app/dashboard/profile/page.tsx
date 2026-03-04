@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiEnvelopeBold, PiFileTextBold, PiFloppyDiskBold, PiHashBold, PiIdentificationCardBold, PiPencilSimpleBold, PiPhoneBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -6,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
-import { User, Mail, Phone, Building2, FileText, Hash, Save, Edit2, X, IdCard } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, customer, refreshCustomer, session } = useCustomerAuth();
@@ -124,7 +124,7 @@ export default function ProfilePage() {
               onClick={() => setIsEditing(true)}
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
-              <Edit2 className="h-4 w-4 mr-2" />
+              <PiPencilSimpleBold className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
           ) : (
@@ -134,7 +134,7 @@ export default function ProfilePage() {
                 onClick={handleCancel}
                 disabled={isSaving}
               >
-                <X className="h-4 w-4 mr-2" />
+                <PiXBold className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
               <Button
@@ -142,7 +142,7 @@ export default function ProfilePage() {
                 disabled={isSaving}
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
-                <Save className="h-4 w-4 mr-2" />
+                <PiFloppyDiskBold className="h-4 w-4 mr-2" />
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
@@ -152,7 +152,7 @@ export default function ProfilePage() {
           {/* Account Number (Read-only) */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <IdCard className="h-4 w-4 text-circleTel-orange" />
+              <PiIdentificationCardBold className="h-4 w-4 text-circleTel-orange" />
               Account Number
             </label>
             <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-circleTel-orange/30">
@@ -168,7 +168,7 @@ export default function ProfilePage() {
           {/* Email (Read-only) */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Mail className="h-4 w-4 text-circleTel-orange" />
+              <PiEnvelopeBold className="h-4 w-4 text-circleTel-orange" />
               Email Address
             </label>
             <div className="px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -180,7 +180,7 @@ export default function ProfilePage() {
           {/* First Name */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <User className="h-4 w-4 text-circleTel-orange" />
+              <PiUserBold className="h-4 w-4 text-circleTel-orange" />
               First Name
             </label>
             {isEditing ? (
@@ -200,7 +200,7 @@ export default function ProfilePage() {
           {/* Last Name */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <User className="h-4 w-4 text-circleTel-orange" />
+              <PiUserBold className="h-4 w-4 text-circleTel-orange" />
               Last Name
             </label>
             {isEditing ? (
@@ -220,7 +220,7 @@ export default function ProfilePage() {
           {/* Phone */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Phone className="h-4 w-4 text-circleTel-orange" />
+              <PiPhoneBold className="h-4 w-4 text-circleTel-orange" />
               Phone Number
             </label>
             {isEditing ? (
@@ -240,7 +240,7 @@ export default function ProfilePage() {
           {/* Account Type Badge */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <FileText className="h-4 w-4 text-circleTel-orange" />
+              <PiFileTextBold className="h-4 w-4 text-circleTel-orange" />
               Account Type
             </label>
             <div className="px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -267,7 +267,7 @@ export default function ProfilePage() {
             {/* Business Name */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-circleTel-orange" />
+                <PiBuildingsBold className="h-4 w-4 text-circleTel-orange" />
                 Business Name
               </label>
               {isEditing ? (
@@ -287,7 +287,7 @@ export default function ProfilePage() {
             {/* Business Registration */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FileText className="h-4 w-4 text-circleTel-orange" />
+                <PiFileTextBold className="h-4 w-4 text-circleTel-orange" />
                 Registration Number
               </label>
               {isEditing ? (
@@ -307,7 +307,7 @@ export default function ProfilePage() {
             {/* Tax Number */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Hash className="h-4 w-4 text-circleTel-orange" />
+                <PiHashBold className="h-4 w-4 text-circleTel-orange" />
                 Tax Number
               </label>
               {isEditing ? (

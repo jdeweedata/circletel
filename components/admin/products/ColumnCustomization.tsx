@@ -1,4 +1,5 @@
 'use client';
+import { PiColumnsBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Columns3 } from 'lucide-react';
 
 export interface ColumnVisibility {
   provider: boolean;
@@ -100,7 +100,7 @@ export function ColumnCustomization({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Columns3 className="h-5 w-5" />
+            <PiColumnsBold className="h-5 w-5" />
             Customize List View Columns
           </DialogTitle>
           <DialogDescription>

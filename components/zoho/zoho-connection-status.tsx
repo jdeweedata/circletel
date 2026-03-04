@@ -1,10 +1,10 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useZohoConnection } from '@/hooks/use-zoho-mcp';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 
 // Type for connection test response data
 interface ConnectionTestData {
@@ -23,9 +23,9 @@ export function ZohoConnectionStatus() {
   };
 
   const getStatusIcon = () => {
-    if (isLoading) return <Loader2 className="h-4 w-4 animate-spin" />;
-    if (error || !data?.success) return <XCircle className="h-4 w-4" />;
-    return <CheckCircle2 className="h-4 w-4" />;
+    if (isLoading) return <PiSpinnerBold className="h-4 w-4 animate-spin" />;
+    if (error || !data?.success) return <PiXCircleBold className="h-4 w-4" />;
+    return <PiCheckCircleBold className="h-4 w-4" />;
   };
 
   const getStatusText = () => {
@@ -46,7 +46,7 @@ export function ZohoConnectionStatus() {
             onClick={() => refetch()}
             disabled={isLoading}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Test
           </Button>
         </CardTitle>

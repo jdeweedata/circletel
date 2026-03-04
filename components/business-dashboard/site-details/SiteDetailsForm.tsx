@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiFloppyDiskBold, PiInfoBold, PiMapPinBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
 
 /**
  * Site Details Form Component
@@ -14,21 +15,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
-import {
-  Building2,
-  MapPin,
-  CheckSquare,
-  DoorOpen,
-  Camera,
-  ChevronRight,
-  ChevronLeft,
-  Save,
-  Send,
-  Loader2,
-  Info,
-  AlertTriangle,
-  CheckCircle2,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -164,19 +150,19 @@ const FORM_STEPS: FormStep[] = [
     id: 'premises',
     title: 'Premises Information',
     description: 'Property ownership and type',
-    icon: Building2,
+    icon: PiBuildingsBold,
   },
   {
     id: 'equipment',
     title: 'Equipment Location',
     description: 'Where equipment will be installed',
-    icon: MapPin,
+    icon: PiMapPinBold,
   },
   {
     id: 'rfi',
     title: 'RFI Checklist',
     description: 'Ready for Installation requirements',
-    icon: CheckSquare,
+    icon: PiCheckSquareBold,
   },
   {
     id: 'access',
@@ -236,7 +222,7 @@ function StepProgress({
                       )}
                     >
                       {isCompleted ? (
-                        <CheckCircle2 size={20} />
+                        <PiCheckCircleBold size={20} />
                       ) : (
                         <Icon size={18} />
                       )}
@@ -513,7 +499,7 @@ export function SiteDetailsForm({
                 {/* Leased premises warning */}
                 {premisesOwnership === 'leased' && (
                   <Alert>
-                    <AlertTriangle className="h-4 w-4" />
+                    <PiWarningBold className="h-4 w-4" />
                     <AlertTitle>Landlord Consent Required</AlertTitle>
                     <AlertDescription>
                       For leased premises, landlord consent is required before installation can proceed.
@@ -808,7 +794,7 @@ export function SiteDetailsForm({
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                                      <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <p className="max-w-xs">{item.helpText}</p>
@@ -847,7 +833,7 @@ export function SiteDetailsForm({
                 {/* RFI Status Summary */}
                 {!hasRackFacility || !hasAccessControl || !hasAirConditioning || !hasAcPower ? (
                   <Alert variant="default">
-                    <Info className="h-4 w-4" />
+                    <PiInfoBold className="h-4 w-4" />
                     <AlertTitle>Partial RFI Status</AlertTitle>
                     <AlertDescription>
                       You can still submit with incomplete RFI requirements. Our team will follow up
@@ -856,7 +842,7 @@ export function SiteDetailsForm({
                   </Alert>
                 ) : (
                   <Alert className="border-green-200 bg-green-50">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <AlertTitle className="text-green-700">Ready for Installation</AlertTitle>
                     <AlertDescription className="text-green-600">
                       All RFI requirements have been confirmed. Your site is ready for equipment installation.
@@ -927,7 +913,7 @@ export function SiteDetailsForm({
 
                   {premisesOwnership === 'leased' && (
                     <Alert>
-                      <Info className="h-4 w-4" />
+                      <PiInfoBold className="h-4 w-4" />
                       <AlertDescription>
                         Building manager contact is required for leased premises to coordinate installation access.
                       </AlertDescription>
@@ -1074,7 +1060,7 @@ export function SiteDetailsForm({
                   <label htmlFor="photo-upload" className="cursor-pointer">
                     {uploadingPhotos ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="w-10 h-10 text-circleTel-orange animate-spin" />
+                        <PiSpinnerBold className="w-10 h-10 text-circleTel-orange animate-spin" />
                         <p className="text-sm text-gray-600">Uploading photos...</p>
                       </div>
                     ) : (
@@ -1121,7 +1107,7 @@ export function SiteDetailsForm({
                 {/* Photo validation error */}
                 {form.formState.errors.root && (
                   <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
+                    <PiWarningBold className="h-4 w-4" />
                     <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
                   </Alert>
                 )}
@@ -1135,7 +1121,7 @@ export function SiteDetailsForm({
           <div>
             {currentStep > 0 && (
               <Button type="button" variant="outline" onClick={goPrev} disabled={isSubmitting}>
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <PiCaretLeftBold className="w-4 h-4 mr-1" />
                 Previous
               </Button>
             )}
@@ -1151,9 +1137,9 @@ export function SiteDetailsForm({
                 disabled={isSaving || isSubmitting}
               >
                 {isSaving ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <Save className="w-4 h-4 mr-2" />
+                  <PiFloppyDiskBold className="w-4 h-4 mr-2" />
                 )}
                 Save Draft
               </Button>
@@ -1163,15 +1149,15 @@ export function SiteDetailsForm({
             {currentStep < FORM_STEPS.length - 1 ? (
               <Button type="button" onClick={goNext} disabled={isSubmitting}>
                 Next
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <PiCaretRightBold className="w-4 h-4 ml-1" />
               </Button>
             ) : (
               !isReadOnly && (
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Send className="w-4 h-4 mr-2" />
+                    <PiPaperPlaneRightBold className="w-4 h-4 mr-2" />
                   )}
                   Submit Site Details
                 </Button>

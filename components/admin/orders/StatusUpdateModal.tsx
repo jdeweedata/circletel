@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -22,7 +23,6 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2 } from 'lucide-react';
 
 interface StatusUpdateModalProps {
   open: boolean;
@@ -251,14 +251,14 @@ export function StatusUpdateModal({ open, onClose, order, onSuccess }: StatusUpd
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {/* Info Alert */}
             <Alert>
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>
                 <strong>Note:</strong> The customer will receive an automated email notification
                 about this status change.
@@ -273,7 +273,7 @@ export function StatusUpdateModal({ open, onClose, order, onSuccess }: StatusUpd
             <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Updating...
                 </>
               ) : (

@@ -1,8 +1,8 @@
 'use client';
+import { PiCheckBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
 
 export type CheckoutStep = 'package' | 'account' | 'payment';
 
@@ -115,7 +115,7 @@ export function CheckoutProgress({
                     )}
                   >
                     {completed ? (
-                      <Check className="w-5 h-5" aria-hidden="true" />
+                      <PiCheckBold className="w-5 h-5" aria-hidden="true" />
                     ) : (
                       <span className="text-sm">{index + 1}</span>
                     )}
@@ -217,7 +217,7 @@ export function CompactCheckoutProgress({
               aria-label={`Step ${index + 1}`}
               aria-current={active ? 'step' : undefined}
             >
-              {completed ? <Check className="w-4 h-4" /> : index + 1}
+              {completed ? <PiCheckBold className="w-4 h-4" /> : index + 1}
             </div>
             {index < steps.length - 1 && (
               <div
@@ -330,7 +330,7 @@ export function VerticalCheckoutProgress({
                 )}
               >
                 {completed ? (
-                  <Check className="w-5 h-5" aria-hidden="true" />
+                  <PiCheckBold className="w-5 h-5" aria-hidden="true" />
                 ) : (
                   <span className="text-sm">{index + 1}</span>
                 )}

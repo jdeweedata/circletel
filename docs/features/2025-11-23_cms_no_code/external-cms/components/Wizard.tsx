@@ -1,9 +1,9 @@
+import { PiMagicWandBold, PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generatePageContent, generateImage, improvePrompt } from '../services/geminiService';
 import { savePage } from '../services/storageService';
 import { Page, GenerationParams } from '../types';
-import { Loader2, Wand2, Sparkles } from 'lucide-react';
 
 const Wizard: React.FC = () => {
   const navigate = useNavigate();
@@ -89,7 +89,7 @@ const Wizard: React.FC = () => {
             <div className="relative mb-8">
               <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-75"></div>
               <div className="relative bg-blue-600 text-white p-4 rounded-full">
-                <Wand2 size={32} />
+                <PiMagicWandBold size={32} />
               </div>
             </div>
             
@@ -130,7 +130,7 @@ const Wizard: React.FC = () => {
                     }`}
                     title="Enhance with AI"
                   >
-                    {enhancing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                    {enhancing ? <PiSpinnerBold size={18} className="animate-spin" /> : <PiSparklesBold size={18} />}
                   </button>
                 </div>
                 {enhancing && <p className="text-xs text-purple-600 font-medium animate-pulse">Refining your idea...</p>}
@@ -218,7 +218,7 @@ const Wizard: React.FC = () => {
                 type="submit"
                 className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
               >
-                <Wand2 size={18} />
+                <PiMagicWandBold size={18} />
                 Generate with AI
               </button>
             </form>

@@ -1,5 +1,5 @@
+import { PiStarBold, PiTrophyBold, PiUsersBold } from 'react-icons/pi';
 import React from 'react'
-import { Trophy, Star, Award, Users } from 'lucide-react'
 
 interface AwardItem {
   title: string
@@ -52,7 +52,7 @@ export default function AwardsSection({ awards = defaultAwards }: AwardsSectionP
             <div key={index} className="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow group">
               <div className="mb-4">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Trophy className="w-10 h-10 text-white" />
+                  <PiTrophyBold className="w-10 h-10 text-white" />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">{award.title}</h3>

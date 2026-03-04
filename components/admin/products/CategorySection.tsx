@@ -1,8 +1,8 @@
 'use client';
+import { PiCaretDownBold, PiCaretRightBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export interface CategorySectionProps {
@@ -117,9 +117,9 @@ export function CategorySection({
           {/* Expand/Collapse Icon */}
           <div className={cn('transition-transform duration-200', colors.icon)}>
             {isExpanded ? (
-              <ChevronDown className="h-5 w-5" />
+              <PiCaretDownBold className="h-5 w-5" />
             ) : (
-              <ChevronRight className="h-5 w-5" />
+              <PiCaretRightBold className="h-5 w-5" />
             )}
           </div>
 

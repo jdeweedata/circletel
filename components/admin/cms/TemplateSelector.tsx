@@ -1,4 +1,5 @@
 'use client';
+import { PiClockBold, PiFileTextBold, PiSparklesBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Template Selector Modal
@@ -10,16 +11,6 @@ import { useState, useEffect } from 'react';
 import { usePageBuilderStore } from '@/lib/cms/store';
 import { cn } from '@/lib/utils';
 import type { CMSTemplate } from '@/lib/cms/types';
-import {
-  X,
-  FileText,
-  Loader2,
-  Layout,
-  Newspaper,
-  ShoppingBag,
-  Clock,
-  Sparkles,
-} from 'lucide-react';
 
 interface TemplateSelectorProps {
   isOpen: boolean;
@@ -108,7 +99,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <PiXBold className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
@@ -116,7 +107,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
         <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <PiSpinnerBold className="w-8 h-8 text-orange-500 animate-spin" />
             </div>
           ) : error ? (
             <div className="text-center py-12">
@@ -142,13 +133,13 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
                 )}
               >
                 <div className="w-full aspect-video bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                  <FileText className="w-12 h-12 text-gray-400" />
+                  <PiFileTextBold className="w-12 h-12 text-gray-400" />
                 </div>
                 <h3 className="font-medium text-gray-900">Blank Page</h3>
                 <p className="text-xs text-gray-500 mt-1">Start from scratch</p>
                 {selectedTemplate === null && (
                   <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-white" />
+                    <PiSparklesBold className="w-3 h-3 text-white" />
                   </div>
                 )}
               </button>
@@ -195,7 +186,7 @@ export function TemplateSelector({ isOpen, onClose, onSelect }: TemplateSelector
 
                     {isSelected && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-white" />
+                        <PiSparklesBold className="w-3 h-3 text-white" />
                       </div>
                     )}
                   </button>

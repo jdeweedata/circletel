@@ -1,4 +1,5 @@
 'use client';
+import { PiGearBold, PiMinusBold, PiPackageBold, PiPlusBold } from 'react-icons/pi';
 
 /**
  * Step 4: Configure
@@ -7,12 +8,6 @@
  */
 
 import { useCallback } from 'react';
-import {
-  Settings,
-  Plus,
-  Minus,
-  Package,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -154,7 +149,7 @@ export function ConfigureStep({
   if (selectedPackages.length === 0) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <Package className="h-12 w-12 mx-auto text-gray-300" />
+        <PiPackageBold className="h-12 w-12 mx-auto text-gray-300" />
         <p className="mt-4 text-gray-500">No packages selected</p>
         <p className="text-sm text-gray-400">Please go back and select packages first</p>
       </div>
@@ -211,7 +206,7 @@ export function ConfigureStep({
                             }
                             disabled={pkg.quantity <= 1}
                           >
-                            <Minus className="h-3 w-3" />
+                            <PiMinusBold className="h-3 w-3" />
                           </Button>
                           <span className="w-8 text-center text-sm">{pkg.quantity}</span>
                           <Button
@@ -221,7 +216,7 @@ export function ConfigureStep({
                               updatePackageQuantity(pkg.package_id, site.index, pkg.quantity + 1)
                             }
                           >
-                            <Plus className="h-3 w-3" />
+                            <PiPlusBold className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
@@ -256,7 +251,7 @@ export function ConfigureStep({
               {/* Add-ons Section */}
               <div className="border-t pt-4 mt-4">
                 <h5 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
+                  <PiGearBold className="h-4 w-4" />
                   Add-ons for this site
                 </h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -292,7 +287,7 @@ export function ConfigureStep({
                               }
                               disabled={selected.quantity <= 1}
                             >
-                              <Minus className="h-3 w-3" />
+                              <PiMinusBold className="h-3 w-3" />
                             </Button>
                             <span className="w-6 text-center text-sm">{selected.quantity}</span>
                             <Button
@@ -302,7 +297,7 @@ export function ConfigureStep({
                                 updateAddOnQuantity(site.index, addOn.add_on_id, selected.quantity + 1)
                               }
                             >
-                              <Plus className="h-3 w-3" />
+                              <PiPlusBold className="h-3 w-3" />
                             </Button>
                           </div>
                         )}

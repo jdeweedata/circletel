@@ -1,4 +1,5 @@
 'use client';
+import { PiBellBold, PiBuildingsBold, PiCaretDownBold, PiGearBold, PiListBold, PiSignOutBold, PiUserBold } from 'react-icons/pi';
 
 /**
  * Business Dashboard Header
@@ -12,15 +13,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import {
-  Bell,
-  ChevronDown,
-  LogOut,
-  Settings,
-  User,
-  Building2,
-  Menu,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -72,7 +64,7 @@ export function BusinessDashboardHeader({
             />
           </Link>
           <div className="hidden sm:flex items-center gap-2 pl-4 border-l">
-            <Building2 className="h-4 w-4 text-circleTel-orange" />
+            <PiBuildingsBold className="h-4 w-4 text-circleTel-orange" />
             <span className="text-sm font-medium text-gray-700">
               {companyName}
             </span>
@@ -104,7 +96,7 @@ export function BusinessDashboardHeader({
         <div className="flex items-center gap-2">
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
+            <PiBellBold className="h-5 w-5" />
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
           </Button>
 
@@ -116,7 +108,7 @@ export function BusinessDashboardHeader({
                 className="hidden sm:flex items-center gap-2"
               >
                 <div className="h-8 w-8 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                  <User className="h-4 w-4 text-circleTel-orange" />
+                  <PiUserBold className="h-4 w-4 text-circleTel-orange" />
                 </div>
                 <div className="text-left hidden md:block">
                   <p className="text-sm font-medium">{displayName}</p>
@@ -124,7 +116,7 @@ export function BusinessDashboardHeader({
                     {email}
                   </p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+                <PiCaretDownBold className="h-4 w-4 text-gray-500" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -139,7 +131,7 @@ export function BusinessDashboardHeader({
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/business/dashboard/settings" className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <PiGearBold className="mr-2 h-4 w-4" />
                   Settings
                 </Link>
               </DropdownMenuItem>
@@ -148,7 +140,7 @@ export function BusinessDashboardHeader({
                 onClick={onSignOut}
                 className="text-red-600 cursor-pointer"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <PiSignOutBold className="mr-2 h-4 w-4" />
                 Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -158,13 +150,13 @@ export function BusinessDashboardHeader({
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
-                <Menu className="h-5 w-5" />
+                <PiListBold className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-circleTel-orange" />
+                  <PiBuildingsBold className="h-5 w-5 text-circleTel-orange" />
                   {companyName}
                 </SheetTitle>
               </SheetHeader>

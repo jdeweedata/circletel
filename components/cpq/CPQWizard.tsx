@@ -1,4 +1,5 @@
 'use client';
+import { PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CPQ Wizard Main Container
@@ -8,22 +9,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ClipboardList,
-  MapPin,
-  Package,
-  Settings,
-  DollarSign,
-  Users,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  Save,
-  Loader2,
-  AlertCircle,
-  CheckCircle2,
-  X,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -256,7 +241,7 @@ export function CPQWizard({
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
           <p className="mt-2 text-gray-500">Loading session...</p>
         </div>
       </div>
@@ -268,7 +253,7 @@ export function CPQWizard({
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <AlertCircle className="h-8 w-8 mx-auto text-red-500" />
+          <PiWarningCircleBold className="h-8 w-8 mx-auto text-red-500" />
           <p className="mt-2 text-gray-700 font-medium">Failed to load session</p>
           <p className="text-sm text-gray-500">{sessionError}</p>
           <Button
@@ -294,13 +279,13 @@ export function CPQWizard({
               Session: {session?.id?.slice(0, 8)}...
               {lastSaved && (
                 <span className="ml-2 text-green-600">
-                  <CheckCircle2 className="inline h-3 w-3 mr-1" />
+                  <PiCheckCircleBold className="inline h-3 w-3 mr-1" />
                   Saved {lastSaved.toLocaleTimeString()}
                 </span>
               )}
               {isSaving && (
                 <span className="ml-2 text-gray-400">
-                  <Loader2 className="inline h-3 w-3 mr-1 animate-spin" />
+                  <PiSpinnerBold className="inline h-3 w-3 mr-1 animate-spin" />
                   Saving...
                 </span>
               )}
@@ -308,12 +293,12 @@ export function CPQWizard({
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving}>
-              <Save className="h-4 w-4 mr-1" />
+              <PiFloppyDiskBold className="h-4 w-4 mr-1" />
               Save
             </Button>
             {onCancel && (
               <Button variant="ghost" size="sm" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-1" />
+                <PiXBold className="h-4 w-4 mr-1" />
                 Cancel
               </Button>
             )}
@@ -354,7 +339,7 @@ export function CPQWizard({
             onClick={handlePrev}
             disabled={isFirstStep}
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
+            <PiCaretLeftBold className="h-4 w-4 mr-1" />
             Previous
           </Button>
 
@@ -368,7 +353,7 @@ export function CPQWizard({
               className="bg-circleTel-orange hover:bg-orange-600"
             >
               Next
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <PiCaretRightBold className="h-4 w-4 ml-1" />
             </Button>
           ) : (
             <Button
@@ -379,7 +364,7 @@ export function CPQWizard({
               }}
               className="bg-green-600 hover:bg-green-700"
             >
-              <CheckCircle2 className="h-4 w-4 mr-1" />
+              <PiCheckCircleBold className="h-4 w-4 mr-1" />
               Create Quote
             </Button>
           )}

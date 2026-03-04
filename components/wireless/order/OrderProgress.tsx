@@ -1,6 +1,6 @@
+import { PiCheckCircleBold } from 'react-icons/pi';
 "use client"
 
-import { CheckCircle } from "lucide-react"
 
 interface OrderProgressProps {
   currentStep: number
@@ -44,7 +44,7 @@ export function OrderProgress({ currentStep }: OrderProgressProps) {
               `}
             >
               {step.id < currentStep ? (
-                <CheckCircle className="w-5 h-5" />
+                <PiCheckCircleBold className="w-5 h-5" />
               ) : (
                 step.id
               )}

@@ -9,23 +9,13 @@
  */
 
 'use client';
+import { PiArrowSquareOutBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCurrencyDollarBold, PiFileTextBold, PiLinkBold, PiPlusBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  TrendingUp,
-  FileText,
-  DollarSign,
-  CheckCircle,
-  Clock,
-  Link2,
-  ExternalLink,
-  Copy,
-  Plus
-} from 'lucide-react';
 import type { SalesAgent } from '@/lib/sales-agents/types';
 
 function AgentDashboardContent() {
@@ -126,11 +116,11 @@ function AgentDashboardContent() {
                 variant="outline"
                 onClick={() => copyLink(agent.unique_link_token)}
               >
-                <Link2 className="h-4 w-4 mr-2" />
+                <PiLinkBold className="h-4 w-4 mr-2" />
                 Copy My Link
               </Button>
               <Button onClick={() => router.push('/quotes/request')}>
-                <Plus className="h-4 w-4 mr-2" />
+                <PiPlusBold className="h-4 w-4 mr-2" />
                 New Quote
               </Button>
             </div>
@@ -146,7 +136,7 @@ function AgentDashboardContent() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Quotes</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <PiFileTextBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{agent.total_quotes_created}</div>
@@ -160,7 +150,7 @@ function AgentDashboardContent() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <PiCheckCircleBold className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{agent.total_quotes_accepted}</div>
@@ -174,7 +164,7 @@ function AgentDashboardContent() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <PiCurrencyDollarBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -190,7 +180,7 @@ function AgentDashboardContent() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Quotes</CardTitle>
-              <Clock className="h-4 w-4 text-orange-600" />
+              <PiClockBold className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-600">
@@ -241,7 +231,7 @@ function AgentDashboardContent() {
               <CardContent>
                 {quotes.length === 0 ? (
                   <div className="text-center py-12">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <PiFileTextBold className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
                       No quotes yet
                     </h3>
@@ -249,7 +239,7 @@ function AgentDashboardContent() {
                       Create your first quote to get started
                     </p>
                     <Button onClick={() => router.push('/quotes/request')}>
-                      <Plus className="h-4 w-4 mr-2" />
+                      <PiPlusBold className="h-4 w-4 mr-2" />
                       Create Quote
                     </Button>
                   </div>
@@ -311,14 +301,14 @@ function AgentDashboardContent() {
                     className="flex-1 px-3 py-2 border rounded-md bg-gray-50 text-sm"
                   />
                   <Button onClick={() => copyLink(agent.unique_link_token)}>
-                    <Copy className="h-4 w-4 mr-2" />
+                    <PiCopyBold className="h-4 w-4 mr-2" />
                     Copy
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => window.open(`/quotes/request?token=${agent.unique_link_token}`, '_blank')}
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <PiArrowSquareOutBold className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -335,7 +325,7 @@ function AgentDashboardContent() {
                 <div className="text-center py-8">
                   <p className="text-gray-600 mb-4">Coming soon</p>
                   <Button variant="outline" disabled>
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PiPlusBold className="h-4 w-4 mr-2" />
                     Create Temporary Link
                   </Button>
                 </div>

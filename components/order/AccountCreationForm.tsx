@@ -1,7 +1,7 @@
 'use client'
+import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiInfoBold, PiLockBold } from 'react-icons/pi';
 
 import React, { useState } from 'react'
-import { Eye, EyeOff, Lock, Info, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -107,7 +107,7 @@ export default function AccountCreationForm({
               <Label htmlFor="email" className="text-sm sm:text-base font-semibold">
                 Email <span className="text-red-600">*</span>
               </Label>
-              <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
             </div>
             <Input
               id="email"
@@ -127,7 +127,7 @@ export default function AccountCreationForm({
               <Label htmlFor="password" className="text-sm sm:text-base font-semibold">
                 Password <span className="text-red-600">*</span>
               </Label>
-              <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
             </div>
             <div className="relative">
               <Input
@@ -147,9 +147,9 @@ export default function AccountCreationForm({
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
+                  <PiEyeSlashBold className="w-4 h-4" />
                 ) : (
-                  <Eye className="w-4 h-4" />
+                  <PiEyeBold className="w-4 h-4" />
                 )}
               </button>
             </div>
@@ -161,7 +161,7 @@ export default function AccountCreationForm({
               <Label htmlFor="phone" className="text-sm sm:text-base font-semibold">
                 Cellphone Number <span className="text-red-600">*</span>
               </Label>
-              <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              <PiInfoBold className="w-4 h-4 text-gray-400 cursor-help" />
             </div>
             <Input
               id="phone"
@@ -218,7 +218,7 @@ export default function AccountCreationForm({
             disabled={!formData.acceptTerms || isLoading}
             className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-sm sm:text-base py-3 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
           >
-            <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            <PiLockBold className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             {isLoading ? 'Creating account...' : 'Create account'}
           </Button>
 
@@ -231,7 +231,7 @@ export default function AccountCreationForm({
                 className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 disabled={isLoading}
               >
-                <ArrowLeft className="w-4 h-4" />
+                <PiArrowLeftBold className="w-4 h-4" />
                 Back to Packages
               </button>
             </div>

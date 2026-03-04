@@ -1,6 +1,6 @@
 'use client';
+import { PiCheckBold } from 'react-icons/pi';
 
-import { Check } from 'lucide-react';
 
 const tiers = [
   { tier: 1, name: 'Starter', min: 0, max: 99, rate: '1.43%', monthly: 'R0 - R99', color: 'from-gray-500 to-gray-600' },
@@ -77,18 +77,18 @@ export function CommissionStructure() {
               {/* Benefits */}
               <div className="space-y-2">
                 <div className="flex items-start gap-2 text-sm text-circleTel-secondaryNeutral">
-                  <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>Recurring commission</span>
                 </div>
                 {tier.tier >= 4 && (
                   <div className="flex items-start gap-2 text-sm text-circleTel-secondaryNeutral">
-                    <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <span>Priority support</span>
                   </div>
                 )}
                 {tier.tier >= 6 && (
                   <div className="flex items-start gap-2 text-sm text-circleTel-secondaryNeutral">
-                    <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <span>Dedicated manager</span>
                   </div>
                 )}

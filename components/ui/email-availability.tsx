@@ -4,10 +4,10 @@
  */
 
 'use client';
+import { PiCheckBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface EmailAvailabilityProps {
@@ -79,21 +79,21 @@ export function EmailAvailability({
     <div className={cn('flex items-center gap-2 text-sm mt-2', className)}>
       {status === 'checking' && (
         <>
-          <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+          <PiSpinnerBold className="h-4 w-4 animate-spin text-gray-400" />
           <span className="text-gray-600">Checking availability...</span>
         </>
       )}
 
       {status === 'available' && (
         <>
-          <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
+          <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0" />
           <span className="text-green-600">{message}</span>
         </>
       )}
 
       {status === 'taken' && (
         <>
-          <X className="h-4 w-4 text-red-600 flex-shrink-0" />
+          <PiXBold className="h-4 w-4 text-red-600 flex-shrink-0" />
           <span className="text-red-600">{message}</span>
         </>
       )}

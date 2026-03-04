@@ -1,25 +1,11 @@
 'use client';
+import { PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiStarBold, PiUserBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import {
-  Calendar,
-  Clock,
-  User,
-  Phone,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  MapPin,
-  Wrench,
-  Package,
-  Star,
-  MessageSquare
-} from 'lucide-react';
 
 interface InstallationTask {
   id: string;
@@ -130,14 +116,14 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Wrench className="h-5 w-5 text-circleTel-orange" />
+              <PiWrenchBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
           </div>
         </div>
         <div className="p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </div>
       </div>
@@ -154,14 +140,14 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Wrench className="h-5 w-5 text-circleTel-orange" />
+              <PiWrenchBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
           </div>
         </div>
         <div className="p-6">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <PiWarningCircleBold className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         </div>
@@ -179,14 +165,14 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Wrench className="h-5 w-5 text-circleTel-orange" />
+              <PiWrenchBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
           </div>
         </div>
         <div className="p-6">
           <div className="text-center py-8 text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <PiCalendarBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
             <p className="text-sm">No installation scheduled yet</p>
           </div>
         </div>
@@ -204,7 +190,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Wrench className="h-5 w-5 text-circleTel-orange" />
+              <PiWrenchBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Installation Details</h3>
           </div>
@@ -217,7 +203,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
           <h4 className="text-sm font-semibold text-gray-900">Schedule</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-gray-400 mt-0.5" />
+              <PiCalendarBold className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Scheduled Date</p>
                 <p className="text-sm text-gray-900">
@@ -232,7 +218,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
             </div>
             {task.scheduled_time_slot && (
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-gray-400 mt-0.5" />
+                <PiClockBold className="h-5 w-5 text-gray-400 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Time Slot</p>
                   <p className="text-sm text-gray-900 capitalize">{task.scheduled_time_slot}</p>
@@ -250,12 +236,12 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
               <h4 className="text-sm font-semibold text-gray-900">Assigned Technician</h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <PiUserBold className="h-5 w-5 text-gray-400" />
                   <span className="text-sm text-gray-900">{String(task.technician.name)}</span>
                 </div>
                 {task.technician.phone && (
                   <div className="flex items-center gap-3">
-                    <Phone className="h-5 w-5 text-gray-400" />
+                    <PiPhoneBold className="h-5 w-5 text-gray-400" />
                     <a href={`tel:${task.technician.phone}`} className="text-sm text-blue-600 hover:underline">
                       {String(task.technician.phone)}
                     </a>
@@ -263,7 +249,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
                 )}
                 {task.technician.email && (
                   <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <PiEnvelopeBold className="h-5 w-5 text-gray-400" />
                     <a href={`mailto:${task.technician.email}`} className="text-sm text-blue-600 hover:underline">
                       {String(task.technician.email)}
                     </a>
@@ -314,7 +300,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
             <Separator />
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <Package className="h-4 w-4" />
+                <PiPackageBold className="h-4 w-4" />
                 Equipment Installed
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -360,14 +346,14 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
             <Separator />
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
+                <PiChatBold className="h-4 w-4" />
                 Customer Feedback
               </h4>
               {task.customer_rating && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star
+                      <PiStarBold
                         key={i}
                         className={`h-4 w-4 ${
                           i < task.customer_rating!
@@ -395,7 +381,7 @@ export function InstallationSection({ orderId, className }: InstallationSectionP
             <Separator />
             <div className="space-y-2">
               <h4 className="text-sm font-semibold text-red-900 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 Issues Encountered
               </h4>
               <p className="text-sm text-gray-700 bg-red-50 p-3 rounded-md border border-red-200">

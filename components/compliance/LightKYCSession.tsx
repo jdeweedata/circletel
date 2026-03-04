@@ -1,10 +1,10 @@
 'use client';
+import { PiArrowSquareOutBold, PiCheckCircleBold, PiFileTextBold, PiHouseBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ExternalLink, CheckCircle, Loader2, Shield, FileText, Home } from 'lucide-react';
 
 interface LightKYCSessionProps {
   sessionId: string;
@@ -32,19 +32,19 @@ export function LightKYCSession({
     {
       id: 'id_verification',
       label: 'ID Verification',
-      icon: <Shield className="w-5 h-5" />,
+      icon: <PiShieldBold className="w-5 h-5" />,
       completed: false,
     },
     {
       id: 'document_upload',
       label: flowType === 'consumer_light' ? 'Proof of Address' : 'Company Documents',
-      icon: <FileText className="w-5 h-5" />,
+      icon: <PiFileTextBold className="w-5 h-5" />,
       completed: false,
     },
     {
       id: 'address_confirmation',
       label: 'Address Confirmation',
-      icon: <Home className="w-5 h-5" />,
+      icon: <PiHouseBold className="w-5 h-5" />,
       completed: false,
     },
   ]);
@@ -89,7 +89,7 @@ export function LightKYCSession({
       <Card className="w-full">
         <CardContent className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+            <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
             <p className="text-sm text-circleTel-secondaryNeutral">
               Preparing verification session...
             </p>
@@ -103,7 +103,7 @@ export function LightKYCSession({
     return (
       <Card className="w-full border-green-200 bg-green-50">
         <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
-          <CheckCircle className="w-16 h-16 text-green-600" />
+          <PiCheckCircleBold className="w-16 h-16 text-green-600" />
           <div className="text-center">
             <h3 className="text-xl font-bold text-green-800 mb-2">
               Verification Complete!
@@ -161,7 +161,7 @@ export function LightKYCSession({
                   )}
                 >
                   {step.completed ? (
-                    <CheckCircle className="w-5 h-5" />
+                    <PiCheckCircleBold className="w-5 h-5" />
                   ) : (
                     step.icon
                   )}
@@ -197,12 +197,12 @@ export function LightKYCSession({
           >
             {verificationStarted ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                <PiSpinnerBold className="w-5 h-5 animate-spin mr-2" />
                 Verification in Progress
               </>
             ) : (
               <>
-                <ExternalLink className="w-5 h-5 mr-2" />
+                <PiArrowSquareOutBold className="w-5 h-5 mr-2" />
                 Start Verification
               </>
             )}
@@ -219,7 +219,7 @@ export function LightKYCSession({
 
         {/* Security Notice */}
         <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <PiShieldBold className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-xs text-blue-800">
             <p className="font-semibold mb-1">Secure Verification</p>
             <p>

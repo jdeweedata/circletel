@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiClockBold, PiGaugeBold, PiMapPinBold, PiPlusBold, PiShieldBold, PiTrashBold, PiWifiBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,16 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import {
-  Building2,
-  MapPin,
-  Plus,
-  Trash2,
-  Gauge,
-  Shield,
-  Clock,
-  Wifi,
-} from 'lucide-react';
 import {
   FeasibilityFormState,
   FormSite,
@@ -77,7 +68,7 @@ export function FeasibilityForm({
     <Card className="h-full overflow-auto">
       <CardHeader className="pb-3 border-b">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Building2 className="w-5 h-5 text-circleTel-orange" />
+          <PiBuildingsBold className="w-5 h-5 text-circleTel-orange" />
           Feasibility Details
         </CardTitle>
       </CardHeader>
@@ -142,7 +133,7 @@ export function FeasibilityForm({
         {/* Bandwidth Selection */}
         <section>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <Gauge className="w-4 h-4" />
+            <PiGaugeBold className="w-4 h-4" />
             Bandwidth Required
           </h3>
           <div className="grid grid-cols-3 gap-2">
@@ -167,7 +158,7 @@ export function FeasibilityForm({
         {/* Contention Selection */}
         <section>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <Wifi className="w-4 h-4" />
+            <PiWifiBold className="w-4 h-4" />
             Contention Ratio
           </h3>
           <div className="grid grid-cols-2 gap-2">
@@ -193,7 +184,7 @@ export function FeasibilityForm({
         {/* SLA Selection */}
         <section>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <Shield className="w-4 h-4" />
+            <PiShieldBold className="w-4 h-4" />
             SLA Level
           </h3>
           <div className="grid grid-cols-3 gap-2">
@@ -223,7 +214,7 @@ export function FeasibilityForm({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4" />
+                <PiClockBold className="w-4 h-4" />
                 Contract Term
               </Label>
               <select
@@ -263,7 +254,7 @@ export function FeasibilityForm({
         <section>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
+              <PiMapPinBold className="w-4 h-4" />
               Sites ({formState.sites.length})
             </h3>
             <Button
@@ -273,7 +264,7 @@ export function FeasibilityForm({
               onClick={addSite}
               disabled={disabled}
             >
-              <Plus className="w-4 h-4 mr-1" />
+              <PiPlusBold className="w-4 h-4 mr-1" />
               Add Site
             </Button>
           </div>
@@ -296,7 +287,7 @@ export function FeasibilityForm({
                       disabled={disabled}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <PiTrashBold className="w-4 h-4" />
                     </Button>
                   )}
                 </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiHandshakeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -35,27 +36,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  ArrowLeft,
-  Building,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  FileText,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Handshake,
-  ExternalLink,
-  Download,
-  Eye,
-  Loader2,
-} from 'lucide-react';
 
 interface Partner {
   id: string;
@@ -272,11 +252,11 @@ export default function PartnerDetailPage() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-      approved: { variant: 'default', icon: <CheckCircle className="h-3 w-3 mr-1" /> },
-      pending: { variant: 'secondary', icon: <Clock className="h-3 w-3 mr-1" /> },
-      under_review: { variant: 'outline', icon: <AlertCircle className="h-3 w-3 mr-1" /> },
-      rejected: { variant: 'destructive', icon: <XCircle className="h-3 w-3 mr-1" /> },
-      suspended: { variant: 'destructive', icon: <XCircle className="h-3 w-3 mr-1" /> },
+      approved: { variant: 'default', icon: <PiCheckCircleBold className="h-3 w-3 mr-1" /> },
+      pending: { variant: 'secondary', icon: <PiClockBold className="h-3 w-3 mr-1" /> },
+      under_review: { variant: 'outline', icon: <PiWarningCircleBold className="h-3 w-3 mr-1" /> },
+      rejected: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
+      suspended: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
     };
 
     const { variant, icon } = config[status] || { variant: 'outline' as const, icon: null };
@@ -312,7 +292,7 @@ export default function PartnerDetailPage() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       </div>
     );
@@ -325,7 +305,7 @@ export default function PartnerDetailPage() {
           <h2 className="text-2xl font-bold text-gray-900">Partner Not Found</h2>
           <p className="text-gray-600 mt-2">The requested partner could not be found.</p>
           <Button className="mt-4" onClick={() => router.push('/admin/partners')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back to Partners
           </Button>
         </div>
@@ -341,7 +321,7 @@ export default function PartnerDetailPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => router.push('/admin/partners')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
           <div>
@@ -361,7 +341,7 @@ export default function PartnerDetailPage() {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={approving}>
-                  <XCircle className="h-4 w-4 mr-2" />
+                  <PiXCircleBold className="h-4 w-4 mr-2" />
                   Reject
                 </Button>
               </AlertDialogTrigger>
@@ -393,9 +373,9 @@ export default function PartnerDetailPage() {
 
             <Button onClick={handleApprove} disabled={approving}>
               {approving ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <PiCheckCircleBold className="h-4 w-4 mr-2" />
               )}
               Approve Partner
             </Button>
@@ -426,7 +406,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
+                  <PiBuildingBold className="h-5 w-5" />
                   Business Information
                 </CardTitle>
               </CardHeader>
@@ -456,7 +436,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                  <PiUsersBold className="h-5 w-5" />
                   Contact Information
                 </CardTitle>
               </CardHeader>
@@ -466,13 +446,13 @@ export default function PartnerDetailPage() {
                   <p className="font-medium">{partner.contact_person}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                  <PiEnvelopeBold className="h-4 w-4 text-gray-400" />
                   <a href={`mailto:${partner.email}`} className="text-blue-600 hover:underline">
                     {partner.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
+                  <PiPhoneBold className="h-4 w-4 text-gray-400" />
                   <a href={`tel:${partner.phone}`} className="hover:underline">
                     {partner.phone}
                   </a>
@@ -481,7 +461,7 @@ export default function PartnerDetailPage() {
                   )}
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <PiMapPinBold className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
                     <p>{partner.street_address}</p>
                     {partner.suburb && <p>{partner.suburb}</p>}
@@ -497,7 +477,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <PiCurrencyDollarBold className="h-5 w-5" />
                   Banking Information
                 </CardTitle>
               </CardHeader>
@@ -531,7 +511,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
+                  <PiTrendUpBold className="h-5 w-5" />
                   Commission & Tier
                 </CardTitle>
               </CardHeader>
@@ -562,7 +542,7 @@ export default function PartnerDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+                <PiFileTextBold className="h-5 w-5" />
                 Compliance Documents
               </CardTitle>
               <CardDescription>
@@ -572,7 +552,7 @@ export default function PartnerDetailPage() {
             <CardContent>
               {documents.length === 0 ? (
                 <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <PiFileTextBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-600">No compliance documents uploaded yet</p>
                 </div>
               ) : (
@@ -604,11 +584,11 @@ export default function PartnerDetailPage() {
                         <TableCell>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4 mr-1" />
+                              <PiEyeBold className="h-4 w-4 mr-1" />
                               View
                             </Button>
                             <Button variant="outline" size="sm">
-                              <Download className="h-4 w-4 mr-1" />
+                              <PiDownloadSimpleBold className="h-4 w-4 mr-1" />
                               Download
                             </Button>
                           </div>
@@ -629,7 +609,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                  <PiUsersBold className="h-5 w-5" />
                   Recent Leads
                 </CardTitle>
                 <CardDescription>Leads assigned to this partner</CardDescription>
@@ -637,7 +617,7 @@ export default function PartnerDetailPage() {
               <CardContent>
                 {leads.length === 0 ? (
                   <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <PiUsersBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-600">No leads assigned yet</p>
                   </div>
                 ) : (
@@ -676,7 +656,7 @@ export default function PartnerDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <PiCurrencyDollarBold className="h-5 w-5" />
                   Commission History
                 </CardTitle>
                 <CardDescription>Recent commission transactions</CardDescription>
@@ -684,7 +664,7 @@ export default function PartnerDetailPage() {
               <CardContent>
                 {commissions.length === 0 ? (
                   <div className="text-center py-8">
-                    <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <PiCurrencyDollarBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-600">No commission transactions yet</p>
                   </div>
                 ) : (
@@ -771,9 +751,9 @@ export default function PartnerDetailPage() {
 
               <Button onClick={handleSaveChanges} disabled={saving}>
                 {saving ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <PiCheckCircleBold className="h-4 w-4 mr-2" />
                 )}
                 Save Changes
               </Button>

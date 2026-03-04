@@ -1,4 +1,5 @@
 'use client';
+import { PiEnvelopeBold, PiLockBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -15,7 +16,6 @@ import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 // Minimal form validation schema

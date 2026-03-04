@@ -1,21 +1,10 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiUserBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  CheckCircle,
-  Edit,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Wifi,
-  DollarSign,
-  Calendar,
-  AlertCircle,
-} from 'lucide-react';
 
 interface ServicePackage {
   id: string;
@@ -110,7 +99,7 @@ export function Step3OrderConfirmation({
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+              <PiCheckCircleBold className="w-6 h-6 text-green-600" />
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -129,11 +118,11 @@ export function Step3OrderConfirmation({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Wifi className="w-5 h-5 text-circleTel-orange" />
+              <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
               Selected Package
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={() => onEdit(1)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <PiPencilSimpleBold className="w-4 h-4 mr-2" />
               Edit
             </Button>
           </div>
@@ -177,11 +166,11 @@ export function Step3OrderConfirmation({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-circleTel-orange" />
+              <PiUserBold className="w-5 h-5 text-circleTel-orange" />
               Your Information
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={() => onEdit(2)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <PiPencilSimpleBold className="w-4 h-4 mr-2" />
               Edit
             </Button>
           </div>
@@ -197,7 +186,7 @@ export function Step3OrderConfirmation({
 
             <div>
               <p className="text-sm text-gray-500 mb-1">
-                <Mail className="w-3 h-3 inline mr-1" />
+                <PiEnvelopeBold className="w-3 h-3 inline mr-1" />
                 Email
               </p>
               <p className="font-medium">{customerDetails.email}</p>
@@ -207,7 +196,7 @@ export function Step3OrderConfirmation({
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500 mb-1">
-                <Phone className="w-3 h-3 inline mr-1" />
+                <PiPhoneBold className="w-3 h-3 inline mr-1" />
                 Phone
               </p>
               <p className="font-medium">{customerDetails.phone}</p>
@@ -233,11 +222,11 @@ export function Step3OrderConfirmation({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-circleTel-orange" />
+              <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
               Installation Address
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={() => onEdit(2)}>
-              <Edit className="w-4 h-4 mr-2" />
+              <PiPencilSimpleBold className="w-4 h-4 mr-2" />
               Edit
             </Button>
           </div>
@@ -265,7 +254,7 @@ export function Step3OrderConfirmation({
           {customerDetails.preferred_installation_date && (
             <div className="pt-3 border-t">
               <p className="text-sm text-gray-500 mb-1">
-                <Calendar className="w-3 h-3 inline mr-1" />
+                <PiCalendarBold className="w-3 h-3 inline mr-1" />
                 Preferred Installation Date
               </p>
               <p className="font-medium">
@@ -282,11 +271,11 @@ export function Step3OrderConfirmation({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-circleTel-orange" />
+                <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
                 Billing Address
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={() => onEdit(2)}>
-                <Edit className="w-4 h-4 mr-2" />
+                <PiPencilSimpleBold className="w-4 h-4 mr-2" />
                 Edit
               </Button>
             </div>
@@ -309,7 +298,7 @@ export function Step3OrderConfirmation({
       <Card className="border-circleTel-orange bg-gradient-to-br from-orange-50 to-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-circleTel-orange" />
+            <PiCurrencyDollarBold className="w-5 h-5 text-circleTel-orange" />
             Order Total
           </CardTitle>
         </CardHeader>
@@ -349,7 +338,7 @@ export function Step3OrderConfirmation({
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <PiWarningCircleBold className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
               <p className="font-semibold mb-2">Important Information:</p>
               <ul className="space-y-1 list-disc list-inside">
@@ -378,13 +367,13 @@ export function Step3OrderConfirmation({
           <CardContent className="space-y-2 text-sm">
             {customerDetails.marketing_opt_in && (
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span>Marketing updates enabled</span>
               </div>
             )}
             {customerDetails.whatsapp_opt_in && (
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span>WhatsApp notifications enabled</span>
               </div>
             )}

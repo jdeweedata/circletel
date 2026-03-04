@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiFileTextBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * KYC Document Upload Component
@@ -6,7 +7,6 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import { Upload, X, CheckCircle, AlertCircle, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -225,7 +225,7 @@ export function KycDocumentUpload({
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <PiUploadSimpleBold className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-lg font-medium mb-2">Drop your file here</p>
               <p className="text-sm text-gray-600 mb-4">or</p>
               <Button
@@ -247,7 +247,7 @@ export function KycDocumentUpload({
             <div className="border rounded-lg p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <FileText className="h-10 w-10 text-circleTel-orange" />
+                  <PiFileTextBold className="h-10 w-10 text-circleTel-orange" />
                   <div>
                     <p className="font-medium">{preview.file.name}</p>
                     <p className="text-sm text-gray-600">{formatFileSize(preview.file.size)}</p>
@@ -259,7 +259,7 @@ export function KycDocumentUpload({
                   onClick={handleCancelPreview}
                   disabled={uploading}
                 >
-                  <X className="h-4 w-4" />
+                  <PiXBold className="h-4 w-4" />
                 </Button>
               </div>
 
@@ -280,12 +280,12 @@ export function KycDocumentUpload({
               >
                 {uploading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                     Uploading...
                   </>
                 ) : (
                   <>
-                    <Upload className="mr-2 h-4 w-4" />
+                    <PiUploadSimpleBold className="mr-2 h-4 w-4" />
                     Upload Document
                   </>
                 )}
@@ -295,7 +295,7 @@ export function KycDocumentUpload({
 
           {error && (
             <Alert variant="destructive" className="mt-4">
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -317,7 +317,7 @@ export function KycDocumentUpload({
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <FileText className="h-8 w-8 text-gray-400" />
+                    <PiFileTextBold className="h-8 w-8 text-gray-400" />
                     <div>
                       <p className="font-medium">{doc.filename}</p>
                       <p className="text-sm text-gray-600">
@@ -330,19 +330,19 @@ export function KycDocumentUpload({
                   <div className="flex items-center gap-2">
                     {doc.status === 'uploaded' && (
                       <Badge variant="default" className="bg-green-500">
-                        <CheckCircle className="mr-1 h-3 w-3" />
+                        <PiCheckCircleBold className="mr-1 h-3 w-3" />
                         Uploaded
                       </Badge>
                     )}
                     {doc.status === 'uploading' && (
                       <Badge variant="secondary">
-                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        <PiSpinnerBold className="mr-1 h-3 w-3 animate-spin" />
                         Uploading...
                       </Badge>
                     )}
                     {doc.status === 'error' && (
                       <Badge variant="destructive">
-                        <AlertCircle className="mr-1 h-3 w-3" />
+                        <PiWarningCircleBold className="mr-1 h-3 w-3" />
                         Error
                       </Badge>
                     )}

@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiCreditCardBold, PiEnvelopeBold, PiLockBold, PiMapPinBold, PiShieldCheckBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,16 +17,6 @@ import {
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import {
-  User,
-  MapPin,
-  CreditCard,
-  CheckCircle,
-  Loader2,
-  ShieldCheck,
-  Lock,
-  Mail
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PaymentDisclaimerCard } from '@/components/payments/PaymentDisclaimerCard';
@@ -121,9 +112,9 @@ export function SinglePageCheckout({
   const [consentErrors, setConsentErrors] = useState<string[]>([]);
 
   const [sections, setSections] = useState<CheckoutSection[]>([
-    { id: 'personal', title: 'Personal Details', icon: User, completed: false },
-    { id: 'service', title: 'Service Address', icon: MapPin, completed: false },
-    { id: 'payment', title: 'Payment Details', icon: CreditCard, completed: false },
+    { id: 'personal', title: 'Personal Details', icon: PiUserBold, completed: false },
+    { id: 'service', title: 'Service Address', icon: PiMapPinBold, completed: false },
+    { id: 'payment', title: 'Payment Details', icon: PiCreditCardBold, completed: false },
   ]);
 
   const provinces = [
@@ -309,7 +300,7 @@ export function SinglePageCheckout({
                     <Icon className="h-4 w-4" />
                     <span className="hidden sm:inline">{section.title}</span>
                     {section.completed && (
-                      <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />
+                      <PiCheckCircleBold className="h-4 w-4 text-green-500 ml-auto" />
                     )}
                   </button>
                 );
@@ -326,10 +317,10 @@ export function SinglePageCheckout({
           <Card id="personal" className={cn(currentSection === 'personal' && 'ring-2 ring-orange-500')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-orange-500" />
+                <PiUserBold className="h-5 w-5 text-orange-500" />
                 Personal Details
                 {sections[0].completed && (
-                  <CheckCircle className="h-5 w-5 text-green-500 ml-auto" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-500 ml-auto" />
                 )}
               </CardTitle>
             </CardHeader>
@@ -417,10 +408,10 @@ export function SinglePageCheckout({
           <Card id="service" className={cn(currentSection === 'service' && 'ring-2 ring-orange-500')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-orange-500" />
+                <PiMapPinBold className="h-5 w-5 text-orange-500" />
                 Service Address
                 {sections[1].completed && (
-                  <CheckCircle className="h-5 w-5 text-green-500 ml-auto" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-500 ml-auto" />
                 )}
               </CardTitle>
             </CardHeader>
@@ -512,16 +503,16 @@ export function SinglePageCheckout({
           <Card id="payment" className={cn(currentSection === 'payment' && 'ring-2 ring-orange-500')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-orange-500" />
+                <PiCreditCardBold className="h-5 w-5 text-orange-500" />
                 Payment Details
                 {sections[2].completed && (
-                  <CheckCircle className="h-5 w-5 text-green-500 ml-auto" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-500 ml-auto" />
                 )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-                <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
+                <PiLockBold className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div className="text-sm text-blue-900">
                   <p className="font-semibold">Secure Payment</p>
                   <p className="text-blue-700">Your banking details are encrypted and secure. We use bank-level security.</p>
@@ -668,15 +659,15 @@ export function SinglePageCheckout({
               {/* Trust Indicators */}
               <div className="space-y-2 pt-4 border-t">
                 <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <ShieldCheck className="h-4 w-4 text-green-500" />
+                  <PiShieldCheckBold className="h-4 w-4 text-green-500" />
                   <span>POPIA Compliant</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <Lock className="h-4 w-4 text-green-500" />
+                  <PiLockBold className="h-4 w-4 text-green-500" />
                   <span>Secure Checkout</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <Mail className="h-4 w-4 text-green-500" />
+                  <PiEnvelopeBold className="h-4 w-4 text-green-500" />
                   <span>Instant Confirmation</span>
                 </div>
               </div>
@@ -689,7 +680,7 @@ export function SinglePageCheckout({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <PiSpinnerBold className="h-5 w-5 animate-spin mr-2" />
                     Processing...
                   </>
                 ) : (

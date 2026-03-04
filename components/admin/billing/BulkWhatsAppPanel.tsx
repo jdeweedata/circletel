@@ -1,4 +1,5 @@
 'use client';
+import { PiChatBold, PiCheckCircleBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,14 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Loader2,
-  MessageSquare,
-  CheckCircle2,
-  XCircle,
-  Send,
-  AlertTriangle,
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 // =============================================================================
@@ -178,7 +171,7 @@ export function BulkWhatsAppPanel({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-emerald-600" />
+          <PiChatBold className="h-5 w-5 text-emerald-600" />
           Bulk WhatsApp Notifications
         </CardTitle>
         <CardDescription>
@@ -274,7 +267,7 @@ export function BulkWhatsAppPanel({
                   <div className="flex items-center gap-2">
                     {alreadySent && (
                       <Badge className="bg-emerald-100 text-emerald-800">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        <PiCheckCircleBold className="h-3 w-3 mr-1" />
                         Sent
                       </Badge>
                     )}
@@ -315,9 +308,9 @@ export function BulkWhatsAppPanel({
           }`}>
             <div className="flex items-center gap-4">
               {result.failed === 0 ? (
-                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                <PiCheckCircleBold className="h-8 w-8 text-emerald-600" />
               ) : (
-                <AlertTriangle className="h-8 w-8 text-amber-600" />
+                <PiWarningBold className="h-8 w-8 text-amber-600" />
               )}
               <div>
                 <p className="font-semibold">
@@ -332,7 +325,7 @@ export function BulkWhatsAppPanel({
               <div className="mt-3 max-h-24 overflow-y-auto">
                 {result.errors.slice(0, 5).map((error, i) => (
                   <p key={i} className="text-sm text-red-700">
-                    <XCircle className="h-3 w-3 inline mr-1" />
+                    <PiXCircleBold className="h-3 w-3 inline mr-1" />
                     {error}
                   </p>
                 ))}
@@ -355,12 +348,12 @@ export function BulkWhatsAppPanel({
         >
           {sending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
               Sending {progress}%...
             </>
           ) : (
             <>
-              <Send className="h-4 w-4 mr-2" />
+              <PiPaperPlaneRightBold className="h-4 w-4 mr-2" />
               Send to {selectedIds.size} Customers
             </>
           )}

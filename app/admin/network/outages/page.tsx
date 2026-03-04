@@ -1,19 +1,11 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiPlusBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  AlertTriangle,
-  Plus,
-  Clock,
-  Users,
-  ChevronRight,
-  CheckCircle,
-  RefreshCw
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface Outage {
@@ -99,7 +91,7 @@ export default function OutagesListPage() {
         </div>
         <Link href="/admin/network/outages/new">
           <Button className="bg-circleTel-orange hover:bg-orange-600">
-            <Plus className="w-4 h-4 mr-2" />
+            <PiPlusBold className="w-4 h-4 mr-2" />
             Declare Incident
           </Button>
         </Link>
@@ -109,11 +101,11 @@ export default function OutagesListPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="open" className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
+            <PiWarningBold className="w-4 h-4" />
             Active
           </TabsTrigger>
           <TabsTrigger value="resolved" className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
+            <PiCheckCircleBold className="w-4 h-4" />
             Resolved
           </TabsTrigger>
           <TabsTrigger value="all">All</TabsTrigger>
@@ -122,12 +114,12 @@ export default function OutagesListPage() {
         <TabsContent value={activeTab} className="mt-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
             </div>
           ) : outages.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-4" />
+                <PiCheckCircleBold className="w-12 h-12 mx-auto text-green-500 mb-4" />
                 <p className="text-lg font-medium text-gray-900">
                   {activeTab === 'open' ? 'No active incidents' : 'No incidents found'}
                 </p>
@@ -174,7 +166,7 @@ export default function OutagesListPage() {
 
                           <div className="flex items-center gap-6 mt-3 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
+                              <PiClockBold className="w-4 h-4" />
                               Started {formatDate(outage.started_at)}
                             </span>
                             <span className="flex items-center gap-1">
@@ -182,7 +174,7 @@ export default function OutagesListPage() {
                             </span>
                             {outage.affected_customer_count > 0 && (
                               <span className="flex items-center gap-1">
-                                <Users className="w-4 h-4" />
+                                <PiUsersBold className="w-4 h-4" />
                                 {outage.affected_customer_count} affected
                               </span>
                             )}
@@ -199,7 +191,7 @@ export default function OutagesListPage() {
                           )}
                         </div>
 
-                        <ChevronRight className="w-5 h-5 text-gray-400 ml-4" />
+                        <PiCaretRightBold className="w-5 h-5 text-gray-400 ml-4" />
                       </div>
                     </CardContent>
                   </Card>

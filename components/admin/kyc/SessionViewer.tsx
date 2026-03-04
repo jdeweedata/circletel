@@ -1,11 +1,11 @@
 'use client';
+import { PiBuildingsBold, PiEnvelopeBold, PiPackageBold, PiPhoneBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 /**
  * KYC Session Viewer Component
  * Displays KYC session details with Didit verification links
  */
 
-import { X, User, Mail, Phone, Building2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,12 +69,12 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
   const getUserTypeBadge = (userType: string) => {
     return userType === 'business' ? (
       <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-        <Building2 className="w-3 h-3 mr-1" />
+        <PiBuildingsBold className="w-3 h-3 mr-1" />
         Business
       </Badge>
     ) : (
       <Badge variant="secondary" className="bg-green-100 text-green-800">
-        <User className="w-3 h-3 mr-1" />
+        <PiUserBold className="w-3 h-3 mr-1" />
         Consumer
       </Badge>
     );
@@ -147,7 +147,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
             </p>
           </div>
           <Button onClick={onClose} variant="ghost" size="sm">
-            <X className="w-4 h-4" />
+            <PiXBold className="w-4 h-4" />
           </Button>
         </div>
 
@@ -157,7 +157,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
           <Card>
             <CardContent className="pt-6">
               <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-600" />
+                <PiUserBold className="w-5 h-5 text-gray-600" />
                 Customer Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -168,14 +168,14 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
                 <div>
                   <p className="text-gray-600 mb-1">Email</p>
                   <p className="font-medium flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
+                    <PiEnvelopeBold className="w-4 h-4 text-gray-400" />
                     {session.customer_email}
                   </p>
                 </div>
                 <div>
                   <p className="text-gray-600 mb-1">Phone</p>
                   <p className="font-medium flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-gray-400" />
+                    <PiPhoneBold className="w-4 h-4 text-gray-400" />
                     {session.customer_phone}
                   </p>
                 </div>
@@ -183,7 +183,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
                   <div>
                     <p className="text-gray-600 mb-1">Company</p>
                     <p className="font-medium flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-gray-400" />
+                      <PiBuildingsBold className="w-4 h-4 text-gray-400" />
                       {quote.company_name}
                     </p>
                   </div>
@@ -197,7 +197,7 @@ export default function SessionViewer({ session, onClose }: SessionViewerProps) 
             <Card>
               <CardContent className="pt-6">
                 <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-gray-600" />
+                  <PiPackageBold className="w-5 h-5 text-gray-600" />
                   {session.order ? 'Order Information' : 'Quote Information'}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

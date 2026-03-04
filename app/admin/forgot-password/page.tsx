@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold, PiShieldBold, PiWarningBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 // Form validation schema
 const forgotPasswordSchema = z.object({
@@ -71,7 +71,7 @@ export default function AdminForgotPasswordPage() {
                 {/* Success Icon */}
                 <div className="flex justify-center mb-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                    <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                   </div>
                 </div>
 
@@ -113,7 +113,7 @@ export default function AdminForgotPasswordPage() {
                 {/* Security Notice */}
                 <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
                   <div className="flex gap-2">
-                    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <PiWarningBold className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-amber-800">
                       <p className="font-semibold mb-1">Security Notice</p>
                       <p>The reset link expires in 1 hour and can only be used once. If you didn't request this, please contact your system administrator.</p>
@@ -156,7 +156,7 @@ export default function AdminForgotPasswordPage() {
               {/* Admin Badge */}
               <div className="flex justify-center mb-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
-                  <Shield className="h-6 w-6 text-circleTel-orange" />
+                  <PiShieldBold className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
 
@@ -173,7 +173,7 @@ export default function AdminForgotPasswordPage() {
               {/* Security Notice */}
               <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
                 <div className="flex gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <PiWarningBold className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-amber-800">
                     <p className="font-semibold mb-1">Admin Security Notice</p>
                     <p>Password reset requests for admin accounts are logged and monitored. Only registered admin users can reset their passwords.</p>
@@ -195,7 +195,7 @@ export default function AdminForgotPasswordPage() {
                     control={form.control}
                     render={({ field }) => (
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <PiEnvelopeBold className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <Input
                           {...field}
                           id="email"
@@ -225,7 +225,7 @@ export default function AdminForgotPasswordPage() {
                   disabled={isSubmitting}
                   className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PiEnvelopeBold className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isSubmitting ? 'Sending...' : 'Send Reset Instructions'}
                 </button>
               </form>
@@ -236,7 +236,7 @@ export default function AdminForgotPasswordPage() {
                   href="/admin/login"
                   className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <PiArrowLeftBold className="w-4 h-4" />
                   Back to Login
                 </Link>
               </div>

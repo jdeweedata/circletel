@@ -5,21 +5,13 @@
  */
 
 'use client';
+import { PiArrowRightBold, PiCheckCircleBold, PiCurrencyDollarBold, PiFileTextBold, PiLinkBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  TrendingUp,
-  DollarSign,
-  Users,
-  FileText,
-  Link2,
-  CheckCircle,
-  ArrowRight
-} from 'lucide-react';
 
 export default function AgentsLandingPage() {
   const router = useRouter();
@@ -57,7 +49,7 @@ export default function AgentsLandingPage() {
               >
                 <Link href="/agents/login">
                   Sign In
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button
@@ -89,7 +81,7 @@ export default function AgentsLandingPage() {
             {/* Competitive Commissions */}
             <Card>
               <CardHeader>
-                <DollarSign className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiCurrencyDollarBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Competitive Commissions</CardTitle>
                 <CardDescription>
                   Earn attractive commissions on every accepted quote with transparent tracking
@@ -100,7 +92,7 @@ export default function AgentsLandingPage() {
             {/* Real-Time Dashboard */}
             <Card>
               <CardHeader>
-                <TrendingUp className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiTrendUpBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Real-Time Dashboard</CardTitle>
                 <CardDescription>
                   Track your performance, quotes, and earnings in one convenient location
@@ -111,7 +103,7 @@ export default function AgentsLandingPage() {
             {/* Shareable Links */}
             <Card>
               <CardHeader>
-                <Link2 className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiLinkBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Shareable Links</CardTitle>
                 <CardDescription>
                   Get your unique quote request link to share with potential customers
@@ -122,7 +114,7 @@ export default function AgentsLandingPage() {
             {/* Easy Quote Creation */}
             <Card>
               <CardHeader>
-                <FileText className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiFileTextBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Easy Quote Creation</CardTitle>
                 <CardDescription>
                   Create professional quotes in minutes with our intuitive wizard
@@ -133,7 +125,7 @@ export default function AgentsLandingPage() {
             {/* Quality Products */}
             <Card>
               <CardHeader>
-                <CheckCircle className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiCheckCircleBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Quality Products</CardTitle>
                 <CardDescription>
                   Sell enterprise-grade fibre and wireless solutions with 99.99% uptime SLA
@@ -144,7 +136,7 @@ export default function AgentsLandingPage() {
             {/* Full Support */}
             <Card>
               <CardHeader>
-                <Users className="h-12 w-12 text-circleTel-orange mb-4" />
+                <PiUsersBold className="h-12 w-12 text-circleTel-orange mb-4" />
                 <CardTitle>Full Support</CardTitle>
                 <CardDescription>
                   Get dedicated support from our team to help you close more deals
@@ -226,7 +218,7 @@ export default function AgentsLandingPage() {
             >
               <Link href="/agents/login">
                 Sign In to Portal
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <PiArrowRightBold className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button

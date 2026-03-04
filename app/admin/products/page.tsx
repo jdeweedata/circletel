@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCodeBold, PiColumnsBold, PiCopyBold, PiDownloadSimpleBold, PiGridFourBold, PiHardDriveBold, PiHeadphonesBold, PiListBold, PiMagnifyingGlassBold, PiPackageBold, PiPlusBold, PiSlidersHorizontalBold, PiTrendDownBold, PiWarningBold, PiWifiBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -29,27 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Search,
-  Plus,
-  RefreshCw,
-  LayoutGrid,
-  List,
-  Columns3,
-  Download,
-  Wifi,
-  HardDrive,
-  Code,
-  Headphones,
-  Package as PackageBundle,
-  X,
-  ChevronDown,
-  SlidersHorizontal,
-  Copy,
-  AlertTriangle,
-  TrendingDown,
-  Archive,
-} from 'lucide-react';
 import { AdminProductCard } from '@/components/admin/products/AdminProductCard';
 import { ProductsList, ColumnVisibility } from '@/components/admin/products/ProductsList';
 import { CategorySection } from '@/components/admin/products/CategorySection';
@@ -427,25 +407,25 @@ export default function AdminProducts() {
     connectivity: {
       label: 'Connectivity',
       description: 'Fibre and wireless internet packages',
-      icon: <Wifi className="h-5 w-5" />,
+      icon: <PiWifiBold className="h-5 w-5" />,
       color: 'blue' as const,
     },
     hardware: {
       label: 'Hardware',
       description: 'Routers, switches, and network equipment',
-      icon: <HardDrive className="h-5 w-5" />,
+      icon: <PiHardDriveBold className="h-5 w-5" />,
       color: 'green' as const,
     },
     software: {
       label: 'Software',
       description: 'Software licenses and subscriptions',
-      icon: <Code className="h-5 w-5" />,
+      icon: <PiCodeBold className="h-5 w-5" />,
       color: 'purple' as const,
     },
     services: {
       label: 'Services',
       description: 'Support and managed services',
-      icon: <Headphones className="h-5 w-5" />,
+      icon: <PiHeadphonesBold className="h-5 w-5" />,
       color: 'orange' as const,
     },
     bundles: {
@@ -874,13 +854,13 @@ export default function AdminProducts() {
             }}
             disabled={loading}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <PermissionGate permissions={[PERMISSIONS.PRODUCTS.CREATE]}>
             <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
               <Link href="/admin/products/new">
-                <Plus className="mr-2 h-4 w-4" />
+                <PiPlusBold className="mr-2 h-4 w-4" />
                 Add Product
               </Link>
             </Button>
@@ -927,7 +907,7 @@ export default function AdminProducts() {
               Active
             </CardTitle>
             <div className="p-2 rounded-lg bg-green-100">
-              <Wifi className="h-5 w-5 text-green-600" />
+              <PiWifiBold className="h-5 w-5 text-green-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -952,7 +932,7 @@ export default function AdminProducts() {
               Draft
             </CardTitle>
             <div className="p-2 rounded-lg bg-yellow-100">
-              <Code className="h-5 w-5 text-yellow-600" />
+              <PiCodeBold className="h-5 w-5 text-yellow-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -977,7 +957,7 @@ export default function AdminProducts() {
               Archived
             </CardTitle>
             <div className="p-2 rounded-lg bg-red-100">
-              <HardDrive className="h-5 w-5 text-red-600" />
+              <PiHardDriveBold className="h-5 w-5 text-red-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -1002,7 +982,7 @@ export default function AdminProducts() {
               Duplicates
             </CardTitle>
             <div className={`p-2 rounded-lg ${duplicateProducts.length > 0 ? 'bg-amber-100' : 'bg-green-100'}`}>
-              <Copy className={`h-5 w-5 ${duplicateProducts.length > 0 ? 'text-amber-600' : 'text-green-600'}`} />
+              <PiCopyBold className={`h-5 w-5 ${duplicateProducts.length > 0 ? 'text-amber-600' : 'text-green-600'}`} />
             </div>
           </CardHeader>
           <CardContent>
@@ -1027,7 +1007,7 @@ export default function AdminProducts() {
               Low Margin
             </CardTitle>
             <div className={`p-2 rounded-lg ${lowMarginProducts.length > 0 ? 'bg-red-100' : 'bg-green-100'}`}>
-              <TrendingDown className={`h-5 w-5 ${lowMarginProducts.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
+              <PiTrendDownBold className={`h-5 w-5 ${lowMarginProducts.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
             </div>
           </CardHeader>
           <CardContent>
@@ -1046,7 +1026,7 @@ export default function AdminProducts() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <SlidersHorizontal className="h-5 w-5 text-circleTel-orange" />
+              <PiSlidersHorizontalBold className="h-5 w-5 text-circleTel-orange" />
               Filter Products
               {(() => {
                 const activeCount = Object.values(filters).filter(Boolean).length + (searchQuery ? 1 : 0);
@@ -1064,7 +1044,7 @@ export default function AdminProducts() {
           <div className="space-y-4">
             {/* Row 1: Search (Full Width) */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by name, SKU, category, or description..."
                 value={searchQuery}
@@ -1084,7 +1064,7 @@ export default function AdminProducts() {
                     handleSearch('');
                   }}
                 >
-                  <X className="h-4 w-4" />
+                  <PiXBold className="h-4 w-4" />
                 </Button>
               )}
             </div>
@@ -1137,13 +1117,13 @@ export default function AdminProducts() {
                 onClick={toggleAdvancedFilters}
                 className="ml-auto"
               >
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                <PiSlidersHorizontalBold className="h-4 w-4 mr-2" />
                 {advancedFiltersExpanded ? 'Less' : 'More'} Filters
                 {(() => {
                   const secondaryFilterCount = [filters.contract_term, filters.technology, filters.data_package].filter(Boolean).length;
                   return secondaryFilterCount > 0 ? ` (${secondaryFilterCount})` : '';
                 })()}
-                <ChevronDown className={`h-4 w-4 ml-2 transition-transform duration-200 ${advancedFiltersExpanded ? 'rotate-180' : ''}`} />
+                <PiCaretDownBold className={`h-4 w-4 ml-2 transition-transform duration-200 ${advancedFiltersExpanded ? 'rotate-180' : ''}`} />
               </Button>
             </div>
 
@@ -1227,7 +1207,7 @@ export default function AdminProducts() {
                   }}
                   className="text-circleTel-orange border-circleTel-orange hover:bg-circleTel-orange hover:text-white ml-auto"
                 >
-                  <X className="mr-2 h-4 w-4" />
+                  <PiXBold className="mr-2 h-4 w-4" />
                   Clear All
                 </Button>
               )}
@@ -1282,7 +1262,7 @@ export default function AdminProducts() {
               onClick={() => setManagementTab('duplicates')}
               className={`${managementTab === 'duplicates' ? 'bg-amber-500 hover:bg-amber-600' : ''} ${duplicateProducts.length > 0 ? 'border-amber-300' : ''}`}
             >
-              <Copy className="h-4 w-4 mr-1.5" />
+              <PiCopyBold className="h-4 w-4 mr-1.5" />
               Duplicates
               {duplicateProducts.length > 0 ? (
                 <Badge variant="destructive" className="ml-2 bg-amber-500">{duplicateProducts.length}</Badge>
@@ -1296,7 +1276,7 @@ export default function AdminProducts() {
               onClick={() => setManagementTab('low-margin')}
               className={`${managementTab === 'low-margin' ? 'bg-red-500 hover:bg-red-600' : ''} ${lowMarginProducts.length > 0 ? 'border-red-300' : ''}`}
             >
-              <TrendingDown className="h-4 w-4 mr-1.5" />
+              <PiTrendDownBold className="h-4 w-4 mr-1.5" />
               Low Margin
               {lowMarginProducts.length > 0 ? (
                 <Badge variant="destructive" className="ml-2">{lowMarginProducts.length}</Badge>
@@ -1310,7 +1290,7 @@ export default function AdminProducts() {
               onClick={() => setManagementTab('inactive')}
               className={managementTab === 'inactive' ? 'bg-gray-500 hover:bg-gray-600' : ''}
             >
-              <Archive className="h-4 w-4 mr-1.5" />
+              <PiArchiveBold className="h-4 w-4 mr-1.5" />
               Inactive
               <Badge variant="secondary" className="ml-2">{inactiveProducts.length}</Badge>
             </Button>
@@ -1319,7 +1299,7 @@ export default function AdminProducts() {
           {/* Context message for special tabs */}
           {managementTab === 'duplicates' && duplicateProducts.length > 0 && (
             <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <PiWarningBold className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-amber-800">
                   {duplicateProducts.length} potential duplicate{duplicateProducts.length !== 1 ? 's' : ''} detected
@@ -1333,7 +1313,7 @@ export default function AdminProducts() {
           
           {managementTab === 'low-margin' && lowMarginProducts.length > 0 && (
             <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-              <TrendingDown className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <PiTrendDownBold className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-red-800">
                   {lowMarginProducts.length} product{lowMarginProducts.length !== 1 ? 's' : ''} with margin below 10%
@@ -1347,7 +1327,7 @@ export default function AdminProducts() {
           
           {managementTab === 'inactive' && inactiveProducts.length > 0 && (
             <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-start gap-2">
-              <Archive className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
+              <PiArchiveBold className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-gray-800">
                   {inactiveProducts.length} inactive or archived product{inactiveProducts.length !== 1 ? 's' : ''}
@@ -1367,11 +1347,11 @@ export default function AdminProducts() {
           <div className="flex items-center gap-3">
             <TabsList>
               <TabsTrigger value="grid" className="flex items-center gap-2">
-                <LayoutGrid className="h-4 w-4" />
+                <PiGridFourBold className="h-4 w-4" />
                 Grid View
               </TabsTrigger>
               <TabsTrigger value="list" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
+                <PiListBold className="h-4 w-4" />
                 List View
               </TabsTrigger>
             </TabsList>
@@ -1383,7 +1363,7 @@ export default function AdminProducts() {
                 onClick={() => setColumnCustomizationOpen(true)}
                 className="flex items-center gap-2 rounded-xl"
               >
-                <Columns3 className="h-4 w-4" />
+                <PiColumnsBold className="h-4 w-4" />
                 Customize Columns
               </Button>
             )}
@@ -1395,7 +1375,7 @@ export default function AdminProducts() {
               disabled={filteredProducts.length === 0}
               className="flex items-center gap-2 rounded-xl"
             >
-              <Download className="h-4 w-4" />
+              <PiDownloadSimpleBold className="h-4 w-4" />
               Export CSV ({filteredProducts.length})
             </Button>
           </div>

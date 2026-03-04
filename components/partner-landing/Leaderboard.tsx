@@ -1,6 +1,6 @@
 'use client';
+import { PiTrendUpBold, PiTrophyBold } from 'react-icons/pi';
 
-import { Trophy, TrendingUp } from 'lucide-react';
 
 // Sample leaderboard data - in production this would come from an API
 const leaderboardData = [
@@ -53,7 +53,7 @@ export function Leaderboard() {
                         partner.rank === 2 ? 'bg-gray-300' :
                         'bg-amber-600'
                       }`}>
-                        <Trophy className="h-4 w-4 text-white" />
+                        <PiTrophyBold className="h-4 w-4 text-white" />
                       </div>
                     ) : (
                       <span className="w-8 h-8 flex items-center justify-center text-circleTel-secondaryNeutral font-bold">
@@ -89,7 +89,7 @@ export function Leaderboard() {
               href="/partner/onboarding"
               className="inline-flex items-center gap-2 text-circleTel-orange font-semibold hover:underline"
             >
-              <TrendingUp className="h-4 w-4" />
+              <PiTrendUpBold className="h-4 w-4" />
               Join the leaderboard
             </a>
           </div>

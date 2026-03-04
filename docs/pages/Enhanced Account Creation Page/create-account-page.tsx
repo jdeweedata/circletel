@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold, PiInfoBold, PiLockBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -21,17 +22,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Phone, 
-  Shield, 
-  CheckCircle2, 
-  ArrowLeft,
-  Info,
-  PhoneCall
-} from 'lucide-react';
 
 // Form validation schema
 const accountFormSchema = z.object({
@@ -112,7 +102,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
           className="mb-6"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <PiArrowLeftBold className="mr-2 h-4 w-4" />
           Back to Packages
         </Button>
 
@@ -123,7 +113,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
               <CardHeader className="space-y-1 bg-gradient-to-r from-orange-50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-orange-500 rounded-lg">
-                    <User className="h-6 w-6 text-white" />
+                    <PiUserBold className="h-6 w-6 text-white" />
                   </div>
                   <div>
                     <CardTitle className="text-2xl">Create Your Account</CardTitle>
@@ -136,7 +126,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
 
               <CardContent className="pt-6">
                 <Alert className="mb-6 border-blue-200 bg-blue-50">
-                  <Info className="h-4 w-4 text-blue-600" />
+                  <PiInfoBold className="h-4 w-4 text-blue-600" />
                   <AlertDescription className="text-blue-900">
                     This information helps us create your account, schedule installation, 
                     and send you important updates about your service.
@@ -152,7 +142,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                       render={({ field }) => (
                         <FormItem className="space-y-3">
                           <FormLabel className="text-base font-semibold flex items-center gap-2">
-                            <User className="h-4 w-4" />
+                            <PiUserBold className="h-4 w-4" />
                             Account Type
                           </FormLabel>
                           <FormControl>
@@ -217,7 +207,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                     {/* Personal Details */}
                     <div className="space-y-4">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <User className="h-5 w-5 text-orange-500" />
+                        <PiUserBold className="h-5 w-5 text-orange-500" />
                         Personal Details
                       </h3>
                       <div className="grid md:grid-cols-2 gap-4">
@@ -255,7 +245,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                     {/* Contact Information */}
                     <div className="space-y-4">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <Mail className="h-5 w-5 text-orange-500" />
+                        <PiEnvelopeBold className="h-5 w-5 text-orange-500" />
                         Contact Information
                       </h3>
                       
@@ -307,7 +297,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                     {/* Password */}
                     <div className="space-y-4">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <Lock className="h-5 w-5 text-orange-500" />
+                        <PiLockBold className="h-5 w-5 text-orange-500" />
                         Security
                       </h3>
                       
@@ -347,7 +337,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                     </div>
 
                     <Alert className="border-green-200 bg-green-50">
-                      <Shield className="h-4 w-4 text-green-600" />
+                      <PiShieldBold className="h-4 w-4 text-green-600" />
                       <AlertDescription className="text-green-900">
                         <strong>Your information is secure.</strong> We use industry-standard 
                         encryption to protect your personal data. Your details will never be 
@@ -380,9 +370,9 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
 
             {/* Security Badges */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <SecurityBadge icon={<CheckCircle2 className="h-5 w-5" />} text="Secure Checkout" />
-              <SecurityBadge icon={<Shield className="h-5 w-5" />} text="Data Protected" />
-              <SecurityBadge icon={<Lock className="h-5 w-5" />} text="No Hidden Fees" />
+              <SecurityBadge icon={<PiCheckCircleBold className="h-5 w-5" />} text="Secure Checkout" />
+              <SecurityBadge icon={<PiShieldBold className="h-5 w-5" />} text="Data Protected" />
+              <SecurityBadge icon={<PiLockBold className="h-5 w-5" />} text="No Hidden Fees" />
               <SecurityBadge icon={<PhoneCall className="h-5 w-5" />} text="24/7 Support" />
             </div>
           </div>
@@ -443,7 +433,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                     <ul className="space-y-2">
                       {selectedPackage.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <PiCheckCircleBold className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="text-gray-700">{feature}</span>
                         </li>
                       ))}
@@ -467,7 +457,7 @@ export default function CreateAccountPage({ selectedPackage }: CreateAccountPage
                       asChild
                     >
                       <a href="tel:0800123456">
-                        <Phone className="mr-2 h-4 w-4" />
+                        <PiPhoneBold className="mr-2 h-4 w-4" />
                         0800 123 456
                       </a>
                     </Button>
@@ -504,7 +494,7 @@ function StepIndicator({
           ${!active && !completed ? 'bg-orange-400 text-white' : ''}
         `}
       >
-        {completed ? <CheckCircle2 className="h-5 w-5" /> : step}
+        {completed ? <PiCheckCircleBold className="h-5 w-5" /> : step}
       </div>
       <span className={`text-sm font-medium hidden sm:inline ${active ? 'text-white' : 'text-orange-100'}`}>
         {label}

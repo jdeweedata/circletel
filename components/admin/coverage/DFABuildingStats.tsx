@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingBold, PiBuildingsBold, PiMapPinBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building, Building2, MapPin, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface DFABuildingStatsProps {
@@ -52,7 +52,7 @@ export function DFABuildingStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Connected Buildings</CardTitle>
-          <Building className="h-4 w-4 text-purple-600" />
+          <PiBuildingBold className="h-4 w-4 text-purple-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-purple-700">
@@ -67,7 +67,7 @@ export function DFABuildingStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Near-Net Buildings</CardTitle>
-          <Building2 className="h-4 w-4 text-yellow-600" />
+          <PiBuildingsBold className="h-4 w-4 text-yellow-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-yellow-700">
@@ -82,7 +82,7 @@ export function DFABuildingStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Buildings</CardTitle>
-          <Building className="h-4 w-4 text-muted-foreground" />
+          <PiBuildingBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalBuildings.toLocaleString()}</div>
@@ -95,7 +95,7 @@ export function DFABuildingStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Precincts</CardTitle>
-          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <PiMapPinBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{precinctCount}</div>
@@ -107,7 +107,7 @@ export function DFABuildingStats({
         <Card className="md:col-span-2 lg:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Last Sync</CardTitle>
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+            <PiArrowsClockwiseBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4 text-sm">

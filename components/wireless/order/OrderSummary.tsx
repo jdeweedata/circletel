@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Wifi, Router, Truck, ShieldCheck, Clock, Info } from "lucide-react"
 
 interface Package {
   id: string
@@ -135,7 +134,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
         <div className="space-y-2 mt-4">
           {selectedPackage.features.map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-              <ShieldCheck className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <PiShieldCheckBold className="w-4 h-4 text-green-500 flex-shrink-0" />
               <span>{feature}</span>
             </div>
           ))}
@@ -157,7 +156,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
                 disabled={selectedPackage.id === "premium"}
               />
-              <Router className="w-5 h-5 text-gray-400" />
+              <PiRouterBold className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="font-medium text-sm text-gray-900">5G Router</div>
                 <div className="text-xs text-gray-500">High-speed wireless router</div>
@@ -182,7 +181,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
                 disabled={selectedPackage.id === "premium"}
               />
-              <Truck className="w-5 h-5 text-gray-400" />
+              <PiTruckBold className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="font-medium text-sm text-gray-900">Professional Installation</div>
                 <div className="text-xs text-gray-500">Expert setup at your location</div>
@@ -206,7 +205,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
                 onChange={(e) => setAddOns({ ...addOns, insurance: e.target.checked })}
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
               />
-              <ShieldCheck className="w-5 h-5 text-gray-400" />
+              <PiShieldCheckBold className="w-5 h-5 text-gray-400" />
               <div>
                 <div className="font-medium text-sm text-gray-900">Device Protection</div>
                 <div className="text-xs text-gray-500">Coverage for damage & theft</div>
@@ -265,7 +264,7 @@ export function OrderSummary({ packageId }: OrderSummaryProps) {
         {selectedPackage.id === "premium" && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-start gap-2">
-              <Info className="w-4 h-4 text-green-600 mt-0.5" />
+              <PiInfoBold className="w-4 h-4 text-green-600 mt-0.5" />
               <div className="text-xs text-green-800">
                 <strong>Premium Benefits:</strong> You're getting FREE router (R999 value) and FREE installation (R299 value)!
               </div>

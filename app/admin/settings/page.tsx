@@ -1,6 +1,6 @@
+import { PiBellBold, PiCodeBold, PiDatabaseBold, PiEnvelopeBold, PiGearBold, PiShieldBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Settings, Bell, Shield, Mail, Database, Code } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const metadata: Metadata = {
@@ -12,35 +12,35 @@ const settingsCategories = [
   {
     title: 'Notifications',
     description: 'Email templates and notification logs',
-    icon: Bell,
+    icon: PiBellBold,
     href: '/admin/settings/notifications',
     available: true
   },
   {
     title: 'Security',
     description: 'Authentication, API keys, and access control',
-    icon: Shield,
+    icon: PiShieldBold,
     href: '/admin/settings/security',
     available: false
   },
   {
     title: 'Email',
     description: 'SMTP configuration and email delivery',
-    icon: Mail,
+    icon: PiEnvelopeBold,
     href: '/admin/settings/email',
     available: false
   },
   {
     title: 'Database',
     description: 'Database connections and migrations',
-    icon: Database,
+    icon: PiDatabaseBold,
     href: '/admin/settings/database',
     available: false
   },
   {
     title: 'Integrations',
     description: 'Third-party service configurations',
-    icon: Code,
+    icon: PiCodeBold,
     href: '/admin/integrations',
     available: true
   }

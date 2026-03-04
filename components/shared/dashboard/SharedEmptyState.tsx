@@ -1,8 +1,8 @@
 'use client';
+import { PiPackageBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
-import { Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { SharedEmptyStateProps } from './types';

@@ -1,18 +1,8 @@
 'use client';
+import { PiArrowSquareOutBold, PiDownloadSimpleBold, PiFileTextBold, PiFunnelBold, PiGridFourBold, PiImageBold, PiListBold, PiMagnifyingGlassBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import {
-  Download,
-  Image,
-  FileText,
-  Video,
-  Search,
-  Filter,
-  Grid,
-  List,
-  ExternalLink,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
@@ -173,7 +163,7 @@ export default function AmbassadorAssetsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             placeholder="Search assets..."
             value={searchTerm}
@@ -183,7 +173,7 @@ export default function AmbassadorAssetsPage() {
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="w-4 h-4 mr-2" />
+            <PiFunnelBold className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -205,7 +195,7 @@ export default function AmbassadorAssetsPage() {
                 : 'text-gray-500 hover:bg-gray-100'
             )}
           >
-            <Grid className="w-5 h-5" />
+            <PiGridFourBold className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
@@ -216,7 +206,7 @@ export default function AmbassadorAssetsPage() {
                 : 'text-gray-500 hover:bg-gray-100'
             )}
           >
-            <List className="w-5 h-5" />
+            <PiListBold className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -224,7 +214,7 @@ export default function AmbassadorAssetsPage() {
       {/* Assets */}
       {filteredAssets.length === 0 ? (
         <div className="bg-white rounded-xl border p-12 text-center">
-          <Image className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <PiImageBold className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             No assets found
           </h3>
@@ -334,7 +324,7 @@ function AssetCard({
             {asset.category === 'video' ? (
               <Video className="w-12 h-12 text-gray-400" />
             ) : (
-              <FileText className="w-12 h-12 text-gray-400" />
+              <PiFileTextBold className="w-12 h-12 text-gray-400" />
             )}
           </div>
         )}
@@ -365,7 +355,7 @@ function AssetCard({
             onClick={() => onDownload(asset)}
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-circleTel-orange text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
           >
-            <Download className="w-4 h-4" />
+            <PiDownloadSimpleBold className="w-4 h-4" />
             Download
           </button>
           {asset.variations && asset.variations.length > 0 && (
@@ -374,7 +364,7 @@ function AssetCard({
               className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
               title="More sizes"
             >
-              <ExternalLink className="w-4 h-4" />
+              <PiArrowSquareOutBold className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -441,7 +431,7 @@ function AssetListItem({
         onClick={() => onDownload(asset)}
         className="flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
       >
-        <Download className="w-4 h-4" />
+        <PiDownloadSimpleBold className="w-4 h-4" />
         Download
       </button>
     </div>

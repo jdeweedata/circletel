@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDotsThreeVerticalBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * CPQ Dashboard
@@ -8,21 +9,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Plus,
-  Search,
-  Filter,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  FileText,
-  MoreVertical,
-  Trash2,
-  Eye,
-  RefreshCw,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -45,17 +31,17 @@ const STATUS_CONFIG: Record<
   CPQSessionStatus,
   { label: string; color: string; icon: typeof CheckCircle2 }
 > = {
-  draft: { label: 'Draft', color: 'text-gray-500 bg-gray-100', icon: FileText },
-  in_progress: { label: 'In Progress', color: 'text-blue-700 bg-blue-100', icon: Clock },
+  draft: { label: 'Draft', color: 'text-gray-500 bg-gray-100', icon: PiFileTextBold },
+  in_progress: { label: 'In Progress', color: 'text-blue-700 bg-blue-100', icon: PiClockBold },
   pending_approval: {
     label: 'Pending Approval',
     color: 'text-amber-700 bg-amber-100',
-    icon: AlertCircle,
+    icon: PiWarningCircleBold,
   },
-  approved: { label: 'Approved', color: 'text-green-700 bg-green-100', icon: CheckCircle2 },
-  converted: { label: 'Converted', color: 'text-purple-700 bg-purple-100', icon: CheckCircle2 },
-  expired: { label: 'Expired', color: 'text-red-700 bg-red-100', icon: XCircle },
-  cancelled: { label: 'Cancelled', color: 'text-red-700 bg-red-100', icon: XCircle },
+  approved: { label: 'Approved', color: 'text-green-700 bg-green-100', icon: PiCheckCircleBold },
+  converted: { label: 'Converted', color: 'text-purple-700 bg-purple-100', icon: PiCheckCircleBold },
+  expired: { label: 'Expired', color: 'text-red-700 bg-red-100', icon: PiXCircleBold },
+  cancelled: { label: 'Cancelled', color: 'text-red-700 bg-red-100', icon: PiXCircleBold },
 };
 
 export default function CPQDashboardPage() {
@@ -173,7 +159,7 @@ export default function CPQDashboardPage() {
           <p className="text-sm text-gray-500">Configure, Price, Quote wizard sessions</p>
         </div>
         <Button onClick={handleCreateNew} className="bg-circleTel-orange hover:bg-orange-600">
-          <Plus className="h-4 w-4 mr-2" />
+          <PiPlusBold className="h-4 w-4 mr-2" />
           New Quote
         </Button>
       </div>
@@ -202,7 +188,7 @@ export default function CPQDashboardPage() {
       <div className="flex items-center gap-4 bg-white rounded-lg border p-4">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search by company, contact, or ID..."
               value={searchQuery}
@@ -212,7 +198,7 @@ export default function CPQDashboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
+          <PiFunnelBold className="h-4 w-4 text-gray-400" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All Statuses" />
@@ -230,7 +216,7 @@ export default function CPQDashboardPage() {
           </Select>
         </div>
         <Button variant="outline" size="sm" onClick={loadSessions} disabled={isLoading}>
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
@@ -238,15 +224,15 @@ export default function CPQDashboardPage() {
       <div className="bg-white rounded-lg border overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+            <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             <span className="ml-2 text-gray-500">Loading sessions...</span>
           </div>
         ) : filteredSessions.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 mx-auto text-gray-300" />
+            <PiFileTextBold className="h-12 w-12 mx-auto text-gray-300" />
             <p className="mt-4 text-gray-500">No sessions found</p>
             <Button onClick={handleCreateNew} className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               Create Your First Quote
             </Button>
           </div>
@@ -326,7 +312,7 @@ export default function CPQDashboardPage() {
                             size="sm"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <MoreVertical className="h-4 w-4" />
+                            <PiDotsThreeVerticalBold className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -336,7 +322,7 @@ export default function CPQDashboardPage() {
                               handleViewSession(session.id);
                             }}
                           >
-                            <Eye className="h-4 w-4 mr-2" />
+                            <PiEyeBold className="h-4 w-4 mr-2" />
                             View / Edit
                           </DropdownMenuItem>
                           {!['converted', 'cancelled'].includes(session.status) && (
@@ -347,7 +333,7 @@ export default function CPQDashboardPage() {
                               }}
                               className="text-red-600"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
+                              <PiTrashBold className="h-4 w-4 mr-2" />
                               Cancel
                             </DropdownMenuItem>
                           )}

@@ -1,19 +1,4 @@
-import {
-  Home,
-  Wifi,
-  CreditCard,
-  User,
-  HelpCircle,
-  BarChart3,
-  ArrowUp,
-  ArrowDown,
-  Receipt,
-  Package,
-  FileCheck,
-  Shield,
-  MessageSquare,
-  type LucideIcon,
-} from 'lucide-react';
+import { PiArrowDownBold, PiArrowUpBold, PiChartBarBold, PiChatBold, PiCreditCardBold, PiHouseBold, PiPackageBold, PiQuestionBold, PiShieldBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
 
 export interface DashboardTab {
   id: string;
@@ -36,14 +21,14 @@ export const dashboardTabs: DashboardTab[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: Home,
+    icon: PiHouseBold,
     href: '/dashboard',
     routes: ['/dashboard'],
   },
   {
     id: 'services',
     label: 'Services',
-    icon: Wifi,
+    icon: PiWifiBold,
     href: '/dashboard/services',
     routes: [
       '/dashboard/services',
@@ -55,7 +40,7 @@ export const dashboardTabs: DashboardTab[] = [
   {
     id: 'billing',
     label: 'Billing',
-    icon: CreditCard,
+    icon: PiCreditCardBold,
     href: '/dashboard/billing',
     routes: [
       '/dashboard/billing',
@@ -66,7 +51,7 @@ export const dashboardTabs: DashboardTab[] = [
   {
     id: 'account',
     label: 'Account',
-    icon: User,
+    icon: PiUserBold,
     href: '/dashboard/profile',
     routes: [
       '/dashboard/profile',
@@ -77,7 +62,7 @@ export const dashboardTabs: DashboardTab[] = [
   {
     id: 'help',
     label: 'Help',
-    icon: HelpCircle,
+    icon: PiQuestionBold,
     href: '/dashboard/support',
     routes: [
       '/dashboard/support',
@@ -90,24 +75,24 @@ export const dashboardTabs: DashboardTab[] = [
 export const sidebarConfig: Record<string, SidebarItem[]> = {
   dashboard: [], // No sidebar items - full-width content for dashboard home
   services: [
-    { label: 'My Services', href: '/dashboard/services', icon: Wifi },
-    { label: 'Usage', href: '/dashboard/usage', icon: BarChart3 },
-    { label: 'Upgrade Plan', href: '/dashboard/services/upgrade', icon: ArrowUp },
-    { label: 'Downgrade Plan', href: '/dashboard/services/downgrade', icon: ArrowDown },
+    { label: 'My Services', href: '/dashboard/services', icon: PiWifiBold },
+    { label: 'Usage', href: '/dashboard/usage', icon: PiChartBarBold },
+    { label: 'Upgrade Plan', href: '/dashboard/services/upgrade', icon: PiArrowUpBold },
+    { label: 'Downgrade Plan', href: '/dashboard/services/downgrade', icon: PiArrowDownBold },
   ],
   billing: [
     { label: 'Overview', href: '/dashboard/billing', icon: Receipt },
-    { label: 'Orders', href: '/dashboard/orders', icon: Package },
-    { label: 'Payment Method', href: '/dashboard/payment-method', icon: CreditCard },
+    { label: 'Orders', href: '/dashboard/orders', icon: PiPackageBold },
+    { label: 'Payment Method', href: '/dashboard/payment-method', icon: PiCreditCardBold },
   ],
   account: [
-    { label: 'Profile', href: '/dashboard/profile', icon: User },
+    { label: 'Profile', href: '/dashboard/profile', icon: PiUserBold },
     { label: 'KYC Documents', href: '/dashboard/kyc', icon: FileCheck },
-    { label: 'Compliance', href: '/dashboard/compliance', icon: Shield },
+    { label: 'Compliance', href: '/dashboard/compliance', icon: PiShieldBold },
   ],
   help: [
-    { label: 'Support', href: '/dashboard/support', icon: HelpCircle },
-    { label: 'Tickets', href: '/dashboard/tickets', icon: MessageSquare },
+    { label: 'Support', href: '/dashboard/support', icon: PiQuestionBold },
+    { label: 'Tickets', href: '/dashboard/tickets', icon: PiChatBold },
   ],
 };
 

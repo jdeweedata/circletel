@@ -1,23 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiGaugeBold, PiHeadphonesBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiServerBold, PiShieldBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  Building2,
-  Wifi,
-  Radio,
-  Shield,
-  Clock,
-  Users,
-  ArrowRight,
-  CheckCircle2,
-  Phone,
-  Mail,
-  MapPin,
-  Gauge,
-  Server,
-  Headphones
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -43,7 +28,7 @@ const ENTERPRISE_SOLUTIONS: Solution[] = [
     tagline: '60GHz mmWave for Office Parks',
     description: 'High-capacity wireless backhaul connecting multiple buildings in office parks, business estates, and campuses.',
     priceRange: 'R8,500 - R85,000/mo',
-    icon: Radio,
+    icon: PiRadioBold,
     features: [
       'Up to 10 Gbps capacity',
       '60GHz mmWave technology',
@@ -66,7 +51,7 @@ const ENTERPRISE_SOLUTIONS: Solution[] = [
     tagline: 'WiFi-as-a-Service for Venues',
     description: 'Fully managed WiFi infrastructure for commercial venues. We handle everything from design to maintenance.',
     priceRange: 'R1,499 - R14,999/mo',
-    icon: Wifi,
+    icon: PiWifiBold,
     features: [
       'Enterprise WiFi 6/6E APs',
       'Cloud-managed dashboard',
@@ -88,22 +73,22 @@ const ENTERPRISE_SOLUTIONS: Solution[] = [
 // Why Enterprise
 const ENTERPRISE_BENEFITS = [
   {
-    icon: Shield,
+    icon: PiShieldBold,
     title: 'Enterprise SLA',
     description: '99.99% uptime guarantee with financial penalties for non-compliance.',
   },
   {
-    icon: Headphones,
+    icon: PiHeadphonesBold,
     title: 'Dedicated Support',
     description: 'Named account manager and priority 24/7 technical support.',
   },
   {
-    icon: Server,
+    icon: PiServerBold,
     title: 'Custom Solutions',
     description: 'Tailored infrastructure design for your specific requirements.',
   },
   {
-    icon: Gauge,
+    icon: PiGaugeBold,
     title: 'Scalable Capacity',
     description: 'Easily scale bandwidth and coverage as your needs grow.',
   },
@@ -168,7 +153,7 @@ export default function EnterprisePage() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6">
-              <Building2 className="w-4 h-4 text-circleTel-orange" />
+              <PiBuildingsBold className="w-4 h-4 text-circleTel-orange" />
               <span className="text-sm font-medium text-white">
                 Enterprise Solutions
               </span>
@@ -195,7 +180,7 @@ export default function EnterprisePage() {
               >
                 <a href="#contact">
                   Request a Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </a>
               </Button>
               <Button
@@ -205,7 +190,7 @@ export default function EnterprisePage() {
                 asChild
               >
                 <a href="tel:+27100000000">
-                  <Phone className="mr-2 h-4 w-4" />
+                  <PiPhoneBold className="mr-2 h-4 w-4" />
                   Call Sales
                 </a>
               </Button>
@@ -291,7 +276,7 @@ export default function EnterprisePage() {
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {solution.features.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2 text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <PiCheckCircleBold className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                             <span className="text-circleTel-navy">{feature}</span>
                           </li>
                         ))}
@@ -322,7 +307,7 @@ export default function EnterprisePage() {
                     >
                       <a href="#contact">
                         Request Quote
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <PiArrowRightBold className="ml-2 h-4 w-4" />
                       </a>
                     </Button>
                   </div>
@@ -383,7 +368,7 @@ export default function EnterprisePage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-circleTel-orange" />
+                      <PiPhoneBold className="w-5 h-5 text-circleTel-orange" />
                     </div>
                     <div>
                       <p className="font-body text-sm text-circleTel-grey600">Sales Hotline</p>
@@ -392,7 +377,7 @@ export default function EnterprisePage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-circleTel-orange" />
+                      <PiEnvelopeBold className="w-5 h-5 text-circleTel-orange" />
                     </div>
                     <div>
                       <p className="font-body text-sm text-circleTel-grey600">Email</p>
@@ -401,7 +386,7 @@ export default function EnterprisePage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-circleTel-orange" />
+                      <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
                     </div>
                     <div>
                       <p className="font-body text-sm text-circleTel-grey600">Office</p>
@@ -416,7 +401,7 @@ export default function EnterprisePage() {
                 {submitted ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                      <PiCheckCircleBold className="w-8 h-8 text-green-500" />
                     </div>
                     <h3 className="font-heading text-xl font-semibold text-circleTel-navy mb-2">
                       Thank You!
@@ -527,7 +512,7 @@ export default function EnterprisePage() {
                       ) : (
                         <>
                           Submit Inquiry
-                          <ArrowRight className="ml-2 h-4 w-4" />
+                          <PiArrowRightBold className="ml-2 h-4 w-4" />
                         </>
                       )}
                     </Button>

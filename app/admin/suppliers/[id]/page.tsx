@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCubeBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiSparklesBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -21,22 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  ArrowLeft,
-  RefreshCw,
-  ExternalLink,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Box,
-  Search,
-  MapPin,
-  TrendingUp,
-  TrendingDown,
-  Package,
-  Sparkles,
-  Loader2,
-} from 'lucide-react'
 import { Supplier, SupplierProduct, SupplierSyncLog, SyncStatus } from '@/lib/suppliers/types'
 
 interface SupplierDetailData extends Supplier {
@@ -212,28 +197,28 @@ export default function SupplierDetailPage() {
       case 'success':
         return (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <CheckCircle className="w-3 h-3 mr-1" />
+            <PiCheckCircleBold className="w-3 h-3 mr-1" />
             Success
           </Badge>
         )
       case 'syncing':
         return (
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+            <PiArrowsClockwiseBold className="w-3 h-3 mr-1 animate-spin" />
             Syncing
           </Badge>
         )
       case 'failed':
         return (
           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200" title={error || ''}>
-            <AlertCircle className="w-3 h-3 mr-1" />
+            <PiWarningCircleBold className="w-3 h-3 mr-1" />
             Failed
           </Badge>
         )
       default:
         return (
           <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-            <Clock className="w-3 h-3 mr-1" />
+            <PiClockBold className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         )
@@ -256,7 +241,7 @@ export default function SupplierDetailPage() {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-center py-12">
-          <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+          <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
           <span className="ml-2 text-gray-500">Loading supplier...</span>
         </div>
       </div>
@@ -267,10 +252,10 @@ export default function SupplierDetailPage() {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="text-center py-12">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+          <PiWarningCircleBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500">Supplier not found</p>
           <Button variant="outline" className="mt-4" onClick={() => router.push('/admin/suppliers')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back to Suppliers
           </Button>
         </div>
@@ -284,7 +269,7 @@ export default function SupplierDetailPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers')}>
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <div>
             <div className="flex items-center gap-2">
@@ -299,7 +284,7 @@ export default function SupplierDetailPage() {
                   rel="noopener noreferrer"
                   className="flex items-center hover:text-orange-600"
                 >
-                  <ExternalLink className="w-3 h-3 mr-1" />
+                  <PiArrowSquareOutBold className="w-3 h-3 mr-1" />
                   Website
                 </a>
               )}
@@ -317,9 +302,9 @@ export default function SupplierDetailPage() {
             title={enrichmentStats?.pending ? `Enrich ${enrichmentStats.pending} products` : 'All products enriched'}
           >
             {enriching ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <Sparkles className="w-4 h-4 mr-2" />
+              <PiSparklesBold className="w-4 h-4 mr-2" />
             )}
             {enriching ? 'Enriching...' : 'AI Enrich'}
           </Button>
@@ -329,7 +314,7 @@ export default function SupplierDetailPage() {
             disabled={syncing}
             onClick={handleSync}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Syncing...' : 'Sync Products'}
           </Button>
         </div>
@@ -379,7 +364,7 @@ export default function SupplierDetailPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600" />
+                <PiSparklesBold className="w-4 h-4 text-purple-600" />
                 <CardTitle className="text-lg">AI Enrichment Status</CardTitle>
               </div>
               {enrichmentStats.pending > 0 && enrichmentStats.cost_estimate && (
@@ -434,7 +419,7 @@ export default function SupplierDetailPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Search products..."
                   value={searchQuery}
@@ -472,12 +457,12 @@ export default function SupplierDetailPage() {
         <CardContent>
           {productsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
               <span className="ml-2 text-gray-500">Loading products...</span>
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <PiPackageBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500">No products found</p>
             </div>
           ) : (
@@ -511,7 +496,7 @@ export default function SupplierDetailPage() {
                             />
                           ) : (
                             <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                              <Box className="w-5 h-5 text-gray-400" />
+                              <PiCubeBold className="w-5 h-5 text-gray-400" />
                             </div>
                           )}
                           <div className="max-w-[300px]">
@@ -530,7 +515,7 @@ export default function SupplierDetailPage() {
                         {formatPrice(product.cost_price)}
                         {product.previous_cost_price && product.cost_price !== product.previous_cost_price && (
                           <span className={`ml-1 text-xs ${product.cost_price! > product.previous_cost_price ? 'text-red-500' : 'text-green-500'}`}>
-                            {product.cost_price! > product.previous_cost_price ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                            {product.cost_price! > product.previous_cost_price ? <PiTrendUpBold className="w-3 h-3 inline" /> : <PiTrendDownBold className="w-3 h-3 inline" />}
                           </span>
                         )}
                       </TableCell>
@@ -547,7 +532,7 @@ export default function SupplierDetailPage() {
                             </Badge>
                           )}
                           <div className="text-xs text-gray-400" title="CPT / JHB / DBN">
-                            <MapPin className="w-3 h-3 inline mr-0.5" />
+                            <PiMapPinBold className="w-3 h-3 inline mr-0.5" />
                             {product.stock_cpt}/{product.stock_jhb}/{product.stock_dbn}
                           </div>
                         </div>

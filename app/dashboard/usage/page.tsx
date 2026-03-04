@@ -1,21 +1,11 @@
 'use client';
+import { PiActivityBold, PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiLightningBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Activity,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Calendar,
-  TrendingUp,
-  Zap,
-  RefreshCw,
-} from "lucide-react";
 import Link from "next/link";
 
 interface UsageData {
@@ -117,7 +107,7 @@ function UsagePageContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -192,7 +182,7 @@ function UsagePageContent() {
                 <p className="text-xs text-gray-500 mt-1">This month</p>
               </div>
               <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Activity className="h-6 w-6 text-purple-600" />
+                <PiActivityBold className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -210,7 +200,7 @@ function UsagePageContent() {
                 <p className="text-xs text-gray-500 mt-1">This month</p>
               </div>
               <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <ArrowDown className="h-6 w-6 text-blue-600" />
+                <PiArrowDownBold className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -228,7 +218,7 @@ function UsagePageContent() {
                 <p className="text-xs text-gray-500 mt-1">This month</p>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                <ArrowUp className="h-6 w-6 text-green-600" />
+                <PiArrowUpBold className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -246,7 +236,7 @@ function UsagePageContent() {
                 <p className="text-xs text-gray-500 mt-1">Download average</p>
               </div>
               <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-orange-600" />
+                <PiTrendUpBold className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -268,12 +258,12 @@ function UsagePageContent() {
             >
               {runningSpeedTest ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Running Test...
                 </>
               ) : (
                 <>
-                  <Zap className="mr-2 h-4 w-4" />
+                  <PiLightningBold className="mr-2 h-4 w-4" />
                   Run Speed Test
                 </>
               )}
@@ -290,7 +280,7 @@ function UsagePageContent() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Activity className="h-5 w-5 text-blue-600" />
+                      <PiActivityBold className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{test.date}</p>
@@ -324,7 +314,7 @@ function UsagePageContent() {
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
-              <Activity className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <PiActivityBold className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p className="text-base">No speed tests recorded yet</p>
               <p className="text-sm mt-2">Run your first speed test to track performance</p>
             </div>
@@ -336,7 +326,7 @@ function UsagePageContent() {
       <Card className="border-blue-200 bg-blue-50">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <Zap className="h-5 w-5" />
+            <PiLightningBold className="h-5 w-5" />
             Performance Tips
           </CardTitle>
         </CardHeader>
@@ -369,7 +359,7 @@ export default function UsagePage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <UsagePageContent />

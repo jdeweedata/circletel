@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiChatBold, PiClockBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
@@ -11,19 +12,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import {
-  ArrowLeft,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  User,
-  Building2,
-  Clock,
-  MessageSquare,
-  Plus,
-  RefreshCw,
-} from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { ACTIVITY_TYPE_LABELS, type ActivityType } from '@/lib/partners/types'
@@ -209,7 +197,7 @@ export default function LeadDetailPage({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="outline" onClick={() => router.push('/partners/leads')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back to Leads
           </Button>
           <div>
@@ -226,7 +214,7 @@ export default function LeadDetailPage({
             {lead.status.replace(/_/g, ' ')}
           </Badge>
           <Button variant="outline" onClick={fetchLeadData}>
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -244,7 +232,7 @@ export default function LeadDetailPage({
                 <div>
                   <Label className="text-gray-600">Full Name</Label>
                   <div className="flex items-center mt-1">
-                    <User className="h-4 w-4 mr-2 text-gray-400" />
+                    <PiUserBold className="h-4 w-4 mr-2 text-gray-400" />
                     <span className="font-medium">
                       {lead.first_name} {lead.last_name}
                     </span>
@@ -254,7 +242,7 @@ export default function LeadDetailPage({
                   <div>
                     <Label className="text-gray-600">Company</Label>
                     <div className="flex items-center mt-1">
-                      <Building2 className="h-4 w-4 mr-2 text-gray-400" />
+                      <PiBuildingsBold className="h-4 w-4 mr-2 text-gray-400" />
                       <span className="font-medium">{lead.company_name}</span>
                     </div>
                   </div>
@@ -262,7 +250,7 @@ export default function LeadDetailPage({
                 <div>
                   <Label className="text-gray-600">Email</Label>
                   <div className="flex items-center mt-1">
-                    <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                    <PiEnvelopeBold className="h-4 w-4 mr-2 text-gray-400" />
                     <a
                       href={`mailto:${lead.email}`}
                       className="text-circleTel-orange hover:underline"
@@ -274,7 +262,7 @@ export default function LeadDetailPage({
                 <div>
                   <Label className="text-gray-600">Phone</Label>
                   <div className="flex items-center mt-1">
-                    <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                    <PiPhoneBold className="h-4 w-4 mr-2 text-gray-400" />
                     <a
                       href={`tel:${lead.phone}`}
                       className="text-circleTel-orange hover:underline"
@@ -290,7 +278,7 @@ export default function LeadDetailPage({
               <div>
                 <Label className="text-gray-600">Address</Label>
                 <div className="flex items-start mt-1">
-                  <MapPin className="h-4 w-4 mr-2 mt-1 text-gray-400" />
+                  <PiMapPinBold className="h-4 w-4 mr-2 mt-1 text-gray-400" />
                   <div>
                     <p className="font-medium">{lead.address}</p>
                     {(lead.suburb || lead.city || lead.province) && (
@@ -359,7 +347,7 @@ export default function LeadDetailPage({
                   </CardDescription>
                 </div>
                 <Button onClick={() => setShowActivityForm(!showActivityForm)}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <PiPlusBold className="h-4 w-4 mr-2" />
                   Add Activity
                 </Button>
               </div>

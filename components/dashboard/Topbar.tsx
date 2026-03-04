@@ -1,6 +1,6 @@
 'use client';
+import { PiBellBold, PiCaretDownBold, PiListBold, PiMagnifyingGlassBold, PiSignOutBold, PiUserBold } from 'react-icons/pi';
 
-import { Menu, Search, Bell, LogOut, User, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -28,7 +28,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
           className="lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white hover:bg-gray-50"
           aria-label="Open navigation"
         >
-          <Menu className="h-5 w-5 text-gray-700" />
+          <PiListBold className="h-5 w-5 text-gray-700" />
         </button>
 
         {/* Brand (compact) */}
@@ -40,7 +40,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
         <div className="flex-1 max-w-xl">
           <div className="relative">
             <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-              <Search className="h-4 w-4" />
+              <PiMagnifyingGlassBold className="h-4 w-4" />
             </span>
             <input
               type="search"
@@ -52,7 +52,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
 
         <div className="ml-auto flex items-center gap-4">
           <button className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white hover:bg-gray-50" aria-label="Notifications">
-            <Bell className="h-5 w-5 text-gray-700" />
+            <PiBellBold className="h-5 w-5 text-gray-700" />
           </button>
 
           {/* User Menu Dropdown */}
@@ -65,7 +65,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
               <div className="h-9 w-9 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
                 <Image src="/icons/avatar-placeholder.svg" alt="" width={36} height={36} />
               </div>
-              <ChevronDown className="h-4 w-4 text-gray-500 hidden sm:block" />
+              <PiCaretDownBold className="h-4 w-4 text-gray-500 hidden sm:block" />
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56">
@@ -77,7 +77,7 @@ export default function Topbar({ onToggleSidebar, displayName, email, onSignOut 
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
+                <PiSignOutBold className="mr-2 h-4 w-4" />
                 <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

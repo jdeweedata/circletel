@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiMagnifyingGlassBold, PiShieldBold, PiUsersBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +13,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Search, RefreshCw, Users } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { createClient } from '@/lib/supabase/client';
 import { KYBSubjectKYCStatus } from '@/components/admin/compliance/KYBSubjectKYCStatus';
@@ -162,7 +162,7 @@ export default function AdminKYBCompliancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <Shield className="h-8 w-8 text-circleTel-orange" />
+            <PiShieldBold className="h-8 w-8 text-circleTel-orange" />
             KYB Compliance
           </h1>
           <p className="text-gray-600 mt-1">
@@ -176,7 +176,7 @@ export default function AdminKYBCompliancePage() {
             onClick={fetchSubjects}
             className="flex items-center gap-2"
           >
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             Refresh
           </Button>
         </div>
@@ -191,7 +191,7 @@ export default function AdminKYBCompliancePage() {
               <p className="text-2xl font-bold mt-1">{stats.total}</p>
             </div>
             <div className="p-2 rounded-lg bg-gray-50">
-              <Users className="h-5 w-5 text-gray-500" />
+              <PiUsersBold className="h-5 w-5 text-gray-500" />
             </div>
           </CardContent>
         </Card>
@@ -202,7 +202,7 @@ export default function AdminKYBCompliancePage() {
               <p className="text-2xl font-bold mt-1">{stats.approved}</p>
             </div>
             <div className="p-2 rounded-lg bg-green-50">
-              <Shield className="h-5 w-5 text-green-600" />
+              <PiShieldBold className="h-5 w-5 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -213,7 +213,7 @@ export default function AdminKYBCompliancePage() {
               <p className="text-2xl font-bold mt-1">{stats.pending}</p>
             </div>
             <div className="p-2 rounded-lg bg-yellow-50">
-              <Shield className="h-5 w-5 text-yellow-600" />
+              <PiShieldBold className="h-5 w-5 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -224,7 +224,7 @@ export default function AdminKYBCompliancePage() {
               <p className="text-2xl font-bold mt-1">{stats.highRisk}</p>
             </div>
             <div className="p-2 rounded-lg bg-red-50">
-              <Shield className="h-5 w-5 text-red-600" />
+              <PiShieldBold className="h-5 w-5 text-red-600" />
             </div>
           </CardContent>
         </Card>
@@ -236,7 +236,7 @@ export default function AdminKYBCompliancePage() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by subject, quote, customer, or company..."
                   value={searchQuery}

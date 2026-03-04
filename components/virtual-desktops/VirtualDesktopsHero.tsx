@@ -2,7 +2,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Monitor, Cloud, Lock, Sparkles } from 'lucide-react';
 
 const VirtualDesktopsHero = () => {
   return (
@@ -26,22 +25,22 @@ const VirtualDesktopsHero = () => {
           <div className="md:w-1/2">
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-circleTel-lightNeutral p-6 rounded-lg flex flex-col items-center text-center">
-                <Monitor className="text-circleTel-orange h-12 w-12 mb-4" />
+                <PiMonitorBold className="text-circleTel-orange h-12 w-12 mb-4" />
                 <h3 className="font-bold mb-2">Any Device</h3>
                 <p className="text-sm">Access your desktop from any device, anywhere</p>
               </div>
               <div className="bg-circleTel-lightNeutral p-6 rounded-lg flex flex-col items-center text-center">
-                <Cloud className="text-circleTel-orange h-12 w-12 mb-4" />
+                <PiCloudBold className="text-circleTel-orange h-12 w-12 mb-4" />
                 <h3 className="font-bold mb-2">Cloud-Powered</h3>
                 <p className="text-sm">High-performance computing in the cloud</p>
               </div>
               <div className="bg-circleTel-lightNeutral p-6 rounded-lg flex flex-col items-center text-center">
-                <Lock className="text-circleTel-orange h-12 w-12 mb-4" />
+                <PiLockBold className="text-circleTel-orange h-12 w-12 mb-4" />
                 <h3 className="font-bold mb-2">Secure Access</h3>
                 <p className="text-sm">Enterprise-grade security for your data</p>
               </div>
               <div className="bg-circleTel-lightNeutral p-6 rounded-lg flex flex-col items-center text-center">
-                <Sparkles className="text-circleTel-orange h-12 w-12 mb-4" />
+                <PiSparklesBold className="text-circleTel-orange h-12 w-12 mb-4" />
                 <h3 className="font-bold mb-2">Easy Management</h3>
                 <p className="text-sm">Simplified IT administration and support</p>
               </div>

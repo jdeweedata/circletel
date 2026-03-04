@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowsClockwiseBold, PiChatBold, PiPaperPlaneRightBold, PiSparklesBold, PiSpinnerBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageSquare, X, Send, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -196,7 +196,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
           {/* Header */}
           <div className="bg-gradient-to-r from-circleTel-orange to-orange-500 p-4 flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+              <PiSparklesBold className="h-5 w-5" />
               <div>
                 <h3 className="font-semibold text-sm">Integration Assistant</h3>
                 <p className="text-xs text-white/80">Powered by Gemini AI</p>
@@ -210,7 +210,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
                 className="h-8 w-8 text-white hover:bg-white/20"
                 title="Clear chat"
               >
-                <RefreshCw className="h-4 w-4" />
+                <PiArrowsClockwiseBold className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
@@ -218,7 +218,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
                 onClick={() => setIsOpen(false)}
                 className="h-8 w-8 text-white hover:bg-white/20"
               >
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -226,7 +226,7 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
           {/* Error Banner */}
           {error && (
             <div className="bg-red-50 border-b border-red-200 px-4 py-2 flex items-center gap-2 text-red-700 text-xs">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <PiWarningCircleBold className="h-4 w-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -282,9 +282,9 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark h-9 w-9"
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 animate-spin" />
               ) : (
-                <Send className="h-4 w-4" />
+                <PiPaperPlaneRightBold className="h-4 w-4" />
               )}
             </Button>
           </form>
@@ -321,16 +321,16 @@ export function AIAssistantWidget({ className }: AIAssistantWidgetProps) {
         )}
       >
         {isOpen ? (
-          <X className="h-6 w-6" />
+          <PiXBold className="h-6 w-6" />
         ) : (
-          <MessageSquare className="h-6 w-6" />
+          <PiChatBold className="h-6 w-6" />
         )}
         {/* Notification Dot */}
         {!isOpen && isAvailable && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 items-center justify-center">
-              <Sparkles className="h-2.5 w-2.5 text-white" />
+              <PiSparklesBold className="h-2.5 w-2.5 text-white" />
             </span>
           </span>
         )}

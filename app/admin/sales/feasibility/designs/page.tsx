@@ -1,16 +1,8 @@
 'use client';
+import { PiArrowLeftBold, PiGridFourBold, PiListBold, PiMapTrifoldBold, PiSparklesBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  LayoutGrid,
-  List,
-  Map,
-  Terminal,
-  Grid3X3,
-  ArrowLeft,
-  Sparkles
-} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -27,7 +19,7 @@ const designs = [
     id: 'v1',
     label: '3-Column Refined',
     shortLabel: 'Refined',
-    icon: LayoutGrid,
+    icon: PiGridFourBold,
     description: 'Premium polish on the classic layout',
     color: 'from-amber-500 to-orange-600'
   },
@@ -35,7 +27,7 @@ const designs = [
     id: 'v2',
     label: 'Stepper Wizard',
     shortLabel: 'Wizard',
-    icon: List,
+    icon: PiListBold,
     description: 'Guided step-by-step flow',
     color: 'from-violet-500 to-purple-600'
   },
@@ -43,7 +35,7 @@ const designs = [
     id: 'v3',
     label: 'Split Map View',
     shortLabel: 'Map',
-    icon: Map,
+    icon: PiMapTrifoldBold,
     description: 'Live map feedback as you type',
     color: 'from-emerald-500 to-teal-600'
   },
@@ -77,7 +69,7 @@ export default function FeasibilityDesignsPage() {
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-1.5 flex items-center gap-1">
           <Link href="/admin/sales/feasibility">
             <Button variant="ghost" size="sm" className="h-10 px-3 text-gray-500 hover:text-gray-900">
-              <ArrowLeft className="w-4 h-4 mr-1.5" />
+              <PiArrowLeftBold className="w-4 h-4 mr-1.5" />
               Back
             </Button>
           </Link>
@@ -141,7 +133,7 @@ export default function FeasibilityDesignsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Sparkles className="w-4 h-4" />
+            <PiSparklesBold className="w-4 h-4" />
             <span>Static preview • Not functional</span>
           </div>
         </motion.div>

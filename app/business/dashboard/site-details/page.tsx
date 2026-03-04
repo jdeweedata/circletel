@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiMapPinBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
 
 /**
  * Business Dashboard - Site Details Page
@@ -11,13 +12,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  MapPin,
-  Loader2,
-  CheckCircle2,
-  AlertTriangle,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -225,13 +219,13 @@ export default function SiteDetailsPage() {
       <div className="space-y-6">
         <Button variant="ghost" asChild>
           <Link href="/business/dashboard" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <PiArrowLeftBold className="h-4 w-4" />
             Back to Dashboard
           </Link>
         </Button>
 
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <PiWarningBold className="h-4 w-4" />
           <AlertTitle>Error Loading Site Details</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -249,13 +243,13 @@ export default function SiteDetailsPage() {
       <div className="space-y-6">
         <Button variant="ghost" asChild>
           <Link href="/business/dashboard" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <PiArrowLeftBold className="h-4 w-4" />
             Back to Dashboard
           </Link>
         </Button>
 
         <Alert>
-          <AlertTriangle className="h-4 w-4" />
+          <PiWarningBold className="h-4 w-4" />
           <AlertTitle>Stage Not Available</AlertTitle>
           <AlertDescription>
             You need to complete the previous stages before accessing site details.
@@ -278,13 +272,13 @@ export default function SiteDetailsPage() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/business/dashboard">
-              <ArrowLeft className="h-4 w-4" />
+              <PiArrowLeftBold className="h-4 w-4" />
               <span className="sr-only">Back to Dashboard</span>
             </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <MapPin className="h-6 w-6 text-circleTel-orange" />
+              <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
               Site Details
             </h1>
             <p className="text-sm text-gray-500">
@@ -350,7 +344,7 @@ export default function SiteDetailsPage() {
       {/* Submitted/Approved Alert */}
       {data?.siteDetails?.status === 'submitted' && (
         <Alert className="border-blue-200 bg-blue-50">
-          <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+          <PiSpinnerBold className="h-4 w-4 text-blue-600 animate-spin" />
           <AlertTitle className="text-blue-700">Under Review</AlertTitle>
           <AlertDescription className="text-blue-600">
             Your site details have been submitted and are under review. You will be
@@ -361,7 +355,7 @@ export default function SiteDetailsPage() {
 
       {data?.siteDetails?.status === 'approved' && (
         <Alert className="border-green-200 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <PiCheckCircleBold className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-700">Site Details Approved</AlertTitle>
           <AlertDescription className="text-green-600">
             Your site details have been approved. You can proceed to the next stage.
@@ -371,7 +365,7 @@ export default function SiteDetailsPage() {
 
       {data?.siteDetails?.status === 'rejected' && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <PiWarningBold className="h-4 w-4" />
           <AlertTitle>Site Details Rejected</AlertTitle>
           <AlertDescription>
             {data.siteDetails.rejection_reason ||

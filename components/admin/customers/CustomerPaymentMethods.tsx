@@ -1,21 +1,10 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  CreditCard,
-  Building2,
-  Calendar,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  RefreshCw,
-  FileText,
-  ExternalLink,
-  Loader2,
-} from 'lucide-react';
 
 interface PaymentMethod {
   id: string;
@@ -72,22 +61,22 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
       active: {
         label: 'Active',
         className: 'bg-green-50 text-green-700 border-green-200',
-        icon: CheckCircle,
+        icon: PiCheckCircleBold,
       },
       pending: {
         label: 'Pending',
         className: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-        icon: Clock,
+        icon: PiClockBold,
       },
       failed: {
         label: 'Failed',
         className: 'bg-red-50 text-red-700 border-red-200',
-        icon: AlertTriangle,
+        icon: PiWarningBold,
       },
       suspended: {
         label: 'Suspended',
         className: 'bg-orange-50 text-orange-700 border-orange-200',
-        icon: AlertTriangle,
+        icon: PiWarningBold,
       },
     };
     return configs[status] || configs.pending;
@@ -118,7 +107,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </CardContent>
       </Card>
@@ -130,7 +119,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-gray-700" />
+            <PiCreditCardBold className="h-5 w-5 text-gray-700" />
             <h3 className="text-sm font-medium text-gray-900">
               Payment Methods / eMandate
             </h3>
@@ -141,7 +130,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
             onClick={fetchPaymentMethods}
             className="h-8"
           >
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
           </Button>
         </div>
 
@@ -151,7 +140,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
 
         {paymentMethods.length === 0 ? (
           <div className="text-center py-8">
-            <CreditCard className="h-10 w-10 text-gray-300 mx-auto mb-2" />
+            <PiCreditCardBold className="h-10 w-10 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500">No payment methods registered</p>
           </div>
         ) : (
@@ -168,7 +157,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
                   {/* Header with Status */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-gray-600" />
+                      <PiBuildingsBold className="h-4 w-4 text-gray-600" />
                       <span className="font-medium text-gray-900">
                         {pm.method_type === 'bank_account' ? 'Debit Order' : 'Credit Card'}
                       </span>
@@ -221,7 +210,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
                     <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-4 text-sm">
                       {pm.netcash_mandate_reference && (
                         <div className="flex items-center gap-1.5 text-gray-600">
-                          <FileText className="h-3.5 w-3.5" />
+                          <PiFileTextBold className="h-3.5 w-3.5" />
                           <span>NetCash Ref: </span>
                           <span className="font-mono text-gray-900">
                             {pm.netcash_mandate_reference}
@@ -230,7 +219,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
                       )}
                       {pm.mandate_signed_at && (
                         <div className="flex items-center gap-1.5 text-gray-600">
-                          <Calendar className="h-3.5 w-3.5" />
+                          <PiCalendarBold className="h-3.5 w-3.5" />
                           <span>Signed: </span>
                           <span className="text-gray-900">
                             {formatDate(pm.mandate_signed_at)}
@@ -244,7 +233,7 @@ export function CustomerPaymentMethods({ customerId }: CustomerPaymentMethodsPro
                           className="h-7 text-xs"
                           onClick={() => window.open(pm.netcash_mandate_pdf_link!, '_blank')}
                         >
-                          <ExternalLink className="h-3 w-3 mr-1" />
+                          <PiArrowSquareOutBold className="h-3 w-3 mr-1" />
                           View Mandate PDF
                         </Button>
                       )}

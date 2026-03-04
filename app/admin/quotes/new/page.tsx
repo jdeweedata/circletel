@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiFloppyDiskBold, PiFolderOpenBold, PiMapPinBold, PiPackageBold, PiPercentBold, PiPhoneBold, PiPlusBold, PiSpinnerBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -25,25 +26,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { 
-  ArrowLeft, 
-  Building2, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  FileText,
-  Loader2,
-  Plus,
-  X,
-  Package,
-  Eye,
-  Save,
-  FolderOpen,
-  Percent,
-  Download,
-  Smartphone
-} from 'lucide-react';
 import Link from 'next/link';
 import { AddressAutocomplete } from '@/components/admin/quotes/AddressAutocomplete';
 import { MTNDealSelector } from '@/components/admin/quotes/MTNDealSelector';
@@ -461,7 +443,7 @@ export default function NewQuotePage() {
           <div className="flex items-center gap-4 mb-2">
             <Link href="/admin/quotes">
               <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <PiArrowLeftBold className="w-4 h-4 mr-2" />
                 Back to Quotes
               </Button>
             </Link>
@@ -481,7 +463,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-circleTel-orange" />
+                  <PiBuildingsBold className="w-5 h-5 text-circleTel-orange" />
                   Company Information
                 </CardTitle>
                 <CardDescription>Business details for the quote</CardDescription>
@@ -572,7 +554,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-circleTel-orange" />
+                  <PiUserBold className="w-5 h-5 text-circleTel-orange" />
                   Contact Information
                 </CardTitle>
                 <CardDescription>Primary contact for this quote</CardDescription>
@@ -594,7 +576,7 @@ export default function NewQuotePage() {
                   <div className="space-y-2">
                     <Label htmlFor="contact_email">Email *</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <PiEnvelopeBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <Input
                         id="contact_email"
                         type="email"
@@ -611,7 +593,7 @@ export default function NewQuotePage() {
                   <div className="space-y-2">
                     <Label htmlFor="contact_phone">Phone *</Label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <PiPhoneBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <Input
                         id="contact_phone"
                         {...form.register('contact_phone')}
@@ -631,7 +613,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-circleTel-orange" />
+                  <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
                   Service Address
                 </CardTitle>
                 <CardDescription>Where the service will be installed</CardDescription>
@@ -662,7 +644,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-circleTel-orange" />
+                  <PiPackageBold className="w-5 h-5 text-circleTel-orange" />
                   Services
                 </CardTitle>
                 <CardDescription>Add services to this quote</CardDescription>
@@ -670,7 +652,7 @@ export default function NewQuotePage() {
               <CardContent className="space-y-4">
                 {selectedItems.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <PiPackageBold className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p className="text-sm">No services added yet</p>
                     <p className="text-xs mt-1">Click "Add Service" to get started</p>
                   </div>
@@ -704,7 +686,7 @@ export default function NewQuotePage() {
                             size="sm"
                             onClick={() => removeServiceItem(index)}
                           >
-                            <X className="w-4 h-4 text-red-600" />
+                            <PiXBold className="w-4 h-4 text-red-600" />
                           </Button>
                         </div>
                       </div>
@@ -722,12 +704,12 @@ export default function NewQuotePage() {
                         size="sm"
                         onClick={() => setShowPackageSelector(false)}
                       >
-                        <X className="w-4 h-4" />
+                        <PiXBold className="w-4 h-4" />
                       </Button>
                     </div>
                     {loadingPackages ? (
                       <div className="flex items-center justify-center py-8">
-                        <Loader2 className="w-6 h-6 animate-spin text-circleTel-orange" />
+                        <PiSpinnerBold className="w-6 h-6 animate-spin text-circleTel-orange" />
                       </div>
                     ) : packages.length === 0 ? (
                       <p className="text-sm text-gray-500 text-center py-4">No active packages available</p>
@@ -773,7 +755,7 @@ export default function NewQuotePage() {
                       onClick={() => setShowPackageSelector(true)}
                       className="w-full"
                     >
-                      <Plus className="w-4 h-4 mr-2" />
+                      <PiPlusBold className="w-4 h-4 mr-2" />
                       Add Service
                     </Button>
                     <Button
@@ -782,7 +764,7 @@ export default function NewQuotePage() {
                       onClick={() => setShowMTNDealSelector(true)}
                       className="w-full border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
                     >
-                      <Smartphone className="w-4 h-4 mr-2" />
+                      <PiDeviceMobileBold className="w-4 h-4 mr-2" />
                       Add MTN Deal
                     </Button>
                   </div>
@@ -794,7 +776,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Percent className="w-5 h-5 text-circleTel-orange" />
+                  <PiPercentBold className="w-5 h-5 text-circleTel-orange" />
                   Custom Discount
                 </CardTitle>
                 <CardDescription>Apply a discount percentage (optional)</CardDescription>
@@ -831,7 +813,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-circleTel-orange" />
+                  <PiFileTextBold className="w-5 h-5 text-circleTel-orange" />
                   Additional Notes
                 </CardTitle>
                 <CardDescription>Internal notes or special requirements</CardDescription>
@@ -902,7 +884,7 @@ export default function NewQuotePage() {
                         onClick={() => setShowTemplateDialog(true)}
                         disabled={selectedItems.length === 0}
                       >
-                        <Save className="w-3 h-3 mr-1" />
+                        <PiFloppyDiskBold className="w-3 h-3 mr-1" />
                         Save Template
                       </Button>
                       <Button
@@ -918,7 +900,7 @@ export default function NewQuotePage() {
                           }
                         }}
                       >
-                        <FolderOpen className="w-3 h-3 mr-1" />
+                        <PiFolderOpenBold className="w-3 h-3 mr-1" />
                         Load ({templates.length})
                       </Button>
                     </div>
@@ -932,7 +914,7 @@ export default function NewQuotePage() {
                         disabled={selectedItems.length === 0}
                         className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
                       >
-                        <Eye className="w-4 h-4 mr-2" />
+                        <PiEyeBold className="w-4 h-4 mr-2" />
                         Preview
                       </Button>
                       <Button
@@ -944,12 +926,12 @@ export default function NewQuotePage() {
                       >
                         {previewLoading ? (
                           <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                             PDF...
                           </>
                         ) : (
                           <>
-                            <Download className="w-4 h-4 mr-2" />
+                            <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
                             PDF
                           </>
                         )}
@@ -964,12 +946,12 @@ export default function NewQuotePage() {
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                           Creating Quote...
                         </>
                       ) : (
                         <>
-                          <FileText className="w-4 h-4 mr-2" />
+                          <PiFileTextBold className="w-4 h-4 mr-2" />
                           Create Quote
                         </>
                       )}
@@ -1026,7 +1008,7 @@ export default function NewQuotePage() {
                     />
                   </div>
                   <Button onClick={saveTemplate} className="w-full">
-                    <Save className="w-4 h-4 mr-2" />
+                    <PiFloppyDiskBold className="w-4 h-4 mr-2" />
                     Save Template
                   </Button>
                 </div>
@@ -1074,7 +1056,7 @@ export default function NewQuotePage() {
                             variant="ghost"
                             onClick={() => deleteTemplate(template.id)}
                           >
-                            <X className="w-4 h-4 text-red-600" />
+                            <PiXBold className="w-4 h-4 text-red-600" />
                           </Button>
                         </div>
                       </div>
@@ -1109,7 +1091,7 @@ export default function NewQuotePage() {
             ) : (
               <div className="bg-gray-50 border rounded-lg p-6 min-h-[400px] flex items-center justify-center">
                 <div className="text-center">
-                  <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-circleTel-orange" />
+                  <PiSpinnerBold className="w-12 h-12 mx-auto mb-4 animate-spin text-circleTel-orange" />
                   <p className="text-gray-600">Generating PDF preview...</p>
                 </div>
               </div>
@@ -1127,7 +1109,7 @@ export default function NewQuotePage() {
                   }}
                   className="flex-1"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
                   Download PDF
                 </Button>
               )}
@@ -1158,7 +1140,7 @@ export default function NewQuotePage() {
         <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0">
           <DialogHeader className="p-6 pb-4 border-b">
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-blue-600" />
+              <PiEyeBold className="w-5 h-5 text-blue-600" />
               Quote Preview
             </DialogTitle>
             <DialogDescription>
@@ -1190,7 +1172,7 @@ export default function NewQuotePage() {
               }}
               className="flex-1 bg-circleTel-orange hover:bg-[#e67516]"
             >
-              <Download className="w-4 h-4 mr-2" />
+              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
               Generate PDF
             </Button>
           </div>

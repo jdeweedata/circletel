@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold } from 'react-icons/pi';
 
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -102,7 +102,7 @@ export function PricingBlock({
               <ul className="space-y-3 mb-8">
                 {tier.features?.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    <PiCheckBold className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
                     <span className="font-body text-sm text-circleTel-grey600">
                       {feature}
                     </span>
@@ -123,7 +123,7 @@ export function PricingBlock({
                 >
                   <Link href={tier.cta.href}>
                     {tier.cta.label}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               )}

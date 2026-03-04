@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiDotsThreeVerticalBold, PiEyeBold, PiMagnifyingGlassBold, PiPlugBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SubscriberStatusBadge } from './SubscriberStatusBadge'
-import { Search, MoreVertical, Eye, Unplug, ExternalLink, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Subscriber {
@@ -94,7 +94,7 @@ export function SubscriberTable({
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search subscribers..."
             value={search}
@@ -104,7 +104,7 @@ export function SubscriberTable({
         </div>
         {onRefresh && (
           <Button variant="outline" size="sm" onClick={onRefresh}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         )}
@@ -179,7 +179,7 @@ export function SubscriberTable({
                         onClick={() => router.push(`/admin/customers/${subscriber.linkedCustomerId}`)}
                       >
                         {subscriber.linkedCustomerName}
-                        <ExternalLink className="h-3 w-3 ml-1" />
+                        <PiArrowSquareOutBold className="h-3 w-3 ml-1" />
                       </Button>
                     ) : (
                       <span className="text-gray-400">Not linked</span>
@@ -189,14 +189,14 @@ export function SubscriberTable({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
+                          <PiDotsThreeVerticalBold className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => onViewDetails?.(subscriber.id)}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <PiEyeBold className="h-4 w-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
                         {subscriber.activeSessions > 0 && onDisconnectAll && (
@@ -205,7 +205,7 @@ export function SubscriberTable({
                             disabled={disconnecting === subscriber.id}
                             onClick={() => handleDisconnectAll(subscriber.id)}
                           >
-                            <Unplug className="h-4 w-4 mr-2" />
+                            <PiPlugBold className="h-4 w-4 mr-2" />
                             {disconnecting === subscriber.id
                               ? 'Disconnecting...'
                               : 'Disconnect All Sessions'}

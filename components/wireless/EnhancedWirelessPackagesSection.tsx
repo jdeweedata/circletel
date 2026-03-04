@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingCart, Star, Wifi, Truck, Settings, Clock } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useNotification } from "@/components/ui/notification"
 import { WirelessPackage, WirelessPackagesConfig } from "@/lib/types/wireless-packages"
@@ -129,7 +128,7 @@ export function EnhancedWirelessPackagesSection() {
             variant="default"
           >
             <span className="flex items-center justify-center gap-2">
-              <ShoppingCart className="w-4 h-4 group-hover:animate-pulse" />
+              <PiShoppingCartBold className="w-4 h-4 group-hover:animate-pulse" />
               <span>{isInCart ? 'In Cart' : 'Add to Cart'}</span>
             </span>
           </Button>

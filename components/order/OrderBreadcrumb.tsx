@@ -1,8 +1,8 @@
 'use client';
+import { PiCaretRightBold, PiCheckCircleBold, PiLockBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
-import { ChevronRight, Lock, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BreadcrumbStep {
@@ -39,12 +39,12 @@ export function OrderBreadcrumb() {
                   )}
                 >
                   {step.number < currentStage && (
-                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 flex-shrink-0" />
                   )}
                   <span className="text-sm md:text-base">{step.label}</span>
                 </div>
                 {index < BREADCRUMB_STEPS.length - 1 && (
-                  <ChevronRight
+                  <PiCaretRightBold
                     className={cn(
                       'h-4 w-4 flex-shrink-0',
                       step.number < currentStage ? 'text-white/90' : 'text-white/50'
@@ -57,7 +57,7 @@ export function OrderBreadcrumb() {
 
           {/* Secure Checkout Badge */}
           <div className="hidden md:flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-            <Lock className="h-4 w-4 text-white" />
+            <PiLockBold className="h-4 w-4 text-white" />
             <span className="text-sm font-semibold text-white whitespace-nowrap">
               Secure Checkout
             </span>

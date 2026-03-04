@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiCloudBold, PiServerBold, PiShieldBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Server, Cloud, Shield, Users, Clock, ArrowRight } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -126,13 +126,13 @@ const SmallBusinessServices = () => {
               <div className="md:w-1/2">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div className="p-4 bg-circleTel-lightNeutral rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
-                    <Server className="h-10 w-10 text-circleTel-orange" />
+                    <PiServerBold className="h-10 w-10 text-circleTel-orange" />
                   </div>
                   <div className="p-4 bg-circleTel-lightNeutral rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
-                    <Cloud className="h-10 w-10 text-circleTel-orange" />
+                    <PiCloudBold className="h-10 w-10 text-circleTel-orange" />
                   </div>
                   <div className="p-4 bg-circleTel-lightNeutral rounded-lg shadow-sm border border-circleTel-orange flex items-center justify-center aspect-square">
-                    <Shield className="h-10 w-10 text-circleTel-orange" />
+                    <PiShieldBold className="h-10 w-10 text-circleTel-orange" />
                   </div>
                 </div>
               </div>
@@ -156,7 +156,7 @@ const SmallBusinessServices = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                    <Users className="h-8 w-8 text-blue-600" />
+                    <PiUsersBold className="h-8 w-8 text-blue-600" />
                   </div>
                   <CardTitle>Designed for Small Teams</CardTitle>
                 </CardHeader>
@@ -170,7 +170,7 @@ const SmallBusinessServices = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                    <Clock className="h-8 w-8 text-green-600" />
+                    <PiClockBold className="h-8 w-8 text-green-600" />
                   </div>
                   <CardTitle>Fast Response Times</CardTitle>
                 </CardHeader>
@@ -184,7 +184,7 @@ const SmallBusinessServices = () => {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                    <Shield className="h-8 w-8 text-orange-600" />
+                    <PiShieldBold className="h-8 w-8 text-orange-600" />
                   </div>
                   <CardTitle>Security First</CardTitle>
                 </CardHeader>
@@ -218,7 +218,7 @@ const SmallBusinessServices = () => {
                     <ul className="space-y-2">
                       {basicRecipe.ingredients.map((ingredient, index) => (
                         <li key={index} className="flex items-start">
-                          <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                           <span>{ingredient}</span>
                         </li>
                       ))}
@@ -259,7 +259,7 @@ const SmallBusinessServices = () => {
                       <ul className="space-y-2">
                         {growthRecipe.ingredients.map((ingredient, index) => (
                           <li key={index} className="flex items-start">
-                            <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                            <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                             <span>{ingredient}</span>
                           </li>
                         ))}
@@ -300,7 +300,7 @@ const SmallBusinessServices = () => {
                     <ul className="space-y-2">
                       {secureRecipe.ingredients.map((ingredient, index) => (
                         <li key={index} className="flex items-start">
-                          <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                           <span>{ingredient}</span>
                         </li>
                       ))}
@@ -367,7 +367,7 @@ const SmallBusinessServices = () => {
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                   <Link href="/resources/it-health">
-                    Free IT Assessment <ArrowRight className="ml-2 h-4 w-4" />
+                    Free IT Assessment <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>

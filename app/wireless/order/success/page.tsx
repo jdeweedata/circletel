@@ -2,11 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { 
-  CheckCircle, Package, Truck, Mail, 
-  Phone, MessageSquare, Download, Home,
-  Calendar, Clock, FileText, ArrowRight
-} from "lucide-react"
 import Link from "next/link"
 
 export default function OrderSuccessPage() {
@@ -21,21 +16,21 @@ export default function OrderSuccessPage() {
 
   const nextSteps = [
     {
-      icon: Package,
+      icon: PiPackageBold,
       title: "Order Processing",
       description: "Your order is being prepared",
       status: "In Progress",
       time: "Started just now"
     },
     {
-      icon: Truck,
+      icon: PiTruckBold,
       title: "Delivery",
       description: "Expected in 2-3 business days",
       status: "Pending",
       time: "Updates via SMS"
     },
     {
-      icon: Calendar,
+      icon: PiCalendarBold,
       title: "Installation (if selected)",
       description: "We'll contact you to schedule",
       status: "Pending",
@@ -45,19 +40,19 @@ export default function OrderSuccessPage() {
 
   const actions = [
     {
-      icon: FileText,
+      icon: PiFileTextBold,
       title: "View Order Details",
       description: "Review your complete order",
       link: "#"
     },
     {
-      icon: Download,
+      icon: PiDownloadSimpleBold,
       title: "Download Invoice",
       description: "Get your tax invoice",
       link: "#"
     },
     {
-      icon: MessageSquare,
+      icon: PiChatBold,
       title: "Track Your Order",
       description: "Real-time delivery updates",
       link: "#"
@@ -74,7 +69,7 @@ export default function OrderSuccessPage() {
               href="/" 
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <Home className="w-4 h-4" />
+              <PiHouseBold className="w-4 h-4" />
               Home
             </Link>
             <div className="text-2xl font-bold italic text-orange-500">
@@ -126,7 +121,7 @@ export default function OrderSuccessPage() {
           <div className={`bg-white rounded-2xl shadow-xl overflow-hidden mb-8 ${showAnimation ? 'animate-fade-in-scale' : ''}`}>
             <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-center text-white">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-bounce-in">
-                <CheckCircle className="w-12 h-12" />
+                <PiCheckCircleBold className="w-12 h-12" />
               </div>
               <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
               <p className="text-green-100 text-lg">
@@ -154,11 +149,11 @@ export default function OrderSuccessPage() {
                     <div className="text-gray-600 mt-1">Uncapped • Maximum Speed</div>
                     <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                         FREE 5G Router
                       </span>
                       <span className="flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                         FREE Installation
                       </span>
                     </div>
@@ -231,7 +226,7 @@ export default function OrderSuccessPage() {
                         <div className="font-medium text-sm text-gray-900">{action.title}</div>
                         <div className="text-xs text-gray-500 mt-1">{action.description}</div>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600" />
+                      <PiArrowRightBold className="w-4 h-4 text-gray-400 group-hover:text-orange-600" />
                     </a>
                   )
                 })}
@@ -242,17 +237,17 @@ export default function OrderSuccessPage() {
                 <h4 className="font-semibold text-gray-900 mb-3">Need Help?</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-gray-400" />
+                    <PiPhoneBold className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-600">Call: </span>
                     <span className="font-semibold text-gray-900">0860 123 456</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
+                    <PiEnvelopeBold className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-600">Email: </span>
                     <span className="font-semibold text-gray-900">support@circletel.co.za</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-gray-400" />
+                    <PiChatBold className="w-4 h-4 text-gray-400" />
                     <a href="#" className="font-semibold text-orange-600 hover:text-orange-700">
                       Live Chat →
                     </a>

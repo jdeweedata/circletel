@@ -1,8 +1,8 @@
+import { PiCalendarBold, PiCircleBold, PiEyeBold, PiFileTextBold, PiPencilSimpleBold, PiTrashBold } from 'react-icons/pi';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getPages } from '../services/storageService';
 import { Page, PageStatus } from '../types';
-import { Edit2, Eye, Trash2, Calendar, FileText, Circle } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
       {pages.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 border-dashed">
           <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileText size={32} />
+            <PiFileTextBold size={32} />
           </div>
           <h3 className="text-lg font-medium text-gray-900">No pages yet</h3>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">Get started by generating your first AI-powered landing page or blog post.</p>
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <FileText size={48} />
+                    <PiFileTextBold size={48} />
                   </div>
                 )}
                 
@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
                 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
                   <div className="flex items-center text-xs text-gray-400 gap-1">
-                    <Calendar size={12} />
+                    <PiCalendarBold size={12} />
                     {new Date(page.created_at).toLocaleDateString()}
                   </div>
                   
@@ -107,21 +107,21 @@ const Dashboard: React.FC = () => {
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
+                      <PiTrashBold size={16} />
                     </button>
                     <Link
                       to={`/editor/${page.id}`}
                       className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit"
                     >
-                      <Edit2 size={16} />
+                      <PiPencilSimpleBold size={16} />
                     </Link>
                     <Link
                       to={`/p/${page.slug}`}
                       className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="View"
                     >
-                      <Eye size={16} />
+                      <PiEyeBold size={16} />
                     </Link>
                   </div>
                 </div>

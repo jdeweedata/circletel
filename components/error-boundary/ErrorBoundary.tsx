@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBugBold, PiHouseBold, PiWarningBold } from 'react-icons/pi';
 
 import { Component, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -95,7 +95,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <Card className="max-w-lg w-full shadow-lg">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="h-8 w-8 text-red-600" />
+                <PiWarningBold className="h-8 w-8 text-red-600" />
               </div>
               <CardTitle className="text-xl">Something went wrong</CardTitle>
               <CardDescription>
@@ -134,7 +134,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 className="flex-1"
                 onClick={this.handleReset}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
               <Button
@@ -142,7 +142,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 className="flex-1"
                 onClick={this.handleReload}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
                 Reload Page
               </Button>
               <Button
@@ -150,7 +150,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 className="flex-1 bg-circleTel-orange hover:bg-circleTel-orange-dark"
                 onClick={this.handleGoHome}
               >
-                <Home className="h-4 w-4 mr-2" />
+                <PiHouseBold className="h-4 w-4 mr-2" />
                 Go Home
               </Button>
             </CardFooter>
@@ -201,7 +201,7 @@ export class SectionErrorBoundary extends Component<
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <PiWarningBold className="h-5 w-5 text-red-600 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-red-800">
                 {this.props.sectionName

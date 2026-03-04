@@ -1,21 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiShieldBold, PiStarBold, PiUploadSimpleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  MapPin,
-  Video,
-  Upload,
-  Wrench,
-  Calendar,
-  ArrowRight,
-  Wifi,
-  Signal,
-  Shield,
-  Clock,
-  CheckCircle2,
-  Star,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { cn } from '@/lib/utils';
@@ -42,17 +29,17 @@ const FEATURES = [
     description: 'Crystal-clear Zoom, Teams & Meet calls with symmetric upload speeds.',
   },
   {
-    icon: Upload,
+    icon: PiUploadSimpleBold,
     title: 'Fast Uploads',
     description: 'Upload large files, backup to cloud, and push code without waiting.',
   },
   {
-    icon: Wrench,
+    icon: PiWrenchBold,
     title: 'Free Installation',
     description: 'Professional installation included. Router configured and optimized.',
   },
   {
-    icon: Calendar,
+    icon: PiCalendarBold,
     title: 'No Lock-in',
     description: 'Month-to-month billing. Cancel anytime with no penalties.',
   },
@@ -60,10 +47,10 @@ const FEATURES = [
 
 // Why choose CircleTel
 const WHY_CIRCLETEL = [
-  { icon: Shield, label: 'Dedicated support' },
-  { icon: Clock, label: 'Same-day install' },
-  { icon: Wifi, label: 'Fibre & 5G options' },
-  { icon: Signal, label: '99.9% uptime' },
+  { icon: PiShieldBold, label: 'Dedicated support' },
+  { icon: PiClockBold, label: 'Same-day install' },
+  { icon: PiWifiBold, label: 'Fibre & 5G options' },
+  { icon: PiCellSignalFullBold, label: '99.9% uptime' },
 ];
 
 interface SOHOContentProps {
@@ -157,7 +144,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
             <div className="max-w-xl mx-auto">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-circleTel-orange z-10" />
+                  <PiMapPinBold className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-circleTel-orange z-10" />
                   <AddressAutocomplete
                     value={address}
                     onLocationSelect={handleLocationSelect}
@@ -180,7 +167,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
                   ) : (
                     <>
                       Check Coverage
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <PiArrowRightBold className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
@@ -273,7 +260,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
 
                 {/* Speed */}
                 <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
-                  <Wifi className="w-4 h-4 text-circleTel-orange" />
+                  <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
                   <span className="font-body text-sm font-medium text-circleTel-navy">
                     {plan.speed} {plan.type === '5g' ? '5G' : 'Fibre'}
                   </span>
@@ -283,7 +270,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <PiCheckCircleBold className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                       <span className="text-circleTel-navy">{feature}</span>
                     </li>
                   ))}
@@ -301,7 +288,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
                 >
                   <Link href={plan.slug ? `/workconnect/${plan.slug}` : '/?segment=wfh'}>
                     Learn More
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -322,7 +309,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
             {/* Stars */}
             <div className="flex gap-1 mb-4">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                <PiStarBold key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
               ))}
             </div>
 
@@ -364,7 +351,7 @@ export default function SOHOContent({ plans }: SOHOContentProps) {
             >
               <Link href="/?segment=wfh">
                 Check Coverage
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <PiArrowRightBold className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button

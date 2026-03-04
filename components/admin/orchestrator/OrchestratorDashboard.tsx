@@ -1,20 +1,11 @@
 'use client';
+import { PiActivityBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiLightningBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Activity,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  TrendingUp,
-  Users,
-  Zap,
-  BarChart3
-} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -258,7 +249,7 @@ const WorkflowCard: React.FC<{ workflow: WorkflowStatus }> = ({ workflow }) => {
         {/* Time Remaining */}
         {workflow.status === 'in_progress' && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
+            <PiClockBold className="h-4 w-4" />
             <span>~{workflow.estimatedTimeRemaining} min remaining</span>
           </div>
         )}
@@ -349,7 +340,7 @@ export const OrchestratorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Active Workflows</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <PiActivityBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeWorkflows.length}</div>
@@ -362,7 +353,7 @@ export const OrchestratorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Routing Accuracy</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <PiTrendUpBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.routingAccuracy}%</div>
@@ -375,7 +366,7 @@ export const OrchestratorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <PiUsersBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeAgents.length}</div>
@@ -388,7 +379,7 @@ export const OrchestratorDashboard: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
+            <PiLightningBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.averageResponseTime}s</div>
@@ -412,7 +403,7 @@ export const OrchestratorDashboard: React.FC = () => {
           {activeWorkflows.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
-                <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <PiActivityBold className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No active workflows</p>
               </CardContent>
             </Card>
@@ -495,7 +486,7 @@ export const OrchestratorDashboard: React.FC = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <span className="text-sm">TypeScript Validation</span>
                   </div>
                   <Badge variant="default">100%</Badge>
@@ -503,7 +494,7 @@ export const OrchestratorDashboard: React.FC = () => {
 
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Tests Passing</span>
                   </div>
                   <Badge variant="default">98%</Badge>
@@ -511,7 +502,7 @@ export const OrchestratorDashboard: React.FC = () => {
 
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <span className="text-sm">RBAC Permissions</span>
                   </div>
                   <Badge variant="default">100%</Badge>
@@ -519,7 +510,7 @@ export const OrchestratorDashboard: React.FC = () => {
 
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-yellow-600" />
+                    <PiWarningCircleBold className="h-4 w-4 text-yellow-600" />
                     <span className="text-sm">Documentation</span>
                   </div>
                   <Badge variant="secondary">90%</Badge>
@@ -527,7 +518,7 @@ export const OrchestratorDashboard: React.FC = () => {
 
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <span className="text-sm">Deployment Checks</span>
                   </div>
                   <Badge variant="default">100%</Badge>
@@ -539,7 +530,7 @@ export const OrchestratorDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <PiChartBarBold className="h-5 w-5" />
                 Agent Performance Summary
               </CardTitle>
               <CardDescription>Completed tasks by agent today</CardDescription>

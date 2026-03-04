@@ -1,19 +1,9 @@
 'use client';
+import { PiChatBold, PiEnvelopeBold, PiHouseBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiTrendUpBold, PiUserBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import {
-  Package,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  Zap,
-  TrendingUp,
-  Home,
-  MessageSquare
-} from 'lucide-react';
 import { useOrderContext } from './context/OrderContext';
 
 export default function OrderSummary() {
@@ -42,7 +32,7 @@ export default function OrderSummary() {
       {/* Pricing Breakdown Section */}
       <div>
         <h3 className="text-sm font-semibold text-circleTel-navy mb-3 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-circleTel-orange" />
+          <PiTrendUpBold className="h-4 w-4 text-circleTel-orange" />
           Pricing Information
         </h3>
 
@@ -92,7 +82,7 @@ export default function OrderSummary() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5" />
+                <PiTrendUpBold className="h-3.5 w-3.5" />
                 Billing Details
               </h4>
             </div>

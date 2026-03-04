@@ -1,7 +1,7 @@
+import { PiArrowLeftBold, PiFileTextBold, PiWarningCircleBold } from 'react-icons/pi';
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, FileText, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const metadata: Metadata = {
@@ -24,12 +24,12 @@ export default function TermsPage() {
             href="/"
             className="inline-flex items-center text-white hover:text-gray-200 mb-6 transition-colors"
           >
-            <ArrowLeft className="mr-2" size={20} />
+            <PiArrowLeftBold className="mr-2" size={20} />
             Back to Home
           </Link>
 
           <div className="flex items-center gap-4 mb-4">
-            <FileText size={48} />
+            <PiFileTextBold size={48} />
             <h1 className="text-4xl md:text-5xl font-bold">Terms and Conditions</h1>
           </div>
 
@@ -52,7 +52,7 @@ export default function TermsPage() {
         <div className="max-w-7xl mx-auto">
           {/* Important Notice */}
           <Alert className="mb-8 bg-blue-50 border-blue-200">
-            <AlertCircle className="h-5 w-5 text-blue-600" />
+            <PiWarningCircleBold className="h-5 w-5 text-blue-600" />
             <AlertDescription className="text-blue-900">
               <strong>Consumer Protection Act Notice:</strong> Where the Consumer Protection Act, 2008 (CPA) applies to this Agreement,
               the provisions of the CPA shall prevail in the event of any conflict between any provision of this Agreement and the provisions of the CPA.

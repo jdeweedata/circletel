@@ -6,20 +6,6 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowLeft, 
-  CreditCard, 
-  Smartphone, 
-  Building2, 
-  QrCode, 
-  Ticket, 
-  Banknote,
-  CheckCircle,
-  ChevronRight,
-  Shield,
-  Zap,
-  Receipt
-} from "lucide-react";
 import Image from "next/image";
 
 // NetCash PayNow Payment Methods based on official documentation
@@ -28,7 +14,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "card",
     name: "Card Payments",
     description: "3D Secure Credit & Debit Cards",
-    icon: CreditCard,
+    icon: PiCreditCardBold,
     color: "orange",
     brands: ["Visa", "Mastercard", "American Express", "Diners Club"],
     features: ["3D Secure", "Instant verification"],
@@ -38,7 +24,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "instant-eft",
     name: "Instant EFT",
     description: "Real-time bank payments",
-    icon: Zap,
+    icon: PiLightningBold,
     color: "green",
     brands: ["Ozow"],
     features: ["Instant verification", "No recapture needed"],
@@ -48,7 +34,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "capitec-pay",
     name: "Capitec Pay",
     description: "Fast payments for Capitec customers",
-    icon: Building2,
+    icon: PiBuildingsBold,
     color: "blue",
     brands: ["Capitec Bank"],
     features: ["Instant", "Secure"],
@@ -58,7 +44,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "bank-eft",
     name: "Bank EFT",
     description: "Online banking or app transfer",
-    icon: Building2,
+    icon: PiBuildingsBold,
     color: "indigo",
     brands: ["All SA Banks"],
     features: ["Secure", "Direct to merchant"],
@@ -88,7 +74,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "1voucher",
     name: "1Voucher",
     description: "Cash voucher payments",
-    icon: Ticket,
+    icon: PiTicketBold,
     color: "yellow",
     brands: ["29M customers"],
     features: ["Cash payment", "Trusted provider"],
@@ -98,7 +84,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "paymyway",
     name: "paymyway",
     description: "Available at 24,000+ stores",
-    icon: Ticket,
+    icon: PiTicketBold,
     color: "cyan",
     brands: ["24,000+ stores"],
     features: ["Nationwide", "Cash friendly"],
@@ -108,7 +94,7 @@ const NETCASH_PAYMENT_METHODS = [
     id: "scode",
     name: "SCode Retail",
     description: "Barcode vouchers at retail outlets",
-    icon: Banknote,
+    icon: PiMoneyBold,
     color: "teal",
     brands: ["6,000+ outlets"],
     features: ["Barcode payment", "Nationwide"],
@@ -185,7 +171,7 @@ export default function PaymentDemoPage() {
             onClick={() => router.back()}
             className="mb-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
           
@@ -201,7 +187,7 @@ export default function PaymentDemoPage() {
         <Card className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-blue-100 rounded-xl">
-              <Shield className="h-6 w-6 text-blue-600" />
+              <PiShieldBold className="h-6 w-6 text-blue-600" />
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-bold mb-2 text-gray-900">NetCash Pay Now Integration</h2>
@@ -254,7 +240,7 @@ export default function PaymentDemoPage() {
                         {isSelected && (
                           <div className="absolute top-2 right-2">
                             <div className="p-1 bg-green-100 rounded-full">
-                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                             </div>
                           </div>
                         )}
@@ -381,7 +367,7 @@ export default function PaymentDemoPage() {
                   <div className="border-t pt-3">
                     <p className="text-xs text-muted-foreground mb-2">Payment Method</p>
                     <div className="flex items-center gap-2 text-sm font-semibold">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                       {NETCASH_PAYMENT_METHODS.find(m => m.id === selectedMethod)?.name}
                     </div>
                   </div>
@@ -398,7 +384,7 @@ export default function PaymentDemoPage() {
                   ) : (
                     <>
                       Proceed to Payment
-                      <ChevronRight className="h-5 w-5 ml-2" />
+                      <PiCaretRightBold className="h-5 w-5 ml-2" />
                     </>
                   )}
                 </Button>

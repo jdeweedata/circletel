@@ -1,17 +1,8 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  CheckCircle,
-  Circle,
-  Clock,
-  CreditCard,
-  FileText,
-  Calendar,
-  Wifi,
-  AlertCircle,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OrderTimelineProps {
@@ -103,7 +94,7 @@ export function OrderTimeline({
     {
       id: 'pending',
       label: 'Order Received',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       status: 'completed', // Always completed when order is created
       date: createdAt,
       description: 'Your order has been received and is being processed',
@@ -111,7 +102,7 @@ export function OrderTimeline({
     {
       id: 'payment',
       label: 'Payment Confirmed',
-      icon: CreditCard,
+      icon: PiCreditCardBold,
       status: getStepStatus('payment', paymentDate),
       date: paymentDate,
       description: paymentDate
@@ -121,7 +112,7 @@ export function OrderTimeline({
     {
       id: 'kyc_submitted',
       label: 'Documents Submitted',
-      icon: FileText,
+      icon: PiFileTextBold,
       status: getStepStatus('kyc_submitted', kycSubmittedDate),
       date: kycSubmittedDate,
       description: kycSubmittedDate
@@ -131,7 +122,7 @@ export function OrderTimeline({
     {
       id: 'kyc_approved',
       label: 'Documents Approved',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       status: getStepStatus('kyc_approved', kycApprovedDate),
       date: kycApprovedDate,
       description: kycApprovedDate
@@ -141,7 +132,7 @@ export function OrderTimeline({
     {
       id: 'installation_scheduled',
       label: 'Installation Scheduled',
-      icon: Calendar,
+      icon: PiCalendarBold,
       status: getStepStatus('installation_scheduled', installationScheduledDate),
       date: installationScheduledDate,
       description: installationScheduledDate
@@ -151,7 +142,7 @@ export function OrderTimeline({
     {
       id: 'installation_completed',
       label: 'Installation Complete',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       status: getStepStatus('installation_completed', installationCompletedDate),
       date: installationCompletedDate,
       description: installationCompletedDate
@@ -161,7 +152,7 @@ export function OrderTimeline({
     {
       id: 'active',
       label: 'Service Active',
-      icon: Wifi,
+      icon: PiWifiBold,
       status: getStepStatus('active', activationDate),
       date: activationDate,
       description: activationDate
@@ -175,7 +166,7 @@ export function OrderTimeline({
     steps.push({
       id: 'cancelled',
       label: 'Order Cancelled',
-      icon: AlertCircle,
+      icon: PiWarningCircleBold,
       status: 'current',
       date: cancelledDate,
       description: cancelReason || 'Order has been cancelled',
@@ -247,11 +238,11 @@ export function OrderTimeline({
                     )}
                   >
                     {step.status === 'completed' ? (
-                      <CheckCircle className="w-5 h-5" />
+                      <PiCheckCircleBold className="w-5 h-5" />
                     ) : step.status === 'current' ? (
-                      <Clock className="w-5 h-5" />
+                      <PiClockBold className="w-5 h-5" />
                     ) : step.status === 'skipped' ? (
-                      <Circle className="w-5 h-5" />
+                      <PiCircleBold className="w-5 h-5" />
                     ) : (
                       <Icon className="w-5 h-5" />
                     )}

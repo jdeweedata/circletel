@@ -1,7 +1,7 @@
 'use client';
+import { PiCalculatorBold, PiPackageBold, PiPhoneBold } from 'react-icons/pi';
 
 import React from 'react';
-import { Package, Calculator, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuickAction {
@@ -15,7 +15,7 @@ interface QuickAction {
 
 const QUICK_ACTIONS: QuickAction[] = [
   {
-    icon: Package,
+    icon: PiPackageBold,
     label: 'View Packages',
     description: 'Compare plans',
     href: '/pricing',
@@ -23,7 +23,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     bgColor: 'bg-circleTel-grey200 hover:bg-circleTel-orange-light',
   },
   {
-    icon: Calculator,
+    icon: PiCalculatorBold,
     label: 'Get Quote',
     description: 'Business pricing',
     href: '/business',
@@ -31,7 +31,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     bgColor: 'bg-circleTel-orange-light hover:bg-circleTel-orange/20',
   },
   {
-    icon: Phone,
+    icon: PiPhoneBold,
     label: 'Contact Us',
     description: 'Speak to sales',
     href: '/contact',

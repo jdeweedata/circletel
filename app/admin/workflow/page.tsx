@@ -1,24 +1,11 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEyeBold, PiFileTextBold, PiPackageBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  CheckCircle,
-  XCircle,
-  Clock,
-  User,
-  Calendar,
-  Package,
-  DollarSign,
-  FileText,
-  AlertTriangle,
-  Eye,
-  MessageSquare,
-  RefreshCw
-} from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
@@ -110,11 +97,11 @@ export default function ApprovalWorkflow() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'product_create': return <Package className="h-4 w-4" />;
-      case 'product_update': return <FileText className="h-4 w-4" />;
-      case 'pricing_change': return <DollarSign className="h-4 w-4" />;
-      case 'product_archive': return <AlertTriangle className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
+      case 'product_create': return <PiPackageBold className="h-4 w-4" />;
+      case 'product_update': return <PiFileTextBold className="h-4 w-4" />;
+      case 'pricing_change': return <PiCurrencyDollarBold className="h-4 w-4" />;
+      case 'product_archive': return <PiWarningBold className="h-4 w-4" />;
+      default: return <PiFileTextBold className="h-4 w-4" />;
     }
   };
 
@@ -224,7 +211,7 @@ export default function ApprovalWorkflow() {
           disabled={isLoading}
           className="flex items-center space-x-2"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </Button>
       </div>
@@ -234,7 +221,7 @@ export default function ApprovalWorkflow() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <PiClockBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingApprovals.length}</div>
@@ -247,7 +234,7 @@ export default function ApprovalWorkflow() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Urgent Items</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <PiWarningBold className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
@@ -262,7 +249,7 @@ export default function ApprovalWorkflow() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Revenue Impact</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <PiCurrencyDollarBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -277,7 +264,7 @@ export default function ApprovalWorkflow() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Users Affected</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <PiUserBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalUsersAffected}</div>
@@ -291,7 +278,7 @@ export default function ApprovalWorkflow() {
       {/* Error Display */}
       {error && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <PiWarningBold className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -304,7 +291,7 @@ export default function ApprovalWorkflow() {
           <Card>
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
-                <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-spin" />
+                <PiArrowsClockwiseBold className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-spin" />
                 <h3 className="text-lg font-medium">Loading approvals...</h3>
               </div>
             </CardContent>
@@ -313,7 +300,7 @@ export default function ApprovalWorkflow() {
           <Card>
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <PiCheckCircleBold className="h-12 w-12 text-green-600 mx-auto mb-4" />
                 <h3 className="text-lg font-medium">All caught up!</h3>
                 <p className="text-muted-foreground">No pending approvals at this time.</p>
               </div>
@@ -339,7 +326,7 @@ export default function ApprovalWorkflow() {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-1" />
+                          <PiEyeBold className="h-4 w-4 mr-1" />
                           Review
                         </Button>
                       </DialogTrigger>
@@ -361,11 +348,11 @@ export default function ApprovalWorkflow() {
                               <h4 className="font-medium mb-2">Submission Details</h4>
                               <div className="space-y-2 text-sm">
                                 <div className="flex items-center gap-2">
-                                  <User className="h-4 w-4" />
+                                  <PiUserBold className="h-4 w-4" />
                                   <span>{approval.submitted_by.name} ({approval.submitted_by.role})</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Calendar className="h-4 w-4" />
+                                  <PiCalendarBold className="h-4 w-4" />
                                   <span>{new Date(approval.submitted_at).toLocaleDateString()}</span>
                                 </div>
                               </div>
@@ -413,7 +400,7 @@ export default function ApprovalWorkflow() {
 
                           {approval.priority === 'urgent' && (
                             <Alert>
-                              <AlertTriangle className="h-4 w-4" />
+                              <PiWarningBold className="h-4 w-4" />
                               <AlertDescription>
                                 This item is marked as urgent and requires immediate attention.
                               </AlertDescription>
@@ -426,13 +413,13 @@ export default function ApprovalWorkflow() {
                             variant="outline"
                             onClick={() => openReviewDialog(approval, 'reject')}
                           >
-                            <XCircle className="h-4 w-4 mr-1" />
+                            <PiXCircleBold className="h-4 w-4 mr-1" />
                             Reject
                           </Button>
                           <Button
                             onClick={() => openReviewDialog(approval, 'approve')}
                           >
-                            <CheckCircle className="h-4 w-4 mr-1" />
+                            <PiCheckCircleBold className="h-4 w-4 mr-1" />
                             Approve
                           </Button>
                         </DialogFooter>
@@ -508,12 +495,12 @@ export default function ApprovalWorkflow() {
             >
               {reviewAction === 'approve' ? (
                 <>
-                  <CheckCircle className="h-4 w-4 mr-1" />
+                  <PiCheckCircleBold className="h-4 w-4 mr-1" />
                   Approve
                 </>
               ) : (
                 <>
-                  <XCircle className="h-4 w-4 mr-1" />
+                  <PiXCircleBold className="h-4 w-4 mr-1" />
                   Reject
                 </>
               )}

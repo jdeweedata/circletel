@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiCheckCircleBold, PiCircleBold } from 'react-icons/pi';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Circle, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface Step {
   number: number;
@@ -72,7 +72,7 @@ export function OrderWizard({
                     aria-label={`Step ${step.number}: ${step.title}`}
                   >
                     {step.number < currentStep ? (
-                      <CheckCircle className="w-6 h-6" />
+                      <PiCheckCircleBold className="w-6 h-6" />
                     ) : (
                       step.number
                     )}
@@ -142,7 +142,7 @@ export function OrderWizard({
                 disabled={!canGoPrevious || isFirstStep || isSubmitting}
                 className="min-w-[120px]"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <PiArrowLeftBold className="w-4 h-4 mr-2" />
                 Previous
               </Button>
 
@@ -164,12 +164,12 @@ export function OrderWizard({
                 ) : isLastStep ? (
                   <>
                     Complete Order
-                    <CheckCircle className="w-4 h-4 ml-2" />
+                    <PiCheckCircleBold className="w-4 h-4 ml-2" />
                   </>
                 ) : (
                   <>
                     Next
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <PiArrowRightBold className="w-4 h-4 ml-2" />
                   </>
                 )}
               </Button>

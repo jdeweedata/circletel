@@ -1,6 +1,6 @@
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiLightningBold, PiPhoneBold, PiShieldBold, PiUsersBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { CheckCircle, Shield, Zap, Users, Building2, Phone, Mail, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Business Solutions | CircleTel',
@@ -32,20 +32,20 @@ export default function BusinessPage() {
                   className="bg-circleTel-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
                 >
                   Request Quote
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
                   href="/connectivity/fibre"
                   className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center border border-white/30 transition-colors"
                 >
                   Check Coverage
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
                   href="/contact"
                   className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center border border-white/30 transition-colors"
                 >
-                  <Phone className="mr-2 h-5 w-5" />
+                  <PiPhoneBold className="mr-2 h-5 w-5" />
                   Talk to Specialist
                 </Link>
               </div>
@@ -86,22 +86,22 @@ export default function BusinessPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                icon: Building2,
+                icon: PiBuildingsBold,
                 title: 'Large Offices',
                 description: '50+ employees with high bandwidth needs'
               },
               {
-                icon: Users,
+                icon: PiUsersBold,
                 title: 'Remote Teams',
                 description: 'Cloud applications and video conferencing'
               },
               {
-                icon: Shield,
+                icon: PiShieldBold,
                 title: 'Financial Services',
                 description: 'Mission-critical uptime requirements'
               },
               {
-                icon: Zap,
+                icon: PiLightningBold,
                 title: 'Tech Companies',
                 description: 'Development teams and data-heavy workloads'
               }
@@ -129,7 +129,7 @@ export default function BusinessPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <PiCheckCircleBold className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="font-semibold text-xl mb-3">99.99% Uptime SLA</h3>
               <p className="text-gray-600">
@@ -140,7 +140,7 @@ export default function BusinessPage() {
 
             <div className="text-center">
               <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-8 w-8 text-blue-600" />
+                <PiPhoneBold className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="font-semibold text-xl mb-3">24/7 Priority Support</h3>
               <p className="text-gray-600">
@@ -151,7 +151,7 @@ export default function BusinessPage() {
 
             <div className="text-center">
               <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-circleTel-orange" />
+                <PiLightningBold className="h-8 w-8 text-circleTel-orange" />
               </div>
               <h3 className="font-semibold text-xl mb-3">Rapid Deployment</h3>
               <p className="text-gray-600">
@@ -186,19 +186,19 @@ export default function BusinessPage() {
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>Direct FTTB connection</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>Speeds: 50Mbps - 1Gbps</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>99.99% uptime SLA</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>Enterprise-grade router included</span>
                 </div>
               </div>
@@ -224,19 +224,19 @@ export default function BusinessPage() {
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>5G/LTE connectivity</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>Uncapped data options</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>99.9% uptime SLA</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                   <span>Fast installation (2-5 days)</span>
                 </div>
               </div>
@@ -271,20 +271,20 @@ export default function BusinessPage() {
               className="bg-white text-circleTel-orange hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               Request Quote
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Link>
             <Link
               href="/connectivity/fibre"
               className="bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               Check Coverage
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Link>
             <a
               href="https://wa.me/27824873900"
               className="bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
-              <Phone className="mr-2 h-5 w-5" />
+              <PiPhoneBold className="mr-2 h-5 w-5" />
               082 487 3900
             </a>
           </div>

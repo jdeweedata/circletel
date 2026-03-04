@@ -1,8 +1,8 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 
 /**
  * Admin Root Page - Redirect to Login
@@ -52,7 +52,7 @@ export default function AdminRootPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-4" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-4" />
         <p className="text-gray-600">Redirecting to login...</p>
       </div>
     </div>

@@ -6,11 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Wifi, Router, Smartphone, Package, ChevronRight,
-  Info, Shield, Zap, Clock, Phone, Mail,
-  MapPin, CreditCard, Building2, Home
-} from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface WirelessOrderFormProps {
@@ -127,7 +122,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
               className="rounded-none rounded-tl-xl py-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <div className="flex items-center gap-2">
-                <Router className="w-4 h-4" />
+                <PiRouterBold className="w-4 h-4" />
                 <span className="hidden sm:inline">Device</span>
               </div>
             </TabsTrigger>
@@ -136,7 +131,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
               className="rounded-none py-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
+                <PiPhoneBold className="w-4 h-4" />
                 <span className="hidden sm:inline">Details</span>
               </div>
             </TabsTrigger>
@@ -145,7 +140,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
               className="rounded-none py-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <div className="flex items-center gap-2">
-                <Home className="w-4 h-4" />
+                <PiHouseBold className="w-4 h-4" />
                 <span className="hidden sm:inline">Setup</span>
               </div>
             </TabsTrigger>
@@ -154,7 +149,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
               className="rounded-none rounded-tr-xl py-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+                <PiMapPinBold className="w-4 h-4" />
                 <span className="hidden sm:inline">Address</span>
               </div>
             </TabsTrigger>
@@ -209,7 +204,7 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
                             <ul className="mt-3 space-y-1">
                               {option.features.map((feature, index) => (
                                 <li key={index} className="flex items-center gap-2 text-xs text-gray-500">
-                                  <Shield className="w-3 h-3 text-green-500" />
+                                  <PiShieldBold className="w-3 h-3 text-green-500" />
                                   {feature}
                                 </li>
                               ))}
@@ -401,11 +396,11 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
                           </p>
                           <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
                             <span className="flex items-center gap-1">
-                              <Zap className="w-3 h-3" />
+                              <PiLightningBold className="w-3 h-3" />
                               Quick setup
                             </span>
                             <span className="flex items-center gap-1">
-                              <Info className="w-3 h-3" />
+                              <PiInfoBold className="w-3 h-3" />
                               Online support
                             </span>
                           </div>
@@ -441,11 +436,11 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
                           </p>
                           <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
                             <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
+                              <PiClockBold className="w-3 h-3" />
                               Scheduled visit
                             </span>
                             <span className="flex items-center gap-1">
-                              <Shield className="w-3 h-3" />
+                              <PiShieldBold className="w-3 h-3" />
                               Expert setup
                             </span>
                           </div>
@@ -638,12 +633,12 @@ export function WirelessOrderForm({ packageId }: WirelessOrderFormProps) {
             {activeTab === "address" ? (
               <>
                 Proceed to Payment
-                <CreditCard className="w-4 h-4 ml-2" />
+                <PiCreditCardBold className="w-4 h-4 ml-2" />
               </>
             ) : (
               <>
                 Next Step
-                <ChevronRight className="w-4 h-4 ml-2" />
+                <PiCaretRightBold className="w-4 h-4 ml-2" />
               </>
             )}
           </Button>

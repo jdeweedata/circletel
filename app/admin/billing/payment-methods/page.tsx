@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiDotsThreeBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -15,24 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  CreditCard,
-  Building2,
-  Search,
-  Filter,
-  RefreshCw,
-  ArrowLeft,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertCircle,
-  User,
-  Calendar,
-  Shield,
-  Eye,
-  MoreHorizontal,
-  Loader2,
-} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,18 +82,18 @@ interface Pagination {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  active: { label: 'Active', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="w-3 h-3" /> },
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="w-3 h-3" /> },
-  suspended: { label: 'Suspended', color: 'bg-orange-100 text-orange-800', icon: <AlertCircle className="w-3 h-3" /> },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: <XCircle className="w-3 h-3" /> },
-  expired: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: <XCircle className="w-3 h-3" /> },
+  active: { label: 'Active', color: 'bg-green-100 text-green-800', icon: <PiCheckCircleBold className="w-3 h-3" /> },
+  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: <PiClockBold className="w-3 h-3" /> },
+  suspended: { label: 'Suspended', color: 'bg-orange-100 text-orange-800', icon: <PiWarningCircleBold className="w-3 h-3" /> },
+  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: <PiXCircleBold className="w-3 h-3" /> },
+  expired: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: <PiXCircleBold className="w-3 h-3" /> },
 };
 
 const METHOD_TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
-  credit_card: { label: 'Credit Card', icon: <CreditCard className="w-4 h-4" /> },
-  debit_card: { label: 'Debit Card', icon: <CreditCard className="w-4 h-4" /> },
-  bank_account: { label: 'Bank Account', icon: <Building2 className="w-4 h-4" /> },
-  debit_order: { label: 'Debit Order', icon: <Building2 className="w-4 h-4" /> },
+  credit_card: { label: 'Credit Card', icon: <PiCreditCardBold className="w-4 h-4" /> },
+  debit_card: { label: 'Debit Card', icon: <PiCreditCardBold className="w-4 h-4" /> },
+  bank_account: { label: 'Bank Account', icon: <PiBuildingsBold className="w-4 h-4" /> },
+  debit_order: { label: 'Debit Order', icon: <PiBuildingsBold className="w-4 h-4" /> },
 };
 
 export default function AdminPaymentMethodsPage() {
@@ -187,7 +170,7 @@ export default function AdminPaymentMethodsPage() {
   };
 
   const getMethodDisplay = (pm: PaymentMethod) => {
-    const config = METHOD_TYPE_CONFIG[pm.method_type] || { label: pm.method_type, icon: <CreditCard className="w-4 h-4" /> };
+    const config = METHOD_TYPE_CONFIG[pm.method_type] || { label: pm.method_type, icon: <PiCreditCardBold className="w-4 h-4" /> };
 
     if (pm.method_type === 'credit_card' || pm.method_type === 'debit_card') {
       return (
@@ -254,7 +237,7 @@ export default function AdminPaymentMethodsPage() {
         <div className="flex items-center gap-4">
           <Link href="/admin/billing">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <PiArrowLeftBold className="w-4 h-4 mr-2" />
               Back
             </Button>
           </Link>
@@ -264,7 +247,7 @@ export default function AdminPaymentMethodsPage() {
           </div>
         </div>
         <Button onClick={fetchPaymentMethods} variant="outline" disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -276,7 +259,7 @@ export default function AdminPaymentMethodsPage() {
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  <PiCreditCardBold className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.total}</p>
@@ -289,7 +272,7 @@ export default function AdminPaymentMethodsPage() {
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.by_status?.active || 0}</p>
@@ -302,7 +285,7 @@ export default function AdminPaymentMethodsPage() {
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-yellow-600" />
+                  <PiClockBold className="w-5 h-5 text-yellow-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.by_status?.pending || 0}</p>
@@ -315,7 +298,7 @@ export default function AdminPaymentMethodsPage() {
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
-                  <Building2 className="w-5 h-5 text-purple-600" />
+                  <PiBuildingsBold className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.by_type?.debit_order || stats.by_type?.bank_account || 0}</p>
@@ -333,7 +316,7 @@ export default function AdminPaymentMethodsPage() {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Search by name, reference..."
                   value={filters.search}
@@ -374,7 +357,7 @@ export default function AdminPaymentMethodsPage() {
               </SelectContent>
             </Select>
             <Button onClick={handleSearch} variant="default">
-              <Filter className="w-4 h-4 mr-2" />
+              <PiFunnelBold className="w-4 h-4 mr-2" />
               Apply
             </Button>
             {(filters.status || filters.method_type || filters.search) && (
@@ -391,11 +374,11 @@ export default function AdminPaymentMethodsPage() {
         <CardContent className="pt-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+              <PiSpinnerBold className="w-8 h-8 animate-spin text-gray-400" />
             </div>
           ) : paymentMethods.length === 0 ? (
             <div className="text-center py-12">
-              <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <PiCreditCardBold className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No payment methods found</p>
               <p className="text-sm text-gray-400">Try adjusting your filters</p>
             </div>
@@ -422,12 +405,12 @@ export default function AdminPaymentMethodsPage() {
                       <TableCell>
                         {pm.is_verified ? (
                           <Badge className="bg-green-100 text-green-800 flex items-center gap-1 w-fit">
-                            <Shield className="w-3 h-3" />
+                            <PiShieldBold className="w-3 h-3" />
                             Verified
                           </Badge>
                         ) : (
                           <Badge className="bg-gray-100 text-gray-600 flex items-center gap-1 w-fit">
-                            <Clock className="w-3 h-3" />
+                            <PiClockBold className="w-3 h-3" />
                             Pending
                           </Badge>
                         )}
@@ -445,18 +428,18 @@ export default function AdminPaymentMethodsPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="w-4 h-4" />
+                              <PiDotsThreeBold className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>
-                              <Eye className="w-4 h-4 mr-2" />
+                              <PiEyeBold className="w-4 h-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
                             {pm.customer && (
                               <DropdownMenuItem asChild>
                                 <Link href={`/admin/customers/${pm.customer.id}`}>
-                                  <User className="w-4 h-4 mr-2" />
+                                  <PiUserBold className="w-4 h-4 mr-2" />
                                   View Customer
                                 </Link>
                               </DropdownMenuItem>

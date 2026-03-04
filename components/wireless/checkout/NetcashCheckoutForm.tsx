@@ -6,12 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  CreditCard, Smartphone, Building2, Calendar,
-  Lock, ShieldCheck, AlertCircle, CheckCircle,
-  Loader2, ChevronRight, Info, Eye, EyeOff,
-  AlertTriangle, ExternalLink
-} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { netcashConfig } from "@/lib/payment/netcash-config"
 import { PaymentDisclaimerCard } from "@/components/payments/PaymentDisclaimerCard"
@@ -241,7 +235,7 @@ export function CheckoutForm() {
     if (type === "amex") {
       return <div className="text-blue-500 font-bold text-xs">AMEX</div>
     }
-    return <CreditCard className="w-4 h-4 text-gray-400" />
+    return <PiCreditCardBold className="w-4 h-4 text-gray-400" />
   }
 
   return (
@@ -253,7 +247,7 @@ export function CheckoutForm() {
         {/* Netcash Badge */}
         <div className="mt-4 flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <ShieldCheck className="w-5 h-5 text-green-600" />
+            <PiShieldCheckBold className="w-5 h-5 text-green-600" />
             <span>Secured by Netcash PCI DSS Compliant Gateway</span>
           </div>
           <a 
@@ -263,7 +257,7 @@ export function CheckoutForm() {
             className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
           >
             <span>Powered by Netcash</span>
-            <ExternalLink className="w-3 h-3" />
+            <PiArrowSquareOutBold className="w-3 h-3" />
           </a>
         </div>
       </div>
@@ -272,7 +266,7 @@ export function CheckoutForm() {
       {process.env.NODE_ENV === 'development' && (
         <div className="p-4 bg-yellow-50 border-b border-yellow-200">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+            <PiWarningBold className="w-5 h-5 text-yellow-600 mt-0.5" />
             <div className="flex-1">
               <div className="font-semibold text-yellow-800 text-sm">Test Mode Active</div>
               <div className="text-yellow-700 text-xs mt-1">
@@ -299,15 +293,15 @@ export function CheckoutForm() {
           <Tabs value={paymentMethod} onValueChange={setPaymentMethod} className="w-full">
             <TabsList className="grid w-full grid-cols-3 h-auto p-1">
               <TabsTrigger value="card" className="py-3">
-                <CreditCard className="w-4 h-4 mr-2" />
+                <PiCreditCardBold className="w-4 h-4 mr-2" />
                 Credit/Debit Card
               </TabsTrigger>
               <TabsTrigger value="eft" className="py-3">
-                <Building2 className="w-4 h-4 mr-2" />
+                <PiBuildingsBold className="w-4 h-4 mr-2" />
                 Bank EFT
               </TabsTrigger>
               <TabsTrigger value="mobile" className="py-3">
-                <Smartphone className="w-4 h-4 mr-2" />
+                <PiDeviceMobileBold className="w-4 h-4 mr-2" />
                 Mobile Payment
               </TabsTrigger>
             </TabsList>
@@ -318,7 +312,7 @@ export function CheckoutForm() {
               {tokenizedCard.maskedCard && (
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                     <span className="text-sm text-green-800">
                       Card tokenized securely: {tokenizedCard.maskedCard}
                     </span>
@@ -346,9 +340,9 @@ export function CheckoutForm() {
                       className="p-1 hover:bg-gray-100 rounded"
                     >
                       {showCardNumber ? (
-                        <EyeOff className="w-4 h-4 text-gray-400" />
+                        <PiEyeSlashBold className="w-4 h-4 text-gray-400" />
                       ) : (
-                        <Eye className="w-4 h-4 text-gray-400" />
+                        <PiEyeBold className="w-4 h-4 text-gray-400" />
                       )}
                     </button>
                     <CardIcon type={cardType} />
@@ -420,7 +414,7 @@ export function CheckoutForm() {
                 <div>
                   <Label htmlFor="cvv">
                     CVV
-                    <Info className="w-3 h-3 inline-block ml-1 text-gray-400" />
+                    <PiInfoBold className="w-3 h-3 inline-block ml-1 text-gray-400" />
                   </Label>
                   <Input
                     id="cvv"
@@ -440,7 +434,7 @@ export function CheckoutForm() {
               {/* Secure Payment Notice */}
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <Lock className="w-4 h-4 text-green-600 mt-0.5" />
+                  <PiLockBold className="w-4 h-4 text-green-600 mt-0.5" />
                   <div className="text-xs text-green-800">
                     <strong>PCI DSS Compliant:</strong> Your payment information is tokenized and encrypted using Netcash PCI Vault. 
                     We never store your full card details.
@@ -453,7 +447,7 @@ export function CheckoutForm() {
             <TabsContent value="eft" className="mt-6 space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
                 <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-600 mt-0.5" />
+                  <PiInfoBold className="w-4 h-4 text-blue-600 mt-0.5" />
                   <div className="text-sm text-blue-800">
                     <strong>Netcash Debit Order:</strong> Your monthly subscription will be automatically debited from your account using Netcash's secure debit order system.
                   </div>
@@ -519,7 +513,7 @@ export function CheckoutForm() {
             {/* Mobile Payment */}
             <TabsContent value="mobile" className="mt-6">
               <div className="text-center py-8">
-                <Smartphone className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <PiDeviceMobileBold className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Netcash Mobile Payment</h3>
                 <p className="text-gray-600 mb-6">Quick and secure mobile payment powered by Netcash</p>
                 
@@ -631,12 +625,12 @@ export function CheckoutForm() {
         >
           {isProcessing ? (
             <>
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
               Processing via Netcash...
             </>
           ) : (
             <>
-              <Lock className="w-5 h-5 mr-2" />
+              <PiLockBold className="w-5 h-5 mr-2" />
               Pay Securely - R998/mo
             </>
           )}
@@ -645,7 +639,7 @@ export function CheckoutForm() {
         {/* Security Notice */}
         <div className="mt-4 text-center">
           <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-            <ShieldCheck className="w-4 h-4" />
+            <PiShieldCheckBold className="w-4 h-4" />
             <span>Secured by Netcash PCI DSS Level 1 Compliant Gateway</span>
           </div>
           <div className="mt-2 text-xs text-gray-400">

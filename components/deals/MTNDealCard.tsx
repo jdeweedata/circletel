@@ -1,20 +1,9 @@
 'use client';
+import { PiCalendarBold, PiCaretRightBold, PiCellSignalFullBold, PiChatBold, PiDatabaseBold, PiDeviceMobileBold, PiGiftBold, PiLightningBold, PiPhoneBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Smartphone,
-  Signal,
-  Wifi,
-  Phone,
-  MessageSquare,
-  Database,
-  Gift,
-  Calendar,
-  ChevronRight,
-  Zap
-} from 'lucide-react';
 
 // Note: These are CircleTel-branded deals (sourced from MTN dealer network)
 export interface MTNDeal {
@@ -86,11 +75,11 @@ export function MTNDealCard({
             <div className="flex items-center gap-3">
               {deal.has_device ? (
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Smartphone className="h-5 w-5 text-gray-600" />
+                  <PiDeviceMobileBold className="h-5 w-5 text-gray-600" />
                 </div>
               ) : (
                 <div className="p-2 bg-orange-100 rounded-lg">
-                  <Smartphone className="h-5 w-5 text-circleTel-orange" />
+                  <PiDeviceMobileBold className="h-5 w-5 text-circleTel-orange" />
                 </div>
               )}
               <div>
@@ -123,9 +112,9 @@ export function MTNDealCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {is5G ? (
-              <Zap className="h-4 w-4" />
+              <PiLightningBold className="h-4 w-4" />
             ) : (
-              <Signal className="h-4 w-4" />
+              <PiCellSignalFullBold className="h-4 w-4" />
             )}
             <span className="font-semibold text-sm">{deal.technology}</span>
           </div>
@@ -140,11 +129,11 @@ export function MTNDealCard({
         <div className="flex items-start gap-3">
           {deal.has_device ? (
             <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
-              <Smartphone className="h-6 w-6 text-gray-600" />
+              <PiDeviceMobileBold className="h-6 w-6 text-gray-600" />
             </div>
           ) : (
             <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
-              <Smartphone className="h-6 w-6 text-circleTel-orange" />
+              <PiDeviceMobileBold className="h-6 w-6 text-circleTel-orange" />
             </div>
           )}
           <div className="min-w-0">
@@ -171,17 +160,17 @@ export function MTNDealCard({
         {/* Bundle Details */}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="p-2 bg-blue-50 rounded-lg">
-            <Database className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+            <PiDatabaseBold className="h-4 w-4 text-blue-600 mx-auto mb-1" />
             <p className="text-sm font-semibold text-blue-900">{parseDataValue(deal.data_bundle)}</p>
             <p className="text-xs text-blue-600">Data</p>
           </div>
           <div className="p-2 bg-green-50 rounded-lg">
-            <Phone className="h-4 w-4 text-green-600 mx-auto mb-1" />
+            <PiPhoneBold className="h-4 w-4 text-green-600 mx-auto mb-1" />
             <p className="text-sm font-semibold text-green-900">{parseMinutes(deal.anytime_minutes)}</p>
             <p className="text-xs text-green-600">Minutes</p>
           </div>
           <div className="p-2 bg-purple-50 rounded-lg">
-            <MessageSquare className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+            <PiChatBold className="h-4 w-4 text-purple-600 mx-auto mb-1" />
             <p className="text-sm font-semibold text-purple-900">{deal.sms_bundle?.replace('sms', '') || '0'}</p>
             <p className="text-xs text-purple-600">SMS</p>
           </div>
@@ -190,7 +179,7 @@ export function MTNDealCard({
         {/* Freebies */}
         {hasFreebies && (
           <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
-            <Gift className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <PiGiftBold className="h-4 w-4 text-amber-600 flex-shrink-0" />
             <p className="text-xs text-amber-800 line-clamp-1">
               {deal.free_sim && 'Free SIM'}
               {deal.freebies_device && ` • ${deal.freebies_device}`}
@@ -207,7 +196,7 @@ export function MTNDealCard({
             onClick={() => onSelect?.(deal)}
           >
             Select Deal
-            <ChevronRight className="h-4 w-4 ml-2" />
+            <PiCaretRightBold className="h-4 w-4 ml-2" />
           </Button>
         </CardFooter>
       )}
@@ -251,7 +240,7 @@ export function MTNDealGrid({
   if (deals.length === 0) {
     return (
       <div className="text-center py-12">
-        <Smartphone className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+        <PiDeviceMobileBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
         <p className="text-gray-500">{emptyMessage}</p>
       </div>
     );

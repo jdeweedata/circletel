@@ -1,4 +1,5 @@
 'use client';
+import { PiCaretRightBold, PiCellSignalFullBold, PiDeviceMobileBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiSlidersHorizontalBold, PiSpinnerBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -26,19 +27,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Search,
-  Filter,
-  SlidersHorizontal,
-  Signal,
-  Zap,
-  Smartphone,
-  // Note: Sim icon was removed from lucide-react, using Smartphone as alternative
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  X,
-} from 'lucide-react';
 import { MTNDealCard, MTNDealGrid, MTNDeal } from '@/components/deals/MTNDealCard';
 
 // Format currency
@@ -144,7 +132,7 @@ export default function DealsPage() {
       <div className="space-y-2">
         <Label>Search</Label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search deals..."
             value={search}
@@ -224,7 +212,7 @@ export default function DealsPage() {
       {/* Clear Filters */}
       {hasActiveFilters && (
         <Button variant="outline" className="w-full" onClick={clearFilters}>
-          <X className="h-4 w-4 mr-2" />
+          <PiXBold className="h-4 w-4 mr-2" />
           Clear Filters
         </Button>
       )}
@@ -245,7 +233,7 @@ export default function DealsPage() {
         <div className="container mx-auto px-4 py-12 md:py-16 relative">
           <div className="max-w-3xl">
             <Badge className="bg-circleTel-orange text-white mb-4">
-              <Signal className="h-3 w-3 mr-1" />
+              <PiCellSignalFullBold className="h-3 w-3 mr-1" />
               Business Mobile
             </Badge>
             
@@ -261,15 +249,15 @@ export default function DealsPage() {
             {/* Quick Stats */}
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <Smartphone className="h-4 w-4" />
+                <PiDeviceMobileBold className="h-4 w-4" />
                 <span className="text-sm">Device Deals</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <Smartphone className="h-4 w-4" />
+                <PiDeviceMobileBold className="h-4 w-4" />
                 <span className="text-sm">SIM Only</span>
               </div>
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <Zap className="h-4 w-4" />
+                <PiLightningBold className="h-4 w-4" />
                 <span className="text-sm">5G Available</span>
               </div>
             </div>
@@ -285,7 +273,7 @@ export default function DealsPage() {
             <Card className="sticky top-4">
               <CardContent className="p-6">
                 <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                  <SlidersHorizontal className="h-5 w-5" />
+                  <PiSlidersHorizontalBold className="h-5 w-5" />
                   Filters
                 </h2>
                 <FilterContent />
@@ -302,7 +290,7 @@ export default function DealsPage() {
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">
-                      <Filter className="h-4 w-4 mr-2" />
+                      <PiFunnelBold className="h-4 w-4 mr-2" />
                       Filters
                       {hasActiveFilters && (
                         <Badge className="ml-2 bg-circleTel-orange text-white">!</Badge>
@@ -345,11 +333,11 @@ export default function DealsPage() {
               <TabsList>
                 <TabsTrigger value="all">All Deals</TabsTrigger>
                 <TabsTrigger value="devices">
-                  <Smartphone className="h-4 w-4 mr-1" />
+                  <PiDeviceMobileBold className="h-4 w-4 mr-1" />
                   With Device
                 </TabsTrigger>
                 <TabsTrigger value="sim">
-                  <Smartphone className="h-4 w-4 mr-1" />
+                  <PiDeviceMobileBold className="h-4 w-4 mr-1" />
                   SIM Only
                 </TabsTrigger>
               </TabsList>
@@ -392,7 +380,7 @@ export default function DealsPage() {
                   disabled={page === totalPages}
                 >
                   Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <PiCaretRightBold className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             )}

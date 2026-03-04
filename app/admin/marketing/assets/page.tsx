@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEyeBold, PiEyeSlashBold, PiFileTextBold, PiFunnelBold, PiImageBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold } from 'react-icons/pi';
 
 /**
  * Admin Marketing Assets Page
@@ -27,23 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Plus,
-  Search,
-  Filter,
-  Image,
-  FileText,
-  Video,
-  Upload,
-  Trash2,
-  Edit2,
-  Download,
-  Eye,
-  EyeOff,
-  Loader2,
-  RefreshCw,
-  MoreHorizontal,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type AssetCategory =
@@ -328,7 +312,7 @@ export default function AdminAssetsPage() {
           </p>
         </div>
         <Button onClick={openCreateModal}>
-          <Plus className="h-4 w-4 mr-2" />
+          <PiPlusBold className="h-4 w-4 mr-2" />
           Upload Asset
         </Button>
       </div>
@@ -336,7 +320,7 @@ export default function AdminAssetsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-lg border">
         <div className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search assets..."
             value={searchTerm}
@@ -349,7 +333,7 @@ export default function AdminAssetsPage() {
           onValueChange={(value) => setCategoryFilter(value as AssetCategory | 'all')}
         >
           <SelectTrigger className="w-[160px]">
-            <Filter className="h-4 w-4 mr-2" />
+            <PiFunnelBold className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -366,7 +350,7 @@ export default function AdminAssetsPage() {
           onValueChange={(value) => setVisibilityFilter(value as AssetVisibility | 'all')}
         >
           <SelectTrigger className="w-[160px]">
-            <Eye className="h-4 w-4 mr-2" />
+            <PiEyeBold className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Visibility" />
           </SelectTrigger>
           <SelectContent>
@@ -379,7 +363,7 @@ export default function AdminAssetsPage() {
           </SelectContent>
         </Select>
         <Button variant="outline" size="icon" onClick={fetchAssets}>
-          <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+          <PiArrowsClockwiseBold className={cn('h-4 w-4', loading && 'animate-spin')} />
         </Button>
       </div>
 
@@ -392,11 +376,11 @@ export default function AdminAssetsPage() {
       {/* Assets Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : assets.length === 0 ? (
         <div className="bg-white rounded-xl border p-12 text-center">
-          <Upload className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <PiUploadSimpleBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             No assets yet
           </h3>
@@ -404,7 +388,7 @@ export default function AdminAssetsPage() {
             Upload marketing materials for your team and partners.
           </p>
           <Button onClick={openCreateModal}>
-            <Plus className="h-4 w-4 mr-2" />
+            <PiPlusBold className="h-4 w-4 mr-2" />
             Upload First Asset
           </Button>
         </div>
@@ -448,7 +432,7 @@ export default function AdminAssetsPage() {
                         }
                         className="p-1.5 bg-white/90 rounded-lg shadow hover:bg-white"
                       >
-                        <MoreHorizontal className="h-4 w-4" />
+                        <PiDotsThreeBold className="h-4 w-4" />
                       </button>
 
                       {actionMenuOpen === asset.id && (
@@ -463,7 +447,7 @@ export default function AdminAssetsPage() {
                                 onClick={() => openEditModal(asset)}
                                 className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <Edit2 className="h-4 w-4" />
+                                <PiPencilSimpleBold className="h-4 w-4" />
                                 Edit
                               </button>
                               <button
@@ -472,12 +456,12 @@ export default function AdminAssetsPage() {
                               >
                                 {asset.is_active ? (
                                   <>
-                                    <EyeOff className="h-4 w-4" />
+                                    <PiEyeSlashBold className="h-4 w-4" />
                                     Deactivate
                                   </>
                                 ) : (
                                   <>
-                                    <Eye className="h-4 w-4" />
+                                    <PiEyeBold className="h-4 w-4" />
                                     Activate
                                   </>
                                 )}
@@ -489,7 +473,7 @@ export default function AdminAssetsPage() {
                                 }}
                                 className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <PiTrashBold className="h-4 w-4" />
                                 Delete
                               </button>
                             </div>
@@ -726,7 +710,7 @@ export default function AdminAssetsPage() {
             >
               {saving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : editingAsset ? (
@@ -760,7 +744,7 @@ export default function AdminAssetsPage() {
             >
               {deleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Deleting...
                 </>
               ) : (

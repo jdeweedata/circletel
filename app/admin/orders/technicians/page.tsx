@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiEnvelopeBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPhoneBold, PiPlusBold, PiSpinnerBold, PiStarBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,19 +16,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import {
-  Wrench,
-  Plus,
-  Search,
-  Users,
-  CheckCircle2,
-  AlertCircle,
-  Phone,
-  Mail,
-  Edit,
-  Loader2,
-  Star,
-} from 'lucide-react';
 import { TechnicianFormModal } from '@/components/admin/orders/TechnicianFormModal';
 
 interface Technician {
@@ -160,7 +148,7 @@ export default function TechniciansPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -171,13 +159,13 @@ export default function TechniciansPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-circleTel-navy flex items-center gap-2">
-            <Wrench className="h-8 w-8" />
+            <PiWrenchBold className="h-8 w-8" />
             Technicians Management
           </h1>
           <p className="text-gray-600 mt-1">Manage installation technicians and assignments</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
+          <PiPlusBold className="h-4 w-4" />
           Add Technician
         </Button>
       </div>
@@ -190,7 +178,7 @@ export default function TechniciansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-circleTel-navy flex items-center gap-2">
-              <Users className="h-5 w-5 text-circleTel-orange" />
+              <PiUsersBold className="h-5 w-5 text-circleTel-orange" />
               {stats.total}
             </div>
           </CardContent>
@@ -202,7 +190,7 @@ export default function TechniciansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600 flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5" />
+              <PiCheckCircleBold className="h-5 w-5" />
               {stats.active}
             </div>
           </CardContent>
@@ -214,7 +202,7 @@ export default function TechniciansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-500 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
+              <PiWarningCircleBold className="h-5 w-5" />
               {stats.inactive}
             </div>
           </CardContent>
@@ -253,7 +241,7 @@ export default function TechniciansPage() {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by name, email, phone, or specialty..."
                 value={searchQuery}
@@ -339,11 +327,11 @@ export default function TechniciansPage() {
                       <TableCell>
                         <div className="space-y-1 text-sm">
                           <div className="flex items-center gap-1 text-gray-600">
-                            <Mail className="h-3 w-3" />
+                            <PiEnvelopeBold className="h-3 w-3" />
                             {technician.email}
                           </div>
                           <div className="flex items-center gap-1 text-gray-600">
-                            <Phone className="h-3 w-3" />
+                            <PiPhoneBold className="h-3 w-3" />
                             {technician.phone}
                           </div>
                         </div>
@@ -377,7 +365,7 @@ export default function TechniciansPage() {
                       <TableCell className="text-center">
                         {technician.average_rating ? (
                           <div className="flex items-center justify-center gap-1 text-sm">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <PiStarBold className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             <span className="font-medium">{technician.average_rating.toFixed(1)}</span>
                           </div>
                         ) : (
@@ -406,7 +394,7 @@ export default function TechniciansPage() {
                             onClick={() => setEditingTechnician(technician)}
                             className="h-8 w-8 p-0"
                           >
-                            <Edit className="h-4 w-4" />
+                            <PiPencilSimpleBold className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -416,7 +404,7 @@ export default function TechniciansPage() {
                             className="h-8 px-3 text-xs"
                           >
                             {togglingStatus === technician.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <PiSpinnerBold className="h-3 w-3 animate-spin" />
                             ) : technician.is_active ? (
                               'Deactivate'
                             ) : (

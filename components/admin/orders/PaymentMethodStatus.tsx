@@ -1,23 +1,11 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiPaperPlaneRightBold, PiProhibitBold, PiSpinnerBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import {
-  CreditCard,
-  CheckCircle,
-  Clock,
-  XCircle,
-  AlertTriangle,
-  Loader2,
-  ExternalLink,
-  RefreshCw,
-  Ban,
-  FileText,
-  Send,
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PaymentMethod {
@@ -243,32 +231,32 @@ export function PaymentMethodStatus({
       pending: {
         label: 'Registration Pending',
         className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        icon: Clock,
+        icon: PiClockBold,
       },
       active: {
         label: 'Active & Verified',
         className: 'bg-green-100 text-green-800 border-green-200',
-        icon: CheckCircle,
+        icon: PiCheckCircleBold,
       },
       failed: {
         label: 'Registration Failed',
         className: 'bg-red-100 text-red-800 border-red-200',
-        icon: XCircle,
+        icon: PiXCircleBold,
       },
       cancelled: {
         label: 'Cancelled',
         className: 'bg-gray-100 text-gray-800 border-gray-200',
-        icon: Ban,
+        icon: PiProhibitBold,
       },
       suspended: {
         label: 'Suspended',
         className: 'bg-orange-100 text-orange-800 border-orange-200',
-        icon: AlertTriangle,
+        icon: PiWarningBold,
       },
       expired: {
         label: 'Expired',
         className: 'bg-gray-100 text-gray-800 border-gray-200',
-        icon: Clock,
+        icon: PiClockBold,
       },
     };
 
@@ -307,14 +295,14 @@ export function PaymentMethodStatus({
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+              <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
           </div>
         </div>
         <div className="p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </div>
       </div>
@@ -331,14 +319,14 @@ export function PaymentMethodStatus({
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+              <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
           </div>
         </div>
         <div className="p-6">
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
+            <PiWarningBold className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         </div>
@@ -358,7 +346,7 @@ export function PaymentMethodStatus({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-circleTel-orange" />
+                <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
@@ -373,7 +361,7 @@ export function PaymentMethodStatus({
         <div className="p-6">
           <div className="text-center py-6">
             <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <CreditCard className="h-8 w-8 text-gray-400" />
+              <PiCreditCardBold className="h-8 w-8 text-gray-400" />
             </div>
             <p className="text-sm text-gray-600 font-medium mb-2">
               No payment method on file
@@ -383,7 +371,7 @@ export function PaymentMethodStatus({
             </p>
             {onRequestPaymentMethod && (
               <Button onClick={onRequestPaymentMethod} size="sm" className="bg-circleTel-orange hover:bg-orange-600">
-                <CreditCard className="h-4 w-4 mr-2" />
+                <PiCreditCardBold className="h-4 w-4 mr-2" />
                 Request Payment Method
               </Button>
             )}
@@ -407,7 +395,7 @@ export function PaymentMethodStatus({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-circleTel-orange" />
+              <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">Payment Method</h3>
@@ -559,14 +547,14 @@ export function PaymentMethodStatus({
                   variant="outline"
                   onClick={() => window.open(emandateRequest.netcash_short_url, '_blank')}
                 >
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
                   View Link
                 </Button>
               )}
             </div>
             {emandateRequest.postback_reason_for_decline && (
               <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
+                <PiWarningBold className="h-4 w-4" />
                 <AlertDescription>
                   <strong>Declined:</strong> {emandateRequest.postback_reason_for_decline}
                 </AlertDescription>
@@ -591,9 +579,9 @@ export function PaymentMethodStatus({
                       ? 'bg-gray-100 text-gray-800'
                       : 'bg-blue-100 text-blue-800'
                   }>
-                    {emandateRequest.sms_delivery_status === 'delivered' && <CheckCircle className="h-3 w-3 mr-1" />}
-                    {emandateRequest.sms_delivery_status === 'failed' && <XCircle className="h-3 w-3 mr-1" />}
-                    {emandateRequest.sms_delivery_status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                    {emandateRequest.sms_delivery_status === 'delivered' && <PiCheckCircleBold className="h-3 w-3 mr-1" />}
+                    {emandateRequest.sms_delivery_status === 'failed' && <PiXCircleBold className="h-3 w-3 mr-1" />}
+                    {emandateRequest.sms_delivery_status === 'pending' && <PiClockBold className="h-3 w-3 mr-1" />}
                     SMS {emandateRequest.sms_delivery_status?.charAt(0).toUpperCase()}{emandateRequest.sms_delivery_status?.slice(1)}
                   </Badge>
                   <span className="text-xs text-gray-500">
@@ -631,7 +619,7 @@ export function PaymentMethodStatus({
               className="h-8 px-2 text-gray-500 hover:text-gray-700"
               onClick={fetchPaymentMethodStatus}
             >
-              <RefreshCw className="h-4 w-4" />
+              <PiArrowsClockwiseBold className="h-4 w-4" />
             </Button>
           </div>
 
@@ -647,12 +635,12 @@ export function PaymentMethodStatus({
             >
               {approvingValidation ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Approving Validation...
                 </>
               ) : (
                 <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <PiCheckCircleBold className="h-4 w-4 mr-2" />
                   Approve Validation
                 </>
               )}
@@ -671,10 +659,10 @@ export function PaymentMethodStatus({
                 disabled={resendingMandate}
               >
                 {resendingMandate ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    <RefreshCw className="h-4 w-4 mr-1.5" />
+                    <PiArrowsClockwiseBold className="h-4 w-4 mr-1.5" />
                     Resend
                   </>
                 )}
@@ -688,10 +676,10 @@ export function PaymentMethodStatus({
                   disabled={sendingNotification}
                 >
                   {sendingNotification ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
-                      <Send className="h-4 w-4 mr-1.5" />
+                      <PiPaperPlaneRightBold className="h-4 w-4 mr-1.5" />
                       Remind
                     </>
                   )}
@@ -713,12 +701,12 @@ export function PaymentMethodStatus({
             >
               {sendingClickatellSMS ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Sending SMS...
                 </>
               ) : (
                 <>
-                  <Send className="h-4 w-4 mr-2" />
+                  <PiPaperPlaneRightBold className="h-4 w-4 mr-2" />
                   Send SMS via Clickatell
                 </>
               )}
@@ -733,7 +721,7 @@ export function PaymentMethodStatus({
               className="w-full"
               onClick={() => window.open(paymentMethod.netcash_mandate_pdf_link, '_blank')}
             >
-              <FileText className="h-4 w-4 mr-2" />
+              <PiFileTextBold className="h-4 w-4 mr-2" />
               View Mandate PDF
             </Button>
           )}
@@ -745,7 +733,7 @@ export function PaymentMethodStatus({
               className="w-full bg-circleTel-orange hover:bg-orange-600"
               onClick={onRequestPaymentMethod}
             >
-              <CreditCard className="h-4 w-4 mr-2" />
+              <PiCreditCardBold className="h-4 w-4 mr-2" />
               Retry Payment Method Request
             </Button>
           )}

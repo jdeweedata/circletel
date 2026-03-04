@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCalendarBold, PiCaretRightBold, PiChartBarBold, PiCheckBold, PiCheckCircleBold, PiCopyBold, PiDotsThreeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiFileTextBold, PiMapPinBold, PiPencilSimpleBold, PiPhoneBold, PiPlusBold, PiShareBold, PiSpinnerBold, PiUserBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,29 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  ArrowLeft,
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  FileText,
-  User,
-  Download,
-  Edit,
-  Eye,
-  Share2,
-  Copy,
-  Check,
-  BarChart3,
-  ChevronRight,
-  MoreHorizontal,
-  Plus
-} from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 import { QuotePreview } from '@/components/admin/quotes/QuotePreview';
@@ -212,7 +190,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -323,7 +301,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             size="sm"
             onClick={() => router.push('/admin/quotes')}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back to Quotes
           </Button>
           <div className="flex flex-col md:flex-row md:items-center md:gap-6">
@@ -358,7 +336,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
             variant="outline"
             className="border-gray-300 text-gray-800 hover:bg-gray-100"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <PiPlusBold className="w-4 h-4 mr-2" />
             New Quote
           </Button>
 
@@ -369,9 +347,9 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               className="bg-green-600 hover:bg-green-700"
             >
               {actionLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <CheckCircle2 className="w-4 h-4 mr-2" />
+                <PiCheckCircleBold className="w-4 h-4 mr-2" />
               )}
               Approve Quote
             </Button>
@@ -380,21 +358,21 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <MoreHorizontal className="w-4 h-4" />
+                <PiDotsThreeBold className="w-4 h-4" />
                 <span>More actions</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {['draft', 'pending_approval', 'approved', 'sent', 'viewed'].includes(quote.status) && (
                 <DropdownMenuItem onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)} >
-                  <Edit className="w-4 h-4 mr-2" />
+                  <PiPencilSimpleBold className="w-4 h-4 mr-2" />
                   Edit quote
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
                 onClick={() => window.open(`/quotes/business/${quote.id}/preview`, '_blank')}
               >
-                <Eye className="w-4 h-4 mr-2" />
+                <PiEyeBold className="w-4 h-4 mr-2" />
                 Preview quote
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -405,14 +383,14 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 }}
               >
                 {sharingLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <Share2 className="w-4 h-4 mr-2" />
+                  <PiShareBold className="w-4 h-4 mr-2" />
                 )}
                 Share quote
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push(`/admin/quotes/${quote.id}/analytics`)} >
-                <BarChart3 className="w-4 h-4 mr-2" />
+                <PiChartBarBold className="w-4 h-4 mr-2" />
                 View analytics
               </DropdownMenuItem>
               {canSend && (
@@ -423,7 +401,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                     }
                   }}
                 >
-                  <Mail className="w-4 h-4 mr-2" />
+                  <PiEnvelopeBold className="w-4 h-4 mr-2" />
                   Send to customer
                 </DropdownMenuItem>
               )}
@@ -435,7 +413,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                     }
                   }}
                 >
-                  <XCircle className="w-4 h-4 mr-2 text-red-600" />
+                  <PiXCircleBold className="w-4 h-4 mr-2 text-red-600" />
                   <span className="text-red-600">Reject quote</span>
                 </DropdownMenuItem>
               )}
@@ -454,7 +432,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 {formatCurrency(pricing.total_monthly)}
               </p>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-300" />
+            <PiCaretRightBold className="w-5 h-5 text-gray-300" />
           </CardContent>
         </Card>
         <Card>
@@ -465,7 +443,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 {formatCurrency(pricing.total_monthly * quote.contract_term + pricing.total_installation)}
               </p>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-300" />
+            <PiCaretRightBold className="w-5 h-5 text-gray-300" />
           </CardContent>
         </Card>
         <Card>
@@ -480,7 +458,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 })}
               </p>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-300" />
+            <PiCaretRightBold className="w-5 h-5 text-gray-300" />
           </CardContent>
         </Card>
       </div>
@@ -515,7 +493,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 variant="destructive"
               >
                 {actionLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                 ) : null}
                 Confirm Rejection
               </Button>
@@ -540,7 +518,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
+                <PiBuildingsBold className="w-5 h-5" />
                 Company Details
               </CardTitle>
             </CardHeader>
@@ -574,23 +552,23 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+                <PiUserBold className="w-5 h-5" />
                 Contact Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-circleTel-secondaryNeutral" />
+                <PiUserBold className="w-4 h-4 text-circleTel-secondaryNeutral" />
                 <span>{quote.contact_name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-circleTel-secondaryNeutral" />
+                <PiEnvelopeBold className="w-4 h-4 text-circleTel-secondaryNeutral" />
                 <a href={`mailto:${quote.contact_email}`} className="text-circleTel-orange hover:underline">
                   {quote.contact_email}
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-circleTel-secondaryNeutral" />
+                <PiPhoneBold className="w-4 h-4 text-circleTel-secondaryNeutral" />
                 <a
                   href={`tel:${quote.contact_phone}`}
                   className="text-circleTel-orange hover:underline"
@@ -599,7 +577,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-circleTel-secondaryNeutral" />
+                <PiMapPinBold className="w-4 h-4 text-circleTel-secondaryNeutral" />
                 <span>{quote.service_address}</span>
               </div>
             </CardContent>
@@ -609,7 +587,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
+                <PiFileTextBold className="w-5 h-5" />
                 Services ({quote.items.length})
               </CardTitle>
             </CardHeader>
@@ -736,7 +714,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
+                <PiCalendarBold className="w-5 h-5" />
                 Timeline
               </CardTitle>
             </CardHeader>
@@ -811,7 +789,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0">
           <DialogHeader className="p-6 pb-4 border-b">
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-blue-600" />
+              <PiEyeBold className="w-5 h-5 text-blue-600" />
               Quote Preview
             </DialogTitle>
             <DialogDescription>
@@ -873,7 +851,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               }}
               className="flex-1 bg-circleTel-orange hover:bg-[#e67516]"
             >
-              <Download className="w-4 h-4 mr-2" />
+              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
               Download PDF
             </Button>
             <Button
@@ -883,7 +861,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               variant="outline"
               className="flex-1"
             >
-              <FileText className="w-4 h-4 mr-2" />
+              <PiFileTextBold className="w-4 h-4 mr-2" />
               Open in New Tab
             </Button>
           </div>
@@ -895,7 +873,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
         <DialogContent className="sm:max-w-md bg-white border border-gray-200 shadow-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-purple-600" />
+              <PiShareBold className="w-5 h-5 text-purple-600" />
               Share Quote
             </DialogTitle>
             <DialogDescription>
@@ -918,12 +896,12 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 mr-1" />
+                    <PiCheckBold className="w-4 h-4 mr-1" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 mr-1" />
+                    <PiCopyBold className="w-4 h-4 mr-1" />
                     Copy
                   </>
                 )}
@@ -957,7 +935,7 @@ export default function AdminQuoteDetailPage({ params }: Props) {
               }}
               className="flex-1 bg-purple-600 hover:bg-purple-700"
             >
-              <Mail className="w-4 h-4 mr-2" />
+              <PiEnvelopeBold className="w-4 h-4 mr-2" />
               Email Link
             </Button>
           </div>

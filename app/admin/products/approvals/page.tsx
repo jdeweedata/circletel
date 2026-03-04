@@ -1,10 +1,10 @@
 'use client';
+import { PiCheckBold, PiClockBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Clock, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ProductApprovalQueue } from '@/lib/types/product-approval';
 
@@ -148,14 +148,14 @@ export default function ProductApprovalsPage() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Clock className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+            <PiClockBold className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground">Loading approvals...</p>
           </div>
         </div>
       ) : approvals.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
+            <PiWarningCircleBold className="w-12 h-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No {filter} products found</p>
           </CardContent>
         </Card>
@@ -251,7 +251,7 @@ export default function ProductApprovalsPage() {
                         onClick={() => handleApprove(approval.id, product.name)}
                         className="flex-1 bg-green-600 hover:bg-green-700"
                       >
-                        <Check className="w-4 h-4 mr-2" />
+                        <PiCheckBold className="w-4 h-4 mr-2" />
                         Approve
                       </Button>
                       <Button
@@ -259,7 +259,7 @@ export default function ProductApprovalsPage() {
                         variant="destructive"
                         className="flex-1"
                       >
-                        <X className="w-4 h-4 mr-2" />
+                        <PiXBold className="w-4 h-4 mr-2" />
                         Reject
                       </Button>
                     </div>

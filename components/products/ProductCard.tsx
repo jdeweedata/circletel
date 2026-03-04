@@ -1,9 +1,9 @@
 'use client';
+import { PiCheckBold, PiLightningBold, PiRouterBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Wifi, Zap, Router } from 'lucide-react';
 
 interface ProductCardProps {
   // Product from products table (flexible to support different product types)
@@ -123,7 +123,7 @@ export function ProductCard({
 
       {isSelected && (
         <Badge className="absolute -top-3 right-4 bg-green-600">
-          <Check className="w-3 h-3 mr-1" />
+          <PiCheckBold className="w-3 h-3 mr-1" />
           Selected
         </Badge>
       )}
@@ -137,7 +137,7 @@ export function ProductCard({
       <CardHeader>
         <CardTitle className="text-2xl">{productName}</CardTitle>
         <CardDescription className="flex items-center gap-2 text-lg">
-          <Wifi className="w-5 h-5 text-circleTel-orange" />
+          <PiWifiBold className="w-5 h-5 text-circleTel-orange" />
           {productSpeed}
         </CardDescription>
         {service_type && (
@@ -181,7 +181,7 @@ export function ProductCard({
         {/* Router Information */}
         {product?.router_model && (
           <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
-            <Router className="w-5 h-5 mt-0.5 text-circleTel-orange flex-shrink-0" />
+            <PiRouterBold className="w-5 h-5 mt-0.5 text-circleTel-orange flex-shrink-0" />
             <div className="flex-1">
               <p className="font-medium text-sm">{product.router_model}</p>
               {product.router_rental_fee ? (
@@ -206,7 +206,7 @@ export function ProductCard({
         <ul className="space-y-2">
           {featuresList.slice(0, 4).map((feature, index) => (
             <li key={index} className="flex items-start gap-2 text-sm">
-              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <PiCheckBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
               <span>{feature}</span>
             </li>
           ))}
@@ -231,12 +231,12 @@ export function ProductCard({
         >
           {selectable ? (
             <>
-              <Check className="w-4 h-4 mr-2" />
+              <PiCheckBold className="w-4 h-4 mr-2" />
               {isSelected ? 'Selected' : 'Select for Comparison'}
             </>
           ) : (
             <>
-              <Zap className="w-4 h-4 mr-2" />
+              <PiLightningBold className="w-4 h-4 mr-2" />
               Get Started
             </>
           )}

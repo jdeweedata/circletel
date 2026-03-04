@@ -1,8 +1,8 @@
 'use client';
+import { PiDownloadSimpleBold, PiMagnifyingGlassBold, PiPhoneBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download, Search, Phone } from 'lucide-react';
 import type { CallDetailRecord } from '@/lib/types/billing';
 
 interface CallDetailRecordsProps {
@@ -55,7 +55,7 @@ export default function CallDetailRecords({ phoneNumber, records }: CallDetailRe
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <Phone className="h-5 w-5 text-circleTel-orange" />
+          <PiPhoneBold className="h-5 w-5 text-circleTel-orange" />
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Call Detail Records</h3>
             <p className="text-sm text-gray-600">Phone: {phoneNumber}</p>
@@ -63,7 +63,7 @@ export default function CallDetailRecords({ phoneNumber, records }: CallDetailRe
         </div>
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
               placeholder="Search records..."
@@ -71,7 +71,7 @@ export default function CallDetailRecords({ phoneNumber, records }: CallDetailRe
             />
           </div>
           <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export CDR
           </Button>
         </div>

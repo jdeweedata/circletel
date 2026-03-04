@@ -1,11 +1,11 @@
 'use client';
+import { PiMapPinBold, PiNavigationArrowBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, Navigation, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Installation {
@@ -253,7 +253,7 @@ export function InstallationMapView({ installations }: InstallationMapViewProps)
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <PiWarningCircleBold className="h-4 w-4" />
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
@@ -264,14 +264,14 @@ export function InstallationMapView({ installations }: InstallationMapViewProps)
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-circleTel-orange" />
+            <PiMapPinBold className="h-5 w-5 text-circleTel-orange" />
             <CardTitle>Installation Map</CardTitle>
             <Badge variant="secondary">
               {geocodedCount} of {installations.length} locations
             </Badge>
           </div>
           <Button variant="outline" size="sm" onClick={centerOnMarkers}>
-            <Navigation className="h-4 w-4 mr-2" />
+            <PiNavigationArrowBold className="h-4 w-4 mr-2" />
             Center Map
           </Button>
         </div>
@@ -280,7 +280,7 @@ export function InstallationMapView({ installations }: InstallationMapViewProps)
         <div className="relative">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 rounded-lg">
-              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             </div>
           )}
           <div

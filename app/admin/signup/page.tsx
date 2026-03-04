@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useState } from 'react';
@@ -17,7 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Shield, CheckCircle2, Loader2 } from 'lucide-react';
 import { ROLE_TEMPLATES, DEPARTMENTS } from '@/lib/rbac/role-templates';
 
 // Signup form validation schema
@@ -112,7 +112,7 @@ export default function AdminSignupPage() {
                 {/* Success Icon */}
                 <div className="flex justify-center mb-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                    <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                   </div>
                 </div>
 
@@ -159,7 +159,7 @@ export default function AdminSignupPage() {
               {/* Admin Badge */}
               <div className="flex justify-center mb-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
-                  <Shield className="h-6 w-6 text-circleTel-orange" />
+                  <PiShieldBold className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
 
@@ -312,12 +312,12 @@ export default function AdminSignupPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      <PiSpinnerBold className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                       Submitting Request...
                     </>
                   ) : (
                     <>
-                      <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <PiShieldBold className="w-4 h-4 sm:w-5 sm:h-5" />
                       Submit Access Request
                     </>
                   )}
@@ -330,7 +330,7 @@ export default function AdminSignupPage() {
                   href="/"
                   className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <PiArrowLeftBold className="w-4 h-4" />
                   Back to Home
                 </Link>
               </div>

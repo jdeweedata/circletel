@@ -1,20 +1,10 @@
 'use client';
+import { PiActivityBold, PiArrowSquareOutBold, PiCheckCircleBold, PiClockBold, PiKeyBold, PiQuestionBold, PiWarningBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  HelpCircle,
-  ExternalLink,
-  Activity,
-  Key,
-  Webhook,
-  Clock,
-} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Integration {
@@ -40,28 +30,28 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
   // Health status configuration
   const healthConfig = {
     healthy: {
-      icon: CheckCircle2,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       label: 'Healthy',
     },
     degraded: {
-      icon: AlertTriangle,
+      icon: PiWarningBold,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
       borderColor: 'border-yellow-200',
       label: 'Degraded',
     },
     down: {
-      icon: XCircle,
+      icon: PiXCircleBold,
       color: 'text-red-600',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',
       label: 'Down',
     },
     unknown: {
-      icon: HelpCircle,
+      icon: PiQuestionBold,
       color: 'text-gray-600',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200',
@@ -108,7 +98,7 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         {/* Health Status */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <Activity className="h-4 w-4 text-gray-400" />
+            <PiActivityBold className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-600">Status:</span>
           </div>
           <Badge
@@ -122,7 +112,7 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         {/* Last Health Check */}
         {integration.health_last_checked_at && (
           <div className="flex items-center gap-1 text-xs text-gray-500">
-            <Clock className="h-3 w-3" />
+            <PiClockBold className="h-3 w-3" />
             <span>
               Checked{' '}
               {formatDistanceToNow(new Date(integration.health_last_checked_at), {
@@ -135,7 +125,7 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         {/* Consecutive Failures Warning */}
         {integration.consecutive_failures > 0 && (
           <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-md">
-            <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
+            <PiWarningBold className="h-4 w-4 text-red-600 flex-shrink-0" />
             <span className="text-xs text-red-700">
               {integration.consecutive_failures} consecutive failure
               {integration.consecutive_failures > 1 ? 's' : ''}
@@ -147,13 +137,13 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         <div className="flex items-center gap-2 flex-wrap">
           {integration.has_oauth && (
             <div className="flex items-center gap-1 text-xs text-gray-600">
-              <Key className="h-3 w-3" />
+              <PiKeyBold className="h-3 w-3" />
               <span>OAuth</span>
             </div>
           )}
           {integration.has_webhook && (
             <div className="flex items-center gap-1 text-xs text-gray-600">
-              <Webhook className="h-3 w-3" />
+              <PiWebhooksLogoBold className="h-3 w-3" />
               <span>Webhook</span>
             </div>
           )}
@@ -163,7 +153,7 @@ export function IntegrationCard({ integration, onRefresh }: IntegrationCardProps
         <div className="flex items-center gap-2 pt-2 border-t">
           <Link href={`/admin/integrations/${integration.slug}`} className="flex-1">
             <Button variant="outline" size="sm" className="w-full">
-              <ExternalLink className="h-4 w-4 mr-2" />
+              <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
               View Details
             </Button>
           </Link>

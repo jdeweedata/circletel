@@ -1,10 +1,10 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiTrendUpBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, CheckCircle2, XCircle, AlertCircle, Clock, TrendingUp, Activity } from 'lucide-react';
 import type { PaymentProviderType } from '@/lib/types/payment.types';
 
 interface ProviderCapabilities {
@@ -129,7 +129,7 @@ export default function PaymentMonitoringDashboard() {
     return (
       <div className="p-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+          <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
           <span className="ml-3 text-lg">Loading payment provider status...</span>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function PaymentMonitoringDashboard() {
         <div className="flex items-center gap-4">
           <div className="text-sm text-circleTel-secondaryNeutral">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+              <PiClockBold className="h-4 w-4" />
               <span>Last refresh: {lastRefresh.toLocaleTimeString()}</span>
             </div>
           </div>
@@ -159,9 +159,9 @@ export default function PaymentMonitoringDashboard() {
             className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {loading ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             )}
             Refresh
           </Button>
@@ -195,7 +195,7 @@ export default function PaymentMonitoringDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                <Activity className="h-8 w-8 text-blue-600" />
+                <PiActivityBold className="h-8 w-8 text-blue-600" />
                 <div>
                   <div className="text-2xl font-bold text-blue-900">
                     {healthData.summary.total_providers}
@@ -205,7 +205,7 @@ export default function PaymentMonitoringDashboard() {
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <PiCheckCircleBold className="h-8 w-8 text-green-600" />
                 <div>
                   <div className="text-2xl font-bold text-green-900">
                     {healthData.summary.healthy_providers}
@@ -215,7 +215,7 @@ export default function PaymentMonitoringDashboard() {
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
-                <XCircle className="h-8 w-8 text-red-600" />
+                <PiXCircleBold className="h-8 w-8 text-red-600" />
                 <div>
                   <div className="text-2xl font-bold text-red-900">
                     {healthData.summary.unhealthy_providers}
@@ -225,7 +225,7 @@ export default function PaymentMonitoringDashboard() {
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg">
-                <TrendingUp className="h-8 w-8 text-orange-600" />
+                <PiTrendUpBold className="h-8 w-8 text-orange-600" />
                 <div>
                   <div className="text-2xl font-bold text-orange-900">
                     {healthData.response_time_ms}ms
@@ -294,9 +294,9 @@ export default function PaymentMonitoringDashboard() {
               <div className="grid grid-cols-3 gap-2">
                 <div className="flex items-center gap-2 text-sm">
                   {provider.configured ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-500" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-gray-400" />
+                    <PiXCircleBold className="h-4 w-4 text-gray-400" />
                   )}
                   <span className={provider.configured ? 'text-green-700' : 'text-gray-500'}>
                     Configured
@@ -304,16 +304,16 @@ export default function PaymentMonitoringDashboard() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   {provider.available ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-500" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-red-500" />
+                    <PiXCircleBold className="h-4 w-4 text-red-500" />
                   )}
                   <span className={provider.available ? 'text-green-700' : 'text-red-700'}>
                     Available
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-blue-500" />
+                  <PiClockBold className="h-4 w-4 text-blue-500" />
                   <span className="text-blue-700">{provider.response_time_ms}ms</span>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export default function PaymentMonitoringDashboard() {
               {/* Warning for unconfigured providers */}
               {!provider.configured && (
                 <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <PiWarningCircleBold className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-yellow-800">
                     <div className="font-semibold">Configuration Required</div>
                     <div className="mt-1">
@@ -393,7 +393,7 @@ export default function PaymentMonitoringDashboard() {
         <Card className="border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="text-red-800 flex items-center gap-2">
-              <XCircle className="h-5 w-5" />
+              <PiXCircleBold className="h-5 w-5" />
               Health Check Error
             </CardTitle>
           </CardHeader>

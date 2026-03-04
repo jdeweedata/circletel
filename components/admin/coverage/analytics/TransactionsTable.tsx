@@ -1,7 +1,7 @@
 'use client';
+import { PiCaretRightBold, PiCheckBold, PiClockBold, PiXBold } from 'react-icons/pi';
 
 import React from 'react';
-import { ChevronRight, Check, X, Clock } from 'lucide-react';
 
 export interface TransactionRecord {
   id: string;
@@ -23,21 +23,21 @@ function getStatusBadge(status: TransactionRecord['status']) {
     case 'SUCCESS':
       return (
         <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-          <Check className="h-3 w-3" />
+          <PiCheckBold className="h-3 w-3" />
           SUCCESS
         </span>
       );
     case 'FAILED':
       return (
         <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">
-          <X className="h-3 w-3" />
+          <PiXBold className="h-3 w-3" />
           FAILED
         </span>
       );
     case 'TIMEOUT':
       return (
         <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-          <Clock className="h-3 w-3" />
+          <PiClockBold className="h-3 w-3" />
           TIMEOUT
         </span>
       );
@@ -73,7 +73,7 @@ export function TransactionsTable({
             className="text-sm text-circleTel-orange hover:text-circleTel-orange-dark font-medium flex items-center gap-1 transition-colors"
           >
             View All
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </button>
         )}
       </div>

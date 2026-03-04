@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiDeviceMobileBold, PiMoneyBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Banknote, Users, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function PartnerHero() {
@@ -61,7 +61,7 @@ export function PartnerHero() {
                   className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-lg px-10 py-6 rounded-xl transition-all shadow-lg hover:shadow-xl w-full"
                 >
                   Sign up now
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <a href="#how-it-works" className="text-circleTel-orange hover:underline font-medium">
@@ -75,21 +75,21 @@ export function PartnerHero() {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
           <div className="flex flex-col items-center text-white">
             <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
-              <Banknote className="w-8 h-8 text-gray-900" />
+              <PiMoneyBold className="w-8 h-8 text-gray-900" />
             </div>
             <h3 className="text-lg font-semibold mb-1">Up to 30% commission</h3>
             <p className="text-white/70 text-sm">Recurring monthly payments</p>
           </div>
           <div className="flex flex-col items-center text-white">
             <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
-              <Users className="w-8 h-8 text-gray-900" />
+              <PiUsersBold className="w-8 h-8 text-gray-900" />
             </div>
             <h3 className="text-lg font-semibold mb-1">200+ active partners</h3>
             <p className="text-white/70 text-sm">Join our growing network</p>
           </div>
           <div className="flex flex-col items-center text-white">
             <div className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center mb-3">
-              <Smartphone className="w-8 h-8 text-gray-900" />
+              <PiDeviceMobileBold className="w-8 h-8 text-gray-900" />
             </div>
             <h3 className="text-lg font-semibold mb-1">Work from anywhere</h3>
             <p className="text-white/70 text-sm">All you need is your phone</p>

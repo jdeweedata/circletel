@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { MapPin, Phone, Search } from "lucide-react"
 import { useState } from "react"
 
 export function DemoHero() {
@@ -23,7 +22,7 @@ export function DemoHero() {
             </div>
             <div className="flex items-center gap-4">
               <a href="tel:087-073-0000" className="flex items-center gap-2 text-sm font-medium text-circleTel-orange hover:text-circleTel-red transition-colors">
-                <Phone className="w-4 h-4" />
+                <PiPhoneBold className="w-4 h-4" />
                 Call Sales: 087 073 0000
               </a>
               <Button variant="outline" size="sm" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -61,7 +60,7 @@ export function DemoHero() {
           <div className="bg-white rounded-2xl shadow-xl border border-circleTel-gray-200 p-8 mb-12 max-w-2xl mx-auto">
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <MapPin className="w-5 h-5 text-circleTel-orange" />
+                <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
                 <span className="text-lg font-semibold text-circleTel-navy">Enter street address</span>
               </div>
               <p className="text-sm text-circleTel-secondaryNeutral">
@@ -87,7 +86,7 @@ export function DemoHero() {
                   onChange={(e) => setAddress(e.target.value)}
                   className="pl-12 py-6 text-lg border-circleTel-gray-300 focus:border-circleTel-orange focus:ring-circleTel-orange"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-circleTel-secondaryNeutral" />
+                <PiMagnifyingGlassBold className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-circleTel-secondaryNeutral" />
               </div>
 
               <Button

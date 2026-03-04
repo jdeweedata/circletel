@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiHouseBold, PiMapPinBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, ArrowRight, Building2, Home } from 'lucide-react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { Button } from '@/components/ui/button';
@@ -120,7 +120,7 @@ export default function CoveragePage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 bg-circleTel-orange/10 rounded-xl flex items-center justify-center">
-              <MapPin className="h-6 w-6 text-circleTel-orange" />
+              <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Check Coverage</h1>
@@ -169,7 +169,7 @@ export default function CoveragePage() {
                   : 'border-gray-200 hover:border-gray-300'
               )}
             >
-              <Home className={cn(
+              <PiHouseBold className={cn(
                 'h-8 w-8',
                 coverageType === 'residential' ? 'text-circleTel-orange' : 'text-gray-400'
               )} />
@@ -194,7 +194,7 @@ export default function CoveragePage() {
                   : 'border-gray-200 hover:border-gray-300'
               )}
             >
-              <Building2 className={cn(
+              <PiBuildingsBold className={cn(
                 'h-8 w-8',
                 coverageType === 'business' ? 'text-circleTel-orange' : 'text-gray-400'
               )} />
@@ -226,7 +226,7 @@ export default function CoveragePage() {
           {address && coordinates && (
             <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 text-green-700">
-                <MapPin className="h-4 w-4" />
+                <PiMapPinBold className="h-4 w-4" />
                 <span className="text-sm font-medium">Address confirmed</span>
               </div>
               <p className="text-sm text-green-600 mt-1">{address}</p>
@@ -248,7 +248,7 @@ export default function CoveragePage() {
           ) : (
             <div className="flex items-center gap-2">
               Check Coverage
-              <ArrowRight className="h-5 w-5" />
+              <PiArrowRightBold className="h-5 w-5" />
             </div>
           )}
         </Button>

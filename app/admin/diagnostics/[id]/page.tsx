@@ -1,4 +1,5 @@
 'use client'
+import { PiActivityBold, PiArrowDownBold, PiArrowLeftBold, PiArrowSquareOutBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCalendarBold, PiCellSignalFullBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiQuestionBold, PiSpinnerBold, PiTicketBold, PiTrendDownBold, PiUserBold, PiWarningBold, PiWifiBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -13,34 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  ArrowLeft,
-  RefreshCw,
-  Wifi,
-  WifiOff,
-  AlertTriangle,
-  Activity,
-  Clock,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Package,
-  Ticket,
-  TrendingDown,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Play,
-  Loader2,
-  ArrowUpDown,
-  Calendar,
-  Signal,
-  Zap,
-  ExternalLink,
-  ArrowUp,
-  ArrowDown,
-} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
   DiagnosticsDetailResponse,
@@ -188,35 +161,35 @@ export default function DiagnosticsDetailPage() {
         color: 'text-green-700',
         bgColor: 'bg-green-50',
         borderColor: 'border-green-200',
-        icon: <CheckCircle2 className="w-8 h-8 text-green-500" />,
+        icon: <PiCheckCircleBold className="w-8 h-8 text-green-500" />,
         label: 'Healthy',
       },
       warning: {
         color: 'text-amber-700',
         bgColor: 'bg-amber-50',
         borderColor: 'border-amber-200',
-        icon: <AlertTriangle className="w-8 h-8 text-amber-500" />,
+        icon: <PiWarningBold className="w-8 h-8 text-amber-500" />,
         label: 'Warning',
       },
       critical: {
         color: 'text-red-700',
         bgColor: 'bg-red-50',
         borderColor: 'border-red-200',
-        icon: <XCircle className="w-8 h-8 text-red-500" />,
+        icon: <PiXCircleBold className="w-8 h-8 text-red-500" />,
         label: 'Critical',
       },
       offline: {
         color: 'text-gray-700',
         bgColor: 'bg-gray-50',
         borderColor: 'border-gray-200',
-        icon: <WifiOff className="w-8 h-8 text-gray-500" />,
+        icon: <PiWifiSlashBold className="w-8 h-8 text-gray-500" />,
         label: 'Offline',
       },
       unknown: {
         color: 'text-gray-500',
         bgColor: 'bg-gray-50',
         borderColor: 'border-gray-200',
-        icon: <HelpCircle className="w-8 h-8 text-gray-400" />,
+        icon: <PiQuestionBold className="w-8 h-8 text-gray-400" />,
         label: 'Unknown',
       },
     }
@@ -261,7 +234,7 @@ export default function DiagnosticsDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange mb-4" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange mb-4" />
         <p className="text-gray-500">Loading diagnostics...</p>
       </div>
     )
@@ -271,12 +244,12 @@ export default function DiagnosticsDetailPage() {
     return (
       <div className="text-center py-16">
         <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <XCircle className="w-8 h-8 text-gray-400" />
+          <PiXCircleBold className="w-8 h-8 text-gray-400" />
         </div>
         <p className="text-lg font-medium text-gray-700 mb-1">Diagnostics not found</p>
         <p className="text-sm text-gray-500 mb-4">Unable to load diagnostics for this subscriber</p>
         <Button variant="outline" onClick={() => router.back()}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <PiArrowLeftBold className="w-4 h-4 mr-2" />
           Go Back
         </Button>
       </div>
@@ -298,7 +271,7 @@ export default function DiagnosticsDetailPage() {
               onClick={() => router.back()}
               className="hover:bg-gray-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <PiArrowLeftBold className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">{customer.name}</h1>
@@ -313,7 +286,7 @@ export default function DiagnosticsDetailPage() {
               onClick={fetchDiagnostics}
               className="border-gray-200 hover:bg-gray-50"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
               Refresh
             </Button>
             <Button
@@ -322,7 +295,7 @@ export default function DiagnosticsDetailPage() {
               className="bg-circleTel-orange hover:bg-orange-600"
             >
               {analyzing ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Play className="w-4 h-4 mr-2" />
               )}
@@ -394,14 +367,14 @@ export default function DiagnosticsDetailPage() {
                 className="text-sm font-semibold text-circleTel-orange hover:underline flex items-center gap-1"
               >
                 View Profile
-                <ExternalLink className="w-3 h-3" />
+                <PiArrowSquareOutBold className="w-3 h-3" />
               </Link>
             </div>
           </div>
           <div className="p-6 space-y-4">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-600" />
+                <PiUserBold className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="font-semibold text-gray-900">{customer.name}</p>
@@ -412,7 +385,7 @@ export default function DiagnosticsDetailPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-gray-400" />
+              <PiEnvelopeBold className="w-4 h-4 text-gray-400" />
               <a href={`mailto:${customer.email}`} className="text-circleTel-orange hover:underline">
                 {customer.email}
               </a>
@@ -420,7 +393,7 @@ export default function DiagnosticsDetailPage() {
 
             {customer.phone && (
               <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-gray-400" />
+                <PiPhoneBold className="w-4 h-4 text-gray-400" />
                 <a href={`tel:${customer.phone}`} className="text-circleTel-orange hover:underline">
                   {customer.phone}
                 </a>
@@ -428,13 +401,13 @@ export default function DiagnosticsDetailPage() {
             )}
 
             <div className="flex items-start gap-3">
-              <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+              <PiMapPinBold className="w-4 h-4 text-gray-400 mt-0.5" />
               <p className="text-sm text-gray-700">{service.installation_address}</p>
             </div>
 
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Package className="w-5 h-5 text-circleTel-orange" />
+                <PiPackageBold className="w-5 h-5 text-circleTel-orange" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">{service.package_name}</p>
@@ -473,9 +446,9 @@ export default function DiagnosticsDetailPage() {
                 diagnostics.is_session_active ? 'bg-green-100' : 'bg-gray-100'
               )}>
                 {diagnostics.is_session_active ? (
-                  <Wifi className="w-6 h-6 text-green-600" />
+                  <PiWifiBold className="w-6 h-6 text-green-600" />
                 ) : (
-                  <WifiOff className="w-6 h-6 text-gray-500" />
+                  <PiWifiSlashBold className="w-6 h-6 text-gray-500" />
                 )}
               </div>
               <div className="flex-1">
@@ -501,7 +474,7 @@ export default function DiagnosticsDetailPage() {
               {diagnostics.last_session_start && (
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-gray-400" />
+                    <PiClockBold className="w-4 h-4 text-gray-400" />
                     <p className="text-xs text-gray-500">Session Started</p>
                   </div>
                   <p className="font-semibold text-gray-900">
@@ -513,7 +486,7 @@ export default function DiagnosticsDetailPage() {
               {diagnostics.last_session_duration_seconds > 0 && (
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">
-                    <Activity className="w-4 h-4 text-gray-400" />
+                    <PiActivityBold className="w-4 h-4 text-gray-400" />
                     <p className="text-xs text-gray-500">Duration</p>
                   </div>
                   <p className="font-semibold text-gray-900">
@@ -527,7 +500,7 @@ export default function DiagnosticsDetailPage() {
             {diagnostics.last_terminate_cause && (
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                 <div className="flex items-center gap-3">
-                  <TrendingDown className="w-5 h-5 text-red-500" />
+                  <PiTrendDownBold className="w-5 h-5 text-red-500" />
                   <div>
                     <p className="text-sm text-gray-600">Last Disconnect Reason</p>
                     <p className="font-bold text-red-700">{diagnostics.last_terminate_cause}</p>
@@ -544,7 +517,7 @@ export default function DiagnosticsDetailPage() {
             {/* NAS Info */}
             {diagnostics.nas_ip_address && (
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Signal className="w-4 h-4 text-gray-400" />
+                <PiCellSignalFullBold className="w-4 h-4 text-gray-400" />
                 <div>
                   <p className="text-xs text-gray-500">NAS IP Address</p>
                   <p className="font-mono text-sm text-gray-900">{diagnostics.nas_ip_address}</p>
@@ -561,7 +534,7 @@ export default function DiagnosticsDetailPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">7-Day Summary</h2>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Calendar className="w-4 h-4" />
+              <PiCalendarBold className="w-4 h-4" />
               Last 7 days
             </div>
           </div>
@@ -574,14 +547,14 @@ export default function DiagnosticsDetailPage() {
             <StatCard
               title="Total Sessions"
               value={diagnostics.total_sessions_7days}
-              icon={<Activity className="h-5 w-5" />}
+              icon={<PiActivityBold className="h-5 w-5" />}
               iconBgColor="bg-blue-100"
               iconColor="text-blue-600"
             />
             <StatCard
               title="Connection Drops"
               value={diagnostics.lost_carrier_count_7days}
-              icon={<TrendingDown className="h-5 w-5" />}
+              icon={<PiTrendDownBold className="h-5 w-5" />}
               iconBgColor="bg-red-100"
               iconColor="text-red-600"
               trend={diagnostics.lost_carrier_count_7days > 5 ? 'down' : 'neutral'}
@@ -589,14 +562,14 @@ export default function DiagnosticsDetailPage() {
             <StatCard
               title="Total Online Time"
               value={formatDuration(diagnostics.total_online_seconds_7days)}
-              icon={<Clock className="h-5 w-5" />}
+              icon={<PiClockBold className="h-5 w-5" />}
               iconBgColor="bg-green-100"
               iconColor="text-green-600"
             />
             <StatCard
               title="Avg Session"
               value={formatDuration(diagnostics.avg_session_duration_seconds)}
-              icon={<Zap className="h-5 w-5" />}
+              icon={<PiLightningBold className="h-5 w-5" />}
               iconBgColor="bg-purple-100"
               iconColor="text-purple-600"
             />
@@ -606,7 +579,7 @@ export default function DiagnosticsDetailPage() {
                 <StatCard
                   title="Upload (7d)"
                   value={`${usage.sevenDays.uploadGb} GB`}
-                  icon={<ArrowUp className="h-5 w-5" />}
+                  icon={<PiArrowUpBold className="h-5 w-5" />}
                   iconBgColor="bg-cyan-100"
                   iconColor="text-cyan-600"
                   subtitle={`${usage.today.uploadGb} GB today`}
@@ -614,7 +587,7 @@ export default function DiagnosticsDetailPage() {
                 <StatCard
                   title="Download (7d)"
                   value={`${usage.sevenDays.downloadGb} GB`}
-                  icon={<ArrowDown className="h-5 w-5" />}
+                  icon={<PiArrowDownBold className="h-5 w-5" />}
                   iconBgColor="bg-indigo-100"
                   iconColor="text-indigo-600"
                   subtitle={`${usage.today.downloadGb} GB today`}
@@ -630,7 +603,7 @@ export default function DiagnosticsDetailPage() {
         <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-300 rounded-xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-amber-500 rounded-lg">
-              <Ticket className="w-6 h-6 text-white" />
+              <PiTicketBold className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -677,7 +650,7 @@ export default function DiagnosticsDetailPage() {
           {recent_events.length === 0 ? (
             <div className="text-center py-12">
               <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="w-8 h-8 text-gray-400" />
+                <PiActivityBold className="w-8 h-8 text-gray-400" />
               </div>
               <p className="text-lg font-medium text-gray-700 mb-1">No events recorded</p>
               <p className="text-sm text-gray-500">

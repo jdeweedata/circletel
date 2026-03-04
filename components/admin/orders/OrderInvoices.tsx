@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDownloadSimpleBold, PiFileTextBold, PiPlusBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * OrderInvoices Component
@@ -14,14 +15,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import {
-  FileText,
-  Download,
-  Plus,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle
-} from 'lucide-react';
 
 interface Invoice {
   id: string;
@@ -212,7 +205,7 @@ export function OrderInvoices({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-circleTel-orange" />
+              <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">Invoices</h3>
@@ -229,7 +222,7 @@ export function OrderInvoices({
               disabled={loading}
               className="h-8 px-2 text-gray-500 hover:text-gray-700"
             >
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              <PiArrowsClockwiseBold size={16} className={loading ? 'animate-spin' : ''} />
             </Button>
             <Button
               size="sm"
@@ -239,12 +232,12 @@ export function OrderInvoices({
             >
               {generating ? (
                 <>
-                  <RefreshCw size={16} className="mr-2 animate-spin" />
+                  <PiArrowsClockwiseBold size={16} className="mr-2 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Plus size={16} className="mr-2" />
+                  <PiPlusBold size={16} className="mr-2" />
                   Generate Invoice
                 </>
               )}
@@ -258,13 +251,13 @@ export function OrderInvoices({
         {/* Status Messages */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
-            <AlertCircle size={16} />
+            <PiWarningCircleBold size={16} />
             {error}
           </div>
         )}
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 text-sm">
-            <CheckCircle size={16} />
+            <PiCheckCircleBold size={16} />
             {success}
           </div>
         )}
@@ -281,7 +274,7 @@ export function OrderInvoices({
           </div>
         ) : invoices.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <FileText size={40} className="mx-auto mb-3 text-gray-300" />
+            <PiFileTextBold size={40} className="mx-auto mb-3 text-gray-300" />
             <p className="font-medium">No invoices generated yet</p>
             <p className="text-sm mt-1">
               Click "Generate Invoice" to create the first invoice for this order.
@@ -333,10 +326,10 @@ export function OrderInvoices({
                     className="ml-4"
                   >
                     {downloading === invoice.id ? (
-                      <RefreshCw size={16} className="animate-spin" />
+                      <PiArrowsClockwiseBold size={16} className="animate-spin" />
                     ) : (
                       <>
-                        <Download size={16} className="mr-2" />
+                        <PiDownloadSimpleBold size={16} className="mr-2" />
                         PDF
                       </>
                     )}

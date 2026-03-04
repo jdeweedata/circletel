@@ -1,19 +1,11 @@
 'use client';
+import { PiCalendarBold, PiCaretRightBold, PiClockBold, PiMapPinBold, PiSpinnerBold, PiUserBold, PiWarningBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Calendar,
-  Clock,
-  User,
-  MapPin,
-  Loader2,
-  AlertTriangle,
-  ChevronRight
-} from 'lucide-react';
 
 interface Installation {
   id: string;
@@ -105,7 +97,7 @@ export function TodaysInstallationsWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </CardContent>
       </Card>
@@ -122,7 +114,7 @@ export function TodaysInstallationsWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-sm text-red-600">
-            <AlertTriangle className="h-4 w-4" />
+            <PiWarningBold className="h-4 w-4" />
             <span>{error}</span>
           </div>
         </CardContent>
@@ -147,14 +139,14 @@ export function TodaysInstallationsWidget() {
             </CardDescription>
           </div>
           <div className="p-2 rounded-lg bg-purple-100">
-            <Calendar className="h-5 w-5 text-purple-600" />
+            <PiCalendarBold className="h-5 w-5 text-purple-600" />
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {installations.length === 0 ? (
           <div className="text-center py-6">
-            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+            <PiCalendarBold className="h-12 w-12 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-600 font-medium">No installations today</p>
             <p className="text-xs text-gray-500 mt-1">All clear for the day</p>
           </div>
@@ -176,24 +168,24 @@ export function TodaysInstallationsWidget() {
                           {installation.order_number}
                         </p>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <PiCaretRightBold className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <Clock className="h-3 w-3" />
+                        <PiClockBold className="h-3 w-3" />
                         <span>{getTimeSlotLabel(installation.scheduled_time_slot)}</span>
                       </div>
 
                       {installation.technician_name && (
                         <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <User className="h-3 w-3" />
+                          <PiUserBold className="h-3 w-3" />
                           <span>{installation.technician_name}</span>
                         </div>
                       )}
 
                       <div className="flex items-start gap-2 text-xs text-gray-600">
-                        <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                        <PiMapPinBold className="h-3 w-3 mt-0.5 flex-shrink-0" />
                         <span className="line-clamp-1">{installation.installation_address}</span>
                       </div>
                     </div>

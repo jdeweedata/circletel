@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiSpinnerBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 const providers = [
@@ -104,7 +104,7 @@ export default function NewOutagePage() {
       <div className="flex items-center gap-4">
         <Link href="/admin/network/outages">
           <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back
           </Button>
         </Link>
@@ -117,7 +117,7 @@ export default function NewOutagePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-orange-500" />
+            <PiWarningBold className="w-5 h-5 text-orange-500" />
             Incident Details
           </CardTitle>
         </CardHeader>
@@ -251,7 +251,7 @@ export default function NewOutagePage() {
                 className="bg-circleTel-orange hover:bg-orange-600"
                 disabled={loading}
               >
-                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {loading && <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />}
                 Declare Incident
               </Button>
               <Link href="/admin/network/outages">

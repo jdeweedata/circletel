@@ -1,23 +1,11 @@
 'use client';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiInfoBold, PiShieldBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  CreditCard,
-  Calendar,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  ArrowRight,
-  Shield,
-  Clock,
-  Info,
-  RefreshCw,
-  FileText,
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface OrderDetails {
@@ -170,7 +158,7 @@ export default function PaymentMethodSetupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
@@ -183,7 +171,7 @@ export default function PaymentMethodSetupPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="text-center">
-              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <PiWarningCircleBold className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h2 className="text-xl font-bold text-gray-900 mb-2">Order Not Found</h2>
               <p className="text-gray-600 mb-6">{error || 'Unable to load order details'}</p>
               <Button onClick={() => router.push('/')}>Return to Home</Button>
@@ -202,7 +190,7 @@ export default function PaymentMethodSetupPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-circleTel-orange rounded-full flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-8 h-8 text-white" />
+            <PiCreditCardBold className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Set Up Payment Method</h1>
           <p className="text-gray-600 mt-2">
@@ -213,7 +201,7 @@ export default function PaymentMethodSetupPage() {
         {/* Success State */}
         {success && (
           <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <PiCheckCircleBold className="h-5 w-5 text-green-600" />
             <AlertDescription className="text-green-800">
               <strong>Almost there!</strong> We&apos;ve sent you an email and SMS with a secure link to sign your debit order mandate.
               Please check your inbox at <strong>{order.email}</strong> or SMS at <strong>{order.phone}</strong>.
@@ -223,7 +211,7 @@ export default function PaymentMethodSetupPage() {
 
         {/* Important Notice - No Immediate Billing */}
         <Alert className="mb-6 bg-blue-50 border-blue-200">
-          <Info className="h-5 w-5 text-blue-600" />
+          <PiInfoBold className="h-5 w-5 text-blue-600" />
           <AlertDescription className="text-blue-800">
             <strong>Important:</strong> You will <strong>NOT</strong> be billed today. Your first payment will only be processed after your service has been installed and activated, calculated pro-rata from your activation date.
           </AlertDescription>
@@ -299,7 +287,7 @@ export default function PaymentMethodSetupPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-circleTel-orange rounded-full flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-white" />
+                  <PiCalendarBold className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Monthly Debit Order Amount</p>
@@ -313,7 +301,7 @@ export default function PaymentMethodSetupPage() {
             {order.installation_fee === 0 && (
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
                 <p className="text-sm text-green-800">
-                  <CheckCircle className="w-4 h-4 inline mr-1" />
+                  <PiCheckCircleBold className="w-4 h-4 inline mr-1" />
                   <strong>Free Installation!</strong> No installation fee required.
                 </p>
               </div>
@@ -322,7 +310,7 @@ export default function PaymentMethodSetupPage() {
             {/* Pro-rata Billing Note */}
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
               <p className="text-sm text-amber-800">
-                <Clock className="w-4 h-4 inline mr-1" />
+                <PiClockBold className="w-4 h-4 inline mr-1" />
                 <strong>Pro-rata billing:</strong> Your first invoice will be calculated based on your actual activation date, not the full month.
               </p>
             </div>
@@ -343,13 +331,13 @@ export default function PaymentMethodSetupPage() {
                 >
                   {processing ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <PiSpinnerBold className="mr-2 h-5 w-5 animate-spin" />
                       Setting up...
                     </>
                   ) : (
                     <>
                       Set Up Debit Order
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <PiArrowRightBold className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>
@@ -367,12 +355,12 @@ export default function PaymentMethodSetupPage() {
                   >
                     {resending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                         Resending...
                       </>
                     ) : (
                       <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                        <PiArrowsClockwiseBold className="mr-2 h-4 w-4" />
                         Resend Mandate Link
                       </>
                     )}
@@ -384,26 +372,26 @@ export default function PaymentMethodSetupPage() {
 
             <div className="mt-6 space-y-3">
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Shield className="w-4 h-4 text-green-600" />
+                <PiShieldBold className="w-4 h-4 text-green-600" />
                 <span>Secure mandate via NetCash</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span>No payment taken today</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span>First billing only after service activation</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span>Cancel anytime with 30 days notice</span>
               </div>
             </div>
 
             {error && (
               <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}

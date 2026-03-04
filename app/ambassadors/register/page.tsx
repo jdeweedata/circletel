@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiCurrencyDollarBold, PiMegaphoneBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, AlertCircle, CheckCircle, Users, DollarSign, Megaphone } from 'lucide-react';
 
 const socialPlatforms = [
   { value: 'instagram', label: 'Instagram' },
@@ -143,7 +143,7 @@ export default function AmbassadorRegisterPage() {
         <div className="w-full max-w-md text-center">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <PiCheckCircleBold className="w-8 h-8 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Application Submitted!
@@ -188,7 +188,7 @@ export default function AmbassadorRegisterPage() {
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl p-6 text-center border">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <PiCurrencyDollarBold className="w-6 h-6 text-green-600" />
             </div>
             <h3 className="font-semibold text-gray-900">Earn Commission</h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -197,7 +197,7 @@ export default function AmbassadorRegisterPage() {
           </div>
           <div className="bg-white rounded-xl p-6 text-center border">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Megaphone className="w-6 h-6 text-blue-600" />
+              <PiMegaphoneBold className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="font-semibold text-gray-900">Marketing Support</h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -206,7 +206,7 @@ export default function AmbassadorRegisterPage() {
           </div>
           <div className="bg-white rounded-xl p-6 text-center border">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-purple-600" />
+              <PiUsersBold className="w-6 h-6 text-purple-600" />
             </div>
             <h3 className="font-semibold text-gray-900">Tier Up</h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -256,7 +256,7 @@ export default function AmbassadorRegisterPage() {
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <PiWarningCircleBold className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -410,7 +410,7 @@ export default function AmbassadorRegisterPage() {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                       Submitting...
                     </>
                   ) : (

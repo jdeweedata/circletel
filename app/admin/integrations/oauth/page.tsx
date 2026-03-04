@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiKeyBold, PiSpinnerBold, PiTrashBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,17 +23,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  RefreshCw,
-  Key,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Trash2,
-  Calendar,
-  Clock,
-} from 'lucide-react';
 import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
 import { TokenExpiryBadge } from '@/components/admin/integrations/TokenExpiryBadge';
 
@@ -160,7 +150,7 @@ export default function OAuthManagementPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-gray-600">Loading OAuth tokens...</p>
         </div>
       </div>
@@ -173,14 +163,14 @@ export default function OAuthManagementPage() {
         <Card className="max-w-md">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
-              <XCircle className="h-5 w-5" />
+              <PiXCircleBold className="h-5 w-5" />
               Error Loading OAuth Tokens
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">{error}</p>
             <Button onClick={fetchTokens} className="w-full">
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Try Again
             </Button>
           </CardContent>
@@ -200,7 +190,7 @@ export default function OAuthManagementPage() {
           </p>
         </div>
         <Button onClick={fetchTokens} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
           Refresh
         </Button>
       </div>
@@ -215,7 +205,7 @@ export default function OAuthManagementPage() {
                 <p className="text-2xl font-bold text-gray-900 mt-2">{stats.total}</p>
               </div>
               <div className="p-3 rounded-lg bg-blue-50">
-                <Key className="h-6 w-6 text-blue-600" />
+                <PiKeyBold className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -229,7 +219,7 @@ export default function OAuthManagementPage() {
                 <p className="text-2xl font-bold text-gray-900 mt-2">{stats.active}</p>
               </div>
               <div className="p-3 rounded-lg bg-green-50">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                <PiCheckCircleBold className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -245,7 +235,7 @@ export default function OAuthManagementPage() {
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-yellow-50">
-                <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                <PiWarningBold className="h-6 w-6 text-yellow-600" />
               </div>
             </div>
           </CardContent>
@@ -259,7 +249,7 @@ export default function OAuthManagementPage() {
                 <p className="text-2xl font-bold text-gray-900 mt-2">{stats.expired}</p>
               </div>
               <div className="p-3 rounded-lg bg-red-50">
-                <XCircle className="h-6 w-6 text-red-600" />
+                <PiXCircleBold className="h-6 w-6 text-red-600" />
               </div>
             </div>
           </CardContent>
@@ -273,7 +263,7 @@ export default function OAuthManagementPage() {
                 <p className="text-2xl font-bold text-gray-900 mt-2">{stats.revoked}</p>
               </div>
               <div className="p-3 rounded-lg bg-gray-50">
-                <Trash2 className="h-6 w-6 text-gray-600" />
+                <PiTrashBold className="h-6 w-6 text-gray-600" />
               </div>
             </div>
           </CardContent>
@@ -288,7 +278,7 @@ export default function OAuthManagementPage() {
         <CardContent>
           {tokens.length === 0 ? (
             <div className="text-center py-12">
-              <Key className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <PiKeyBold className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 No OAuth tokens found
               </h3>
@@ -342,7 +332,7 @@ export default function OAuthManagementPage() {
                         <TableCell className="text-sm text-gray-600">
                           {token.last_refreshed_at ? (
                             <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
+                              <PiClockBold className="h-3 w-3" />
                               {formatDistanceToNow(new Date(token.last_refreshed_at), {
                                 addSuffix: true,
                               })}
@@ -367,9 +357,9 @@ export default function OAuthManagementPage() {
                               }
                             >
                               {isRefreshing ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <PiSpinnerBold className="h-4 w-4 animate-spin" />
                               ) : (
-                                <RefreshCw className="h-4 w-4" />
+                                <PiArrowsClockwiseBold className="h-4 w-4" />
                               )}
                             </Button>
                             <Button
@@ -384,9 +374,9 @@ export default function OAuthManagementPage() {
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               {isRevoking ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <PiSpinnerBold className="h-4 w-4 animate-spin" />
                               ) : (
-                                <Trash2 className="h-4 w-4" />
+                                <PiTrashBold className="h-4 w-4" />
                               )}
                             </Button>
                           </div>

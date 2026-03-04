@@ -1,20 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Building2,
-  Zap,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  ArrowRight,
-  Check,
-  Shield,
-  ChevronDown,
-  Sparkles
-} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,7 +39,7 @@ export function DesignV5Bento() {
         >
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-gradient-to-br from-circleTel-orange to-amber-500 rounded-2xl shadow-lg shadow-orange-300/40">
-              <Sparkles className="w-6 h-6 text-white" />
+              <PiSparklesBold className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight">B2B Feasibility</h1>
@@ -92,9 +80,9 @@ export function DesignV5Bento() {
                     : "bg-blue-100"
                 )}>
                   {completionStatus.client.complete ? (
-                    <Check className="w-6 h-6 text-white" />
+                    <PiCheckBold className="w-6 h-6 text-white" />
                   ) : (
-                    <Building2 className={cn("w-6 h-6", completionStatus.client.complete ? "text-white" : "text-blue-600")} />
+                    <PiBuildingsBold className={cn("w-6 h-6", completionStatus.client.complete ? "text-white" : "text-blue-600")} />
                   )}
                 </div>
                 <div>
@@ -108,7 +96,7 @@ export function DesignV5Bento() {
                 animate={{ rotate: expandedTile === 'client' ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDown className="w-5 h-5 text-gray-400" />
+                <PiCaretDownBold className="w-5 h-5 text-gray-400" />
               </motion.div>
             </div>
 
@@ -137,7 +125,7 @@ export function DesignV5Bento() {
                       <div>
                         <Label className="text-sm font-semibold text-gray-700">Contact Name</Label>
                         <div className="relative mt-2">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <PiUserBold className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input
                             placeholder="John Smith"
                             value={formData.contactName}
@@ -149,7 +137,7 @@ export function DesignV5Bento() {
                       <div>
                         <Label className="text-sm font-semibold text-gray-700">Phone</Label>
                         <div className="relative mt-2">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <PiPhoneBold className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input
                             placeholder="082 123 4567"
                             value={formData.contactPhone}
@@ -162,7 +150,7 @@ export function DesignV5Bento() {
                     <div>
                       <Label className="text-sm font-semibold text-gray-700">Email</Label>
                       <div className="relative mt-2">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <PiEnvelopeBold className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type="email"
                           placeholder="john@acme.co.za"
@@ -205,9 +193,9 @@ export function DesignV5Bento() {
                     : "bg-violet-100"
                 )}>
                   {completionStatus.requirements.complete ? (
-                    <Check className="w-6 h-6 text-white" />
+                    <PiCheckBold className="w-6 h-6 text-white" />
                   ) : (
-                    <Zap className="w-6 h-6 text-violet-600" />
+                    <PiLightningBold className="w-6 h-6 text-violet-600" />
                   )}
                 </div>
                 <div>
@@ -223,7 +211,7 @@ export function DesignV5Bento() {
                 animate={{ rotate: expandedTile === 'requirements' ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDown className="w-5 h-5 text-gray-400" />
+                <PiCaretDownBold className="w-5 h-5 text-gray-400" />
               </motion.div>
             </div>
 
@@ -309,7 +297,7 @@ export function DesignV5Bento() {
                           onCheckedChange={(checked) => setFormData(prev => ({ ...prev, needFailover: !!checked }))}
                           className="border-gray-300 data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600"
                         />
-                        <Shield className="w-4 h-4 text-gray-500" />
+                        <PiShieldBold className="w-4 h-4 text-gray-500" />
                         <span className="font-medium text-gray-700">Failover</span>
                       </label>
                     </div>
@@ -346,9 +334,9 @@ export function DesignV5Bento() {
                     : "bg-emerald-100"
                 )}>
                   {completionStatus.sites.complete ? (
-                    <Check className="w-6 h-6 text-white" />
+                    <PiCheckBold className="w-6 h-6 text-white" />
                   ) : (
-                    <MapPin className="w-6 h-6 text-emerald-600" />
+                    <PiMapPinBold className="w-6 h-6 text-emerald-600" />
                   )}
                 </div>
                 <div>
@@ -368,7 +356,7 @@ export function DesignV5Bento() {
                   animate={{ rotate: expandedTile === 'sites' ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                  <PiCaretDownBold className="w-5 h-5 text-gray-400" />
                 </motion.div>
               </div>
             </div>
@@ -410,7 +398,7 @@ export function DesignV5Bento() {
         >
           <button className="group relative px-12 py-5 bg-gradient-to-r from-circleTel-orange to-amber-500 text-white font-bold text-lg rounded-3xl shadow-2xl shadow-orange-400/40 hover:shadow-orange-500/50 hover:scale-[1.02] transition-all flex items-center gap-3">
             <span>Check Feasibility</span>
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            <PiArrowRightBold className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
         </motion.div>
       </div>

@@ -1,8 +1,8 @@
+import { PiArrowLeftBold, PiLockBold } from 'react-icons/pi';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPages } from '../services/storageService';
 import { Page } from '../types';
-import { Lock, ArrowLeft } from 'lucide-react';
 
 const PageRenderer: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -83,7 +83,7 @@ const PageRenderer: React.FC = () => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-gray-100">
           <div className="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock size={32} />
+            <PiLockBold size={32} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-500 mb-8">
@@ -93,7 +93,7 @@ const PageRenderer: React.FC = () => {
             to="/" 
             className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-black transition-colors w-full"
           >
-            <ArrowLeft size={18} />
+            <PiArrowLeftBold size={18} />
             Return to Dashboard
           </Link>
         </div>

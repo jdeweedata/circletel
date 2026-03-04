@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -7,7 +8,6 @@ import { OrderWizard } from '@/components/order/OrderWizard';
 import { Step1PackageConfirmation } from '@/components/order/Step1PackageConfirmation';
 import { Step2CustomerDetails } from '@/components/order/Step2CustomerDetails';
 import { Step3OrderConfirmation } from '@/components/order/Step3OrderConfirmation';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ServicePackage {
@@ -256,7 +256,7 @@ function ConsumerOrderContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-lg text-circleTel-secondaryNeutral">Loading package details...</p>
         </div>
       </div>
@@ -352,7 +352,7 @@ export default function ConsumerOrderPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <ConsumerOrderContent />

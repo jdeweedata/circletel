@@ -1,6 +1,6 @@
+import { PiBellBold, PiCheckCircleBold, PiEnvelopeBold, PiUsersBold } from 'react-icons/pi';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Mail, Bell, Users, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { FormSection } from '../../common/FormSection';
 import { UnjaniAuditFormData } from './types';
@@ -31,32 +31,32 @@ export function NotificationPreferences({
     <FormSection
       title="6. Email Notifications"
       subtitle="Configure who should receive notifications about this audit submission"
-      icon={<Mail className="w-6 h-6" />}
+      icon={<PiEnvelopeBold className="w-6 h-6" />}
     >
       <div className="space-y-6">
 
         {/* Notification Preview */}
         <Alert>
-          <Bell className="h-4 w-4" />
+          <PiBellBold className="h-4 w-4" />
           <AlertDescription>
             <div className="space-y-2">
               <p className="font-medium">Email notifications will be sent upon successful submission:</p>
               <ul className="text-sm space-y-1 ml-4">
                 {notifyTeam && (
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <PiCheckCircleBold className="h-3 w-3 text-green-600" />
                     <span><strong>Team notification</strong> - Internal audit processing team</span>
                   </li>
                 )}
                 {customEmails && (
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-600" />
+                    <PiCheckCircleBold className="h-3 w-3 text-green-600" />
                     <span><strong>Additional recipients</strong> - {customEmails.split(',').length} email(s)</span>
                   </li>
                 )}
                 {!notifyTeam && !customEmails && (
                   <li className="text-amber-600 flex items-center gap-2">
-                    <Bell className="h-3 w-3" />
+                    <PiBellBold className="h-3 w-3" />
                     <span><em>No email notifications configured</em></span>
                   </li>
                 )}
@@ -70,7 +70,7 @@ export function NotificationPreferences({
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600" />
+                <PiUsersBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900">Team Notification</h4>
@@ -104,7 +104,7 @@ export function NotificationPreferences({
           <div className="space-y-4">
             <div className="flex items-start gap-4">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <Mail className="h-5 w-5 text-purple-600" />
+                <PiEnvelopeBold className="h-5 w-5 text-purple-600" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900">Additional Recipients</h4>
@@ -133,7 +133,7 @@ export function NotificationPreferences({
         {/* Email Service Notice */}
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <Mail className="h-5 w-5 text-amber-600 mt-0.5" />
+            <PiEnvelopeBold className="h-5 w-5 text-amber-600 mt-0.5" />
             <div className="text-sm">
               <p className="text-amber-800 font-medium">Email Service Information</p>
               <p className="text-amber-700 mt-1">

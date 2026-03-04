@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiCreditCardBold, PiFloppyDiskBold, PiMapPinBold, PiPhoneBold, PiSparklesBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,21 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ArrowLeft,
-  Save,
-  Building2,
-  User,
-  Phone,
-  CreditCard,
-  Wrench,
-  MapPin,
-  FileSignature,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Sparkles
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -88,11 +74,11 @@ const PROVINCES = [
 
 // Section configuration with icons and completion tracking
 const SECTIONS = [
-  { id: 'company', title: 'Company', icon: Building2, required: true },
-  { id: 'primary', title: 'Primary Contact', icon: User, required: true },
-  { id: 'billing', title: 'Billing', icon: CreditCard, required: false },
-  { id: 'technical', title: 'Technical', icon: Wrench, required: false },
-  { id: 'address', title: 'Address', icon: MapPin, required: false },
+  { id: 'company', title: 'Company', icon: PiBuildingsBold, required: true },
+  { id: 'primary', title: 'Primary Contact', icon: PiUserBold, required: true },
+  { id: 'billing', title: 'Billing', icon: PiCreditCardBold, required: false },
+  { id: 'technical', title: 'Technical', icon: PiWrenchBold, required: false },
+  { id: 'address', title: 'Address', icon: PiMapPinBold, required: false },
   { id: 'contract', title: 'Contract', icon: FileSignature, required: false },
 ];
 
@@ -178,7 +164,7 @@ function FormSection({
               ? "bg-orange-500 text-white"
               : "bg-slate-100 text-slate-500"
         )}>
-          {isComplete ? <Check className="w-5 h-5" /> : number}
+          {isComplete ? <PiCheckBold className="w-5 h-5" /> : number}
         </div>
 
         {/* Title & Description */}
@@ -203,7 +189,7 @@ function FormSection({
           "bg-slate-50 text-slate-400 transition-transform duration-200",
           isOpen && "rotate-180"
         )}>
-          <ChevronDown className="w-5 h-5" />
+          <PiCaretDownBold className="w-5 h-5" />
         </div>
       </button>
 
@@ -369,7 +355,7 @@ export default function NewCorporatePage() {
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-6 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Corporate Clients</span>
           </button>
 
@@ -377,7 +363,7 @@ export default function NewCorporatePage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
-                  <Building2 className="w-6 h-6 text-white" />
+                  <PiBuildingsBold className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900 font-serif tracking-tight">
@@ -429,7 +415,7 @@ export default function NewCorporatePage() {
                 >
                   <section.icon className="w-4 h-4" />
                   {section.title}
-                  {isComplete && <Check className="w-3.5 h-3.5" />}
+                  {isComplete && <PiCheckBold className="w-3.5 h-3.5" />}
                 </a>
               );
             })}
@@ -714,7 +700,7 @@ export default function NewCorporatePage() {
                 {requiredComplete ? (
                   <>
                     <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-emerald-600" />
+                      <PiSparklesBold className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-emerald-700">Ready to create</p>
@@ -724,7 +710,7 @@ export default function NewCorporatePage() {
                 ) : (
                   <>
                     <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-                      <Building2 className="w-5 h-5 text-orange-600" />
+                      <PiBuildingsBold className="w-5 h-5 text-orange-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-700">Complete required fields</p>
@@ -761,7 +747,7 @@ export default function NewCorporatePage() {
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4" />
+                      <PiFloppyDiskBold className="h-4 w-4" />
                       Create Corporate
                     </>
                   )}

@@ -1,7 +1,7 @@
 'use client';
+import { PiInfoBold, PiQuestionBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
-import { Info, HelpCircle } from 'lucide-react';
 import { Input } from './input';
 import { Label } from './label';
 import {
@@ -48,7 +48,7 @@ export const InputWithHelp = React.forwardRef<HTMLInputElement, InputWithHelpPro
                     className="text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label={`Help for ${label}`}
                   >
-                    <HelpCircle className="w-4 h-4" />
+                    <PiQuestionBold className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
@@ -72,7 +72,7 @@ export const InputWithHelp = React.forwardRef<HTMLInputElement, InputWithHelpPro
         {/* Help Text */}
         {helpText && !error && (
           <div className="flex items-start gap-2 text-xs text-gray-600" id={`${fieldId}-help`}>
-            <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <PiInfoBold className="w-3 h-3 mt-0.5 flex-shrink-0" />
             <span>{helpText}</span>
           </div>
         )}

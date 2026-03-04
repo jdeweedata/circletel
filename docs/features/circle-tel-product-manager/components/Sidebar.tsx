@@ -1,19 +1,5 @@
+import { PiCalendarBold, PiCaretDownBold, PiCaretRightBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiGearBold, PiHouseBold, PiStackBold, PiTagBold, PiUsersBold } from 'react-icons/pi';
 import React from 'react';
-import { 
-  Home, 
-  Users, 
-  ShoppingBag, 
-  Tag, 
-  CreditCard, 
-  Clock, 
-  Calendar, 
-  BarChart2, 
-  Settings,
-  ChevronRight,
-  ChevronDown,
-  Box,
-  Layers
-} from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   return (
@@ -33,7 +19,7 @@ export const Sidebar: React.FC = () => {
             <span className="text-xs font-semibold text-white uppercase flex items-center gap-1">
               <span className="text-yellow-400">✦</span> Getting Started
             </span>
-            <ChevronRight size={14} />
+            <PiCaretRightBold size={14} />
           </div>
           <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
             <div className="bg-green-500 h-full w-1/3"></div>
@@ -43,8 +29,8 @@ export const Sidebar: React.FC = () => {
 
       {/* Menu Items */}
       <nav className="flex-1 overflow-y-auto py-2 custom-scrollbar">
-        <MenuItem icon={<Home size={18} />} label="Home" />
-        <MenuItem icon={<Users size={18} />} label="Customers" />
+        <MenuItem icon={<PiHouseBold size={18} />} label="Home" />
+        <MenuItem icon={<PiUsersBold size={18} />} label="Customers" />
         
         {/* Active Item Group */}
         <div className="bg-slate-800/50 border-l-4 border-primary-500 my-1">
@@ -56,17 +42,17 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
 
-        <MenuItem icon={<Tag size={18} />} label="Sales" hasSubmenu />
-        <MenuItem icon={<CreditCard size={18} />} label="Payments" hasSubmenu />
-        <MenuItem icon={<Box size={18} />} label="Expenses" hasSubmenu />
-        <MenuItem icon={<Clock size={18} />} label="Time Tracking" />
-        <MenuItem icon={<Calendar size={18} />} label="Events" />
+        <MenuItem icon={<PiTagBold size={18} />} label="Sales" hasSubmenu />
+        <MenuItem icon={<PiCreditCardBold size={18} />} label="Payments" hasSubmenu />
+        <MenuItem icon={<PiCubeBold size={18} />} label="Expenses" hasSubmenu />
+        <MenuItem icon={<PiClockBold size={18} />} label="Time Tracking" />
+        <MenuItem icon={<PiCalendarBold size={18} />} label="Events" />
         <MenuItem icon={<BarChart2 size={18} />} label="Reports" />
       </nav>
 
       {/* Footer Settings */}
       <div className="p-4 border-t border-slate-700">
-        <MenuItem icon={<Settings size={18} />} label="Configuration" />
+        <MenuItem icon={<PiGearBold size={18} />} label="Configuration" />
       </div>
     </aside>
   );
@@ -88,7 +74,7 @@ const MenuItem: React.FC<{
       <span>{label}</span>
     </div>
     {hasSubmenu && (
-      expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+      expanded ? <PiCaretDownBold size={14} /> : <PiCaretRightBold size={14} />
     )}
   </div>
 );

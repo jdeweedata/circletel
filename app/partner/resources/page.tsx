@@ -1,19 +1,10 @@
 'use client'
+import { PiArrowSquareOutBold, PiBookOpenBold, PiDownloadSimpleBold, PiFileTextBold, PiImageBold } from 'react-icons/pi';
 
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  FileText,
-  Image as ImageIcon,
-  Video,
-  Download,
-  ExternalLink,
-  BookOpen,
-  Presentation,
-  FileSpreadsheet,
-} from 'lucide-react'
 
 interface Resource {
   id: string
@@ -261,7 +252,7 @@ export default function PartnerResourcesPage() {
                                 className="text-xs"
                                 onClick={() => handleDownload(resource)}
                               >
-                                <Download className="h-3 w-3 mr-1" />
+                                <PiDownloadSimpleBold className="h-3 w-3 mr-1" />
                                 Download
                               </Button>
                             )}
@@ -272,7 +263,7 @@ export default function PartnerResourcesPage() {
                                 className="text-xs"
                                 onClick={() => handleView(resource)}
                               >
-                                <ExternalLink className="h-3 w-3 mr-1" />
+                                <PiArrowSquareOutBold className="h-3 w-3 mr-1" />
                                 View
                               </Button>
                             )}
@@ -292,7 +283,7 @@ export default function PartnerResourcesPage() {
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
           <CardTitle className="text-blue-900 flex items-center">
-            <BookOpen className="h-5 w-5 mr-2" />
+            <PiBookOpenBold className="h-5 w-5 mr-2" />
             Need More Resources?
           </CardTitle>
         </CardHeader>

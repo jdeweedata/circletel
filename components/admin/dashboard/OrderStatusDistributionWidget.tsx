@@ -1,20 +1,9 @@
 'use client';
+import { PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  BarChart3,
-  Clock,
-  CreditCard,
-  CheckCircle,
-  CalendarCheck,
-  Wrench,
-  Zap,
-  XCircle,
-  Loader2,
-  AlertTriangle
-} from 'lucide-react';
 
 interface StatusCount {
   status: string;
@@ -62,19 +51,19 @@ export function OrderStatusDistributionWidget() {
       const statusMetadata: Record<string, { label: string; icon: any; color: string; bgColor: string }> = {
         pending: {
           label: 'Pending',
-          icon: Clock,
+          icon: PiClockBold,
           color: 'text-yellow-600',
           bgColor: 'bg-yellow-100'
         },
         payment_method_pending: {
           label: 'Payment Pending',
-          icon: CreditCard,
+          icon: PiCreditCardBold,
           color: 'text-orange-600',
           bgColor: 'bg-orange-100'
         },
         payment_method_registered: {
           label: 'Payment Ready',
-          icon: CheckCircle,
+          icon: PiCheckCircleBold,
           color: 'text-blue-600',
           bgColor: 'bg-blue-100'
         },
@@ -86,25 +75,25 @@ export function OrderStatusDistributionWidget() {
         },
         installation_in_progress: {
           label: 'Installing',
-          icon: Wrench,
+          icon: PiWrenchBold,
           color: 'text-indigo-600',
           bgColor: 'bg-indigo-100'
         },
         installation_completed: {
           label: 'Completed',
-          icon: CheckCircle,
+          icon: PiCheckCircleBold,
           color: 'text-teal-600',
           bgColor: 'bg-teal-100'
         },
         active: {
           label: 'Active',
-          icon: Zap,
+          icon: PiLightningBold,
           color: 'text-green-600',
           bgColor: 'bg-green-100'
         },
         cancelled: {
           label: 'Cancelled',
-          icon: XCircle,
+          icon: PiXCircleBold,
           color: 'text-red-600',
           bgColor: 'bg-red-100'
         }
@@ -115,7 +104,7 @@ export function OrderStatusDistributionWidget() {
         .map(([status, count]) => {
           const meta = statusMetadata[status] || {
             label: status,
-            icon: Clock,
+            icon: PiClockBold,
             color: 'text-gray-600',
             bgColor: 'bg-gray-100'
           };
@@ -152,7 +141,7 @@ export function OrderStatusDistributionWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </CardContent>
       </Card>
@@ -169,7 +158,7 @@ export function OrderStatusDistributionWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-sm text-red-600">
-            <AlertTriangle className="h-4 w-4" />
+            <PiWarningBold className="h-4 w-4" />
             <span>{error}</span>
           </div>
         </CardContent>
@@ -190,14 +179,14 @@ export function OrderStatusDistributionWidget() {
             </CardDescription>
           </div>
           <div className="p-2 rounded-lg bg-blue-100">
-            <BarChart3 className="h-5 w-5 text-blue-600" />
+            <PiChartBarBold className="h-5 w-5 text-blue-600" />
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {distribution.length === 0 ? (
           <div className="text-center py-6">
-            <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+            <PiChartBarBold className="h-12 w-12 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-600 font-medium">No orders yet</p>
             <p className="text-xs text-gray-500 mt-1">Distribution will appear as orders are created</p>
           </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Admin B2B Site Details View Page
@@ -11,21 +12,6 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  MapPin,
-  Building2,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Loader2,
-  Camera,
-  DoorOpen,
-  User,
-  Phone,
-  Mail,
-  Clock,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -224,13 +210,13 @@ export default function AdminSiteDetailsViewPage({
       <div className="space-y-6">
         <Button variant="ghost" asChild>
           <Link href="/admin/b2b-customers/site-details" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
+            <PiArrowLeftBold className="h-4 w-4" />
             Back to Site Details
           </Link>
         </Button>
 
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <PiWarningBold className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error || 'Site details not found'}</AlertDescription>
         </Alert>
@@ -248,13 +234,13 @@ export default function AdminSiteDetailsViewPage({
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/b2b-customers/site-details">
-              <ArrowLeft className="h-4 w-4" />
+              <PiArrowLeftBold className="h-4 w-4" />
               <span className="sr-only">Back</span>
             </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <MapPin className="h-6 w-6 text-circleTel-orange" />
+              <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
               Site Details Review
             </h1>
             <p className="text-sm text-gray-500">
@@ -300,7 +286,7 @@ export default function AdminSiteDetailsViewPage({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-circleTel-orange" />
+            <PiBuildingsBold className="h-5 w-5 text-circleTel-orange" />
             Customer Information
           </CardTitle>
         </CardHeader>
@@ -317,19 +303,19 @@ export default function AdminSiteDetailsViewPage({
             <div>
               <p className="text-sm text-gray-500">Contact Person</p>
               <p className="font-medium flex items-center gap-1">
-                <User className="h-4 w-4" />
+                <PiUserBold className="h-4 w-4" />
                 {customer.primary_contact_name}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Contact</p>
               <p className="text-sm flex items-center gap-1">
-                <Mail className="h-3 w-3" />
+                <PiEnvelopeBold className="h-3 w-3" />
                 {customer.primary_contact_email}
               </p>
               {customer.primary_contact_phone && (
                 <p className="text-sm flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
+                  <PiPhoneBold className="h-3 w-3" />
                   {customer.primary_contact_phone}
                 </p>
               )}
@@ -449,9 +435,9 @@ export default function AdminSiteDetailsViewPage({
                   }`}
                 >
                   {value ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <PiXCircleBold className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                   )}
                   <div>
                     <p className={`font-medium ${value ? 'text-green-700' : 'text-red-700'}`}>
@@ -500,19 +486,19 @@ export default function AdminSiteDetailsViewPage({
                 <p className="text-sm font-medium text-gray-700 mb-2">Building Manager</p>
                 {siteDetails.building_manager_name && (
                   <p className="text-sm flex items-center gap-1">
-                    <User className="h-3 w-3" />
+                    <PiUserBold className="h-3 w-3" />
                     {siteDetails.building_manager_name}
                   </p>
                 )}
                 {siteDetails.building_manager_phone && (
                   <p className="text-sm flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
+                    <PiPhoneBold className="h-3 w-3" />
                     {siteDetails.building_manager_phone}
                   </p>
                 )}
                 {siteDetails.building_manager_email && (
                   <p className="text-sm flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
+                    <PiEnvelopeBold className="h-3 w-3" />
                     {siteDetails.building_manager_email}
                   </p>
                 )}
@@ -551,7 +537,7 @@ export default function AdminSiteDetailsViewPage({
                 <div>
                   <p className="text-sm text-gray-500">Consent Signed</p>
                   <p className="font-medium flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+                    <PiClockBold className="h-3 w-3" />
                     {new Date(siteDetails.landlord_consent_signed_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -624,7 +610,7 @@ export default function AdminSiteDetailsViewPage({
                     })
                   }
                 >
-                  <XCircle className="h-4 w-4 mr-2" />
+                  <PiXCircleBold className="h-4 w-4 mr-2" />
                   Reject
                 </Button>
                 <Button
@@ -639,7 +625,7 @@ export default function AdminSiteDetailsViewPage({
                     })
                   }
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <PiCheckCircleBold className="h-4 w-4 mr-2" />
                   Approve
                 </Button>
               </div>
@@ -725,7 +711,7 @@ export default function AdminSiteDetailsViewPage({
                 className="bg-green-500 hover:bg-green-600"
               >
                 {actionDialog.isSubmitting && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 )}
                 Approve
               </Button>
@@ -736,7 +722,7 @@ export default function AdminSiteDetailsViewPage({
                 disabled={actionDialog.isSubmitting || !actionDialog.rejectionReason}
               >
                 {actionDialog.isSubmitting && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 )}
                 Reject
               </Button>

@@ -1,9 +1,9 @@
+import { PiArrowRightBold, PiCheckCircleBold, PiWifiBold } from 'react-icons/pi';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { client } from '@/lib/sanity/client';
 import { WORKCONNECT_ALL_QUERY } from '@/lib/sanity/queries';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Wifi, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ export default async function WorkConnectPage() {
       <section className="bg-circleTel-grey200 py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange/10 rounded-full mb-6">
-            <Wifi className="w-4 h-4 text-circleTel-orange" />
+            <PiWifiBold className="w-4 h-4 text-circleTel-orange" />
             <span className="text-sm font-medium text-circleTel-orange">
               Built for Remote Work
             </span>
@@ -100,7 +100,7 @@ export default async function WorkConnectPage() {
                   <ul className="space-y-2 mb-6 min-h-[180px]">
                     {plan.keyFeatures.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <PiCheckCircleBold className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span className="text-circleTel-navy">{feature.title}</span>
                       </li>
                     ))}
@@ -118,7 +118,7 @@ export default async function WorkConnectPage() {
                   >
                     <Link href={`/workconnect/${plan.slug}`}>
                       Learn More
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <PiArrowRightBold className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
@@ -149,7 +149,7 @@ export default async function WorkConnectPage() {
           >
             <Link href="/?segment=wfh">
               Check Coverage
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

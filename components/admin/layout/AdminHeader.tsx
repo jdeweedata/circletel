@@ -1,7 +1,7 @@
 'use client';
+import { PiListBold, PiSignOutBold, PiUserBold } from 'react-icons/pi';
 
 import { usePathname } from 'next/navigation';
-import { Menu, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -188,7 +188,7 @@ export function AdminHeader({ onMenuClick, user, onLogout, sidebarOpen }: AdminH
             className="flex-shrink-0"
             aria-label="Toggle menu"
           >
-            <Menu className="h-5 w-5" />
+            <PiListBold className="h-5 w-5" />
           </Button>
 
           <div className="min-w-0 flex-1">
@@ -222,12 +222,12 @@ export function AdminHeader({ onMenuClick, user, onLogout, sidebarOpen }: AdminH
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
+                <PiUserBold className="mr-2 h-4 w-4" />
                 Profile Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onLogout} className="text-red-600">
-                <LogOut className="mr-2 h-4 w-4" />
+                <PiSignOutBold className="mr-2 h-4 w-4" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

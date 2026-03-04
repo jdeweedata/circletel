@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiCreditCardBold, PiShieldBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Card Verification Page
@@ -10,7 +11,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CreditCard, Shield, CheckCircle2, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function VerifyCardPage() {
   const router = useRouter();
@@ -65,7 +65,7 @@ export default function VerifyCardPage() {
         <div className="max-w-lg mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-green-600" />
+              <PiCheckCircleBold className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Card Added Successfully</h1>
             <p className="text-gray-600 mb-6">
@@ -100,7 +100,7 @@ export default function VerifyCardPage() {
           href="/dashboard/billing"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <PiArrowLeftBold className="w-4 h-4" />
           <span>Back to Billing</span>
         </Link>
 
@@ -109,7 +109,7 @@ export default function VerifyCardPage() {
           <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 px-6 py-8 text-white">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-8 h-8" />
+                <PiCreditCardBold className="w-8 h-8" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold">Add Payment Card</h1>
@@ -122,7 +122,7 @@ export default function VerifyCardPage() {
           <div className="p-6">
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <PiWarningCircleBold className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-red-800">Verification Failed</p>
                   <p className="text-sm text-red-600 mt-1">{error}</p>
@@ -133,7 +133,7 @@ export default function VerifyCardPage() {
             {/* Security info */}
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <PiShieldBold className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-blue-800">Secure Payment</p>
                   <p className="text-sm text-blue-600 mt-1">
@@ -149,19 +149,19 @@ export default function VerifyCardPage() {
               <h3 className="font-semibold text-gray-900">Benefits of Card Payment</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   <span>Automatic payment on due date - no missed payments</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   <span>Earn credit card rewards on your bills</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   <span>Easy to update or change your card anytime</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-500" />
                   <span>Instant confirmation of payment</span>
                 </li>
               </ul>
@@ -188,12 +188,12 @@ export default function VerifyCardPage() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <PiSpinnerBold className="w-5 h-5 animate-spin" />
                   <span>Redirecting to Secure Payment...</span>
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5" />
+                  <PiCreditCardBold className="w-5 h-5" />
                   <span>Add Credit/Debit Card</span>
                 </>
               )}

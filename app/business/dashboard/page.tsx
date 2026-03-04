@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiFileTextBold, PiPhoneBold, PiTrendUpBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 /**
  * Business Dashboard Home Page
@@ -10,18 +11,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Building2,
-  FileText,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
-  Wifi,
-  CreditCard,
-  Phone,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -80,7 +69,7 @@ function QuickActions({ journey }: { journey: JourneyProgress | null }) {
     <Card className="border-circleTel-orange/30 bg-gradient-to-br from-white to-orange-50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <TrendingUp className="h-5 w-5 text-circleTel-orange" />
+          <PiTrendUpBold className="h-5 w-5 text-circleTel-orange" />
           Your Next Step
         </CardTitle>
         <CardDescription>
@@ -91,7 +80,7 @@ function QuickActions({ journey }: { journey: JourneyProgress | null }) {
         {journey.blockedStage ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <PiWarningCircleBold className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="font-medium text-red-800">Action Required</p>
                 <p className="text-sm text-red-600 mt-1">
@@ -105,7 +94,7 @@ function QuickActions({ journey }: { journey: JourneyProgress | null }) {
                 >
                   <Link href="/business/dashboard/support">
                     Contact Support
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -125,13 +114,13 @@ function QuickActions({ journey }: { journey: JourneyProgress | null }) {
             <Button className="w-full bg-circleTel-orange hover:bg-orange-600" asChild>
               <Link href={currentStageNav.href}>
                 {stage.nextAction}
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <PiArrowRightBold className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
         ) : (
           <div className="text-center py-4">
-            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
+            <PiCheckCircleBold className="h-12 w-12 text-green-500 mx-auto mb-2" />
             <p className="font-medium text-green-700">All steps completed!</p>
             <p className="text-sm text-gray-600 mt-1">
               Your business account is fully set up.
@@ -152,7 +141,7 @@ function StatsCards({ stats, loading }: { stats: DashboardData['stats'] | null; 
     {
       title: 'Active Services',
       value: stats?.activeServices ?? 0,
-      icon: Wifi,
+      icon: PiWifiBold,
       href: '/business/dashboard/services',
       color: 'text-green-600',
       bgColor: 'bg-green-50',
@@ -160,7 +149,7 @@ function StatsCards({ stats, loading }: { stats: DashboardData['stats'] | null; 
     {
       title: 'Pending Quotes',
       value: stats?.pendingQuotes ?? 0,
-      icon: FileText,
+      icon: PiFileTextBold,
       href: '/business/dashboard/quotes',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -168,7 +157,7 @@ function StatsCards({ stats, loading }: { stats: DashboardData['stats'] | null; 
     {
       title: 'Open Tickets',
       value: stats?.openTickets ?? 0,
-      icon: Phone,
+      icon: PiPhoneBold,
       href: '/business/dashboard/support',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
@@ -176,7 +165,7 @@ function StatsCards({ stats, loading }: { stats: DashboardData['stats'] | null; 
     {
       title: 'Unpaid Invoices',
       value: stats?.unpaidInvoices ?? 0,
-      icon: CreditCard,
+      icon: PiCreditCardBold,
       href: '/business/dashboard/billing',
       color: stats?.unpaidInvoices ? 'text-red-600' : 'text-gray-600',
       bgColor: stats?.unpaidInvoices ? 'bg-red-50' : 'bg-gray-50',
@@ -269,7 +258,7 @@ function RecentActivity({ activities, loading }: { activities: DashboardData['re
           {activities.map((activity) => (
             <div key={activity.id} className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <Clock className="h-4 w-4 text-gray-500" />
+                <PiClockBold className="h-4 w-4 text-gray-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900">{activity.title}</p>
@@ -370,7 +359,7 @@ export default function BusinessDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-circleTel-orange" />
+            <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
             Welcome back
           </h1>
           <p className="text-gray-600 mt-1">
@@ -398,7 +387,7 @@ export default function BusinessDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-circleTel-orange" />
+              <PiTrendUpBold className="h-5 w-5 text-circleTel-orange" />
               Your Journey Progress
             </CardTitle>
             <CardDescription>

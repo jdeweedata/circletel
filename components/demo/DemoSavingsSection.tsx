@@ -3,14 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Smartphone, Tv, Info } from "lucide-react"
 
 const savingsOptions = [
   {
     id: 1,
     title: "Get entertainment you love, for less",
     description: "Save money every month while you stream Netflix, Showmax, or DStv Now. Listen to your favorite music on Apple Music, or get Unlimited Cloud Storage.",
-    icon: Heart,
+    icon: PiHeartBold,
     savings: "Save up to R200/mo",
     color: "from-circleTel-red to-circleTel-orange",
     cta: "Get started"
@@ -19,7 +18,7 @@ const savingsOptions = [
     id: 2,
     title: "Bundle your mobile & business internet. Save R150/mo.",
     description: "And choose entertainment on us. Savings on bill. Add one perk on us (up to R100/mo) with select internet plans.",
-    icon: Smartphone,
+    icon: PiDeviceMobileBold,
     savings: "R150/mo discount",
     color: "from-circleTel-blue-600 to-circleTel-blue-700",
     cta: "Learn more"
@@ -28,7 +27,7 @@ const savingsOptions = [
     id: 3,
     title: "Save R100/mo on DStv Premium for the first year",
     description: "R619/mo for 12 mos., then R719/mo after. For new DStv subscribers with Business Pro plans.",
-    icon: Tv,
+    icon: PiTelevisionBold,
     savings: "R1,200 first year",
     color: "from-circleTel-navy to-circleTel-secondaryNeutral",
     cta: "Get started"
@@ -92,7 +91,7 @@ export function DemoSavingsSection() {
         {/* Additional Info */}
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-2 bg-white rounded-full px-6 py-3 shadow-md border border-circleTel-gray-200">
-            <Info className="w-5 h-5 text-circleTel-blue-600" />
+            <PiInfoBold className="w-5 h-5 text-circleTel-blue-600" />
             <span className="text-sm text-circleTel-secondaryNeutral">
               All offers require qualifying business internet plans. Terms and conditions apply.
             </span>

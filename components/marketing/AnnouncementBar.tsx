@@ -1,7 +1,7 @@
 'use client'
+import { PiArrowRightBold, PiSparklesBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
-import { X, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 export interface AnnouncementBarProps {
@@ -156,7 +156,7 @@ export function AnnouncementBar({
       }}
     >
       {/* Sparkle icon for visual interest */}
-      <Sparkles className="w-4 h-4 flex-shrink-0 hidden sm:block" />
+      <PiSparklesBold className="w-4 h-4 flex-shrink-0 hidden sm:block" />
 
       {/* Main message */}
       <div className="flex items-center gap-2 text-center flex-wrap justify-center">
@@ -187,7 +187,7 @@ export function AnnouncementBar({
             style={{ color: textColor }}
           >
             {linkText}
-            <ArrowRight className="w-3.5 h-3.5" />
+            <PiArrowRightBold className="w-3.5 h-3.5" />
           </Link>
         )}
       </div>
@@ -203,7 +203,7 @@ export function AnnouncementBar({
         aria-label="Dismiss announcement"
         style={{ color: textColor }}
       >
-        <X className="w-4 h-4" />
+        <PiXBold className="w-4 h-4" />
       </button>
     </div>
   )

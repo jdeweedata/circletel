@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCubeBold, PiDotsThreeBold, PiEyeBold, PiFileTextBold, PiGearBold, PiMagnifyingGlassBold, PiMonitorBold, PiPackageBold, PiPlusBold, PiSpinnerBold, PiStarBold, PiTrashBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -13,27 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Search,
-  Plus,
-  MoreHorizontal,
-  Pencil,
-  Eye,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  Package,
-  CheckCircle,
-  XCircle,
-  Star,
-  Archive,
-  FileText,
-  Wifi,
-  Monitor,
-  Settings,
-  Box,
-  Loader2,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type SortField = 'name' | 'price' | 'updated_at' | 'status';
@@ -41,11 +21,11 @@ type SortOrder = 'asc' | 'desc';
 
 // Category icons and colors
 const categoryConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
-  connectivity: { icon: Wifi, color: 'text-blue-600', bg: 'bg-blue-100' },
-  hardware: { icon: Monitor, color: 'text-purple-600', bg: 'bg-purple-100' },
-  software: { icon: Settings, color: 'text-green-600', bg: 'bg-green-100' },
-  services: { icon: FileText, color: 'text-orange-600', bg: 'bg-orange-100' },
-  bundles: { icon: Box, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+  connectivity: { icon: PiWifiBold, color: 'text-blue-600', bg: 'bg-blue-100' },
+  hardware: { icon: PiMonitorBold, color: 'text-purple-600', bg: 'bg-purple-100' },
+  software: { icon: PiGearBold, color: 'text-green-600', bg: 'bg-green-100' },
+  services: { icon: PiFileTextBold, color: 'text-orange-600', bg: 'bg-orange-100' },
+  bundles: { icon: PiCubeBold, color: 'text-indigo-600', bg: 'bg-indigo-100' },
 };
 
 export default function AdminProductsV2() {
@@ -145,7 +125,7 @@ export default function AdminProductsV2() {
   };
 
   const getCategoryConfig = (category: string | null) => {
-    return categoryConfig[category || ''] || { icon: Package, color: 'text-gray-600', bg: 'bg-gray-100' };
+    return categoryConfig[category || ''] || { icon: PiPackageBold, color: 'text-gray-600', bg: 'bg-gray-100' };
   };
 
   const StatCard = ({
@@ -199,7 +179,7 @@ export default function AdminProductsV2() {
             </div>
             <Button asChild className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
               <Link href="/admin/products/new">
-                <Plus className="h-4 w-4 mr-2" />
+                <PiPlusBold className="h-4 w-4 mr-2" />
                 Add Product
               </Link>
             </Button>
@@ -249,7 +229,7 @@ export default function AdminProductsV2() {
 
         {/* Search */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search products..."
             value={search}
@@ -262,11 +242,11 @@ export default function AdminProductsV2() {
         <Card className="shadow-sm border-gray-200 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-16">
-              <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <PiPackageBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No products found</p>
             </div>
           ) : (
@@ -293,7 +273,7 @@ export default function AdminProductsV2() {
                           {product.name}
                         </h3>
                         {product.is_featured && (
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                          <PiStarBold className="h-4 w-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
@@ -343,13 +323,13 @@ export default function AdminProductsV2() {
                           size="icon"
                           className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                         >
-                          <MoreHorizontal className="h-4 w-4" />
+                          <PiDotsThreeBold className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/products/${product.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
+                            <PiEyeBold className="h-4 w-4 mr-2" />
                             View
                           </Link>
                         </DropdownMenuItem>
@@ -366,7 +346,7 @@ export default function AdminProductsV2() {
                             handleDelete(product.id);
                           }}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <PiTrashBold className="h-4 w-4 mr-2" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -390,7 +370,7 @@ export default function AdminProductsV2() {
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <PiCaretLeftBold className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -398,7 +378,7 @@ export default function AdminProductsV2() {
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <PiCaretRightBold className="h-4 w-4" />
                 </Button>
               </div>
             </div>

@@ -1,9 +1,9 @@
 'use client';
+import { PiCaretLeftBold, PiCaretRightBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -72,9 +72,9 @@ export default function PartnerSidebar({
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? (
-              <ChevronRight className="h-4 w-4 text-gray-500" />
+              <PiCaretRightBold className="h-4 w-4 text-gray-500" />
             ) : (
-              <ChevronLeft className="h-4 w-4 text-gray-500" />
+              <PiCaretLeftBold className="h-4 w-4 text-gray-500" />
             )}
           </Button>
         </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMinusBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * AR Analytics Dashboard
@@ -49,22 +50,6 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  DollarSign,
-  Clock,
-  Mail,
-  MessageSquare,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Calendar,
-  Target,
-  Activity,
-} from 'lucide-react';
 
 // Types
 interface ARAnalyticsData {
@@ -191,11 +176,11 @@ export default function ARAnalyticsPage() {
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'improving':
-        return <TrendingDown className="h-4 w-4 text-green-500" />;
+        return <PiTrendDownBold className="h-4 w-4 text-green-500" />;
       case 'worsening':
-        return <TrendingUp className="h-4 w-4 text-red-500" />;
+        return <PiTrendUpBold className="h-4 w-4 text-red-500" />;
       default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
+        return <PiMinusBold className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -235,7 +220,7 @@ export default function ARAnalyticsPage() {
       <div className="container mx-auto py-6">
         <Card>
           <CardContent className="py-10 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+            <PiWarningBold className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
             <p className="text-muted-foreground">Failed to load AR analytics</p>
             <Button onClick={handleRefresh} className="mt-4">
               Try Again
@@ -283,7 +268,7 @@ export default function ARAnalyticsPage() {
             </SelectContent>
           </Select>
           <Button variant="outline" size="icon" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
@@ -294,7 +279,7 @@ export default function ARAnalyticsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
+              <PiCurrencyDollarBold className="h-4 w-4" />
               Total Outstanding
             </CardDescription>
           </CardHeader>
@@ -312,7 +297,7 @@ export default function ARAnalyticsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+              <PiClockBold className="h-4 w-4" />
               Days Sales Outstanding
             </CardDescription>
           </CardHeader>
@@ -349,7 +334,7 @@ export default function ARAnalyticsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
+              <PiActivityBold className="h-4 w-4" />
               Notifications Sent
             </CardDescription>
           </CardHeader>
@@ -551,11 +536,11 @@ export default function ARAnalyticsPage() {
                 </ResponsiveContainer>
                 <div className="flex justify-center gap-4 mt-4">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-blue-500" />
+                    <PiChatBold className="h-4 w-4 text-blue-500" />
                     <span className="text-sm">SMS: {data.notifications.total_sms}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-purple-500" />
+                    <PiEnvelopeBold className="h-4 w-4 text-purple-500" />
                     <span className="text-sm">Email: {data.notifications.total_email}</span>
                   </div>
                 </div>
@@ -570,22 +555,22 @@ export default function ARAnalyticsPage() {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                    <CheckCircle className="h-6 w-6 mx-auto text-green-500 mb-2" />
+                    <PiCheckCircleBold className="h-6 w-6 mx-auto text-green-500 mb-2" />
                     <div className="text-xl font-bold">{data.notifications.total_delivered}</div>
                     <p className="text-sm text-muted-foreground">Delivered</p>
                   </div>
                   <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-                    <XCircle className="h-6 w-6 mx-auto text-red-500 mb-2" />
+                    <PiXCircleBold className="h-6 w-6 mx-auto text-red-500 mb-2" />
                     <div className="text-xl font-bold">{data.notifications.total_failed}</div>
                     <p className="text-sm text-muted-foreground">Failed</p>
                   </div>
                   <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                    <Activity className="h-6 w-6 mx-auto text-blue-500 mb-2" />
+                    <PiActivityBold className="h-6 w-6 mx-auto text-blue-500 mb-2" />
                     <div className="text-xl font-bold">{data.notifications.delivery_rate.toFixed(1)}%</div>
                     <p className="text-sm text-muted-foreground">Delivery Rate</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                    <Calendar className="h-6 w-6 mx-auto text-purple-500 mb-2" />
+                    <PiCalendarBold className="h-6 w-6 mx-auto text-purple-500 mb-2" />
                     <div className="text-xl font-bold">{data.ar_aging.avg_days_overdue.toFixed(0)}</div>
                     <p className="text-sm text-muted-foreground">Avg Days Overdue</p>
                   </div>
@@ -627,11 +612,11 @@ export default function ARAnalyticsPage() {
                         <TableCell>
                           {notif.notification_type === 'sms' ? (
                             <Badge variant="outline" className="gap-1">
-                              <MessageSquare className="h-3 w-3" /> SMS
+                              <PiChatBold className="h-3 w-3" /> SMS
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="gap-1">
-                              <Mail className="h-3 w-3" /> Email
+                              <PiEnvelopeBold className="h-3 w-3" /> Email
                             </Badge>
                           )}
                         </TableCell>
@@ -730,7 +715,7 @@ export default function ARAnalyticsPage() {
           ) : (
             <Card>
               <CardContent className="py-10 text-center">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <PiCalendarBold className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">No historical data available yet</p>
                 <p className="text-sm text-muted-foreground mt-2">
                   Historical snapshots are created daily by the system

@@ -1,15 +1,9 @@
 'use client';
+import { PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  Package,
-  Zap,
-  MapPin,
-  Mail,
-  TrendingUp
-} from 'lucide-react';
 import { useOrderContext } from './context/OrderContext';
 
 export default function CompactOrderSummary() {
@@ -45,14 +39,14 @@ export default function CompactOrderSummary() {
       {/* Package Info */}
       <div className="space-y-2">
         <div className="flex items-start gap-2">
-          <Package className="h-4 w-4 text-circleTel-orange mt-0.5 flex-shrink-0" />
+          <PiPackageBold className="h-4 w-4 text-circleTel-orange mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm text-circleTel-navy truncate">
               {selectedPackage?.name || 'Package Not Selected'}
             </p>
             {selectedPackage?.speed && (
               <div className="flex items-center gap-1.5 mt-1">
-                <Zap className="h-3 w-3 text-circleTel-secondaryNeutral" />
+                <PiLightningBold className="h-3 w-3 text-circleTel-secondaryNeutral" />
                 <span className="text-xs text-circleTel-secondaryNeutral">
                   {selectedPackage.speed}
                 </span>
@@ -64,7 +58,7 @@ export default function CompactOrderSummary() {
         {/* Address */}
         {coverage?.address && (
           <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
+            <PiMapPinBold className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
             <p className="text-xs text-circleTel-secondaryNeutral line-clamp-2">
               {coverage.address}
             </p>
@@ -73,7 +67,7 @@ export default function CompactOrderSummary() {
 
         {/* Email */}
         <div className="flex items-start gap-2">
-          <Mail className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
+          <PiEnvelopeBold className="h-4 w-4 text-circleTel-secondaryNeutral mt-0.5 flex-shrink-0" />
           <p className="text-xs text-circleTel-secondaryNeutral truncate">
             {customerEmail}
           </p>
@@ -85,7 +79,7 @@ export default function CompactOrderSummary() {
       {/* Pricing */}
       <div className="space-y-2">
         <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-4 w-4 text-circleTel-orange" />
+          <PiTrendUpBold className="h-4 w-4 text-circleTel-orange" />
           <span className="text-xs font-medium text-circleTel-navy">Pricing</span>
         </div>
 

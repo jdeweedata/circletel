@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiBatteryFullBold, PiCheckBold, PiCloudBold, PiLightningBold, PiServerBold, PiShieldBold, PiStarBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Wifi, Server, Shield, ArrowRight, Star, Zap, Battery, Cloud } from 'lucide-react';
 
 const BusinessPro = () => {
   return (
@@ -23,7 +23,7 @@ const BusinessPro = () => {
                 {/* Text Content */}
                 <div className="w-full lg:w-1/2">
                   <Badge className="bg-circleTel-orange text-white mb-4">
-                    <Wifi className="h-4 w-4 mr-2" />
+                    <PiWifiBold className="h-4 w-4 mr-2" />
                     Business Pro Bundle
                   </Badge>
                   <h1 className="text-4xl md:text-5xl font-bold text-circleTel-navy mb-6">
@@ -44,11 +44,11 @@ const BusinessPro = () => {
 
                   <div className="flex items-center gap-4 text-sm text-circleTel-secondaryNeutral">
                     <div className="flex items-center">
-                      <Shield className="h-4 w-4 text-green-500 mr-1" />
+                      <PiShieldBold className="h-4 w-4 text-green-500 mr-1" />
                       <span>POPIA Compliant</span>
                     </div>
                     <div className="flex items-center">
-                      <Battery className="h-4 w-4 text-circleTel-orange mr-1" />
+                      <PiBatteryFullBold className="h-4 w-4 text-circleTel-orange mr-1" />
                       <span>Power Outage Ready</span>
                     </div>
                   </div>
@@ -116,7 +116,7 @@ const BusinessPro = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <Wifi className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiWifiBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">High-Speed Internet</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -126,7 +126,7 @@ const BusinessPro = () => {
 
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <Battery className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiBatteryFullBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">Power Resilience</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -136,7 +136,7 @@ const BusinessPro = () => {
 
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <Server className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiServerBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">IT Monitoring</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -146,7 +146,7 @@ const BusinessPro = () => {
 
                 <Card className="text-center hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <Cloud className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
+                    <PiCloudBold className="h-12 w-12 text-circleTel-orange mx-auto mb-4" />
                     <CardTitle className="text-lg">Secure Backup</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -169,7 +169,7 @@ const BusinessPro = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
-                    <Wifi className="h-5 w-5 text-circleTel-orange mr-2" />
+                    <PiWifiBold className="h-5 w-5 text-circleTel-orange mr-2" />
                     Connectivity Features
                   </h3>
                   <ul className="space-y-3">
@@ -182,7 +182,7 @@ const BusinessPro = () => {
                       "Redundant connectivity options"
                     ].map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <PiCheckBold className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="text-circleTel-secondaryNeutral">{feature}</span>
                       </li>
                     ))}
@@ -191,7 +191,7 @@ const BusinessPro = () => {
 
                 <div>
                   <h3 className="text-xl font-bold text-circleTel-navy mb-4 flex items-center">
-                    <Server className="h-5 w-5 text-circleTel-orange mr-2" />
+                    <PiServerBold className="h-5 w-5 text-circleTel-orange mr-2" />
                     IT Support Features
                   </h3>
                   <ul className="space-y-3">
@@ -204,7 +204,7 @@ const BusinessPro = () => {
                       "Security monitoring and alerts"
                     ].map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <PiCheckBold className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="text-circleTel-secondaryNeutral">{feature}</span>
                       </li>
                     ))}
@@ -222,7 +222,7 @@ const BusinessPro = () => {
               <Card className="bg-gradient-to-r from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20">
                 <CardContent className="p-8 text-center">
                   <Badge className="bg-circleTel-orange text-white mb-4">
-                    <Star className="h-4 w-4 mr-1" />
+                    <PiStarBold className="h-4 w-4 mr-1" />
                     Most Popular for SMEs
                   </Badge>
 
@@ -245,7 +245,7 @@ const BusinessPro = () => {
                     </Button>
                     <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                       <Link href="/resources/it-health">
-                        Free Assessment <ArrowRight className="ml-2 h-4 w-4" />
+                        Free Assessment <PiArrowRightBold className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </div>

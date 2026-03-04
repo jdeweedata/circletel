@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiGearBold, PiMagnifyingGlassBold, PiMapPinBold, PiMapTrifoldBold, PiSpinnerBold, PiStackBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,23 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Map,
-  MapPin,
-  Upload,
-  Download,
-  Trash2,
-  Eye,
-  FileText,
-  Layers,
-  Settings,
-  Search,
-  Filter,
-  RefreshCw,
-  CheckCircle,
-  X,
-  Loader2
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MapViewer } from '@/components/admin/coverage/MapViewer';
 
@@ -233,7 +217,7 @@ export default function CoverageMapsPage() {
             onClick={() => fileInputRef.current?.click()}
             className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
-            <Upload className="w-4 h-4 mr-2" />
+            <PiUploadSimpleBold className="w-4 h-4 mr-2" />
             Upload Map
           </Button>
         </div>
@@ -256,7 +240,7 @@ export default function CoverageMapsPage() {
                 onClick={handleCancelUpload}
                 disabled={uploading}
               >
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -264,14 +248,14 @@ export default function CoverageMapsPage() {
             {/* File Info */}
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-circleTel-orange" />
+                <PiFileTextBold className="h-8 w-8 text-circleTel-orange" />
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">{selectedFile?.name}</p>
                   <p className="text-sm text-gray-600">
                     {selectedFile && `${(selectedFile.size / 1024).toFixed(1)} KB`}
                   </p>
                 </div>
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-green-600" />
               </div>
             </div>
 
@@ -320,12 +304,12 @@ export default function CoverageMapsPage() {
               >
                 {uploading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                     Uploading...
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4 mr-2" />
+                    <PiUploadSimpleBold className="w-4 h-4 mr-2" />
                     Upload
                   </>
                 )}
@@ -351,7 +335,7 @@ export default function CoverageMapsPage() {
                 size="sm"
                 onClick={handleCloseView}
               >
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -400,11 +384,11 @@ export default function CoverageMapsPage() {
                 <h3 className="font-semibold text-gray-900">Map Preview</h3>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-xs">
-                    <MapPin className="h-3 w-3 mr-1" />
+                    <PiMapPinBold className="h-3 w-3 mr-1" />
                     {viewingMap.coverage.features} polygons
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    <Layers className="h-3 w-3 mr-1" />
+                    <PiStackBold className="h-3 w-3 mr-1" />
                     {viewingMap.type.toUpperCase()}
                   </Badge>
                 </div>
@@ -425,11 +409,11 @@ export default function CoverageMapsPage() {
               </Button>
               <div className="flex gap-2">
                 <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
+                  <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                   Download
                 </Button>
                 <Button variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
+                  <PiGearBold className="h-4 w-4 mr-2" />
                   Edit Details
                 </Button>
               </div>
@@ -443,7 +427,7 @@ export default function CoverageMapsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Maps</CardTitle>
-            <Map className="h-4 w-4 text-muted-foreground" />
+            <PiMapTrifoldBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{maps.length}</div>
@@ -456,7 +440,7 @@ export default function CoverageMapsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Features</CardTitle>
-            <Layers className="h-4 w-4 text-muted-foreground" />
+            <PiStackBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -471,7 +455,7 @@ export default function CoverageMapsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Maps</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <PiEyeBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -486,7 +470,7 @@ export default function CoverageMapsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Storage</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <PiFileTextBold className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">7.3 MB</div>
@@ -503,7 +487,7 @@ export default function CoverageMapsPage() {
           <div className="flex gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search maps..."
                   value={searchQuery}
@@ -525,7 +509,7 @@ export default function CoverageMapsPage() {
               </select>
             </div>
             <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
+              <PiFunnelBold className="w-4 h-4 mr-2" />
               Filter
             </Button>
           </div>
@@ -556,7 +540,7 @@ export default function CoverageMapsPage() {
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <div className="h-12 w-12 bg-circleTel-orange/10 rounded-lg flex items-center justify-center">
-                      <Map className="h-6 w-6 text-circleTel-orange" />
+                      <PiMapTrifoldBold className="h-6 w-6 text-circleTel-orange" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -568,15 +552,15 @@ export default function CoverageMapsPage() {
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
+                          <PiMapPinBold className="h-3 w-3" />
                           {map.provider}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Layers className="h-3 w-3" />
+                          <PiStackBold className="h-3 w-3" />
                           {map.coverage.features.toLocaleString()} features
                         </span>
                         <span className="flex items-center gap-1">
-                          <FileText className="h-3 w-3" />
+                          <PiFileTextBold className="h-3 w-3" />
                           {map.fileSize}
                         </span>
                         <span>Uploaded {map.uploadedAt}</span>
@@ -585,19 +569,19 @@ export default function CoverageMapsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => handleViewMap(map)}>
-                      <Eye className="h-4 w-4 mr-2" />
+                      <PiEyeBold className="h-4 w-4 mr-2" />
                       View
                     </Button>
                     <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
+                      <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                       Export
                     </Button>
                     <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4 mr-2" />
+                      <PiGearBold className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
                     <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="h-4 w-4" />
+                      <PiTrashBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingOfficeBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiGlobeBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Provider Detail Page
@@ -9,17 +10,6 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import {
-  BuildingOfficeIcon,
-  ArrowPathIcon,
-  GlobeAltIcon,
-  CogIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
-} from '@heroicons/react/24/outline';
 import type { CompetitorProduct, CompetitorScrapeLog } from '@/lib/competitor-analysis/types';
 
 interface ProviderDetailData {
@@ -162,16 +152,16 @@ export default function ProviderDetailPage({ params }: PageProps) {
               />
             ) : (
               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                <BuildingOfficeIcon className="w-8 h-8 text-gray-400" />
+                <PiBuildingOfficeBold className="w-8 h-8 text-gray-400" />
               </div>
             )}
             <div>
               <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 {provider.name}
                 {provider.is_active ? (
-                  <CheckCircleIcon className="w-6 h-6 text-green-500" />
+                  <PiCheckCircleBold className="w-6 h-6 text-green-500" />
                 ) : (
-                  <XCircleIcon className="w-6 h-6 text-gray-400" />
+                  <PiXCircleBold className="w-6 h-6 text-gray-400" />
                 )}
               </h1>
               <div className="flex items-center gap-4 mt-1 text-gray-500">
@@ -182,7 +172,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 hover:text-orange-600"
                 >
-                  <GlobeAltIcon className="w-4 h-4" />
+                  <PiGlobeBold className="w-4 h-4" />
                   {provider.website}
                 </a>
               </div>
@@ -194,7 +184,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
               disabled={isScraping || !provider.is_active}
               className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <ArrowPathIcon className={`w-5 h-5 ${isScraping ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`w-5 h-5 ${isScraping ? 'animate-spin' : ''}`} />
               {isScraping ? 'Scraping...' : 'Scrape Now'}
             </button>
           </div>
@@ -205,7 +195,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <CurrencyDollarIcon className="w-8 h-8 text-blue-500" />
+            <PiCurrencyDollarBold className="w-8 h-8 text-blue-500" />
             <div>
               <p className="text-2xl font-bold text-gray-900">{provider.current_products}</p>
               <p className="text-sm text-gray-500">Current Products</p>
@@ -214,7 +204,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <ChartBarIcon className="w-8 h-8 text-green-500" />
+            <PiChartBarBold className="w-8 h-8 text-green-500" />
             <div>
               <p className="text-2xl font-bold text-gray-900">
                 {provider.avg_monthly_price ? `R${Math.round(provider.avg_monthly_price)}` : '-'}
@@ -225,7 +215,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <CurrencyDollarIcon className="w-8 h-8 text-purple-500" />
+            <PiCurrencyDollarBold className="w-8 h-8 text-purple-500" />
             <div>
               <p className="text-2xl font-bold text-gray-900">
                 {provider.min_monthly_price && provider.max_monthly_price
@@ -238,7 +228,7 @@ export default function ProviderDetailPage({ params }: PageProps) {
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <ClockIcon className="w-8 h-8 text-orange-500" />
+            <PiClockBold className="w-8 h-8 text-orange-500" />
             <div>
               <p className="text-2xl font-bold text-gray-900 capitalize">{provider.scrape_frequency}</p>
               <p className="text-sm text-gray-500">Scrape Frequency</p>
@@ -429,7 +419,7 @@ function ConfigTab({
           <ul className="space-y-2">
             {scrapeUrls.map((url, i) => (
               <li key={i} className="flex items-center gap-2">
-                <GlobeAltIcon className="w-4 h-4 text-gray-400" />
+                <PiGlobeBold className="w-4 h-4 text-gray-400" />
                 <a
                   href={url}
                   target="_blank"

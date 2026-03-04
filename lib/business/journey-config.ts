@@ -1,3 +1,4 @@
+import { PiBuildingsBold, PiFileTextBold, PiLightningBold, PiMapPinBold, PiWrenchBold } from 'react-icons/pi';
 /**
  * B2B Business Journey Configuration
  *
@@ -7,15 +8,6 @@
  * @module lib/business/journey-config
  */
 
-import {
-  FileText,
-  Building2,
-  MapPin,
-  FileSignature,
-  Wrench,
-  Zap,
-  LucideIcon,
-} from 'lucide-react';
 
 // ============================================================================
 // Types
@@ -105,7 +97,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Submit your business details and service requirements to receive a customized quote.',
     adminDescription:
       'Customer has submitted a quote request. Review and prepare quote.',
-    icon: FileText,
+    icon: PiFileTextBold,
     requiredDocuments: [],
     nextAction: 'Submit quote request',
     estimatedDuration: '1-2 days',
@@ -121,7 +113,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Complete business verification by uploading your company registration documents and completing ID verification.',
     adminDescription:
       'Customer is completing KYC verification. Review submitted documents.',
-    icon: Building2,
+    icon: PiBuildingsBold,
     requiredDocuments: [
       {
         id: 'cipc_registration',
@@ -166,7 +158,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Provide details about your installation site including property type, access requirements, and preferred equipment location.',
     adminDescription:
       'Customer is providing site details. Schedule site survey if required.',
-    icon: MapPin,
+    icon: PiMapPinBold,
     requiredDocuments: [
       {
         id: 'site_photos',
@@ -239,7 +231,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Our certified technicians will install your fibre connection at the scheduled date and time.',
     adminDescription:
       'Installation scheduled. Assign technician and track progress.',
-    icon: Wrench,
+    icon: PiWrenchBold,
     requiredDocuments: [],
     nextAction: 'Schedule installation',
     estimatedDuration: '3-7 days',
@@ -255,7 +247,7 @@ export const B2B_JOURNEY_STAGES: JourneyStage[] = [
       'Your service is now active! Access your dashboard to manage your connection.',
     adminDescription:
       'Service activated. RICA submitted and credentials generated.',
-    icon: Zap,
+    icon: PiLightningBold,
     requiredDocuments: [],
     nextAction: 'Activate service',
     estimatedDuration: '1 day',

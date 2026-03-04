@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * KYC Upload Component Test Page
@@ -12,7 +13,6 @@ import { KycDocumentUpload } from '@/components/order/KycDocumentUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function KycUploadTestPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -74,14 +74,14 @@ export default function KycUploadTestPage() {
           <CardContent>
             {loading && (
               <div className="flex items-center gap-2 text-gray-600">
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <PiSpinnerBold className="h-5 w-5 animate-spin" />
                 <span>Creating test order...</span>
               </div>
             )}
 
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -89,7 +89,7 @@ export default function KycUploadTestPage() {
             {orderId && (
               <div className="space-y-4">
                 <Alert>
-                  <CheckCircle className="h-4 w-4" />
+                  <PiCheckCircleBold className="h-4 w-4" />
                   <AlertDescription>
                     <strong>Test Order Created:</strong> {orderId}
                     <br />

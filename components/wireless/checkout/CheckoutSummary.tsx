@@ -2,10 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { 
-  ShieldCheck, Wifi, Router, Truck, 
-  Tag, Info, Clock, CheckCircle 
-} from "lucide-react"
 
 interface OrderItem {
   name: string
@@ -98,7 +94,7 @@ export function CheckoutSummary() {
                   {orderDetails.package.speed} • {orderDetails.package.description}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <Tag className="w-3 h-3 text-green-600" />
+                  <PiTagBold className="w-3 h-3 text-green-600" />
                   <span className="text-xs text-green-600 font-medium">First month special</span>
                 </div>
               </div>
@@ -116,7 +112,7 @@ export function CheckoutSummary() {
             {orderDetails.addOns.router.included && (
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <Router className="w-4 h-4 text-green-600" />
+                  <PiRouterBold className="w-4 h-4 text-green-600" />
                   <span className="text-gray-600">5G Router</span>
                 </div>
                 <span className="text-green-600 font-medium">FREE (R{orderDetails.addOns.router.value} value)</span>
@@ -126,7 +122,7 @@ export function CheckoutSummary() {
             {orderDetails.addOns.installation.included && (
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-green-600" />
+                  <PiTruckBold className="w-4 h-4 text-green-600" />
                   <span className="text-gray-600">Professional Installation</span>
                 </div>
                 <span className="text-green-600 font-medium">FREE (R{orderDetails.addOns.installation.value} value)</span>
@@ -136,7 +132,7 @@ export function CheckoutSummary() {
             {orderDetails.addOns.insurance.selected && (
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-orange-600" />
+                  <PiShieldCheckBold className="w-4 h-4 text-orange-600" />
                   <span className="text-gray-600">Device Protection</span>
                 </div>
                 <span className="font-medium">R{orderDetails.addOns.insurance.price}/mo</span>
@@ -171,7 +167,7 @@ export function CheckoutSummary() {
           ) : (
             <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 <span className="text-sm font-medium text-green-800">
                   Promo code &quot;{promoCode}&quot; applied!
                 </span>
@@ -247,7 +243,7 @@ export function CheckoutSummary() {
       {/* Delivery Information */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
+          <PiClockBold className="w-5 h-5 text-blue-600 mt-0.5" />
           <div>
             <div className="font-semibold text-sm text-blue-900">Estimated Delivery</div>
             <div className="text-sm text-blue-700 mt-1">
@@ -263,7 +259,7 @@ export function CheckoutSummary() {
       {/* Help Section */}
       <div className="bg-gray-100 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-gray-600 mt-0.5" />
+          <PiInfoBold className="w-5 h-5 text-gray-600 mt-0.5" />
           <div>
             <div className="font-semibold text-sm text-gray-900">Need Help?</div>
             <div className="text-sm text-gray-600 mt-1">

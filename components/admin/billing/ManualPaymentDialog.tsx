@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiCreditCardBold, PiCurrencyDollarBold, PiFileTextBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -14,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, DollarSign, Calendar, FileText, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -118,7 +118,7 @@ export function ManualPaymentDialog({
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-green-600" />
+            <PiCurrencyDollarBold className="w-5 h-5 text-green-600" />
             Record Manual Payment
           </DialogTitle>
           <DialogDescription>
@@ -146,7 +146,7 @@ export function ManualPaymentDialog({
           {/* Payment Amount */}
           <div className="space-y-2">
             <Label htmlFor="amount" className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
+              <PiCurrencyDollarBold className="w-4 h-4" />
               Payment Amount (ZAR) <span className="text-red-500">*</span>
             </Label>
             <div className="relative">
@@ -167,7 +167,7 @@ export function ManualPaymentDialog({
           {/* Payment Method */}
           <div className="space-y-2">
             <Label htmlFor="payment_method" className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
+              <PiCreditCardBold className="w-4 h-4" />
               Payment Method <span className="text-red-500">*</span>
             </Label>
             <Select
@@ -190,7 +190,7 @@ export function ManualPaymentDialog({
           {/* Payment Reference */}
           <div className="space-y-2">
             <Label htmlFor="reference" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+              <PiFileTextBold className="w-4 h-4" />
               Payment Reference <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -206,7 +206,7 @@ export function ManualPaymentDialog({
           {/* Payment Date */}
           <div className="space-y-2">
             <Label htmlFor="payment_date" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+              <PiCalendarBold className="w-4 h-4" />
               Payment Date <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -243,12 +243,12 @@ export function ManualPaymentDialog({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Recording...
                 </>
               ) : (
                 <>
-                  <DollarSign className="w-4 h-4 mr-2" />
+                  <PiCurrencyDollarBold className="w-4 h-4 mr-2" />
                   Record Payment
                 </>
               )}

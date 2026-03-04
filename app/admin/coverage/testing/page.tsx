@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiClipboardBold, PiClockBold, PiLightningBold, PiMapPinBold, PiTestTubeBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { AlertCircle, CheckCircle, Clock, MapPin, TestTube, Zap, Clipboard } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
@@ -203,11 +203,11 @@ export default function CoverageTestingPage() {
   const getStatusIcon = (status: TestResult['status']) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <PiCheckCircleBold className="h-4 w-4 text-green-500" />;
       case 'error':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <PiWarningCircleBold className="h-4 w-4 text-red-500" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <PiClockBold className="h-4 w-4 text-yellow-500" />;
     }
   };
 
@@ -262,21 +262,21 @@ export default function CoverageTestingPage() {
             value="manual"
             className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
           >
-            <MapPin className="h-4 w-4" />
+            <PiMapPinBold className="h-4 w-4" />
             <span>Manual Testing</span>
           </TabsTrigger>
           <TabsTrigger
             value="automated"
             className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
           >
-            <TestTube className="h-4 w-4" />
+            <PiTestTubeBold className="h-4 w-4" />
             <span>Test Suite</span>
           </TabsTrigger>
           <TabsTrigger
             value="results"
             className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-[#F5831F] data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-[#F5831F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5831F] focus-visible:ring-offset-2"
           >
-            <Clipboard className="h-4 w-4" />
+            <PiClipboardBold className="h-4 w-4" />
             <span>Test Results</span>
           </TabsTrigger>
         </TabsList>
@@ -286,7 +286,7 @@ export default function CoverageTestingPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
+                  <PiMapPinBold className="h-5 w-5" />
                   Test Parameters
                 </CardTitle>
                 <CardDescription>
@@ -355,7 +355,7 @@ export default function CoverageTestingPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TestTube className="h-5 w-5" />
+                  <PiTestTubeBold className="h-5 w-5" />
                   Manual Tests
                 </CardTitle>
                 <CardDescription>
@@ -404,7 +404,7 @@ export default function CoverageTestingPage() {
                   className="w-full justify-start"
                   variant="secondary"
                 >
-                  <Zap className="h-4 w-4 mr-2" />
+                  <PiLightningBold className="h-4 w-4 mr-2" />
                   Run Full Test Suite
                 </Button>
               </CardContent>
@@ -422,7 +422,7 @@ export default function CoverageTestingPage() {
             </CardHeader>
             <CardContent>
               <Alert>
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>
                   Automated test suite will be implemented in a future update. This will include:
                   <ul className="mt-2 ml-4 list-disc list-inside space-y-1">
@@ -478,7 +478,7 @@ export default function CoverageTestingPage() {
 
                       {result.error && (
                         <Alert variant="destructive">
-                          <AlertCircle className="h-4 w-4" />
+                          <PiWarningCircleBold className="h-4 w-4" />
                           <AlertDescription>{result.error}</AlertDescription>
                         </Alert>
                       )}
@@ -497,7 +497,7 @@ export default function CoverageTestingPage() {
                                 copyToClipboard(result.data);
                               }}
                             >
-                              <Clipboard className="h-3 w-3 mr-1" />
+                              <PiClipboardBold className="h-3 w-3 mr-1" />
                               Copy
                             </Button>
                           </summary>

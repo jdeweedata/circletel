@@ -1,21 +1,9 @@
 'use client';
+import { PiActivityBold, PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiClockBold, PiUserBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  CheckCircle,
-  XCircle,
-  Clock,
-  RefreshCw,
-  Activity,
-  Webhook,
-  RotateCcw,
-  User,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-} from 'lucide-react';
 
 interface UnifiedLog {
   id: string;
@@ -59,16 +47,16 @@ export function IntegrationLogsTable({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return <PiCheckCircleBold className="w-4 h-4 text-green-600" />;
       case 'failed':
-        return <XCircle className="w-4 h-4 text-red-600" />;
+        return <PiXCircleBold className="w-4 h-4 text-red-600" />;
       case 'pending':
       case 'processing':
-        return <Clock className="w-4 h-4 text-yellow-600" />;
+        return <PiClockBold className="w-4 h-4 text-yellow-600" />;
       case 'retry':
-        return <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />;
+        return <PiArrowsClockwiseBold className="w-4 h-4 text-blue-600 animate-spin" />;
       default:
-        return <Activity className="w-4 h-4 text-gray-600" />;
+        return <PiActivityBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -91,13 +79,13 @@ export function IntegrationLogsTable({
   const getLogTypeIcon = (logType: string) => {
     switch (logType) {
       case 'activity':
-        return <User className="w-4 h-4 text-purple-600" />;
+        return <PiUserBold className="w-4 h-4 text-purple-600" />;
       case 'webhook':
-        return <Webhook className="w-4 h-4 text-blue-600" />;
+        return <PiWebhooksLogoBold className="w-4 h-4 text-blue-600" />;
       case 'sync':
-        return <RotateCcw className="w-4 h-4 text-orange-600" />;
+        return <PiArrowCounterClockwiseBold className="w-4 h-4 text-orange-600" />;
       default:
-        return <Activity className="w-4 h-4 text-gray-600" />;
+        return <PiActivityBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -137,7 +125,7 @@ export function IntegrationLogsTable({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -145,7 +133,7 @@ export function IntegrationLogsTable({
   if (logs.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <Activity className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <PiActivityBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
         <p className="font-medium mb-1">{emptyMessage}</p>
         <p className="text-sm">Logs will appear here when activity occurs</p>
       </div>
@@ -230,9 +218,9 @@ export function IntegrationLogsTable({
                     }}
                   >
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
+                      <PiCaretUpBold className="h-4 w-4" />
                     ) : (
-                      <ChevronDown className="h-4 w-4" />
+                      <PiCaretDownBold className="h-4 w-4" />
                     )}
                   </Button>
                 )}
@@ -251,7 +239,7 @@ export function IntegrationLogsTable({
                         {log.related_entity_type}: {log.related_entity_id.slice(0, 8)}...
                       </Badge>
                       <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                        <ExternalLink className="h-3 w-3 mr-1" />
+                        <PiArrowSquareOutBold className="h-3 w-3 mr-1" />
                         View
                       </Button>
                     </div>

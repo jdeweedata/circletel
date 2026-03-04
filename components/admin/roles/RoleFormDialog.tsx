@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PermissionSelector } from './PermissionSelector';
-import { Loader2, AlertCircle } from 'lucide-react';
 import type { RoleTemplate, CreateRoleInput, UpdateRoleInput, RoleDepartment, RoleLevel } from '@/lib/types/role';
 
 interface RoleFormDialogProps {
@@ -237,7 +237,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSuccess }: RoleForm
           {/* Error Alert */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <PiWarningCircleBold className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-semibold">Error</p>
                 <p className="text-sm">{error}</p>
@@ -387,7 +387,7 @@ export function RoleFormDialog({ open, onOpenChange, role, onSuccess }: RoleForm
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
               {isEditMode ? 'Update Role' : 'Create Role'}
             </Button>
           </DialogFooter>

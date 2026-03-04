@@ -2,7 +2,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { MessageSquarePlus, Clock } from 'lucide-react';
 
 const VirtualDesktopsCTA = () => {
   return (
@@ -15,14 +14,14 @@ const VirtualDesktopsCTA = () => {
           </p>
           <div className="flex justify-center mb-8">
             <div className="inline-flex items-center bg-circleTel-orange bg-opacity-10 rounded-full px-5 py-2">
-              <Clock size={18} className="text-circleTel-orange mr-2" />
+              <PiClockBold size={18} className="text-circleTel-orange mr-2" />
               <span className="text-circleTel-secondaryNeutral font-medium">Most implementations completed within 3-5 business days</span>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild className="primary-button flex items-center gap-2">
               <Link href="/contact">
-                <MessageSquarePlus size={18} />
+                <PiChatPlusBold size={18} />
                 Request a Demo
               </Link>
             </Button>

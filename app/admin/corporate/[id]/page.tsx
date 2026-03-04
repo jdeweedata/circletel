@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiGlobeBold, PiKeyBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiShieldBold, PiSparklesBold, PiTrendUpBold, PiUploadSimpleBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,31 +16,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import {
-  ArrowLeft,
-  Building2,
-  MapPin,
-  Users,
-  Phone,
-  Mail,
-  Plus,
-  Download,
-  Key,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  RefreshCw,
-  Upload,
-  Search,
-  Pencil,
-  Target,
-  FileText,
-  Calendar,
-  Globe,
-  Shield,
-  Sparkles,
-  TrendingUp,
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CorporateAccount {
@@ -123,7 +99,7 @@ function StatCard({
           <p className="text-3xl font-bold text-ui-text-primary tracking-tight">{value}</p>
           {trend && (
             <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3 h-3" />
+              <PiTrendUpBold className="w-3 h-3" />
               {trend}
             </p>
           )}
@@ -173,7 +149,7 @@ function ContactCard({
                 href={`mailto:${email}`}
                 className="inline-flex items-center gap-1.5 text-sm text-circleTel-orange hover:text-circleTel-warm-orange hover:underline transition-colors"
               >
-                <Mail className="w-3.5 h-3.5" />
+                <PiEnvelopeBold className="w-3.5 h-3.5" />
                 <span className="truncate">{email}</span>
               </a>
             )}
@@ -182,7 +158,7 @@ function ContactCard({
                 href={`tel:${phone}`}
                 className="inline-flex items-center gap-1.5 body-text hover:text-ui-text-primary transition-colors"
               >
-                <Phone className="w-3.5 h-3.5" />
+                <PiPhoneBold className="w-3.5 h-3.5" />
                 {phone}
               </a>
             )}
@@ -356,7 +332,7 @@ export default function CorporateDetailPage() {
           <div className="text-center">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
-              <Building2 className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+              <PiBuildingsBold className="w-6 h-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
             </div>
             <p className="text-slate-500 mt-6 font-medium">Loading corporate details...</p>
           </div>
@@ -372,12 +348,12 @@ export default function CorporateDetailPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="h-10 w-10 text-red-400" />
+              <PiWarningCircleBold className="h-10 w-10 text-red-400" />
             </div>
             <h2 className="text-xl font-semibold text-slate-900 mb-2">Corporate Not Found</h2>
             <p className="text-slate-500 mb-6">The corporate account you're looking for doesn't exist.</p>
             <Button onClick={() => router.push('/admin/corporate')} className="bg-orange-500 hover:bg-orange-600">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <PiArrowLeftBold className="h-4 w-4 mr-2" />
               Back to Corporates
             </Button>
           </div>
@@ -410,7 +386,7 @@ export default function CorporateDetailPage() {
               onClick={() => router.push('/admin/corporate')}
               className="rounded-xl hover:bg-white/80 shadow-sm border border-slate-100"
             >
-              <ArrowLeft className="h-5 w-5 text-slate-600" />
+              <PiArrowLeftBold className="h-5 w-5 text-slate-600" />
             </Button>
             <div>
               <div className="flex flex-wrap items-center gap-3 mb-2">
@@ -427,7 +403,7 @@ export default function CorporateDetailPage() {
               )}
               {corporate.industry && (
                 <div className="flex items-center gap-2 mt-2">
-                  <Globe className="w-4 h-4 text-ui-text-muted" />
+                  <PiGlobeBold className="w-4 h-4 text-ui-text-muted" />
                   <span className="muted-text">{corporate.industry}</span>
                 </div>
               )}
@@ -447,7 +423,7 @@ export default function CorporateDetailPage() {
               onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
               className="bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/25"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               Add Site
             </Button>
           </div>
@@ -494,21 +470,21 @@ export default function CorporateDetailPage() {
               value="overview"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
-              <Building2 className="w-4 h-4 mr-2" />
+              <PiBuildingsBold className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="sites"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
-              <MapPin className="w-4 h-4 mr-2" />
+              <PiMapPinBold className="w-4 h-4 mr-2" />
               Sites ({corporate.totalSites})
             </TabsTrigger>
             <TabsTrigger
               value="pppoe"
               className="rounded-lg data-[state=active]:bg-circleTel-orange data-[state=active]:text-white data-[state=active]:shadow-lg px-6 transition-all"
             >
-              <Key className="w-4 h-4 mr-2" />
+              <PiKeyBold className="w-4 h-4 mr-2" />
               PPPoE Credentials
             </TabsTrigger>
           </TabsList>
@@ -521,7 +497,7 @@ export default function CorporateDetailPage() {
                 <div className="p-6 border-b border-ui-border bg-gradient-to-r from-ui-bg to-white">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-sidebar to-ui-text-primary flex items-center justify-center">
-                      <Building2 className="w-5 h-5 text-white" />
+                      <PiBuildingsBold className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h3 className="section-heading text-lg">Company Details</h3>
@@ -549,7 +525,7 @@ export default function CorporateDetailPage() {
                     <div className="mt-6 pt-6 border-t border-ui-border">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-lg bg-circleTel-orange/10 flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-4 h-4 text-circleTel-orange" />
+                          <PiMapPinBold className="w-4 h-4 text-circleTel-orange" />
                         </div>
                         <div>
                           <p className="card-title mb-1">Headquarters</p>
@@ -575,7 +551,7 @@ export default function CorporateDetailPage() {
                 <div className="p-6 border-b border-ui-border bg-gradient-to-r from-circleTel-orange/10 to-white">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-circleTel-orange to-circleTel-warm-orange flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white" />
+                      <PiFileTextBold className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h3 className="section-heading text-lg">Contract</h3>
@@ -585,7 +561,7 @@ export default function CorporateDetailPage() {
                 </div>
                 <div className="p-6 space-y-4">
                   <div className="flex items-center gap-3 p-3 bg-ui-bg rounded-xl">
-                    <Calendar className="w-5 h-5 text-ui-text-muted" />
+                    <PiCalendarBold className="w-5 h-5 text-ui-text-muted" />
                     <div>
                       <p className="muted-text-sm">Contract Period</p>
                       <p className="font-medium text-ui-text-primary">
@@ -636,7 +612,7 @@ export default function CorporateDetailPage() {
               <div className="p-6 border-b border-ui-border bg-gradient-to-r from-blue-50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
+                    <PiUsersBold className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h3 className="section-heading text-lg">Contacts</h3>
@@ -685,7 +661,7 @@ export default function CorporateDetailPage() {
                 <div className="p-6 border-b border-ui-border">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ui-text-muted to-ui-text-secondary flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white" />
+                      <PiFileTextBold className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="section-heading text-lg">Notes</h3>
                   </div>
@@ -708,7 +684,7 @@ export default function CorporateDetailPage() {
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input
                         placeholder="Search sites..."
                         value={siteSearch}
@@ -722,14 +698,14 @@ export default function CorporateDetailPage() {
                       onClick={() => router.push(`/admin/corporate/${corporateId}/sites/bulk`)}
                       className="bg-white"
                     >
-                      <Upload className="h-4 w-4 mr-2" />
+                      <PiUploadSimpleBold className="h-4 w-4 mr-2" />
                       Bulk Import
                     </Button>
                     <Button
                       onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
                       className="bg-orange-500 hover:bg-orange-600"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <PiPlusBold className="h-4 w-4 mr-2" />
                       Add Site
                     </Button>
                   </div>
@@ -744,7 +720,7 @@ export default function CorporateDetailPage() {
               ) : sites.length === 0 ? (
                 <div className="text-center py-16">
                   <div className="w-16 h-16 bg-ui-bg rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="h-8 w-8 text-ui-text-muted" />
+                    <PiMapPinBold className="h-8 w-8 text-ui-text-muted" />
                   </div>
                   <h3 className="font-medium text-ui-text-primary mb-1">No sites found</h3>
                   <p className="muted-text mb-4">Start by adding your first site</p>
@@ -752,7 +728,7 @@ export default function CorporateDetailPage() {
                     onClick={() => router.push(`/admin/corporate/${corporateId}/sites/new`)}
                     className="bg-orange-500 hover:bg-orange-600"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PiPlusBold className="h-4 w-4 mr-2" />
                     Add Site
                   </Button>
                 </div>
@@ -863,7 +839,7 @@ export default function CorporateDetailPage() {
               <div className="p-6 border-b border-ui-border bg-gradient-to-r from-green-50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                    <Key className="w-5 h-5 text-white" />
+                    <PiKeyBold className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h3 className="section-heading text-lg">PPPoE Credential Management</h3>
@@ -880,12 +856,12 @@ export default function CorporateDetailPage() {
                   >
                     {generatingCredentials ? (
                       <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                         Generating...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-4 w-4 mr-2" />
+                        <PiSparklesBold className="h-4 w-4 mr-2" />
                         Generate Missing Credentials
                       </>
                     )}
@@ -898,12 +874,12 @@ export default function CorporateDetailPage() {
                   >
                     {exportingCredentials ? (
                       <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                         Exporting...
                       </>
                     ) : (
                       <>
-                        <Download className="h-4 w-4 mr-2" />
+                        <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                         Export Credentials CSV
                       </>
                     )}
@@ -911,7 +887,7 @@ export default function CorporateDetailPage() {
                 </div>
 
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <PiWarningCircleBold className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-800 text-sm">Security Notice</p>
                     <p className="text-sm text-amber-700 mt-1">
@@ -960,12 +936,12 @@ export default function CorporateDetailPage() {
                           <TableCell>
                             {site.pppoeCredentialId ? (
                               <Badge className="bg-emerald-50 text-emerald-700 border-0">
-                                <CheckCircle className="h-3 w-3 mr-1" />
+                                <PiCheckCircleBold className="h-3 w-3 mr-1" />
                                 Generated
                               </Badge>
                             ) : (
                               <Badge className="bg-slate-100 text-slate-600 border-0">
-                                <Clock className="h-3 w-3 mr-1" />
+                                <PiClockBold className="h-3 w-3 mr-1" />
                                 Pending
                               </Badge>
                             )}

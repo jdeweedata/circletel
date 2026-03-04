@@ -1,8 +1,8 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -65,7 +65,7 @@ export default function ShareableQuotePage({ params }: Props) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Quote...</h2>
           <p className="text-gray-600">Please wait while we retrieve your quote.</p>
         </div>

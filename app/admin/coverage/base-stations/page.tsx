@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiDownloadSimpleBold, PiMapTrifoldBold, PiRadioBold, PiWarningBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BaseStationStats } from '@/components/admin/coverage/BaseStationStats';
 import { BaseStationTable } from '@/components/admin/coverage/BaseStationTable';
-import { Radio, Map, RefreshCw, AlertTriangle, Download } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -268,7 +268,7 @@ export default function BaseStationsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Radio className="h-8 w-8 text-orange-600" />
+              <PiRadioBold className="h-8 w-8 text-orange-600" />
               Tarana Base Stations
             </h1>
             <p className="text-gray-600 mt-1">
@@ -294,7 +294,7 @@ export default function BaseStationsPage() {
               disabled={syncStatus === 'pending' || syncStatus === 'running'}
               variant="outline"
             >
-              <RefreshCw
+              <PiArrowsClockwiseBold
                 className={`h-4 w-4 mr-2 ${
                   syncStatus === 'pending' || syncStatus === 'running' ? 'animate-spin' : ''
                 }`}
@@ -303,16 +303,16 @@ export default function BaseStationsPage() {
             </Button>
 
             <Button onClick={fetchData} disabled={loading} variant="outline">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Button onClick={exportToCSV} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
+              <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
             <Link href="/admin/coverage/base-stations/map">
               <Button className="bg-orange-500 hover:bg-orange-600">
-                <Map className="h-4 w-4 mr-2" />
+                <PiMapTrifoldBold className="h-4 w-4 mr-2" />
                 View Map
               </Button>
             </Link>
@@ -322,7 +322,7 @@ export default function BaseStationsPage() {
         {/* Error Alert */}
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <PiWarningBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
@@ -340,7 +340,7 @@ export default function BaseStationsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Radio className="h-5 w-5" />
+              <PiRadioBold className="h-5 w-5" />
               Base Station Directory
             </CardTitle>
             <CardDescription>

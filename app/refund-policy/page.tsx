@@ -1,5 +1,5 @@
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 import Link from 'next/link';
-import { DollarSign, Calendar, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 export const metadata = {
   title: 'Refund & Cancellation Policy | CircleTel',
@@ -13,7 +13,7 @@ export default function RefundPolicyPage() {
       <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
-            <DollarSign className="h-12 w-12" />
+            <PiCurrencyDollarBold className="h-12 w-12" />
             <h1 className="text-4xl md:text-5xl font-extrabold">Refund & Cancellation Policy</h1>
           </div>
           <p className="text-xl opacity-95 max-w-2xl">
@@ -32,7 +32,7 @@ export default function RefundPolicyPage() {
         <section className="mb-12">
           <div className="bg-green-50 border-l-4 border-green-500 p-6 mb-8">
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+              <PiCheckCircleBold className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
               <div>
                 <h2 className="text-xl font-bold text-green-900 mb-2">30-Day Money-Back Guarantee</h2>
                 <p className="text-green-800">
@@ -59,7 +59,7 @@ export default function RefundPolicyPage() {
             {/* Eligible for Refund */}
             <div className="bg-green-50 border-2 border-green-300 rounded-lg p-6">
               <div className="flex items-center gap-3 mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <PiCheckCircleBold className="h-8 w-8 text-green-600" />
                 <h3 className="text-xl font-bold text-green-900">✓ Eligible for Refund</h3>
               </div>
               <ul className="space-y-3 text-green-900">
@@ -89,7 +89,7 @@ export default function RefundPolicyPage() {
             {/* NOT Eligible for Refund */}
             <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
               <div className="flex items-center gap-3 mb-4">
-                <XCircle className="h-8 w-8 text-red-600" />
+                <PiXCircleBold className="h-8 w-8 text-red-600" />
                 <h3 className="text-xl font-bold text-red-900">✗ NOT Eligible for Refund</h3>
               </div>
               <ul className="space-y-3 text-red-900">
@@ -132,7 +132,7 @@ export default function RefundPolicyPage() {
         {/* Section 2: 30-Day Money-Back Guarantee */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <Calendar className="h-8 w-8 text-circleTel-orange" />
+            <PiCalendarBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">2. 30-Day Money-Back Guarantee</h2>
           </div>
 
@@ -210,7 +210,7 @@ export default function RefundPolicyPage() {
         {/* Section 4: Notice Periods */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <Clock className="h-8 w-8 text-circleTel-orange" />
+            <PiClockBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">4. Notice Periods & Effective Dates</h2>
           </div>
 
@@ -306,7 +306,7 @@ export default function RefundPolicyPage() {
         {/* Section 6: Refund Processing */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <DollarSign className="h-8 w-8 text-circleTel-orange" />
+            <PiCurrencyDollarBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">6. Refund Processing</h2>
           </div>
 
@@ -388,7 +388,7 @@ export default function RefundPolicyPage() {
         {/* Section 8: Exceptions and Special Cases */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <AlertCircle className="h-8 w-8 text-circleTel-orange" />
+            <PiWarningCircleBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">8. Exceptions and Special Cases</h2>
           </div>
 
@@ -461,7 +461,7 @@ export default function RefundPolicyPage() {
         {/* Contact Footer */}
         <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white rounded-lg p-8 mt-12">
           <div className="flex items-center gap-3 mb-4">
-            <DollarSign className="h-8 w-8" />
+            <PiCurrencyDollarBold className="h-8 w-8" />
             <h3 className="text-2xl font-bold">Cancellation & Refund Support</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiShieldBold, PiUserBold, PiWarningCircleBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,18 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Shield,
-  User,
-  Building2,
-  FileText,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Mail,
-  X,
-  Camera
-} from 'lucide-react';
 
 interface KYCSession {
   id: string;
@@ -188,7 +177,7 @@ export function KYCDetailPanel({
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield className="h-6 w-6 text-circleTel-orange" />
+              <PiShieldBold className="h-6 w-6 text-circleTel-orange" />
               KYC Details
             </h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -196,7 +185,7 @@ export function KYCDetailPanel({
             </p>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-5 w-5" />
+            <PiXBold className="h-5 w-5" />
           </Button>
         </div>
 
@@ -206,7 +195,7 @@ export function KYCDetailPanel({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="h-5 w-5 text-circleTel-orange" />
+                <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
                 Quote Information
               </CardTitle>
             </CardHeader>
@@ -232,7 +221,7 @@ export function KYCDetailPanel({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5 text-circleTel-orange" />
+                <PiUserBold className="h-5 w-5 text-circleTel-orange" />
                 Extracted Data
               </CardTitle>
             </CardHeader>
@@ -302,7 +291,7 @@ export function KYCDetailPanel({
                   <div className="space-y-2">
                     {session.extracted_data.aml_flags.map((flag, index) => (
                       <Badge key={index} className="bg-red-100 text-red-800">
-                        <AlertCircle className="h-3 w-3 mr-1" />
+                        <PiWarningCircleBold className="h-3 w-3 mr-1" />
                         {flag}
                       </Badge>
                     ))}
@@ -323,7 +312,7 @@ export function KYCDetailPanel({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Shield className="h-5 w-5 text-circleTel-orange" />
+                <PiShieldBold className="h-5 w-5 text-circleTel-orange" />
                 Risk Assessment
               </CardTitle>
             </CardHeader>
@@ -393,7 +382,7 @@ export function KYCDetailPanel({
                     disabled={isProcessing}
                     className="bg-green-600 hover:bg-green-700 text-white w-full"
                   >
-                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <PiCheckCircleBold className="h-4 w-4 mr-2" />
                     Approve KYC
                   </Button>
                   <Button
@@ -402,7 +391,7 @@ export function KYCDetailPanel({
                     variant="outline"
                     className="w-full"
                   >
-                    <Mail className="h-4 w-4 mr-2" />
+                    <PiEnvelopeBold className="h-4 w-4 mr-2" />
                     Request More Info
                   </Button>
                   <Button
@@ -411,7 +400,7 @@ export function KYCDetailPanel({
                     variant="destructive"
                     className="w-full"
                   >
-                    <XCircle className="h-4 w-4 mr-2" />
+                    <PiXCircleBold className="h-4 w-4 mr-2" />
                     Decline KYC
                   </Button>
                 </div>

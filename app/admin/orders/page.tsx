@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiArrowsClockwiseBold, PiArrowsDownUpBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiLightningBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiShoppingCartBold, PiTrashBold, PiWarningCircleBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -14,32 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ShoppingCart,
-  Search,
-  Eye,
-  RefreshCw,
-  Download,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Package,
-  AlertCircle,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  ChevronLeft,
-  ChevronRight,
-  Trash2,
-  CheckSquare,
-  CreditCard,
-  CalendarCheck,
-  Wrench,
-  Zap,
-  MoreVertical,
-  Edit,
-  Filter,
-} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -249,11 +224,11 @@ export default function AdminOrdersPageEnhanced() {
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="h-3 w-3 ml-1 inline opacity-50" />;
+      return <PiArrowsDownUpBold className="h-3 w-3 ml-1 inline opacity-50" />;
     }
     return sortDirection === 'asc'
-      ? <ArrowUp className="h-3 w-3 ml-1 inline text-circleTel-orange" />
-      : <ArrowDown className="h-3 w-3 ml-1 inline text-circleTel-orange" />;
+      ? <PiArrowUpBold className="h-3 w-3 ml-1 inline text-circleTel-orange" />
+      : <PiArrowDownBold className="h-3 w-3 ml-1 inline text-circleTel-orange" />;
   };
 
   const toggleSelectAll = () => {
@@ -305,15 +280,15 @@ export default function AdminOrdersPageEnhanced() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string; icon: any }> = {
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock },
-      payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: CreditCard },
-      payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: CheckCircle },
+      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: PiClockBold },
+      payment_method_pending: { label: 'Payment Pending', className: 'bg-orange-100 text-orange-800 border-orange-200', icon: PiCreditCardBold },
+      payment_method_registered: { label: 'Payment Ready', className: 'bg-blue-100 text-blue-800 border-blue-200', icon: PiCheckCircleBold },
       installation_scheduled: { label: 'Installation Scheduled', className: 'bg-purple-100 text-purple-800 border-purple-200', icon: CalendarCheck },
-      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: Wrench },
-      installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: CheckCircle },
-      active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: Zap },
-      cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200', icon: XCircle },
-      completed: { label: 'Completed', className: 'bg-gray-100 text-gray-800 border-gray-200', icon: Package }
+      installation_in_progress: { label: 'Installing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: PiWrenchBold },
+      installation_completed: { label: 'Installation Done', className: 'bg-teal-100 text-teal-800 border-teal-200', icon: PiCheckCircleBold },
+      active: { label: 'Active', className: 'bg-green-100 text-green-800 border-green-200', icon: PiLightningBold },
+      cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200', icon: PiXCircleBold },
+      completed: { label: 'Completed', className: 'bg-gray-100 text-gray-800 border-gray-200', icon: PiPackageBold }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -385,7 +360,7 @@ export default function AdminOrdersPageEnhanced() {
     {
       title: 'Total Orders',
       value: stats.total,
-      icon: ShoppingCart,
+      icon: PiShoppingCartBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       onClick: () => handleStatCardClick('all')
@@ -393,7 +368,7 @@ export default function AdminOrdersPageEnhanced() {
     {
       title: 'Pending',
       value: stats.pending,
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       onClick: () => handleStatCardClick('pending')
@@ -401,7 +376,7 @@ export default function AdminOrdersPageEnhanced() {
     {
       title: 'Active',
       value: stats.active,
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       onClick: () => handleStatCardClick('active')
@@ -409,7 +384,7 @@ export default function AdminOrdersPageEnhanced() {
     {
       title: 'Total Revenue',
       value: `R${stats.totalRevenue.toLocaleString()}`,
-      icon: Package,
+      icon: PiPackageBold,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       onClick: () => setStatusFilter('active')
@@ -465,7 +440,7 @@ export default function AdminOrdersPageEnhanced() {
             onClick={fetchOrders}
             className="flex items-center gap-2"
           >
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             Refresh
           </Button>
           <Button
@@ -474,7 +449,7 @@ export default function AdminOrdersPageEnhanced() {
             onClick={handleExport}
             className="flex items-center gap-2"
           >
-            <Download className="h-4 w-4" />
+            <PiDownloadSimpleBold className="h-4 w-4" />
             Export CSV
           </Button>
         </div>
@@ -507,7 +482,7 @@ export default function AdminOrdersPageEnhanced() {
       <Card className="bg-ui-card border-ui-border">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-ui-text-primary flex items-center gap-2">
-            <Filter className="h-4 w-4 text-circleTel-orange" />
+            <PiFunnelBold className="h-4 w-4 text-circleTel-orange" />
             Quick Filters - Orders Requiring Action
           </CardTitle>
         </CardHeader>
@@ -519,7 +494,7 @@ export default function AdminOrdersPageEnhanced() {
               onClick={() => handleQuickFilter('needs_payment')}
               className="flex items-center gap-2"
             >
-              <CreditCard className="h-4 w-4" />
+              <PiCreditCardBold className="h-4 w-4" />
               Needs Payment Method
               {quickFilterCounts.needsPayment > 0 && (
                 <Badge className="ml-1 bg-orange-100 text-orange-800 border-orange-200">
@@ -549,7 +524,7 @@ export default function AdminOrdersPageEnhanced() {
               onClick={() => handleQuickFilter('installation_today')}
               className="flex items-center gap-2"
             >
-              <Clock className="h-4 w-4" />
+              <PiClockBold className="h-4 w-4" />
               Installation Scheduled
               {quickFilterCounts.installationToday > 0 && (
                 <Badge className="ml-1 bg-purple-100 text-purple-800 border-purple-200">
@@ -564,7 +539,7 @@ export default function AdminOrdersPageEnhanced() {
               onClick={() => handleQuickFilter('in_progress')}
               className="flex items-center gap-2"
             >
-              <Wrench className="h-4 w-4" />
+              <PiWrenchBold className="h-4 w-4" />
               In Progress
               {quickFilterCounts.inProgress > 0 && (
                 <Badge className="ml-1 bg-green-100 text-green-800 border-green-200">
@@ -593,7 +568,7 @@ export default function AdminOrdersPageEnhanced() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ui-text-muted" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ui-text-muted" />
                 <Input
                   placeholder="Search by order number, name, email, or phone..."
                   value={searchQuery}
@@ -640,7 +615,7 @@ export default function AdminOrdersPageEnhanced() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5 text-blue-600" />
+                <PiCheckSquareBold className="h-5 w-5 text-blue-600" />
                 <span className="font-medium text-blue-900">
                   {selectedOrders.size} order{selectedOrders.size > 1 ? 's' : ''} selected
                 </span>
@@ -659,7 +634,7 @@ export default function AdminOrdersPageEnhanced() {
                   onClick={handleBulkDelete}
                   className="flex items-center gap-2"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <PiTrashBold className="h-4 w-4" />
                   Delete Selected
                 </Button>
               </div>
@@ -695,7 +670,7 @@ export default function AdminOrdersPageEnhanced() {
         <CardContent>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-ui-text-muted mx-auto mb-4" />
+              <PiWarningCircleBold className="h-12 w-12 text-ui-text-muted mx-auto mb-4" />
               <p className="body-text font-medium">No orders found</p>
               <p className="muted-text-sm mt-1">
                 {searchQuery || statusFilter !== 'all' || paymentStatusFilter !== 'all' || quickFilter
@@ -801,7 +776,7 @@ export default function AdminOrdersPageEnhanced() {
                           <div className="flex items-center justify-end gap-2">
                             <Link href={`/admin/orders/${order.id}`}>
                               <Button variant="outline" size="sm" className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" />
+                                <PiEyeBold className="h-3 w-3" />
                                 View
                               </Button>
                             </Link>
@@ -809,22 +784,22 @@ export default function AdminOrdersPageEnhanced() {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                  <MoreVertical className="h-4 w-4" />
+                                  <PiDotsThreeVerticalBold className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleQuickAction(order, 'view')}>
-                                  <Eye className="h-4 w-4 mr-2" />
+                                  <PiEyeBold className="h-4 w-4 mr-2" />
                                   View Details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleQuickAction(order, 'status')}>
-                                  <Edit className="h-4 w-4 mr-2" />
+                                  <PiPencilSimpleBold className="h-4 w-4 mr-2" />
                                   Update Status
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 {order.status === 'pending' && (
                                   <DropdownMenuItem onClick={() => handleQuickAction(order, 'payment')}>
-                                    <CreditCard className="h-4 w-4 mr-2" />
+                                    <PiCreditCardBold className="h-4 w-4 mr-2" />
                                     Request Payment Method
                                   </DropdownMenuItem>
                                 )}
@@ -836,7 +811,7 @@ export default function AdminOrdersPageEnhanced() {
                                 )}
                                 {order.status === 'installation_completed' && (
                                   <DropdownMenuItem onClick={() => handleQuickAction(order, 'activate')}>
-                                    <Zap className="h-4 w-4 mr-2" />
+                                    <PiLightningBold className="h-4 w-4 mr-2" />
                                     Activate Service
                                   </DropdownMenuItem>
                                 )}
@@ -881,7 +856,7 @@ export default function AdminOrdersPageEnhanced() {
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <PiCaretLeftBold className="h-4 w-4" />
                       Previous
                     </Button>
 
@@ -918,7 +893,7 @@ export default function AdminOrdersPageEnhanced() {
                       disabled={currentPage === totalPages}
                     >
                       Next
-                      <ChevronRight className="h-4 w-4" />
+                      <PiCaretRightBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckCircleBold, PiMapPinBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
-import { CheckCircle, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -82,13 +82,13 @@ export function CoverageCheckBanner({
     return (
       <div className={cn("bg-amber-400 rounded-xl p-6", className)}>
         <div className="flex items-start gap-3">
-          <CheckCircle className="h-6 w-6 text-circleTel-navy flex-shrink-0 mt-0.5" />
+          <PiCheckCircleBold className="h-6 w-6 text-circleTel-navy flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-bold text-circleTel-navy text-lg">
               Great! You have both {servicesList} Home Internet in your area.
             </h3>
             <p className="text-circleTel-navy/80 mt-1 flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
+              <PiMapPinBold className="h-4 w-4" />
               {coverageResult.address}
             </p>
             <button
@@ -108,7 +108,7 @@ export function CoverageCheckBanner({
     return (
       <div className={cn("bg-red-50 border border-red-200 rounded-xl p-6", className)}>
         <div className="flex items-start gap-3">
-          <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
+          <PiWarningCircleBold className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-bold text-red-700 text-lg">
               Coverage not available
@@ -134,7 +134,7 @@ export function CoverageCheckBanner({
       <h3 className="font-bold text-gray-900 mb-4">Check coverage at your address</h3>
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMapPinBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Enter your street address"
             value={address}
@@ -151,7 +151,7 @@ export function CoverageCheckBanner({
         >
           {coverageStatus === 'checking' ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               Checking...
             </>
           ) : (

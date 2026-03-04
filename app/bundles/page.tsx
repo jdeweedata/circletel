@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCaretDownBold, PiCheckBold, PiClockBold, PiHeadphonesBold, PiLightningBold, PiPhoneBold, PiShieldBold, PiSparklesBold, PiStarBold, PiTrendUpBold, PiUsersBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -6,22 +7,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Check,
-  X,
-  Zap,
-  Shield,
-  Headphones,
-  ArrowRight,
-  Star,
-  TrendingUp,
-  Clock,
-  Users,
-  Building2,
-  Sparkles,
-  ChevronDown,
-  Phone
-} from 'lucide-react';
 
 // Bundle data with conversion-focused structure
 const bundles = [
@@ -104,16 +89,16 @@ const bundles = [
 
 // Comparison features for table
 const comparisonFeatures = [
-  { key: 'support', label: 'IT Support Hours', icon: Headphones },
-  { key: 'users', label: 'Microsoft 365 Users', icon: Users },
-  { key: 'internet', label: 'Internet Speed', icon: Zap },
-  { key: 'backup', label: 'Backup Connection', icon: Shield },
-  { key: 'wifi', label: 'Wi-Fi Coverage', icon: Building2 },
-  { key: 'security', label: 'Security Level', icon: Shield },
-  { key: 'onsite', label: 'On-site Support', icon: Users },
-  { key: 'voip', label: 'VoIP Phone System', icon: Phone },
-  { key: 'sla', label: 'Response Time SLA', icon: Clock },
-  { key: 'manager', label: 'Dedicated Account Manager', icon: Star },
+  { key: 'support', label: 'IT Support Hours', icon: PiHeadphonesBold },
+  { key: 'users', label: 'Microsoft 365 Users', icon: PiUsersBold },
+  { key: 'internet', label: 'Internet Speed', icon: PiLightningBold },
+  { key: 'backup', label: 'Backup Connection', icon: PiShieldBold },
+  { key: 'wifi', label: 'Wi-Fi Coverage', icon: PiBuildingsBold },
+  { key: 'security', label: 'Security Level', icon: PiShieldBold },
+  { key: 'onsite', label: 'On-site Support', icon: PiUsersBold },
+  { key: 'voip', label: 'VoIP Phone System', icon: PiPhoneBold },
+  { key: 'sla', label: 'Response Time SLA', icon: PiClockBold },
+  { key: 'manager', label: 'Dedicated Account Manager', icon: PiStarBold },
 ];
 
 // Testimonials
@@ -212,11 +197,11 @@ export default function BundlesPage() {
             {/* Trust badge */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm text-white/90">
-                <Sparkles className="h-4 w-4 text-circleTel-orange" />
+                <PiSparklesBold className="h-4 w-4 text-circleTel-orange" />
                 <span>Trusted by 200+ South African businesses</span>
                 <div className="flex -space-x-1 ml-2">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 fill-circleTel-orange text-circleTel-orange" />
+                    <PiStarBold key={i} className="h-3.5 w-3.5 fill-circleTel-orange text-circleTel-orange" />
                   ))}
                 </div>
               </div>
@@ -256,7 +241,7 @@ export default function BundlesPage() {
                 >
                   <Link href="#bundles">
                     View Bundles
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <PiArrowRightBold className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
@@ -266,7 +251,7 @@ export default function BundlesPage() {
                   className="border-white/30 text-white hover:bg-white/10 font-semibold px-8 py-6 text-lg"
                 >
                   <Link href="/contact">
-                    <Phone className="mr-2 h-5 w-5" />
+                    <PiPhoneBold className="mr-2 h-5 w-5" />
                     Talk to an Expert
                   </Link>
                 </Button>
@@ -289,7 +274,7 @@ export default function BundlesPage() {
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
               {['Manufacturing', 'Logistics', 'Professional Services', 'Retail', 'Healthcare'].map((industry, i) => (
                 <div key={i} className="flex items-center gap-2 text-slate-600">
-                  <Building2 className="h-5 w-5" />
+                  <PiBuildingsBold className="h-5 w-5" />
                   <span className="font-medium text-sm">{industry}</span>
                 </div>
               ))}
@@ -398,11 +383,11 @@ export default function BundlesPage() {
                       {/* Key Features */}
                       <div className="flex-1 space-y-3 mb-6">
                         {[
-                          { icon: Headphones, text: bundle.features.support },
-                          { icon: Users, text: `${bundle.features.users} Microsoft 365` },
-                          { icon: Zap, text: bundle.features.internet },
-                          { icon: Shield, text: bundle.features.security },
-                          { icon: Clock, text: bundle.features.sla }
+                          { icon: PiHeadphonesBold, text: bundle.features.support },
+                          { icon: PiUsersBold, text: `${bundle.features.users} Microsoft 365` },
+                          { icon: PiLightningBold, text: bundle.features.internet },
+                          { icon: PiShieldBold, text: bundle.features.security },
+                          { icon: PiClockBold, text: bundle.features.sla }
                         ].map((feature, i) => (
                           <div key={i} className="flex items-center gap-3 text-sm">
                             <div className={`p-1.5 rounded-lg ${
@@ -429,7 +414,7 @@ export default function BundlesPage() {
                       >
                         <Link href={bundle.ctaLink}>
                           {bundle.cta}
-                          <ArrowRight className="ml-2 h-4 w-4" />
+                          <PiArrowRightBold className="ml-2 h-4 w-4" />
                         </Link>
                       </Button>
                     </div>
@@ -446,7 +431,7 @@ export default function BundlesPage() {
               <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                 <Link href="/contact?type=custom">
                   Build Custom Bundle
-                  <Sparkles className="ml-2 h-4 w-4" />
+                  <PiSparklesBold className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -499,9 +484,9 @@ export default function BundlesPage() {
                           }`}>
                             {typeof value === 'boolean' ? (
                               value ? (
-                                <Check className="h-5 w-5 text-green-500 mx-auto" />
+                                <PiCheckBold className="h-5 w-5 text-green-500 mx-auto" />
                               ) : (
-                                <X className="h-5 w-5 text-slate-300 mx-auto" />
+                                <PiXBold className="h-5 w-5 text-slate-300 mx-auto" />
                               )
                             ) : (
                               <span className="text-sm text-slate-700 font-medium">{value}</span>
@@ -538,7 +523,7 @@ export default function BundlesPage() {
                   {/* Metric badge */}
                   <div className="absolute -top-4 right-6">
                     <Badge className="bg-green-100 text-green-700 font-semibold px-3 py-1">
-                      <TrendingUp className="h-3 w-3 mr-1" />
+                      <PiTrendUpBold className="h-3 w-3 mr-1" />
                       {testimonial.metric}
                     </Badge>
                   </div>
@@ -546,7 +531,7 @@ export default function BundlesPage() {
                   {/* Stars */}
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-circleTel-orange text-circleTel-orange" />
+                      <PiStarBold key={i} className="h-4 w-4 fill-circleTel-orange text-circleTel-orange" />
                     ))}
                   </div>
 
@@ -595,7 +580,7 @@ export default function BundlesPage() {
                       className="w-full p-6 text-left flex items-center justify-between hover:bg-slate-50 transition-colors"
                     >
                       <span className="font-semibold text-slate-900 pr-4">{faq.q}</span>
-                      <ChevronDown
+                      <PiCaretDownBold
                         className={`h-5 w-5 text-slate-400 flex-shrink-0 transition-transform ${
                           expandedFaq === index ? 'rotate-180' : ''
                         }`}
@@ -642,7 +627,7 @@ export default function BundlesPage() {
                 >
                   <Link href="/contact">
                     Get Started Today
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <PiArrowRightBold className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
@@ -676,7 +661,7 @@ export default function BundlesPage() {
           </Button>
           <Button asChild variant="outline" className="flex-1">
             <Link href="/contact">
-              <Phone className="mr-2 h-4 w-4" />
+              <PiPhoneBold className="mr-2 h-4 w-4" />
               Call Us
             </Link>
           </Button>

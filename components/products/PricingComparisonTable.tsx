@@ -1,8 +1,8 @@
 'use client'
+import { PiCheckBold, PiXBold } from 'react-icons/pi';
 
 import { PricingTableSection, PricingTableColumn } from '@/lib/types/strapi'
 import { Button } from '@/components/ui/button'
-import { Check, X } from 'lucide-react'
 import Link from 'next/link'
 
 interface PricingComparisonTableProps {
@@ -69,17 +69,17 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                       <li key={featureIndex} className="flex items-start gap-2">
                         {feature.startsWith('✓') || feature.startsWith('✔') ? (
                           <>
-                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <PiCheckBold className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-sm text-circleTel-navy">{feature.replace(/^[✓✔]\s*/, '')}</span>
                           </>
                         ) : feature.startsWith('✗') || feature.startsWith('×') ? (
                           <>
-                            <X className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                            <PiXBold className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" />
                             <span className="text-sm text-gray-400">{feature.replace(/^[✗×]\s*/, '')}</span>
                           </>
                         ) : (
                           <>
-                            <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <PiCheckBold className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-sm text-circleTel-navy">{feature}</span>
                           </>
                         )}
@@ -165,17 +165,17 @@ export function PricingComparisonTable({ section }: PricingComparisonTableProps)
                   <li key={featureIndex} className="flex items-start gap-2">
                     {feature.startsWith('✓') || feature.startsWith('✔') ? (
                       <>
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <PiCheckBold className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-circleTel-navy">{feature.replace(/^[✓✔]\s*/, '')}</span>
                       </>
                     ) : feature.startsWith('✗') || feature.startsWith('×') ? (
                       <>
-                        <X className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                        <PiXBold className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-gray-400">{feature.replace(/^[✗×]\s*/, '')}</span>
                       </>
                     ) : (
                       <>
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <PiCheckBold className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-circleTel-navy">{feature}</span>
                       </>
                     )}

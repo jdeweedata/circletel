@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingOfficeBold } from 'react-icons/pi';
 
 /**
  * Price Comparison Table Component
@@ -8,12 +9,6 @@
  */
 
 import { useState, useMemo } from 'react';
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon,
-  BuildingOfficeIcon,
-} from '@heroicons/react/24/outline';
 import type { PriceComparisonResult } from '@/lib/competitor-analysis/types';
 
 interface PriceComparisonTableProps {
@@ -297,7 +292,7 @@ function ComparisonRow({ comparison, yourPrice }: ComparisonRowProps) {
             />
           ) : (
             <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-              <BuildingOfficeIcon className="w-4 h-4 text-gray-400" />
+              <PiBuildingOfficeBold className="w-4 h-4 text-gray-400" />
             </div>
           )}
           <span className="font-medium text-gray-900">{comparison.competitor_name}</span>

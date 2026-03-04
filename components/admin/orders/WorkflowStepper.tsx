@@ -1,6 +1,6 @@
 'use client';
+import { PiCheckBold, PiCircleBold } from 'react-icons/pi';
 
-import { Check, Circle, LucideIcon } from 'lucide-react';
 
 export interface WorkflowStep {
   id: number;
@@ -59,7 +59,7 @@ export function WorkflowStepper({ steps, currentStatus, onStepClick }: WorkflowS
                 {/* Completion Badge */}
                 {isCompleted && (
                   <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                    <Check size={12} className="text-white" strokeWidth={3} />
+                    <PiCheckBold size={12} className="text-white" strokeWidth={3} />
                   </div>
                 )}
               </div>

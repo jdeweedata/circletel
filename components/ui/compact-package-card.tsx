@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckBold, PiInfinityBold, PiInfoBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowDown, ArrowUp, Check, Infinity, Info } from 'lucide-react';
 import { ProviderLogo } from '@/components/products/ProviderLogo';
 import {
   Tooltip,
@@ -224,12 +224,12 @@ export function CompactPackageCard({
               )}>
                 {/* Phase 3: Infinity icon for uncapped */}
                 {type === 'uncapped' ? (
-                  <Infinity className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
+                  <PiInfinityBold className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
                 ) : (
-                  <Check className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
+                  <PiCheckBold className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
                 )}
                 <span>{type}</span>
-                <Info className="w-3 h-3 md:w-3.5 md:h-3.5 ml-0.5 opacity-70" aria-hidden="true" />
+                <PiInfoBold className="w-3 h-3 md:w-3.5 md:h-3.5 ml-0.5 opacity-70" aria-hidden="true" />
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className={cn('max-w-[200px]', selected ? 'bg-gray-900 text-white' : 'bg-white text-gray-900')}>
@@ -282,13 +282,13 @@ export function CompactPackageCard({
             <div className="flex gap-4 items-center justify-center md:justify-start">
               {/* Download Speed */}
               <div className="flex items-center gap-1.5" title={`Download: ${downloadSpeed}${speedUnit}`}>
-                <ArrowDown className="w-4 h-4 md:w-5 md:h-5 drop-shadow-sm" aria-hidden="true" />
+                <PiArrowDownBold className="w-4 h-4 md:w-5 md:h-5 drop-shadow-sm" aria-hidden="true" />
                 <span className="text-sm md:text-base font-bold drop-shadow-sm">{downloadSpeed}{speedUnit}</span>
               </div>
 
               {/* Upload Speed */}
               <div className="flex items-center gap-1.5" title={`Upload: ${uploadSpeed}${speedUnit}`}>
-                <ArrowUp className="w-4 h-4 md:w-5 md:h-5 drop-shadow-sm" aria-hidden="true" />
+                <PiArrowUpBold className="w-4 h-4 md:w-5 md:h-5 drop-shadow-sm" aria-hidden="true" />
                 <span className="text-sm md:text-base font-bold drop-shadow-sm">{uploadSpeed}{speedUnit}</span>
               </div>
             </div>
@@ -324,7 +324,7 @@ export function CompactPackageCard({
         >
           {selected ? (
             <span className="flex items-center justify-center gap-2">
-              <Check className="w-4 h-4" aria-hidden="true" />
+              <PiCheckBold className="w-4 h-4" aria-hidden="true" />
               <span>Selected</span>
             </span>
           ) : (

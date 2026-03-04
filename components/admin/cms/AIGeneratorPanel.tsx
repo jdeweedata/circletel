@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiFileTextBold, PiImageBold, PiMagicWandBold, PiMagnifyingGlassBold, PiSparklesBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - AI Generator Panel
@@ -12,20 +13,6 @@ import { cn } from '@/lib/utils';
 import { usePageBuilderStore, selectSelectedBlock } from '@/lib/cms/store';
 import { BLOCK_DEFINITIONS } from '@/lib/cms/block-registry';
 import type { BlockType, ContentType, RateLimitStatus } from '@/lib/cms/types';
-import {
-  Sparkles,
-  Wand2,
-  Image as ImageIcon,
-  FileText,
-  Search,
-  Loader2,
-  AlertCircle,
-  CheckCircle,
-  RefreshCw,
-  Lightbulb,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
 
 // ============================================
 // Types
@@ -330,7 +317,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-orange-500" />
+        <PiSparklesBold className="w-5 h-5 text-orange-500" />
         <h3 className="font-medium text-gray-900">AI Content Generator</h3>
       </div>
 
@@ -345,7 +332,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
               onClick={() => setShowUsageDetails(!showUsageDetails)}
               className="text-sm text-orange-600 hover:text-orange-700"
             >
-              {showUsageDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {showUsageDetails ? <PiCaretUpBold className="w-4 h-4" /> : <PiCaretDownBold className="w-4 h-4" />}
             </button>
           </div>
 
@@ -382,27 +369,27 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
         <ModeButton
           active={mode === 'block'}
           onClick={() => setMode('block')}
-          icon={<Wand2 className="w-4 h-4" />}
+          icon={<PiMagicWandBold className="w-4 h-4" />}
           label="Block"
           disabled={!selectedBlock}
         />
         <ModeButton
           active={mode === 'full_page'}
           onClick={() => setMode('full_page')}
-          icon={<FileText className="w-4 h-4" />}
+          icon={<PiFileTextBold className="w-4 h-4" />}
           label="Full Page"
         />
         <ModeButton
           active={mode === 'enhance'}
           onClick={() => setMode('enhance')}
-          icon={<Sparkles className="w-4 h-4" />}
+          icon={<PiSparklesBold className="w-4 h-4" />}
           label="Enhance"
           disabled={!selectedBlock}
         />
         <ModeButton
           active={mode === 'seo'}
           onClick={() => setMode('seo')}
-          icon={<Search className="w-4 h-4" />}
+          icon={<PiMagnifyingGlassBold className="w-4 h-4" />}
           label="SEO"
         />
         <ModeButton
@@ -510,14 +497,14 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
       {/* Error/Success messages */}
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+          <PiWarningCircleBold className="w-4 h-4 text-red-500 flex-shrink-0" />
           <span className="text-sm text-red-700">{error}</span>
         </div>
       )}
 
       {success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+          <PiCheckCircleBold className="w-4 h-4 text-green-500 flex-shrink-0" />
           <span className="text-sm text-green-700">{success}</span>
         </div>
       )}
@@ -553,12 +540,12 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
       >
         {isGenerating ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <PiSpinnerBold className="w-4 h-4 animate-spin" />
             Generating...
           </>
         ) : (
           <>
-            <Sparkles className="w-4 h-4" />
+            <PiSparklesBold className="w-4 h-4" />
             {mode === 'suggestions' ? 'Get Ideas' : 'Generate'}
           </>
         )}
@@ -569,7 +556,7 @@ export function AIGeneratorPanel({ className }: AIGeneratorPanelProps) {
         onClick={fetchUsageStatus}
         className="w-full px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1"
       >
-        <RefreshCw className="w-3 h-3" />
+        <PiArrowsClockwiseBold className="w-3 h-3" />
         Refresh usage status
       </button>
 

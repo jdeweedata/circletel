@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsDownUpBold, PiCheckCircleBold, PiFunnelBold, PiPackageBold, PiSparklesBold, PiSpinnerBold, PiStarBold } from 'react-icons/pi';
 
 /**
  * Step 3: Package Selection
@@ -7,15 +8,6 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  Package,
-  Sparkles,
-  Loader2,
-  CheckCircle2,
-  Star,
-  Filter,
-  ArrowUpDown,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -219,12 +211,12 @@ export function PackageSelectionStep({
         >
           {isLoadingRecs ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               Loading...
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 mr-2" />
+              <PiSparklesBold className="h-4 w-4 mr-2" />
               Get AI Recommendations
             </>
           )}
@@ -256,7 +248,7 @@ export function PackageSelectionStep({
       {/* Filters */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
+          <PiFunnelBold className="h-4 w-4 text-gray-400" />
           <Select value={filterSpeed} onValueChange={setFilterSpeed}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filter by speed" />
@@ -271,7 +263,7 @@ export function PackageSelectionStep({
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <ArrowUpDown className="h-4 w-4 text-gray-400" />
+          <PiArrowsDownUpBold className="h-4 w-4 text-gray-400" />
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Sort by" />
@@ -288,12 +280,12 @@ export function PackageSelectionStep({
       {/* Packages Grid */}
       {isLoadingPackages ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
           <span className="ml-2 text-gray-500">Loading packages...</span>
         </div>
       ) : displayPackages.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <Package className="h-12 w-12 mx-auto text-gray-300" />
+          <PiPackageBold className="h-12 w-12 mx-auto text-gray-300" />
           <p className="mt-4 text-gray-500">No packages available</p>
         </div>
       ) : (
@@ -318,7 +310,7 @@ export function PackageSelectionStep({
                 {hasRec && (
                   <div className="absolute -top-2 -right-2">
                     <Badge className="bg-amber-500 text-white">
-                      <Star className="h-3 w-3 mr-1 fill-current" />
+                      <PiStarBold className="h-3 w-3 mr-1 fill-current" />
                       {pkg.recommendation?.confidence}%
                     </Badge>
                   </div>
@@ -327,7 +319,7 @@ export function PackageSelectionStep({
                 {/* Selected Indicator */}
                 {isSelected && (
                   <div className="absolute top-2 left-2">
-                    <CheckCircle2 className="h-5 w-5 text-circleTel-orange" />
+                    <PiCheckCircleBold className="h-5 w-5 text-circleTel-orange" />
                   </div>
                 )}
 
@@ -386,7 +378,7 @@ export function PackageSelectionStep({
       {data.selected_packages.length > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <PiCheckCircleBold className="h-5 w-5 text-green-600" />
             <span className="font-medium text-green-800">
               {data.selected_packages.length} package(s) selected
             </span>

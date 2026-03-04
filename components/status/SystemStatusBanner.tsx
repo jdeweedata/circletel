@@ -1,6 +1,6 @@
 'use client'
+import { PiCheckCircleBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 
 type OverallStatus = 'operational' | 'degraded' | 'outage'
 
@@ -11,7 +11,7 @@ interface SystemStatusBannerProps {
 
 const statusConfig = {
   operational: {
-    icon: CheckCircle,
+    icon: PiCheckCircleBold,
     text: 'All Systems Operational',
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200',
@@ -19,7 +19,7 @@ const statusConfig = {
     iconColor: 'text-green-600',
   },
   degraded: {
-    icon: AlertTriangle,
+    icon: PiWarningBold,
     text: 'Some Systems Experiencing Issues',
     bgColor: 'bg-yellow-50',
     borderColor: 'border-yellow-200',
@@ -27,7 +27,7 @@ const statusConfig = {
     iconColor: 'text-yellow-600',
   },
   outage: {
-    icon: XCircle,
+    icon: PiXCircleBold,
     text: 'Major System Outage',
     bgColor: 'bg-red-50',
     borderColor: 'border-red-200',

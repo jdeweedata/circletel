@@ -1,4 +1,5 @@
 'use client';
+import { PiCalculatorBold, PiCopyBold, PiCpuBold, PiDotsThreeBold, PiFileTextBold, PiHardDriveBold, PiHeadphonesBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiServerBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,23 +35,6 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Plus,
-  Trash2,
-  Edit2,
-  Calculator,
-  TrendingUp,
-  Package,
-  Server,
-  Cpu,
-  HardDrive,
-  Headphones,
-  Wrench,
-  FileText,
-  MoreHorizontal,
-  Copy,
-  Loader2,
-} from 'lucide-react';
 
 // Types
 export interface CostComponent {
@@ -121,15 +105,15 @@ interface ProductCostBreakdownProps {
 
 // Category configuration
 const CATEGORY_CONFIG: Record<CostComponentCategory, { label: string; icon: React.ReactNode; color: string }> = {
-  provider: { label: 'Provider/Wholesale', icon: <Package className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
-  infrastructure: { label: 'Infrastructure', icon: <Server className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
-  platform: { label: 'Platform/BSS', icon: <Cpu className="h-4 w-4" />, color: 'bg-indigo-100 text-indigo-800' },
-  hardware: { label: 'Hardware/CPE', icon: <HardDrive className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
-  addon_service: { label: 'Add-on Service', icon: <Plus className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
-  support: { label: 'Support', icon: <Headphones className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
-  installation: { label: 'Installation', icon: <Wrench className="h-4 w-4" />, color: 'bg-red-100 text-red-800' },
-  licensing: { label: 'Licensing', icon: <FileText className="h-4 w-4" />, color: 'bg-cyan-100 text-cyan-800' },
-  other: { label: 'Other', icon: <MoreHorizontal className="h-4 w-4" />, color: 'bg-gray-100 text-gray-800' },
+  provider: { label: 'Provider/Wholesale', icon: <PiPackageBold className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
+  infrastructure: { label: 'Infrastructure', icon: <PiServerBold className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
+  platform: { label: 'Platform/BSS', icon: <PiCpuBold className="h-4 w-4" />, color: 'bg-indigo-100 text-indigo-800' },
+  hardware: { label: 'Hardware/CPE', icon: <PiHardDriveBold className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
+  addon_service: { label: 'Add-on Service', icon: <PiPlusBold className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
+  support: { label: 'Support', icon: <PiHeadphonesBold className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
+  installation: { label: 'Installation', icon: <PiWrenchBold className="h-4 w-4" />, color: 'bg-red-100 text-red-800' },
+  licensing: { label: 'Licensing', icon: <PiFileTextBold className="h-4 w-4" />, color: 'bg-cyan-100 text-cyan-800' },
+  other: { label: 'Other', icon: <PiDotsThreeBold className="h-4 w-4" />, color: 'bg-gray-100 text-gray-800' },
 };
 
 const RECURRENCE_LABELS: Record<CostRecurrenceType, string> = {
@@ -393,7 +377,7 @@ export function ProductCostBreakdown({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -404,7 +388,7 @@ export function ProductCostBreakdown({
       <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-green-800">
-            <TrendingUp className="h-5 w-5" />
+            <PiTrendUpBold className="h-5 w-5" />
             Cost & Margin Analysis
           </CardTitle>
           <CardDescription>
@@ -476,7 +460,7 @@ export function ProductCostBreakdown({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-blue-600" />
+                <PiCalculatorBold className="h-5 w-5 text-blue-600" />
                 Cost Components
               </CardTitle>
               <CardDescription>
@@ -487,7 +471,7 @@ export function ProductCostBreakdown({
               <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
-                    <Copy className="h-4 w-4 mr-2" />
+                    <PiCopyBold className="h-4 w-4 mr-2" />
                     Apply Template
                   </Button>
                 </DialogTrigger>
@@ -536,7 +520,7 @@ export function ProductCostBreakdown({
                       });
                     }}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PiPlusBold className="h-4 w-4 mr-2" />
                     Add Component
                   </Button>
                 </DialogTrigger>
@@ -556,7 +540,7 @@ export function ProductCostBreakdown({
         <CardContent>
           {components.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <Calculator className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <PiCalculatorBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p>No cost components defined yet.</p>
               <p className="text-sm">Add components or apply a template to get started.</p>
             </div>
@@ -630,7 +614,7 @@ export function ProductCostBreakdown({
                               setIsDialogOpen(true);
                             }}
                           >
-                            <Edit2 className="h-4 w-4" />
+                            <PiPencilSimpleBold className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -638,7 +622,7 @@ export function ProductCostBreakdown({
                             className="text-red-500 hover:text-red-700"
                             onClick={() => component.id && handleDeleteComponent(component.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <PiTrashBold className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -965,7 +949,7 @@ function CostComponentDialog({ component, onSave, onCancel, saving }: CostCompon
           >
             {saving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
               </>
             ) : (

@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiCheckCircleBold, PiClockBold, PiFileTextBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Customer KYC Dashboard
@@ -11,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { KYCUploadForm } from '@/components/dashboard/KYCUploadForm'
-import { AlertCircle, CheckCircle2, Clock, FileText, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Order {
@@ -130,12 +130,12 @@ export default function KYCPage() {
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <Alert className="border-yellow-200 bg-yellow-50">
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <PiWarningCircleBold className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">{error}</AlertDescription>
           </Alert>
           <div className="mt-6">
             <Button onClick={() => router.push('/dashboard')} variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <PiArrowLeftBold className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
           </div>
@@ -154,7 +154,7 @@ export default function KYCPage() {
             variant="ghost"
             className="mb-4"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
 
@@ -187,12 +187,12 @@ export default function KYCPage() {
                   <p className="text-sm text-gray-500">KYC Status</p>
                   {allDocsUploaded ? (
                     <p className="font-medium text-green-600 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <PiCheckCircleBold className="w-4 h-4" />
                       Complete
                     </p>
                   ) : (
                     <p className="font-medium text-yellow-600 flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
+                      <PiClockBold className="w-4 h-4" />
                       Pending
                     </p>
                   )}
@@ -213,9 +213,9 @@ export default function KYCPage() {
               {/* ID Document */}
               <div className="flex items-center gap-3 p-3 border rounded-lg">
                 {hasIdDocument ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0" />
                 ) : (
-                  <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                  <PiClockBold className="w-5 h-5 text-yellow-600 flex-shrink-0" />
                 )}
                 <div className="flex-1">
                   <p className="font-medium">1. Proof of Identity</p>
@@ -233,9 +233,9 @@ export default function KYCPage() {
               {/* Address Document */}
               <div className="flex items-center gap-3 p-3 border rounded-lg">
                 {hasAddressDocument ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0" />
                 ) : (
-                  <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                  <PiClockBold className="w-5 h-5 text-yellow-600 flex-shrink-0" />
                 )}
                 <div className="flex-1">
                   <p className="font-medium">2. Proof of Address</p>
@@ -256,7 +256,7 @@ export default function KYCPage() {
         {/* Error Alert */}
         {error && (
           <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
+            <PiWarningCircleBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
@@ -288,7 +288,7 @@ export default function KYCPage() {
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                   >
                     <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-gray-400" />
+                      <PiFileTextBold className="w-5 h-5 text-gray-400" />
                       <div>
                         <p className="font-medium text-sm">{doc.file_name}</p>
                         <p className="text-xs text-gray-500 capitalize">

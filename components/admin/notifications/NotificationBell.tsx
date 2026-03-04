@@ -1,4 +1,5 @@
 'use client';
+import { PiBellBold } from 'react-icons/pi';
 
 /**
  * CircleTel Notification System - Notification Bell Component
@@ -8,7 +9,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -135,7 +135,7 @@ export function NotificationBell() {
           className="relative"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
-          <Bell className="h-5 w-5" />
+          <PiBellBold className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"

@@ -1,7 +1,7 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiChartBarBold, PiGearBold, PiKeyBold, PiSpinnerBold, PiWebhooksLogoBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Loader2, XCircle, Activity, Key, Webhook, BarChart3, Cog } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -133,7 +133,7 @@ export default function IntegrationsPage() {
       <div className="flex items-center justify-center min-h-screen bg-[#f7f8fa]">
         <Card className="shadow-lg">
           <CardContent className="p-12 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+            <PiSpinnerBold className="h-12 w-12 animate-spin text-circleTel-orange mx-auto mb-4" />
             <p className="text-muted-foreground">Loading integrations...</p>
           </CardContent>
         </Card>
@@ -148,14 +148,14 @@ export default function IntegrationsPage() {
         <Card className="max-w-md shadow-lg">
           <CardHeader>
             <div className="flex items-center gap-2 text-destructive">
-              <XCircle className="h-5 w-5" />
+              <PiXCircleBold className="h-5 w-5" />
               <CardTitle>Error Loading Integrations</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={handleRefresh} variant="outline" className="w-full">
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Try Again
             </Button>
           </CardContent>
@@ -183,7 +183,7 @@ export default function IntegrationsPage() {
           size="default"
           className="shadow-sm"
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </header>
@@ -192,27 +192,27 @@ export default function IntegrationsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full max-w-4xl grid-cols-6 bg-white shadow-sm p-1">
           <TabsTrigger value="all" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <Activity className="h-4 w-4 mr-2" />
+            <PiActivityBold className="h-4 w-4 mr-2" />
             All
           </TabsTrigger>
           <TabsTrigger value="health" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <BarChart3 className="h-4 w-4 mr-2" />
+            <PiChartBarBold className="h-4 w-4 mr-2" />
             Health
           </TabsTrigger>
           <TabsTrigger value="keys" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <Key className="h-4 w-4 mr-2" />
+            <PiKeyBold className="h-4 w-4 mr-2" />
             API Keys
           </TabsTrigger>
           <TabsTrigger value="webhooks" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <Webhook className="h-4 w-4 mr-2" />
+            <PiWebhooksLogoBold className="h-4 w-4 mr-2" />
             Webhooks
           </TabsTrigger>
           <TabsTrigger value="zoho-sync" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Zoho Sync
           </TabsTrigger>
           <TabsTrigger value="config" className="data-[state=active]:bg-circleTel-orange data-[state=active]:text-white">
-            <Cog className="h-4 w-4 mr-2" />
+            <PiGearBold className="h-4 w-4 mr-2" />
             Config
           </TabsTrigger>
         </TabsList>
@@ -281,7 +281,7 @@ export default function IntegrationsPage() {
               <CardContent className="p-12 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                    <Activity className="h-8 w-8 text-muted-foreground" />
+                    <PiActivityBold className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <p className="text-muted-foreground font-medium">No integrations found matching your filters</p>
                   <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
@@ -360,7 +360,7 @@ function HealthDashboardContent({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-circleTel-orange" />
+          <PiChartBarBold className="h-5 w-5 text-circleTel-orange" />
           Integration Health Dashboard
         </CardTitle>
         <CardDescription>Visual monitoring and health trends for all integrations</CardDescription>
@@ -437,7 +437,7 @@ function HealthDashboardContent({
           <CardContent>
             {integrations.filter(i => i.consecutive_failures >= 3 || i.health_status === 'down').length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Activity className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                <PiActivityBold className="h-8 w-8 mx-auto mb-2 text-green-500" />
                 <p>All integrations are healthy!</p>
               </div>
             ) : (
@@ -447,7 +447,7 @@ function HealthDashboardContent({
                   .map(integration => (
                     <div key={integration.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <XCircle className="h-4 w-4 text-red-600" />
+                        <PiXCircleBold className="h-4 w-4 text-red-600" />
                         <div>
                           <p className="font-medium text-sm">{integration.name}</p>
                           <p className="text-xs text-muted-foreground">
@@ -474,7 +474,7 @@ function ApiKeysContent({ integrations }: { integrations: Integration[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Key className="h-5 w-5 text-circleTel-orange" />
+          <PiKeyBold className="h-5 w-5 text-circleTel-orange" />
           API Keys & Credentials
         </CardTitle>
         <CardDescription>Manage API keys, OAuth credentials, and authentication secrets</CardDescription>
@@ -527,7 +527,7 @@ function WebhooksContent({ integrations }: { integrations: Integration[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Webhook className="h-5 w-5 text-circleTel-orange" />
+          <PiWebhooksLogoBold className="h-5 w-5 text-circleTel-orange" />
           Webhook Events & Logs
         </CardTitle>
         <CardDescription>Recent webhook deliveries and event history</CardDescription>
@@ -536,7 +536,7 @@ function WebhooksContent({ integrations }: { integrations: Integration[] }) {
         <div className="space-y-4">
           {integrations.filter(i => i.has_webhook).length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Webhook className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <PiWebhooksLogoBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p className="font-medium mb-1">No webhook integrations configured</p>
               <p className="text-sm">Configure webhooks in the integration settings to see events here</p>
             </div>
@@ -549,7 +549,7 @@ function WebhooksContent({ integrations }: { integrations: Integration[] }) {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-circleTel-orange/10 to-circleTel-orange/5 border border-circleTel-orange/20 flex items-center justify-center">
-                          <Webhook className="h-5 w-5 text-circleTel-orange" />
+                          <PiWebhooksLogoBold className="h-5 w-5 text-circleTel-orange" />
                         </div>
                         <div>
                           <p className="font-medium">{integration.name}</p>
@@ -579,7 +579,7 @@ function ConfigurationContent() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Cog className="h-5 w-5 text-circleTel-orange" />
+          <PiGearBold className="h-5 w-5 text-circleTel-orange" />
           Global Configuration
         </CardTitle>
         <CardDescription>System-wide integration settings and preferences</CardDescription>
@@ -643,7 +643,7 @@ function ConfigurationContent() {
           </CardHeader>
           <CardContent>
             <div className="text-center py-8 text-muted-foreground">
-              <Cog className="h-8 w-8 mx-auto mb-2" />
+              <PiGearBold className="h-8 w-8 mx-auto mb-2" />
               <p className="text-sm">Rate limiting configuration coming soon</p>
             </div>
           </CardContent>

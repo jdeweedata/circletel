@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold } from 'react-icons/pi';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { urlFor } from '@/lib/sanity/image';
 
@@ -81,7 +81,7 @@ export function HeroBlock({
           >
             <Link href={cta.href}>
               {cta.label}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         )}

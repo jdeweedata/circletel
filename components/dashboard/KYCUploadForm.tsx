@@ -1,4 +1,5 @@
 'use client'
+import { PiCheckCircleBold, PiFileBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Unified KYC Document Upload Form
@@ -6,7 +7,6 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react'
-import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -290,7 +290,7 @@ export function KYCUploadForm({
           {/* Selected Document Info */}
           {selectedDocInfo && (
             <Alert>
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>
                 <strong>{selectedDocInfo.description}</strong>
                 <br />
@@ -314,7 +314,7 @@ export function KYCUploadForm({
                 }
               `}
             >
-              <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <PiUploadSimpleBold className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <p className="text-lg font-medium text-gray-700 mb-2">
                 Drag and drop files here
               </p>
@@ -388,13 +388,13 @@ export function KYCUploadForm({
                   {/* Status Icon */}
                   <div className="flex-shrink-0">
                     {fileItem.uploaded && (
-                      <CheckCircle className="w-6 h-6 text-green-600" />
+                      <PiCheckCircleBold className="w-6 h-6 text-green-600" />
                     )}
                     {fileItem.uploading && (
-                      <Loader2 className="w-6 h-6 text-circleTel-orange animate-spin" />
+                      <PiSpinnerBold className="w-6 h-6 text-circleTel-orange animate-spin" />
                     )}
                     {fileItem.error && (
-                      <AlertCircle className="w-6 h-6 text-red-600" />
+                      <PiWarningCircleBold className="w-6 h-6 text-red-600" />
                     )}
                     {!fileItem.uploaded && !fileItem.uploading && !fileItem.error && (
                       <Button
@@ -415,7 +415,7 @@ export function KYCUploadForm({
                     className="flex-shrink-0 text-gray-400 hover:text-red-600 transition-colors"
                     disabled={fileItem.uploading}
                   >
-                    <X className="w-5 h-5" />
+                    <PiXBold className="w-5 h-5" />
                   </button>
                 </div>
               ))}
@@ -432,7 +432,7 @@ export function KYCUploadForm({
                 >
                   {hasUploadingFiles ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                       Uploading...
                     </>
                   ) : (
@@ -445,7 +445,7 @@ export function KYCUploadForm({
             {/* Success Message */}
             {allFilesUploaded && (
               <Alert className="mt-6 border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
                   All files uploaded successfully! Your documents will be reviewed by our compliance team within 1-2 business days.
                 </AlertDescription>

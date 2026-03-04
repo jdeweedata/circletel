@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, Shield, Headphones, TruckIcon } from "lucide-react"
 
 export function WirelessHero() {
   return (
@@ -14,7 +13,7 @@ export function WirelessHero() {
         <div className="text-center max-w-4xl mx-auto">
           {/* Trust Badge */}
           <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-circleTel-orange/10 text-circleTel-orange border-circleTel-orange/20">
-            <Star className="w-4 h-4 mr-2 fill-current text-circleTel-orange" />
+            <PiStarBold className="w-4 h-4 mr-2 fill-current text-circleTel-orange" />
             South Africa&apos;s most trusted business ISP
           </Badge>
 
@@ -38,15 +37,15 @@ export function WirelessHero() {
           {/* Trust Indicators */}
           <div className="flex flex-wrap items-center justify-center gap-6 mb-10 text-sm text-circleTel-secondaryNeutral">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-circleTel-blue-600" />
+              <PiShieldBold className="w-5 h-5 text-circleTel-blue-600" />
               <span className="font-medium">99.9% Uptime Guarantee</span>
             </div>
             <div className="flex items-center gap-2">
-              <TruckIcon className="w-5 h-5 text-circleTel-orange" />
+              <PiTruckBold className="w-5 h-5 text-circleTel-orange" />
               <span className="font-medium">Free Installation</span>
             </div>
             <div className="flex items-center gap-2">
-              <Headphones className="w-5 h-5 text-circleTel-red" />
+              <PiHeadphonesBold className="w-5 h-5 text-circleTel-red" />
               <span className="font-medium">24/7 SA Support</span>
             </div>
           </div>

@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowSquareOutBold, PiCheckCircleBold, PiClockBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Didit Verification Links Component
  * Displays links to Didit console for ID and address verification
  */
 
-import { ExternalLink, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -58,21 +58,21 @@ export default function DiditVerificationLinks({
     if (verificationResult === 'approved') {
       return (
         <Badge variant="default" className="bg-green-500">
-          <CheckCircle className="w-3 h-3 mr-1" />
+          <PiCheckCircleBold className="w-3 h-3 mr-1" />
           Approved
         </Badge>
       );
     } else if (verificationResult === 'declined') {
       return (
         <Badge variant="destructive">
-          <XCircle className="w-3 h-3 mr-1" />
+          <PiXCircleBold className="w-3 h-3 mr-1" />
           Declined
         </Badge>
       );
     } else if (verificationResult === 'pending_review') {
       return (
         <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-          <Clock className="w-3 h-3 mr-1" />
+          <PiClockBold className="w-3 h-3 mr-1" />
           Pending Review
         </Badge>
       );
@@ -85,7 +85,7 @@ export default function DiditVerificationLinks({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <ExternalLink className="w-5 h-5 text-blue-600" />
+            <PiArrowSquareOutBold className="w-5 h-5 text-blue-600" />
             Didit KYC Verification
           </CardTitle>
           {getStatusBadge()}
@@ -127,7 +127,7 @@ export default function DiditVerificationLinks({
                 className="flex items-center gap-3"
               >
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                  <PiCheckCircleBold className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-medium text-sm">ID Verification</p>
@@ -135,7 +135,7 @@ export default function DiditVerificationLinks({
                     View ID document check results
                   </p>
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400" />
+                <PiArrowSquareOutBold className="w-4 h-4 text-gray-400" />
               </a>
             </Button>
 
@@ -152,7 +152,7 @@ export default function DiditVerificationLinks({
                 className="flex items-center gap-3"
               >
                 <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-medium text-sm">Address Verification</p>
@@ -160,7 +160,7 @@ export default function DiditVerificationLinks({
                     View proof of address check results
                   </p>
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400" />
+                <PiArrowSquareOutBold className="w-4 h-4 text-gray-400" />
               </a>
             </Button>
 
@@ -177,7 +177,7 @@ export default function DiditVerificationLinks({
                 className="flex items-center gap-3"
               >
                 <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <ExternalLink className="w-4 h-4 text-purple-600" />
+                  <PiArrowSquareOutBold className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="font-medium text-sm">Full Session Details</p>
@@ -185,7 +185,7 @@ export default function DiditVerificationLinks({
                     View complete Didit console session
                   </p>
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400" />
+                <PiArrowSquareOutBold className="w-4 h-4 text-gray-400" />
               </a>
             </Button>
           </div>

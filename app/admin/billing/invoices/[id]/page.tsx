@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiLightningBold, PiPlusCircleBold, PiSpinnerBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -6,26 +7,6 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  ArrowLeft,
-  Download,
-  Mail,
-  CreditCard,
-  CheckCircle,
-  XCircle,
-  Clock,
-  RefreshCw,
-  AlertTriangle,
-  Loader2,
-  User,
-  Building,
-  Calendar,
-  DollarSign,
-  FileText,
-  Zap,
-  ExternalLink,
-  PlusCircle
-} from 'lucide-react';
 import { ManualPaymentDialog } from '@/components/admin/billing/ManualPaymentDialog';
 
 interface Payment {
@@ -172,35 +153,35 @@ export default function InvoiceDetailPage() {
       case 'synced':
         return (
           <Badge className="bg-green-100 text-green-800">
-            <CheckCircle className="h-3 w-3 mr-1" />
+            <PiCheckCircleBold className="h-3 w-3 mr-1" />
             Synced
           </Badge>
         );
       case 'failed':
         return (
           <Badge className="bg-red-100 text-red-800">
-            <XCircle className="h-3 w-3 mr-1" />
+            <PiXCircleBold className="h-3 w-3 mr-1" />
             Failed
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800">
-            <Clock className="h-3 w-3 mr-1" />
+            <PiClockBold className="h-3 w-3 mr-1" />
             Pending
           </Badge>
         );
       case 'syncing':
         return (
           <Badge className="bg-blue-100 text-blue-800">
-            <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+            <PiArrowsClockwiseBold className="h-3 w-3 mr-1 animate-spin" />
             Syncing
           </Badge>
         );
       case 'skipped':
         return (
           <Badge className="bg-gray-100 text-gray-800">
-            <AlertTriangle className="h-3 w-3 mr-1" />
+            <PiWarningBold className="h-3 w-3 mr-1" />
             Skipped
           </Badge>
         );
@@ -219,7 +200,7 @@ export default function InvoiceDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
   }
@@ -229,13 +210,13 @@ export default function InvoiceDetailPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>
         <Card>
           <CardContent className="py-8 text-center">
-            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <PiWarningBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {error || 'Invoice not found'}
             </h2>
@@ -254,7 +235,7 @@ export default function InvoiceDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
           <div>
@@ -276,16 +257,16 @@ export default function InvoiceDetailPage() {
               className="bg-green-600 hover:bg-green-700"
               onClick={() => setShowPaymentDialog(true)}
             >
-              <PlusCircle className="h-4 w-4 mr-2" />
+              <PiPlusCircleBold className="h-4 w-4 mr-2" />
               Record Payment
             </Button>
           )}
           <Button variant="outline">
-            <Mail className="h-4 w-4 mr-2" />
+            <PiEnvelopeBold className="h-4 w-4 mr-2" />
             Send Reminder
           </Button>
           <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Download PDF
           </Button>
         </div>
@@ -314,7 +295,7 @@ export default function InvoiceDetailPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-600" />
+                <PiFileTextBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Total Amount</p>
@@ -330,7 +311,7 @@ export default function InvoiceDetailPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Amount Paid</p>
@@ -346,7 +327,7 @@ export default function InvoiceDetailPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${summary.remainingBalance > 0 ? 'bg-orange-100' : 'bg-gray-100'}`}>
-                <DollarSign className={`h-5 w-5 ${summary.remainingBalance > 0 ? 'text-orange-600' : 'text-gray-600'}`} />
+                <PiCurrencyDollarBold className={`h-5 w-5 ${summary.remainingBalance > 0 ? 'text-orange-600' : 'text-gray-600'}`} />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Balance Due</p>
@@ -362,7 +343,7 @@ export default function InvoiceDetailPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <CreditCard className="h-5 w-5 text-purple-600" />
+                <PiCreditCardBold className="h-5 w-5 text-purple-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Payments Made</p>
@@ -382,7 +363,7 @@ export default function InvoiceDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5" />
+                <PiUserBold className="h-5 w-5" />
                 Customer
               </CardTitle>
             </CardHeader>
@@ -395,7 +376,7 @@ export default function InvoiceDetailPage() {
                     </p>
                     {invoice.customer.business_name && (
                       <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <Building className="h-3 w-3" />
+                        <PiBuildingBold className="h-3 w-3" />
                         {invoice.customer.business_name}
                       </p>
                     )}
@@ -407,7 +388,7 @@ export default function InvoiceDetailPage() {
                   <Link href={`/admin/customers/${invoice.customer.id}`}>
                     <Button variant="outline" size="sm" className="w-full">
                       View Customer
-                      <ExternalLink className="h-3 w-3 ml-2" />
+                      <PiArrowSquareOutBold className="h-3 w-3 ml-2" />
                     </Button>
                   </Link>
                 </div>
@@ -421,7 +402,7 @@ export default function InvoiceDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+                <PiCalendarBold className="h-5 w-5" />
                 Invoice Details
               </CardTitle>
             </CardHeader>
@@ -461,7 +442,7 @@ export default function InvoiceDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
+                <PiCreditCardBold className="h-5 w-5" />
                 Payment History
               </CardTitle>
               <CardDescription>
@@ -471,7 +452,7 @@ export default function InvoiceDetailPage() {
             <CardContent>
               {payments.length === 0 ? (
                 <div className="text-center py-8">
-                  <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <PiCreditCardBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">No payments recorded yet</p>
                   <p className="text-gray-400 text-sm mt-1">
                     Payments will appear here once received
@@ -491,7 +472,7 @@ export default function InvoiceDetailPage() {
                               {formatCurrency(payment.amount)}
                             </span>
                             <Badge className="bg-green-100 text-green-800">
-                              <CheckCircle className="h-3 w-3 mr-1" />
+                              <PiCheckCircleBold className="h-3 w-3 mr-1" />
                               Completed
                             </Badge>
                           </div>
@@ -512,7 +493,7 @@ export default function InvoiceDetailPage() {
                       {/* ZOHO Sync Status */}
                       <div className="flex items-center justify-between pt-3 border-t">
                         <div className="flex items-center gap-2">
-                          <RefreshCw className="h-4 w-4 text-gray-400" />
+                          <PiArrowsClockwiseBold className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">ZOHO Sync</span>
                         </div>
                         <div className="flex items-center gap-2">

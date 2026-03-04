@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiEnvelopeBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,7 +9,6 @@ import * as z from 'zod';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 
 // Forgot password form validation schema
 const forgotPasswordSchema = z.object({
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
             onClick={() => router.back()}
             className="flex items-center gap-2 text-webafrica-blue hover:text-webafrica-blue-dark transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <PiArrowLeftBold className="w-5 h-5" />
             <span className="font-medium">Back to Sign In</span>
           </button>
         </div>
@@ -168,7 +168,7 @@ export default function ForgotPasswordPage() {
                       </>
                     ) : (
                       <>
-                        <Mail className="w-5 h-5" />
+                        <PiEnvelopeBold className="w-5 h-5" />
                         Send Reset Link
                       </>
                     )}
@@ -191,7 +191,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-10 h-10 text-green-600" />
+                  <PiCheckCircleBold className="w-10 h-10 text-green-600" />
                 </div>
               </div>
 
@@ -237,7 +237,7 @@ export default function ForgotPasswordPage() {
           {!emailSent && (
             <div className="border-t border-gray-100 pt-6">
               <div className="flex items-start gap-3 text-sm text-gray-600">
-                <Mail className="w-5 h-5 text-circleTel-orange flex-shrink-0 mt-0.5" />
+                <PiEnvelopeBold className="w-5 h-5 text-circleTel-orange flex-shrink-0 mt-0.5" />
                 <p>
                   The password reset link will expire in 1 hour for security reasons. If you don't receive the email, check your spam folder.
                 </p>

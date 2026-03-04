@@ -1,17 +1,8 @@
 'use client';
+import { PiCaretLeftBold, PiCaretRightBold, PiCreditCardBold, PiGearBold, PiHouseBold, PiPackageBold, PiQuestionBold } from 'react-icons/pi';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home,
-  UserCircle,
-  CreditCard,
-  Package,
-  Settings,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,12 +20,12 @@ interface NavItem {
 }
 
 const items: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: Home },
+  { label: 'Dashboard', href: '/dashboard', icon: PiHouseBold },
   { label: 'Accounts', href: '/dashboard/profile', icon: UserCircle },
-  { label: 'Orders', href: '/dashboard/orders', icon: Package },
-  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Help & Support', href: '#', icon: HelpCircle, disabled: true },
-  { label: 'Settings', href: '#', icon: Settings, disabled: true },
+  { label: 'Orders', href: '/dashboard/orders', icon: PiPackageBold },
+  { label: 'Billing', href: '/dashboard/billing', icon: PiCreditCardBold },
+  { label: 'Help & Support', href: '#', icon: PiQuestionBold, disabled: true },
+  { label: 'Settings', href: '#', icon: PiGearBold, disabled: true },
 ];
 
 interface SidebarNavProps {
@@ -68,9 +59,9 @@ export default function SidebarNav({ collapsed = false, onToggleCollapse, mobile
               className="h-8 w-8 hover:bg-gray-100"
             >
               {collapsed ? (
-                <ChevronRight className="h-5 w-5 text-gray-600" />
+                <PiCaretRightBold className="h-5 w-5 text-gray-600" />
               ) : (
-                <ChevronLeft className="h-5 w-5 text-gray-600" />
+                <PiCaretLeftBold className="h-5 w-5 text-gray-600" />
               )}
             </Button>
           </div>

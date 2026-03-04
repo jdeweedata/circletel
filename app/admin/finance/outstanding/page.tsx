@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiDownloadSimpleBold, PiFileTextBold, PiMagnifyingGlassBold, PiSpinnerBold, PiTrendDownBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,19 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  CreditCard,
-  Download,
-  FileText,
-  Loader2,
-  RefreshCw,
-  Search,
-  TrendingDown,
-  XCircle,
-} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface OutstandingInvoice {
@@ -182,14 +170,14 @@ export default function OutstandingInvoicesPage() {
     if (hasMandate) {
       return (
         <Badge variant="outline" className="text-green-600 border-green-600">
-          <CreditCard className="h-3 w-3 mr-1" />
+          <PiCreditCardBold className="h-3 w-3 mr-1" />
           Mandate Active
         </Badge>
       );
     }
     return (
       <Badge variant="outline" className="text-gray-500 border-gray-400">
-        <XCircle className="h-3 w-3 mr-1" />
+        <PiXCircleBold className="h-3 w-3 mr-1" />
         No Mandate
       </Badge>
     );
@@ -220,7 +208,7 @@ export default function OutstandingInvoicesPage() {
             onClick={fetchOutstandingInvoices}
             disabled={loading}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button
@@ -229,9 +217,9 @@ export default function OutstandingInvoicesPage() {
             className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {verifying ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <CheckCircle2 className="h-4 w-4 mr-2" />
+              <PiCheckCircleBold className="h-4 w-4 mr-2" />
             )}
             Verify Selected ({selectedInvoices.size})
           </Button>
@@ -258,7 +246,7 @@ export default function OutstandingInvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1 text-red-500" />
+                <PiWarningCircleBold className="h-4 w-4 mr-1 text-red-500" />
                 Overdue Amount
               </CardTitle>
             </CardHeader>
@@ -275,7 +263,7 @@ export default function OutstandingInvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center">
-                <CreditCard className="h-4 w-4 mr-1 text-green-500" />
+                <PiCreditCardBold className="h-4 w-4 mr-1 text-green-500" />
                 With Active Mandate
               </CardTitle>
             </CardHeader>
@@ -292,7 +280,7 @@ export default function OutstandingInvoicesPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center">
-                <TrendingDown className="h-4 w-4 mr-1 text-orange-500" />
+                <PiTrendDownBold className="h-4 w-4 mr-1 text-orange-500" />
                 Without Mandate
               </CardTitle>
             </CardHeader>
@@ -331,17 +319,17 @@ export default function OutstandingInvoicesPage() {
                   <span className="flex items-center gap-2">
                     {result.paymentStatus === 'paid' ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                         <span className="text-green-600">Paid</span>
                       </>
                     ) : result.paymentStatus === 'not_found' ? (
                       <>
-                        <Clock className="h-4 w-4 text-yellow-600" />
+                        <PiClockBold className="h-4 w-4 text-yellow-600" />
                         <span className="text-yellow-600">Pending</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="h-4 w-4 text-red-600" />
+                        <PiXCircleBold className="h-4 w-4 text-red-600" />
                         <span className="text-red-600">{result.error || 'Failed'}</span>
                       </>
                     )}
@@ -358,7 +346,7 @@ export default function OutstandingInvoicesPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search by invoice, customer, or order..."
@@ -379,7 +367,7 @@ export default function OutstandingInvoicesPage() {
               </SelectContent>
             </Select>
             <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
+              <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
               Export
             </Button>
           </div>
@@ -397,11 +385,11 @@ export default function OutstandingInvoicesPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             </div>
           ) : filteredInvoices.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <PiFileTextBold className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p>No outstanding invoices found</p>
             </div>
           ) : (
@@ -470,7 +458,7 @@ export default function OutstandingInvoicesPage() {
                         }}
                         disabled={verifying}
                       >
-                        <RefreshCw className="h-4 w-4" />
+                        <PiArrowsClockwiseBold className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -1,4 +1,5 @@
 'use client';
+import { PiChartBarBold, PiDownloadSimpleBold, PiFunnelBold } from 'react-icons/pi';
 
 /**
  * Competitor Analytics Page
@@ -9,11 +10,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import {
-  ChartBarIcon,
-  ArrowDownTrayIcon,
-  FunnelIcon,
-} from '@heroicons/react/24/outline';
 import { PriceHistoryChart, type PriceSeries } from '@/components/admin/competitor-analysis/PriceHistoryChart';
 import {
   MarketPositionChart,
@@ -262,14 +258,14 @@ export default function AnalyticsPage() {
             onClick={() => exportData('csv')}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
-            <ArrowDownTrayIcon className="w-5 h-5" />
+            <PiDownloadSimpleBold className="w-5 h-5" />
             Export CSV
           </button>
           <button
             onClick={() => exportData('json')}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
-            <ArrowDownTrayIcon className="w-5 h-5" />
+            <PiDownloadSimpleBold className="w-5 h-5" />
             Export JSON
           </button>
         </div>
@@ -277,7 +273,7 @@ export default function AnalyticsPage() {
 
       {/* Filters */}
       <div className="flex gap-4 items-center">
-        <FunnelIcon className="w-5 h-5 text-gray-400" />
+        <PiFunnelBold className="w-5 h-5 text-gray-400" />
         <select
           value={selectedProvider}
           onChange={(e) => setSelectedProvider(e.target.value)}
@@ -312,7 +308,7 @@ export default function AnalyticsPage() {
         {/* Market Position by Provider */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <ChartBarIcon className="w-5 h-5 text-orange-500" />
+            <PiChartBarBold className="w-5 h-5 text-orange-500" />
             Average Price by Provider
           </h3>
           <MarketPositionChart
@@ -327,7 +323,7 @@ export default function AnalyticsPage() {
         {/* Price by Product Type */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <ChartBarIcon className="w-5 h-5 text-blue-500" />
+            <PiChartBarBold className="w-5 h-5 text-blue-500" />
             Average Price by Product Type
           </h3>
           <MarketSegmentChart segments={segmentData} height={300} />
@@ -336,7 +332,7 @@ export default function AnalyticsPage() {
         {/* Price by Technology */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <ChartBarIcon className="w-5 h-5 text-green-500" />
+            <PiChartBarBold className="w-5 h-5 text-green-500" />
             Average Price by Technology
           </h3>
           <MarketSegmentChart segments={techSegmentData} height={300} />
@@ -345,7 +341,7 @@ export default function AnalyticsPage() {
         {/* Price Distribution */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <ChartBarIcon className="w-5 h-5 text-purple-500" />
+            <PiChartBarBold className="w-5 h-5 text-purple-500" />
             Price Distribution
           </h3>
           <PriceDistributionChart data={priceDistribution} height={300} />

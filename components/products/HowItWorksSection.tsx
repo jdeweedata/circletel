@@ -1,8 +1,8 @@
 'use client'
+import { PiArrowRightBold } from 'react-icons/pi';
 
 import { HowItWorksSection as HowItWorksSectionType } from '@/lib/types/strapi'
 import Image from 'next/image'
-import { ArrowRight } from 'lucide-react'
 
 interface HowItWorksSectionProps {
   section: HowItWorksSectionType
@@ -47,7 +47,7 @@ export function HowItWorksSection({ section }: HowItWorksSectionProps) {
                     {step.stepNumber}
                   </div>
                   {index < section.steps.length - 1 && (
-                    <ArrowRight className="hidden md:block w-6 h-6 text-circleTel-orange" />
+                    <PiArrowRightBold className="hidden md:block w-6 h-6 text-circleTel-orange" />
                   )}
                 </div>
 

@@ -1,10 +1,10 @@
 'use client';
+import { PiArrowLeftBold, PiCreditCardBold, PiEnvelopeBold, PiLockBold, PiPhoneBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, CreditCard, ArrowLeft, Lock, Phone, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -71,14 +71,14 @@ export default function CardPaymentPage() {
           href="/dashboard/payment-method"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <PiArrowLeftBold className="w-4 h-4" />
           <span>Back to Payment Methods</span>
         </Link>
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-circleTel-orange/10 rounded-lg">
-            <CreditCard className="w-8 h-8 text-circleTel-orange" />
+            <PiCreditCardBold className="w-8 h-8 text-circleTel-orange" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Credit or Debit Card</h1>
@@ -90,7 +90,7 @@ export default function CardPaymentPage() {
         <Card className="mb-6 border-blue-200 bg-blue-50">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <CreditCard className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <PiCreditCardBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold text-blue-900">Card Verification</h3>
                 <p className="text-sm text-blue-700 mt-1">
@@ -105,7 +105,7 @@ export default function CardPaymentPage() {
         <Card>
           <CardContent className="p-8 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-full mb-6 shadow-lg">
-              <CreditCard className="w-10 h-10 text-white" />
+              <PiCreditCardBold className="w-10 h-10 text-white" />
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 mb-2">Add Your Card</h2>
@@ -146,19 +146,19 @@ export default function CardPaymentPage() {
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
                   Processing...
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5 mr-2" />
+                  <PiCreditCardBold className="w-5 h-5 mr-2" />
                   Continue to Payment
                 </>
               )}
             </Button>
 
             <p className="text-xs text-gray-500 mt-4 flex items-center justify-center gap-2">
-              <Lock className="w-3.5 h-3.5" />
+              <PiLockBold className="w-3.5 h-3.5" />
               <span>Secured by NetCash - 256-bit SSL encryption</span>
             </p>
           </CardContent>
@@ -176,14 +176,14 @@ export default function CardPaymentPage() {
                   href="https://wa.me/27824873900"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
+                  <PiPhoneBold className="w-4 h-4" />
                   <span>082 487 3900</span>
                 </a>
                 <a
                   href="mailto:contactus@circletel.co.za"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Mail className="w-4 h-4" />
+                  <PiEnvelopeBold className="w-4 h-4" />
                   <span>contactus@circletel.co.za</span>
                 </a>
               </div>

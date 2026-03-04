@@ -1,24 +1,11 @@
 'use client';
+import { PiBuildingsBold, PiCalendarBold, PiCheckBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPaperPlaneRightBold, PiPhoneBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-  Loader2,
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  FileText,
-  User,
-  Check,
-  Printer,
-  Download,
-  Send
-} from 'lucide-react';
 import type { QuoteDetails } from '@/lib/quotes/types';
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 
@@ -326,7 +313,7 @@ export default function QuotePreviewPage({ params }: Props) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-circleTel-lightNeutral">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin mx-auto text-circleTel-orange mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin mx-auto text-circleTel-orange mb-4" />
           <p className="text-circleTel-secondaryNeutral">Loading quote...</p>
         </div>
       </div>
@@ -339,7 +326,7 @@ export default function QuotePreviewPage({ params }: Props) {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="text-center">
-              <FileText className="w-12 h-12 mx-auto text-red-500 mb-4" />
+              <PiFileTextBold className="w-12 h-12 mx-auto text-red-500 mb-4" />
               <h2 className="text-xl font-bold text-circleTel-navy mb-2">Quote Not Found</h2>
               <p className="text-circleTel-secondaryNeutral">{error || 'This quote could not be found or has been removed.'}</p>
             </div>
@@ -398,9 +385,9 @@ export default function QuotePreviewPage({ params }: Props) {
             className="bg-white text-circleTel-orange border-2 border-circleTel-orange px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-50 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {downloadingPDF ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 animate-spin" />
             ) : (
-              <Download className="w-4 h-4" />
+              <PiDownloadSimpleBold className="w-4 h-4" />
             )}
             {downloadingPDF ? 'Downloading...' : 'Download PDF'}
           </button>
@@ -408,7 +395,7 @@ export default function QuotePreviewPage({ params }: Props) {
             onClick={openEmailDialog}
             className="bg-circleTel-orange text-white px-6 py-2.5 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2"
           >
-            <Send className="w-4 h-4" />
+            <PiPaperPlaneRightBold className="w-4 h-4" />
             Email Quote
           </button>
         </div>
@@ -466,12 +453,12 @@ export default function QuotePreviewPage({ params }: Props) {
               >
                 {emailSending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <PiSpinnerBold className="w-4 h-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <PiPaperPlaneRightBold className="w-4 h-4" />
                     Send Email
                   </>
                 )}
@@ -723,7 +710,7 @@ export default function QuotePreviewPage({ params }: Props) {
             <div className="space-y-2 text-sm">
               {generateInclusiveBenefits(quote.items).map((benefit, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <PiCheckBold className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700">{benefit}</span>
                 </div>
               ))}

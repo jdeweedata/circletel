@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -7,7 +8,6 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertCircle } from 'lucide-react';
 
 export default function AmbassadorLoginPage() {
   const router = useRouter();
@@ -91,7 +91,7 @@ export default function AmbassadorLoginPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <PiWarningCircleBold className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -124,7 +124,7 @@ export default function AmbassadorLoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Signing in...
                 </>
               ) : (

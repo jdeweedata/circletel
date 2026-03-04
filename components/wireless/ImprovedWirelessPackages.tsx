@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingCart, Star, Wifi, Truck, Settings, Clock, Loader2, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useProductsByCategory } from "@/hooks/use-products"
 import type { Product } from "@/lib/types/products"
@@ -38,27 +37,27 @@ const transformProductToWirelessPackage = (product: Product) => {
 
 const features = [
   {
-    icon: Star,
+    icon: PiStarBold,
     title: "Save R1 000 on hardware.",
     description: "With selected SIM + Device orders."
   },
   {
-    icon: Wifi,
+    icon: PiWifiBold,
     title: "FREE router.",
     description: "With CircleTel Wireless Plus."
   },
   {
-    icon: Truck,
+    icon: PiTruckBold,
     title: "FREE delivery.",
     description: "With any SIM and/or device order."
   },
   {
-    icon: Settings,
+    icon: PiGearBold,
     title: "No setup required.",
     description: "Insert your SIM and you're good to go."
   },
   {
-    icon: Clock,
+    icon: PiClockBold,
     title: "Uncapped thresholds and throttling.",
     description: "See T&Cs for a detailed breakdown."
   }
@@ -128,7 +127,7 @@ export function ImprovedWirelessPackages() {
         {(pkg.featured || pkg.popular) && (
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
             <span className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-              {pkg.popular && <Star className="w-3 h-3 fill-current" />}
+              {pkg.popular && <PiStarBold className="w-3 h-3 fill-current" />}
               {pkg.featured ? 'MOST POPULAR' : 'POPULAR'}
             </span>
           </div>
@@ -173,7 +172,7 @@ export function ImprovedWirelessPackages() {
             }}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 group"
           >
-            <ShoppingCart className="w-4 h-4 mr-2 group-hover:animate-bounce" />
+            <PiShoppingCartBold className="w-4 h-4 mr-2 group-hover:animate-bounce" />
             Add to Cart
           </Button>
         </div>
@@ -311,19 +310,19 @@ export function ImprovedWirelessPackages() {
 
                         <div className="space-y-3 mb-6">
                           <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>Uncapped data usage</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>No throttling or FUP</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>Month-to-month contract</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0" />
                             <span>24/7 customer support</span>
                           </div>
                         </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiBellBold, PiCheckCircleBold, PiEnvelopeBold, PiMegaphoneBold, PiPackageBold, PiShieldCheckBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -12,19 +13,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Mail, 
-  MailX, 
-  CheckCircle2, 
-  AlertCircle, 
-  Loader2,
-  Bell,
-  Megaphone,
-  Newspaper,
-  Package,
-  Users,
-  ShieldCheck,
-} from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -202,7 +190,7 @@ function UnsubscribeContent() {
             {/* Header */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-circleTel-orange/10 mb-4">
-                <Mail className="h-8 w-8 text-circleTel-orange" />
+                <PiEnvelopeBold className="h-8 w-8 text-circleTel-orange" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-circleTel-navy mb-2">
                 Email Preferences
@@ -214,7 +202,7 @@ function UnsubscribeContent() {
 
             {/* Important Notice */}
             <Alert className="mb-6 border-blue-200 bg-blue-50">
-              <ShieldCheck className="h-4 w-4 text-blue-600" />
+              <PiShieldCheckBold className="h-4 w-4 text-blue-600" />
               <AlertTitle className="text-blue-800">Important Notice</AlertTitle>
               <AlertDescription className="text-blue-700">
                 These settings only affect marketing emails. You will continue to receive 
@@ -252,7 +240,7 @@ function UnsubscribeContent() {
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                           Looking up...
                         </>
                       ) : (
@@ -267,7 +255,7 @@ function UnsubscribeContent() {
             {/* Error Message */}
             {error && (
               <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -276,7 +264,7 @@ function UnsubscribeContent() {
             {/* Success Message */}
             {success && (
               <Alert className="mb-6 border-green-200 bg-green-50">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                 <AlertTitle className="text-green-800">Success</AlertTitle>
                 <AlertDescription className="text-green-700">{success}</AlertDescription>
               </Alert>
@@ -331,7 +319,7 @@ function UnsubscribeContent() {
                 <Card className="mb-6">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Bell className="h-5 w-5 text-circleTel-orange" />
+                      <PiBellBold className="h-5 w-5 text-circleTel-orange" />
                       Marketing Email Categories
                     </CardTitle>
                     <CardDescription>
@@ -342,7 +330,7 @@ function UnsubscribeContent() {
                     {/* Promotional Emails */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
-                        <Megaphone className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
+                        <PiMegaphoneBold className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
                         <div>
                           <Label htmlFor="promotional" className="font-medium">
                             Promotions & Special Offers
@@ -388,7 +376,7 @@ function UnsubscribeContent() {
                     {/* Product Updates */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
-                        <Package className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
+                        <PiPackageBold className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
                         <div>
                           <Label htmlFor="product_updates" className="font-medium">
                             Product Updates
@@ -411,7 +399,7 @@ function UnsubscribeContent() {
                     {/* Partner Offers */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
-                        <Users className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
+                        <PiUsersBold className="h-5 w-5 text-circleTel-secondaryNeutral mt-0.5" />
                         <div>
                           <Label htmlFor="partner_offers" className="font-medium">
                             Partner Offers
@@ -489,7 +477,7 @@ function UnsubscribeContent() {
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -524,7 +512,7 @@ export default function UnsubscribePage() {
         <main className="flex-1 py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
               <p className="mt-4 text-circleTel-secondaryNeutral">Loading...</p>
             </div>
           </div>

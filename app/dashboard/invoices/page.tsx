@@ -11,7 +11,6 @@ import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Eye, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -92,7 +91,7 @@ export default async function InvoicesPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-primary" />
+                      <PiFileTextBold className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="font-semibold">{invoice.invoice_number}</p>
@@ -111,14 +110,14 @@ export default async function InvoicesPage() {
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/invoices/${invoice.id}`}>
-                          <Eye className="h-4 w-4 mr-1" />
+                          <PiEyeBold className="h-4 w-4 mr-1" />
                           View
                         </Link>
                       </Button>
                       {invoice.status !== 'paid' && (
                         <Button size="sm" asChild>
                           <Link href={`/dashboard/invoices/${invoice.id}/pay`}>
-                            <CreditCard className="h-4 w-4 mr-1" />
+                            <PiCreditCardBold className="h-4 w-4 mr-1" />
                             Pay
                           </Link>
                         </Button>
@@ -133,7 +132,7 @@ export default async function InvoicesPage() {
       ) : (
         <Card>
           <CardContent className="py-12 text-center">
-            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <PiFileTextBold className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Invoices Yet</h3>
             <p className="text-muted-foreground">
               You don't have any invoices yet. Invoices will appear here once generated.

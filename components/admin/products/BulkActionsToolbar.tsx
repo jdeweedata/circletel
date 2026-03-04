@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiCheckCircleBold, PiPencilSimpleBold, PiStarBold, PiTagBold, PiTrendUpBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -10,18 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  X,
-  CheckCircle2,
-  XCircle,
-  Archive,
-  Tag,
-  ToggleLeft,
-  ToggleRight,
-  Star,
-  TrendingUp,
-  Edit,
-} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export interface BulkActionsToolbarProps {
@@ -104,7 +93,7 @@ export function BulkActionsToolbar({
               onClick={onClearSelection}
               className="text-gray-600 hover:text-gray-900"
             >
-              <X className="h-4 w-4 mr-1" />
+              <PiXBold className="h-4 w-4 mr-1" />
               Clear Selection
             </Button>
           </div>
@@ -121,7 +110,7 @@ export function BulkActionsToolbar({
                     onClick={onBulkActivate}
                     className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
+                    <PiCheckCircleBold className="h-4 w-4 mr-1" />
                     Activate
                   </Button>
                 )}
@@ -132,7 +121,7 @@ export function BulkActionsToolbar({
                     onClick={onBulkDeactivate}
                     className="bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                   >
-                    <XCircle className="h-4 w-4 mr-1" />
+                    <PiXCircleBold className="h-4 w-4 mr-1" />
                     Deactivate
                   </Button>
                 )}
@@ -143,7 +132,7 @@ export function BulkActionsToolbar({
             {hasEditPermission && onBulkSetCategory && (
               <Select onValueChange={onBulkSetCategory}>
                 <SelectTrigger className="w-[160px] h-9">
-                  <Tag className="h-4 w-4 mr-2" />
+                  <PiTagBold className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Set Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,7 +153,7 @@ export function BulkActionsToolbar({
                 onClick={onQuickEdit}
                 className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
               >
-                <Edit className="h-4 w-4 mr-1" />
+                <PiPencilSimpleBold className="h-4 w-4 mr-1" />
                 Quick Edit
               </Button>
             )}
@@ -179,7 +168,7 @@ export function BulkActionsToolbar({
                     onClick={() => onBulkSetFeatured(true)}
                     className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                   >
-                    <Star className="h-4 w-4 mr-1" />
+                    <PiStarBold className="h-4 w-4 mr-1" />
                     Set Featured
                   </Button>
                 )}
@@ -190,7 +179,7 @@ export function BulkActionsToolbar({
                     onClick={() => onBulkSetPopular(true)}
                     className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
-                    <TrendingUp className="h-4 w-4 mr-1" />
+                    <PiTrendUpBold className="h-4 w-4 mr-1" />
                     Set Popular
                   </Button>
                 )}
@@ -205,7 +194,7 @@ export function BulkActionsToolbar({
                 onClick={onBulkArchive}
                 className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
               >
-                <Archive className="h-4 w-4 mr-1" />
+                <PiArchiveBold className="h-4 w-4 mr-1" />
                 Archive
               </Button>
             )}

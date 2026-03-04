@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiBellBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiFileTextBold, PiLightningBold, PiPackageBold, PiPercentBold, PiPlusBold, PiShieldBold, PiShoppingCartBold, PiStackBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -6,27 +7,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Package,
-  FileText,
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  Plus,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  RefreshCw,
-  AlertCircle,
-  Target,
-  Bell,
-  Percent,
-  BarChart,
-  Activity,
-  Zap,
-  Layers,
-  Shield
-} from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
@@ -228,7 +208,7 @@ export default function AdminDashboard() {
         title: 'Total Revenue',
         value: `R${stats.totalRevenue.toLocaleString()}`,
         description: 'Active monthly revenue',
-        icon: DollarSign,
+        icon: PiCurrencyDollarBold,
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
         href: '/admin/billing'
@@ -237,7 +217,7 @@ export default function AdminDashboard() {
         title: 'Total Customers',
         value: stats.totalCustomers.toString(),
         description: `${stats.newCustomersThisMonth} new this month`,
-        icon: Users,
+        icon: PiUsersBold,
         color: 'text-indigo-600',
         bgColor: 'bg-indigo-100',
         href: '/admin/customers'
@@ -246,7 +226,7 @@ export default function AdminDashboard() {
         title: 'Active Orders',
         value: stats.activeOrders.toString(),
         description: `${stats.pendingOrders} pending`,
-        icon: ShoppingCart,
+        icon: PiShoppingCartBold,
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         href: '/admin/orders'
@@ -255,7 +235,7 @@ export default function AdminDashboard() {
         title: 'Pending Approvals',
         value: stats.pendingApprovals.toString(),
         description: 'Quotes + Products awaiting review',
-        icon: Clock,
+        icon: PiClockBold,
         color: 'text-circleTel-orange',
         bgColor: 'bg-orange-100',
         urgent: stats.pendingApprovals > 0,
@@ -267,7 +247,7 @@ export default function AdminDashboard() {
         title: 'Business Quotes',
         value: stats.totalQuotes.toString(),
         description: `${stats.pendingQuotes} pending, ${stats.acceptedQuotes} accepted`,
-        icon: FileText,
+        icon: PiFileTextBold,
         color: 'text-blue-600',
         bgColor: 'bg-blue-100',
         href: '/admin/quotes'
@@ -276,7 +256,7 @@ export default function AdminDashboard() {
         title: 'Quote Revenue',
         value: `R${stats.quoteRevenue.toLocaleString()}`,
         description: 'From accepted quotes',
-        icon: TrendingUp,
+        icon: PiTrendUpBold,
         color: 'text-emerald-600',
         bgColor: 'bg-emerald-100',
         href: '/admin/quotes?status=accepted'
@@ -294,7 +274,7 @@ export default function AdminDashboard() {
         title: 'Quote Acceptance',
         value: `${quoteAcceptanceRate}%`,
         description: 'Quotes converted to accepted',
-        icon: Percent,
+        icon: PiPercentBold,
         color: 'text-teal-600',
         bgColor: 'bg-teal-100',
         href: '/admin/quotes'
@@ -305,7 +285,7 @@ export default function AdminDashboard() {
         title: 'Customer Orders',
         value: stats.totalOrders.toString(),
         description: `${stats.activeOrders} active, ${stats.pendingOrders} pending`,
-        icon: ShoppingCart,
+        icon: PiShoppingCartBold,
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         href: '/admin/orders'
@@ -314,7 +294,7 @@ export default function AdminDashboard() {
         title: 'Active Products',
         value: stats.approvedProducts.toString(),
         description: `${stats.totalProducts} total products`,
-        icon: Package,
+        icon: PiPackageBold,
         color: 'text-indigo-600',
         bgColor: 'bg-indigo-100',
         href: '/admin/products'
@@ -332,7 +312,7 @@ export default function AdminDashboard() {
         title: 'ARPU',
         value: `R${arpu.toLocaleString()}`,
         description: 'Average Revenue Per User',
-        icon: Activity,
+        icon: PiActivityBold,
         color: 'text-amber-600',
         bgColor: 'bg-amber-100',
         href: '/admin/billing'
@@ -344,7 +324,7 @@ export default function AdminDashboard() {
     {
       title: 'Review Quotes',
       description: 'Process pending quotes',
-      icon: FileText,
+      icon: PiFileTextBold,
       href: '/admin/quotes?status=pending_approval',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
       badge: stats.pendingQuotes > 0 ? stats.pendingQuotes : undefined
@@ -352,7 +332,7 @@ export default function AdminDashboard() {
     {
       title: 'Manage Orders',
       description: 'View customer orders',
-      icon: ShoppingCart,
+      icon: PiShoppingCartBold,
       href: '/admin/orders',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS,
       badge: stats.pendingOrders > 0 ? stats.pendingOrders : undefined
@@ -360,14 +340,14 @@ export default function AdminDashboard() {
     {
       title: 'Add Product',
       description: 'Create new offering',
-      icon: Plus,
+      icon: PiPlusBold,
       href: '/admin/products/new',
       permission: PERMISSIONS.PRODUCTS.CREATE
     },
     {
       title: 'View Customers',
       description: 'Customer accounts',
-      icon: Users,
+      icon: PiUsersBold,
       href: '/admin/customers',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
@@ -381,14 +361,14 @@ export default function AdminDashboard() {
     {
       title: 'Notifications',
       description: 'Email templates',
-      icon: Bell,
+      icon: PiBellBold,
       href: '/admin/notifications',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {
       title: 'Product Approvals',
       description: 'Review pending products',
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       href: '/admin/workflow',
       permission: PERMISSIONS.PRODUCTS.APPROVE,
       badge: stats.pendingProducts > 0 ? stats.pendingProducts : undefined
@@ -464,13 +444,13 @@ export default function AdminDashboard() {
           disabled={isLoading}
           className="flex items-center space-x-2"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
       {error && (
         <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-          <AlertCircle className="h-4 w-4" />
+          <PiWarningCircleBold className="h-4 w-4" />
           <span className="text-sm">Failed to load data: {error}</span>
         </div>
       )}
@@ -478,19 +458,19 @@ export default function AdminDashboard() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-white p-1 border border-gray-200 rounded-lg shadow-sm h-auto grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger value="overview" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <Layers className="h-4 w-4 mr-2" />
+            <PiStackBold className="h-4 w-4 mr-2" />
             Overview
           </TabsTrigger>
           <TabsTrigger value="sales" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <TrendingUp className="h-4 w-4 mr-2" />
+            <PiTrendUpBold className="h-4 w-4 mr-2" />
             Sales & Marketing
           </TabsTrigger>
           <TabsTrigger value="operations" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <Zap className="h-4 w-4 mr-2" />
+            <PiLightningBold className="h-4 w-4 mr-2" />
             Operations
           </TabsTrigger>
           <TabsTrigger value="system" className="px-4 py-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700">
-            <Shield className="h-4 w-4 mr-2" />
+            <PiShieldBold className="h-4 w-4 mr-2" />
             System Health
           </TabsTrigger>
         </TabsList>
@@ -589,7 +569,7 @@ export default function AdminDashboard() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className="text-gray-400">
-                      <DollarSign className="h-5 w-5" />
+                      <PiCurrencyDollarBold className="h-5 w-5" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-600">Payment Provider Health</h3>
                   </div>
@@ -598,7 +578,7 @@ export default function AdminDashboard() {
                 
                 {providerHealthLoading && !providerHealth && (
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <PiArrowsClockwiseBold className="h-4 w-4 animate-spin" />
                     <span>Checking payment gateway health…</span>
                   </div>
                 )}
@@ -652,7 +632,7 @@ export default function AdminDashboard() {
 
                 {providerHealthError && (
                   <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
-                    <AlertCircle className="h-4 w-4" />
+                    <PiWarningCircleBold className="h-4 w-4" />
                     <span>{providerHealthError}</span>
                   </div>
                 )}

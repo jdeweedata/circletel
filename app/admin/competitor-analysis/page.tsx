@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingOfficeBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiTrendDownBold, PiTrendUpBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Competitor Analysis Dashboard
@@ -9,18 +10,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import {
-  ChartBarIcon,
-  BuildingOfficeIcon,
-  CurrencyDollarIcon,
-  ExclamationTriangleIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
 import type { DashboardStats, ProviderStats, CompetitorProduct } from '@/lib/competitor-analysis/types';
 import { PriceHistoryChart, MarketPositionChart } from '@/components/admin/competitor-analysis';
 import type { PriceSeries, CompetitorPrice } from '@/components/admin/competitor-analysis';
@@ -184,28 +173,28 @@ export default function CompetitorAnalysisDashboard() {
           title="Active Providers"
           value={stats?.active_providers || 0}
           subtitle={`of ${stats?.total_providers || 0} total`}
-          icon={<BuildingOfficeIcon className="w-6 h-6" />}
+          icon={<PiBuildingOfficeBold className="w-6 h-6" />}
           color="blue"
         />
         <StatsCard
           title="Products Tracked"
           value={stats?.current_products || 0}
           subtitle={`${stats?.total_products || 0} total scraped`}
-          icon={<CurrencyDollarIcon className="w-6 h-6" />}
+          icon={<PiCurrencyDollarBold className="w-6 h-6" />}
           color="green"
         />
         <StatsCard
           title="Product Matches"
           value={stats?.total_matches || 0}
           subtitle="CircleTel to competitor"
-          icon={<ChartBarIcon className="w-6 h-6" />}
+          icon={<PiChartBarBold className="w-6 h-6" />}
           color="purple"
         />
         <StatsCard
           title="Price Changes"
           value={stats?.price_changes_last_7_days || 0}
           subtitle="in last 7 days"
-          icon={<ArrowTrendingUpIcon className="w-6 h-6" />}
+          icon={<PiTrendUpBold className="w-6 h-6" />}
           color="orange"
         />
       </div>
@@ -241,7 +230,7 @@ export default function CompetitorAnalysisDashboard() {
               onClick={() => exportData('market-position')}
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
             >
-              <ArrowDownTrayIcon className="w-4 h-4" />
+              <PiDownloadSimpleBold className="w-4 h-4" />
               Export
             </button>
           </div>
@@ -268,7 +257,7 @@ export default function CompetitorAnalysisDashboard() {
               onClick={() => exportData('price-history')}
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
             >
-              <ArrowDownTrayIcon className="w-4 h-4" />
+              <PiDownloadSimpleBold className="w-4 h-4" />
               Export
             </button>
           </div>
@@ -313,7 +302,7 @@ export default function CompetitorAnalysisDashboard() {
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           {stats?.last_scrape_at ? (
             <div className="flex items-center gap-3 text-gray-600">
-              <ClockIcon className="w-5 h-5" />
+              <PiClockBold className="w-5 h-5" />
               <span>
                 Last scraped {formatRelativeTime(stats.last_scrape_at)}
               </span>
@@ -463,7 +452,7 @@ function ProviderStatusCard({ provider }: ProviderStatusCardProps) {
             />
           ) : (
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <BuildingOfficeIcon className="w-5 h-5 text-gray-400" />
+              <PiBuildingOfficeBold className="w-5 h-5 text-gray-400" />
             </div>
           )}
           <div>
@@ -473,9 +462,9 @@ function ProviderStatusCard({ provider }: ProviderStatusCardProps) {
         </div>
         <div className="flex items-center gap-1">
           {provider.is_active ? (
-            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+            <PiCheckCircleBold className="w-5 h-5 text-green-500" />
           ) : (
-            <XCircleIcon className="w-5 h-5 text-gray-400" />
+            <PiXCircleBold className="w-5 h-5 text-gray-400" />
           )}
         </div>
       </div>

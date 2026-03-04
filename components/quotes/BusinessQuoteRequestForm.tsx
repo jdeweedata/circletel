@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiPlusBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import type { CreateQuoteRequest, CreateQuoteItemRequest } from '@/lib/quotes/types';
 import { PaymentConsentCheckboxes, type B2BConsents, type PaymentConsents } from '@/components/payments/PaymentConsentCheckboxes';
 import { validateConsents } from '@/lib/constants/policy-versions';
@@ -206,7 +206,7 @@ export default function BusinessQuoteRequestForm({
       <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
-            <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto" />
+            <PiCheckCircleBold className="w-16 h-16 text-green-600 mx-auto" />
             <h2 className="text-2xl font-bold text-circleTel-navy">Quote Request Submitted!</h2>
             <p className="text-circleTel-secondaryNeutral">
               Your business quote request has been submitted successfully. Our team will review your request and send you a detailed quote within 24 hours.
@@ -349,7 +349,7 @@ export default function BusinessQuoteRequestForm({
                 onClick={addItem}
                 disabled={items.length >= 10}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <PiPlusBold className="w-4 h-4 mr-2" />
                 Add Service
               </Button>
             </div>
@@ -365,7 +365,7 @@ export default function BusinessQuoteRequestForm({
                       className="absolute top-2 right-2"
                       onClick={() => removeItem(index)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <PiTrashBold className="w-4 h-4" />
                     </Button>
                   )}
 
@@ -462,7 +462,7 @@ export default function BusinessQuoteRequestForm({
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                 Submitting...
               </>
             ) : (

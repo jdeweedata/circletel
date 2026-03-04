@@ -1,20 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiCrosshairBold, PiEnvelopeBold, PiLightningBold, PiMapPinBold, PiNavigationArrowBold, PiPhoneBold, PiShieldBold, PiUserBold } from 'react-icons/pi';
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Building2,
-  Zap,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  ArrowRight,
-  Check,
-  Shield,
-  Navigation,
-  Crosshair
-} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -58,7 +46,7 @@ export function DesignV3MapView() {
         <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-circleTel-navy rounded-xl">
-              <Navigation className="w-5 h-5 text-white" />
+              <PiNavigationArrowBold className="w-5 h-5 text-white" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900">Feasibility Check</h2>
@@ -73,7 +61,7 @@ export function DesignV3MapView() {
             {/* Client Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-blue-600" />
+                <PiBuildingsBold className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Client</span>
               </div>
 
@@ -86,7 +74,7 @@ export function DesignV3MapView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <PiUserBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Contact"
                     value={formData.contactName}
@@ -95,7 +83,7 @@ export function DesignV3MapView() {
                   />
                 </div>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <PiPhoneBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Phone"
                     value={formData.contactPhone}
@@ -106,7 +94,7 @@ export function DesignV3MapView() {
               </div>
 
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <PiEnvelopeBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Email"
                   type="email"
@@ -122,7 +110,7 @@ export function DesignV3MapView() {
             {/* Requirements Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-violet-600" />
+                <PiLightningBold className="w-4 h-4 text-violet-600" />
                 <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Requirements</span>
               </div>
 
@@ -192,7 +180,7 @@ export function DesignV3MapView() {
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, needFailover: !!checked }))}
                     className="border-gray-300 data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600"
                   />
-                  <Shield className="w-4 h-4 text-gray-500" />
+                  <PiShieldBold className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-700">Failover</span>
                 </label>
               </div>
@@ -204,7 +192,7 @@ export function DesignV3MapView() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <PiMapPinBold className="w-4 h-4 text-emerald-600" />
                   <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Sites</span>
                 </div>
                 {sites.length > 0 && (
@@ -228,7 +216,7 @@ export function DesignV3MapView() {
         <div className="p-4 border-t border-gray-200 bg-gradient-to-t from-white to-gray-50/80">
           <button className="w-full h-14 bg-gradient-to-r from-circleTel-orange to-amber-500 text-white font-bold text-base rounded-xl shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2">
             <span>Check Feasibility</span>
-            <ArrowRight className="w-5 h-5" />
+            <PiArrowRightBold className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -268,7 +256,7 @@ export function DesignV3MapView() {
               −
             </button>
             <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center text-gray-600 hover:bg-gray-50">
-              <Crosshair className="w-4 h-4" />
+              <PiCrosshairBold className="w-4 h-4" />
             </button>
           </div>
 
@@ -344,7 +332,7 @@ export function DesignV3MapView() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-200/50 flex items-center justify-center">
-                  <MapPin className="w-10 h-10 text-gray-400" />
+                  <PiMapPinBold className="w-10 h-10 text-gray-400" />
                 </div>
                 <p className="text-gray-500 font-medium">Enter sites to see them on the map</p>
                 <p className="text-gray-400 text-sm mt-1">Addresses & GPS coordinates supported</p>

@@ -1,6 +1,6 @@
 'use client'
+import { PiCheckCircleBold, PiQuestionBold, PiWarningBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
-import { CheckCircle, AlertTriangle, XCircle, HelpCircle, Wifi } from 'lucide-react'
 
 type ProviderStatus = 'operational' | 'degraded' | 'outage' | 'unknown'
 
@@ -13,28 +13,28 @@ interface ProviderStatusCardProps {
 
 const statusConfig = {
   operational: {
-    icon: CheckCircle,
+    icon: PiCheckCircleBold,
     label: 'Operational',
     dotColor: 'bg-green-500',
     iconColor: 'text-green-500',
     bgHover: 'hover:bg-green-50',
   },
   degraded: {
-    icon: AlertTriangle,
+    icon: PiWarningBold,
     label: 'Degraded',
     dotColor: 'bg-yellow-500',
     iconColor: 'text-yellow-500',
     bgHover: 'hover:bg-yellow-50',
   },
   outage: {
-    icon: XCircle,
+    icon: PiXCircleBold,
     label: 'Outage',
     dotColor: 'bg-red-500',
     iconColor: 'text-red-500',
     bgHover: 'hover:bg-red-50',
   },
   unknown: {
-    icon: HelpCircle,
+    icon: PiQuestionBold,
     label: 'Unknown',
     dotColor: 'bg-gray-400',
     iconColor: 'text-gray-400',
@@ -72,7 +72,7 @@ export function ProviderStatusCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Wifi className="h-5 w-5 text-gray-400" />
+          <PiWifiBold className="h-5 w-5 text-gray-400" />
           <span className="font-medium text-ui-text-primary">{name}</span>
         </div>
         <Icon className={`h-5 w-5 ${config.iconColor}`} />

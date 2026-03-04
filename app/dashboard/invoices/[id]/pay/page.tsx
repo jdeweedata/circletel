@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, ArrowLeft, CheckCircle, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -84,7 +83,7 @@ export default async function PayInvoicePage({ params }: PayInvoicePageProps) {
     <div className="container mx-auto py-6 max-w-2xl">
       <div className="mb-6">
         <Link href={`/dashboard/invoices/${id}`} className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <PiArrowLeftBold className="mr-2 h-4 w-4" />
           Back to Invoice
         </Link>
       </div>
@@ -92,7 +91,7 @@ export default async function PayInvoicePage({ params }: PayInvoicePageProps) {
       <Card>
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <CreditCard className="h-6 w-6 text-primary" />
+            <PiCreditCardBold className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Pay Invoice</CardTitle>
           <CardDescription>
@@ -140,7 +139,7 @@ export default async function PayInvoicePage({ params }: PayInvoicePageProps) {
               <Button className="w-full h-auto py-4 justify-start" variant="outline" asChild>
                 <Link href={`/api/payments/netcash/invoice/${id}`}>
                   <div className="flex items-center gap-4">
-                    <CreditCard className="h-6 w-6" />
+                    <PiCreditCardBold className="h-6 w-6" />
                     <div className="text-left">
                       <p className="font-medium">Pay with Card or EFT</p>
                       <p className="text-sm text-muted-foreground">
@@ -155,7 +154,7 @@ export default async function PayInvoicePage({ params }: PayInvoicePageProps) {
 
           {/* Security Notice */}
           <div className="flex items-start gap-3 text-sm text-muted-foreground bg-green-50 dark:bg-green-950/20 rounded-lg p-4">
-            <Shield className="h-5 w-5 text-green-600 mt-0.5" />
+            <PiShieldBold className="h-5 w-5 text-green-600 mt-0.5" />
             <div>
               <p className="font-medium text-green-700 dark:text-green-400">Secure Payment</p>
               <p>Your payment is processed securely through NetCash, a PCI-DSS compliant payment gateway.</p>

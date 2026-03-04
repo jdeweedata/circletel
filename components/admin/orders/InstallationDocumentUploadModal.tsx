@@ -1,4 +1,5 @@
 'use client';
+import { PiFileTextBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useRef } from 'react';
 import {
@@ -13,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2, Upload, FileText } from 'lucide-react';
 
 interface InstallationDocumentUploadModalProps {
   open: boolean;
@@ -132,7 +132,7 @@ export function InstallationDocumentUploadModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
+              <PiUploadSimpleBold className="h-5 w-5" />
               Upload Installation Document
             </DialogTitle>
             <DialogDescription>
@@ -160,7 +160,7 @@ export function InstallationDocumentUploadModal({
 
                 {!selectedFile ? (
                   <div className="space-y-3">
-                    <Upload className="h-10 w-10 text-gray-400 mx-auto" />
+                    <PiUploadSimpleBold className="h-10 w-10 text-gray-400 mx-auto" />
                     <div>
                       <Button
                         type="button"
@@ -176,7 +176,7 @@ export function InstallationDocumentUploadModal({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <FileText className="h-10 w-10 text-blue-600 mx-auto" />
+                    <PiFileTextBold className="h-10 w-10 text-blue-600 mx-auto" />
                     <div className="space-y-1">
                       <p className="font-medium text-gray-900 text-sm">{selectedFile.name}</p>
                       <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
@@ -196,7 +196,7 @@ export function InstallationDocumentUploadModal({
 
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -214,7 +214,7 @@ export function InstallationDocumentUploadModal({
             <Button type="submit" disabled={isSubmitting || !selectedFile} className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Uploading...
                 </>
               ) : (

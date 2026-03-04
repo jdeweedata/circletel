@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckBold, PiStarBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star } from 'lucide-react';
 
 const Pricing = () => {
   return (
@@ -53,23 +53,23 @@ const Pricing = () => {
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">8/5 Help Desk Support</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Basic Security Suite</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Cloud Email Setup</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Data Backup Solutions</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Monthly System Reports</span>
                     </li>
                   </ul>
@@ -83,7 +83,7 @@ const Pricing = () => {
               <Card className="relative border-2 border-circleTel-orange shadow-lg transform hover:scale-105 transition-all duration-300">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-circleTel-orange text-white px-4 py-1">
-                    <Star className="h-4 w-4 mr-1" />
+                    <PiStarBold className="h-4 w-4 mr-1" />
                     Most Popular
                   </Badge>
                 </div>
@@ -96,27 +96,27 @@ const Pricing = () => {
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">24/7 Help Desk Support</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Enhanced Security Suite</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Hybrid Cloud Management</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">IT Asset Management</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Proactive Monitoring</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Quarterly IT Reviews</span>
                     </li>
                   </ul>
@@ -137,27 +137,27 @@ const Pricing = () => {
                 <CardContent>
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">24/7 VIP Support</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Custom Security Architecture</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Multi-site Management</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">IT Governance Framework</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Dedicated Account Manager</span>
                     </li>
                     <li className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Monthly Executive Briefings</span>
                     </li>
                   </ul>

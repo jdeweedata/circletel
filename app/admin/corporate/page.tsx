@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiBuildingsBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold, PiPlusBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,26 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Search,
-  Building2,
-  Plus,
-  MapPin,
-  Users,
-  CheckCircle,
-  Clock,
-  Briefcase,
-  ChevronLeft,
-  ChevronRight,
-  ArrowUpRight,
-  TrendingUp,
-  Filter,
-  LayoutGrid,
-  List,
-  Mail,
-  Phone,
-  ExternalLink,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CorporateAccount {
@@ -124,7 +105,7 @@ function StatCard({
         </div>
         {trend !== undefined && (
           <div className={cn('flex items-center gap-1 text-xs font-medium', trend >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-            <TrendingUp className={cn('w-3 h-3', trend < 0 && 'rotate-180')} />
+            <PiTrendUpBold className={cn('w-3 h-3', trend < 0 && 'rotate-180')} />
             {Math.abs(trend)}%
           </div>
         )}
@@ -203,7 +184,7 @@ function CorporateCard({
         </div>
         {corporate.pendingSites > 0 && (
           <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
+            <PiClockBold className="w-3 h-3" />
             {corporate.pendingSites} pending deployment
           </p>
         )}
@@ -213,7 +194,7 @@ function CorporateCard({
       <div className="pt-4 border-t border-ui-border">
         <p className="body-text font-medium truncate">{corporate.primaryContactName}</p>
         <p className="muted-text-sm truncate flex items-center gap-1 mt-0.5">
-          <Mail className="w-3 h-3" />
+          <PiEnvelopeBold className="w-3 h-3" />
           {corporate.primaryContactEmail}
         </p>
       </div>
@@ -334,7 +315,7 @@ export default function CorporateListPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
-                <Building2 className="w-7 h-7 text-white" />
+                <PiBuildingsBold className="w-7 h-7 text-white" />
               </div>
               <div>
                 <h1 className="page-title">
@@ -349,7 +330,7 @@ export default function CorporateListPage() {
               onClick={() => router.push('/admin/corporate/new')}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25 h-11 px-5"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <PiPlusBold className="w-4 h-4 mr-2" />
               Add Corporate
             </Button>
           </div>
@@ -396,7 +377,7 @@ export default function CorporateListPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 p-4 mb-6 shadow-sm">
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
                 placeholder="Search by company name, code, or contact..."
                 value={searchQuery}
@@ -410,7 +391,7 @@ export default function CorporateListPage() {
                 setPagination(prev => ({ ...prev, page: 1 }));
               }}>
                 <SelectTrigger className="w-[160px] h-11 border-slate-200 bg-slate-50/50">
-                  <Filter className="w-4 h-4 mr-2 text-slate-400" />
+                  <PiFunnelBold className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -433,7 +414,7 @@ export default function CorporateListPage() {
                     viewMode === 'grid' ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-400 hover:text-slate-600'
                   )}
                 >
-                  <LayoutGrid className="w-5 h-5" />
+                  <PiGridFourBold className="w-5 h-5" />
                 </button>
                 <button
                   type="button"
@@ -443,7 +424,7 @@ export default function CorporateListPage() {
                     viewMode === 'list' ? 'bg-slate-100 text-slate-900' : 'bg-white text-slate-400 hover:text-slate-600'
                   )}
                 >
-                  <List className="w-5 h-5" />
+                  <PiListBold className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -472,7 +453,7 @@ export default function CorporateListPage() {
         ) : corporates.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-ui-border">
             <div className="w-20 h-20 rounded-2xl bg-ui-bg flex items-center justify-center mb-4">
-              <Building2 className="w-10 h-10 text-ui-text-muted" />
+              <PiBuildingsBold className="w-10 h-10 text-ui-text-muted" />
             </div>
             <h3 className="section-heading mb-1">No corporate accounts found</h3>
             <p className="muted-text mb-6">
@@ -485,7 +466,7 @@ export default function CorporateListPage() {
                 onClick={() => router.push('/admin/corporate/new')}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <PiPlusBold className="w-4 h-4 mr-2" />
                 Add First Corporate
               </Button>
             )}
@@ -590,7 +571,7 @@ export default function CorporateListPage() {
                               router.push(`/admin/corporate/${corporate.id}`);
                             }}
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <PiArrowSquareOutBold className="w-4 h-4" />
                           </Button>
                         </td>
                       </tr>
@@ -625,7 +606,7 @@ export default function CorporateListPage() {
                 onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                 className="h-9 px-3 border-slate-200"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <PiCaretLeftBold className="w-4 h-4 mr-1" />
                 Previous
               </Button>
               <div className="flex items-center gap-1">
@@ -664,7 +645,7 @@ export default function CorporateListPage() {
                 className="h-9 px-3 border-slate-200"
               >
                 Next
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <PiCaretRightBold className="w-4 h-4 ml-1" />
               </Button>
             </div>
           </div>

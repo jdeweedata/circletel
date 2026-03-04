@@ -1,4 +1,5 @@
 'use client';
+import { PiPlusBold, PiSpinnerBold, PiWarningCircleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import {
@@ -16,7 +17,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2, Wrench, Plus, X } from 'lucide-react';
 
 interface Technician {
   id: string;
@@ -190,7 +190,7 @@ export function TechnicianFormModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-circleTel-orange" />
+              <PiWrenchBold className="h-5 w-5 text-circleTel-orange" />
               {isEditing ? 'Edit Technician' : 'Add New Technician'}
             </DialogTitle>
             <DialogDescription>
@@ -264,7 +264,7 @@ export function TechnicianFormModal({
                         onClick={() => handleRemoveSpecialty(specialty)}
                         className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
                       >
-                        <X className="h-3 w-3" />
+                        <PiXBold className="h-3 w-3" />
                       </button>
                     </Badge>
                   ))}
@@ -285,7 +285,7 @@ export function TechnicianFormModal({
                         onClick={() => handleAddSpecialty(specialty)}
                         className="text-xs h-7"
                       >
-                        <Plus className="h-3 w-3 mr-1" />
+                        <PiPlusBold className="h-3 w-3 mr-1" />
                         {specialty}
                       </Button>
                     )
@@ -313,7 +313,7 @@ export function TechnicianFormModal({
                   onClick={() => handleAddSpecialty(newSpecialty)}
                   disabled={!newSpecialty.trim()}
                 >
-                  <Plus className="h-4 w-4" />
+                  <PiPlusBold className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -336,7 +336,7 @@ export function TechnicianFormModal({
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -349,12 +349,12 @@ export function TechnicianFormModal({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
-                  <Wrench className="mr-2 h-4 w-4" />
+                  <PiWrenchBold className="mr-2 h-4 w-4" />
                   {isEditing ? 'Update Technician' : 'Create Technician'}
                 </>
               )}

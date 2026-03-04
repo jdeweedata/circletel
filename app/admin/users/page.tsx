@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEnvelopeBold, PiEyeBold, PiGearBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiShieldBold, PiUserCheckBold, PiUsersBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -31,23 +32,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Users,
-  Search,
-  MoreHorizontal,
-  Edit,
-  Shield,
-  UserX,
-  UserCheck,
-  RefreshCw,
-  Mail,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Eye,
-  Settings,
-  Activity
-} from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
@@ -336,7 +320,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Users className="h-8 w-8 text-circleTel-orange" />
+            <PiUsersBold className="h-8 w-8 text-circleTel-orange" />
             User Management
           </h1>
           <p className="text-gray-600 mt-2">
@@ -346,13 +330,13 @@ export default function AdminUsersPage() {
         <div className="flex items-center gap-2">
           <Link href="/admin/users/roles">
             <Button variant="outline">
-              <Settings className="mr-2 h-4 w-4" />
+              <PiGearBold className="mr-2 h-4 w-4" />
               Manage Roles
             </Button>
           </Link>
           <Link href="/admin/users/activity">
             <Button variant="outline">
-              <Activity className="mr-2 h-4 w-4" />
+              <PiActivityBold className="mr-2 h-4 w-4" />
               Activity Logs
             </Button>
           </Link>
@@ -361,7 +345,7 @@ export default function AdminUsersPage() {
             onClick={() => activeTab === 'users' ? fetchUsers() : fetchPendingRequests()}
             disabled={loading}
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -382,7 +366,7 @@ export default function AdminUsersPage() {
               Total Users
             </CardTitle>
             <div className="p-2 rounded-lg bg-blue-100">
-              <Users className="h-5 w-5 text-blue-600" />
+              <PiUsersBold className="h-5 w-5 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -401,7 +385,7 @@ export default function AdminUsersPage() {
               Active Users
             </CardTitle>
             <div className="p-2 rounded-lg bg-green-100">
-              <UserCheck className="h-5 w-5 text-green-600" />
+              <PiUserCheckBold className="h-5 w-5 text-green-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -420,7 +404,7 @@ export default function AdminUsersPage() {
               Pending Requests
             </CardTitle>
             <div className="p-2 rounded-lg bg-orange-100">
-              <Clock className="h-5 w-5 text-circleTel-orange" />
+              <PiClockBold className="h-5 w-5 text-circleTel-orange" />
             </div>
           </CardHeader>
           <CardContent>
@@ -446,7 +430,7 @@ export default function AdminUsersPage() {
               Super Admins
             </CardTitle>
             <div className="p-2 rounded-lg bg-red-100">
-              <Shield className="h-5 w-5 text-red-600" />
+              <PiShieldBold className="h-5 w-5 text-red-600" />
             </div>
           </CardHeader>
           <CardContent>
@@ -464,11 +448,11 @@ export default function AdminUsersPage() {
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
         <TabsList>
           <TabsTrigger value="users">
-            <Users className="h-4 w-4 mr-2" />
+            <PiUsersBold className="h-4 w-4 mr-2" />
             Active Users ({users.length})
           </TabsTrigger>
           <TabsTrigger value="pending">
-            <Clock className="h-4 w-4 mr-2" />
+            <PiClockBold className="h-4 w-4 mr-2" />
             Pending Requests
             {pendingCount > 0 && (
               <Badge className="ml-2 bg-orange-500">{pendingCount}</Badge>
@@ -488,7 +472,7 @@ export default function AdminUsersPage() {
                   </CardDescription>
                 </div>
                 <div className="relative w-64">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search users..."
                     value={searchQuery}
@@ -563,19 +547,19 @@ export default function AdminUsersPage() {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
+                                  <PiDotsThreeBold className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 {hasPermission(PERMISSIONS.USERS.EDIT) && (
                                   <DropdownMenuItem>
-                                    <Edit className="w-4 h-4 mr-2" />
+                                    <PiPencilSimpleBold className="w-4 h-4 mr-2" />
                                     Edit User
                                   </DropdownMenuItem>
                                 )}
                                 {hasPermission(PERMISSIONS.USERS.MANAGE_ROLES) && (
                                   <DropdownMenuItem>
-                                    <Shield className="w-4 h-4 mr-2" />
+                                    <PiShieldBold className="w-4 h-4 mr-2" />
                                     Change Role
                                   </DropdownMenuItem>
                                 )}
@@ -610,7 +594,7 @@ export default function AdminUsersPage() {
                   </CardDescription>
                 </div>
                 <div className="relative w-64">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search requests..."
                     value={searchQuery}
@@ -683,7 +667,7 @@ export default function AdminUsersPage() {
                               onClick={() => openApproveDialog(request)}
                               className="text-green-600 hover:text-green-700"
                             >
-                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              <PiCheckCircleBold className="h-4 w-4 mr-1" />
                               Approve
                             </Button>
                             <Button
@@ -692,7 +676,7 @@ export default function AdminUsersPage() {
                               onClick={() => openRejectDialog(request)}
                               className="text-red-600 hover:text-red-700"
                             >
-                              <XCircle className="h-4 w-4 mr-1" />
+                              <PiXCircleBold className="h-4 w-4 mr-1" />
                               Reject
                             </Button>
                           </div>

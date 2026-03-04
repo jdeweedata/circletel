@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Star, Quote } from "lucide-react"
 
 const testimonials = [
   {
@@ -55,7 +54,7 @@ export function DemoTestimonials() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 fill-circleTel-orange text-circleTel-orange" />
+                <PiStarBold key={i} className="w-6 h-6 fill-circleTel-orange text-circleTel-orange" />
               ))}
             </div>
             <span className="text-2xl font-bold text-circleTel-navy">4.9</span>
@@ -73,13 +72,13 @@ export function DemoTestimonials() {
               <CardContent className="p-8">
                 {/* Quote Icon */}
                 <div className="absolute top-6 right-6">
-                  <Quote className="w-8 h-8 text-circleTel-orange/20" />
+                  <PiQuotesBold className="w-8 h-8 text-circleTel-orange/20" />
                 </div>
 
                 {/* Rating */}
                 <div className="flex mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-circleTel-orange text-circleTel-orange" />
+                    <PiStarBold key={i} className="w-5 h-5 fill-circleTel-orange text-circleTel-orange" />
                   ))}
                 </div>
 

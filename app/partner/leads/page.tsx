@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiEnvelopeBold, PiFunnelBold, PiMagnifyingGlassBold, PiMapPinBold, PiPhoneBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Search, Phone, Mail, MapPin, Calendar, RefreshCw, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -198,7 +198,7 @@ export default function PartnerLeadsPage() {
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by name, email, phone, or address..."
                   value={searchQuery}
@@ -230,7 +230,7 @@ export default function PartnerLeadsPage() {
 
             {/* Refresh Button */}
             <Button variant="outline" onClick={handleRefresh} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
@@ -295,13 +295,13 @@ export default function PartnerLeadsPage() {
                         <TableCell>
                           <div className="space-y-1">
                             <div className="flex items-center text-sm">
-                              <Mail className="h-3 w-3 mr-1 text-gray-400" />
+                              <PiEnvelopeBold className="h-3 w-3 mr-1 text-gray-400" />
                               <a href={`mailto:${lead.email}`} className="text-circleTel-orange hover:underline">
                                 {lead.email}
                               </a>
                             </div>
                             <div className="flex items-center text-sm">
-                              <Phone className="h-3 w-3 mr-1 text-gray-400" />
+                              <PiPhoneBold className="h-3 w-3 mr-1 text-gray-400" />
                               <a href={`tel:${lead.phone}`} className="text-circleTel-orange hover:underline">
                                 {lead.phone}
                               </a>
@@ -310,7 +310,7 @@ export default function PartnerLeadsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-start text-sm text-gray-600 max-w-xs">
-                            <MapPin className="h-3 w-3 mr-1 mt-1 text-gray-400 flex-shrink-0" />
+                            <PiMapPinBold className="h-3 w-3 mr-1 mt-1 text-gray-400 flex-shrink-0" />
                             <span className="line-clamp-2">
                               {lead.address}
                               {lead.city && `, ${lead.city}`}
@@ -332,7 +332,7 @@ export default function PartnerLeadsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center text-sm text-gray-600">
-                            <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                            <PiCalendarBold className="h-3 w-3 mr-1 text-gray-400" />
                             {format(new Date(lead.created_at), 'MMM d, yyyy')}
                           </div>
                         </TableCell>
@@ -366,7 +366,7 @@ export default function PartnerLeadsPage() {
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={pagination.page === 1}
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <PiCaretLeftBold className="h-4 w-4" />
                       Previous
                     </Button>
                     <div className="flex items-center space-x-1">
@@ -389,7 +389,7 @@ export default function PartnerLeadsPage() {
                       disabled={pagination.page === pagination.totalPages}
                     >
                       Next
-                      <ChevronRight className="h-4 w-4" />
+                      <PiCaretRightBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

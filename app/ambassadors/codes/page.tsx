@@ -1,19 +1,8 @@
 'use client';
+import { PiArrowSquareOutBold, PiCheckBold, PiCopyBold, PiCurrencyDollarBold, PiPencilSimpleBold, PiPlusBold, PiShoppingCartBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import {
-  Plus,
-  Copy,
-  ExternalLink,
-  Trash2,
-  Edit2,
-  MousePointerClick,
-  ShoppingCart,
-  DollarSign,
-  Loader2,
-  Check,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -245,7 +234,7 @@ export default function AmbassadorCodesPage() {
           </p>
         </div>
         <Button onClick={openCreateModal}>
-          <Plus className="w-4 h-4 mr-2" />
+          <PiPlusBold className="w-4 h-4 mr-2" />
           New Code
         </Button>
       </div>
@@ -263,7 +252,7 @@ export default function AmbassadorCodesPage() {
       {codes.length === 0 ? (
         <div className="bg-white rounded-xl border p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Plus className="w-8 h-8 text-gray-400" />
+            <PiPlusBold className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             No codes yet
@@ -273,7 +262,7 @@ export default function AmbassadorCodesPage() {
             commissions.
           </p>
           <Button onClick={openCreateModal}>
-            <Plus className="w-4 h-4 mr-2" />
+            <PiPlusBold className="w-4 h-4 mr-2" />
             Create Your First Code
           </Button>
         </div>
@@ -317,12 +306,12 @@ export default function AmbassadorCodesPage() {
                   <p className="text-xs text-gray-500">Clicks</p>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <ShoppingCart className="w-4 h-4 mx-auto text-green-500 mb-1" />
+                  <PiShoppingCartBold className="w-4 h-4 mx-auto text-green-500 mb-1" />
                   <p className="text-sm font-semibold">{code.total_conversions}</p>
                   <p className="text-xs text-gray-500">Sales</p>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <DollarSign className="w-4 h-4 mx-auto text-purple-500 mb-1" />
+                  <PiCurrencyDollarBold className="w-4 h-4 mx-auto text-purple-500 mb-1" />
                   <p className="text-sm font-semibold">R{code.total_revenue.toFixed(0)}</p>
                   <p className="text-xs text-gray-500">Revenue</p>
                 </div>
@@ -341,12 +330,12 @@ export default function AmbassadorCodesPage() {
                 >
                   {copiedCode === code.code ? (
                     <>
-                      <Check className="w-4 h-4" />
+                      <PiCheckBold className="w-4 h-4" />
                       Copied!
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4" />
+                      <PiCopyBold className="w-4 h-4" />
                       Copy Link
                     </>
                   )}
@@ -356,7 +345,7 @@ export default function AmbassadorCodesPage() {
                   className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
                   title="Edit"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <PiPencilSimpleBold className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => toggleActive(code)}
@@ -368,14 +357,14 @@ export default function AmbassadorCodesPage() {
                   )}
                   title={code.is_active ? 'Deactivate' : 'Activate'}
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <PiArrowSquareOutBold className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(code.id)}
                   className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
                   title="Delete"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <PiTrashBold className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -466,7 +455,7 @@ export default function AmbassadorCodesPage() {
             <Button onClick={handleSave} disabled={saving || !formData.code}>
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : editingCode ? (

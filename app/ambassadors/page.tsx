@@ -1,19 +1,9 @@
 'use client';
+import { PiArrowSquareOutBold, PiCopyBold, PiCurrencyDollarBold, PiLinkBold, PiPlusBold, PiShoppingCartBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import {
-  TrendingUp,
-  MousePointerClick,
-  ShoppingCart,
-  DollarSign,
-  Copy,
-  ExternalLink,
-  ArrowUpRight,
-  Plus,
-  Link2,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Ambassador {
@@ -140,7 +130,7 @@ export default function AmbassadorDashboard() {
     {
       label: 'Conversions',
       value: ambassador.total_conversions.toLocaleString(),
-      icon: ShoppingCart,
+      icon: PiShoppingCartBold,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
       subtext: `${getConversionRate()}% rate`,
@@ -148,14 +138,14 @@ export default function AmbassadorDashboard() {
     {
       label: 'Total Earnings',
       value: `R${ambassador.total_earnings.toFixed(2)}`,
-      icon: DollarSign,
+      icon: PiCurrencyDollarBold,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
     {
       label: 'Pending Payout',
       value: `R${ambassador.pending_earnings.toFixed(2)}`,
-      icon: TrendingUp,
+      icon: PiTrendUpBold,
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
     },
@@ -240,7 +230,7 @@ export default function AmbassadorDashboard() {
                 href="/ambassadors/codes"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-lg hover:bg-orange-600"
               >
-                <Plus className="w-4 h-4" />
+                <PiPlusBold className="w-4 h-4" />
                 Create Code
               </Link>
             </div>
@@ -276,7 +266,7 @@ export default function AmbassadorDashboard() {
                       {copiedCode === code.code ? (
                         <span className="text-xs">Copied!</span>
                       ) : (
-                        <Copy className="w-4 h-4" />
+                        <PiCopyBold className="w-4 h-4" />
                       )}
                     </button>
                   </div>
@@ -317,7 +307,7 @@ export default function AmbassadorDashboard() {
                         )}
                       >
                         {isConversion ? (
-                          <ShoppingCart className="w-4 h-4" />
+                          <PiShoppingCartBold className="w-4 h-4" />
                         ) : (
                           <MousePointerClick className="w-4 h-4" />
                         )}
@@ -353,7 +343,7 @@ export default function AmbassadorDashboard() {
             className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="p-2 bg-purple-100 rounded-lg">
-              <ExternalLink className="w-5 h-5 text-purple-600" />
+              <PiArrowSquareOutBold className="w-5 h-5 text-purple-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">Marketing Assets</p>
@@ -366,7 +356,7 @@ export default function AmbassadorDashboard() {
             className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
-              <Link2 className="w-5 h-5 text-blue-600" />
+              <PiLinkBold className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">Create New Code</p>
@@ -379,7 +369,7 @@ export default function AmbassadorDashboard() {
             className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-green-600" />
+              <PiCurrencyDollarBold className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">View Earnings</p>

@@ -1,5 +1,5 @@
+import { PiCheckBold, PiInfoBold, PiStarBold } from 'react-icons/pi';
 import React, { useState } from 'react'
-import { Check, Info, Star } from 'lucide-react'
 
 interface PricingTier {
   name: string
@@ -122,7 +122,7 @@ export default function PricingTables({ plans = defaultPlans }: PricingTablesPro
                     <td className="px-6 py-4 text-center text-gray-700">{tier.storage}</td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center text-green-600 font-medium">
-                        <Check className="w-4 h-4 mr-1" />
+                        <PiCheckBold className="w-4 h-4 mr-1" />
                         {tier.bandwidth}
                       </span>
                     </td>
@@ -149,21 +149,21 @@ export default function PricingTables({ plans = defaultPlans }: PricingTablesPro
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-3">
-              <Check className="w-5 h-5 text-green-500 mr-2" />
+              <PiCheckBold className="w-5 h-5 text-green-500 mr-2" />
               <span className="font-semibold">cPanel Included</span>
             </div>
             <p className="text-sm text-gray-600">Full control panel access for easy management</p>
           </div>
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-3">
-              <Check className="w-5 h-5 text-green-500 mr-2" />
+              <PiCheckBold className="w-5 h-5 text-green-500 mr-2" />
               <span className="font-semibold">Automatic Backups</span>
             </div>
             <p className="text-sm text-gray-600">Daily backups with 30-day retention</p>
           </div>
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-3">
-              <Check className="w-5 h-5 text-green-500 mr-2" />
+              <PiCheckBold className="w-5 h-5 text-green-500 mr-2" />
               <span className="font-semibold">24/7 Support</span>
             </div>
             <p className="text-sm text-gray-600">Expert support whenever you need it</p>

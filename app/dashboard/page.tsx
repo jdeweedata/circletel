@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsDownUpBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -6,7 +7,6 @@ import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, CreditCard, Package, AlertCircle, Clock, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
 import { ServiceManageDropdown } from "@/components/dashboard/ServiceManageDropdown";
@@ -222,7 +222,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -230,7 +230,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-6">
-        <AlertCircle className="h-12 w-12 text-red-500" />
+        <PiWarningCircleBold className="h-12 w-12 text-red-500" />
         <div className="text-center max-w-md">
           <p className="text-lg font-semibold text-gray-900 mb-2">Failed to load dashboard</p>
           <p className="text-sm text-gray-600 mb-4">{error}</p>
@@ -255,7 +255,7 @@ export default function DashboardPage() {
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Package className="h-12 w-12 text-gray-400" />
+        <PiPackageBold className="h-12 w-12 text-gray-400" />
         <p className="text-lg text-gray-600">No data available</p>
         <Link href="/order/coverage">
           <Button>Check Coverage & Order</Button>
@@ -325,7 +325,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
         <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-circleTel-orange rounded-xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-circleTel-orange rounded-lg">
-              <AlertCircle className="w-6 h-6 text-white" />
+              <PiWarningCircleBold className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -337,7 +337,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
               </p>
               <Link href="/dashboard/payment-method">
                 <Button className="bg-circleTel-orange hover:bg-orange-600 font-semibold shadow-md">
-                  <CreditCard className="w-4 h-4 mr-2" />
+                  <PiCreditCardBold className="w-4 h-4 mr-2" />
                   Add Payment Method
                 </Button>
               </Link>
@@ -363,7 +363,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           } : undefined}
           subtitle={data.stats.activeServices > 0 ? "All services active" : "No active services"}
           description="Connected and billing"
-          icon={<Wifi className="h-5 w-5" />}
+          icon={<PiWifiBold className="h-5 w-5" />}
           href="/dashboard/services"
         />
 
@@ -377,7 +377,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           } : undefined}
           subtitle={data.stats.pendingOrders > 0 ? `${data.stats.pendingOrders} pending` : "All orders completed"}
           description={data.stats.pendingOrders > 0 ? "Some orders need attention" : "Order history"}
-          icon={<Package className="h-5 w-5" />}
+          icon={<PiPackageBold className="h-5 w-5" />}
           href="/dashboard/orders"
         />
 
@@ -391,7 +391,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           } : undefined}
           subtitle={data.stats.accountBalance === 0 ? "No balance due" : data.stats.accountBalance > 0 ? "Payment due" : "Credit available"}
           description={data.stats.accountBalance > 0 ? "Please make payment" : "Account in good standing"}
-          icon={<CreditCard className="h-5 w-5" />}
+          icon={<PiCreditCardBold className="h-5 w-5" />}
           href="/dashboard/billing"
         />
 
@@ -405,7 +405,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
           } : undefined}
           subtitle={data.stats.overdueInvoices > 0 ? `${data.stats.overdueInvoices} overdue invoices` : "No outstanding payments"}
           description={data.stats.overdueInvoices > 0 ? "Payment required" : "Account in good standing"}
-          icon={<CreditCard className="h-5 w-5" />}
+          icon={<PiCreditCardBold className="h-5 w-5" />}
           href="/dashboard/billing"
         />
       </div>
@@ -456,7 +456,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <ArrowUpDown className="h-5 w-5 text-blue-600 rotate-180" />
+                      <PiArrowsDownUpBold className="h-5 w-5 text-blue-600 rotate-180" />
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-600">Download</p>
@@ -465,7 +465,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                   </div>
                   <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <ArrowUpDown className="h-5 w-5 text-green-600" />
+                      <PiArrowsDownUpBold className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-600">Upload</p>
@@ -482,7 +482,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <Package className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <PiPackageBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                 <p>No active services</p>
                 <Link href="/order/coverage">
                   <Button className="mt-4 bg-circleTel-orange hover:bg-orange-600">Check Coverage & Order</Button>
@@ -507,7 +507,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
               <div className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <CreditCard className="h-5 w-5 text-circleTel-orange" />
+                    <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{data.billing.payment_method || 'No payment method'}</p>
@@ -535,7 +535,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <PiCreditCardBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                 <p>No billing information</p>
               </div>
             )}
@@ -559,7 +559,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
                   <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:shadow-md transition-all">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package className="h-6 w-6 text-gray-600" />
+                        <PiPackageBold className="h-6 w-6 text-gray-600" />
                       </div>
                       <div>
                         <p className="font-bold text-base">{order.order_number}</p>
@@ -577,7 +577,7 @@ function DashboardContent({ data, user, customer, pendingOrders }: { data: Dashb
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <Package className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <PiPackageBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                 <p>No orders yet</p>
               </div>
             )}

@@ -1,21 +1,10 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiPackageBold, PiSpinnerBold, PiUserBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  CheckCircle,
-  XCircle,
-  Clock,
-  RefreshCw,
-  RotateCcw,
-  Loader2,
-  User,
-  Package,
-  FileSpreadsheet,
-  CreditCard,
-} from 'lucide-react';
 import { ManualSyncForm } from './ManualSyncForm';
 
 interface ZohoSyncLog {
@@ -146,24 +135,24 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
   };
 
   const entityIcons = {
-    customer: <User className="h-4 w-4" />,
-    subscription: <Package className="h-4 w-4" />,
+    customer: <PiUserBold className="h-4 w-4" />,
+    subscription: <PiPackageBold className="h-4 w-4" />,
     invoice: <FileSpreadsheet className="h-4 w-4" />,
-    payment: <CreditCard className="h-4 w-4" />,
+    payment: <PiCreditCardBold className="h-4 w-4" />,
   };
 
   const statusConfig = {
-    success: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', icon: <CheckCircle className="h-4 w-4" /> },
-    failed: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: <XCircle className="h-4 w-4" /> },
-    pending: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', icon: <Clock className="h-4 w-4" /> },
-    retrying: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: <RefreshCw className="h-4 w-4 animate-spin" /> },
+    success: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', icon: <PiCheckCircleBold className="h-4 w-4" /> },
+    failed: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: <PiXCircleBold className="h-4 w-4" /> },
+    pending: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', icon: <PiClockBold className="h-4 w-4" /> },
+    retrying: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: <PiArrowsClockwiseBold className="h-4 w-4 animate-spin" /> },
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <RotateCcw className="h-5 w-5 text-circleTel-orange" />
+          <PiArrowCounterClockwiseBold className="h-5 w-5 text-circleTel-orange" />
           Zoho Billing Sync Management
         </CardTitle>
         <CardDescription>
@@ -175,7 +164,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="border-green-200 bg-green-50">
             <CardContent className="p-4 text-center">
-              <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
+              <PiCheckCircleBold className="h-6 w-6 text-green-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-green-600">
                 {syncLogs.filter(l => l.status === 'success').length}
               </div>
@@ -184,7 +173,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
           </Card>
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-4 text-center">
-              <XCircle className="h-6 w-6 text-red-600 mx-auto mb-2" />
+              <PiXCircleBold className="h-6 w-6 text-red-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-red-600">
                 {syncLogs.filter(l => l.status === 'failed').length}
               </div>
@@ -193,7 +182,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
           </Card>
           <Card className="border-yellow-200 bg-yellow-50">
             <CardContent className="p-4 text-center">
-              <Clock className="h-6 w-6 text-yellow-600 mx-auto mb-2" />
+              <PiClockBold className="h-6 w-6 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-yellow-600">
                 {syncLogs.filter(l => l.status === 'pending').length}
               </div>
@@ -202,7 +191,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
           </Card>
           <Card className="border-blue-200 bg-blue-50">
             <CardContent className="p-4 text-center">
-              <RefreshCw className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+              <PiArrowsClockwiseBold className="h-6 w-6 text-blue-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-blue-600">
                 {syncLogs.filter(l => l.status === 'retrying').length}
               </div>
@@ -250,7 +239,7 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
                 disabled={syncLogsLoading}
                 className="ml-auto"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${syncLogsLoading ? 'animate-spin' : ''}`} />
+                <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${syncLogsLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
@@ -266,11 +255,11 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
           <CardContent>
             {syncLogsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+                <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
               </div>
             ) : syncLogs.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                <RotateCcw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <PiArrowCounterClockwiseBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                 <p className="font-medium mb-1">No sync logs found</p>
                 <p className="text-sm">Sync activity will appear here when data is synchronized with Zoho</p>
               </div>
@@ -324,10 +313,10 @@ export function ZohoSyncTab({ isActive }: ZohoSyncTabProps) {
                           className="text-circleTel-orange border-circleTel-orange hover:bg-circleTel-orange hover:text-white"
                         >
                           {isRetrying ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <PiSpinnerBold className="h-4 w-4 animate-spin" />
                           ) : (
                             <>
-                              <RotateCcw className="h-4 w-4 mr-1" />
+                              <PiArrowCounterClockwiseBold className="h-4 w-4 mr-1" />
                               Retry
                             </>
                           )}

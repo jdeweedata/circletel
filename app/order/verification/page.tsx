@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiCheckCircleBold, PiFileTextBold, PiInfoBold, PiShieldBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,16 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import {
-  Shield,
-  FileText,
-  CheckCircle,
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Upload,
-  Info
-} from 'lucide-react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { OrderBreadcrumb } from '@/components/order/OrderBreadcrumb';
 import { KycDocumentUpload } from '@/components/order/KycDocumentUpload';
@@ -179,7 +170,7 @@ export default function KycVerificationPage() {
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 md:py-10 lg:py-12">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-circleTel-navy flex items-center justify-center gap-2">
-            <Shield className="w-8 h-8 text-circleTel-orange" />
+            <PiShieldBold className="w-8 h-8 text-circleTel-orange" />
             KYC Verification
           </h1>
           <p className="mt-2 text-lg text-circleTel-secondaryNeutral">
@@ -190,7 +181,7 @@ export default function KycVerificationPage() {
         {/* Status Alert */}
         {kycData.verificationStatus && (
           <Alert className="mb-6">
-            <Info className="h-4 w-4" />
+            <PiInfoBold className="h-4 w-4" />
             <AlertDescription>
               <strong>Verification Status:</strong>{' '}
               <Badge variant={kycData.verificationStatus === 'approved' ? 'default' : 'secondary'}>
@@ -217,7 +208,7 @@ export default function KycVerificationPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-circleTel-orange" />
+                  <PiFileTextBold className="w-5 h-5 text-circleTel-orange" />
                   Why is KYC verification required?
                 </CardTitle>
                 <CardDescription>
@@ -226,7 +217,7 @@ export default function KycVerificationPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium">FICA Compliance</p>
                     <p className="text-sm text-gray-600">
@@ -235,7 +226,7 @@ export default function KycVerificationPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium">RICA Registration</p>
                     <p className="text-sm text-gray-600">
@@ -244,7 +235,7 @@ export default function KycVerificationPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium">Secure & Private</p>
                     <p className="text-sm text-gray-600">
@@ -259,7 +250,7 @@ export default function KycVerificationPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="w-5 h-5 text-circleTel-orange" />
+                  <PiUploadSimpleBold className="w-5 h-5 text-circleTel-orange" />
                   Upload Your Documents
                 </CardTitle>
                 <CardDescription>
@@ -285,9 +276,9 @@ export default function KycVerificationPage() {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
                   {kycData.idDocumentUploaded ? (
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   ) : (
-                    <AlertCircle className="w-5 h-5 text-gray-400" />
+                    <PiWarningCircleBold className="w-5 h-5 text-gray-400" />
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-sm">ID Document</p>
@@ -297,9 +288,9 @@ export default function KycVerificationPage() {
 
                 <div className="flex items-center gap-3">
                   {kycData.proofOfAddressUploaded ? (
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   ) : (
-                    <AlertCircle className="w-5 h-5 text-gray-400" />
+                    <PiWarningCircleBold className="w-5 h-5 text-gray-400" />
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-sm">Proof of Address</p>
@@ -309,9 +300,9 @@ export default function KycVerificationPage() {
 
                 <div className="flex items-center gap-3">
                   {kycData.bankStatementUploaded ? (
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   ) : (
-                    <AlertCircle className="w-5 h-5 text-gray-400" />
+                    <PiWarningCircleBold className="w-5 h-5 text-gray-400" />
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-sm">Bank Statement</p>
@@ -322,9 +313,9 @@ export default function KycVerificationPage() {
                 {accountData.accountType === 'business' && (
                   <div className="flex items-center gap-3">
                     {kycData.companyRegistrationUploaded ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                     ) : (
-                      <AlertCircle className="w-5 h-5 text-gray-400" />
+                      <PiWarningCircleBold className="w-5 h-5 text-gray-400" />
                     )}
                     <div className="flex-1">
                       <p className="font-medium text-sm">Company Registration</p>
@@ -364,7 +355,7 @@ export default function KycVerificationPage() {
             onClick={handleBack}
             className="flex items-center gap-2"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
             Back
           </Button>
 
@@ -387,7 +378,7 @@ export default function KycVerificationPage() {
               ) : (
                 <>
                   Submit for Review
-                  <ArrowRight className="w-4 h-4" />
+                  <PiArrowRightBold className="w-4 h-4" />
                 </>
               )}
             </Button>

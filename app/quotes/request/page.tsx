@@ -8,6 +8,7 @@
  */
 
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -19,7 +20,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle, AlertCircle, MapPin, Building2, Phone, Mail, User, FileText } from 'lucide-react';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
 
@@ -296,7 +296,7 @@ function QuoteRequestFormContent() {
         {/* Error Alert */}
         {error && (
           <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
+            <PiWarningCircleBold className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -306,7 +306,7 @@ function QuoteRequestFormContent() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
+                <PiMapPinBold className="h-5 w-5" />
                 Step 1: Check Coverage
               </CardTitle>
               <CardDescription>
@@ -335,7 +335,7 @@ function QuoteRequestFormContent() {
               {/* Coverage Unavailable - Suggest Map Selection */}
               {showCoverageUnavailablePrompt && (
                 <Alert className="border-orange-200 bg-orange-50">
-                  <AlertCircle className="h-4 w-4 text-orange-600" />
+                  <PiWarningCircleBold className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
                     <p className="font-semibold mb-2">Can't find coverage at this address?</p>
                     <p className="text-sm mb-3">
@@ -347,7 +347,7 @@ function QuoteRequestFormContent() {
                       size="sm"
                       className="border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"
                     >
-                      <MapPin className="h-4 w-4 mr-2" />
+                      <PiMapPinBold className="h-4 w-4 mr-2" />
                       Select Location on Map
                     </Button>
                   </AlertDescription>
@@ -359,7 +359,7 @@ function QuoteRequestFormContent() {
                 disabled={loading || !address.trim()}
                 className="w-full bg-circleTel-orange hover:bg-orange-600"
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
                 Check Coverage
               </Button>
             </CardContent>
@@ -387,7 +387,7 @@ function QuoteRequestFormContent() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
+                <PiBuildingsBold className="h-5 w-5" />
                 Step 2: Company & Contact Details
               </CardTitle>
               <CardDescription>
@@ -716,7 +716,7 @@ function QuoteRequestFormContent() {
                   disabled={loading}
                   className="flex-1 bg-circleTel-orange hover:bg-orange-600"
                 >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
                   Submit Quote Request
                 </Button>
               </div>
@@ -729,7 +729,7 @@ function QuoteRequestFormContent() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="h-6 w-6" />
+                <PiCheckCircleBold className="h-6 w-6" />
                 Quote Request Submitted!
               </CardTitle>
               <CardDescription>
@@ -776,7 +776,7 @@ export default function QuoteRequestPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <QuoteRequestFormContent />

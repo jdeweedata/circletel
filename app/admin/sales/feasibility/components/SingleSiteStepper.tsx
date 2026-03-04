@@ -1,41 +1,9 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowSquareOutBold, PiArrowsDownUpBold, PiBuildingsBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiClipboardTextBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiFunnelBold, PiGaugeBold, PiGlobeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiRouterBold, PiShieldBold, PiShieldCheckBold, PiSlidersHorizontalBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import {
-  MapPin,
-  Building2,
-  Mail,
-  Phone,
-  Wifi,
-  Shield,
-  ShieldCheck,
-  FileText,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  ChevronRight,
-  ChevronLeft,
-  Sparkles,
-  Zap,
-  Globe,
-  Signal,
-  Router,
-  Antenna,
-  Search,
-  Package,
-  User,
-  DollarSign,
-  Calendar,
-  ClipboardList,
-  ExternalLink,
-  Filter,
-  ArrowUpDown,
-  SlidersHorizontal,
-  Gauge,
-  RotateCcw
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -106,11 +74,11 @@ interface ServicePackage {
 // ============================================================================
 
 const steps = [
-  { id: 1, title: 'Address', icon: MapPin },
-  { id: 2, title: 'Coverage', icon: Search },
-  { id: 3, title: 'Packages', icon: Package },
-  { id: 4, title: 'Client', icon: User },
-  { id: 5, title: 'Review', icon: ClipboardList },
+  { id: 1, title: 'Address', icon: PiMapPinBold },
+  { id: 2, title: 'Coverage', icon: PiMagnifyingGlassBold },
+  { id: 3, title: 'Packages', icon: PiPackageBold },
+  { id: 4, title: 'Client', icon: PiUserBold },
+  { id: 5, title: 'Review', icon: PiClipboardTextBold },
 ];
 
 const contractTermOptions = [
@@ -157,12 +125,12 @@ const parseCoordinates = (text: string): { lat: number; lng: number } | null => 
 
 const getTechIcon = (tech: string) => {
   switch (tech.toLowerCase()) {
-    case 'fibre': return <Globe className="h-4 w-4 text-blue-500" />;
-    case 'lte': return <Signal className="h-4 w-4 text-green-500" />;
-    case '5g': return <Zap className="h-4 w-4 text-purple-500" />;
+    case 'fibre': return <PiGlobeBold className="h-4 w-4 text-blue-500" />;
+    case 'lte': return <PiCellSignalFullBold className="h-4 w-4 text-green-500" />;
+    case '5g': return <PiLightningBold className="h-4 w-4 text-purple-500" />;
     case 'tarana': case 'skyfibre': case 'wireless': return <Antenna className="h-4 w-4 text-orange-500" />;
-    case 'starlink': return <Sparkles className="h-4 w-4 text-cyan-500" />;
-    default: return <Wifi className="h-4 w-4 text-gray-500" />;
+    case 'starlink': return <PiSparklesBold className="h-4 w-4 text-cyan-500" />;
+    default: return <PiWifiBold className="h-4 w-4 text-gray-500" />;
   }
 };
 
@@ -660,7 +628,7 @@ export function SingleSiteStepper() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <PiXCircleBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <p className="text-gray-600">Failed to load Google Maps</p>
         </div>
       </div>
@@ -691,7 +659,7 @@ export function SingleSiteStepper() {
                         }`}
                     >
                       {isComplete ? (
-                        <CheckCircle2 className="h-6 w-6" />
+                        <PiCheckCircleBold className="h-6 w-6" />
                       ) : (
                         <Icon className={`h-6 w-6 ${isActive ? 'animate-pulse' : ''}`} />
                       )}
@@ -732,7 +700,7 @@ export function SingleSiteStepper() {
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-0 group-hover:opacity-50 transition-opacity" />
                   <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                    <MapPin className="h-6 w-6 text-circleTel-orange" />
+                    <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
                     Site Location
                   </h2>
                   <p className="text-slate-400 mt-2 font-medium tracking-wide">
@@ -761,7 +729,7 @@ export function SingleSiteStepper() {
                 {/* Address/GPS Input */}
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-slate-500 group-hover:text-circleTel-orange transition-colors" />
+                    <PiMagnifyingGlassBold className="h-4 w-4 text-slate-500 group-hover:text-circleTel-orange transition-colors" />
                   </div>
                   {formData.useGPS ? (
                     <Input
@@ -817,9 +785,9 @@ export function SingleSiteStepper() {
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
                     {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                      <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
                     ) : (
-                      <Sparkles className="h-4 w-4 mr-3 animate-pulse text-white" />
+                      <PiSparklesBold className="h-4 w-4 mr-3 animate-pulse text-white" />
                     )}
                     {isLoading ? 'Scanning Infrastructure...' : 'Initiate Scan'}
                   </Button>
@@ -839,7 +807,7 @@ export function SingleSiteStepper() {
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
                   <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                    <ShieldCheck className="h-6 w-6 text-green-500" />
+                    <PiShieldCheckBold className="h-6 w-6 text-green-500" />
                     Available Infrastructure
                   </h2>
                   <p className="text-slate-400 mt-2 font-medium tracking-wide">
@@ -862,7 +830,7 @@ export function SingleSiteStepper() {
                 {/* Filters Row */}
                 <div className="flex flex-wrap items-center gap-3 py-2 px-1">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-slate-500" />
+                    <PiFunnelBold className="h-4 w-4 text-slate-500" />
                     <span className="text-sm text-slate-400">Filters:</span>
                   </div>
 
@@ -894,7 +862,7 @@ export function SingleSiteStepper() {
 
                   {/* Sort By */}
                   <div className="flex items-center gap-1 ml-auto">
-                    <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                    <PiArrowsDownUpBold className="h-4 w-4 text-gray-400" />
                     <select
                       value={filters.sortBy}
                       onChange={(e) => setFilters(f => ({ ...f, sortBy: e.target.value as typeof filters.sortBy }))}
@@ -911,12 +879,12 @@ export function SingleSiteStepper() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {availablePackages.length === 0 ? (
                     <div className="col-span-2 text-center py-12 text-gray-500">
-                      <Package className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                      <PiPackageBold className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="font-medium">Loading packages...</p>
                     </div>
                   ) : filteredPackages.length === 0 ? (
                     <div className="col-span-2 text-center py-12 text-gray-500">
-                      <SlidersHorizontal className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                      <PiSlidersHorizontalBold className="h-10 w-10 mx-auto mb-3 opacity-40" />
                       <p className="font-medium">No packages match your filters</p>
                       <button
                         onClick={() => setFilters({ technology: 'all', minSpeed: 0, maxPrice: 10000, sortBy: 'price' })}
@@ -940,7 +908,7 @@ export function SingleSiteStepper() {
                           {/* Selection indicator */}
                           <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-circleTel-orange bg-circleTel-orange' : 'border-gray-300'
                             }`}>
-                            {isSelected && <CheckCircle2 className="h-3 w-3 text-white" />}
+                            {isSelected && <PiCheckCircleBold className="h-3 w-3 text-white" />}
                           </div>
 
                           {/* Package Header */}
@@ -960,7 +928,7 @@ export function SingleSiteStepper() {
                           <div className="flex items-end justify-between">
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-1 text-sm">
-                                <Gauge className="h-4 w-4 text-blue-500" />
+                                <PiGaugeBold className="h-4 w-4 text-blue-500" />
                                 <span className="font-medium">{pkg.speed_down}</span>
                                 <span className="text-gray-400">Mbps</span>
                               </div>
@@ -1013,7 +981,7 @@ export function SingleSiteStepper() {
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
                   <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                    <Package className="h-6 w-6 text-circleTel-orange" />
+                    <PiPackageBold className="h-6 w-6 text-circleTel-orange" />
                     Review Selection
                   </h2>
                   <p className="text-slate-400 mt-2 font-medium tracking-wide">
@@ -1065,12 +1033,12 @@ export function SingleSiteStepper() {
 
                 <div className="flex justify-between items-center pt-8">
                   <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
-                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    <PiCaretLeftBold className="h-4 w-4 mr-2" />
                     Back to Selection
                   </Button>
                   <Button onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)]">
                     Client Details
-                    <ChevronRight className="h-4 w-4 ml-2" />
+                    <PiCaretRightBold className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
               </motion.div>
@@ -1088,7 +1056,7 @@ export function SingleSiteStepper() {
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
                   <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                    <Building2 className="h-6 w-6 text-circleTel-orange" />
+                    <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
                     Client Profile
                   </h2>
                   <p className="text-slate-400 mt-2 font-medium tracking-wide">
@@ -1169,7 +1137,7 @@ export function SingleSiteStepper() {
                         className="border-white/20 data-[state=checked]:bg-circleTel-orange data-[state=checked]:border-circleTel-orange"
                       />
                       <Label htmlFor="failover" className="text-[10px] font-black text-slate-300 uppercase tracking-widest cursor-pointer flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-green-500" />
+                        <PiShieldBold className="h-4 w-4 text-green-500" />
                         Redundant Failover Required
                       </Label>
                     </div>
@@ -1178,7 +1146,7 @@ export function SingleSiteStepper() {
 
                 <div className="flex justify-between items-center pt-8">
                   <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
-                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    <PiCaretLeftBold className="h-4 w-4 mr-2" />
                     Back to review
                   </Button>
                   <Button
@@ -1187,7 +1155,7 @@ export function SingleSiteStepper() {
                     className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white px-12 h-14 rounded-xl font-black uppercase tracking-[.2em] text-[10px] shadow-[0_10px_30px_rgba(245,132,30,0.3)] disabled:opacity-20 transition-all active:scale-95"
                   >
                     Confirm Proposal
-                    <ChevronRight className="h-4 w-4 ml-2" />
+                    <PiCaretRightBold className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
               </motion.div>
@@ -1207,7 +1175,7 @@ export function SingleSiteStepper() {
                   <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-green-500 opacity-50" />
                     <div className="w-20 h-20 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/10">
-                      <CheckCircle2 className="h-10 w-10 text-green-500" />
+                      <PiCheckCircleBold className="h-10 w-10 text-green-500" />
                     </div>
                     <h2 className="text-3xl font-black text-white uppercase tracking-widest leading-tight">Quote Generated</h2>
                     <p className="text-slate-400 mt-3 font-medium tracking-wide max-w-sm mx-auto">
@@ -1219,7 +1187,7 @@ export function SingleSiteStepper() {
                         onClick={() => window.open(`/admin/quotes/${generatedQuoteId}`, '_blank')}
                         className="bg-circleTel-orange hover:bg-circleTel-bright-orange text-white h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-circleTel-orange/20"
                       >
-                        <ExternalLink className="h-4 w-4 mr-2" />
+                        <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
                         View Document
                       </Button>
                       <Button
@@ -1249,7 +1217,7 @@ export function SingleSiteStepper() {
                         }}
                         className="border-white/10 hover:bg-white/5 text-slate-300 h-14 px-8 rounded-xl font-black uppercase tracking-widest text-[10px]"
                       >
-                        <RotateCcw className="h-4 w-4 mr-2" />
+                        <PiArrowCounterClockwiseBold className="h-4 w-4 mr-2" />
                         New Feasibility
                       </Button>
                     </div>
@@ -1260,7 +1228,7 @@ export function SingleSiteStepper() {
                     <div className="bg-white/5 rounded-2xl border border-white/10 p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-circleTel-orange/30 transition-all duration-500">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-circleTel-orange to-transparent opacity-50" />
                       <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                        <FileText className="h-6 w-6 text-circleTel-orange" />
+                        <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
                         Final Review
                       </h2>
                       <p className="text-slate-400 mt-2 font-medium tracking-wide">
@@ -1274,7 +1242,7 @@ export function SingleSiteStepper() {
                         {/* Location */}
                         <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
                           <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
-                            <MapPin className="h-4 w-4 text-circleTel-orange" />
+                            <PiMapPinBold className="h-4 w-4 text-circleTel-orange" />
                           </div>
                           <div>
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Site Address</span>
@@ -1285,7 +1253,7 @@ export function SingleSiteStepper() {
                         {/* Client */}
                         <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4">
                           <div className="p-2 bg-circleTel-orange/10 rounded-lg h-fit">
-                            <Building2 className="h-4 w-4 text-circleTel-orange" />
+                            <PiBuildingsBold className="h-4 w-4 text-circleTel-orange" />
                           </div>
                           <div className="flex-1">
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Client Account</span>
@@ -1335,7 +1303,7 @@ export function SingleSiteStepper() {
 
                     <div className="flex justify-between items-center pt-10">
                       <Button variant="ghost" onClick={prevStep} className="text-slate-500 hover:text-white uppercase tracking-widest text-[10px] font-black">
-                        <ChevronLeft className="h-4 w-4 mr-2" />
+                        <PiCaretLeftBold className="h-4 w-4 mr-2" />
                         Edit details
                       </Button>
                       <Button
@@ -1345,9 +1313,9 @@ export function SingleSiteStepper() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />
                         {isLoading ? (
-                          <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                          <PiSpinnerBold className="h-5 w-5 animate-spin mr-3" />
                         ) : (
-                          <Zap className="h-4 w-4 mr-3 text-white fill-white shadow-xl shadow-white/50" />
+                          <PiLightningBold className="h-4 w-4 mr-3 text-white fill-white shadow-xl shadow-white/50" />
                         )}
                         Finalize Proposal
                       </Button>

@@ -1,7 +1,7 @@
 'use client'
+import { PiArrowRightBold, PiMapPinBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
-import { MapPin, Wifi, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AddressAutocomplete } from './AddressAutocomplete';
@@ -154,9 +154,9 @@ const CoverageCheck = () => {
                     </>
                   ) : (
                     <>
-                      <Wifi size={20} />
+                      <PiWifiBold size={20} />
                       Check Coverage
-                      <ArrowRight size={20} />
+                      <PiArrowRightBold size={20} />
                     </>
                   )}
                 </Button>

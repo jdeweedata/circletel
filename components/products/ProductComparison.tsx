@@ -1,11 +1,11 @@
 'use client';
+import { PiCheckBold, PiMinusBold, PiXBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Check, X, Minus } from 'lucide-react';
 import type { Product } from '@/lib/types/products';
 import { formatPrice, formatSpeed } from '@/lib/types/products';
 import { cn } from '@/lib/utils';
@@ -102,7 +102,7 @@ export function ProductComparison({
                         {product.active_promotion.name}
                       </Badge>
                     ) : (
-                      <Minus className="h-4 w-4 text-muted-foreground" />
+                      <PiMinusBold className="h-4 w-4 text-muted-foreground" />
                     )}
                   </TableCell>
                 ))}
@@ -120,9 +120,9 @@ export function ProductComparison({
                   {products.map((product) => (
                     <TableCell key={product.id}>
                       {product.features?.includes(feature) ? (
-                        <Check className="h-4 w-4 text-green-500" />
+                        <PiCheckBold className="h-4 w-4 text-green-500" />
                       ) : (
-                        <X className="h-4 w-4 text-muted-foreground" />
+                        <PiXBold className="h-4 w-4 text-muted-foreground" />
                       )}
                     </TableCell>
                   ))}

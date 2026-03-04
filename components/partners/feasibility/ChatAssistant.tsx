@@ -1,10 +1,10 @@
 'use client';
+import { PiPaperPlaneRightBold, PiRobotBold, PiSparklesBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { ChatMessage, ExtractedFeasibilityData } from '@/lib/partners/feasibility-types';
 
 interface ChatAssistantProps {
@@ -64,7 +64,7 @@ export function ChatAssistant({
     <Card className="flex flex-col h-full">
       <CardHeader className="pb-3 border-b">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Bot className="w-5 h-5 text-circleTel-orange" />
+          <PiRobotBold className="w-5 h-5 text-circleTel-orange" />
           AI Assistant
         </CardTitle>
       </CardHeader>
@@ -74,7 +74,7 @@ export function ChatAssistant({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <Sparkles className="w-8 h-8 mx-auto mb-3 text-circleTel-orange/60" />
+              <PiSparklesBold className="w-8 h-8 mx-auto mb-3 text-circleTel-orange/60" />
               <p className="text-sm">
                 Tell me about your client&apos;s connectivity needs.
               </p>
@@ -99,9 +99,9 @@ export function ChatAssistant({
                 }`}
               >
                 {msg.role === 'user' ? (
-                  <User className="w-4 h-4" />
+                  <PiUserBold className="w-4 h-4" />
                 ) : (
-                  <Bot className="w-4 h-4" />
+                  <PiRobotBold className="w-4 h-4" />
                 )}
               </div>
               <div
@@ -119,7 +119,7 @@ export function ChatAssistant({
           {isLoading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-gray-600" />
+                <PiRobotBold className="w-4 h-4 text-gray-600" />
               </div>
               <div className="bg-gray-100 rounded-lg px-4 py-3">
                 <div className="flex gap-1">
@@ -151,12 +151,12 @@ export function ChatAssistant({
             >
               {isExtracting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Extracting...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <PiSparklesBold className="w-4 h-4 mr-2" />
                   Extract & Fill Form
                 </>
               )}
@@ -180,7 +180,7 @@ export function ChatAssistant({
               disabled={!input.trim() || isLoading || disabled}
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
-              <Send className="w-4 h-4" />
+              <PiPaperPlaneRightBold className="w-4 h-4" />
             </Button>
           </div>
         </div>

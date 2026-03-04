@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,17 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  AlertCircle,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Download,
-  Loader2,
-  Play,
-  RefreshCw,
-  XCircle,
-} from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
 interface ReconciliationResult {
@@ -187,7 +177,7 @@ export default function ReconciliationPage() {
             <div className="space-y-2">
               <Label htmlFor="date">Statement Date</Label>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
+                <PiCalendarBold className="h-4 w-4 text-gray-500" />
                 <Input
                   id="date"
                   type="date"
@@ -208,9 +198,9 @@ export default function ReconciliationPage() {
               variant="outline"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               )}
               Fetch Statement
             </Button>
@@ -221,7 +211,7 @@ export default function ReconciliationPage() {
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
             >
               {reconciling ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Play className="h-4 w-4 mr-2" />
               )}
@@ -237,9 +227,9 @@ export default function ReconciliationPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               {reconciliationResult.errors.length > 0 ? (
-                <AlertCircle className="h-5 w-5 text-orange-500" />
+                <PiWarningCircleBold className="h-5 w-5 text-orange-500" />
               ) : (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <PiCheckCircleBold className="h-5 w-5 text-green-500" />
               )}
               Reconciliation Result - {reconciliationResult.date}
             </CardTitle>
@@ -306,12 +296,12 @@ export default function ReconciliationPage() {
           <CardContent>
             {!statementData.success ? (
               <div className="text-center py-8 text-gray-500">
-                <XCircle className="h-12 w-12 mx-auto mb-4 text-red-300" />
+                <PiXCircleBold className="h-12 w-12 mx-auto mb-4 text-red-300" />
                 <p>{statementData.error || 'Failed to load statement'}</p>
               </div>
             ) : statementData.transactions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <PiClockBold className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>No debit order transactions found for this date</p>
               </div>
             ) : (

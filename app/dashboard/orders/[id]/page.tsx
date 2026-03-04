@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiEnvelopeBold, PiFileTextBold, PiHouseBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiTruckBold, PiWarningCircleBold, PiWifiBold, PiWrenchBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -6,24 +7,6 @@ import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Loader2,
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  Package,
-  Truck,
-  Home,
-  Calendar,
-  Wrench,
-  Wifi,
-  MapPin,
-  Phone,
-  Mail,
-  DollarSign,
-  FileText,
-  AlertCircle,
-} from 'lucide-react';
 import Link from 'next/link';
 import type { OrderWithTracking, OrderTrackingEvent, FulfillmentStatus } from '@/lib/types/order-tracking';
 import { getFulfillmentStatusInfo, getOrderWorkflow } from '@/lib/types/order-tracking';
@@ -109,34 +92,34 @@ export default function OrderDetailPage() {
 
   const getEventIcon = (eventType: string, status: string) => {
     if (status === 'completed') {
-      return <CheckCircle2 className="h-6 w-6 text-green-600" />;
+      return <PiCheckCircleBold className="h-6 w-6 text-green-600" />;
     }
     if (status === 'in_progress') {
-      return <Clock className="h-6 w-6 text-blue-600 animate-pulse" />;
+      return <PiClockBold className="h-6 w-6 text-blue-600 animate-pulse" />;
     }
     if (status === 'failed') {
-      return <AlertCircle className="h-6 w-6 text-red-600" />;
+      return <PiWarningCircleBold className="h-6 w-6 text-red-600" />;
     }
 
     const iconMap: Record<string, JSX.Element> = {
-      order_confirmed: <CheckCircle2 className="h-6 w-6 text-gray-400" />,
-      equipment_prepared: <Package className="h-6 w-6 text-gray-400" />,
-      equipment_shipped: <Truck className="h-6 w-6 text-gray-400" />,
-      delivery_completed: <Home className="h-6 w-6 text-gray-400" />,
-      site_survey_scheduled: <Calendar className="h-6 w-6 text-gray-400" />,
-      site_survey_completed: <CheckCircle2 className="h-6 w-6 text-gray-400" />,
-      installation_scheduled: <Calendar className="h-6 w-6 text-gray-400" />,
-      installation_completed: <Wrench className="h-6 w-6 text-gray-400" />,
-      service_activated: <Wifi className="h-6 w-6 text-gray-400" />,
+      order_confirmed: <PiCheckCircleBold className="h-6 w-6 text-gray-400" />,
+      equipment_prepared: <PiPackageBold className="h-6 w-6 text-gray-400" />,
+      equipment_shipped: <PiTruckBold className="h-6 w-6 text-gray-400" />,
+      delivery_completed: <PiHouseBold className="h-6 w-6 text-gray-400" />,
+      site_survey_scheduled: <PiCalendarBold className="h-6 w-6 text-gray-400" />,
+      site_survey_completed: <PiCheckCircleBold className="h-6 w-6 text-gray-400" />,
+      installation_scheduled: <PiCalendarBold className="h-6 w-6 text-gray-400" />,
+      installation_completed: <PiWrenchBold className="h-6 w-6 text-gray-400" />,
+      service_activated: <PiWifiBold className="h-6 w-6 text-gray-400" />,
     };
 
-    return iconMap[eventType] || <Clock className="h-6 w-6 text-gray-400" />;
+    return iconMap[eventType] || <PiClockBold className="h-6 w-6 text-gray-400" />;
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -145,12 +128,12 @@ export default function OrderDetailPage() {
     return (
       <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+          <PiWarningCircleBold className="h-16 w-16 text-red-500 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
           <p className="text-gray-600 mb-6">{error || 'The order you are looking for does not exist.'}</p>
           <Button asChild>
             <Link href="/dashboard/orders">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <PiArrowLeftBold className="h-4 w-4 mr-2" />
               Back to Orders
             </Link>
           </Button>
@@ -169,7 +152,7 @@ export default function OrderDetailPage() {
       <div className="mb-6">
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/orders">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back to Orders
           </Link>
         </Button>
@@ -246,7 +229,7 @@ export default function OrderDetailPage() {
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           {event.completed_date && (
                             <span className="flex items-center gap-1">
-                              <CheckCircle2 className="h-4 w-4" />
+                              <PiCheckCircleBold className="h-4 w-4" />
                               {new Date(event.completed_date).toLocaleString('en-ZA', {
                                 month: 'short',
                                 day: 'numeric',
@@ -258,7 +241,7 @@ export default function OrderDetailPage() {
                           )}
                           {event.scheduled_date && !event.completed_date && (
                             <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
+                              <PiCalendarBold className="h-4 w-4" />
                               Scheduled: {new Date(event.scheduled_date).toLocaleString('en-ZA', {
                                 month: 'short',
                                 day: 'numeric',
@@ -274,7 +257,7 @@ export default function OrderDetailPage() {
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <PiClockBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                     <p>No tracking events yet</p>
                   </div>
                 )}
@@ -319,7 +302,7 @@ export default function OrderDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start gap-2">
-                <MapPin className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                <PiMapPinBold className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <p className="text-gray-900">{order.installation_address}</p>
               </div>
             </CardContent>
@@ -332,11 +315,11 @@ export default function OrderDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <PiEnvelopeBold className="h-5 w-5 text-gray-400" />
                 <p className="text-gray-900">{order.customer_email}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="h-5 w-5 text-gray-400" />
+                <PiPhoneBold className="h-5 w-5 text-gray-400" />
                 <p className="text-gray-900">{order.customer_phone}</p>
               </div>
             </CardContent>
@@ -369,12 +352,12 @@ export default function OrderDetailPage() {
               <div className="space-y-2">
                 <Button variant="outline" className="w-full" asChild>
                   <Link href="/dashboard/billing">
-                    <DollarSign className="h-4 w-4 mr-2" />
+                    <PiCurrencyDollarBold className="h-4 w-4 mr-2" />
                     View Billing
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <PiFileTextBold className="h-4 w-4 mr-2" />
                   Download Invoice
                 </Button>
               </div>

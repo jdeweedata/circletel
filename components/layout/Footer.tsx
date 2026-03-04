@@ -1,6 +1,6 @@
+import { PiEnvelopeBold, PiFacebookLogoBold, PiLinkedinLogoBold, PiMapPinBold, PiXBold } from 'react-icons/pi';
 import React from 'react';
 import Link from 'next/link';
-import { Linkedin, X, Mail, MapPin, Facebook } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { Logo } from '@/components/navigation/Logo';
 import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
@@ -22,7 +22,7 @@ export const Footer = () => {
               <span className="text-circleTel-lightNeutral">{CONTACT.WHATSAPP_NUMBER}</span>
             </a>
             <div className="flex items-center">
-              <Mail size={18} className="mr-2 text-circleTel-orange" />
+              <PiEnvelopeBold size={18} className="mr-2 text-circleTel-orange" />
               <span className="text-circleTel-lightNeutral">contactus@circletel.co.za</span>
             </div>
           </div>
@@ -42,13 +42,13 @@ export const Footer = () => {
             </p>
             <div className="mt-4 flex space-x-2">
               <a href="https://www.facebook.com/circletelsa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <Facebook size={18} />
+                <PiFacebookLogoBold size={18} />
               </a>
               <a href="https://www.linkedin.com/company/circle-tel-sa" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <Linkedin size={18} />
+                <PiLinkedinLogoBold size={18} />
               </a>
               <a href="https://x.com/CircleTel" target="_blank" rel="noopener noreferrer" className="bg-circleTel-secondaryNeutral hover:bg-circleTel-orange rounded-full p-2 transition-colors duration-300">
-                <X size={18} />
+                <PiXBold size={18} />
               </a>
             </div>
           </div>
@@ -102,7 +102,7 @@ export const Footer = () => {
               &copy; {new Date().getFullYear()} CircleTel. All rights reserved.
             </p>
             <div className="flex items-center">
-              <MapPin size={16} className="mr-2 text-circleTel-orange" />
+              <PiMapPinBold size={16} className="mr-2 text-circleTel-orange" />
               <p className="text-sm text-circleTel-lightNeutral">
                 West House, 7 Autumn Road, Rivonia, Johannesburg, 2128
               </p>

@@ -1,9 +1,9 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function LogoutPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-4" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange mx-auto mb-4" />
         <p className="text-gray-600">Logging out...</p>
       </div>
     </div>

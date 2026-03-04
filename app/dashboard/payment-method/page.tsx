@@ -1,11 +1,11 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiCreditCardBold, PiDotsThreeVerticalBold, PiEnvelopeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiStarBold, PiTrashBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CreditCard, Building2, Phone, Mail, AlertCircle, Shield, CheckCircle, Star, Trash2, MoreVertical } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -236,7 +236,7 @@ export default function PaymentMethodPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -249,7 +249,7 @@ export default function PaymentMethodPage() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-gray-100 rounded-lg">
-            <CreditCard className="w-8 h-8 text-gray-700" />
+            <PiCreditCardBold className="w-8 h-8 text-gray-700" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Payment Method</h1>
@@ -270,7 +270,7 @@ export default function PaymentMethodPage() {
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <PiWarningCircleBold className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-orange-900">Complete Your Order</h3>
                   <p className="text-sm text-orange-700 mt-1">
@@ -293,11 +293,11 @@ export default function PaymentMethodPage() {
         <div id="payment-methods" className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-gray-400" />
+              <PiCheckCircleBold className="w-5 h-5 text-gray-400" />
               <h2 className="text-lg font-semibold text-gray-900">Choose Your Payment Method</h2>
             </div>
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-              <Shield className="w-3 h-3" />
+              <PiShieldBold className="w-3 h-3" />
               Secured by NetCash
             </Badge>
           </div>
@@ -306,7 +306,7 @@ export default function PaymentMethodPage() {
             <Card className="border-green-200 bg-green-50">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <PiCheckCircleBold className="w-6 h-6 text-green-600" />
                   <div>
                     <p className="font-medium text-green-900">Payment Method Active</p>
                     <p className="text-sm text-green-700">Your payment method is verified and ready for automatic billing.</p>
@@ -356,7 +356,7 @@ export default function PaymentMethodPage() {
                   <CardContent className="p-6">
                     <h3 className="text-lg font-bold mb-2">Debit Order</h3>
                     <div className="flex items-center gap-2 mb-4">
-                      <Building2 className="w-10 h-10 text-white/80" />
+                      <PiBuildingsBold className="w-10 h-10 text-white/80" />
                     </div>
                     <p className="text-sm text-white/90 mb-2">
                       Direct from your bank account. Automatic monthly deductions. Ideal for consistent billing.
@@ -388,15 +388,15 @@ export default function PaymentMethodPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {method.method_type === 'card' ? (
-                          <CreditCard className="w-5 h-5 text-gray-600" />
+                          <PiCreditCardBold className="w-5 h-5 text-gray-600" />
                         ) : (
-                          <Building2 className="w-5 h-5 text-gray-600" />
+                          <PiBuildingsBold className="w-5 h-5 text-gray-600" />
                         )}
                         <div>
                           <span className="text-sm font-medium text-gray-900">{getMethodDisplayName(method)}</span>
                           {method.is_primary && (
                             <Badge variant="outline" className="ml-2 bg-circleTel-orange/10 text-circleTel-orange border-circleTel-orange/30">
-                              <Star className="w-3 h-3 mr-1" />
+                              <PiStarBold className="w-3 h-3 mr-1" />
                               Primary
                             </Badge>
                           )}
@@ -413,9 +413,9 @@ export default function PaymentMethodPage() {
                               disabled={actionLoading === method.id}
                             >
                               {actionLoading === method.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <PiSpinnerBold className="h-4 w-4 animate-spin" />
                               ) : (
-                                <MoreVertical className="h-4 w-4" />
+                                <PiDotsThreeVerticalBold className="h-4 w-4" />
                               )}
                             </Button>
                           </DropdownMenuTrigger>
@@ -425,7 +425,7 @@ export default function PaymentMethodPage() {
                                 onClick={() => handleSetPrimary(method.id)}
                                 className="cursor-pointer"
                               >
-                                <Star className="mr-2 h-4 w-4" />
+                                <PiStarBold className="mr-2 h-4 w-4" />
                                 Set as Primary
                               </DropdownMenuItem>
                             )}
@@ -436,7 +436,7 @@ export default function PaymentMethodPage() {
                               }}
                               className="cursor-pointer text-red-600 focus:text-red-600"
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
+                              <PiTrashBold className="mr-2 h-4 w-4" />
                               Remove
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -451,9 +451,9 @@ export default function PaymentMethodPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {paymentMethodInfo.type === 'card' ? (
-                      <CreditCard className="w-5 h-5 text-gray-600" />
+                      <PiCreditCardBold className="w-5 h-5 text-gray-600" />
                     ) : (
-                      <Building2 className="w-5 h-5 text-gray-600" />
+                      <PiBuildingsBold className="w-5 h-5 text-gray-600" />
                     )}
                     <div>
                       <span className="text-sm font-medium text-gray-900">{paymentMethodInfo.displayName}</span>
@@ -492,7 +492,7 @@ export default function PaymentMethodPage() {
                 className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
               >
                 {actionLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
                 Remove
               </AlertDialogAction>
@@ -512,14 +512,14 @@ export default function PaymentMethodPage() {
                   href="https://wa.me/27824873900"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
+                  <PiPhoneBold className="w-4 h-4" />
                   <span>082 487 3900</span>
                 </a>
                 <a
                   href="mailto:contactus@circletel.co.za"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Mail className="w-4 h-4" />
+                  <PiEnvelopeBold className="w-4 h-4" />
                   <span>contactus@circletel.co.za</span>
                 </a>
               </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingBold, PiListBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiWarningBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -14,15 +15,6 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DFABuildingMap } from '@/components/admin/coverage/DFABuildingMap';
-import {
-  Building,
-  List,
-  AlertTriangle,
-  Loader2,
-  MapPin,
-  Package,
-  X,
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface DFABuilding {
@@ -163,12 +155,12 @@ function DFABuildingsMapContent() {
           <div className="flex items-center gap-4">
             <Link href="/admin/coverage/dfa-buildings">
               <Button variant="outline" size="sm">
-                <List className="h-4 w-4 mr-2" />
+                <PiListBold className="h-4 w-4 mr-2" />
                 List View
               </Button>
             </Link>
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Building className="h-6 w-6 text-purple-600" />
+              <PiBuildingBold className="h-6 w-6 text-purple-600" />
               DFA Buildings Map
             </h1>
           </div>
@@ -217,7 +209,7 @@ function DFABuildingsMapContent() {
       {error && (
         <div className="px-6 py-2">
           <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <PiWarningBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         </div>
@@ -230,7 +222,7 @@ function DFABuildingsMapContent() {
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
               <div className="text-center space-y-2">
-                <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
+                <PiSpinnerBold className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
                 <p className="text-sm text-gray-600">Loading buildings...</p>
               </div>
             </div>
@@ -255,7 +247,7 @@ function DFABuildingsMapContent() {
             <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">Building Details</h2>
               <Button variant="ghost" size="sm" onClick={closeSidebar}>
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
             </div>
 
@@ -364,7 +356,7 @@ function DFABuildingsMapContent() {
                   className="block"
                 >
                   <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                    <Package className="h-4 w-4 mr-2" />
+                    <PiPackageBold className="h-4 w-4 mr-2" />
                     Check BizFibre Packages
                   </Button>
                 </Link>
@@ -375,7 +367,7 @@ function DFABuildingsMapContent() {
                   className="block"
                 >
                   <Button variant="outline" className="w-full">
-                    <MapPin className="h-4 w-4 mr-2" />
+                    <PiMapPinBold className="h-4 w-4 mr-2" />
                     Open in Google Maps
                   </Button>
                 </a>
@@ -394,7 +386,7 @@ export default function DFABuildingsMapPage() {
       fallback={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center space-y-2">
-            <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
+            <PiSpinnerBold className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
             <p className="text-sm text-gray-600">Loading map...</p>
           </div>
         </div>

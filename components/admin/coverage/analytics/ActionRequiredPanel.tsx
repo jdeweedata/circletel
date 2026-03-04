@@ -1,7 +1,7 @@
 'use client';
+import { PiCaretRightBold, PiClockBold, PiInfoBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React from 'react';
-import { AlertTriangle, AlertCircle, Info, Clock, ChevronRight } from 'lucide-react';
 
 export interface ActionItem {
   id: string;
@@ -33,11 +33,11 @@ function getRelativeTime(date: Date): string {
 function getIcon(type: ActionItem['type']) {
   switch (type) {
     case 'error':
-      return <AlertCircle className="h-4 w-4 text-red-500" />;
+      return <PiWarningCircleBold className="h-4 w-4 text-red-500" />;
     case 'warning':
-      return <AlertTriangle className="h-4 w-4 text-amber-500" />;
+      return <PiWarningBold className="h-4 w-4 text-amber-500" />;
     case 'info':
-      return <Info className="h-4 w-4 text-blue-500" />;
+      return <PiInfoBold className="h-4 w-4 text-blue-500" />;
   }
 }
 
@@ -62,7 +62,7 @@ export function ActionRequiredPanel({ items, onViewAll }: ActionRequiredPanelPro
       {/* Header */}
       <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <PiWarningBold className="h-5 w-5 text-amber-500" />
           <h3 className="font-semibold text-gray-900">Action Required</h3>
           {items.length > 0 && (
             <span className="bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">
@@ -98,7 +98,7 @@ export function ActionRequiredPanel({ items, onViewAll }: ActionRequiredPanelPro
                     </p>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-gray-400 whitespace-nowrap">
-                    <Clock className="h-3 w-3" />
+                    <PiClockBold className="h-3 w-3" />
                     {getRelativeTime(item.timestamp)}
                   </div>
                 </div>
@@ -116,7 +116,7 @@ export function ActionRequiredPanel({ items, onViewAll }: ActionRequiredPanelPro
             className="text-sm text-circleTel-orange hover:text-circleTel-orange-dark font-medium flex items-center gap-1 transition-colors"
           >
             View all alerts
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </button>
         </div>
       )}

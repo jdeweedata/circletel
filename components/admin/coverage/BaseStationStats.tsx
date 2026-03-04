@@ -1,7 +1,7 @@
 'use client';
+import { PiMapPinBold, PiRadioBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Radio, Users, TrendingUp, MapPin } from 'lucide-react';
 
 interface BaseStationStatsProps {
   totalStations: number;
@@ -42,7 +42,7 @@ export function BaseStationStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Stations</CardTitle>
-          <Radio className="h-4 w-4 text-muted-foreground" />
+          <PiRadioBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalStations.toLocaleString()}</div>
@@ -53,7 +53,7 @@ export function BaseStationStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Connections</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <PiUsersBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalConnections.toLocaleString()}</div>
@@ -64,7 +64,7 @@ export function BaseStationStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Avg Connections</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <PiTrendUpBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{avgConnections}</div>
@@ -75,7 +75,7 @@ export function BaseStationStats({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Markets</CardTitle>
-          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <PiMapPinBold className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{marketCount}</div>

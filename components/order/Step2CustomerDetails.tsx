@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiChatBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiUserBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { User, Mail, Phone, MapPin, Calendar, MessageSquare } from 'lucide-react';
 
 interface CustomerDetails {
   first_name: string;
@@ -88,7 +88,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5 text-circleTel-orange" />
+            <PiUserBold className="w-5 h-5 text-circleTel-orange" />
             Personal Information
           </CardTitle>
         </CardHeader>
@@ -123,7 +123,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
 
           <div className="space-y-2">
             <Label htmlFor="email">
-              <Mail className="w-4 h-4 inline mr-1" />
+              <PiEnvelopeBold className="w-4 h-4 inline mr-1" />
               Email Address <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -142,7 +142,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">
-                <Phone className="w-4 h-4 inline mr-1" />
+                <PiPhoneBold className="w-4 h-4 inline mr-1" />
                 Phone Number <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -175,7 +175,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-circleTel-orange" />
+            <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
             Installation Address
           </CardTitle>
         </CardHeader>
@@ -249,7 +249,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
 
           <div className="space-y-2">
             <Label htmlFor="special_instructions">
-              <MessageSquare className="w-4 h-4 inline mr-1" />
+              <PiChatBold className="w-4 h-4 inline mr-1" />
               Special Instructions
             </Label>
             <Textarea
@@ -270,7 +270,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-circleTel-orange" />
+            <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
             Billing Address
           </CardTitle>
         </CardHeader>
@@ -366,7 +366,7 @@ export function Step2CustomerDetails({ details, onChange }: Step2CustomerDetails
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-circleTel-orange" />
+            <PiCalendarBold className="w-5 h-5 text-circleTel-orange" />
             Installation & Preferences
           </CardTitle>
         </CardHeader>

@@ -1,7 +1,7 @@
 'use client'
+import { PiArrowsClockwiseBold } from 'react-icons/pi';
 
 import { useEffect, useState, useCallback } from 'react'
-import { RefreshCw } from 'lucide-react'
 import { SystemStatusBanner } from '@/components/status/SystemStatusBanner'
 import { ProviderStatusGrid } from '@/components/status/ProviderStatusCard'
 import { IncidentTimeline } from '@/components/status/IncidentTimeline'
@@ -127,7 +127,7 @@ export default function StatusPage() {
           disabled={refreshing}
           className="flex items-center gap-2 px-3 py-1.5 text-sm text-ui-text-muted hover:text-ui-text-primary transition-colors disabled:opacity-50"
         >
-          <RefreshCw
+          <PiArrowsClockwiseBold
             className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
           />
           {refreshing ? 'Refreshing...' : 'Refresh'}

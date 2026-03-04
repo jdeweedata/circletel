@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle, Mail, Phone, MapPin, User, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CustomerType, CreateCoverageLeadInput } from '@/lib/types/customer-journey';
 
@@ -99,7 +99,7 @@ export function NoCoverageLeadForm({
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <PiCheckCircleBold className="w-8 h-8 text-green-600" />
               </div>
             </div>
             <div>
@@ -123,7 +123,7 @@ export function NoCoverageLeadForm({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mail className="w-5 h-5 text-circleTel-orange" />
+          <PiEnvelopeBold className="w-5 h-5 text-circleTel-orange" />
           Get Notified When Available
         </CardTitle>
         <CardDescription>
@@ -156,7 +156,7 @@ export function NoCoverageLeadForm({
           {formData.customer_type !== 'consumer' && (
             <div className="space-y-2">
               <Label htmlFor="company_name">
-                <Building2 className="w-4 h-4 inline mr-1" />
+                <PiBuildingsBold className="w-4 h-4 inline mr-1" />
                 Company Name
               </Label>
               <Input
@@ -175,7 +175,7 @@ export function NoCoverageLeadForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="first_name">
-                <User className="w-4 h-4 inline mr-1" />
+                <PiUserBold className="w-4 h-4 inline mr-1" />
                 First Name
               </Label>
               <Input
@@ -205,7 +205,7 @@ export function NoCoverageLeadForm({
           {/* Contact Details */}
           <div className="space-y-2">
             <Label htmlFor="email">
-              <Mail className="w-4 h-4 inline mr-1" />
+              <PiEnvelopeBold className="w-4 h-4 inline mr-1" />
               Email Address
             </Label>
             <Input
@@ -220,7 +220,7 @@ export function NoCoverageLeadForm({
 
           <div className="space-y-2">
             <Label htmlFor="phone">
-              <Phone className="w-4 h-4 inline mr-1" />
+              <PiPhoneBold className="w-4 h-4 inline mr-1" />
               Phone Number
             </Label>
             <Input
@@ -236,7 +236,7 @@ export function NoCoverageLeadForm({
           {/* Address (read-only) */}
           <div className="space-y-2">
             <Label htmlFor="address">
-              <MapPin className="w-4 h-4 inline mr-1" />
+              <PiMapPinBold className="w-4 h-4 inline mr-1" />
               Location
             </Label>
             <Input
@@ -281,7 +281,7 @@ export function NoCoverageLeadForm({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Submitting...
                 </>
               ) : (

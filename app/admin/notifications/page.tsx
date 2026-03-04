@@ -5,6 +5,7 @@
  */
 
 'use client';
+import { PiActivityBold, PiBellBold, PiCurrencyDollarBold, PiFunnelBold, PiInfoBold, PiMagnifyingGlassBold, PiUserBold, PiWarningBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -20,17 +21,6 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  AlertCircle,
-  Bell,
-  Search,
-  Filter,
-  AlertTriangle,
-  Info,
-  DollarSign,
-  User,
-  Activity,
-} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
@@ -77,19 +67,19 @@ function getNotificationIcon(type: string, priority: string) {
 
   switch (type) {
     case 'product_approval':
-      return <AlertTriangle className={`h-5 w-5 ${iconClass}`} />;
+      return <PiWarningBold className={`h-5 w-5 ${iconClass}`} />;
     case 'price_change':
-      return <DollarSign className={`h-5 w-5 ${iconClass}`} />;
+      return <PiCurrencyDollarBold className={`h-5 w-5 ${iconClass}`} />;
     case 'system_update':
-      return <Info className={`h-5 w-5 ${iconClass}`} />;
+      return <PiInfoBold className={`h-5 w-5 ${iconClass}`} />;
     case 'user_activity':
-      return <User className={`h-5 w-5 ${iconClass}`} />;
+      return <PiUserBold className={`h-5 w-5 ${iconClass}`} />;
     case 'error_alert':
-      return <AlertCircle className={`h-5 w-5 ${iconClass}`} />;
+      return <PiWarningCircleBold className={`h-5 w-5 ${iconClass}`} />;
     case 'performance_warning':
-      return <Activity className={`h-5 w-5 ${iconClass}`} />;
+      return <PiActivityBold className={`h-5 w-5 ${iconClass}`} />;
     default:
-      return <Bell className={`h-5 w-5 ${iconClass}`} />;
+      return <PiBellBold className={`h-5 w-5 ${iconClass}`} />;
   }
 }
 
@@ -144,7 +134,7 @@ export default function NotificationHistoryPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+            <PiFunnelBold className="h-5 w-5" />
             Filters
           </CardTitle>
         </CardHeader>
@@ -152,7 +142,7 @@ export default function NotificationHistoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search notifications..."
                 value={searchQuery}
@@ -211,12 +201,12 @@ export default function NotificationHistoryPage() {
             </div>
           ) : error ? (
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>Failed to load notifications</AlertDescription>
             </Alert>
           ) : filteredNotifications.length === 0 ? (
             <div className="py-8 text-center">
-              <Bell className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
+              <PiBellBold className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
               <p className="text-sm text-muted-foreground">
                 {searchQuery
                   ? 'No notifications match your search'

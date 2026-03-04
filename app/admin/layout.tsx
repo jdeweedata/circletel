@@ -1,10 +1,10 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
-import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 
@@ -124,7 +124,7 @@ export default function AdminLayout({
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }

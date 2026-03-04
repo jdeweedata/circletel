@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCubeBold, PiDownloadSimpleBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiTrendDownBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
@@ -21,17 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  ArrowLeft,
-  RefreshCw,
-  Search,
-  MapPin,
-  TrendingUp,
-  TrendingDown,
-  Package,
-  Box,
-  Download,
-} from 'lucide-react'
 import { SupplierProduct, Supplier } from '@/lib/suppliers/types'
 
 interface ProductWithSupplier extends SupplierProduct {
@@ -156,7 +146,7 @@ export default function AllProductsPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => router.push('/admin/suppliers')}>
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">All Supplier Products</h1>
@@ -167,7 +157,7 @@ export default function AllProductsPage() {
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
           <Button variant="outline" onClick={handleExport} disabled={products.length === 0}>
-            <Download className="w-4 h-4 mr-2" />
+            <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
             Export CSV
           </Button>
         </div>
@@ -178,7 +168,7 @@ export default function AllProductsPage() {
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search products, SKU, manufacturer..."
                 value={searchQuery}
@@ -243,12 +233,12 @@ export default function AllProductsPage() {
         <CardContent className="pt-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+              <PiArrowsClockwiseBold className="w-6 h-6 animate-spin text-gray-400" />
               <span className="ml-2 text-gray-500">Loading products...</span>
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <PiPackageBold className="w-12 h-12 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500">No products found</p>
               <p className="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
             </div>
@@ -288,7 +278,7 @@ export default function AllProductsPage() {
                             />
                           ) : (
                             <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                              <Box className="w-5 h-5 text-gray-400" />
+                              <PiCubeBold className="w-5 h-5 text-gray-400" />
                             </div>
                           )}
                           <div className="max-w-[250px]">
@@ -314,7 +304,7 @@ export default function AllProductsPage() {
                         {formatPrice(product.cost_price)}
                         {product.previous_cost_price && product.cost_price !== product.previous_cost_price && (
                           <span className={`ml-1 text-xs ${product.cost_price! > product.previous_cost_price ? 'text-red-500' : 'text-green-500'}`}>
-                            {product.cost_price! > product.previous_cost_price ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                            {product.cost_price! > product.previous_cost_price ? <PiTrendUpBold className="w-3 h-3 inline" /> : <PiTrendDownBold className="w-3 h-3 inline" />}
                           </span>
                         )}
                       </TableCell>
@@ -331,7 +321,7 @@ export default function AllProductsPage() {
                             </Badge>
                           )}
                           <div className="text-xs text-gray-400" title="CPT / JHB / DBN">
-                            <MapPin className="w-3 h-3 inline mr-0.5" />
+                            <PiMapPinBold className="w-3 h-3 inline mr-0.5" />
                             {product.stock_cpt}/{product.stock_jhb}/{product.stock_dbn}
                           </div>
                         </div>

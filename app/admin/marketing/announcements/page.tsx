@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowRightBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiDotsThreeBold, PiEyeBold, PiEyeSlashBold, PiMagnifyingGlassBold, PiMegaphoneBold, PiPencilSimpleBold, PiPlusBold, PiSparklesBold, PiSpinnerBold, PiTrashBold, PiXBold } from 'react-icons/pi';
 
 /**
  * Marketing Announcements Admin Page
@@ -15,26 +16,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Loader2,
-  Calendar,
-  RefreshCw,
-  Eye,
-  EyeOff,
-  ChevronUp,
-  ChevronDown,
-  Megaphone,
-  X,
-  Check,
-  ArrowRight,
-  Sparkles,
-  ExternalLink
-} from 'lucide-react'
 
 interface Announcement {
   id: string
@@ -84,18 +65,18 @@ function AnnouncementPreview({
       className="w-full py-2.5 px-4 flex items-center justify-center gap-3 text-sm font-medium rounded-lg"
       style={{ backgroundColor: bgColor, color: textColor }}
     >
-      <Sparkles className="w-4 h-4 flex-shrink-0" />
+      <PiSparklesBold className="w-4 h-4 flex-shrink-0" />
       <div className="flex items-center gap-2 text-center flex-wrap justify-center">
         <span className="text-xs sm:text-sm">{message || 'Your announcement message here...'}</span>
         {linkText && (
           <span className="inline-flex items-center gap-1 font-semibold">
             {linkText}
-            <ArrowRight className="w-3.5 h-3.5" />
+            <PiArrowRightBold className="w-3.5 h-3.5" />
           </span>
         )}
       </div>
       <button className="p-1 rounded-full opacity-70" style={{ color: textColor }}>
-        <X className="w-4 h-4" />
+        <PiXBold className="w-4 h-4" />
       </button>
     </div>
   )
@@ -151,7 +132,7 @@ function AnnouncementModal({
             {announcement ? 'Edit Announcement' : 'Create Announcement'}
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-            <X className="w-5 h-5" />
+            <PiXBold className="w-5 h-5" />
           </button>
         </div>
 
@@ -326,7 +307,7 @@ function AnnouncementModal({
               disabled={saving || !formData.message}
               className="px-4 py-2 bg-[#F5841E] text-white rounded-lg hover:bg-[#E5741E] disabled:opacity-50 flex items-center gap-2"
             >
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving && <PiSpinnerBold className="w-4 h-4 animate-spin" />}
               {announcement ? 'Update' : 'Create'}
             </button>
           </div>
@@ -450,7 +431,7 @@ export default function AnnouncementsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Megaphone className="w-6 h-6 text-[#F5841E]" />
+            <PiMegaphoneBold className="w-6 h-6 text-[#F5841E]" />
             Announcements
           </h1>
           <p className="text-gray-500 mt-1">
@@ -462,14 +443,14 @@ export default function AnnouncementsPage() {
             onClick={() => router.push('/')}
             className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center gap-2"
           >
-            <ExternalLink className="w-4 h-4" />
+            <PiArrowSquareOutBold className="w-4 h-4" />
             View Site
           </button>
           <button
             onClick={openCreateModal}
             className="px-4 py-2 bg-[#F5841E] text-white rounded-lg hover:bg-[#E5741E] flex items-center gap-2"
           >
-            <Plus className="w-4 h-4" />
+            <PiPlusBold className="w-4 h-4" />
             New Announcement
           </button>
         </div>
@@ -494,7 +475,7 @@ export default function AnnouncementsPage() {
       {/* Search & Filters */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             value={searchTerm}
@@ -508,7 +489,7 @@ export default function AnnouncementsPage() {
           className="p-2 hover:bg-gray-100 rounded-lg"
           title="Refresh"
         >
-          <RefreshCw className={cn('w-5 h-5', loading && 'animate-spin')} />
+          <PiArrowsClockwiseBold className={cn('w-5 h-5', loading && 'animate-spin')} />
         </button>
       </div>
 
@@ -536,7 +517,7 @@ export default function AnnouncementsPage() {
       {/* Loading */}
       {loading && (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 text-[#F5841E] animate-spin" />
+          <PiSpinnerBold className="w-8 h-8 text-[#F5841E] animate-spin" />
         </div>
       )}
 
@@ -548,7 +529,7 @@ export default function AnnouncementsPage() {
       {/* Empty State */}
       {!loading && !error && filteredAnnouncements.length === 0 && (
         <div className="text-center py-12">
-          <Megaphone className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <PiMegaphoneBold className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500">No announcements yet</p>
           <button
             onClick={openCreateModal}
@@ -637,9 +618,9 @@ export default function AnnouncementsPage() {
                           title={announcement.is_active ? 'Deactivate' : 'Activate'}
                         >
                           {announcement.is_active ? (
-                            <Eye className="w-4 h-4" />
+                            <PiEyeBold className="w-4 h-4" />
                           ) : (
-                            <EyeOff className="w-4 h-4" />
+                            <PiEyeSlashBold className="w-4 h-4" />
                           )}
                         </button>
                         <button
@@ -647,14 +628,14 @@ export default function AnnouncementsPage() {
                           className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"
                           title="Edit"
                         >
-                          <Edit className="w-4 h-4" />
+                          <PiPencilSimpleBold className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(announcement.id)}
                           className="p-2 text-red-400 hover:bg-red-50 rounded-lg"
                           title="Delete"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <PiTrashBold className="w-4 h-4" />
                         </button>
                       </div>
                     </td>

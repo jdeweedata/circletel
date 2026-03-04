@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowRightBold, PiLightningBold, PiMapPinBold } from 'react-icons/pi';
 
 import React from 'react';
-import { MapPin, ArrowRight, Zap } from 'lucide-react';
 import { PiHouseBold, PiBuildingsBold, PiBriefcaseBold } from 'react-icons/pi';
 import { AddressAutocomplete } from '@/components/coverage/AddressAutocomplete';
 import { InteractiveCoverageMapModal } from '@/components/coverage/InteractiveCoverageMapModal';
@@ -154,7 +154,7 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
         {/* Promo Banner */}
         <div className="flex justify-center mb-4">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-circleTel-orange to-orange-500 rounded-full px-3 py-1.5 shadow-lg">
-            <Zap className="w-3.5 h-3.5 text-white" />
+            <PiLightningBold className="w-3.5 h-3.5 text-white" />
             <span className="text-white text-xs md:text-sm font-bold">FREE Installation</span>
             <span className="text-white/80 text-xs">(worth R2,500)</span>
           </div>
@@ -205,7 +205,7 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
           <div className="bg-white rounded-xl shadow-xl p-4">
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-circleTel-orange z-10" />
+                <PiMapPinBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-circleTel-orange z-10" />
                 <AddressAutocomplete
                   value={address}
                   onLocationSelect={handleLocationSelect}
@@ -228,7 +228,7 @@ export function NewHero({ activeSegment: externalSegment, onSegmentChange }: New
                 ) : (
                   <>
                     Check Coverage
-                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                    <PiArrowRightBold className="ml-1.5 h-4 w-4" />
                   </>
                 )}
               </Button>

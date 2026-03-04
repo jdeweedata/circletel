@@ -1,9 +1,9 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiXBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Package {
@@ -129,9 +129,9 @@ export function PackageComparison({
                   {packages.map((pkg) => (
                     <td key={pkg.id} className="p-4 text-center">
                       {pkg.features.includes(feature) ? (
-                        <Check className="h-5 w-5 text-green-500 mx-auto" />
+                        <PiCheckBold className="h-5 w-5 text-green-500 mx-auto" />
                       ) : (
-                        <X className="h-5 w-5 text-gray-300 mx-auto" />
+                        <PiXBold className="h-5 w-5 text-gray-300 mx-auto" />
                       )}
                     </td>
                   ))}
@@ -157,7 +157,7 @@ export function PackageComparison({
                       ) : (
                         <>
                           Select
-                          <ArrowRight className="h-4 w-4 ml-1" />
+                          <PiArrowRightBold className="h-4 w-4 ml-1" />
                         </>
                       )}
                     </Button>

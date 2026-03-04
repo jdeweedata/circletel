@@ -1,7 +1,7 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface DFABuilding {
@@ -320,7 +320,7 @@ export function DFABuildingMap({
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-20 rounded-lg">
           <div className="text-center space-y-2">
-            <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
+            <PiSpinnerBold className="h-8 w-8 text-purple-500 animate-spin mx-auto" />
             <p className="text-sm text-gray-600">Loading map...</p>
           </div>
         </div>

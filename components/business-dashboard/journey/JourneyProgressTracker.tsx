@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiCircleBold, PiClockBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Journey Progress Tracker Component
@@ -11,7 +12,6 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, Circle, AlertCircle, Clock, LucideIcon } from 'lucide-react';
 import {
   B2B_JOURNEY_STAGES,
   JourneyStageId,
@@ -128,9 +128,9 @@ function StageIndicator({
         )}
       >
         {status === 'completed' ? (
-          <CheckCircle2 size={iconSize} />
+          <PiCheckCircleBold size={iconSize} />
         ) : status === 'blocked' ? (
-          <AlertCircle size={iconSize} />
+          <PiWarningCircleBold size={iconSize} />
         ) : status === 'in_progress' ? (
           <StageIcon size={iconSize} />
         ) : (

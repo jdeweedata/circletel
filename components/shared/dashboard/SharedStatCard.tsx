@@ -1,9 +1,9 @@
 'use client';
+import { PiMinusBold, PiTrendDownBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SharedStatCardProps } from './types';
 
@@ -40,13 +40,13 @@ export function SharedStatCard({
     if (!trend) return null;
 
     if (trend.value === 0) {
-      return <Minus className="h-4 w-4" />;
+      return <PiMinusBold className="h-4 w-4" />;
     }
 
     return trend.isPositive ? (
-      <TrendingUp className="h-4 w-4" />
+      <PiTrendUpBold className="h-4 w-4" />
     ) : (
-      <TrendingDown className="h-4 w-4" />
+      <PiTrendDownBold className="h-4 w-4" />
     );
   };
 

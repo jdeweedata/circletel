@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiHeartBold, PiInfoBold, PiLightningBold, PiMapPinBold, PiShieldBold, PiSpinnerBold, PiWifiBold } from 'react-icons/pi';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +10,6 @@ import { EnhancedPackageCard } from '@/components/ui/enhanced-package-card';
 import { CompactPackageCard } from '@/components/ui/compact-package-card';
 import { PackageDetailSidebar, MobilePackageDetailOverlay, type BenefitItem, type AdditionalInfoItem } from '@/components/ui/package-detail-sidebar';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, MapPin, Wifi, Zap, Heart, Shield, RefreshCw, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useOrderContext } from '@/components/order/context/OrderContext';
@@ -469,7 +469,7 @@ function PackagesContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -509,13 +509,13 @@ function PackagesContent() {
 
               <div className="relative z-10 max-w-3xl mx-auto text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-4">
-                  <CheckCircle className="w-8 h-8 text-white" />
+                  <PiCheckCircleBold className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-3xl lg:text-4xl font-bold mb-4">
                   Great News! We&apos;ve Got You Covered
                 </h1>
                 <div className="flex items-center justify-center gap-2 text-lg text-orange-100 mb-4">
-                  <MapPin className="w-5 h-5" />
+                  <PiMapPinBold className="w-5 h-5" />
                   <span>{address || 'Your selected location'}</span>
                 </div>
                 <p className="text-lg text-orange-100 mb-6">
@@ -528,7 +528,7 @@ function PackagesContent() {
                   variant="outline"
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
                 >
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
                   Check Another Address
                 </Button>
               </div>
@@ -567,9 +567,9 @@ function PackagesContent() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 text-blue-900 cursor-help">
-                        <MapPin className="w-4 h-4 shrink-0" />
+                        <PiMapPinBold className="w-4 h-4 shrink-0" />
                         <span className="text-sm font-semibold">Coverage estimates may vary</span>
-                        <Info className="w-4 h-4 shrink-0 opacity-70" />
+                        <PiInfoBold className="w-4 h-4 shrink-0 opacity-70" />
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-[300px] p-3">
@@ -586,7 +586,7 @@ function PackagesContent() {
                   size="sm"
                   className="shrink-0 border-blue-300 text-blue-700 hover:bg-blue-100"
                 >
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
                   Check Another
                 </Button>
               </div>
@@ -669,12 +669,12 @@ function PackagesContent() {
                         >
                           {showAllPackages ? (
                             <>
-                              <ChevronUp className="w-5 h-5 mr-2" />
+                              <PiCaretUpBold className="w-5 h-5 mr-2" />
                               Show Less
                             </>
                           ) : (
                             <>
-                              <ChevronDown className="w-5 h-5 mr-2" />
+                              <PiCaretDownBold className="w-5 h-5 mr-2" />
                               Show {remainingCount} More {remainingCount === 1 ? 'Package' : 'Packages'}
                             </>
                           )}
@@ -725,7 +725,7 @@ function PackagesContent() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-                <Zap className="w-8 h-8 text-circleTel-orange" />
+                <PiLightningBold className="w-8 h-8 text-circleTel-orange" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Super-Fast Speeds</h3>
               <p className="text-gray-600">
@@ -735,7 +735,7 @@ function PackagesContent() {
 
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-                <Wifi className="w-8 h-8 text-circleTel-orange" />
+                <PiWifiBold className="w-8 h-8 text-circleTel-orange" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Reliable Connection</h3>
               <p className="text-gray-600">
@@ -745,7 +745,7 @@ function PackagesContent() {
 
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-                <Shield className="w-8 h-8 text-circleTel-orange" />
+                <PiShieldBold className="w-8 h-8 text-circleTel-orange" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">24/7 Support</h3>
               <p className="text-gray-600">
@@ -808,7 +808,7 @@ function PackagesContent() {
           <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-1">
               <div className="flex items-center justify-center w-12 h-12 bg-circleTel-orange rounded-full flex-shrink-0">
-                <CheckCircle className="w-6 h-6 text-white" />
+                <PiCheckCircleBold className="w-6 h-6 text-white" />
               </div>
               <div className="text-left flex-1">
                 <h3 className="font-bold text-base text-gray-900 truncate">{selectedPackage.name}</h3>
@@ -850,7 +850,7 @@ export default function PackagesPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <PackagesContent />

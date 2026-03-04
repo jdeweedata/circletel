@@ -1,22 +1,10 @@
 'use client';
+import { PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiMapPinBold, PiPackageBold, PiUserBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar as CalendarIcon,
-  Clock,
-  MapPin,
-  User,
-  Package,
-  Eye,
-  CalendarCheck,
-  Wrench,
-  CheckCircle,
-} from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isToday, parseISO } from 'date-fns';
 import Link from 'next/link';
 
@@ -164,10 +152,10 @@ export function InstallationCalendar({ installations, onDateClick }: Installatio
               </Button>
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
-                  <ChevronLeft className="h-4 w-4" />
+                  <PiCaretLeftBold className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleNextMonth}>
-                  <ChevronRight className="h-4 w-4" />
+                  <PiCaretRightBold className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -317,14 +305,14 @@ export function InstallationCalendar({ installations, onDateClick }: Installatio
                           </div>
                           {installation.scheduled_time_slot && (
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Clock className="h-4 w-4" />
+                              <PiClockBold className="h-4 w-4" />
                               {installation.scheduled_time_slot}
                             </div>
                           )}
                         </div>
                         <Link href={`/admin/orders/${installation.order_id}`}>
                           <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
+                            <PiEyeBold className="h-4 w-4 mr-1" />
                             View
                           </Button>
                         </Link>
@@ -332,15 +320,15 @@ export function InstallationCalendar({ installations, onDateClick }: Installatio
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div className="flex items-center gap-2 text-gray-700">
-                          <User className="h-4 w-4 text-gray-400" />
+                          <PiUserBold className="h-4 w-4 text-gray-400" />
                           <span>{installation.customer_name}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
-                          <Package className="h-4 w-4 text-gray-400" />
+                          <PiPackageBold className="h-4 w-4 text-gray-400" />
                           <span>{installation.package_name}</span>
                         </div>
                         <div className="flex items-start gap-2 text-gray-700 md:col-span-2">
-                          <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <PiMapPinBold className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <span className="flex-1">{installation.installation_address}</span>
                         </div>
                       </div>

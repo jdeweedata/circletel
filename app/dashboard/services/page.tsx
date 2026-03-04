@@ -1,11 +1,11 @@
 'use client';
+import { PiCalendarBold, PiLightningBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Wifi, Package, AlertCircle, Calendar, MapPin, Zap, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -76,7 +76,7 @@ export default function ServicesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -84,7 +84,7 @@ export default function ServicesPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <AlertCircle className="h-12 w-12 text-red-500" />
+        <PiWarningCircleBold className="h-12 w-12 text-red-500" />
         <p className="text-lg text-gray-600">{error}</p>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
@@ -104,7 +104,7 @@ export default function ServicesPage() {
         </div>
         <Link href="/">
           <Button className="bg-circleTel-orange hover:bg-orange-600">
-            <Package className="h-4 w-4 mr-2" />
+            <PiPackageBold className="h-4 w-4 mr-2" />
             Add New Service
           </Button>
         </Link>
@@ -138,7 +138,7 @@ export default function ServicesPage() {
       {services.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="h-16 w-16 text-gray-400 mb-4" />
+            <PiPackageBold className="h-16 w-16 text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Services Yet</h3>
             <p className="text-gray-600 mb-6 text-center max-w-md">
               You don't have any active services. Browse our packages to get started with high-speed internet.
@@ -169,9 +169,9 @@ function ServiceCard({ service }: { service: Service }) {
 
   const getServiceIcon = () => {
     const type = service.service_type.toLowerCase();
-    if (type.includes('fibre')) return <Wifi className="h-6 w-6" />;
-    if (type.includes('lte') || type.includes('5g')) return <TrendingUp className="h-6 w-6" />;
-    return <Zap className="h-6 w-6" />;
+    if (type.includes('fibre')) return <PiWifiBold className="h-6 w-6" />;
+    if (type.includes('lte') || type.includes('5g')) return <PiTrendUpBold className="h-6 w-6" />;
+    return <PiLightningBold className="h-6 w-6" />;
   };
 
   return (
@@ -217,14 +217,14 @@ function ServiceCard({ service }: { service: Service }) {
 
         {/* Provider Info */}
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Package className="h-4 w-4" />
+          <PiPackageBold className="h-4 w-4" />
           <span>Provider: {service.provider_name}</span>
         </div>
 
         {/* Installation Address */}
         {service.installation_address && (
           <div className="flex items-start gap-2 text-sm text-gray-600">
-            <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <PiMapPinBold className="h-4 w-4 mt-0.5 flex-shrink-0" />
             <span>{service.installation_address}</span>
           </div>
         )}
@@ -233,13 +233,13 @@ function ServiceCard({ service }: { service: Service }) {
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
           {service.installation_date && (
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+              <PiCalendarBold className="h-4 w-4" />
               <span>Installed: {new Date(service.installation_date).toLocaleDateString()}</span>
             </div>
           )}
           {service.activation_date && (
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+              <PiCalendarBold className="h-4 w-4" />
               <span>Activated: {new Date(service.activation_date).toLocaleDateString()}</span>
             </div>
           )}

@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Download, CreditCard, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -94,7 +93,7 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
     <div className="container mx-auto py-6 max-w-4xl">
       <div className="mb-6">
         <Link href="/dashboard/billing" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <PiArrowLeftBold className="mr-2 h-4 w-4" />
           Back to Billing
         </Link>
       </div>
@@ -103,7 +102,7 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <FileText className="h-8 w-8 text-primary" />
+              <PiFileTextBold className="h-8 w-8 text-primary" />
               <div>
                 <CardTitle className="text-2xl">{invoice.invoice_number}</CardTitle>
                 <CardDescription>
@@ -168,13 +167,13 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
             {invoice.status !== 'paid' && (
               <Button asChild className="flex-1">
                 <Link href={`/dashboard/invoices/${id}/pay`}>
-                  <CreditCard className="mr-2 h-4 w-4" />
+                  <PiCreditCardBold className="mr-2 h-4 w-4" />
                   Pay Now
                 </Link>
               </Button>
             )}
             <Button variant="outline" className="flex-1">
-              <Download className="mr-2 h-4 w-4" />
+              <PiDownloadSimpleBold className="mr-2 h-4 w-4" />
               Download PDF
             </Button>
           </div>

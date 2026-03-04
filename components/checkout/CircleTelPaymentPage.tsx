@@ -21,13 +21,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import {
-  Lock,
-  ShieldCheck,
-  ChevronDown,
-  Info,
-  CheckCircle,
-} from "lucide-react"
 
 interface PaymentPageProps {
   variant?: "wireless" | "home-internet" | "business"
@@ -175,7 +168,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
           <div className="flex items-center justify-between">
             <div className="text-2xl font-bold">CircleTel</div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5" />
+              <PiShieldCheckBold className="w-5 h-5" />
               <span className="text-sm font-medium">Secure Checkout</span>
             </div>
           </div>
@@ -183,7 +176,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
           {/* Progress Steps */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
+              <PiCheckCircleBold className="w-5 h-5" />
               <span className="text-sm">Create Account</span>
             </div>
             <div className="w-12 h-0.5 bg-white/30"></div>
@@ -549,7 +542,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
                   <div className="flex justify-between items-center pb-4 border-b">
                     <div className="flex items-center gap-2">
                       <p className="text-gray-900">Free to use Router</p>
-                      <Info className="w-4 h-4 text-gray-400" />
+                      <PiInfoBold className="w-4 h-4 text-gray-400" />
                     </div>
                     <p className="font-semibold text-green-600">FREE</p>
                   </div>
@@ -609,7 +602,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
             ) : (
               <>
                 Complete My Order
-                <Lock className="ml-2 h-5 w-5" />
+                <PiLockBold className="ml-2 h-5 w-5" />
               </>
             )}
           </Button>
@@ -617,7 +610,7 @@ export function CircleTelPaymentPage({ variant = "home-internet" }: PaymentPageP
           {/* Security Notice */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-              <ShieldCheck className="w-4 h-4" />
+              <PiShieldCheckBold className="w-4 h-4" />
               <span>Secured by Netcash PCI DSS Level 1 Compliant Gateway</span>
             </div>
           </div>

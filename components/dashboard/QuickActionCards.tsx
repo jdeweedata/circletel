@@ -1,17 +1,8 @@
 'use client';
+import { PiCreditCardBold, PiFileTextBold, PiGearBold, PiHeadphonesBold, PiQuestionBold, PiShoppingCartBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
-import {
-  CreditCard,
-  FileText,
-  Settings,
-  UserCircle,
-  HeadphonesIcon,
-  HelpCircle,
-  ShoppingCart,
-  LucideIcon
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuickAction {
@@ -28,7 +19,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'place-order',
     title: 'Place New Order',
-    icon: ShoppingCart,
+    icon: PiShoppingCartBold,
     href: '/order/coverage',
     description: 'Order a new service',
     iconBg: 'bg-orange-100',
@@ -37,7 +28,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'payment-method',
     title: 'Payment Method',
-    icon: CreditCard,
+    icon: PiCreditCardBold,
     href: '/dashboard/payment-method',
     description: 'Manage payment method',
     iconBg: 'bg-blue-100',
@@ -46,7 +37,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'invoices',
     title: 'View Invoices',
-    icon: FileText,
+    icon: PiFileTextBold,
     href: '/dashboard/billing',
     description: 'View your invoices',
     iconBg: 'bg-green-100',
@@ -55,7 +46,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'manage-service',
     title: 'Manage Service',
-    icon: Settings,
+    icon: PiGearBold,
     href: '/dashboard/services',
     description: 'Manage your services',
     iconBg: 'bg-orange-100',
@@ -73,7 +64,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'log-ticket',
     title: 'Log a Ticket',
-    icon: HeadphonesIcon,
+    icon: PiHeadphonesBold,
     href: '/dashboard/tickets',
     description: 'Get technical support',
     iconBg: 'bg-red-100',
@@ -82,7 +73,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'get-help',
     title: 'Get Help',
-    icon: HelpCircle,
+    icon: PiQuestionBold,
     href: '/dashboard/support',
     description: 'FAQ and support',
     iconBg: 'bg-gray-100',

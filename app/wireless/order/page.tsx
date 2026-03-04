@@ -5,7 +5,6 @@ import { Suspense } from "react"
 import { WirelessOrderForm } from "@/components/wireless/order/WirelessOrderForm"
 import { OrderSummary } from "@/components/wireless/order/OrderSummary"
 import { OrderProgress } from "@/components/wireless/order/OrderProgress"
-import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 function OrderContent() {
@@ -22,7 +21,7 @@ function OrderContent() {
               href="/wireless" 
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <PiArrowLeftBold className="w-4 h-4" />
               Back to Packages
             </Link>
             <div className="text-2xl font-bold italic text-orange-500">

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiGlobeBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -18,14 +19,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import {
-  Globe,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  Download,
-  RefreshCw,
-} from 'lucide-react';
 import {
   KonnecktStatCard,
   ActionRequiredPanel,
@@ -301,7 +294,7 @@ export default function CoverageAnalyticsPage() {
               size="sm"
               className="bg-white"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Button
@@ -309,7 +302,7 @@ export default function CoverageAnalyticsPage() {
               size="sm"
               className="bg-[#F5831F] hover:bg-[#D76026] text-white"
             >
-              <Download className="h-4 w-4 mr-2" />
+              <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
               Generate Report
             </Button>
           </div>
@@ -322,21 +315,21 @@ export default function CoverageAnalyticsPage() {
             value={totalRequests}
             trend={{ value: 12.5, isPositive: true }}
             subtext={`vs. previous ${timeRange === '24h' ? '24 hours' : timeRange}`}
-            icon={<Globe className="h-5 w-5" />}
+            icon={<PiGlobeBold className="h-5 w-5" />}
           />
           <KonnecktStatCard
             label="Avg Success Rate"
             value={`${avgSuccessRate.toFixed(1)}%`}
             trend={{ value: 2.1, isPositive: avgSuccessRate > 95 }}
             subtext="Target: 99.5%"
-            icon={<CheckCircle className="h-5 w-5" />}
+            icon={<PiCheckCircleBold className="h-5 w-5" />}
           />
           <KonnecktStatCard
             label="Failed Requests"
             value={totalErrors}
             trend={{ value: 8.3, isPositive: false }}
             subtext={`${((totalErrors / totalRequests) * 100).toFixed(2)}% of total`}
-            icon={<AlertTriangle className="h-5 w-5" />}
+            icon={<PiWarningBold className="h-5 w-5" />}
           />
           <KonnecktStatCard
             label="Avg Response Time"
@@ -346,7 +339,7 @@ export default function CoverageAnalyticsPage() {
               isPositive: avgResponseTime < 800,
             }}
             subtext="Target: <500ms"
-            icon={<Clock className="h-5 w-5" />}
+            icon={<PiClockBold className="h-5 w-5" />}
           />
         </div>
 

@@ -1,7 +1,7 @@
 'use client';
+import { PiCalendarBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiLightningBold, PiPackageBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Package, Zap, Calendar, Check } from 'lucide-react';
 import Link from 'next/link';
 import type { PackageDetails } from '@/lib/order/types';
 
@@ -45,7 +45,7 @@ export function StickyPackageSummary({
           <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
+                <PiPackageBold className="w-5 h-5" />
                 <span className="font-semibold">Your Selected Package</span>
               </div>
               {showChangeLink && (
@@ -65,12 +65,12 @@ export function StickyPackageSummary({
             <div>
               <h3 className="font-bold text-lg text-gray-900">{pkg.name}</h3>
               <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                <Zap className="w-4 h-4 text-circleTel-orange" />
+                <PiLightningBold className="w-4 h-4 text-circleTel-orange" />
                 <span>{pkg.speed_down}/{pkg.speed_up} Mbps</span>
               </div>
               {pkg.data_limit && (
                 <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-green-600" />
+                  <PiCheckBold className="w-4 h-4 text-green-600" />
                   <span>{pkg.data_limit}</span>
                 </div>
               )}
@@ -107,7 +107,7 @@ export function StickyPackageSummary({
 
             {/* Next Billing Date */}
             <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
-              <Calendar className="w-4 h-4" />
+              <PiCalendarBold className="w-4 h-4" />
               <span>First billing: {formattedDate}</span>
             </div>
 
@@ -115,7 +115,7 @@ export function StickyPackageSummary({
             {(pkg.installation_fee === 0 || !pkg.installation_fee) && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center gap-2 text-green-800">
-                  <Check className="w-4 h-4" />
+                  <PiCheckBold className="w-4 h-4" />
                   <span className="text-sm font-medium">Free installation</span>
                 </div>
               </div>
@@ -133,15 +133,15 @@ export function StickyPackageSummary({
             className="w-full p-4 flex items-center justify-between bg-gradient-to-r from-circleTel-orange to-orange-600 text-white"
           >
             <div className="flex items-center gap-2">
-              <Package className="w-5 h-5" />
+              <PiPackageBold className="w-5 h-5" />
               <span className="font-semibold text-sm">
                 {pkg.name} • R{totalInclVAT.toFixed(2)}/mo
               </span>
             </div>
             {isCollapsed ? (
-              <ChevronDown className="w-5 h-5" />
+              <PiCaretDownBold className="w-5 h-5" />
             ) : (
-              <ChevronUp className="w-5 h-5" />
+              <PiCaretUpBold className="w-5 h-5" />
             )}
           </button>
 
@@ -150,7 +150,7 @@ export function StickyPackageSummary({
             <div className="p-4 space-y-3">
               {/* Speed */}
               <div className="flex items-center gap-2 text-sm">
-                <Zap className="w-4 h-4 text-circleTel-orange" />
+                <PiLightningBold className="w-4 h-4 text-circleTel-orange" />
                 <span>{pkg.speed_down}/{pkg.speed_up} Mbps</span>
               </div>
 
@@ -172,7 +172,7 @@ export function StickyPackageSummary({
 
               {/* Next Billing */}
               <div className="flex items-center gap-2 text-xs text-gray-600 pt-2">
-                <Calendar className="w-3 h-3" />
+                <PiCalendarBold className="w-3 h-3" />
                 <span>First billing: {formattedDate}</span>
               </div>
 

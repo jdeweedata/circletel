@@ -1,37 +1,36 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { Shield, Clock, Headphones, Truck, Wifi, Zap } from "lucide-react"
 
 export function WirelessFeatures() {
   const features = [
     {
-      icon: Zap,
+      icon: PiLightningBold,
       title: "Instant Connectivity",
       description: "Get connected in 24-48 hours with our rapid deployment process"
     },
     {
-      icon: Shield,
+      icon: PiShieldBold,
       title: "99.5% Uptime SLA",
       description: "Enterprise-grade reliability with guaranteed service level agreements"
     },
     {
-      icon: Wifi,
+      icon: PiWifiBold,
       title: "Free Static IP",
       description: "Included with every business package for remote access and management"
     },
     {
-      icon: Truck,
+      icon: PiTruckBold,
       title: "Free Installation",
       description: "Professional installation and setup at no extra cost"
     },
     {
-      icon: Headphones,
+      icon: PiHeadphonesBold,
       title: "24/7 SA Support",
       description: "Local technical support team available around the clock"
     },
     {
-      icon: Clock,
+      icon: PiClockBold,
       title: "No Long Contracts",
       description: "Flexible month-to-month terms after initial 24-month period"
     }

@@ -1,7 +1,7 @@
 'use client';
+import { PiArrowRightBold, PiCheckCircleBold } from 'react-icons/pi';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function FinalCTA() {
@@ -29,15 +29,15 @@ export function FinalCTA() {
           {/* Benefits */}
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <div className="flex items-center gap-2 text-white/90">
-              <CheckCircle className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
               <span>No upfront costs</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <CheckCircle className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
               <span>No experience needed</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <CheckCircle className="h-5 w-5 text-cyan-400" />
+              <PiCheckCircleBold className="h-5 w-5 text-cyan-400" />
               <span>Paid monthly</span>
             </div>
           </div>
@@ -49,7 +49,7 @@ export function FinalCTA() {
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white px-10 py-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
             >
               Sign up now
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>

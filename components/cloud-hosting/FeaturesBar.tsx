@@ -1,5 +1,5 @@
+import { PiClockBold, PiDatabaseBold, PiGearBold, PiUsersBold } from 'react-icons/pi';
 import React from 'react'
-import { Database, Settings, Users, Clock } from 'lucide-react'
 
 interface Feature {
   icon: string
@@ -12,10 +12,10 @@ interface FeaturesBarProps {
 }
 
 const iconMap: { [key: string]: React.ReactNode } = {
-  database: <Database className="w-6 h-6" />,
-  settings: <Settings className="w-6 h-6" />,
-  users: <Users className="w-6 h-6" />,
-  clock: <Clock className="w-6 h-6" />
+  database: <PiDatabaseBold className="w-6 h-6" />,
+  settings: <PiGearBold className="w-6 h-6" />,
+  users: <PiUsersBold className="w-6 h-6" />,
+  clock: <PiClockBold className="w-6 h-6" />
 }
 
 const defaultFeatures = [
@@ -51,7 +51,7 @@ export default function FeaturesBar({ features = defaultFeatures }: FeaturesBarP
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 rounded-full bg-circleTel-orange/10 flex items-center justify-center group-hover:bg-circleTel-orange transition-colors">
                   <div className="text-circleTel-orange group-hover:text-white transition-colors">
-                    {iconMap[feature.icon] || <Database className="w-6 h-6" />}
+                    {iconMap[feature.icon] || <PiDatabaseBold className="w-6 h-6" />}
                   </div>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 'use client'
+import { PiActivityBold, PiArrowRightBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiMagnifyingGlassBold, PiQuestionBold, PiSpinnerBold, PiTrendDownBold, PiTrendUpBold, PiWarningBold, PiWifiBold, PiWifiSlashBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
@@ -22,22 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Search,
-  RefreshCw,
-  Wifi,
-  WifiOff,
-  AlertTriangle,
-  Activity,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  TrendingUp,
-  TrendingDown,
-  ArrowRight,
-  Loader2,
-} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
   DiagnosticsListResponse,
@@ -92,9 +77,9 @@ function DiagnosticsStatCard({
               )}
             >
               {trend.isPositive ? (
-                <TrendingUp className="h-4 w-4" />
+                <PiTrendUpBold className="h-4 w-4" />
               ) : (
-                <TrendingDown className="h-4 w-4" />
+                <PiTrendDownBold className="h-4 w-4" />
               )}
               <span>{trend.value}%</span>
             </div>
@@ -200,27 +185,27 @@ export default function DiagnosticsPage() {
       healthy: {
         bg: 'bg-green-100',
         text: 'text-green-800',
-        icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+        icon: <PiCheckCircleBold className="w-3.5 h-3.5" />,
       },
       warning: {
         bg: 'bg-amber-100',
         text: 'text-amber-800',
-        icon: <AlertTriangle className="w-3.5 h-3.5" />,
+        icon: <PiWarningBold className="w-3.5 h-3.5" />,
       },
       critical: {
         bg: 'bg-red-100',
         text: 'text-red-800',
-        icon: <XCircle className="w-3.5 h-3.5" />,
+        icon: <PiXCircleBold className="w-3.5 h-3.5" />,
       },
       offline: {
         bg: 'bg-gray-100',
         text: 'text-gray-700',
-        icon: <WifiOff className="w-3.5 h-3.5" />,
+        icon: <PiWifiSlashBold className="w-3.5 h-3.5" />,
       },
       unknown: {
         bg: 'bg-gray-50',
         text: 'text-gray-500',
-        icon: <HelpCircle className="w-3.5 h-3.5" />,
+        icon: <PiQuestionBold className="w-3.5 h-3.5" />,
       },
     }
 
@@ -268,7 +253,7 @@ export default function DiagnosticsPage() {
             disabled={refreshing}
             className="bg-circleTel-orange hover:bg-orange-600 gap-2"
           >
-            <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
+            <PiArrowsClockwiseBold className={cn('w-4 h-4', refreshing && 'animate-spin')} />
             Refresh
           </Button>
         </div>
@@ -280,7 +265,7 @@ export default function DiagnosticsPage() {
           <DiagnosticsStatCard
             title="Total Subscribers"
             value={data.stats.total}
-            icon={<Activity className="h-5 w-5" />}
+            icon={<PiActivityBold className="h-5 w-5" />}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
             subtitle="All monitored connections"
@@ -291,7 +276,7 @@ export default function DiagnosticsPage() {
           <DiagnosticsStatCard
             title="Healthy"
             value={data.stats.healthy}
-            icon={<CheckCircle2 className="h-5 w-5" />}
+            icon={<PiCheckCircleBold className="h-5 w-5" />}
             iconBgColor="bg-green-100"
             iconColor="text-green-600"
             subtitle="Connections running smoothly"
@@ -302,7 +287,7 @@ export default function DiagnosticsPage() {
           <DiagnosticsStatCard
             title="Needs Attention"
             value={data.stats.warning + data.stats.critical}
-            icon={<AlertTriangle className="h-5 w-5" />}
+            icon={<PiWarningBold className="h-5 w-5" />}
             iconBgColor="bg-amber-100"
             iconColor="text-amber-600"
             subtitle={`${data.stats.warning} warning, ${data.stats.critical} critical`}
@@ -313,7 +298,7 @@ export default function DiagnosticsPage() {
           <DiagnosticsStatCard
             title="Offline"
             value={data.stats.offline}
-            icon={<WifiOff className="h-5 w-5" />}
+            icon={<PiWifiSlashBold className="h-5 w-5" />}
             iconBgColor="bg-gray-100"
             iconColor="text-gray-600"
             subtitle="Currently disconnected"
@@ -328,7 +313,7 @@ export default function DiagnosticsPage() {
         <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 rounded-xl p-6 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-red-500 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-white" />
+              <PiWarningBold className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -341,7 +326,7 @@ export default function DiagnosticsPage() {
                 onClick={() => setStatusFilter('critical')}
                 className="bg-red-600 hover:bg-red-700 font-semibold shadow-md"
               >
-                <XCircle className="w-4 h-4 mr-2" />
+                <PiXCircleBold className="w-4 h-4 mr-2" />
                 View Critical Issues
               </Button>
             </div>
@@ -364,7 +349,7 @@ export default function DiagnosticsPage() {
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <form onSubmit={handleSearch} className="flex-1 flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Search by name, email, or subscriber ID..."
                   value={searchQuery}
@@ -419,13 +404,13 @@ export default function DiagnosticsPage() {
           {/* Table / Loading / Empty State */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange mb-4" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange mb-4" />
               <p className="text-gray-500">Loading diagnostics...</p>
             </div>
           ) : !data?.data?.length ? (
             <div className="text-center py-16">
               <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="w-8 h-8 text-gray-400" />
+                <PiActivityBold className="w-8 h-8 text-gray-400" />
               </div>
               <p className="text-lg font-medium text-gray-700 mb-1">No diagnostics data found</p>
               <p className="text-sm text-gray-500">
@@ -477,7 +462,7 @@ export default function DiagnosticsPage() {
                             {getSessionStatusBadge(item.is_session_active)}
                             {item.is_session_active && item.last_session_duration_seconds > 0 && (
                               <span className="text-xs text-gray-400 flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
+                                <PiClockBold className="w-3 h-3" />
                                 {formatDuration(item.last_session_duration_seconds)}
                               </span>
                             )}
@@ -513,7 +498,7 @@ export default function DiagnosticsPage() {
                             <p className="text-gray-700">{formatDate(item.last_check_at)}</p>
                             {item.critical_events_24h > 0 && (
                               <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
-                                <AlertTriangle className="w-3 h-3" />
+                                <PiWarningBold className="w-3 h-3" />
                                 {item.critical_events_24h} critical
                               </p>
                             )}
@@ -530,7 +515,7 @@ export default function DiagnosticsPage() {
                             }}
                           >
                             View
-                            <ArrowRight className="w-4 h-4 ml-1" />
+                            <PiArrowRightBold className="w-4 h-4 ml-1" />
                           </Button>
                         </TableCell>
                       </TableRow>

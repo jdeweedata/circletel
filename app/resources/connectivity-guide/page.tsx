@@ -1,4 +1,4 @@
-import { Wifi, Globe, Activity, Download, ArrowRight, Building, Map, Radio, Network } from 'lucide-react';
+import { PiActivityBold, PiArrowRightBold, PiBuildingBold, PiDownloadSimpleBold, PiGlobeBold, PiGraphBold, PiMapTrifoldBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ export default function ConnectivityGuide() {
               </p>
               <div className="flex flex-wrap gap-4 mb-6">
                 <Button size="lg" className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
-                  <Download className="mr-2" size={18} />
+                  <PiDownloadSimpleBold className="mr-2" size={18} />
                   Download Urban Guide (PDF)
                 </Button>
               </div>
@@ -26,13 +26,13 @@ export default function ConnectivityGuide() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative">
                 <div className="bg-circleTel-orange h-64 w-64 rounded-full bg-opacity-10 flex items-center justify-center">
-                  <Building size={100} className="text-circleTel-orange" />
+                  <PiBuildingBold size={100} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute top-0 right-0 h-24 w-24 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  <Globe size={40} className="text-circleTel-orange" />
+                  <PiGlobeBold size={40} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute bottom-0 left-0 h-32 w-32 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  <Wifi size={48} className="text-circleTel-orange" />
+                  <PiWifiBold size={48} className="text-circleTel-orange" />
                 </div>
               </div>
             </div>
@@ -134,7 +134,7 @@ export default function ConnectivityGuide() {
               <div className="bg-white border-2 border-circleTel-orange p-4 rounded-lg mb-8">
                 <h4 className="font-bold mb-2 text-circleTel-orange">Urban Coverage Map</h4>
                 <div className="bg-circleTel-lightNeutral h-64 rounded-lg flex items-center justify-center mb-2">
-                  <Map size={48} className="text-circleTel-secondaryNeutral opacity-50" />
+                  <PiMapTrifoldBold size={48} className="text-circleTel-secondaryNeutral opacity-50" />
                 </div>
                 <p className="text-sm text-circleTel-secondaryNeutral">
                   Contact us for a detailed coverage assessment of your specific urban location.
@@ -223,7 +223,7 @@ export default function ConnectivityGuide() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
-                  <Radio size={32} className="text-circleTel-orange mb-4" />
+                  <PiRadioBold size={32} className="text-circleTel-orange mb-4" />
                   <h3 className="text-xl font-bold text-circleTel-navy mb-3">Urban 5G Coverage</h3>
                   <p>
                     Major South African metros now feature extensive 5G coverage, particularly in business
@@ -232,7 +232,7 @@ export default function ConnectivityGuide() {
                 </div>
 
                 <div className="bg-circleTel-lightNeutral p-6 rounded-lg">
-                  <Network size={32} className="text-circleTel-orange mb-4" />
+                  <PiGraphBold size={32} className="text-circleTel-orange mb-4" />
                   <h3 className="text-xl font-bold text-circleTel-navy mb-3">Business Applications</h3>
                   <p>
                     Urban businesses leverage 5G for primary connectivity, backup solutions, pop-up
@@ -437,7 +437,7 @@ export default function ConnectivityGuide() {
               </Button>
               <Button asChild variant="outline" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                 <Link href="/resources/wifi-toolkit">
-                  Multi-Tenant Wi-Fi Solutions <ArrowRight size={16} className="ml-2" />
+                  Multi-Tenant Wi-Fi Solutions <PiArrowRightBold size={16} className="ml-2" />
                 </Link>
               </Button>
             </div>

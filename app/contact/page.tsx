@@ -1,11 +1,11 @@
 'use client';
+import { PiCalendarBold, PiChatCircleBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import ContactHero from '@/components/contact/ContactHero';
-import { Phone, Mail, MapPin, Clock, MessageCircle, Calendar, CheckCircle, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -271,7 +271,7 @@ Thank you for choosing CircleTel!
                         className="h-auto p-4 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
                       >
                         <div className="flex flex-col items-center">
-                          <MessageCircle className="h-6 w-6 mb-2" />
+                          <PiChatCircleBold className="h-6 w-6 mb-2" />
                           <span className="text-sm">Live Chat</span>
                         </div>
                       </Button>
@@ -280,7 +280,7 @@ Thank you for choosing CircleTel!
                         className="h-auto p-4 border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
                       >
                         <div className="flex flex-col items-center">
-                          <Calendar className="h-6 w-6 mb-2" />
+                          <PiCalendarBold className="h-6 w-6 mb-2" />
                           <span className="text-sm">Book Meeting</span>
                         </div>
                       </Button>
@@ -298,21 +298,21 @@ Thank you for choosing CircleTel!
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-start">
-                        <Phone className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
+                        <PiPhoneBold className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
                           <p className="font-semibold text-circleTel-navy">Phone</p>
                           <p className="text-circleTel-secondaryNeutral">082 487 3900</p>
                         </div>
                       </div>
                       <div className="flex items-start">
-                        <Mail className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
+                        <PiEnvelopeBold className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
                           <p className="font-semibold text-circleTel-navy">Email</p>
                           <p className="text-circleTel-secondaryNeutral">contactus@circletel.co.za</p>
                         </div>
                       </div>
                       <div className="flex items-start">
-                        <MapPin className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
+                        <PiMapPinBold className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
                           <p className="font-semibold text-circleTel-navy">Address</p>
                           <p className="text-circleTel-secondaryNeutral">
@@ -329,7 +329,7 @@ Thank you for choosing CircleTel!
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-circleTel-navy flex items-center">
-                      <Clock className="h-5 w-5 mr-2" />
+                      <PiClockBold className="h-5 w-5 mr-2" />
                       Support Hours
                     </CardTitle>
                   </CardHeader>
@@ -367,7 +367,7 @@ Thank you for choosing CircleTel!
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-              <CheckCircle className="h-10 w-10 text-green-600" />
+              <PiCheckCircleBold className="h-10 w-10 text-green-600" />
             </div>
             <DialogTitle className="text-center text-2xl">Thank You!</DialogTitle>
             <DialogDescription className="text-center">
@@ -390,9 +390,9 @@ Thank you for choosing CircleTel!
                   className="h-8 px-2"
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-green-600" />
+                    <PiCheckBold className="h-4 w-4 text-green-600" />
                   ) : (
-                    <Copy className="h-4 w-4" />
+                    <PiCopyBold className="h-4 w-4" />
                   )}
                 </Button>
               </div>
@@ -403,19 +403,19 @@ Thank you for choosing CircleTel!
               <h4 className="font-semibold mb-3">What happens next?</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <PiCheckCircleBold className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                   <span>Our team will review your inquiry carefully</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <PiCheckCircleBold className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                   <span>You'll receive a response within 24 business hours</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <PiCheckCircleBold className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                   <span>A confirmation email has been sent to your inbox</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <PiCheckCircleBold className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                   <span>For urgent matters, WhatsApp us at 082 487 3900</span>
                 </li>
               </ul>

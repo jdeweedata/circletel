@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiFloppyDiskBold, PiGearBold, PiGlobeBold, PiImageBold, PiPencilSimpleBold, PiPlusBold, PiShieldBold, PiTestTubeBold, PiTrashBold, PiUploadSimpleBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Upload, Plus, Trash2, Settings, Shield, Database, Globe, Image,
-  TestTube, CheckCircle, AlertCircle, Clock, Edit, Save, X
-} from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
@@ -293,7 +290,7 @@ export default function ProvidersManagementPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <PiClockBold className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p>Loading providers...</p>
         </div>
       </div>
@@ -330,7 +327,7 @@ export default function ProvidersManagementPage() {
                         />
                       ) : (
                         <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                          <Image className="h-5 w-5 text-gray-400" />
+                          <PiImageBold className="h-5 w-5 text-gray-400" />
                         </div>
                       )}
                       <div>
@@ -359,14 +356,14 @@ export default function ProvidersManagementPage() {
                           editingProvider === provider.id ? null : provider.id
                         )}
                       >
-                        <Edit className="h-4 w-4" />
+                        <PiPencilSimpleBold className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => deleteProvider(provider.id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <PiTrashBold className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -420,13 +417,13 @@ export default function ProvidersManagementPage() {
                             size="sm"
                             onClick={() => testConnection(provider.id)}
                           >
-                            <TestTube className="h-3 w-3" />
+                            <PiTestTubeBold className="h-3 w-3" />
                           </Button>
                         )}
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm">
-                              <Upload className="h-3 w-3" />
+                              <PiUploadSimpleBold className="h-3 w-3" />
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -521,7 +518,7 @@ export default function ProvidersManagementPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
+                <PiPlusBold className="h-5 w-5" />
                 Add New Provider
               </CardTitle>
               <CardDescription>

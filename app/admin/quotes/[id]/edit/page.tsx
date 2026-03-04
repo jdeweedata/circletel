@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiFloppyDiskBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft, Save, X, Plus, Trash2 } from 'lucide-react';
 import type { QuoteDetails, BusinessQuoteItem } from '@/lib/quotes/types';
 
 interface Props {
@@ -162,7 +162,7 @@ export default function EditQuotePage({ params }: Props) {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -190,7 +190,7 @@ export default function EditQuotePage({ params }: Props) {
           </AlertDescription>
         </Alert>
         <Button onClick={handleCancel} className="mt-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <PiArrowLeftBold className="w-4 h-4 mr-2" />
           Back to Quote
         </Button>
       </div>
@@ -216,7 +216,7 @@ export default function EditQuotePage({ params }: Props) {
               onClick={handleCancel}
               disabled={saving}
             >
-              <X className="w-4 h-4 mr-2" />
+              <PiXBold className="w-4 h-4 mr-2" />
               Cancel
             </Button>
             <Button
@@ -225,9 +225,9 @@ export default function EditQuotePage({ params }: Props) {
               className="bg-circleTel-orange hover:bg-[#e67516]"
             >
               {saving ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <Save className="w-4 h-4 mr-2" />
+                <PiFloppyDiskBold className="w-4 h-4 mr-2" />
               )}
               Save Changes
             </Button>
@@ -409,7 +409,7 @@ export default function EditQuotePage({ params }: Props) {
                     onClick={() => removeItem(index)}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <PiTrashBold className="w-4 h-4" />
                   </Button>
                 </div>
 
@@ -494,12 +494,12 @@ export default function EditQuotePage({ params }: Props) {
         >
           {saving ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="w-4 h-4 mr-2" />
+              <PiFloppyDiskBold className="w-4 h-4 mr-2" />
               Save Changes
             </>
           )}

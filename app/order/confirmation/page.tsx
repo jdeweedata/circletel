@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckCircleBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -35,7 +35,7 @@ function ConfirmationContent() {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          <Loader2 className="w-16 h-16 text-circleTel-orange mx-auto mb-4 animate-spin" />
+          <PiSpinnerBold className="w-16 h-16 text-circleTel-orange mx-auto mb-4 animate-spin" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Processing Your Order...
           </h1>
@@ -51,7 +51,7 @@ function ConfirmationContent() {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
         <div className="mb-6">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <PiCheckCircleBold className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Payment Successful!
           </h1>
@@ -113,7 +113,7 @@ export default function ConfirmationPage() {
     <Suspense fallback={
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          <Loader2 className="w-16 h-16 text-circleTel-orange mx-auto mb-4 animate-spin" />
+          <PiSpinnerBold className="w-16 h-16 text-circleTel-orange mx-auto mb-4 animate-spin" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Loading...
           </h1>

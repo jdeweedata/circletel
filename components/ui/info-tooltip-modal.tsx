@@ -1,7 +1,7 @@
 'use client';
+import { PiInfoBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
-import { X, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface InfoTooltipModalProps {
@@ -81,7 +81,7 @@ export function InfoTooltipModal({
         )}
         aria-label={`More information about ${title}`}
       >
-        <Info className="w-3.5 h-3.5" aria-hidden="true" />
+        <PiInfoBold className="w-3.5 h-3.5" aria-hidden="true" />
       </button>
 
       {/* Modal */}
@@ -121,7 +121,7 @@ export function InfoTooltipModal({
               )}
               aria-label="Close modal"
             >
-              <X className="w-5 h-5" aria-hidden="true" />
+              <PiXBold className="w-5 h-5" aria-hidden="true" />
             </button>
 
             {/* Title */}
@@ -178,7 +178,7 @@ export function InfoTooltipButton({
       )}
       aria-label={ariaLabel || 'More information'}
     >
-      <Info className="w-3.5 h-3.5" aria-hidden="true" />
+      <PiInfoBold className="w-3.5 h-3.5" aria-hidden="true" />
     </button>
   );
 }

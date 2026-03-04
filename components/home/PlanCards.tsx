@@ -1,9 +1,9 @@
 'use client';
+import { PiArrowRightBold, PiBatteryChargingBold, PiBuildingsBold, PiCellSignalFullBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Zap, Wifi, Signal, BatteryCharging, Building2, Shield, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { SegmentType } from './SegmentTabs';
@@ -292,7 +292,7 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
             className="inline-flex items-center text-circleTel-orange-accessible hover:text-circleTel-orange font-semibold transition-colors group"
           >
             {config.viewAllText}
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <PiArrowRightBold className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
@@ -401,7 +401,7 @@ export function PlanCards({ activeSegment = 'home' }: PlanCardsProps) {
         {/* Promotional Banner (optional - can be enabled when promotions are active) */}
         {/* <div className="mt-8 p-4 bg-circleTel-orange/10 rounded-xl text-center">
           <p className="text-circleTel-navy font-semibold">
-            <Zap className="inline-block h-5 w-5 text-circleTel-orange mr-2" />
+            <PiLightningBold className="inline-block h-5 w-5 text-circleTel-orange mr-2" />
             Sign up this month and get your first month FREE!
           </p>
         </div> */}

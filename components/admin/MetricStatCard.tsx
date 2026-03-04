@@ -1,7 +1,7 @@
+import { PiTrendDownBold, PiTrendUpBold } from 'react-icons/pi';
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface MetricStatCardProps {
   title: string;
@@ -52,9 +52,9 @@ export function MetricStatCard({
         {/* Trend Indicator */}
         <div className={`flex items-center gap-1 text-sm ${trendColor} mb-4`}>
           {trend.isPositive ? (
-            <TrendingUp className="h-4 w-4" />
+            <PiTrendUpBold className="h-4 w-4" />
           ) : (
-            <TrendingDown className="h-4 w-4" />
+            <PiTrendDownBold className="h-4 w-4" />
           )}
           <span className="font-medium">
             {trend.isPositive ? '+' : ''}{trend.value}% {trend.label}

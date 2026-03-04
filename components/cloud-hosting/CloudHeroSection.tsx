@@ -1,6 +1,6 @@
+import { PiCloudBold, PiLightningBold, PiServerBold, PiShieldBold } from 'react-icons/pi';
 import React from 'react'
 import Link from 'next/link'
-import { Cloud, Server, Shield, Zap } from 'lucide-react'
 
 interface CloudHeroProps {
   data?: {
@@ -52,7 +52,7 @@ export default function CloudHeroSection({ data }: CloudHeroProps) {
           {/* Enhanced Logo/Brand */}
           <div className="mb-8">
             <div className="inline-flex items-center space-x-3 text-circleTel-orange text-lg font-semibold">
-              <Cloud className="w-8 h-8" />
+              <PiCloudBold className="w-8 h-8" />
               <span>CircleTel Cloud Solutions</span>
             </div>
           </div>
@@ -93,25 +93,25 @@ export default function CloudHeroSection({ data }: CloudHeroProps) {
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="text-center animate-float group">
             <div className="inline-flex p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 group-hover:bg-white/20 transition-all shadow-xl">
-              <Cloud className="w-10 h-10 text-orange-400 group-hover:scale-110 transition-transform" />
+              <PiCloudBold className="w-10 h-10 text-orange-400 group-hover:scale-110 transition-transform" />
             </div>
             <p className="mt-4 text-base text-gray-300 font-medium">Cloud Native</p>
           </div>
           <div className="text-center animate-float animation-delay-2000 group">
             <div className="inline-flex p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 group-hover:bg-white/20 transition-all shadow-xl">
-              <Server className="w-10 h-10 text-blue-400 group-hover:scale-110 transition-transform" />
+              <PiServerBold className="w-10 h-10 text-blue-400 group-hover:scale-110 transition-transform" />
             </div>
             <p className="mt-4 text-base text-gray-300 font-medium">Scalable</p>
           </div>
           <div className="text-center animate-float animation-delay-4000 group">
             <div className="inline-flex p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 group-hover:bg-white/20 transition-all shadow-xl">
-              <Shield className="w-10 h-10 text-green-400 group-hover:scale-110 transition-transform" />
+              <PiShieldBold className="w-10 h-10 text-green-400 group-hover:scale-110 transition-transform" />
             </div>
             <p className="mt-4 text-base text-gray-300 font-medium">Secure</p>
           </div>
           <div className="text-center animate-float animation-delay-6000 group">
             <div className="inline-flex p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 group-hover:bg-white/20 transition-all shadow-xl">
-              <Zap className="w-10 h-10 text-yellow-400 group-hover:scale-110 transition-transform" />
+              <PiLightningBold className="w-10 h-10 text-yellow-400 group-hover:scale-110 transition-transform" />
             </div>
             <p className="mt-4 text-base text-gray-300 font-medium">Fast</p>
           </div>

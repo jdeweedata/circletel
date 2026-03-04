@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiPlayCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import {
@@ -15,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { AlertCircle, Loader2, PlayCircle, CheckCircle, XCircle } from 'lucide-react';
 
 interface OrderActivationModalProps {
   open: boolean;
@@ -236,7 +236,7 @@ export function OrderActivationModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <PlayCircle className="h-5 w-5 text-green-600" />
+              <PiPlayCircleBold className="h-5 w-5 text-green-600" />
               Activate Service & Start Billing
             </DialogTitle>
             <DialogDescription>
@@ -249,7 +249,7 @@ export function OrderActivationModal({
             {/* Validation Status */}
             {isValidating ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+                <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
                 <span className="ml-3 text-gray-600">Validating requirements...</span>
               </div>
             ) : validation ? (
@@ -257,7 +257,7 @@ export function OrderActivationModal({
                 {/* Errors */}
                 {validation.errors.length > 0 && (
                   <Alert variant="destructive">
-                    <XCircle className="h-4 w-4" />
+                    <PiXCircleBold className="h-4 w-4" />
                     <AlertDescription>
                       <p className="font-semibold mb-2">Cannot activate service:</p>
                       <ul className="list-disc list-inside space-y-1">
@@ -272,7 +272,7 @@ export function OrderActivationModal({
                 {/* Success - Can Activate */}
                 {validation.canActivate && (
                   <Alert className="border-green-200 bg-green-50">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     <AlertDescription className="text-green-800">
                       <p className="font-semibold">Ready for activation!</p>
                       <p className="text-sm mt-1">All requirements met. Service can be activated.</p>
@@ -375,7 +375,7 @@ export function OrderActivationModal({
             {/* Error Alert */}
             {error && !isValidating && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -397,12 +397,12 @@ export function OrderActivationModal({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Activating...
                 </>
               ) : (
                 <>
-                  <PlayCircle className="mr-2 h-4 w-4" />
+                  <PiPlayCircleBold className="mr-2 h-4 w-4" />
                   Activate Service
                 </>
               )}

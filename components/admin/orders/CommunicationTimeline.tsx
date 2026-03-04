@@ -1,21 +1,9 @@
 'use client';
+import { PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiFileTextBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Mail,
-  MessageSquare,
-  Phone,
-  Calendar,
-  CheckCircle,
-  Wrench,
-  FileText,
-  AlertCircle,
-  Loader2,
-  Clock,
-  User
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TimelineEvent {
@@ -139,14 +127,14 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-circleTel-orange" />
+              <PiClockBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Order Timeline</h3>
           </div>
         </div>
         <div className="p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </div>
       </div>
@@ -163,14 +151,14 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-circleTel-orange" />
+              <PiClockBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Order Timeline</h3>
           </div>
         </div>
         <div className="p-6">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <PiWarningCircleBold className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         </div>
@@ -188,7 +176,7 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-circleTel-orange" />
+              <PiClockBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Order Timeline</h3>
           </div>
@@ -202,7 +190,7 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
       <div className="p-6">
         {timeline.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <Clock className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <PiClockBold className="h-12 w-12 mx-auto mb-3 text-gray-300" />
             <p className="text-sm">No timeline events yet</p>
           </div>
         ) : (
@@ -260,7 +248,7 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
                               </Badge>
                               {event.details.changedBy && (
                                 <span className="text-gray-500 flex items-center gap-1">
-                                  <User className="h-3 w-3" />
+                                  <PiUserBold className="h-3 w-3" />
                                   {String(event.details.changedBy)}
                                 </span>
                               )}
@@ -300,7 +288,7 @@ export function CommunicationTimeline({ orderId, className }: CommunicationTimel
                           {/* Installation details */}
                           {event.type === 'installation' && event.details.technician && (
                             <div className="text-xs text-gray-500 flex items-center gap-2">
-                              <User className="h-3 w-3" />
+                              <PiUserBold className="h-3 w-3" />
                               <span>Technician: {String(event.details.technician)}</span>
                             </div>
                           )}

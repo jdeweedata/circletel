@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
 
 type BundleQuoteFormProps = {
   bundleName: string;
@@ -279,7 +278,7 @@ const BundleQuoteForm = ({ bundleName, onSuccess, className = "" }: BundleQuoteF
         >
           {loading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
               Submitting Quote Request...
             </>
           ) : (

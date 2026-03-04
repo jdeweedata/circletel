@@ -1,8 +1,8 @@
 'use client';
+import { PiBellBold, PiCaretDownBold, PiHandshakeBold, PiListBold, PiSignOutBold } from 'react-icons/pi';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, Bell, LogOut, ChevronDown, Handshake } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,12 +40,12 @@ export default function PartnerHeader({
               className="h-9 w-9"
               aria-label="Open navigation menu"
             >
-              <Menu className="h-5 w-5 text-gray-700" />
+              <PiListBold className="h-5 w-5 text-gray-700" />
             </Button>
           )}
           <Link href="/partner/dashboard" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-circleTel-orange flex items-center justify-center">
-              <Handshake className="h-4 w-4 text-white" />
+              <PiHandshakeBold className="h-4 w-4 text-white" />
             </div>
             <span className="font-semibold text-sm text-circleTel-navy">
               Partner Portal
@@ -57,7 +57,7 @@ export default function PartnerHeader({
         <div className="hidden lg:flex items-center gap-3">
           <Link href="/partner/dashboard" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-circleTel-orange flex items-center justify-center">
-              <Handshake className="h-4 w-4 text-white" />
+              <PiHandshakeBold className="h-4 w-4 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="font-semibold text-circleTel-navy leading-tight">
@@ -84,7 +84,7 @@ export default function PartnerHeader({
             className="hidden sm:inline-flex h-9 w-9"
             aria-label="Notifications"
           >
-            <Bell className="h-5 w-5 text-gray-600" />
+            <PiBellBold className="h-5 w-5 text-gray-600" />
           </Button>
 
           {/* User Menu Dropdown */}
@@ -110,7 +110,7 @@ export default function PartnerHeader({
                 />
               </div>
 
-              <ChevronDown className="h-4 w-4 text-gray-400 hidden sm:block" />
+              <PiCaretDownBold className="h-4 w-4 text-gray-400 hidden sm:block" />
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56">
@@ -138,7 +138,7 @@ export default function PartnerHeader({
                 onClick={onSignOut}
                 className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <PiSignOutBold className="mr-2 h-4 w-4" />
                 <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

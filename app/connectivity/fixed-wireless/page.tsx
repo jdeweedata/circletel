@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiCellSignalFullBold, PiCheckBold, PiClockBold, PiGraphBold, PiLightningBold, PiShieldBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Network, Zap, Clock, Shield, TrendingUp, ArrowRight, Signal } from 'lucide-react';
 
 const FixedWireless = () => {
   const plans = [
@@ -79,22 +79,22 @@ const FixedWireless = () => {
               <div className="lg:w-1/2">
                 <div className="grid grid-cols-2 gap-6">
                   <Card className="p-6 text-center">
-                    <Signal className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                    <PiCellSignalFullBold className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">Fast Setup</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Install in 24-48 hours</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Zap className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                    <PiLightningBold className="h-12 w-12 text-green-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">High Speed</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Up to 100Mbps speeds</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Shield className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                    <PiShieldBold className="h-12 w-12 text-purple-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">Business Grade</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">99.9% uptime SLA</p>
                   </Card>
                   <Card className="p-6 text-center">
-                    <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                    <PiClockBold className="h-12 w-12 text-orange-600 mx-auto mb-4" />
                     <h3 className="font-bold text-circleTel-navy mb-2">24/7 Support</h3>
                     <p className="text-sm text-circleTel-secondaryNeutral">Round-the-clock monitoring</p>
                   </Card>
@@ -116,25 +116,25 @@ const FixedWireless = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="text-center p-6">
-                <Network className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <PiGraphBold className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                 <h3 className="font-bold text-circleTel-navy mb-3">Rapid Deployment</h3>
                 <p className="text-circleTel-secondaryNeutral">Installation within 24-48 hours of site survey completion</p>
               </Card>
 
               <Card className="text-center p-6">
-                <TrendingUp className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <PiTrendUpBold className="h-12 w-12 text-green-600 mx-auto mb-4" />
                 <h3 className="font-bold text-circleTel-navy mb-3">Scalable Bandwidth</h3>
                 <p className="text-circleTel-secondaryNeutral">Easily upgrade speeds as your business grows</p>
               </Card>
 
               <Card className="text-center p-6">
-                <Shield className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <PiShieldBold className="h-12 w-12 text-purple-600 mx-auto mb-4" />
                 <h3 className="font-bold text-circleTel-navy mb-3">Business SLAs</h3>
                 <p className="text-circleTel-secondaryNeutral">Guaranteed uptime with service level agreements</p>
               </Card>
 
               <Card className="text-center p-6">
-                <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                <PiClockBold className="h-12 w-12 text-orange-600 mx-auto mb-4" />
                 <h3 className="font-bold text-circleTel-navy mb-3">Dedicated Support</h3>
                 <p className="text-circleTel-secondaryNeutral">Business-focused support with priority response</p>
               </Card>
@@ -181,7 +181,7 @@ const FixedWireless = () => {
                     <ul className="space-y-3 mb-6">
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-center text-sm">
-                          <Check className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
+                          <PiCheckBold className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -213,7 +213,7 @@ const FixedWireless = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Network className="h-6 w-6 mr-2 text-circleTel-orange" />
+                      <PiGraphBold className="h-6 w-6 mr-2 text-circleTel-orange" />
                       Network Details
                     </CardTitle>
                   </CardHeader>
@@ -242,7 +242,7 @@ const FixedWireless = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <Shield className="h-6 w-6 mr-2 text-circleTel-orange" />
+                      <PiShieldBold className="h-6 w-6 mr-2 text-circleTel-orange" />
                       Service Level
                     </CardTitle>
                   </CardHeader>
@@ -288,7 +288,7 @@ const FixedWireless = () => {
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
                   <Link href="/resources/connectivity-guide">
-                    Compare Connectivity Options <ArrowRight className="ml-2 h-4 w-4" />
+                    Compare Connectivity Options <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>

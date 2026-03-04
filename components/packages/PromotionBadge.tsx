@@ -1,7 +1,7 @@
 'use client';
+import { PiLightningBold, PiTagBold, PiTrendDownBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge';
-import { Zap, Tag, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PromotionBadgeProps {
@@ -13,27 +13,27 @@ interface PromotionBadgeProps {
 
 const badgeConfig = {
   promo: {
-    icon: Tag,
+    icon: PiTagBold,
     defaultText: 'Promo',
     className: 'bg-green-500 text-white border-green-600'
   },
   savings: {
-    icon: TrendingDown,
+    icon: PiTrendDownBold,
     defaultText: 'Save',
     className: 'bg-red-500 text-white border-red-600'
   },
   popular: {
-    icon: Zap,
+    icon: PiLightningBold,
     defaultText: 'Most Popular',
     className: 'bg-orange-500 text-white border-orange-600'
   },
   limited: {
-    icon: Tag,
+    icon: PiTagBold,
     defaultText: 'Limited Time',
     className: 'bg-purple-500 text-white border-purple-600'
   },
   new: {
-    icon: Zap,
+    icon: PiLightningBold,
     defaultText: 'New',
     className: 'bg-blue-500 text-white border-blue-600'
   }

@@ -1,6 +1,6 @@
+import { PiCheckBold } from 'react-icons/pi';
 import * as prismic from "@prismicio/client";
 import { PrismicRichText } from "@prismicio/react";
-import { Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ const Recipe = ({ slice }: RecipeProps): JSX.Element => {
                   components={{
                     listItem: ({ children }) => (
                       <li className="flex items-start">
-                        <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <PiCheckBold className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                         <span>{children}</span>
                       </li>
                     ),

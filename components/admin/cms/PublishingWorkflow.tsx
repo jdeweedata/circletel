@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiEyeSlashBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningCircleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Publishing Workflow Component
@@ -8,18 +9,6 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import {
-  Send,
-  Calendar,
-  Archive,
-  Eye,
-  EyeOff,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  X,
-} from 'lucide-react';
 import type { PageStatus } from '@/lib/cms/types';
 
 // ============================================
@@ -46,27 +35,27 @@ const statusConfig: Record<
   draft: {
     label: 'Draft',
     color: 'bg-gray-100 text-gray-700 border-gray-200',
-    icon: Eye,
+    icon: PiEyeBold,
   },
   in_review: {
     label: 'In Review',
     color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    icon: Clock,
+    icon: PiClockBold,
   },
   scheduled: {
     label: 'Scheduled',
     color: 'bg-blue-100 text-blue-700 border-blue-200',
-    icon: Calendar,
+    icon: PiCalendarBold,
   },
   published: {
     label: 'Published',
     color: 'bg-green-100 text-green-700 border-green-200',
-    icon: CheckCircle,
+    icon: PiCheckCircleBold,
   },
   archived: {
     label: 'Archived',
     color: 'bg-red-100 text-red-700 border-red-200',
-    icon: Archive,
+    icon: PiArchiveBold,
   },
 };
 
@@ -123,7 +112,7 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isLoading }: ScheduleModal
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-lg"
         >
-          <X className="w-5 h-5" />
+          <PiXBold className="w-5 h-5" />
         </button>
 
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -191,12 +180,12 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isLoading }: ScheduleModal
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
                 Scheduling...
               </>
             ) : (
               <>
-                <Calendar className="w-4 h-4" />
+                <PiCalendarBold className="w-4 h-4" />
                 Schedule
               </>
             )}
@@ -317,7 +306,7 @@ export function PublishingWorkflow({
       {currentStatus === 'scheduled' && scheduledAt && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-2">
-            <Calendar className="w-4 h-4 text-blue-600 mt-0.5" />
+            <PiCalendarBold className="w-4 h-4 text-blue-600 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-blue-700">
                 Scheduled for publication
@@ -334,7 +323,7 @@ export function PublishingWorkflow({
       {currentStatus === 'published' && publishedAt && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+            <PiCheckCircleBold className="w-4 h-4 text-green-600 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-green-700">Published</p>
               <p className="text-sm text-green-600">
@@ -348,7 +337,7 @@ export function PublishingWorkflow({
       {/* Error Message */}
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+          <PiWarningCircleBold className="w-4 h-4 text-red-600 mt-0.5" />
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -369,9 +358,9 @@ export function PublishingWorkflow({
               )}
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <PiPaperPlaneRightBold className="w-4 h-4" />
               )}
               Publish Now
             </button>
@@ -381,7 +370,7 @@ export function PublishingWorkflow({
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              <Calendar className="w-4 h-4" />
+              <PiCalendarBold className="w-4 h-4" />
               Schedule
             </button>
           </>
@@ -396,9 +385,9 @@ export function PublishingWorkflow({
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <PiPaperPlaneRightBold className="w-4 h-4" />
               )}
               Publish Now
             </button>
@@ -408,7 +397,7 @@ export function PublishingWorkflow({
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              <X className="w-4 h-4" />
+              <PiXBold className="w-4 h-4" />
               Cancel Schedule
             </button>
           </>
@@ -422,9 +411,9 @@ export function PublishingWorkflow({
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 animate-spin" />
             ) : (
-              <EyeOff className="w-4 h-4" />
+              <PiEyeSlashBold className="w-4 h-4" />
             )}
             Unpublish
           </button>
@@ -437,7 +426,7 @@ export function PublishingWorkflow({
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 rounded-lg font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
-            <Archive className="w-4 h-4" />
+            <PiArchiveBold className="w-4 h-4" />
             Archive
           </button>
         )}
@@ -450,9 +439,9 @@ export function PublishingWorkflow({
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <PiSpinnerBold className="w-4 h-4 animate-spin" />
             ) : (
-              <Eye className="w-4 h-4" />
+              <PiEyeBold className="w-4 h-4" />
             )}
             Restore to Draft
           </button>

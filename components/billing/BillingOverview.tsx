@@ -1,8 +1,8 @@
 'use client';
+import { PiCalendarBold, PiCreditCardBold, PiCurrencyDollarBold, PiTrendUpBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, Calendar, CreditCard, TrendingUp } from 'lucide-react';
 
 interface BillingOverviewProps {
   currentInvoicePeriod: string;
@@ -39,7 +39,7 @@ export default function BillingOverview({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current Invoice</CardTitle>
-            <Calendar className="h-4 w-4 text-gray-600" />
+            <PiCalendarBold className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(balanceDue)}</div>
@@ -58,7 +58,7 @@ export default function BillingOverview({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Next Charge</CardTitle>
-            <TrendingUp className="h-4 w-4 text-gray-600" />
+            <PiTrendUpBold className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(nextRecurringCharge)}</div>
@@ -75,7 +75,7 @@ export default function BillingOverview({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Account Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-gray-600" />
+            <PiCurrencyDollarBold className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(currentBalance)}</div>
@@ -94,7 +94,7 @@ export default function BillingOverview({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Available Funds</CardTitle>
-            <CreditCard className="h-4 w-4 text-gray-600" />
+            <PiCreditCardBold className="h-4 w-4 text-gray-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(availableFunds)}</div>

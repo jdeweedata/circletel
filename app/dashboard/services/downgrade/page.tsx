@@ -1,20 +1,11 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiCurrencyDollarBold, PiShieldBold, PiSpinnerBold, PiTrendDownBold, PiWarningBold, PiXBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Check,
-  X,
-  ArrowRight,
-  TrendingDown,
-  AlertTriangle,
-  DollarSign,
-  Shield,
-} from "lucide-react";
 import Link from "next/link";
 
 interface Package {
@@ -111,7 +102,7 @@ function DowngradePageContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -152,7 +143,7 @@ function DowngradePageContent() {
       <Card className="border-yellow-300 bg-yellow-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
+            <PiWarningBold className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-bold text-yellow-900">Important Notice</h3>
               <p className="text-sm text-yellow-800 mt-1">
@@ -185,7 +176,7 @@ function DowngradePageContent() {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <TrendingDown className="h-5 w-5 text-blue-600" />
+                <PiTrendDownBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Download Speed</p>
@@ -194,7 +185,7 @@ function DowngradePageContent() {
             </div>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingDown className="h-5 w-5 text-green-600" />
+                <PiTrendDownBold className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Upload Speed</p>
@@ -259,7 +250,7 @@ function DowngradePageContent() {
                     <div className="space-y-2">
                       {pkg.features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
+                          <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0" />
                           <span className="text-sm text-gray-700">{feature}</span>
                         </div>
                       ))}
@@ -273,7 +264,7 @@ function DowngradePageContent() {
                       <div className="space-y-2">
                         {pkg.removedFeatures.map((feature, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <X className="h-4 w-4 text-red-600 flex-shrink-0" />
+                            <PiXBold className="h-4 w-4 text-red-600 flex-shrink-0" />
                             <span className="text-sm text-red-700">{feature}</span>
                           </div>
                         ))}
@@ -284,7 +275,7 @@ function DowngradePageContent() {
                   {/* Downgrade Button */}
                   <Button className="w-full mt-4 bg-gray-700 hover:bg-gray-800 text-white">
                     Downgrade to This Plan
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>
               </Card>
@@ -297,7 +288,7 @@ function DowngradePageContent() {
       <Card className="border-blue-200 bg-blue-50">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <PiShieldBold className="h-5 w-5" />
             What Happens Next?
           </CardTitle>
         </CardHeader>
@@ -344,7 +335,7 @@ function DowngradePageContent() {
       <Card className="border-orange-200 bg-orange-50">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-orange-900 flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
+            <PiCurrencyDollarBold className="h-5 w-5" />
             Looking to Save Money?
           </CardTitle>
         </CardHeader>
@@ -354,15 +345,15 @@ function DowngradePageContent() {
           </p>
           <ul className="space-y-2 text-sm text-orange-800">
             <li className="flex items-start gap-2">
-              <Check className="h-4 w-4 text-orange-600 mt-0.5" />
+              <PiCheckBold className="h-4 w-4 text-orange-600 mt-0.5" />
               <span><strong>Annual payment discount:</strong> Save up to 10% by paying annually</span>
             </li>
             <li className="flex items-start gap-2">
-              <Check className="h-4 w-4 text-orange-600 mt-0.5" />
+              <PiCheckBold className="h-4 w-4 text-orange-600 mt-0.5" />
               <span><strong>Bundle services:</strong> Add mobile or TV for discounted rates</span>
             </li>
             <li className="flex items-start gap-2">
-              <Check className="h-4 w-4 text-orange-600 mt-0.5" />
+              <PiCheckBold className="h-4 w-4 text-orange-600 mt-0.5" />
               <span><strong>Referral credits:</strong> Refer friends and earn monthly credits</span>
             </li>
           </ul>
@@ -408,7 +399,7 @@ export default function DowngradePage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <DowngradePageContent />

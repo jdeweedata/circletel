@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingBold, PiCalendarBold, PiEnvelopeBold, PiMagnifyingGlassBold, PiPhoneBold, PiUserBold, PiUserPlusBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +15,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, UserPlus, Mail, Phone, Building, User, Calendar } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -105,12 +105,12 @@ export default function CustomersPage() {
       <Badge variant={type === 'business' ? 'secondary' : 'outline'}>
         {type === 'business' ? (
           <>
-            <Building className="h-3 w-3 mr-1" />
+            <PiBuildingBold className="h-3 w-3 mr-1" />
             Business
           </>
         ) : (
           <>
-            <User className="h-3 w-3 mr-1" />
+            <PiUserBold className="h-3 w-3 mr-1" />
             Personal
           </>
         )}
@@ -126,7 +126,7 @@ export default function CustomersPage() {
           <p className="text-gray-600 mt-1">View and manage customer accounts</p>
         </div>
         <Button>
-          <UserPlus className="h-4 w-4 mr-2" />
+          <PiUserPlusBold className="h-4 w-4 mr-2" />
           Add Customer
         </Button>
       </div>
@@ -141,7 +141,7 @@ export default function CustomersPage() {
               </CardDescription>
             </div>
             <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search customers..."
                 value={searchQuery}
@@ -181,7 +181,7 @@ export default function CustomersPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                            <User className="h-5 w-5 text-circleTel-orange" />
+                            <PiUserBold className="h-5 w-5 text-circleTel-orange" />
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
@@ -196,7 +196,7 @@ export default function CustomersPage() {
                       <TableCell>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-sm">
-                            <Mail className="h-3 w-3 text-gray-400" />
+                            <PiEnvelopeBold className="h-3 w-3 text-gray-400" />
                             <span className="text-gray-600">{customer.email}</span>
                             {customer.email_verified && (
                               <Badge variant="outline" className="text-xs">
@@ -205,7 +205,7 @@ export default function CustomersPage() {
                             )}
                           </div>
                           <div className="flex items-center gap-2 text-sm">
-                            <Phone className="h-3 w-3 text-gray-400" />
+                            <PiPhoneBold className="h-3 w-3 text-gray-400" />
                             <span className="text-gray-600">{customer.phone}</span>
                           </div>
                         </div>
@@ -214,7 +214,7 @@ export default function CustomersPage() {
                       <TableCell>{getStatusBadge(customer.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-3 w-3 text-gray-400" />
+                          <PiCalendarBold className="h-3 w-3 text-gray-400" />
                           {formatDate(customer.created_at)}
                         </div>
                       </TableCell>

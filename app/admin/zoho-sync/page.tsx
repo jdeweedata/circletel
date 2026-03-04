@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * ZOHO Billing Sync Monitoring Dashboard
@@ -13,7 +14,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Loader2, AlertCircle, CheckCircle, Clock, XCircle, RotateCcw } from 'lucide-react';
 
 interface SyncStatus {
   total: number;
@@ -162,7 +162,7 @@ export default function ZohoSyncDashboard() {
           }}
           className="flex items-center gap-2 px-4 py-2 bg-circleTel-orange text-white rounded-md hover:bg-opacity-90 transition"
         >
-          <RefreshCw className="w-4 h-4" />
+          <PiArrowsClockwiseBold className="w-4 h-4" />
           Refresh
         </button>
       </div>
@@ -170,7 +170,7 @@ export default function ZohoSyncDashboard() {
       {/* Status Cards */}
       {isLoadingStatus ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+          <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
         </div>
       ) : status ? (
         <>
@@ -181,26 +181,26 @@ export default function ZohoSyncDashboard() {
               <StatusCard
                 title="Total Entities"
                 value={status.overall.total}
-                icon={<Clock />}
+                icon={<PiClockBold />}
                 color="bg-blue-500"
               />
               <StatusCard
                 title="Synced"
                 value={status.overall.synced}
-                icon={<CheckCircle />}
+                icon={<PiCheckCircleBold />}
                 color="bg-green-500"
                 subtitle={`${status.sync_health.success_rate}% success rate`}
               />
               <StatusCard
                 title="Pending"
                 value={status.overall.pending}
-                icon={<Clock />}
+                icon={<PiClockBold />}
                 color="bg-yellow-500"
               />
               <StatusCard
                 title="Failed"
                 value={status.overall.failed}
-                icon={<XCircle />}
+                icon={<PiXCircleBold />}
                 color="bg-red-500"
                 subtitle={`${status.sync_health.failure_count_24h} in last 24h`}
               />
@@ -253,7 +253,7 @@ export default function ZohoSyncDashboard() {
         {/* Logs Table */}
         {isLoadingLogs ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-circleTel-orange" />
+            <PiSpinnerBold className="w-6 h-6 animate-spin text-circleTel-orange" />
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -389,9 +389,9 @@ function LogRow({ log, onRetry, isRetrying }: any) {
             className="flex items-center gap-1 px-3 py-1 text-xs bg-circleTel-orange text-white rounded hover:bg-opacity-90 disabled:opacity-50"
           >
             {isRetrying ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
+              <PiSpinnerBold className="w-3 h-3 animate-spin" />
             ) : (
-              <RotateCcw className="w-3 h-3" />
+              <PiArrowCounterClockwiseBold className="w-3 h-3" />
             )}
             Retry
           </button>

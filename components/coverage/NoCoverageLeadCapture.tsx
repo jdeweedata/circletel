@@ -1,4 +1,5 @@
 'use client';
+import { PiBellBold, PiCheckCircleBold, PiMapPinBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * No Coverage Lead Capture Component
@@ -15,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MapPin, Bell, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NoCoverageLeadCaptureProps {
@@ -85,7 +85,7 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
         <CardContent className="pt-12 pb-12 text-center">
           <div className="flex justify-center mb-6">
             <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-green-600" />
+              <PiCheckCircleBold className="h-10 w-10 text-green-600" />
             </div>
           </div>
           <h3 className="text-2xl font-bold text-green-900 mb-3">
@@ -119,7 +119,7 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
       <CardHeader className="text-center pb-6">
         <div className="flex justify-center mb-4">
           <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
-            <MapPin className="h-8 w-8 text-amber-600" />
+            <PiMapPinBold className="h-8 w-8 text-amber-600" />
           </div>
         </div>
         <CardTitle className="text-2xl text-gray-900">
@@ -133,7 +133,7 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
 
       <CardContent>
         <Alert className="mb-6 border-blue-200 bg-blue-50/50">
-          <Bell className="h-5 w-5 text-blue-600" />
+          <PiBellBold className="h-5 w-5 text-blue-600" />
           <AlertDescription className="text-blue-900">
             <span className="font-semibold">Be the first to know!</span> We're actively expanding our network.
             Get priority access when we launch in your area.
@@ -326,12 +326,12 @@ export function NoCoverageLeadCapture({ address, latitude, longitude }: NoCovera
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-5 w-5 mr-2 animate-spin" />
                   Submitting...
                 </>
               ) : (
                 <>
-                  <Bell className="h-5 w-5 mr-2" />
+                  <PiBellBold className="h-5 w-5 mr-2" />
                   Notify Me When Available
                 </>
               )}

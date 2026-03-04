@@ -4,10 +4,10 @@
  */
 
 'use client';
+import { PiCheckBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Check, X } from 'lucide-react';
 
 interface PasswordStrengthProps {
   password: string;
@@ -119,9 +119,9 @@ export function PasswordStrength({ password, className }: PasswordStrengthProps)
             )}
           >
             {check.passed ? (
-              <Check className="h-3.5 w-3.5 flex-shrink-0" />
+              <PiCheckBold className="h-3.5 w-3.5 flex-shrink-0" />
             ) : (
-              <X className="h-3.5 w-3.5 flex-shrink-0" />
+              <PiXBold className="h-3.5 w-3.5 flex-shrink-0" />
             )}
             <span>{check.label}</span>
           </div>

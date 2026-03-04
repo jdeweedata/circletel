@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiCurrencyDollarBold, PiInfoBold, PiPercentBold, PiSparklesBold, PiSpinnerBold, PiTrendUpBold, PiWarningBold } from 'react-icons/pi';
 
 /**
  * Step 5: Pricing & Discounts
@@ -7,16 +8,6 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  DollarSign,
-  Percent,
-  AlertTriangle,
-  CheckCircle2,
-  Loader2,
-  Sparkles,
-  TrendingUp,
-  Info,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -238,7 +229,7 @@ export function PricingDiscountsStep({
 
         {isLoadingLimits ? (
           <div className="flex items-center justify-center py-4">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-5 w-5 animate-spin text-gray-400" />
             <span className="ml-2 text-gray-500">Loading limits...</span>
           </div>
         ) : (
@@ -263,7 +254,7 @@ export function PricingDiscountsStep({
                     onChange={(e) => handleDiscountChange(parseInt(e.target.value) || 0)}
                     className="w-16"
                   />
-                  <Percent className="h-4 w-4 text-gray-400" />
+                  <PiPercentBold className="h-4 w-4 text-gray-400" />
                 </div>
               </div>
             </div>
@@ -271,7 +262,7 @@ export function PricingDiscountsStep({
             {/* Approval Warning */}
             {requiresApproval && !exceedsMax && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <PiWarningBold className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-amber-800">Approval Required</p>
                   <p className="text-sm text-amber-700">
@@ -288,7 +279,7 @@ export function PricingDiscountsStep({
                   )}
                   {stepData.pricing_discounts?.approval_requested && (
                     <p className="text-sm text-amber-600 mt-2">
-                      <CheckCircle2 className="h-4 w-4 inline mr-1" />
+                      <PiCheckCircleBold className="h-4 w-4 inline mr-1" />
                       Approval requested - {stepData.pricing_discounts.approval_status}
                     </p>
                   )}
@@ -299,7 +290,7 @@ export function PricingDiscountsStep({
             {/* Max Exceeded Warning */}
             {exceedsMax && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <PiWarningBold className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-red-800">Discount Exceeds Limit</p>
                   <p className="text-sm text-red-700">
@@ -317,7 +308,7 @@ export function PricingDiscountsStep({
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-circleTel-orange" />
+            <PiSparklesBold className="h-5 w-5 text-circleTel-orange" />
             <h3 className="font-semibold text-gray-900">AI Pricing Intelligence</h3>
           </div>
           <Button
@@ -327,12 +318,12 @@ export function PricingDiscountsStep({
           >
             {isLoadingAnalysis ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 Analyzing...
               </>
             ) : (
               <>
-                <Sparkles className="h-4 w-4 mr-2" />
+                <PiSparklesBold className="h-4 w-4 mr-2" />
                 Analyze Pricing
               </>
             )}
@@ -361,7 +352,7 @@ export function PricingDiscountsStep({
             {/* Close Probability */}
             {aiAnalysis.close_probability !== undefined && (
               <div className="flex items-center gap-4 bg-white rounded-lg p-4">
-                <TrendingUp className="h-8 w-8 text-green-500" />
+                <PiTrendUpBold className="h-8 w-8 text-green-500" />
                 <div>
                   <p className="text-sm text-gray-500">Close Probability</p>
                   <p className="text-xl font-bold text-green-600">
@@ -378,7 +369,7 @@ export function PricingDiscountsStep({
                 <ul className="space-y-1">
                   {aiAnalysis.suggestions.map((suggestion, i) => (
                     <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                      <Info className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <PiInfoBold className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
                       {suggestion}
                     </li>
                   ))}

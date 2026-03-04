@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiCheckCircleBold, PiCloudBold, PiDatabaseBold, PiGraphBold, PiHardDriveBold, PiHeadphonesBold, PiLightningBold, PiServerBold, PiShieldBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Server, Zap, TrendingUp, Shield, HeadphonesIcon, Cloud, Database, Network, HardDrive } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
@@ -11,37 +11,37 @@ import RecipeCard from '@/components/ui/RecipeCard';
 // Icons for recipe cards
 const BasicIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <Server className="h-6 w-6" />
+    <PiServerBold className="h-6 w-6" />
   </div>
 );
 
 const AdvancedIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <Zap className="h-6 w-6" />
+    <PiLightningBold className="h-6 w-6" />
   </div>
 );
 
 const ScaleIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <TrendingUp className="h-6 w-6" />
+    <PiTrendUpBold className="h-6 w-6" />
   </div>
 );
 
 const CloudIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <Cloud className="h-6 w-6" />
+    <PiCloudBold className="h-6 w-6" />
   </div>
 );
 
 const SecurityIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <Shield className="h-6 w-6" />
+    <PiShieldBold className="h-6 w-6" />
   </div>
 );
 
 const SupportIcon = () => (
   <div className="h-6 w-6 flex items-center justify-center">
-    <HeadphonesIcon className="h-6 w-6" />
+    <PiHeadphonesBold className="h-6 w-6" />
   </div>
 );
 
@@ -92,7 +92,7 @@ const Services = () => {
                       <div className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-xl shadow-md border-2 border-blue-200 hover:border-blue-400 hover:shadow-xl">
                         <div className="text-center">
                           <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                            <Server className="h-10 w-10 text-blue-600" />
+                            <PiServerBold className="h-10 w-10 text-blue-600" />
                           </div>
                           <h3 className="text-xl font-bold text-circleTel-navy mb-2">Basic IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Essential support & security</p>
@@ -110,7 +110,7 @@ const Services = () => {
                       <div className="bg-gradient-to-br from-white to-purple-50 p-8 rounded-xl shadow-md border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl">
                         <div className="text-center">
                           <div className="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
-                            <Zap className="h-10 w-10 text-purple-600" />
+                            <PiLightningBold className="h-10 w-10 text-purple-600" />
                           </div>
                           <h3 className="text-xl font-bold text-circleTel-navy mb-2">Advanced IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enhanced solutions & monitoring</p>
@@ -128,7 +128,7 @@ const Services = () => {
                       <div className="bg-gradient-to-br from-white to-emerald-50 p-8 rounded-xl shadow-md border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-xl">
                         <div className="text-center">
                           <div className="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
-                            <TrendingUp className="h-10 w-10 text-emerald-600" />
+                            <PiTrendUpBold className="h-10 w-10 text-emerald-600" />
                           </div>
                           <h3 className="text-xl font-bold text-circleTel-navy mb-2">Scale IT</h3>
                           <p className="text-sm text-circleTel-secondaryNeutral">Enterprise-grade scalability</p>
@@ -145,19 +145,19 @@ const Services = () => {
                   {/* Recipe Features */}
                   <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                     <div className="flex flex-col items-center">
-                      <Shield className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <PiShieldBold className="h-8 w-8 text-circleTel-orange mb-2" />
                       <span className="text-sm text-circleTel-secondaryNeutral">Security First</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <HeadphonesIcon className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <PiHeadphonesBold className="h-8 w-8 text-circleTel-orange mb-2" />
                       <span className="text-sm text-circleTel-secondaryNeutral">24/7 Support</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <Cloud className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <PiCloudBold className="h-8 w-8 text-circleTel-orange mb-2" />
                       <span className="text-sm text-circleTel-secondaryNeutral">Cloud Ready</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <TrendingUp className="h-8 w-8 text-circleTel-orange mb-2" />
+                      <PiTrendUpBold className="h-8 w-8 text-circleTel-orange mb-2" />
                       <span className="text-sm text-circleTel-secondaryNeutral">Scalable</span>
                     </div>
                   </div>
@@ -266,7 +266,7 @@ const Services = () => {
             </div>
             <div className="mt-8 text-center">
               <Button asChild className="outline-button">
-                <Link href="/services/small-business">See Details <ArrowRight size={16} /></Link>
+                <Link href="/services/small-business">See Details <PiArrowRightBold size={16} /></Link>
               </Button>
             </div>
           </div>
@@ -330,7 +330,7 @@ const Services = () => {
             </div>
             <div className="mt-8 text-center">
               <Button asChild className="outline-button">
-                <Link href="/services/mid-size">See Details <ArrowRight size={16} /></Link>
+                <Link href="/services/mid-size">See Details <PiArrowRightBold size={16} /></Link>
               </Button>
             </div>
           </div>
@@ -394,7 +394,7 @@ const Services = () => {
             </div>
             <div className="mt-8 text-center">
               <Button asChild className="outline-button">
-                <Link href="/services/growth-ready">See Details <ArrowRight size={16} /></Link>
+                <Link href="/services/growth-ready">See Details <PiArrowRightBold size={16} /></Link>
               </Button>
             </div>
           </div>
@@ -425,7 +425,7 @@ const Services = () => {
                         <p className="text-sm text-circleTel-secondaryNeutral">Advanced protection for your business</p>
                       </div>
                       <div className="ml-auto">
-                        <CheckCircle
+                        <PiCheckCircleBold
                           size={24}
                           className={`${selectedRecipe.cybersecurity ? 'text-circleTel-orange' : 'text-gray-200'}`}
                         />
@@ -446,7 +446,7 @@ const Services = () => {
                         <p className="text-sm text-circleTel-secondaryNeutral">Flexible and scalable cloud solutions</p>
                       </div>
                       <div className="ml-auto">
-                        <CheckCircle
+                        <PiCheckCircleBold
                           size={24}
                           className={`${selectedRecipe.cloudServices ? 'text-circleTel-orange' : 'text-gray-200'}`}
                         />
@@ -467,7 +467,7 @@ const Services = () => {
                         <p className="text-sm text-circleTel-secondaryNeutral">24/7 technical support for your team</p>
                       </div>
                       <div className="ml-auto">
-                        <CheckCircle
+                        <PiCheckCircleBold
                           size={24}
                           className={`${selectedRecipe.helpdesk ? 'text-circleTel-orange' : 'text-gray-200'}`}
                         />
@@ -481,14 +481,14 @@ const Services = () => {
                   >
                     <div className="flex items-center">
                       <div className={`mr-4 rounded-full p-2 ${selectedRecipe.dataBackup ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <HardDrive className="h-6 w-6" />
+                        <PiHardDriveBold className="h-6 w-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-navy">Data Backup</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Secure backup and disaster recovery</p>
                       </div>
                       <div className="ml-auto">
-                        <CheckCircle
+                        <PiCheckCircleBold
                           size={24}
                           className={`${selectedRecipe.dataBackup ? 'text-circleTel-orange' : 'text-gray-200'}`}
                         />
@@ -502,14 +502,14 @@ const Services = () => {
                   >
                     <div className="flex items-center">
                       <div className={`mr-4 rounded-full p-2 ${selectedRecipe.networkManagement ? 'text-circleTel-orange' : 'text-circleTel-secondaryNeutral'}`}>
-                        <Network className="h-6 w-6" />
+                        <PiGraphBold className="h-6 w-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-circleTel-navy">Network Management</h3>
                         <p className="text-sm text-circleTel-secondaryNeutral">Proactive network monitoring and maintenance</p>
                       </div>
                       <div className="ml-auto">
-                        <CheckCircle
+                        <PiCheckCircleBold
                           size={24}
                           className={`${selectedRecipe.networkManagement ? 'text-circleTel-orange' : 'text-gray-200'}`}
                         />
@@ -523,7 +523,7 @@ const Services = () => {
                   <ul className="space-y-2 mb-4 font-space-mono text-sm text-circleTel-secondaryNeutral">
                     {Object.entries(selectedRecipe).map(([key, value]) => value && (
                       <li key={key} className="flex items-center">
-                        <CheckCircle size={16} className="text-circleTel-orange mr-2" />
+                        <PiCheckCircleBold size={16} className="text-circleTel-orange mr-2" />
                         {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                       </li>
                     ))}

@@ -1,4 +1,5 @@
 'use client'
+import { PiCheckCircleBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiQuestionBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Eye, EyeOff, Copy, Wifi, WifiOff, CheckCircle2, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PPPoECredential {
@@ -116,7 +116,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             Connection Details
           </CardTitle>
         </CardHeader>
@@ -132,7 +132,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <WifiOff className="h-5 w-5 text-gray-400" />
+            <PiWifiSlashBold className="h-5 w-5 text-gray-400" />
             Connection Details
           </CardTitle>
         </CardHeader>
@@ -150,12 +150,12 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             Connection Details
           </CardTitle>
           {credential.provisioningStatus === 'provisioned' ? (
             <Badge variant="default" className="bg-green-500">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
+              <PiCheckCircleBold className="h-3 w-3 mr-1" />
               Active
             </Badge>
           ) : (
@@ -171,7 +171,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <PiQuestionBold className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Enter this in your router&apos;s PPPoE settings</p>
@@ -188,7 +188,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
               size="icon"
               onClick={() => handleCopy(credential.username, 'Username')}
             >
-              <Copy className="h-4 w-4" />
+              <PiCopyBold className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -200,7 +200,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <PiQuestionBold className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Click the eye icon to reveal your password</p>
@@ -218,7 +218,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
                 size="icon"
                 onClick={() => handleCopy(password, 'Password')}
               >
-                <Copy className="h-4 w-4" />
+                <PiCopyBold className="h-4 w-4" />
               </Button>
             )}
             <Button
@@ -227,7 +227,7 @@ export function PPPoECredentialsCard({ serviceId }: PPPoECredentialsCardProps) {
               onClick={password ? handleHidePassword : handleRevealPassword}
               disabled={isRevealing}
             >
-              {password ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {password ? <PiEyeSlashBold className="h-4 w-4" /> : <PiEyeBold className="h-4 w-4" />}
             </Button>
           </div>
           {password && (

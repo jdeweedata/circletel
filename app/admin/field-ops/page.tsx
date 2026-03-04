@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiEyeBold, PiLightningBold, PiMagnifyingGlassBold, PiMapPinBold, PiNavigationArrowBold, PiPackageBold, PiPhoneBold, PiPlusBold, PiRadioBold, PiTrendUpBold, PiUserBold, PiUsersBold, PiWarningCircleBold, PiWrenchBold, PiXBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,31 +32,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Users,
-  MapPin,
-  Briefcase,
-  CheckCircle2,
-  Clock,
-  RefreshCw,
-  Plus,
-  Navigation,
-  Phone,
-  Eye,
-  Wrench,
-  TrendingUp,
-  Radio,
-  User,
-  MapPinned,
-  Zap,
-  Package,
-  Calendar,
-  CreditCard,
-  ChevronRight,
-  Search,
-  AlertCircle,
-  X,
-} from 'lucide-react';
 import {
   SharedPageHeader,
 } from '@/components/shared/dashboard';
@@ -142,7 +118,7 @@ function EnhancedStatCard({
               <span className={`text-xs font-medium flex items-center gap-0.5 ${
                 trend === 'up' ? 'text-emerald-600' : trend === 'down' ? 'text-red-500' : 'text-gray-500'
               }`}>
-                <TrendingUp className={`h-3 w-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
+                <PiTrendUpBold className={`h-3 w-3 ${trend === 'down' ? 'rotate-180' : ''}`} />
                 {trendValue}
               </span>
             )}
@@ -158,7 +134,7 @@ function EnhancedStatCard({
 
       {href && (
         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Eye className="h-3 w-3 text-gray-400" />
+          <PiEyeBold className="h-3 w-3 text-gray-400" />
         </div>
       )}
     </div>
@@ -332,7 +308,7 @@ function NewJobModal({
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-circleTel-orange/10 rounded-lg">
-              <Plus className="h-5 w-5 text-circleTel-orange" />
+              <PiPlusBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <div>
               <DialogTitle className="text-xl">Create Installation Job</DialogTitle>
@@ -350,7 +326,7 @@ function NewJobModal({
               {/* Search */}
               <div className="p-4 border-b bg-gray-50/50">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search by order number, customer, address..."
                     value={searchQuery}
@@ -364,11 +340,11 @@ function NewJobModal({
               <div className="flex-1 overflow-y-auto">
                 {loading ? (
                   <div className="flex items-center justify-center py-12">
-                    <RefreshCw className="h-6 w-6 animate-spin text-circleTel-orange" />
+                    <PiArrowsClockwiseBold className="h-6 w-6 animate-spin text-circleTel-orange" />
                   </div>
                 ) : filteredOrders.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                    <Package className="h-12 w-12 text-gray-300 mb-3" />
+                    <PiPackageBold className="h-12 w-12 text-gray-300 mb-3" />
                     <p className="font-medium">No orders ready for scheduling</p>
                     <p className="text-sm text-gray-400 mt-1">
                       {searchQuery ? 'Try a different search term' : 'All orders have been scheduled'}
@@ -401,21 +377,21 @@ function NewJobModal({
                             </div>
                             <p className="font-medium text-gray-900">{order.customer_name}</p>
                             <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                              <MapPin className="h-3 w-3 shrink-0" />
+                              <PiMapPinBold className="h-3 w-3 shrink-0" />
                               <span className="truncate">{order.full_address}</span>
                             </div>
                             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                               <span className="flex items-center gap-1">
-                                <Package className="h-3 w-3" />
+                                <PiPackageBold className="h-3 w-3" />
                                 {order.package_name}
                               </span>
                               <span className="flex items-center gap-1">
-                                <Phone className="h-3 w-3" />
+                                <PiPhoneBold className="h-3 w-3" />
                                 {order.phone}
                               </span>
                             </div>
                           </div>
-                          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-circleTel-orange transition-colors" />
+                          <PiCaretRightBold className="h-5 w-5 text-gray-400 group-hover:text-circleTel-orange transition-colors" />
                         </div>
                       </div>
                     ))}
@@ -427,7 +403,7 @@ function NewJobModal({
               {ordersData && ordersData.pending_payment.length > 0 && (
                 <div className="border-t bg-amber-50/50 p-4">
                   <div className="flex items-center gap-2 text-amber-700 mb-2">
-                    <AlertCircle className="h-4 w-4" />
+                    <PiWarningCircleBold className="h-4 w-4" />
                     <span className="text-sm font-medium">
                       {ordersData.pending_payment.length} order(s) pending payment setup
                     </span>
@@ -464,7 +440,7 @@ function NewJobModal({
                     onClick={() => setSelectedOrder(null)}
                     className="h-8 w-8"
                   >
-                    <X className="h-4 w-4" />
+                    <PiXBold className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -474,7 +450,7 @@ function NewJobModal({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="scheduled_date" className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <PiCalendarBold className="h-4 w-4 text-gray-500" />
                       Installation Date *
                     </Label>
                     <Input
@@ -487,7 +463,7 @@ function NewJobModal({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="time_slot" className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
+                      <PiClockBold className="h-4 w-4 text-gray-500" />
                       Time Slot
                     </Label>
                     <Select value={scheduledTimeSlot} onValueChange={setScheduledTimeSlot}>
@@ -507,7 +483,7 @@ function NewJobModal({
 
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-gray-500" />
+                    <PiUserBold className="h-4 w-4 text-gray-500" />
                     Assign Technician
                   </Label>
                   {availableTechnicians.length > 0 ? (
@@ -528,7 +504,7 @@ function NewJobModal({
                     </Select>
                   ) : (
                     <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg text-amber-700 text-sm">
-                      <AlertCircle className="h-4 w-4" />
+                      <PiWarningCircleBold className="h-4 w-4" />
                       No technicians currently available
                     </div>
                   )}
@@ -558,12 +534,12 @@ function NewJobModal({
             >
               {creating ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
                   Creating...
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <PiPlusBold className="h-4 w-4 mr-2" />
                   Create Installation Job
                 </>
               )}
@@ -632,7 +608,7 @@ export default function FieldOpsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -650,14 +626,14 @@ export default function FieldOpsPage() {
         action={
           <div className="flex gap-2">
             <Button variant="outline" onClick={fetchData}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Refresh
             </Button>
             <Button
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               onClick={() => setNewJobModalOpen(true)}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               New Job
             </Button>
           </div>
@@ -677,7 +653,7 @@ export default function FieldOpsPage() {
         <EnhancedStatCard
           title="Technicians"
           value={stats.total_technicians}
-          icon={<Users className="h-5 w-5" />}
+          icon={<PiUsersBold className="h-5 w-5" />}
           variant="info"
           href="/admin/field-ops/technicians"
           subtitle="Total team"
@@ -685,21 +661,21 @@ export default function FieldOpsPage() {
         <EnhancedStatCard
           title="Available"
           value={stats.available_technicians}
-          icon={<Radio className="h-5 w-5" />}
+          icon={<PiRadioBold className="h-5 w-5" />}
           variant="success"
           subtitle="Ready to dispatch"
         />
         <EnhancedStatCard
           title="On Job"
           value={stats.on_job_technicians}
-          icon={<Wrench className="h-5 w-5" />}
+          icon={<PiWrenchBold className="h-5 w-5" />}
           variant="primary"
           subtitle="In the field"
         />
         <EnhancedStatCard
           title="Pending"
           value={stats.pending_jobs}
-          icon={<Clock className="h-5 w-5" />}
+          icon={<PiClockBold className="h-5 w-5" />}
           variant="warning"
           href="/admin/field-ops/jobs"
           subtitle="Awaiting assignment"
@@ -707,7 +683,7 @@ export default function FieldOpsPage() {
         <EnhancedStatCard
           title="In Progress"
           value={stats.in_progress_jobs}
-          icon={<Zap className="h-5 w-5" />}
+          icon={<PiLightningBold className="h-5 w-5" />}
           variant="info"
           href="/admin/field-ops/jobs"
           subtitle="Active jobs"
@@ -715,7 +691,7 @@ export default function FieldOpsPage() {
         <EnhancedStatCard
           title="Done Today"
           value={stats.completed_today}
-          icon={<CheckCircle2 className="h-5 w-5" />}
+          icon={<PiCheckCircleBold className="h-5 w-5" />}
           variant="success"
           subtitle="Completed"
         />
@@ -729,7 +705,7 @@ export default function FieldOpsPage() {
             Map View
           </TabsTrigger>
           <TabsTrigger value="technicians" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
-            <Users className="h-4 w-4 mr-2" />
+            <PiUsersBold className="h-4 w-4 mr-2" />
             Technicians
           </TabsTrigger>
           <TabsTrigger value="jobs" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4">
@@ -748,7 +724,7 @@ export default function FieldOpsPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-circleTel-orange/10 rounded-lg">
-                        <MapPin className="h-5 w-5 text-circleTel-orange" />
+                        <PiMapPinBold className="h-5 w-5 text-circleTel-orange" />
                       </div>
                       <div>
                         <CardTitle className="text-lg">Live Map</CardTitle>
@@ -802,7 +778,7 @@ export default function FieldOpsPage() {
                 <CardHeader className="border-b bg-gradient-to-r from-gray-50 to-white pb-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="h-5 w-5 text-blue-600" />
+                      <PiUsersBold className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">Technicians</CardTitle>
@@ -814,7 +790,7 @@ export default function FieldOpsPage() {
                   <div className="max-h-[500px] overflow-y-auto divide-y divide-gray-100">
                     {technicians.length === 0 ? (
                       <div className="p-8 text-center text-gray-500">
-                        <User className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                        <PiUserBold className="h-10 w-10 mx-auto mb-3 text-gray-300" />
                         <p className="text-sm">No technicians found</p>
                       </div>
                     ) : (
@@ -852,7 +828,7 @@ export default function FieldOpsPage() {
                                 )}
                               </div>
                               <div className="flex items-center gap-1 text-xs text-gray-400 mt-1.5">
-                                <MapPin className="h-3 w-3" />
+                                <PiMapPinBold className="h-3 w-3" />
                                 {tech.location_updated_at ? (
                                   <span>Last seen {new Date(tech.location_updated_at).toLocaleTimeString()}</span>
                                 ) : (
@@ -878,7 +854,7 @@ export default function FieldOpsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
-                    <Users className="h-5 w-5 text-blue-600" />
+                    <PiUsersBold className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">All Technicians</CardTitle>
@@ -886,7 +862,7 @@ export default function FieldOpsPage() {
                   </div>
                 </div>
                 <Button size="sm" className="bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-md hover:shadow-lg transition-all">
-                  <Plus className="h-4 w-4 mr-2" />
+                  <PiPlusBold className="h-4 w-4 mr-2" />
                   Add Technician
                 </Button>
               </div>
@@ -958,7 +934,7 @@ export default function FieldOpsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <MapPin className="h-3 w-3" />
+                          <PiMapPinBold className="h-3 w-3" />
                           {tech.location_updated_at
                             ? new Date(tech.location_updated_at).toLocaleTimeString()
                             : 'N/A'}
@@ -968,11 +944,11 @@ export default function FieldOpsPage() {
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600" asChild>
                             <a href={`tel:${tech.phone}`}>
-                              <Phone className="h-4 w-4" />
+                              <PiPhoneBold className="h-4 w-4" />
                             </a>
                           </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-gray-100">
-                            <Eye className="h-4 w-4" />
+                            <PiEyeBold className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -1016,7 +992,7 @@ export default function FieldOpsPage() {
                     className="bg-circleTel-orange hover:bg-circleTel-orange-dark shadow-md hover:shadow-lg transition-all"
                     onClick={() => setNewJobModalOpen(true)}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <PiPlusBold className="h-4 w-4 mr-2" />
                     New Job
                   </Button>
                 </div>
@@ -1051,7 +1027,7 @@ export default function FieldOpsPage() {
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3 shrink-0" />
+                          <PiMapPinBold className="h-3 w-3 shrink-0" />
                           {job.address}
                         </div>
                       </TableCell>
@@ -1122,11 +1098,11 @@ export default function FieldOpsPage() {
                                 );
                               }}
                             >
-                              <Navigation className="h-4 w-4" />
+                              <PiNavigationArrowBold className="h-4 w-4" />
                             </Button>
                           )}
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-gray-100">
-                            <Eye className="h-4 w-4" />
+                            <PiEyeBold className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalendarBold, PiClockBold, PiEnvelopeBold, PiGaugeBold, PiPhoneBold, PiShieldBold, PiSpinnerBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
@@ -8,20 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CoverageResults } from '@/components/partners/feasibility';
-import {
-  ArrowLeft,
-  Building2,
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  Gauge,
-  Wifi,
-  Shield,
-  Clock,
-  RefreshCw,
-  Loader2,
-} from 'lucide-react';
 import {
   PartnerFeasibilityRequest,
   PartnerFeasibilitySite,
@@ -162,7 +149,7 @@ export default function FeasibilityDetailPage({
         <div className="flex items-center gap-4">
           <Link href="/partner/feasibility/history">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+              <PiArrowLeftBold className="w-5 h-5" />
             </Button>
           </Link>
           <div>
@@ -188,9 +175,9 @@ export default function FeasibilityDetailPage({
           disabled={refreshing}
         >
           {refreshing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <PiSpinnerBold className="w-4 h-4 animate-spin" />
           ) : (
-            <RefreshCw className="w-4 h-4" />
+            <PiArrowsClockwiseBold className="w-4 h-4" />
           )}
           <span className="ml-2">Refresh</span>
         </Button>
@@ -203,30 +190,30 @@ export default function FeasibilityDetailPage({
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-circleTel-orange" />
+                <PiBuildingsBold className="w-4 h-4 text-circleTel-orange" />
                 Client Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <Building2 className="w-4 h-4 text-gray-400" />
+                <PiBuildingsBold className="w-4 h-4 text-gray-400" />
                 <span>{request.client_company_name}</span>
               </div>
               {request.client_contact_name && (
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="w-4 h-4 text-gray-400" />
+                  <PiUserBold className="w-4 h-4 text-gray-400" />
                   <span>{request.client_contact_name}</span>
                 </div>
               )}
               {request.client_email && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-gray-400" />
+                  <PiEnvelopeBold className="w-4 h-4 text-gray-400" />
                   <span>{request.client_email}</span>
                 </div>
               )}
               {request.client_phone && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-gray-400" />
+                  <PiPhoneBold className="w-4 h-4 text-gray-400" />
                   <span>{request.client_phone}</span>
                 </div>
               )}
@@ -237,7 +224,7 @@ export default function FeasibilityDetailPage({
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-circleTel-orange" />
+                <PiGaugeBold className="w-4 h-4 text-circleTel-orange" />
                 Requirements
               </CardTitle>
             </CardHeader>

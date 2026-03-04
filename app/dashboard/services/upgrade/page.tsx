@@ -1,20 +1,11 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold, PiClockBold, PiLightningBold, PiShieldBold, PiSpinnerBold, PiTrendUpBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Check,
-  ArrowRight,
-  TrendingUp,
-  Zap,
-  Wifi,
-  Clock,
-  Shield,
-} from "lucide-react";
 import Link from "next/link";
 
 interface Package {
@@ -124,7 +115,7 @@ function UpgradePageContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -183,7 +174,7 @@ function UpgradePageContent() {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
+                <PiTrendUpBold className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Download Speed</p>
@@ -192,7 +183,7 @@ function UpgradePageContent() {
             </div>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
+                <PiTrendUpBold className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Upload Speed</p>
@@ -267,7 +258,7 @@ function UpgradePageContent() {
                   <div className="space-y-2">
                     {pkg.features.map((feature, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <PiCheckBold className="h-4 w-4 text-green-600 flex-shrink-0" />
                         <span className="text-sm text-gray-700">{feature}</span>
                       </div>
                     ))}
@@ -282,7 +273,7 @@ function UpgradePageContent() {
                     }`}
                   >
                     Upgrade Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>
               </Card>
@@ -295,7 +286,7 @@ function UpgradePageContent() {
       <Card className="border-blue-200 bg-blue-50">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <PiShieldBold className="h-5 w-5" />
             What Happens Next?
           </CardTitle>
         </CardHeader>
@@ -374,7 +365,7 @@ export default function UpgradePage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <UpgradePageContent />

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiCopyBold, PiDotsThreeBold, PiFunnelBold, PiGiftBold, PiMagnifyingGlassBold, PiPauseBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Promotions Management Page
@@ -28,23 +29,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Copy,
-  Pause,
-  Play,
-  Gift,
-  Loader2,
-  RefreshCw,
-  Calendar,
-  AlertCircle,
-  CheckCircle,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type PromotionStatus = 'draft' | 'active' | 'paused' | 'expired' | 'archived';
@@ -358,7 +342,7 @@ export default function PromotionsPage() {
           </p>
         </div>
         <Button onClick={openCreateModal}>
-          <Plus className="h-4 w-4 mr-2" />
+          <PiPlusBold className="h-4 w-4 mr-2" />
           New Promotion
         </Button>
       </div>
@@ -366,7 +350,7 @@ export default function PromotionsPage() {
       {/* Filters */}
       <div className="flex items-center gap-4 bg-white p-4 rounded-lg border">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search promotions..."
             value={searchTerm}
@@ -379,7 +363,7 @@ export default function PromotionsPage() {
           onValueChange={(value) => setStatusFilter(value as PromotionStatus | 'all')}
         >
           <SelectTrigger className="w-[180px]">
-            <Filter className="h-4 w-4 mr-2" />
+            <PiFunnelBold className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -391,13 +375,13 @@ export default function PromotionsPage() {
           </SelectContent>
         </Select>
         <Button variant="outline" size="icon" onClick={fetchPromotions}>
-          <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+          <PiArrowsClockwiseBold className={cn('h-4 w-4', loading && 'animate-spin')} />
         </Button>
       </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5" />
+          <PiWarningCircleBold className="h-5 w-5" />
           {error}
         </div>
       )}
@@ -406,14 +390,14 @@ export default function PromotionsPage() {
       <div className="bg-white rounded-lg border overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : filteredPromotions.length === 0 ? (
           <div className="text-center py-12">
-            <Gift className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <PiGiftBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No promotions found</p>
             <Button variant="outline" className="mt-4" onClick={openCreateModal}>
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               Create your first promotion
             </Button>
           </div>
@@ -466,7 +450,7 @@ export default function PromotionsPage() {
                         <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono">
                           {promotion.promo_code}
                         </code>
-                        <Copy className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <PiCopyBold className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     ) : (
                       <span className="text-gray-400">—</span>
@@ -487,7 +471,7 @@ export default function PromotionsPage() {
                   <td className="px-6 py-4">
                     {promotion.valid_until ? (
                       <span className="text-sm text-gray-600 flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
+                        <PiCalendarBold className="h-3.5 w-3.5" />
                         {new Date(promotion.valid_until).toLocaleDateString()}
                       </span>
                     ) : (
@@ -508,7 +492,7 @@ export default function PromotionsPage() {
                           )
                         }
                       >
-                        <MoreHorizontal className="h-4 w-4" />
+                        <PiDotsThreeBold className="h-4 w-4" />
                       </Button>
                       {actionMenuOpen === promotion.id && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
@@ -517,7 +501,7 @@ export default function PromotionsPage() {
                               onClick={() => openEditModal(promotion)}
                               className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                             >
-                              <Edit className="h-4 w-4" />
+                              <PiPencilSimpleBold className="h-4 w-4" />
                               Edit
                             </button>
                             {promotion.status === 'active' ? (
@@ -527,7 +511,7 @@ export default function PromotionsPage() {
                                 }
                                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <Pause className="h-4 w-4" />
+                                <PiPauseBold className="h-4 w-4" />
                                 Pause
                               </button>
                             ) : promotion.status === 'paused' ||
@@ -549,7 +533,7 @@ export default function PromotionsPage() {
                               }}
                               className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <PiTrashBold className="h-4 w-4" />
                               Delete
                             </button>
                           </div>
@@ -805,7 +789,7 @@ export default function PromotionsPage() {
             <Button onClick={handleSave} disabled={saving || !formData.name}>
               {saving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : editingPromotion ? (
@@ -839,7 +823,7 @@ export default function PromotionsPage() {
             >
               {deleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Deleting...
                 </>
               ) : (

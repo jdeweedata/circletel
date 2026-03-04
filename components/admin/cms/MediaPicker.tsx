@@ -1,4 +1,5 @@
 'use client';
+import { PiImageBold, PiSpinnerBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Media Picker Modal
@@ -11,13 +12,6 @@ import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { MediaLibrary } from './MediaLibrary';
 import type { CMSMedia } from '@/lib/cms/types';
-import {
-  X,
-  Image as ImageIcon,
-  Upload,
-  Link,
-  Loader2,
-} from 'lucide-react';
 
 // ============================================
 // Types
@@ -156,7 +150,7 @@ export function MediaPicker({
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5" />
+            <PiXBold className="w-5 h-5" />
           </button>
         </div>
 
@@ -183,7 +177,7 @@ export function MediaPicker({
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             )}
           >
-            <Upload className="w-4 h-4" />
+            <PiUploadSimpleBold className="w-4 h-4" />
             Upload
           </button>
           <button
@@ -228,9 +222,9 @@ export function MediaPicker({
                   />
                   <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-orange-50 flex items-center justify-center">
                     {uploading ? (
-                      <Loader2 className="w-12 h-12 text-orange-500 animate-spin" />
+                      <PiSpinnerBold className="w-12 h-12 text-orange-500 animate-spin" />
                     ) : (
-                      <Upload className="w-12 h-12 text-orange-500" />
+                      <PiUploadSimpleBold className="w-12 h-12 text-orange-500" />
                     )}
                   </div>
                   <p className="text-lg font-medium text-gray-900 mb-2">

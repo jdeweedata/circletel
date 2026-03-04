@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckBold, PiFloppyDiskBold, PiMapPinBold, PiTrashBold, PiUserBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,17 +16,6 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import {
-  ArrowLeft,
-  Save,
-  MapPin,
-  User,
-  Wifi,
-  Building2,
-  Check,
-  ClipboardCheck,
-  Trash2,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -125,7 +115,7 @@ function FormSection({
             "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300",
             isComplete ? "bg-emerald-500 text-white" : "bg-orange-500 text-white"
           )}>
-            {isComplete ? <Check className="w-5 h-5" /> : number}
+            {isComplete ? <PiCheckBold className="w-5 h-5" /> : number}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
@@ -310,7 +300,7 @@ export default function SiteEditPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 flex items-center justify-center">
         <div className="text-center">
-          <MapPin className="w-12 h-12 text-slate-300 mx-auto" />
+          <PiMapPinBold className="w-12 h-12 text-slate-300 mx-auto" />
           <p className="text-slate-500 mt-4">Site not found</p>
           <Button variant="outline" className="mt-4" onClick={() => router.back()}>
             Go Back
@@ -340,14 +330,14 @@ export default function SiteEditPage() {
             onClick={() => router.push(`/admin/corporate/${corporateId}`)}
             className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-6 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <PiArrowLeftBold className="w-4 h-4" />
             <span className="text-sm font-medium">Back to {corporate.companyName}</span>
           </button>
 
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
-                <MapPin className="w-7 h-7 text-white" />
+                <PiMapPinBold className="w-7 h-7 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-1">
@@ -667,7 +657,7 @@ export default function SiteEditPage() {
             {site.pppoeUsername && (
               <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
                 <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-1">
-                  <Wifi className="w-4 h-4" />
+                  <PiWifiBold className="w-4 h-4" />
                   PPPoE Username
                 </div>
                 <p className="font-mono text-emerald-800">{site.pppoeUsername}</p>
@@ -681,7 +671,7 @@ export default function SiteEditPage() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-lg shadow-slate-200/50">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-orange-600" />
+                  <PiBuildingsBold className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-700">{corporate.companyName}</p>
@@ -711,7 +701,7 @@ export default function SiteEditPage() {
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4" />
+                      <PiFloppyDiskBold className="h-4 w-4" />
                       Save Changes
                     </>
                   )}

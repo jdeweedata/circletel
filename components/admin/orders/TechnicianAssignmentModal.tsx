@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiClockBold, PiEnvelopeBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import {
@@ -22,16 +23,6 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import {
-  AlertCircle,
-  Loader2,
-  User,
-  Calendar,
-  Clock,
-  Wrench,
-  Phone,
-  Mail,
-} from 'lucide-react';
 
 interface Technician {
   id: string;
@@ -181,7 +172,7 @@ export function TechnicianAssignmentModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Wrench className="h-5 w-5" />
+              <PiWrenchBold className="h-5 w-5" />
               Assign Technician
             </DialogTitle>
             <DialogDescription>
@@ -195,7 +186,7 @@ export function TechnicianAssignmentModal({
             {/* Current Assignment (if exists) */}
             {currentTechnician && (
               <Alert className="bg-blue-50 border-blue-200">
-                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <PiWarningCircleBold className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-blue-800">
                   Currently assigned to: <strong>{currentTechnician.name}</strong>
                 </AlertDescription>
@@ -209,7 +200,7 @@ export function TechnicianAssignmentModal({
               </Label>
               {loadingTechnicians ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                  <PiSpinnerBold className="h-5 w-5 animate-spin text-gray-400" />
                 </div>
               ) : (
                 <Select value={selectedTechnicianId} onValueChange={setSelectedTechnicianId}>
@@ -240,15 +231,15 @@ export function TechnicianAssignmentModal({
             {selectedTechnician && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-gray-400" />
+                  <PiUserBold className="h-4 w-4 text-gray-400" />
                   <span className="font-medium text-gray-900">{selectedTechnician.name}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Phone className="h-4 w-4 text-gray-400" />
+                  <PiPhoneBold className="h-4 w-4 text-gray-400" />
                   {selectedTechnician.phone}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                  <PiEnvelopeBold className="h-4 w-4 text-gray-400" />
                   {selectedTechnician.email}
                 </div>
                 {selectedTechnician.specialties && selectedTechnician.specialties.length > 0 && (
@@ -313,7 +304,7 @@ export function TechnicianAssignmentModal({
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -331,12 +322,12 @@ export function TechnicianAssignmentModal({
             <Button type="submit" disabled={isSubmitting || loadingTechnicians}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Assigning...
                 </>
               ) : (
                 <>
-                  <Wrench className="mr-2 h-4 w-4" />
+                  <PiWrenchBold className="mr-2 h-4 w-4" />
                   {currentTechnician ? 'Reassign Technician' : 'Assign Technician'}
                 </>
               )}

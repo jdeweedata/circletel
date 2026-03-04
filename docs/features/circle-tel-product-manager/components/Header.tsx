@@ -1,5 +1,5 @@
+import { PiBellBold, PiCaretDownBold, PiGearBold, PiGridFourBold, PiMagnifyingGlassBold, PiQuestionBold } from 'react-icons/pi';
 import React from 'react';
-import { Search, Bell, Settings, HelpCircle, Grid, ChevronDown } from 'lucide-react';
 
 export const Header: React.FC = () => {
   return (
@@ -7,13 +7,13 @@ export const Header: React.FC = () => {
       {/* Left: Search (Global) */}
       <div className="flex items-center gap-4 flex-1">
         <div className="relative w-full max-w-md hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input 
             type="text" 
             placeholder="Search in Customers (/)" 
             className="w-full bg-slate-50 border border-slate-200 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-400 transition-all"
           />
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+          <PiCaretDownBold className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
         </div>
       </div>
 
@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
         {/* Organization Dropdown */}
         <div className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded">
           <span>Circle Tel SA (Pty) ...</span>
-          <ChevronDown size={14} />
+          <PiCaretDownBold size={14} />
         </div>
 
         {/* Quick Add */}
@@ -36,14 +36,14 @@ export const Header: React.FC = () => {
             <UsersIcon />
           </button>
           <button className="p-2 hover:bg-slate-100 rounded-full transition-colors relative">
-            <Bell size={18} />
+            <PiBellBold size={18} />
             <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           </button>
           <button className="p-2 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
-            <Settings size={18} />
+            <PiGearBold size={18} />
           </button>
           <button className="p-2 hover:bg-slate-100 rounded-full transition-colors hidden md:block">
-            <HelpCircle size={18} />
+            <PiQuestionBold size={18} />
           </button>
         </div>
 
@@ -57,7 +57,7 @@ export const Header: React.FC = () => {
         </div>
 
          <button className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hidden md:block">
-            <Grid size={18} />
+            <PiGridFourBold size={18} />
           </button>
       </div>
     </header>

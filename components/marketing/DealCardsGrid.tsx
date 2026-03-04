@@ -1,8 +1,8 @@
 'use client'
+import { PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { DealCard, DealCategory } from './DealCard'
-import { Sparkles, Loader2 } from 'lucide-react'
 
 export interface Promotion {
   id: string
@@ -114,18 +114,18 @@ export function DealCardsGrid({
         {/* Section Header */}
         {showTitle && (
           <div className="flex items-center justify-center gap-2 mb-8">
-            <Sparkles className="w-5 h-5 text-[#F5841E]" />
+            <PiSparklesBold className="w-5 h-5 text-[#F5841E]" />
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {title}
             </h2>
-            <Sparkles className="w-5 h-5 text-[#F5841E]" />
+            <PiSparklesBold className="w-5 h-5 text-[#F5841E]" />
           </div>
         )}
 
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-[#F5841E] animate-spin" />
+            <PiSpinnerBold className="w-8 h-8 text-[#F5841E] animate-spin" />
           </div>
         )}
 

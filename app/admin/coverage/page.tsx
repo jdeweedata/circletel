@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCellSignalFullBold, PiChartBarBold, PiCheckCircleBold, PiClockBold, PiDatabaseBold, PiDownloadSimpleBold, PiGearBold, PiLightningBold, PiMapPinBold, PiMapTrifoldBold, PiTrendUpBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,23 +12,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
-import {
-  Activity,
-  Map,
-  Settings,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Signal,
-  Database,
-  Zap,
-  Users,
-  BarChart3,
-  Download,
-  RefreshCw
-} from 'lucide-react';
 
 interface CoverageStats {
   totalRequests: number;
@@ -163,11 +147,11 @@ export default function AdminCoveragePage() {
   const getHealthBadge = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" /> Healthy</Badge>;
+        return <Badge className="bg-green-500"><PiCheckCircleBold className="w-3 h-3 mr-1" /> Healthy</Badge>;
       case 'degraded':
-        return <Badge className="bg-yellow-500"><AlertTriangle className="w-3 h-3 mr-1" /> Degraded</Badge>;
+        return <Badge className="bg-yellow-500"><PiWarningBold className="w-3 h-3 mr-1" /> Degraded</Badge>;
       case 'unhealthy':
-        return <Badge className="bg-red-500"><AlertTriangle className="w-3 h-3 mr-1" /> Unhealthy</Badge>;
+        return <Badge className="bg-red-500"><PiWarningBold className="w-3 h-3 mr-1" /> Unhealthy</Badge>;
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
@@ -236,7 +220,7 @@ export default function AdminCoveragePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Map className="h-8 w-8 text-orange-600" />
+              <PiMapTrifoldBold className="h-8 w-8 text-orange-600" />
               Coverage Management
             </h1>
             <p className="text-gray-600 mt-1">
@@ -249,12 +233,12 @@ export default function AdminCoveragePage() {
               disabled={refreshing}
               variant="outline"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <PermissionGate permissions={[PERMISSIONS.DASHBOARD.EXPORT_DATA]}>
               <Button onClick={() => exportMetrics('csv')} variant="outline">
-                <Download className="h-4 w-4 mr-2" />
+                <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
             </PermissionGate>
@@ -264,7 +248,7 @@ export default function AdminCoveragePage() {
         {/* Error Alert */}
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <PiWarningBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
               {error}
             </AlertDescription>
@@ -276,7 +260,7 @@ export default function AdminCoveragePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <PiActivityBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -299,7 +283,7 @@ export default function AdminCoveragePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <PiTrendUpBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -314,7 +298,7 @@ export default function AdminCoveragePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Response Time</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <PiClockBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -329,7 +313,7 @@ export default function AdminCoveragePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Cache Hit Rate</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
+              <PiDatabaseBold className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -346,22 +330,22 @@ export default function AdminCoveragePage() {
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+              <PiChartBarBold className="h-4 w-4" />
               Overview
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
+              <PiActivityBold className="h-4 w-4" />
               Recent Activity
             </TabsTrigger>
             <PermissionGate permissions={[PERMISSIONS.COVERAGE.RUN_TESTS]}>
               <TabsTrigger value="testing" className="flex items-center gap-2">
-                <Zap className="h-4 w-4" />
+                <PiLightningBold className="h-4 w-4" />
                 Testing Tools
               </TabsTrigger>
             </PermissionGate>
             <PermissionGate permissions={[PERMISSIONS.COVERAGE.MANAGE_PROVIDERS]}>
               <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
+                <PiGearBold className="h-4 w-4" />
                 Configuration
               </TabsTrigger>
             </PermissionGate>
@@ -373,7 +357,7 @@ export default function AdminCoveragePage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5" />
+                    <PiWarningBold className="h-5 w-5" />
                     Error Breakdown
                   </CardTitle>
                   <CardDescription>
@@ -402,7 +386,7 @@ export default function AdminCoveragePage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
+                    <PiLightningBold className="h-5 w-5" />
                     Quick Actions
                   </CardTitle>
                   <CardDescription>
@@ -415,7 +399,7 @@ export default function AdminCoveragePage() {
                     variant="outline"
                     onClick={() => window.open('/coverage', '_blank')}
                   >
-                    <Map className="h-4 w-4 mr-2" />
+                    <PiMapTrifoldBold className="h-4 w-4 mr-2" />
                     Test Coverage Checker
                   </Button>
                   <Button
@@ -423,7 +407,7 @@ export default function AdminCoveragePage() {
                     variant="outline"
                     onClick={() => exportMetrics('json')}
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
                     Export Metrics (JSON)
                   </Button>
                   <Button
@@ -431,7 +415,7 @@ export default function AdminCoveragePage() {
                     variant="outline"
                     onClick={() => window.open('/api/coverage/mtn/monitoring?action=health', '_blank')}
                   >
-                    <Activity className="h-4 w-4 mr-2" />
+                    <PiActivityBold className="h-4 w-4 mr-2" />
                     View API Health
                   </Button>
                 </CardContent>
@@ -443,7 +427,7 @@ export default function AdminCoveragePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
+                  <PiActivityBold className="h-5 w-5" />
                   Recent Coverage Requests
                 </CardTitle>
                 <CardDescription>
@@ -458,7 +442,7 @@ export default function AdminCoveragePage() {
                         <div className={`w-3 h-3 rounded-full ${activity.success ? 'bg-green-500' : 'bg-red-500'}`}></div>
                         <div>
                           <div className="font-medium flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
+                            <PiMapPinBold className="h-4 w-4" />
                             {activity.coordinates.lat.toFixed(4)}, {activity.coordinates.lng.toFixed(4)}
                             {activity.province && (
                               <Badge variant="outline">{activity.province}</Badge>
@@ -506,7 +490,7 @@ export default function AdminCoveragePage() {
                     onClick={() => window.open('/coverage', '_blank')}
                     className="w-full"
                   >
-                    <Map className="h-4 w-4 mr-2" />
+                    <PiMapTrifoldBold className="h-4 w-4 mr-2" />
                     Open Coverage Checker
                   </Button>
                 </CardContent>
@@ -528,7 +512,7 @@ export default function AdminCoveragePage() {
                     className="w-full"
                     variant="outline"
                   >
-                    <MapPin className="h-4 w-4 mr-2" />
+                    <PiMapPinBold className="h-4 w-4 mr-2" />
                     Test Geo Validation
                   </Button>
                 </CardContent>

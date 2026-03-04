@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCaretDownBold, PiCaretUpBold, PiCheckCircleBold, PiCreditCardBold, PiDeviceMobileBold, PiInfoBold, PiLockBold, PiMapPinBold, PiPackageBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiTrendUpBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -6,24 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import {
-  CreditCard,
-  Loader2,
-  AlertCircle,
-  CheckCircle,
-  Shield,
-  ArrowLeft,
-  Lock,
-  Package,
-  Smartphone,
-  Building2,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
-  MapPin,
-  Sparkles,
-  Info
-} from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { useOrderContext } from '../context/OrderContext';
@@ -254,7 +237,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
         <div className="max-w-screen-2xl mx-auto">
         {retrySession.hasData && !showErrorDisplay && (
           <Alert className="border-blue-300 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl shadow-sm" data-testid="retry-session-banner">
-            <AlertCircle className="h-5 w-5 text-blue-600" />
+            <PiWarningCircleBold className="h-5 w-5 text-blue-600" />
             <AlertDescription className="text-blue-900">
               <div className="flex items-center justify-between">
                 <div>
@@ -309,14 +292,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <CardTitle className="flex items-center justify-between text-lg font-bold">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-orange-100 rounded-xl">
-                          <Package className="h-5 w-5 text-circleTel-orange" />
+                          <PiPackageBold className="h-5 w-5 text-circleTel-orange" />
                         </div>
                         <span>Package</span>
                       </div>
                       {expandedPackage ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500" />
+                        <PiCaretUpBold className="h-5 w-5 text-gray-500" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                        <PiCaretDownBold className="h-5 w-5 text-gray-500" />
                       )}
                     </CardTitle>
                   </CardHeader>
@@ -326,7 +309,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                         <div className="p-3 bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-xl border-l-4 border-circleTel-orange">
                           <h4 className="font-black text-xl text-gray-900">{selectedPackage?.name || 'Package Not Selected'}</h4>
                           <p className="text-base text-gray-700 font-semibold mt-1 flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-circleTel-orange" />
+                            <PiTrendUpBold className="h-4 w-4 text-circleTel-orange" />
                             {selectedPackage?.speed}
                           </p>
                         </div>
@@ -334,7 +317,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                           <div className="space-y-2">
                             {selectedPackage.features.slice(0, 5).map((feature: any, index: number) => (
                               <div key={index} className="flex items-start gap-3 text-sm text-gray-700 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                                 <span className="font-medium">{feature}</span>
                               </div>
                             ))}
@@ -351,14 +334,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <CardTitle className="flex items-center justify-between text-lg font-bold">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-xl">
-                          <MapPin className="h-5 w-5 text-blue-600" />
+                          <PiMapPinBold className="h-5 w-5 text-blue-600" />
                         </div>
                         <span>Address</span>
                       </div>
                       {expandedAddress ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500" />
+                        <PiCaretUpBold className="h-5 w-5 text-gray-500" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                        <PiCaretDownBold className="h-5 w-5 text-gray-500" />
                       )}
                     </CardTitle>
                   </CardHeader>
@@ -369,7 +352,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                           <div className="text-sm text-gray-800 leading-relaxed space-y-1 font-medium">
                             {coverage.address.split(',').map((line, idx) => (
                               <div key={idx} className="flex items-start gap-2">
-                                {idx === 0 && <Building2 className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />}
+                                {idx === 0 && <PiBuildingsBold className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />}
                                 <span className={idx === 0 ? 'font-bold' : ''}>{line.trim()}</span>
                               </div>
                             ))}
@@ -388,14 +371,14 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                     <CardTitle className="flex items-center justify-between text-lg font-bold">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-green-100 rounded-xl">
-                          <Sparkles className="h-5 w-5 text-green-600" />
+                          <PiSparklesBold className="h-5 w-5 text-green-600" />
                         </div>
                         <span>Pricing</span>
                       </div>
                       {expandedPricing ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500" />
+                        <PiCaretUpBold className="h-5 w-5 text-gray-500" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                        <PiCaretDownBold className="h-5 w-5 text-gray-500" />
                       )}
                     </CardTitle>
                   </CardHeader>
@@ -446,13 +429,13 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             <div className="flex justify-center">
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full border-2 border-green-300 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group">
                 <div className="relative">
-                  <Shield className="h-6 w-6 text-green-600 group-hover:text-green-700 transition-colors" />
+                  <PiShieldBold className="h-6 w-6 text-green-600 group-hover:text-green-700 transition-colors" />
                   <div className="absolute inset-0 bg-green-400 rounded-full blur-sm opacity-0 group-hover:opacity-30 animate-pulse-green transition-opacity" />
                 </div>
                 <span className="font-bold text-green-800 text-sm uppercase tracking-wide">
                   PCI-SSL / Trusted & Secure
                 </span>
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-green-600" />
               </div>
             </div>
           </CardHeader>
@@ -460,7 +443,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
             {/* Payment Methods Grid */}
             <div className="space-y-4">
               <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-circleTel-orange" />
+                <PiCreditCardBold className="h-5 w-5 text-circleTel-orange" />
                 Choose Your Payment Method
               </h3>
               
@@ -470,12 +453,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 <div className="relative border-3 border-gray-200 rounded-2xl p-5 hover:border-circleTel-orange hover:bg-gradient-to-br hover:from-orange-50 hover:to-orange-100/30 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:scale-105 animate-payment-card" style={{animationDelay: '100ms'}}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="p-1 bg-green-100 rounded-full">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl group-hover:from-circleTel-orange group-hover:to-orange-600 group-hover:scale-110 transition-all duration-300 shadow-md">
-                      <CreditCard className="h-6 w-6 text-circleTel-orange group-hover:text-white transition-colors" />
+                      <PiCreditCardBold className="h-6 w-6 text-circleTel-orange group-hover:text-white transition-colors" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-black text-base text-gray-900 mb-1 group-hover:text-circleTel-orange transition-colors">Credit & Debit</h4>
@@ -501,12 +484,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 <div className="relative border-3 border-gray-200 rounded-2xl p-5 hover:border-green-400 hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-100/30 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:scale-105 animate-payment-card" style={{animationDelay: '200ms'}}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="p-1 bg-green-100 rounded-full animate-bounce-subtle">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl group-hover:from-green-500 group-hover:to-emerald-600 group-hover:scale-110 transition-all duration-300 shadow-md">
-                      <Smartphone className="h-6 w-6 text-green-600 group-hover:text-white transition-colors" />
+                      <PiDeviceMobileBold className="h-6 w-6 text-green-600 group-hover:text-white transition-colors" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-black text-base text-gray-900 mb-1 group-hover:text-green-600 transition-colors">Instant EFT</h4>
@@ -527,12 +510,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 <div className="relative border-3 border-gray-200 rounded-2xl p-5 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100/30 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:scale-105 animate-payment-card" style={{animationDelay: '300ms'}}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="p-1 bg-blue-100 rounded-full">
-                      <CheckCircle className="h-4 w-4 text-blue-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-blue-600" />
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl group-hover:from-blue-500 group-hover:to-blue-600 group-hover:scale-110 transition-all duration-300 shadow-md">
-                      <Building2 className="h-6 w-6 text-blue-600 group-hover:text-white transition-colors" />
+                      <PiBuildingsBold className="h-6 w-6 text-blue-600 group-hover:text-white transition-colors" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-black text-base text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">Bank Transfer</h4>
@@ -548,12 +531,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 <div className="relative border-3 border-gray-200 rounded-2xl p-5 hover:border-purple-400 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/30 transition-all duration-300 cursor-pointer group hover:shadow-xl hover:scale-105 animate-payment-card" style={{animationDelay: '400ms'}}>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="p-1 bg-purple-100 rounded-full">
-                      <CheckCircle className="h-4 w-4 text-purple-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-purple-600" />
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl group-hover:from-purple-500 group-hover:to-purple-600 group-hover:scale-110 transition-all duration-300 shadow-md">
-                      <Smartphone className="h-6 w-6 text-purple-600 group-hover:text-white transition-colors" />
+                      <PiDeviceMobileBold className="h-6 w-6 text-purple-600 group-hover:text-white transition-colors" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-black text-base text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">Scan to Pay</h4>
@@ -577,7 +560,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 <div className="relative h-7 w-auto">
                   <Image src="/images/payment-logos/logo_netcash-43.png" alt="Netcash" width={90} height={28} className="object-contain" />
                 </div>
-                <Lock className="h-4 w-4 text-gray-500" />
+                <PiLockBold className="h-4 w-4 text-gray-500" />
               </div>
             </div>
 
@@ -591,7 +574,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                   disabled={isProcessing}
                   className="sm:w-36 h-12 rounded-xl border-2 font-bold hover:bg-gray-50 transition-all"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <PiArrowLeftBold className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               )}
@@ -606,12 +589,12 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
                 
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-6 w-6 mr-2 animate-spin" />
+                    <PiSpinnerBold className="h-6 w-6 mr-2 animate-spin" />
                     Processing Payment...
                   </>
                 ) : (
                   <>
-                    <Shield className="h-6 w-6 mr-2" />
+                    <PiShieldBold className="h-6 w-6 mr-2" />
                     Complete Secure Payment
                   </>
                 )}
@@ -633,7 +616,7 @@ export default function PaymentStage({ onComplete, onBack }: PaymentStageProps) 
               
               {/* Contextual hint */}
               <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
-                <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <PiInfoBold className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-blue-900 leading-relaxed">
                   <strong>Secure checkout:</strong> You'll be redirected to Netcash's payment gateway. All payments are encrypted and PCI-DSS compliant.
                 </p>

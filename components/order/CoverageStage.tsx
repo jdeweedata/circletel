@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiMapPinBold, PiPackageBold, PiSpinnerBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,16 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import {
-  MapPin,
-  Wifi,
-  WifiOff,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
-  Package
-} from 'lucide-react';
 import CoverageMap from '@/components/coverage/CoverageMap';
 import LayerControls, { LayerConfig } from '@/components/coverage/LayerControls';
 import { Coordinates, ServiceType, CoverageResponse } from '@/lib/coverage/types';
@@ -274,7 +265,7 @@ export default function CoverageStage({
               >
                 {pkg.availability}
               </Badge>
-              {isSelected && <CheckCircle className="h-5 w-5 text-blue-500" />}
+              {isSelected && <PiCheckCircleBold className="h-5 w-5 text-blue-500" />}
             </div>
           </div>
         </CardHeader>
@@ -307,7 +298,7 @@ export default function CoverageStage({
             <div className="space-y-1">
               {pkg.features.map((feature, index) => (
                 <div key={index} className="text-sm text-gray-600 flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <PiCheckCircleBold className="h-3 w-3 text-green-500" />
                   {feature}
                 </div>
               ))}
@@ -315,7 +306,7 @@ export default function CoverageStage({
 
             {pkg.availability === 'limited' && (
               <Alert>
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription className="text-sm">
                   Limited availability due to signal strength. Performance may vary.
                 </AlertDescription>
@@ -354,7 +345,7 @@ export default function CoverageStage({
                 <CardTitle className="flex items-center justify-between">
                   <span>Location Information</span>
                   <Button variant="outline" onClick={() => setShowMap(true)}>
-                    <MapPin className="h-4 w-4 mr-1" />
+                    <PiMapPinBold className="h-4 w-4 mr-1" />
                     Show Map
                   </Button>
                 </CardTitle>
@@ -394,9 +385,9 @@ export default function CoverageStage({
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 {coverageData?.available ? (
-                  <Wifi className="h-5 w-5 text-green-600" />
+                  <PiWifiBold className="h-5 w-5 text-green-600" />
                 ) : (
-                  <WifiOff className="h-5 w-5 text-red-600" />
+                  <PiWifiSlashBold className="h-5 w-5 text-red-600" />
                 )}
                 Coverage Status
               </span>
@@ -407,9 +398,9 @@ export default function CoverageStage({
                 disabled={isCheckingCoverage}
               >
                 {isCheckingCoverage ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
                 ) : (
-                  <RefreshCw className="h-4 w-4" />
+                  <PiArrowsClockwiseBold className="h-4 w-4" />
                 )}
                 Recheck
               </Button>
@@ -418,7 +409,7 @@ export default function CoverageStage({
           <CardContent>
             {coverageError && (
               <Alert className="mb-4">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{coverageError}</AlertDescription>
               </Alert>
             )}
@@ -452,7 +443,7 @@ export default function CoverageStage({
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold flex items-center gap-2">
-              <Package className="h-5 w-5" />
+              <PiPackageBold className="h-5 w-5" />
               Available Packages
             </h3>
             {selectedPackages.length > 0 && (

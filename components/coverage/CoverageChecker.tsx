@@ -1,9 +1,9 @@
 'use client';
+import { PiArrowRightBold, PiBuildingBold, PiCheckCircleBold, PiHouseBold, PiMapPinBold, PiSpinnerBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Loader2, CheckCircle, XCircle, Wifi, Home, Building, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { createClient } from '@supabase/supabase-js';
 import { AddressAutocomplete } from './AddressAutocomplete';
@@ -228,7 +228,7 @@ export function CoverageChecker({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-orange-500" />
+          <PiMapPinBold className="h-5 w-5 text-orange-500" />
           Check Service Availability
         </CardTitle>
       </CardHeader>
@@ -249,13 +249,13 @@ export function CoverageChecker({
           >
             {isChecking ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                <PiSpinnerBold className="h-5 w-5 animate-spin mr-2" />
                 Checking coverage...
               </>
             ) : (
               <>
                 Show me my deals
-                <ArrowRight className="h-5 w-5 ml-2" />
+                <PiArrowRightBold className="h-5 w-5 ml-2" />
               </>
             )}
           </Button>
@@ -285,7 +285,7 @@ export function CoverageChecker({
         {isChecking && (
           <div className="space-y-4 p-6 bg-gray-50 rounded-lg border-2 border-orange-200 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-center justify-center gap-2 text-orange-600">
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <PiSpinnerBold className="h-5 w-5 animate-spin" />
               <span className="font-semibold">{progressMessage}</span>
             </div>
 
@@ -302,7 +302,7 @@ export function CoverageChecker({
                         : 'bg-gray-300 text-gray-600'
                     }`}
                   >
-                    {progressStage > step ? <CheckCircle className="h-4 w-4" /> : step}
+                    {progressStage > step ? <PiCheckCircleBold className="h-4 w-4" /> : step}
                   </div>
                   {step < 3 && (
                     <div
@@ -333,7 +333,7 @@ export function CoverageChecker({
         {results && results.available && (
           <div className="space-y-4 animate-in fade-in-slide-in-from-bottom-2">
             <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="h-5 w-5" />
+              <PiCheckCircleBold className="h-5 w-5" />
               <span className="font-semibold">Service available at your location!</span>
             </div>
 
@@ -419,7 +419,7 @@ export function CoverageChecker({
         {results && !results.available && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-center gap-2 text-amber-600">
-              <XCircle className="h-5 w-5" />
+              <PiXCircleBold className="h-5 w-5" />
               <span className="font-semibold">Service coming soon to your area!</span>
             </div>
             <p className="text-sm text-gray-600">

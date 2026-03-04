@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiBuildingsBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiMapPinBold, PiSpinnerBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Admin B2B Site Details Page
@@ -10,20 +11,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import {
-  MapPin,
-  Search,
-  Filter,
-  MoreHorizontal,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  Eye,
-  Building2,
-  Loader2,
-  RefreshCw,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -315,7 +302,7 @@ export default function AdminSiteDetailsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-circleTel-orange" />
+            <PiMapPinBold className="h-6 w-6 text-circleTel-orange" />
             Site Details Review
           </h1>
           <p className="text-sm text-gray-500">
@@ -323,7 +310,7 @@ export default function AdminSiteDetailsPage() {
           </p>
         </div>
         <Button variant="outline" onClick={fetchData} disabled={loading}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -338,7 +325,7 @@ export default function AdminSiteDetailsPage() {
                   <p className="text-sm text-gray-500">Total Submissions</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
-                <Building2 className="h-8 w-8 text-gray-400" />
+                <PiBuildingsBold className="h-8 w-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -352,7 +339,7 @@ export default function AdminSiteDetailsPage() {
                     {stats.pending_review}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-400" />
+                <PiClockBold className="h-8 w-8 text-yellow-400" />
               </div>
             </CardContent>
           </Card>
@@ -366,7 +353,7 @@ export default function AdminSiteDetailsPage() {
                     {stats.byRfiStatus?.ready || 0}
                   </p>
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-green-400" />
+                <PiCheckCircleBold className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
@@ -380,7 +367,7 @@ export default function AdminSiteDetailsPage() {
                     {(stats.byRfiStatus?.pending || 0) + (stats.byRfiStatus?.not_ready || 0)}
                   </p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-red-400" />
+                <PiWarningBold className="h-8 w-8 text-red-400" />
               </div>
             </CardContent>
           </Card>
@@ -392,7 +379,7 @@ export default function AdminSiteDetailsPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by company name or account number..."
                 value={searchQuery}
@@ -403,7 +390,7 @@ export default function AdminSiteDetailsPage() {
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
-                <Filter className="h-4 w-4 mr-2" />
+                <PiFunnelBold className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -418,7 +405,7 @@ export default function AdminSiteDetailsPage() {
 
             <Select value={rfiFilter} onValueChange={setRfiFilter}>
               <SelectTrigger className="w-[180px]">
-                <Filter className="h-4 w-4 mr-2" />
+                <PiFunnelBold className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="RFI Status" />
               </SelectTrigger>
               <SelectContent>
@@ -443,7 +430,7 @@ export default function AdminSiteDetailsPage() {
             </div>
           ) : filteredList.length === 0 ? (
             <div className="p-12 text-center">
-              <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <PiMapPinBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No site details found</p>
             </div>
           ) : (
@@ -502,13 +489,13 @@ export default function AdminSiteDetailsPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
+                            <PiDotsThreeBold className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
                             <Link href={`/admin/b2b-customers/site-details/${item.id}`}>
-                              <Eye className="h-4 w-4 mr-2" />
+                              <PiEyeBold className="h-4 w-4 mr-2" />
                               View Details
                             </Link>
                           </DropdownMenuItem>
@@ -528,7 +515,7 @@ export default function AdminSiteDetailsPage() {
                                 }
                                 className="text-green-600"
                               >
-                                <CheckCircle2 className="h-4 w-4 mr-2" />
+                                <PiCheckCircleBold className="h-4 w-4 mr-2" />
                                 Approve
                               </DropdownMenuItem>
                               <DropdownMenuItem
@@ -544,7 +531,7 @@ export default function AdminSiteDetailsPage() {
                                 }
                                 className="text-red-600"
                               >
-                                <XCircle className="h-4 w-4 mr-2" />
+                                <PiXCircleBold className="h-4 w-4 mr-2" />
                                 Reject
                               </DropdownMenuItem>
                             </>
@@ -629,7 +616,7 @@ export default function AdminSiteDetailsPage() {
                 disabled={actionDialog.isSubmitting}
                 className="bg-green-500 hover:bg-green-600"
               >
-                {actionDialog.isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {actionDialog.isSubmitting && <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />}
                 Approve
               </Button>
             ) : (
@@ -638,7 +625,7 @@ export default function AdminSiteDetailsPage() {
                 onClick={handleReject}
                 disabled={actionDialog.isSubmitting || !actionDialog.rejectionReason}
               >
-                {actionDialog.isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {actionDialog.isSubmitting && <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />}
                 Reject
               </Button>
             )}

@@ -1,7 +1,7 @@
 'use client'
+import { PiCaretDownBold } from 'react-icons/pi';
 
 import { FAQSection } from '@/lib/types/strapi'
-import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 interface FAQAccordionProps {
@@ -66,7 +66,7 @@ export function FAQAccordion({ section, defaultOpenIndex }: FAQAccordionProps) {
                         <span className="font-semibold text-circleTel-navy text-lg">
                           {faq.question}
                         </span>
-                        <ChevronDown
+                        <PiCaretDownBold
                           className={`w-5 h-5 text-circleTel-secondaryNeutral flex-shrink-0 transition-transform duration-200 ${
                             isOpen ? 'transform rotate-180' : ''
                           }`}
@@ -109,7 +109,7 @@ export function FAQAccordion({ section, defaultOpenIndex }: FAQAccordionProps) {
                     <span className="font-semibold text-circleTel-navy text-lg">
                       {faq.question}
                     </span>
-                    <ChevronDown
+                    <PiCaretDownBold
                       className={`w-5 h-5 text-circleTel-secondaryNeutral flex-shrink-0 transition-transform duration-200 ${
                         isOpen ? 'transform rotate-180' : ''
                       }`}

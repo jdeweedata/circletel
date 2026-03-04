@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiEyeBold, PiEyeSlashBold, PiPaperPlaneRightBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,19 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  Eye,
-  EyeOff,
-  Copy,
-  RefreshCw,
-  Send,
-  Wifi,
-  WifiOff,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-} from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PPPoECredential {
@@ -156,28 +144,28 @@ export function PPPoECredentialCard({
       case 'provisioned':
         return (
           <Badge variant="default" className="bg-green-500">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
+            <PiCheckCircleBold className="h-3 w-3 mr-1" />
             Provisioned
           </Badge>
         )
       case 'pending':
         return (
           <Badge variant="secondary">
-            <Clock className="h-3 w-3 mr-1" />
+            <PiClockBold className="h-3 w-3 mr-1" />
             Pending
           </Badge>
         )
       case 'failed':
         return (
           <Badge variant="destructive">
-            <AlertCircle className="h-3 w-3 mr-1" />
+            <PiWarningCircleBold className="h-3 w-3 mr-1" />
             Failed
           </Badge>
         )
       case 'deprovisioned':
         return (
           <Badge variant="outline">
-            <WifiOff className="h-3 w-3 mr-1" />
+            <PiWifiSlashBold className="h-3 w-3 mr-1" />
             Deprovisioned
           </Badge>
         )
@@ -188,7 +176,7 @@ export function PPPoECredentialCard({
     return (
       <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
         <div className="flex items-center gap-3">
-          <Wifi className="h-5 w-5 text-orange-500" />
+          <PiWifiBold className="h-5 w-5 text-orange-500" />
           <div>
             <p className="font-mono text-sm">{credential.pppoeUsername}</p>
             <div className="flex items-center gap-2">
@@ -210,7 +198,7 @@ export function PPPoECredentialCard({
                   size="icon"
                   onClick={() => handleCopy(credential.pppoeUsername, 'Username')}
                 >
-                  <Copy className="h-4 w-4" />
+                  <PiCopyBold className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Copy username</TooltipContent>
@@ -225,7 +213,7 @@ export function PPPoECredentialCard({
                   onClick={password ? handleHidePassword : handleRevealPassword}
                   disabled={isRevealing}
                 >
-                  {password ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {password ? <PiEyeSlashBold className="h-4 w-4" /> : <PiEyeBold className="h-4 w-4" />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{password ? 'Hide password' : 'Reveal password'}</TooltipContent>
@@ -240,7 +228,7 @@ export function PPPoECredentialCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Wifi className="h-5 w-5 text-orange-500" />
+          <PiWifiBold className="h-5 w-5 text-orange-500" />
           PPPoE Credentials
         </CardTitle>
         {getStatusBadge()}
@@ -258,7 +246,7 @@ export function PPPoECredentialCard({
               size="icon"
               onClick={() => handleCopy(credential.pppoeUsername, 'Username')}
             >
-              <Copy className="h-4 w-4" />
+              <PiCopyBold className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -276,7 +264,7 @@ export function PPPoECredentialCard({
                 size="icon"
                 onClick={() => handleCopy(password, 'Password')}
               >
-                <Copy className="h-4 w-4" />
+                <PiCopyBold className="h-4 w-4" />
               </Button>
             )}
             <Button
@@ -286,11 +274,11 @@ export function PPPoECredentialCard({
               disabled={isRevealing}
             >
               {isRevealing ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
+                <PiArrowsClockwiseBold className="h-4 w-4 animate-spin" />
               ) : password ? (
-                <EyeOff className="h-4 w-4" />
+                <PiEyeSlashBold className="h-4 w-4" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <PiEyeBold className="h-4 w-4" />
               )}
             </Button>
           </div>
@@ -305,7 +293,7 @@ export function PPPoECredentialCard({
         {credential.provisioningError && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-800">
-              <AlertCircle className="h-4 w-4 inline mr-2" />
+              <PiWarningCircleBold className="h-4 w-4 inline mr-2" />
               {credential.provisioningError}
             </p>
           </div>
@@ -314,7 +302,7 @@ export function PPPoECredentialCard({
         {/* Notification Status */}
         {credential.credentialsSentVia.length > 0 && (
           <div className="text-sm text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 inline mr-2 text-green-500" />
+            <PiCheckCircleBold className="h-4 w-4 inline mr-2 text-green-500" />
             Sent via: {credential.credentialsSentVia.join(', ')}
             {credential.credentialsSentAt && (
               <> on {new Date(credential.credentialsSentAt).toLocaleDateString()}</>
@@ -325,7 +313,7 @@ export function PPPoECredentialCard({
         {/* Interstellio Link */}
         {credential.interstellioSubscriberId && (
           <div className="text-sm text-muted-foreground">
-            <ExternalLink className="h-4 w-4 inline mr-2" />
+            <PiArrowSquareOutBold className="h-4 w-4 inline mr-2" />
             Interstellio ID: <code>{credential.interstellioSubscriberId}</code>
           </div>
         )}
@@ -340,9 +328,9 @@ export function PPPoECredentialCard({
               disabled={isProvisioning}
             >
               {isProvisioning ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Wifi className="h-4 w-4 mr-2" />
+                <PiWifiBold className="h-4 w-4 mr-2" />
               )}
               Provision to Router
             </Button>
@@ -355,9 +343,9 @@ export function PPPoECredentialCard({
             disabled={isRegenerating}
           >
             {isRegenerating ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             )}
             Regenerate Password
           </Button>
@@ -369,9 +357,9 @@ export function PPPoECredentialCard({
             disabled={isSending}
           >
             {isSending ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <Send className="h-4 w-4 mr-2" />
+              <PiPaperPlaneRightBold className="h-4 w-4 mr-2" />
             )}
             Send Credentials
           </Button>

@@ -1,6 +1,6 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiCellSignalFullBold, PiCheckCircleBold, PiPlugBold, PiRadioBold, PiWifiBold } from 'react-icons/pi';
 
-import { CheckCircle, Cable, Radio, Signal, Wifi, ArrowDown, ArrowUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ServicePackage } from '@/lib/partners/feasibility-types';
 
@@ -63,7 +63,7 @@ export function BusinessPackageCard({
       {isSelected && (
         <div className="absolute top-3 right-3">
           <div className="w-6 h-6 rounded-full bg-circleTel-orange flex items-center justify-center">
-            <CheckCircle className="w-4 h-4 text-white" />
+            <PiCheckCircleBold className="w-4 h-4 text-white" />
           </div>
         </div>
       )}
@@ -100,12 +100,12 @@ export function BusinessPackageCard({
       {/* Speed */}
       <div className="flex items-center gap-4 mb-3">
         <div className="flex items-center gap-1 text-sm">
-          <ArrowDown className="w-4 h-4 text-green-600" />
+          <PiArrowDownBold className="w-4 h-4 text-green-600" />
           <span className="font-bold text-gray-900">{pkg.speed_down}</span>
           <span className="text-gray-500">Mbps</span>
         </div>
         <div className="flex items-center gap-1 text-sm">
-          <ArrowUp className="w-4 h-4 text-blue-600" />
+          <PiArrowUpBold className="w-4 h-4 text-blue-600" />
           <span className="font-bold text-gray-900">{pkg.speed_up}</span>
           <span className="text-gray-500">Mbps</span>
         </div>
@@ -141,7 +141,7 @@ export function BusinessPackageCard({
               key={idx}
               className="flex items-center gap-2 text-xs text-gray-600"
             >
-              <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
+              <PiCheckCircleBold className="w-3 h-3 text-green-500 flex-shrink-0" />
               <span className="truncate">{feature}</span>
             </div>
           ))}

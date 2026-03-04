@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowsClockwiseBold, PiPlusBold, PiWifiBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PPPoECredentialCard } from './PPPoECredentialCard'
 import { CreatePPPoEModal } from './CreatePPPoEModal'
-import { Wifi, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface PPPoECredential {
@@ -126,7 +126,7 @@ export function PPPoECredentialsSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </CardTitle>
         </CardHeader>
@@ -143,7 +143,7 @@ export function PPPoECredentialsSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </CardTitle>
         </CardHeader>
@@ -163,7 +163,7 @@ export function PPPoECredentialsSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Wifi className="h-5 w-5 text-orange-500" />
+              <PiWifiBold className="h-5 w-5 text-orange-500" />
               PPPoE Credentials
             </CardTitle>
           </CardHeader>
@@ -172,7 +172,7 @@ export function PPPoECredentialsSection({
               No PPPoE credentials have been created for this service yet.
             </p>
             <Button onClick={() => setShowCreateModal(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               Create PPPoE Account
             </Button>
           </CardContent>
@@ -197,11 +197,11 @@ export function PPPoECredentialsSection({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-orange-500" />
+            <PiWifiBold className="h-5 w-5 text-orange-500" />
             PPPoE Credentials
           </h3>
           <Button variant="outline" size="sm" onClick={fetchCredentials}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>

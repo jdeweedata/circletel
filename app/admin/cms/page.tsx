@@ -1,4 +1,5 @@
 'use client';
+import { PiArchiveBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCalendarBold, PiClockBold, PiDotsThreeBold, PiFileTextBold, PiFunnelBold, PiGlobeBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold } from 'react-icons/pi';
 
 /**
  * CMS Dashboard - Pages List
@@ -10,22 +11,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { CMSPage, PageStatus, ContentType } from '@/lib/cms/types';
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  FileText,
-  Globe,
-  Archive,
-  Edit,
-  Trash2,
-  ExternalLink,
-  Loader2,
-  Clock,
-  Calendar,
-  RefreshCw,
-} from 'lucide-react';
 
 // Status badge component
 function StatusBadge({ status }: { status: PageStatus }) {
@@ -167,7 +152,7 @@ export default function CMSDashboardPage() {
           onClick={() => router.push('/admin/cms/builder')}
           className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
         >
-          <Plus className="w-5 h-5" />
+          <PiPlusBold className="w-5 h-5" />
           New Page
         </button>
       </div>
@@ -177,7 +162,7 @@ export default function CMSDashboardPage() {
         <div className="bg-white rounded-xl p-4 border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gray-100 rounded-lg">
-              <FileText className="w-5 h-5 text-gray-600" />
+              <PiFileTextBold className="w-5 h-5 text-gray-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -188,7 +173,7 @@ export default function CMSDashboardPage() {
         <div className="bg-white rounded-xl p-4 border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
-              <Globe className="w-5 h-5 text-green-600" />
+              <PiGlobeBold className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.published}</p>
@@ -199,7 +184,7 @@ export default function CMSDashboardPage() {
         <div className="bg-white rounded-xl p-4 border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="w-5 h-5 text-yellow-600" />
+              <PiClockBold className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.draft}</p>
@@ -210,7 +195,7 @@ export default function CMSDashboardPage() {
         <div className="bg-white rounded-xl p-4 border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
-              <Archive className="w-5 h-5 text-red-600" />
+              <PiArchiveBold className="w-5 h-5 text-red-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.archived}</p>
@@ -225,7 +210,7 @@ export default function CMSDashboardPage() {
         <div className="flex items-center gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
@@ -269,7 +254,7 @@ export default function CMSDashboardPage() {
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Refresh"
           >
-            <RefreshCw className={cn('w-5 h-5 text-gray-500', loading && 'animate-spin')} />
+            <PiArrowsClockwiseBold className={cn('w-5 h-5 text-gray-500', loading && 'animate-spin')} />
           </button>
         </div>
       </div>
@@ -278,7 +263,7 @@ export default function CMSDashboardPage() {
       <div className="bg-white rounded-xl border overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+            <PiSpinnerBold className="w-8 h-8 text-orange-500 animate-spin" />
           </div>
         ) : error ? (
           <div className="text-center py-12">
@@ -292,7 +277,7 @@ export default function CMSDashboardPage() {
           </div>
         ) : filteredPages.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <PiFileTextBold className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 mb-4">No pages found</p>
             <button
               onClick={() => router.push('/admin/cms/builder')}
@@ -329,7 +314,7 @@ export default function CMSDashboardPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
+                      <PiCalendarBold className="w-4 h-4" />
                       {new Date(page.updated_at).toLocaleDateString()}
                     </div>
                   </td>
@@ -340,7 +325,7 @@ export default function CMSDashboardPage() {
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         title="Edit"
                       >
-                        <Edit className="w-4 h-4 text-gray-600" />
+                        <PiPencilSimpleBold className="w-4 h-4 text-gray-600" />
                       </button>
                       {page.status === 'published' && (
                         <a
@@ -350,7 +335,7 @@ export default function CMSDashboardPage() {
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           title="View Live"
                         >
-                          <ExternalLink className="w-4 h-4 text-gray-600" />
+                          <PiArrowSquareOutBold className="w-4 h-4 text-gray-600" />
                         </a>
                       )}
                       <div className="relative">
@@ -360,7 +345,7 @@ export default function CMSDashboardPage() {
                           }
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                          <PiDotsThreeBold className="w-4 h-4 text-gray-600" />
                         </button>
                         {actionMenuOpen === page.id && (
                           <>
@@ -376,7 +361,7 @@ export default function CMSDashboardPage() {
                                 }}
                                 className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <Archive className="w-4 h-4" />
+                                <PiArchiveBold className="w-4 h-4" />
                                 Archive
                               </button>
                               <button
@@ -386,7 +371,7 @@ export default function CMSDashboardPage() {
                                 }}
                                 className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <PiTrashBold className="w-4 h-4" />
                                 Delete
                               </button>
                             </div>

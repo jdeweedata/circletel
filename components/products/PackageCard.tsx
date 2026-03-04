@@ -1,8 +1,8 @@
 'use client'
+import { PiCheckBold } from 'react-icons/pi';
 
 import { PackageTier } from '@/lib/types/strapi'
 import { Button } from '@/components/ui/button'
-import { Check } from 'lucide-react'
 import Link from 'next/link'
 
 interface PackageCardProps {
@@ -66,7 +66,7 @@ export function PackageCard({ tier, showBadge = true, compact = false }: Package
         <ul className="space-y-3">
           {tier.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2">
-              <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <PiCheckBold className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
               <span className="text-sm text-circleTel-navy">{feature}</span>
             </li>
           ))}

@@ -4,21 +4,6 @@
  * Defines all available block types for the drag-and-drop page builder.
  */
 
-import {
-  Layout,
-  Type,
-  Image,
-  MousePointer,
-  Grid3X3,
-  Quote,
-  DollarSign,
-  Video,
-  Images,
-  FormInput,
-  Minus,
-  Space,
-  LucideIcon,
-} from 'lucide-react';
 import type {
   BlockType,
   BlockCategory,
@@ -119,7 +104,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'image',
     label: 'Image',
     description: 'Single image with optional caption and link',
-    icon: Image,
+    icon: PiImageBold,
     category: 'media',
     defaultContent: {
       src: '',
@@ -198,7 +183,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'testimonial',
     label: 'Testimonial',
     description: 'Customer quotes and testimonials',
-    icon: Quote,
+    icon: PiQuotesBold,
     category: 'content',
     defaultContent: {
       testimonials: [
@@ -227,7 +212,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'pricing',
     label: 'Pricing Table',
     description: 'Pricing plans comparison',
-    icon: DollarSign,
+    icon: PiCurrencyDollarBold,
     category: 'conversion',
     defaultContent: {
       headline: 'Choose Your Plan',
@@ -352,7 +337,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition<any>> = {
     type: 'divider',
     label: 'Divider',
     description: 'Visual separator between sections',
-    icon: Minus,
+    icon: PiMinusBold,
     category: 'utility',
     defaultContent: {
       style: 'line',

@@ -1,22 +1,11 @@
 'use client';
+import { PiArrowRightBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiFileTextBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import {
-  DollarSign,
-  FileText,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Users,
-  CreditCard,
-  ArrowRight,
-  RefreshCw
-} from 'lucide-react';
 
 interface BillingStats {
   totalOutstanding: number;
@@ -116,7 +105,7 @@ export default function BillingDashboard() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2 text-gray-500">
-          <RefreshCw className="h-5 w-5 animate-spin" />
+          <PiArrowsClockwiseBold className="h-5 w-5 animate-spin" />
           <span>Loading billing data...</span>
         </div>
       </div>
@@ -129,7 +118,7 @@ export default function BillingDashboard() {
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
+              <PiWarningCircleBold className="h-5 w-5" />
               <span>{error}</span>
             </div>
             <Button
@@ -155,12 +144,12 @@ export default function BillingDashboard() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchBillingData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Link href="/admin/billing/invoices">
             <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-              <FileText className="h-4 w-4 mr-2" />
+              <PiFileTextBold className="h-4 w-4 mr-2" />
               View All Invoices
             </Button>
           </Link>
@@ -174,7 +163,7 @@ export default function BillingDashboard() {
             <CardTitle className="text-sm font-medium text-gray-500">
               Total Outstanding
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-circleTel-orange" />
+            <PiCurrencyDollarBold className="h-4 w-4 text-circleTel-orange" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
@@ -191,7 +180,7 @@ export default function BillingDashboard() {
             <CardTitle className="text-sm font-medium text-gray-500">
               Overdue Invoices
             </CardTitle>
-            <AlertCircle className="h-4 w-4 text-red-500" />
+            <PiWarningCircleBold className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
@@ -208,7 +197,7 @@ export default function BillingDashboard() {
             <CardTitle className="text-sm font-medium text-gray-500">
               Collected (30 days)
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
+            <PiTrendUpBold className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
@@ -225,7 +214,7 @@ export default function BillingDashboard() {
             <CardTitle className="text-sm font-medium text-gray-500">
               Active Services
             </CardTitle>
-            <Users className="h-4 w-4 text-blue-500" />
+            <PiUsersBold className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
@@ -246,7 +235,7 @@ export default function BillingDashboard() {
             <CardTitle className="text-lg font-semibold">Recent Invoices</CardTitle>
             <Link href="/admin/billing/invoices">
               <Button variant="ghost" size="sm">
-                View All <ArrowRight className="h-4 w-4 ml-1" />
+                View All <PiArrowRightBold className="h-4 w-4 ml-1" />
               </Button>
             </Link>
           </CardHeader>
@@ -262,7 +251,7 @@ export default function BillingDashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-circleTel-orange" />
+                        <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
@@ -296,7 +285,7 @@ export default function BillingDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-semibold">Recent Payments</CardTitle>
             <Button variant="ghost" size="sm">
-              View All <ArrowRight className="h-4 w-4 ml-1" />
+              View All <PiArrowRightBold className="h-4 w-4 ml-1" />
             </Button>
           </CardHeader>
           <CardContent>
@@ -311,7 +300,7 @@ export default function BillingDashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <PiCheckCircleBold className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
@@ -347,25 +336,25 @@ export default function BillingDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Link href="/admin/billing/invoices">
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <FileText className="h-6 w-6 text-circleTel-orange" />
+                <PiFileTextBold className="h-6 w-6 text-circleTel-orange" />
                 <span>Manage Invoices</span>
               </Button>
             </Link>
             <Link href="/admin/billing/customers">
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <Users className="h-6 w-6 text-blue-500" />
+                <PiUsersBold className="h-6 w-6 text-blue-500" />
                 <span>Customer Billing</span>
               </Button>
             </Link>
             <Link href="/admin/billing/payment-methods">
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <CreditCard className="h-6 w-6 text-green-500" />
+                <PiCreditCardBold className="h-6 w-6 text-green-500" />
                 <span>Payment Methods</span>
               </Button>
             </Link>
             <Link href="/admin/billing/cron-logs">
               <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2">
-                <Clock className="h-6 w-6 text-purple-500" />
+                <PiClockBold className="h-6 w-6 text-purple-500" />
                 <span>Cron Logs</span>
               </Button>
             </Link>

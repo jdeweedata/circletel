@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiSpinnerBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * KYC Document Viewer Component
@@ -9,15 +10,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  X,
-  CheckCircle,
-  XCircle,
-  Download,
-  Eye,
-  FileText,
-  Loader2,
-} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface KycDocument {
@@ -223,11 +215,11 @@ export default function DocumentViewer({
           </div>
           <div className="flex items-center gap-2">
             <Button onClick={handleDownload} variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
+              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
               Download
             </Button>
             <Button onClick={onClose} variant="ghost" size="sm">
-              <X className="w-4 h-4" />
+              <PiXBold className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -254,7 +246,7 @@ export default function DocumentViewer({
                   )}
                   {!isPDF && !isImage && (
                     <div className="text-center py-12">
-                      <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <PiFileTextBold className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                       <p className="text-gray-600">
                         Preview not available for this file type
                       </p>
@@ -263,7 +255,7 @@ export default function DocumentViewer({
                         variant="outline"
                         className="mt-4"
                       >
-                        <Download className="w-4 h-4 mr-2" />
+                        <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
                         Download to View
                       </Button>
                     </div>
@@ -271,7 +263,7 @@ export default function DocumentViewer({
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400" />
+                  <PiSpinnerBold className="w-8 h-8 animate-spin mx-auto text-gray-400" />
                   <p className="text-gray-600 mt-2">Loading document...</p>
                 </div>
               )}
@@ -328,9 +320,9 @@ export default function DocumentViewer({
                       disabled={loading}
                     >
                       {loading ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
-                        <XCircle className="w-4 h-4 mr-2" />
+                        <PiXCircleBold className="w-4 h-4 mr-2" />
                       )}
                       Confirm Rejection
                     </Button>
@@ -343,7 +335,7 @@ export default function DocumentViewer({
                       disabled={loading}
                       className="text-red-600 hover:text-red-700"
                     >
-                      <XCircle className="w-4 h-4 mr-2" />
+                      <PiXCircleBold className="w-4 h-4 mr-2" />
                       Reject
                     </Button>
                     <Button
@@ -352,9 +344,9 @@ export default function DocumentViewer({
                       disabled={loading}
                     >
                       {loading ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <PiCheckCircleBold className="w-4 h-4 mr-2" />
                       )}
                       Approve Document
                     </Button>

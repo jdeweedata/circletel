@@ -1,5 +1,5 @@
+import { PiMapPinBold, PiSpinnerBold } from 'react-icons/pi';
 import React, { useState } from 'react';
-import { MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { GeocodingResult } from '@/services/googleMaps';
@@ -123,9 +123,9 @@ export const LocationButton: React.FC<LocationButtonProps> = ({
         title="Use my current location"
       >
         {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <PiSpinnerBold className="h-5 w-5 animate-spin" />
         ) : (
-          <MapPin className="h-5 w-5" />
+          <PiMapPinBold className="h-5 w-5" />
         )}
       </Button>
 

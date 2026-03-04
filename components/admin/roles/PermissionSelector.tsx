@@ -1,11 +1,11 @@
 'use client';
+import { PiCaretDownBold, PiCaretRightBold, PiCheckSquareBold, PiMagnifyingGlassBold, PiSquareBold } from 'react-icons/pi';
 
 import React, { useState, useMemo } from 'react';
 import { PERMISSION_CATEGORIES } from '@/lib/rbac/permissions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ChevronDown, ChevronRight, Search, CheckSquare, Square } from 'lucide-react';
 
 interface PermissionSelectorProps {
   selectedPermissions: string[];
@@ -122,7 +122,7 @@ export function PermissionSelector({ selectedPermissions, onChange }: Permission
       {/* Search and Select All */}
       <div className="space-y-2">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             type="text"
             placeholder="Search permissions..."
@@ -165,9 +165,9 @@ export function PermissionSelector({ selectedPermissions, onChange }: Permission
                   className="p-0 hover:bg-transparent"
                 >
                   {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-gray-600" />
+                    <PiCaretDownBold className="h-4 w-4 text-gray-600" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-600" />
+                    <PiCaretRightBold className="h-4 w-4 text-gray-600" />
                   )}
                 </button>
 

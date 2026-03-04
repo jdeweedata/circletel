@@ -5,6 +5,7 @@
  */
 
 'use client'
+import { PiBookBold, PiCalculatorBold, PiChatCircleBold, PiClipboardTextBold, PiCpuBold, PiCurrencyDollarBold, PiEyeBold, PiGearBold, PiHandshakeBold, PiHeadphonesBold, PiMagnifyingGlassBold, PiMapTrifoldBold, PiMegaphoneBold, PiPackageBold, PiServerBold, PiShieldBold, PiSparklesBold, PiTrendUpBold, PiTruckBold, PiUserCheckBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState } from 'react'
 import { RoleTemplate, ROLE_TEMPLATES, DEPARTMENTS } from '@/lib/rbac/role-templates'
@@ -20,36 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import {
-  Shield,
-  Crown,
-  Package,
-  Target,
-  TrendingUp,
-  Headphones,
-  FileEdit,
-  Book,
-  Search,
-  Cpu,
-  Sparkles,
-  Briefcase,
-  Users,
-  Map,
-  Settings,
-  DollarSign,
-  BarChart,
-  Workflow,
-  UserCheck,
-  Handshake,
-  Megaphone,
-  MessageCircle,
-  Server,
-  Eye,
-  Calculator,
-  Receipt,
-  Truck,
-  ClipboardList
-} from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<{className?: string}>> = {
   Shield,
@@ -145,7 +116,7 @@ export function RoleTemplateSelector({
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search roles..."
             value={searchQuery}

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowRightBold, PiBuildingsBold, PiCheckCircleBold, PiCopyBold, PiCurrencyDollarBold, PiEnvelopeBold, PiMapPinBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWifiBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -11,21 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Mail,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  MapPin,
-  Building2,
-  User,
-  Wifi,
-  DollarSign,
-  Shield,
-  ArrowRight,
-  Copy,
-  Sparkles,
-} from 'lucide-react';
 // ============================================================================
 // Types
 // ============================================================================
@@ -191,7 +177,7 @@ export function EmailParseModal({ open, onOpenChange, onApply }: EmailParseModal
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="p-2 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-lg">
-              <Mail className="h-4 w-4 text-white" />
+              <PiEnvelopeBold className="h-4 w-4 text-white" />
             </div>
             Parse Feasibility Email
           </DialogTitle>
@@ -233,7 +219,7 @@ Acme Corp"`}
                   onClick={handlePaste}
                   className="absolute top-2 right-2 gap-1.5 text-xs"
                 >
-                  <Copy className="h-3 w-3" />
+                  <PiCopyBold className="h-3 w-3" />
                   Paste
                 </Button>
               )}
@@ -241,7 +227,7 @@ Acme Corp"`}
 
             {parseError && (
               <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <PiWarningCircleBold className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-red-800">Parsing failed</p>
                   <p className="text-sm text-red-600 mt-0.5">{parseError}</p>
@@ -260,12 +246,12 @@ Acme Corp"`}
               >
                 {isParsing ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="h-4 w-4 animate-spin" />
                     Parsing...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4" />
+                    <PiSparklesBold className="h-4 w-4" />
                     Parse Email
                   </>
                 )}
@@ -279,7 +265,7 @@ Acme Corp"`}
           <div className="space-y-4">
             {/* Summary */}
             <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <PiCheckCircleBold className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-green-800">Email parsed successfully</p>
                 <p className="text-sm text-green-600 mt-0.5">{parseResult.raw_summary}</p>
@@ -289,7 +275,7 @@ Acme Corp"`}
             {/* Locations */}
             <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
               <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-green-500" />
+                <PiMapPinBold className="h-4 w-4 text-green-500" />
                 <span className="text-sm font-semibold text-slate-700">
                   {parseResult.locations.length} Location{parseResult.locations.length !== 1 ? 's' : ''}
                 </span>
@@ -321,25 +307,25 @@ Acme Corp"`}
               {/* Contact */}
               <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
                 <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                  <User className="h-4 w-4 text-blue-500" />
+                  <PiUserBold className="h-4 w-4 text-blue-500" />
                   <span className="text-sm font-semibold text-slate-700">Contact</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
                   {parseResult.contact.company && (
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                      <PiBuildingsBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">{parseResult.contact.company}</span>
                     </div>
                   )}
                   {parseResult.contact.name && (
                     <div className="flex items-center gap-2">
-                      <User className="h-3.5 w-3.5 text-slate-400" />
+                      <PiUserBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">{parseResult.contact.name}</span>
                     </div>
                   )}
                   {parseResult.contact.email && (
                     <div className="flex items-center gap-2">
-                      <Mail className="h-3.5 w-3.5 text-slate-400" />
+                      <PiEnvelopeBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">{parseResult.contact.email}</span>
                     </div>
                   )}
@@ -352,13 +338,13 @@ Acme Corp"`}
               {/* Requirements */}
               <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
                 <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
-                  <Wifi className="h-4 w-4 text-purple-500" />
+                  <PiWifiBold className="h-4 w-4 text-purple-500" />
                   <span className="text-sm font-semibold text-slate-700">Requirements</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
                   {parseResult.requirements.bandwidth_mbps && (
                     <div className="flex items-center gap-2">
-                      <Wifi className="h-3.5 w-3.5 text-slate-400" />
+                      <PiWifiBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">{parseResult.requirements.bandwidth_mbps} Mbps</span>
                     </div>
                   )}
@@ -372,13 +358,13 @@ Acme Corp"`}
                   )}
                   {parseResult.requirements.budget_max_rands && (
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                      <PiCurrencyDollarBold className="h-3.5 w-3.5 text-slate-400" />
                       <span className="text-slate-700">R{parseResult.requirements.budget_max_rands.toLocaleString()}/mo</span>
                     </div>
                   )}
                   {parseResult.requirements.failover_needed && (
                     <div className="flex items-center gap-2">
-                      <Shield className="h-3.5 w-3.5 text-green-500" />
+                      <PiShieldBold className="h-3.5 w-3.5 text-green-500" />
                       <span className="text-slate-700">Failover required</span>
                     </div>
                   )}
@@ -403,7 +389,7 @@ Acme Corp"`}
                 className="bg-gradient-to-r from-circleTel-orange to-orange-500 hover:from-circleTel-orange/90 hover:to-orange-500/90 text-white gap-2"
               >
                 Apply to Form
-                <ArrowRight className="h-4 w-4" />
+                <PiArrowRightBold className="h-4 w-4" />
               </Button>
             </DialogFooter>
           </div>

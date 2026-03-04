@@ -1,9 +1,9 @@
 'use client';
+import { PiXBold } from 'react-icons/pi';
 
 import { ProductFilters } from '@/lib/types/products';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
 
 interface ActiveFiltersChipsProps {
   filters: ProductFilters;
@@ -103,7 +103,7 @@ export function ActiveFiltersChips({
           onClick={onClearSearch}
         >
           <span className="text-sm">Search: "{searchQuery.length > 20 ? searchQuery.substring(0, 20) + '...' : searchQuery}"</span>
-          <X className="h-3 w-3" />
+          <PiXBold className="h-3 w-3" />
         </Badge>
       )}
 
@@ -115,7 +115,7 @@ export function ActiveFiltersChips({
           onClick={() => onRemoveFilter(key as keyof ProductFilters)}
         >
           <span className="text-sm">{formatFilterLabel(key, value)}</span>
-          <X className="h-3 w-3" />
+          <PiXBold className="h-3 w-3" />
         </Badge>
       ))}
 

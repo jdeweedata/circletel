@@ -1,47 +1,19 @@
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiBellBold, PiCalendarBold, PiCheckCircleBold, PiCheckSquareBold, PiClockBold, PiCreditCardBold, PiCubeBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileBold, PiFileTextBold, PiMagnifyingGlassBold, PiMapPinBold, PiMoneyBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiTrayBold, PiUserBold, PiWalletBold, PiWarningBold, PiWifiBold, PiWrenchBold, PiXCircleBold } from 'react-icons/pi';
 import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { WorkflowStepper } from './components/WorkflowStepper';
 import { Card } from './components/Card';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Printer, 
-  Download, 
-  Box, 
-  CreditCard, 
-  FileText, 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle,
-  User,
-  MapPin,
-  Package,
-  Wallet,
-  Wrench,
-  Calendar,
-  Clock,
-  Phone,
-  Mail,
-  RefreshCw,
-  File,
-  Bell,
-  Inbox,
-  Banknote,
-  CheckSquare,
-  Wifi,
-  Search
-} from 'lucide-react';
 import { OrderData, WorkflowStep } from './types';
 
 // Initial data moved outside component to be used as initial state
 const initialWorkflow: WorkflowStep[] = [
-  { id: 1, label: "Order Received", subLabel: "Order created", status: "completed", icon: Inbox, date: "Nov 8, 08:08" },
-  { id: 2, label: "Payment Method", subLabel: "Method registered", status: "completed", icon: CreditCard, date: "Nov 8, 08:15" },
-  { id: 3, label: "Payment Confirmed", subLabel: "Deposit received", status: "completed", icon: Banknote, date: "Nov 9, 10:00" },
-  { id: 4, label: "Scheduled", subLabel: "Install booked", status: "completed", icon: Calendar, date: "Nov 9, 14:30" },
-  { id: 5, label: "Installation", subLabel: "Tech on-site", status: "active", icon: Wrench, date: "Nov 21" },
-  { id: 6, label: "Completion", subLabel: "Work finished", status: "pending", icon: CheckSquare },
-  { id: 7, label: "Active", subLabel: "Service live", status: "pending", icon: Wifi },
+  { id: 1, label: "Order Received", subLabel: "Order created", status: "completed", icon: PiTrayBold, date: "Nov 8, 08:08" },
+  { id: 2, label: "Payment Method", subLabel: "Method registered", status: "completed", icon: PiCreditCardBold, date: "Nov 8, 08:15" },
+  { id: 3, label: "Payment Confirmed", subLabel: "Deposit received", status: "completed", icon: PiMoneyBold, date: "Nov 9, 10:00" },
+  { id: 4, label: "Scheduled", subLabel: "Install booked", status: "completed", icon: PiCalendarBold, date: "Nov 9, 14:30" },
+  { id: 5, label: "Installation", subLabel: "Tech on-site", status: "active", icon: PiWrenchBold, date: "Nov 21" },
+  { id: 6, label: "Completion", subLabel: "Work finished", status: "pending", icon: PiCheckSquareBold },
+  { id: 7, label: "Active", subLabel: "Service live", status: "pending", icon: PiWifiBold },
 ];
 
 const initialOrder: OrderData = {
@@ -154,7 +126,7 @@ function App() {
         <header className="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
            <div className="flex items-center gap-4">
               <div className="md:hidden">
-                 <Search size={20} className="text-gray-400" />
+                 <PiMagnifyingGlassBold size={20} className="text-gray-400" />
               </div>
               <div className="flex flex-col">
                  <h1 className="text-lg font-bold text-gray-800">Order Details</h1>
@@ -163,7 +135,7 @@ function App() {
            </div>
            <div className="flex items-center gap-4">
               <button className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Bell size={20} />
+                <PiBellBold size={20} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
               </button>
               <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md cursor-pointer">
@@ -178,7 +150,7 @@ function App() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-gray-600 hover:text-primary cursor-pointer transition-colors group">
               <div className="p-1 rounded-full group-hover:bg-indigo-50 transition-colors">
-                <ArrowLeft size={20} />
+                <PiArrowLeftBold size={20} />
               </div>
               <span className="font-medium">Back to Orders</span>
             </div>
@@ -199,13 +171,13 @@ function App() {
 
             <div className="flex items-center gap-2">
               <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm">
-                <Edit size={16} /> <span className="hidden sm:inline">Edit</span>
+                <PiPencilSimpleBold size={16} /> <span className="hidden sm:inline">Edit</span>
               </button>
               <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm">
                 <Printer size={16} /> <span className="hidden sm:inline">Print</span>
               </button>
               <button className="flex items-center gap-2 px-3 py-2 bg-primary border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-600 transition-all shadow-sm">
-                <Download size={16} /> <span className="hidden sm:inline">Export</span>
+                <PiDownloadSimpleBold size={16} /> <span className="hidden sm:inline">Export</span>
               </button>
             </div>
           </div>
@@ -222,7 +194,7 @@ function App() {
                 <p className="text-xs text-gray-400 mt-1">Last updated today</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                 <Box size={20} className="text-blue-500" />
+                 <PiCubeBold size={20} className="text-blue-500" />
               </div>
             </div>
 
@@ -232,12 +204,12 @@ function App() {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Payment</p>
                 <div className="flex items-center gap-2 mb-1">
                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-bold rounded">{order.paymentStatus.status}</span>
-                   <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded flex items-center gap-1"><CheckCircle size={10}/> {order.paymentStatus.mandate}</span>
+                   <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded flex items-center gap-1"><PiCheckCircleBold size={10}/> {order.paymentStatus.mandate}</span>
                 </div>
                 <p className="text-sm text-gray-600">{order.paymentStatus.method}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
-                 <CreditCard className="text-amber-500" size={20} />
+                 <PiCreditCardBold className="text-amber-500" size={20} />
               </div>
             </div>
 
@@ -249,7 +221,7 @@ function App() {
                 <p className="text-xs text-gray-400 mt-1">Monthly recurring</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
-                 <FileText className="text-green-500" size={20} />
+                 <PiFileTextBold className="text-green-500" size={20} />
               </div>
             </div>
           </div>
@@ -263,13 +235,13 @@ function App() {
           <Card title="Quick Actions">
             <div className="flex flex-wrap gap-4">
                <button className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-md text-sm font-medium hover:bg-green-100 transition-colors">
-                  <CheckCircle size={16} /> Complete Installation
+                  <PiCheckCircleBold size={16} /> Complete Installation
                </button>
                <button className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-sm font-medium hover:bg-amber-100 transition-colors">
-                  <AlertTriangle size={16} /> Report Issue
+                  <PiWarningBold size={16} /> Report Issue
                </button>
                <button className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-md text-sm font-medium hover:bg-red-100 transition-colors">
-                  <XCircle size={16} /> Cancel Order
+                  <PiXCircleBold size={16} /> Cancel Order
                </button>
             </div>
           </Card>
@@ -280,7 +252,7 @@ function App() {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               
-              <Card title="Customer Information" icon={<User size={20} />}>
+              <Card title="Customer Information" icon={<PiUserBold size={20} />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                   <div className="flex flex-col gap-1">
                     <p className="text-xs font-bold text-gray-500 uppercase">Full Name</p>
@@ -289,13 +261,13 @@ function App() {
                   <div className="flex flex-col gap-1">
                     <p className="text-xs font-bold text-gray-500 uppercase">Email Address</p>
                     <a href={`mailto:${order.customer.email}`} className="text-sm font-medium text-primary hover:underline flex items-center gap-2 border-b border-gray-100 pb-2 w-fit">
-                      <Mail size={14} /> {order.customer.email}
+                      <PiEnvelopeBold size={14} /> {order.customer.email}
                     </a>
                   </div>
                   <div className="flex flex-col gap-1">
                     <p className="text-xs font-bold text-gray-500 uppercase">Phone Number</p>
                     <a href={`tel:${order.customer.phone}`} className="text-sm font-medium text-primary hover:underline flex items-center gap-2 border-b border-gray-100 pb-2 w-fit">
-                      <Phone size={14} /> {order.customer.phone}
+                      <PiPhoneBold size={14} /> {order.customer.phone}
                     </a>
                   </div>
                   <div className="md:col-span-2 grid grid-cols-3 gap-4 mt-2 bg-gray-50 p-4 rounded-md border border-gray-100">
@@ -315,24 +287,24 @@ function App() {
                 </div>
               </Card>
 
-              <Card title="Installation Address" icon={<MapPin size={20} />}>
+              <Card title="Installation Address" icon={<PiMapPinBold size={20} />}>
                  <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                       <MapPin className="text-blue-500" size={20} />
+                       <PiMapPinBold className="text-blue-500" size={20} />
                     </div>
                     <div className="flex-1">
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Service Address</p>
                        <p className="text-lg font-medium text-gray-900">{order.address.street}</p>
                        <div className="mt-3 flex gap-2">
                           <button className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors flex items-center gap-1">
-                            <MapPin size={12} /> View on Map
+                            <PiMapPinBold size={12} /> View on Map
                           </button>
                        </div>
                     </div>
                  </div>
               </Card>
 
-              <Card title="Package Details" icon={<Package size={20} />}>
+              <Card title="Package Details" icon={<PiPackageBold size={20} />}>
                  <div className="grid grid-cols-2 gap-y-6">
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Package Name</p>
@@ -340,7 +312,7 @@ function App() {
                     </div>
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Speed</p>
-                       <p className="text-sm text-gray-900 flex items-center gap-1"><Wifi size={14} className="text-gray-400" /> {order.package.speed}</p>
+                       <p className="text-sm text-gray-900 flex items-center gap-1"><PiWifiBold size={14} className="text-gray-400" /> {order.package.speed}</p>
                     </div>
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Monthly Price</p>
@@ -359,7 +331,7 @@ function App() {
                  </div>
               </Card>
 
-              <Card title="Payment Information" icon={<Wallet size={20} />}>
+              <Card title="Payment Information" icon={<PiWalletBold size={20} />}>
                  <div className="grid grid-cols-2 gap-y-6">
                     <div>
                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Payment Method</p>
@@ -385,20 +357,20 @@ function App() {
 
                <Card 
                  title="Installation Details" 
-                 icon={<Wrench size={20} />}
+                 icon={<PiWrenchBold size={20} />}
                  badge={<span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded border border-blue-200">Scheduled</span>}
                >
                   <div className="space-y-4">
                      <div className="grid grid-cols-2 gap-4">
                        <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
                           <div className="flex items-center gap-2 text-xs font-bold text-blue-700 mb-1">
-                             <Calendar size={12} /> DATE
+                             <PiCalendarBold size={12} /> DATE
                           </div>
                           <p className="text-sm font-semibold text-gray-900">Nov 21, 2025</p>
                        </div>
                        <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
                           <div className="flex items-center gap-2 text-xs font-bold text-blue-700 mb-1">
-                             <Clock size={12} /> SLOT
+                             <PiClockBold size={12} /> SLOT
                           </div>
                           <p className="text-sm font-semibold text-gray-900">{order.installation.slot}</p>
                        </div>
@@ -414,10 +386,10 @@ function App() {
                               <p className="text-sm font-bold text-gray-900">{order.installation.technician}</p>
                               <div className="flex gap-3">
                                 <a href="#" className="text-gray-500 hover:text-primary transition-colors">
-                                   <Phone size={14} />
+                                   <PiPhoneBold size={14} />
                                 </a>
                                 <a href="#" className="text-gray-500 hover:text-primary transition-colors">
-                                   <Mail size={14} />
+                                   <PiEnvelopeBold size={14} />
                                 </a>
                               </div>
                            </div>
@@ -428,11 +400,11 @@ function App() {
 
                <Card 
                  title="Payment Method" 
-                 icon={<CreditCard size={20} />}
+                 icon={<PiCreditCardBold size={20} />}
                  badge={
                    <div className="flex flex-col items-end">
                       <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-green-200">
-                        <CheckCircle size={10} /> VERIFIED
+                        <PiCheckCircleBold size={10} /> VERIFIED
                       </span>
                    </div>
                  }
@@ -466,12 +438,12 @@ function App() {
                      </div>
 
                      <button className="w-full mt-2 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-md text-xs font-bold text-gray-600 hover:bg-white hover:text-primary transition-all shadow-sm">
-                        <RefreshCw size={12} /> Validate Account
+                        <PiArrowsClockwiseBold size={12} /> Validate Account
                      </button>
                   </div>
                </Card>
 
-               <Card title="Order Timeline" icon={<Clock size={20} />} badge={<span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Recent</span>}>
+               <Card title="Order Timeline" icon={<PiClockBold size={20} />} badge={<span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Recent</span>}>
                   <div className="relative pl-2">
                      {/* Vertical Line */}
                      <div className="absolute top-3 bottom-3 left-[19px] w-[2px] bg-gray-100"></div>
@@ -481,7 +453,7 @@ function App() {
                            <div key={event.id} className="relative flex gap-4 items-start group">
                               <div className={`relative z-10 w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center border-2 shadow-sm transition-transform group-hover:scale-105
                                  ${event.iconType === 'doc' ? 'bg-white border-blue-100 text-blue-500' : 'bg-white border-green-100 text-green-500'}`}>
-                                 {event.iconType === 'doc' ? <File size={16} /> : <Calendar size={16} />}
+                                 {event.iconType === 'doc' ? <PiFileBold size={16} /> : <PiCalendarBold size={16} />}
                               </div>
                               <div className="flex-1 pt-1">
                                  <div className="flex justify-between items-start">
@@ -491,7 +463,7 @@ function App() {
                                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{event.description}</p>
                                  {event.id === 2 && (
                                     <div className="flex items-center gap-1 mt-2 text-xs font-medium text-indigo-600 bg-indigo-50 w-fit px-2 py-1 rounded">
-                                       <User size={10} /> Tech: {order.installation.technician}
+                                       <PiUserBold size={10} /> Tech: {order.installation.technician}
                                     </div>
                                  )}
                               </div>
@@ -501,14 +473,14 @@ function App() {
                   </div>
                </Card>
 
-               <Card title="Order Source" icon={<FileText size={20} />}>
+               <Card title="Order Source" icon={<PiFileTextBold size={20} />}>
                   <div className="flex items-center justify-between">
                      <div>
                         <p className="text-xs font-bold text-gray-500 uppercase mb-1">Lead Source</p>
                         <p className="text-sm font-semibold text-gray-900">{order.source.lead}</p>
                      </div>
                      <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                        <Search size={16} />
+                        <PiMagnifyingGlassBold size={16} />
                      </div>
                   </div>
                </Card>

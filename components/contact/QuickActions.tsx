@@ -1,5 +1,6 @@
 
 'use client'
+import { PiCalendarBold, PiCheckCircleBold, PiCloudBold, PiMapPinBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, MapPin, Cloud, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface QuickActionsProps {
@@ -124,7 +124,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" className="flex items-center justify-center gap-2 hover:border-circleTel-orange hover:text-circleTel-orange transition-colors">
-              <Calendar size={18} />
+              <PiCalendarBold size={18} />
               <span>Schedule Consultation</span>
             </Button>
           </DialogTrigger>
@@ -232,7 +232,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" className="flex items-center justify-center gap-2 hover:border-circleTel-orange hover:text-circleTel-orange transition-colors">
-              <MapPin size={18} />
+              <PiMapPinBold size={18} />
               <span>Request Site Survey</span>
             </Button>
           </DialogTrigger>
@@ -336,7 +336,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ className }) => {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" className="flex items-center justify-center gap-2 hover:border-circleTel-orange hover:text-circleTel-orange transition-colors">
-              <Cloud size={18} />
+              <PiCloudBold size={18} />
               <span>Get Cloud Quote</span>
             </Button>
           </DialogTrigger>

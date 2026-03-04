@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Check, Globe, Cpu, Shield, Clock } from 'lucide-react';
 
 const VirtualDesktopsFeatures = () => {
   return (
@@ -16,7 +15,7 @@ const VirtualDesktopsFeatures = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-start mb-4">
-              <Globe className="text-circleTel-orange mr-4 mt-1" size={24} />
+              <PiGlobeBold className="text-circleTel-orange mr-4 mt-1" size={24} />
               <div>
                 <h3 className="font-bold text-xl mb-2">Access Anywhere</h3>
                 <p className="text-circleTel-secondaryNeutral">
@@ -24,15 +23,15 @@ const VirtualDesktopsFeatures = () => {
                 </p>
                 <ul className="mt-4 space-y-2">
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Works on Windows, Mac, iOS, Android devices</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Browser-based access option</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Consistent experience across all devices</span>
                   </li>
                 </ul>
@@ -42,7 +41,7 @@ const VirtualDesktopsFeatures = () => {
           
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-start mb-4">
-              <Cpu className="text-circleTel-orange mr-4 mt-1" size={24} />
+              <PiCpuBold className="text-circleTel-orange mr-4 mt-1" size={24} />
               <div>
                 <h3 className="font-bold text-xl mb-2">High Performance</h3>
                 <p className="text-circleTel-secondaryNeutral">
@@ -50,15 +49,15 @@ const VirtualDesktopsFeatures = () => {
                 </p>
                 <ul className="mt-4 space-y-2">
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Scalable computing resources</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Fast application performance</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Optimized for business applications</span>
                   </li>
                 </ul>
@@ -68,7 +67,7 @@ const VirtualDesktopsFeatures = () => {
           
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-start mb-4">
-              <Shield className="text-circleTel-orange mr-4 mt-1" size={24} />
+              <PiShieldBold className="text-circleTel-orange mr-4 mt-1" size={24} />
               <div>
                 <h3 className="font-bold text-xl mb-2">Enhanced Security</h3>
                 <p className="text-circleTel-secondaryNeutral">
@@ -76,15 +75,15 @@ const VirtualDesktopsFeatures = () => {
                 </p>
                 <ul className="mt-4 space-y-2">
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Data never stored on local devices</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Centralized security policies</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Multi-factor authentication</span>
                   </li>
                 </ul>
@@ -94,7 +93,7 @@ const VirtualDesktopsFeatures = () => {
           
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-start mb-4">
-              <Clock className="text-circleTel-orange mr-4 mt-1" size={24} />
+              <PiClockBold className="text-circleTel-orange mr-4 mt-1" size={24} />
               <div>
                 <h3 className="font-bold text-xl mb-2">Simplified IT</h3>
                 <p className="text-circleTel-secondaryNeutral">
@@ -102,15 +101,15 @@ const VirtualDesktopsFeatures = () => {
                 </p>
                 <ul className="mt-4 space-y-2">
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Centralized software management</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Automated updates and patching</span>
                   </li>
                   <li className="flex items-center">
-                    <Check className="text-green-500 mr-2" size={18} />
+                    <PiCheckBold className="text-green-500 mr-2" size={18} />
                     <span>Rapid deployment of new workstations</span>
                   </li>
                 </ul>

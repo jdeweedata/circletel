@@ -1,19 +1,11 @@
 'use client';
+import { PiCaretRightBold, PiCreditCardBold, PiLightningBold, PiSpinnerBold, PiWarningBold, PiWrenchBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  CreditCard,
-  CalendarCheck,
-  Wrench,
-  Zap,
-  AlertTriangle,
-  Loader2,
-  ChevronRight
-} from 'lucide-react';
 
 interface OrderRequiringAttention {
   status: string;
@@ -56,7 +48,7 @@ export function OrdersRequiringAttentionWidget() {
             o.status === 'pending' || o.status === 'payment_method_pending'
           ).length,
           label: 'Needs Payment Method',
-          icon: CreditCard,
+          icon: PiCreditCardBold,
           color: 'text-orange-600',
           bgColor: 'bg-orange-50',
           href: '/admin/orders?filter=needs_payment'
@@ -74,7 +66,7 @@ export function OrdersRequiringAttentionWidget() {
           status: 'installation_in_progress',
           count: ordersData.filter((o: any) => o.status === 'installation_in_progress').length,
           label: 'Installation In Progress',
-          icon: Wrench,
+          icon: PiWrenchBold,
           color: 'text-purple-600',
           bgColor: 'bg-purple-50',
           href: '/admin/orders?filter=in_progress'
@@ -83,7 +75,7 @@ export function OrdersRequiringAttentionWidget() {
           status: 'ready_to_activate',
           count: ordersData.filter((o: any) => o.status === 'installation_completed').length,
           label: 'Ready to Activate',
-          icon: Zap,
+          icon: PiLightningBold,
           color: 'text-green-600',
           bgColor: 'bg-green-50',
           href: '/admin/orders?status=installation_completed'
@@ -111,7 +103,7 @@ export function OrdersRequiringAttentionWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            <PiSpinnerBold className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         </CardContent>
       </Card>
@@ -128,7 +120,7 @@ export function OrdersRequiringAttentionWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 text-sm text-red-600">
-            <AlertTriangle className="h-4 w-4" />
+            <PiWarningBold className="h-4 w-4" />
             <span>{error}</span>
           </div>
         </CardContent>
@@ -178,7 +170,7 @@ export function OrdersRequiringAttentionWidget() {
                         <p className="text-xs text-gray-600">{item.count} order{item.count !== 1 ? 's' : ''}</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                    <PiCaretRightBold className="h-4 w-4 text-gray-400" />
                   </div>
                 </Link>
               );

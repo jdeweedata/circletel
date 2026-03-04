@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCheckCircleBold, PiEnvelopeBold, PiMapPinBold, PiPhoneBold, PiRadioBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,17 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
-import {
-  Building2,
-  MapPin,
-  Radio,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Phone,
-  Mail,
-  Briefcase
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface LicensedWirelessLeadCaptureProps {
@@ -83,7 +73,7 @@ export function LicensedWirelessLeadCapture({
       <Card className="p-8 text-center">
         <div className="flex justify-center mb-4">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <PiCheckCircleBold className="w-8 h-8 text-green-600" />
           </div>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -117,7 +107,7 @@ export function LicensedWirelessLeadCapture({
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <Radio className="w-6 h-6 text-blue-600" />
+            <PiRadioBold className="w-6 h-6 text-blue-600" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
@@ -129,28 +119,28 @@ export function LicensedWirelessLeadCapture({
             </p>
             <div className="grid md:grid-cols-2 gap-4 mt-4">
               <div className="flex items-start gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">Enterprise-Grade Reliability</p>
                   <p className="text-sm text-gray-600">99.99% uptime SLA</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">Dedicated Bandwidth</p>
                   <p className="text-sm text-gray-600">Symmetrical speeds up to 1 Gbps</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">Licensed Spectrum</p>
                   <p className="text-sm text-gray-600">Interference-free connection</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">Business-Only Service</p>
                   <p className="text-sm text-gray-600">Custom enterprise solutions</p>
@@ -164,7 +154,7 @@ export function LicensedWirelessLeadCapture({
       {/* Service Address */}
       <Card className="p-6">
         <div className="flex items-center gap-3 text-gray-700 mb-2">
-          <MapPin className="w-5 h-5 text-circleTel-orange" />
+          <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
           <span className="font-semibold">Service Address</span>
         </div>
         <p className="text-gray-900 pl-8">{address}</p>
@@ -178,7 +168,7 @@ export function LicensedWirelessLeadCapture({
           {/* Company Name */}
           <div className="space-y-2">
             <Label htmlFor="companyName" className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
+              <PiBuildingsBold className="w-4 h-4" />
               Company Name <span className="text-red-600">*</span>
             </Label>
             <Input
@@ -208,7 +198,7 @@ export function LicensedWirelessLeadCapture({
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
+                <PiEnvelopeBold className="w-4 h-4" />
                 Email <span className="text-red-600">*</span>
               </Label>
               <Input
@@ -222,7 +212,7 @@ export function LicensedWirelessLeadCapture({
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
+                <PiPhoneBold className="w-4 h-4" />
                 Phone <span className="text-red-600">*</span>
               </Label>
               <Input
@@ -278,7 +268,7 @@ export function LicensedWirelessLeadCapture({
           {/* Info Box */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <PiWarningCircleBold className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-yellow-800">
                 <p className="font-semibold mb-1">Important Information:</p>
                 <ul className="list-disc list-inside space-y-1">
@@ -299,7 +289,7 @@ export function LicensedWirelessLeadCapture({
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
                 Submitting Request...
               </>
             ) : (

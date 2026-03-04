@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiChatBold, PiCheckCircleBold, PiCreditCardBold, PiMagnifyingGlassBold, PiPlusBold, PiShoppingCartBold, PiUserBold, PiWifiBold, PiXBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,7 +20,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Search, CheckCircle, X, User, ShoppingCart, Wifi, CreditCard, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { CustomerRadiusSection } from '@/components/admin/interstellio';
 import { PPPoECredentialsSection } from '@/components/admin/pppoe';
@@ -230,7 +230,7 @@ export default function CustomerDetailPage() {
           <CardContent className="p-8 text-center">
             <p className="text-red-600 mb-4">{error || 'Customer not found'}</p>
             <Button variant="outline" onClick={() => router.push('/admin/customers')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <PiArrowLeftBold className="w-4 h-4 mr-2" />
               Back to Customers
             </Button>
           </CardContent>
@@ -278,7 +278,7 @@ export default function CustomerDetailPage() {
       {/* Success Toast */}
       {showSuccessToast && createdTicketNumber && (
         <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 rounded-lg shadow-lg p-4 flex items-start gap-3 max-w-md animate-in slide-in-from-top-2">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <PiCheckCircleBold className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm text-green-800">
               Success: Support ticket <span className="font-semibold">#{createdTicketNumber}</span> created successfully.{' '}
@@ -294,7 +294,7 @@ export default function CustomerDetailPage() {
             onClick={() => setShowSuccessToast(false)}
             className="text-green-600 hover:text-green-800"
           >
-            <X className="w-4 h-4" />
+            <PiXBold className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -311,7 +311,7 @@ export default function CustomerDetailPage() {
                 onClick={() => router.push('/admin/customers')}
                 className="text-gray-600"
               >
-                <ArrowLeft className="w-4 h-4 mr-1" />
+                <PiArrowLeftBold className="w-4 h-4 mr-1" />
                 Back
               </Button>
               <div>
@@ -338,35 +338,35 @@ export default function CustomerDetailPage() {
             value="overview"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <User className="w-4 h-4 mr-2" />
+            <PiUserBold className="w-4 h-4 mr-2" />
             Overview
           </TabsTrigger>
           <TabsTrigger
             value="orders"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <ShoppingCart className="w-4 h-4 mr-2" />
+            <PiShoppingCartBold className="w-4 h-4 mr-2" />
             Orders ({orders.length})
           </TabsTrigger>
           <TabsTrigger
             value="services"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <Wifi className="w-4 h-4 mr-2" />
+            <PiWifiBold className="w-4 h-4 mr-2" />
             Services ({services.length})
           </TabsTrigger>
           <TabsTrigger
             value="billing"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <CreditCard className="w-4 h-4 mr-2" />
+            <PiCreditCardBold className="w-4 h-4 mr-2" />
             Billing
           </TabsTrigger>
           <TabsTrigger
             value="tickets"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-circleTel-orange data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3"
           >
-            <MessageSquare className="w-4 h-4 mr-2" />
+            <PiChatBold className="w-4 h-4 mr-2" />
             Tickets
           </TabsTrigger>
         </TabsList>
@@ -613,7 +613,7 @@ export default function CustomerDetailPage() {
                   className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white h-8 text-xs"
                   onClick={() => router.push(`/admin/support/tickets/new?customerId=${customerId}`)}
                 >
-                  <Plus className="w-3 h-3 mr-1" />
+                  <PiPlusBold className="w-3 h-3 mr-1" />
                   Create New Ticket
                 </Button>
               </div>
@@ -621,7 +621,7 @@ export default function CustomerDetailPage() {
               {/* Filters */}
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 <div className="relative flex-1 min-w-[200px] max-w-[280px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Search interactions..."
                     value={ticketSearch}

@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiClockBold, PiDownloadSimpleBold, PiFileBold, PiFileTextBold, PiGearBold, PiImageBold, PiTagBold, PiTicketBold, PiUserBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Clock, User, Tag, FileText, Image, File, Download, ExternalLink, Ticket, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 interface Attachment {
@@ -38,7 +38,7 @@ export default function TicketDetailPage() {
   const router = useRouter();
   const ticketId = params.id as string;
 
-  const [ticket, setTicket] = useState<Ticket | null>(null);
+  const [ticket, setTicket] = useState<PiTicketBold | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function TicketDetailPage() {
           <div className="p-8 text-center">
             <p className="text-gray-600 mb-4">Ticket not found</p>
             <Button variant="outline" onClick={() => router.back()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <PiArrowLeftBold className="w-4 h-4 mr-2" />
               Go Back
             </Button>
           </div>
@@ -148,7 +148,7 @@ export default function TicketDetailPage() {
             size="sm"
             onClick={() => router.back()}
           >
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <PiArrowLeftBold className="w-4 h-4 mr-1" />
             Back
           </Button>
           <div>
@@ -174,7 +174,7 @@ export default function TicketDetailPage() {
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Ticket className="h-5 w-5 text-circleTel-orange" />
+              <PiTicketBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Ticket Details</h3>
           </div>
@@ -183,7 +183,7 @@ export default function TicketDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="flex items-start gap-3">
               <div className="h-9 w-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-blue-600" />
+                <PiUserBold className="w-4 h-4 text-blue-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Customer</p>
@@ -192,7 +192,7 @@ export default function TicketDetailPage() {
             </div>
             <div className="flex items-start gap-3">
               <div className="h-9 w-9 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <Tag className="w-4 h-4 text-purple-600" />
+                <PiTagBold className="w-4 h-4 text-purple-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Category</p>
@@ -201,7 +201,7 @@ export default function TicketDetailPage() {
             </div>
             <div className="flex items-start gap-3">
               <div className="h-9 w-9 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4 h-4 text-green-600" />
+                <PiClockBold className="w-4 h-4 text-green-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Created</p>
@@ -223,9 +223,9 @@ export default function TicketDetailPage() {
               <div className="space-y-2">
                 {ticket.attachments.map((attachment, index) => {
                   const getIcon = () => {
-                    if (attachment.type.startsWith('image/')) return <Image className="w-4 h-4 text-blue-500" />;
-                    if (attachment.type.includes('pdf') || attachment.type.includes('document')) return <FileText className="w-4 h-4 text-red-500" />;
-                    return <File className="w-4 h-4 text-gray-500" />;
+                    if (attachment.type.startsWith('image/')) return <PiImageBold className="w-4 h-4 text-blue-500" />;
+                    if (attachment.type.includes('pdf') || attachment.type.includes('document')) return <PiFileTextBold className="w-4 h-4 text-red-500" />;
+                    return <PiFileBold className="w-4 h-4 text-gray-500" />;
                   };
 
                   const formatSize = (bytes: number) => {
@@ -263,7 +263,7 @@ export default function TicketDetailPage() {
                             }
                           }}
                         >
-                          <Download className="w-3 h-3 mr-1" />
+                          <PiDownloadSimpleBold className="w-3 h-3 mr-1" />
                           Download
                         </Button>
                       )}
@@ -284,7 +284,7 @@ export default function TicketDetailPage() {
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Settings className="h-5 w-5 text-circleTel-orange" />
+              <PiGearBold className="h-5 w-5 text-circleTel-orange" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Actions</h3>
           </div>

@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiCaretDownBold, PiCaretUpBold, PiCheckBold, PiXBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowDown, ArrowUp, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InfoTooltipModal } from '@/components/ui/info-tooltip-modal';
 
@@ -153,7 +153,7 @@ export function PackageDetailSidebar({
           className="absolute top-4 right-4 md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
           aria-label="Close package details"
         >
-          <X className="w-5 h-5 text-gray-600" />
+          <PiXBold className="w-5 h-5 text-gray-600" />
         </button>
       )}
 
@@ -222,13 +222,13 @@ export function PackageDetailSidebar({
                   label="Download"
                   speed={downloadSpeed}
                   unit={speedUnit}
-                  icon={<ArrowDown className="w-5 h-5 text-blue-600" />}
+                  icon={<PiArrowDownBold className="w-5 h-5 text-blue-600" />}
                 />
                 <SpeedRow
                   label="Upload"
                   speed={uploadSpeed}
                   unit={speedUnit}
-                  icon={<ArrowUp className="w-5 h-5 text-blue-600" />}
+                  icon={<PiArrowUpBold className="w-5 h-5 text-blue-600" />}
                 />
               </div>
             )
@@ -277,9 +277,9 @@ export function PackageDetailSidebar({
                 {additionalInfo.title || 'What else you should know:'}
               </span>
               {isAdditionalInfoExpanded ? (
-                <ChevronUp className="w-5 h-5 text-pink-600" />
+                <PiCaretUpBold className="w-5 h-5 text-pink-600" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-pink-600" />
+                <PiCaretDownBold className="w-5 h-5 text-pink-600" />
               )}
             </button>
             {isAdditionalInfoExpanded && (
@@ -291,7 +291,7 @@ export function PackageDetailSidebar({
                   return (
                     <li key={index} className="flex items-start gap-3">
                       <span className="text-circleTel-orange mt-1 flex-shrink-0">
-                        <Check className="w-4 h-4" />
+                        <PiCheckBold className="w-4 h-4" />
                       </span>
                       <span className="text-sm text-circleTel-secondaryNeutral flex-1">
                         {itemText}

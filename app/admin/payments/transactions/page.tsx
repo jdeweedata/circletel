@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowCounterClockwiseBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiProhibitBold, PiTrendDownBold, PiTrendUpBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,22 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Search,
-  Download,
-  RefreshCw,
-  Filter,
-  Eye,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  RotateCcw,
-  Ban,
-  AlertCircle
-} from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface PaymentTransaction {
@@ -199,13 +184,13 @@ export default function PaymentTransactionsPage() {
   // Get status badge
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { color: string; icon: React.ReactNode }> = {
-      completed: { color: 'bg-green-100 text-green-700', icon: <CheckCircle2 className="h-3 w-3" /> },
-      pending: { color: 'bg-yellow-100 text-yellow-700', icon: <Clock className="h-3 w-3" /> },
-      processing: { color: 'bg-blue-100 text-blue-700', icon: <RefreshCw className="h-3 w-3" /> },
-      failed: { color: 'bg-red-100 text-red-700', icon: <XCircle className="h-3 w-3" /> },
-      refunded: { color: 'bg-purple-100 text-purple-700', icon: <RotateCcw className="h-3 w-3" /> },
-      cancelled: { color: 'bg-gray-100 text-gray-700', icon: <Ban className="h-3 w-3" /> },
-      expired: { color: 'bg-orange-100 text-orange-700', icon: <AlertCircle className="h-3 w-3" /> }
+      completed: { color: 'bg-green-100 text-green-700', icon: <PiCheckCircleBold className="h-3 w-3" /> },
+      pending: { color: 'bg-yellow-100 text-yellow-700', icon: <PiClockBold className="h-3 w-3" /> },
+      processing: { color: 'bg-blue-100 text-blue-700', icon: <PiArrowsClockwiseBold className="h-3 w-3" /> },
+      failed: { color: 'bg-red-100 text-red-700', icon: <PiXCircleBold className="h-3 w-3" /> },
+      refunded: { color: 'bg-purple-100 text-purple-700', icon: <PiArrowCounterClockwiseBold className="h-3 w-3" /> },
+      cancelled: { color: 'bg-gray-100 text-gray-700', icon: <PiProhibitBold className="h-3 w-3" /> },
+      expired: { color: 'bg-orange-100 text-orange-700', icon: <PiWarningCircleBold className="h-3 w-3" /> }
     };
 
     const variant = variants[status] || variants.pending;
@@ -256,7 +241,7 @@ export default function PaymentTransactionsPage() {
             variant="outline"
             disabled={transactions.length === 0}
           >
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
           <Button
@@ -265,9 +250,9 @@ export default function PaymentTransactionsPage() {
             className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
             {loading ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             )}
             Refresh
           </Button>
@@ -283,7 +268,7 @@ export default function PaymentTransactionsPage() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{stats.total_count}</div>
-              <DollarSign className="h-8 w-8 text-blue-500" />
+              <PiCurrencyDollarBold className="h-8 w-8 text-blue-500" />
             </div>
             <p className="text-sm text-circleTel-secondaryNeutral mt-1">
               R{stats.total_amount.toFixed(2)}
@@ -298,7 +283,7 @@ export default function PaymentTransactionsPage() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold text-green-600">{stats.completed_count}</div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <PiCheckCircleBold className="h-8 w-8 text-green-500" />
             </div>
             <p className="text-sm text-green-600 mt-1">
               R{stats.completed_amount.toFixed(2)}
@@ -313,7 +298,7 @@ export default function PaymentTransactionsPage() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold text-yellow-600">{stats.pending_count}</div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+              <PiClockBold className="h-8 w-8 text-yellow-500" />
             </div>
             <p className="text-sm text-circleTel-secondaryNeutral mt-1">
               Awaiting completion
@@ -328,7 +313,7 @@ export default function PaymentTransactionsPage() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold text-red-600">{stats.failed_count}</div>
-              <XCircle className="h-8 w-8 text-red-500" />
+              <PiXCircleBold className="h-8 w-8 text-red-500" />
             </div>
             <p className="text-sm text-red-600 mt-1">
               {stats.total_count > 0
@@ -343,7 +328,7 @@ export default function PaymentTransactionsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+            <PiFunnelBold className="h-5 w-5" />
             Filters & Search
           </CardTitle>
         </CardHeader>
@@ -351,7 +336,7 @@ export default function PaymentTransactionsPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Search by transaction ID, reference, email..."
@@ -406,11 +391,11 @@ export default function PaymentTransactionsPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange" />
+              <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             </div>
           ) : transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-              <DollarSign className="h-12 w-12 text-gray-400 mb-4" />
+              <PiCurrencyDollarBold className="h-12 w-12 text-gray-400 mb-4" />
               <p className="text-lg font-medium text-gray-700">No transactions found</p>
               <p className="text-sm text-gray-500 mt-2">
                 {searchTerm || statusFilter !== 'all' || providerFilter !== 'all'
@@ -474,7 +459,7 @@ export default function PaymentTransactionsPage() {
                           size="sm"
                           onClick={() => viewDetails(transaction)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <PiEyeBold className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -567,7 +552,7 @@ export default function PaymentTransactionsPage() {
               {selectedTransaction.error_message && (
                 <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
                   <h3 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
-                    <XCircle className="h-5 w-5" />
+                    <PiXCircleBold className="h-5 w-5" />
                     Error Information
                   </h3>
                   <div className="text-sm text-red-700">{selectedTransaction.error_message}</div>

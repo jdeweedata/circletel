@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiEnvelopeBold, PiHandshakeBold, PiMagnifyingGlassBold, PiPhoneBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -21,20 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Search,
-  Building,
-  Mail,
-  Phone,
-  Calendar,
-  Users,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Handshake,
-  TrendingUp,
-} from 'lucide-react';
 
 interface Partner {
   id: string;
@@ -142,11 +129,11 @@ export default function PartnersPage() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-      approved: { variant: 'default', icon: <CheckCircle className="h-3 w-3 mr-1" /> },
-      pending: { variant: 'secondary', icon: <Clock className="h-3 w-3 mr-1" /> },
-      under_review: { variant: 'outline', icon: <AlertCircle className="h-3 w-3 mr-1" /> },
-      rejected: { variant: 'destructive', icon: <XCircle className="h-3 w-3 mr-1" /> },
-      suspended: { variant: 'destructive', icon: <XCircle className="h-3 w-3 mr-1" /> },
+      approved: { variant: 'default', icon: <PiCheckCircleBold className="h-3 w-3 mr-1" /> },
+      pending: { variant: 'secondary', icon: <PiClockBold className="h-3 w-3 mr-1" /> },
+      under_review: { variant: 'outline', icon: <PiWarningCircleBold className="h-3 w-3 mr-1" /> },
+      rejected: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
+      suspended: { variant: 'destructive', icon: <PiXCircleBold className="h-3 w-3 mr-1" /> },
     };
 
     const { variant, icon } = config[status] || { variant: 'outline' as const, icon: null };
@@ -177,7 +164,7 @@ export default function PartnersPage() {
   const getBusinessTypeBadge = (type: string) => {
     return (
       <Badge variant="outline" className="flex items-center w-fit">
-        <Building className="h-3 w-3 mr-1" />
+        <PiBuildingBold className="h-3 w-3 mr-1" />
         {type.replace('_', ' ').charAt(0).toUpperCase() + type.replace('_', ' ').slice(1)}
       </Badge>
     );
@@ -191,7 +178,7 @@ export default function PartnersPage() {
           <p className="text-gray-600 mt-1">View and manage sales partner applications</p>
         </div>
         <Button onClick={() => router.push('/admin/partners/approvals')}>
-          <Clock className="h-4 w-4 mr-2" />
+          <PiClockBold className="h-4 w-4 mr-2" />
           Pending Approvals ({stats.pending + stats.under_review})
         </Button>
       </div>
@@ -201,7 +188,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
+              <PiUsersBold className="h-4 w-4" />
               Total Partners
             </CardDescription>
             <CardTitle className="text-2xl">{stats.total}</CardTitle>
@@ -210,7 +197,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('pending')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-yellow-500" />
+              <PiClockBold className="h-4 w-4 text-yellow-500" />
               Pending
             </CardDescription>
             <CardTitle className="text-2xl text-yellow-600">{stats.pending}</CardTitle>
@@ -219,7 +206,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('under_review')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-blue-500" />
+              <PiWarningCircleBold className="h-4 w-4 text-blue-500" />
               Under Review
             </CardDescription>
             <CardTitle className="text-2xl text-blue-600">{stats.under_review}</CardTitle>
@@ -228,7 +215,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('approved')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <PiCheckCircleBold className="h-4 w-4 text-green-500" />
               Approved
             </CardDescription>
             <CardTitle className="text-2xl text-green-600">{stats.approved}</CardTitle>
@@ -237,7 +224,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('rejected')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-500" />
+              <PiXCircleBold className="h-4 w-4 text-red-500" />
               Rejected
             </CardDescription>
             <CardTitle className="text-2xl text-red-600">{stats.rejected}</CardTitle>
@@ -246,7 +233,7 @@ export default function PartnersPage() {
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('suspended')}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-gray-500" />
+              <PiXCircleBold className="h-4 w-4 text-gray-500" />
               Suspended
             </CardDescription>
             <CardTitle className="text-2xl text-gray-600">{stats.suspended}</CardTitle>
@@ -260,7 +247,7 @@ export default function PartnersPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Handshake className="h-5 w-5" />
+                <PiHandshakeBold className="h-5 w-5" />
                 All Partners
               </CardTitle>
               <CardDescription>
@@ -269,7 +256,7 @@ export default function PartnersPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search partners..."
                   value={searchQuery}
@@ -312,7 +299,7 @@ export default function PartnersPage() {
             </div>
           ) : partners.length === 0 ? (
             <div className="text-center py-8">
-              <Handshake className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <PiHandshakeBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">
                 {statusFilter || tierFilter || searchQuery
                   ? 'No partners found matching your filters'
@@ -341,7 +328,7 @@ export default function PartnersPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                              <Handshake className="h-5 w-5 text-circleTel-orange" />
+                              <PiHandshakeBold className="h-5 w-5 text-circleTel-orange" />
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">{partner.business_name}</p>
@@ -355,11 +342,11 @@ export default function PartnersPage() {
                           <div className="space-y-1">
                             <p className="text-sm font-medium text-gray-900">{partner.contact_person}</p>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Mail className="h-3 w-3 text-gray-400" />
+                              <PiEnvelopeBold className="h-3 w-3 text-gray-400" />
                               {partner.email}
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Phone className="h-3 w-3 text-gray-400" />
+                              <PiPhoneBold className="h-3 w-3 text-gray-400" />
                               {partner.phone}
                             </div>
                           </div>
@@ -369,13 +356,13 @@ export default function PartnersPage() {
                         <TableCell>{getTierBadge(partner.tier)}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <TrendingUp className="h-3 w-3 text-gray-400" />
+                            <PiTrendUpBold className="h-3 w-3 text-gray-400" />
                             <span className="font-medium">{partner.commission_rate}%</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="h-3 w-3 text-gray-400" />
+                            <PiCalendarBold className="h-3 w-3 text-gray-400" />
                             {formatDate(partner.created_at)}
                           </div>
                         </TableCell>

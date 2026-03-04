@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiClockBold, PiLightningBold, PiShieldBold, PiWifiBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SecureSignupProgress } from '@/components/ui/secure-signup-progress';
-import { CheckCircle2, Wifi, Zap, Shield, Clock } from 'lucide-react';
 import { useOrderContext } from '@/components/order/context/OrderContext';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
@@ -267,7 +267,7 @@ export default function OrderPackagesPage() {
           </h1>
           {address && (
             <div className="flex items-center justify-center gap-2 text-gray-600">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <PiCheckCircleBold className="h-5 w-5 text-green-600" />
               <p className="text-lg">{address}</p>
             </div>
           )}
@@ -281,11 +281,11 @@ export default function OrderPackagesPage() {
           <div className="flex justify-center mb-8">
             <TabsList className="grid w-full max-w-md grid-cols-2 h-12">
               <TabsTrigger value="fibre" className="text-base">
-                <Wifi className="h-4 w-4 mr-2" />
+                <PiWifiBold className="h-4 w-4 mr-2" />
                 Fibre ({fibreCount})
               </TabsTrigger>
               <TabsTrigger value="wireless" className="text-base">
-                <Zap className="h-4 w-4 mr-2" />
+                <PiLightningBold className="h-4 w-4 mr-2" />
                 Wireless ({wirelessCount})
               </TabsTrigger>
             </TabsList>
@@ -369,7 +369,7 @@ export default function OrderPackagesPage() {
                         <ul className="space-y-2">
                           {pkg.features.map((feature, index) => (
                             <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                              <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
@@ -441,7 +441,7 @@ export default function OrderPackagesPage() {
                         <ul className="space-y-2">
                           {pkg.features.map((feature, index) => (
                             <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                              <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <PiCheckCircleBold className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
@@ -472,21 +472,21 @@ export default function OrderPackagesPage() {
         {/* Trust Indicators */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           <div className="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm">
-            <Shield className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
+            <PiShieldBold className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
             <div>
               <p className="font-semibold text-gray-900">Secure Payment</p>
               <p className="text-sm text-gray-600">Bank-level encryption</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm">
-            <Clock className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
+            <PiClockBold className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
             <div>
               <p className="font-semibold text-gray-900">No Contract</p>
               <p className="text-sm text-gray-600">Cancel anytime</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm">
-            <CheckCircle2 className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
+            <PiCheckCircleBold className="h-8 w-8 text-circleTel-orange flex-shrink-0" />
             <div>
               <p className="font-semibold text-gray-900">24/7 Support</p>
               <p className="text-sm text-gray-600">Always here to help</p>

@@ -1,4 +1,5 @@
 'use client';
+import { PiBuildingsBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiDotsThreeBold, PiFunnelBold, PiMagnifyingGlassBold, PiTrendUpBold, PiUsersBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Admin B2B Customers Page
@@ -10,19 +11,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Building2,
-  Search,
-  Filter,
-  MoreHorizontal,
-  ChevronRight,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Users,
-  TrendingUp,
-  XCircle,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -141,28 +129,28 @@ function StatsCards({ stats, loading }: { stats: Stats | null; loading: boolean 
     {
       title: 'Total Customers',
       value: stats.total,
-      icon: Building2,
+      icon: PiBuildingsBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
       title: 'Active',
       value: stats.byStatus.active || 0,
-      icon: CheckCircle2,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
       title: 'Pending Verification',
       value: stats.byStatus.pending_verification || 0,
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
     },
     {
       title: 'Blocked',
       value: stats.blocked || 0,
-      icon: AlertCircle,
+      icon: PiWarningCircleBold,
       color: 'text-red-600',
       bgColor: 'bg-red-50',
     },
@@ -242,7 +230,7 @@ export default function AdminB2BCustomersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-circleTel-orange" />
+            <PiBuildingsBold className="h-6 w-6 text-circleTel-orange" />
             B2B Customers
           </h1>
           <p className="text-gray-600 mt-1">
@@ -296,7 +284,7 @@ export default function AdminB2BCustomersPage() {
       <div className="flex flex-wrap gap-4">
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search by company, email, or account number..."
               value={search}
@@ -423,7 +411,7 @@ export default function AdminB2BCustomersPage() {
                             {customer.journey.progressPercentage}%
                           </span>
                           {customer.journey.blockedStage && (
-                            <AlertCircle className="h-4 w-4 text-red-500" />
+                            <PiWarningCircleBold className="h-4 w-4 text-red-500" />
                           )}
                         </div>
                       ) : (
@@ -451,7 +439,7 @@ export default function AdminB2BCustomersPage() {
                             size="sm"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <MoreHorizontal className="h-4 w-4" />
+                            <PiDotsThreeBold className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiEyeBold, PiEyeSlashBold, PiPaperPlaneRightBold, PiSpinnerBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -13,18 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Clock,
-  Users,
-  CheckCircle,
-  RefreshCw,
-  Loader2,
-  Send,
-  Eye,
-  EyeOff
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface OutageUpdate {
@@ -157,7 +146,7 @@ export default function OutageDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+        <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-gray-400" />
       </div>
     );
   }
@@ -165,7 +154,7 @@ export default function OutageDetailPage() {
   if (!outage) {
     return (
       <div className="text-center py-12">
-        <AlertTriangle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+        <PiWarningBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
         <p className="text-lg text-gray-600">Incident not found</p>
         <Link href="/admin/network/outages">
           <Button className="mt-4">Back to Incidents</Button>
@@ -183,7 +172,7 @@ export default function OutageDetailPage() {
         <div className="flex items-start gap-4">
           <Link href="/admin/network/outages">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4" />
+              <PiArrowLeftBold className="w-4 h-4" />
             </Button>
           </Link>
           <div>
@@ -206,7 +195,7 @@ export default function OutageDetailPage() {
             disabled={updating}
             className="bg-green-600 hover:bg-green-700"
           >
-            <CheckCircle className="w-4 h-4 mr-2" />
+            <PiCheckCircleBold className="w-4 h-4 mr-2" />
             Mark Resolved
           </Button>
         )}
@@ -259,9 +248,9 @@ export default function OutageDetailPage() {
                       onClick={() => setNewUpdate(prev => ({ ...prev, is_public: !prev.is_public }))}
                     >
                       {newUpdate.is_public ? (
-                        <><Eye className="w-4 h-4 mr-1" /> Public</>
+                        <><PiEyeBold className="w-4 h-4 mr-1" /> Public</>
                       ) : (
-                        <><EyeOff className="w-4 h-4 mr-1" /> Internal</>
+                        <><PiEyeSlashBold className="w-4 h-4 mr-1" /> Internal</>
                       )}
                     </Button>
                   </div>
@@ -275,9 +264,9 @@ export default function OutageDetailPage() {
 
                   <Button type="submit" disabled={updating || !newUpdate.message.trim()}>
                     {updating ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                     ) : (
-                      <Send className="w-4 h-4 mr-2" />
+                      <PiPaperPlaneRightBold className="w-4 h-4 mr-2" />
                     )}
                     Post Update
                   </Button>
@@ -313,7 +302,7 @@ export default function OutageDetailPage() {
                           </Badge>
                           {!update.is_public && (
                             <Badge variant="secondary" className="text-xs">
-                              <EyeOff className="w-3 h-3 mr-1" />
+                              <PiEyeSlashBold className="w-3 h-3 mr-1" />
                               Internal
                             </Badge>
                           )}
@@ -359,7 +348,7 @@ export default function OutageDetailPage() {
               <div>
                 <p className="text-sm text-gray-500">Started</p>
                 <p className="font-medium flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
+                  <PiClockBold className="w-4 h-4 text-gray-400" />
                   {formatDate(outage.started_at)}
                 </p>
               </div>
@@ -383,7 +372,7 @@ export default function OutageDetailPage() {
               <div>
                 <p className="text-sm text-gray-500">Affected Customers</p>
                 <p className="font-medium flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
+                  <PiUsersBold className="w-4 h-4 text-gray-400" />
                   {outage.affected_customer_count || 0}
                 </p>
               </div>

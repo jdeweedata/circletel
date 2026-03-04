@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowLeftBold, PiCheckCircleBold, PiClockBold, PiFileTextBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Customer Compliance Dashboard
@@ -12,7 +13,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ComplianceUploadForm } from '@/components/dashboard/ComplianceUploadForm'
-import { AlertCircle, CheckCircle2, Clock, FileText, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Order {
@@ -138,12 +138,12 @@ export default function CompliancePage() {
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <Alert className="border-yellow-200 bg-yellow-50">
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <PiWarningCircleBold className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">{error}</AlertDescription>
           </Alert>
           <div className="mt-6">
             <Button onClick={() => router.push('/dashboard')} variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <PiArrowLeftBold className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
           </div>
@@ -162,7 +162,7 @@ export default function CompliancePage() {
             variant="ghost"
             className="mb-4"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
 
@@ -195,12 +195,12 @@ export default function CompliancePage() {
                   <p className="text-sm text-gray-500">Compliance Status</p>
                   {complianceStatus?.overall_complete ? (
                     <p className="font-medium text-green-600 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <PiCheckCircleBold className="w-4 h-4" />
                       Complete
                     </p>
                   ) : (
                     <p className="font-medium text-yellow-600 flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
+                      <PiClockBold className="w-4 h-4" />
                       Pending
                     </p>
                   )}
@@ -218,9 +218,9 @@ export default function CompliancePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {complianceStatus.fica_complete ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   ) : (
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                    <PiClockBold className="w-5 h-5 text-yellow-600" />
                   )}
                   FICA Documents
                 </CardTitle>
@@ -242,9 +242,9 @@ export default function CompliancePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {complianceStatus.rica_complete ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   ) : (
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                    <PiClockBold className="w-5 h-5 text-yellow-600" />
                   )}
                   RICA Documents
                 </CardTitle>
@@ -266,7 +266,7 @@ export default function CompliancePage() {
         {/* Error Alert */}
         {error && (
           <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
+            <PiWarningCircleBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
@@ -306,7 +306,7 @@ export default function CompliancePage() {
                         className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                       >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-gray-400" />
+                          <PiFileTextBold className="w-5 h-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-sm">{doc.file_name}</p>
                             <p className="text-xs text-gray-500 capitalize">
@@ -368,7 +368,7 @@ export default function CompliancePage() {
                         className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                       >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-gray-400" />
+                          <PiFileTextBold className="w-5 h-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-sm">{doc.file_name}</p>
                             <p className="text-xs text-gray-500 capitalize">

@@ -1,6 +1,6 @@
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiPackageBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { CheckCircle, Clock, AlertCircle, Package, MapPin, User, Calendar } from 'lucide-react';
 import { createClient } from '@/integrations/supabase/server';
 
 interface Props {
@@ -42,7 +42,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
         {/* Success Header */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center">
-            <CheckCircle className="h-16 w-16 text-white mx-auto mb-4" />
+            <PiCheckCircleBold className="h-16 w-16 text-white mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-white mb-2">
               Order Submitted Successfully!
             </h1>
@@ -82,7 +82,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
             <div className="flex items-start gap-4">
               {kycStatus === 'approved' ? (
                 <>
-                  <CheckCircle className="h-8 w-8 text-green-500 flex-shrink-0 mt-1" />
+                  <PiCheckCircleBold className="h-8 w-8 text-green-500 flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Verification Approved
@@ -94,7 +94,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
                 </>
               ) : kycStatus === 'under_review' ? (
                 <>
-                  <Clock className="h-8 w-8 text-orange-500 flex-shrink-0 mt-1" />
+                  <PiClockBold className="h-8 w-8 text-orange-500 flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Under Review
@@ -106,7 +106,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
                 </>
               ) : kycStatus === 'rejected' ? (
                 <>
-                  <AlertCircle className="h-8 w-8 text-red-500 flex-shrink-0 mt-1" />
+                  <PiWarningCircleBold className="h-8 w-8 text-red-500 flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Additional Information Required
@@ -124,7 +124,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
                 </>
               ) : (
                 <>
-                  <Clock className="h-8 w-8 text-blue-500 flex-shrink-0 mt-1" />
+                  <PiClockBold className="h-8 w-8 text-blue-500 flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       Pending Verification
@@ -185,7 +185,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
             {/* Customer Information */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <User className="h-5 w-5 text-gray-400" />
+                <PiUserBold className="h-5 w-5 text-gray-400" />
                 <h3 className="text-lg font-semibold text-gray-900">Customer Details</h3>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
@@ -215,7 +215,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
             {/* Package Information */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Package className="h-5 w-5 text-gray-400" />
+                <PiPackageBold className="h-5 w-5 text-gray-400" />
                 <h3 className="text-lg font-semibold text-gray-900">Package Details</h3>
               </div>
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
@@ -243,7 +243,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
             {/* Installation Address */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <MapPin className="h-5 w-5 text-gray-400" />
+                <PiMapPinBold className="h-5 w-5 text-gray-400" />
                 <h3 className="text-lg font-semibold text-gray-900">Installation Address</h3>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
@@ -260,7 +260,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
             {(order.preferred_installation_date || order.alternative_installation_date) && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Calendar className="h-5 w-5 text-gray-400" />
+                  <PiCalendarBold className="h-5 w-5 text-gray-400" />
                   <h3 className="text-lg font-semibold text-gray-900">Installation Schedule</h3>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">

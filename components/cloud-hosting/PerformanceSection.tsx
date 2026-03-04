@@ -1,5 +1,5 @@
+import { PiCheckCircleBold, PiGlobeBold, PiLightningBold, PiServerBold, PiShieldBold } from 'react-icons/pi';
 import React from 'react'
-import { CheckCircle, Server, Shield, Zap, Globe } from 'lucide-react'
 
 interface PerformanceFeature {
   title: string
@@ -66,22 +66,22 @@ export default function PerformanceSection({ data = defaultData }: PerformanceSe
         {/* Performance Metrics */}
         <div className="grid md:grid-cols-4 gap-6 mb-16">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center hover:bg-white/20 transition-all">
-            <Server className="w-12 h-12 mx-auto mb-3 text-orange-400" />
+            <PiServerBold className="w-12 h-12 mx-auto mb-3 text-orange-400" />
             <div className="text-3xl font-bold mb-2">99.9%</div>
             <p className="text-gray-300">Uptime SLA</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center hover:bg-white/20 transition-all">
-            <Zap className="w-12 h-12 mx-auto mb-3 text-yellow-400" />
+            <PiLightningBold className="w-12 h-12 mx-auto mb-3 text-yellow-400" />
             <div className="text-3xl font-bold mb-2">&lt;20ms</div>
             <p className="text-gray-300">Local Latency</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center hover:bg-white/20 transition-all">
-            <Shield className="w-12 h-12 mx-auto mb-3 text-green-400" />
+            <PiShieldBold className="w-12 h-12 mx-auto mb-3 text-green-400" />
             <div className="text-3xl font-bold mb-2">24/7</div>
             <p className="text-gray-300">Security Monitoring</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center hover:bg-white/20 transition-all">
-            <Globe className="w-12 h-12 mx-auto mb-3 text-blue-400" />
+            <PiGlobeBold className="w-12 h-12 mx-auto mb-3 text-blue-400" />
             <div className="text-3xl font-bold mb-2">3</div>
             <p className="text-gray-300">Data Centers</p>
           </div>
@@ -92,7 +92,7 @@ export default function PerformanceSection({ data = defaultData }: PerformanceSe
           {data.features.map((feature, index) => (
             <div key={index} className="bg-white/5 backdrop-blur-sm rounded-lg p-8 border border-white/10 hover:border-orange-500/50 transition-all group">
               <div className="flex items-start space-x-4">
-                <CheckCircle className="w-6 h-6 text-orange-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <PiCheckCircleBold className="w-6 h-6 text-orange-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform" />
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-gray-400">{feature.description}</p>

@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiEyeBold, PiEyeSlashBold, PiLockBold, PiShieldBold } from 'react-icons/pi';
 
 import React, { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { Shield, Eye, EyeOff, Lock, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 // Password validation schema with strict requirements
@@ -153,7 +153,7 @@ export default function AdminResetPasswordPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <Shield className="w-12 h-12 text-circleTel-orange animate-pulse mx-auto mb-4" />
+          <PiShieldBold className="w-12 h-12 text-circleTel-orange animate-pulse mx-auto mb-4" />
           <p className="text-gray-600">Verifying reset link...</p>
         </div>
       </div>
@@ -171,7 +171,7 @@ export default function AdminResetPasswordPage() {
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                      <Shield className="h-6 w-6 text-red-600" />
+                      <PiShieldBold className="h-6 w-6 text-red-600" />
                     </div>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -205,7 +205,7 @@ export default function AdminResetPasswordPage() {
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                      <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                     </div>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -237,7 +237,7 @@ export default function AdminResetPasswordPage() {
               {/* Admin Badge */}
               <div className="flex justify-center mb-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
-                  <Shield className="h-6 w-6 text-circleTel-orange" />
+                  <PiShieldBold className="h-6 w-6 text-circleTel-orange" />
                 </div>
               </div>
 
@@ -288,9 +288,9 @@ export default function AdminResetPasswordPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                           {showPassword ? (
-                            <EyeOff className="w-4 h-4" />
+                            <PiEyeSlashBold className="w-4 h-4" />
                           ) : (
-                            <Eye className="w-4 h-4" />
+                            <PiEyeBold className="w-4 h-4" />
                           )}
                         </button>
                       </div>
@@ -325,9 +325,9 @@ export default function AdminResetPasswordPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                           {showConfirmPassword ? (
-                            <EyeOff className="w-4 h-4" />
+                            <PiEyeSlashBold className="w-4 h-4" />
                           ) : (
-                            <Eye className="w-4 h-4" />
+                            <PiEyeBold className="w-4 h-4" />
                           )}
                         </button>
                       </div>
@@ -344,7 +344,7 @@ export default function AdminResetPasswordPage() {
                   disabled={isSubmitting}
                   className="w-full bg-[#F5831F] hover:bg-[#E67510] text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PiLockBold className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isSubmitting ? 'Resetting Password...' : 'Reset Password'}
                 </button>
               </form>

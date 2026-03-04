@@ -1,24 +1,10 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCaretRightBold, PiClockBold, PiLightningBold, PiPlusBold, PiServerBold, PiUsersBold, PiWarningBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Wifi,
-  WifiOff,
-  Activity,
-  AlertTriangle,
-  AlertCircle,
-  Clock,
-  Users,
-  RefreshCw,
-  Plus,
-  ChevronRight,
-  Zap,
-  Server,
-  ArrowDownCircle
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface ProviderHealth {
@@ -129,7 +115,7 @@ export default function NetworkDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <RefreshCw className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -137,7 +123,7 @@ export default function NetworkDashboardPage() {
   if (error || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <AlertCircle className="w-12 h-12 text-red-500" />
+        <PiWarningCircleBold className="w-12 h-12 text-red-500" />
         <p className="text-gray-600">{error || 'No data available'}</p>
         <Button onClick={() => fetchData()}>Retry</Button>
       </div>
@@ -162,12 +148,12 @@ export default function NetworkDashboardPage() {
             onClick={() => fetchData(true)}
             disabled={refreshing}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Link href="/admin/network/outages/new">
             <Button size="sm" className="bg-circleTel-orange hover:bg-orange-600">
-              <Plus className="w-4 h-4 mr-2" />
+              <PiPlusBold className="w-4 h-4 mr-2" />
               Declare Outage
             </Button>
           </Link>
@@ -181,7 +167,7 @@ export default function NetworkDashboardPage() {
             {allProvidersUp && !hasOpenOutages ? (
               <>
                 <div className="p-2 bg-green-100 rounded-full">
-                  <Wifi className="w-5 h-5 text-green-600" />
+                  <PiWifiBold className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-green-800">All Systems Operational</p>
@@ -191,7 +177,7 @@ export default function NetworkDashboardPage() {
             ) : (
               <>
                 <div className="p-2 bg-yellow-100 rounded-full">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  <PiWarningBold className="w-5 h-5 text-yellow-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-yellow-800">
@@ -217,7 +203,7 @@ export default function NetworkDashboardPage() {
                 <p className="text-2xl font-bold text-gray-900">{data.totalSubscribers.toLocaleString()}</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
-                <Users className="w-6 h-6 text-blue-600" />
+                <PiUsersBold className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -231,7 +217,7 @@ export default function NetworkDashboardPage() {
                 <p className="text-2xl font-bold text-gray-900">{data.stats.eventsToday}</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
-                <Activity className="w-6 h-6 text-purple-600" />
+                <PiActivityBold className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -261,7 +247,7 @@ export default function NetworkDashboardPage() {
                 </p>
               </div>
               <div className="p-3 bg-green-100 rounded-full">
-                <Zap className="w-6 h-6 text-green-600" />
+                <PiLightningBold className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -273,7 +259,7 @@ export default function NetworkDashboardPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Server className="w-5 h-5" />
+              <PiServerBold className="w-5 h-5" />
               Provider Status
             </CardTitle>
           </CardHeader>
@@ -312,12 +298,12 @@ export default function NetworkDashboardPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
+                <PiWarningBold className="w-5 h-5" />
                 Active Incidents
               </CardTitle>
               <Link href="/admin/network/outages">
                 <Button variant="ghost" size="sm">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
+                  View All <PiCaretRightBold className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
             </div>
@@ -325,7 +311,7 @@ export default function NetworkDashboardPage() {
           <CardContent>
             {data.openOutages.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <PiWarningCircleBold className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No active incidents</p>
               </div>
             ) : (
@@ -350,18 +336,18 @@ export default function NetworkDashboardPage() {
                         <p className="font-medium text-gray-900 mt-1">{outage.title}</p>
                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                            <PiClockBold className="w-3 h-3" />
                             {formatRelativeTime(outage.started_at)}
                           </span>
                           {outage.affected_customer_count > 0 && (
                             <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
+                              <PiUsersBold className="w-3 h-3" />
                               {outage.affected_customer_count} affected
                             </span>
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
+                      <PiCaretRightBold className="w-5 h-5 text-gray-400" />
                     </div>
                   </Link>
                 ))}
@@ -375,14 +361,14 @@ export default function NetworkDashboardPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Activity className="w-5 h-5" />
+            <PiActivityBold className="w-5 h-5" />
             Recent Connection Events
           </CardTitle>
         </CardHeader>
         <CardContent>
           {data.recentEvents.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <PiActivityBold className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No recent events</p>
             </div>
           ) : (

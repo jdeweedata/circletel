@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { CreditCard, Package, Truck, Tag, Check, Wallet, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -146,17 +145,17 @@ export default function InlinePaymentForm({
   const paymentMethods = [
     {
       id: "card" as const,
-      icon: <CreditCard className="w-5 h-5" />,
+      icon: <PiCreditCardBold className="w-5 h-5" />,
       label: "Credit Card",
     },
     {
       id: "digital-wallet" as const,
-      icon: <Wallet className="w-5 h-5" />,
+      icon: <PiWalletBold className="w-5 h-5" />,
       label: "Digital Wallet",
     },
     {
       id: "other" as const,
-      icon: <Building2 className="w-5 h-5" />,
+      icon: <PiBuildingsBold className="w-5 h-5" />,
       label: "Other",
     },
   ];
@@ -355,7 +354,7 @@ export default function InlinePaymentForm({
               </div>
               <div className="flex justify-between text-foreground">
                 <span className="flex items-center gap-2">
-                  <Truck className="w-4 h-4" />
+                  <PiTruckBold className="w-4 h-4" />
                   Shipping
                 </span>
                 <span>R{orderSummary.shipping.toFixed(2)}</span>
@@ -363,7 +362,7 @@ export default function InlinePaymentForm({
               {orderSummary.discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span className="flex items-center gap-2">
-                    <Tag className="w-4 h-4" />
+                    <PiTagBold className="w-4 h-4" />
                     Discount
                   </span>
                   <span>-R{orderSummary.discount.toFixed(2)}</span>
@@ -418,7 +417,7 @@ export default function InlinePaymentForm({
                 "Processing..."
               ) : (
                 <>
-                  <Check className="w-5 h-5 mr-2" />
+                  <PiCheckBold className="w-5 h-5 mr-2" />
                   Place Order
                 </>
               )}

@@ -1,4 +1,5 @@
 'use client';
+import { PiSidebarBold, PiSpinnerBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Main Builder Page
@@ -21,7 +22,6 @@ import { PropertiesPanel } from '@/components/admin/cms/PropertiesPanel';
 import { TemplateSelector } from '@/components/admin/cms/TemplateSelector';
 import type { CMSTemplate, BlockType } from '@/lib/cms/types';
 import { cn } from '@/lib/utils';
-import { Loader2, PanelLeft, PanelRight } from 'lucide-react';
 
 export default function PageBuilderPage() {
   const searchParams = useSearchParams();
@@ -163,7 +163,7 @@ export default function PageBuilderPage() {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
+          <PiSpinnerBold className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading page builder...</p>
         </div>
       </div>
@@ -208,7 +208,7 @@ export default function PageBuilderPage() {
                 className="p-3 border-b hover:bg-gray-50 transition-colors"
                 title={leftPanelOpen ? 'Collapse' : 'Expand'}
               >
-                <PanelLeft
+                <PiSidebarBold
                   className={cn(
                     'w-5 h-5 text-gray-500 transition-transform',
                     !leftPanelOpen && 'rotate-180'
@@ -246,7 +246,7 @@ export default function PageBuilderPage() {
                 className="p-3 border-b hover:bg-gray-50 transition-colors"
                 title={rightPanelOpen ? 'Collapse' : 'Expand'}
               >
-                <PanelRight
+                <PiSidebarBold
                   className={cn(
                     'w-5 h-5 text-gray-500 transition-transform',
                     !rightPanelOpen && 'rotate-180'

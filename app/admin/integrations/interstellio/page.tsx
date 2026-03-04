@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowsClockwiseBold, PiGearBold, PiRadioBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -11,7 +12,6 @@ import {
   ActiveSessionsTable,
   UsageChart,
 } from '@/components/admin/interstellio'
-import { Radio, RefreshCw, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface DashboardStats {
@@ -287,7 +287,7 @@ export default function InterstellioDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Radio className="h-8 w-8 text-orange-500" />
+          <PiRadioBold className="h-8 w-8 text-orange-500" />
           <div>
             <h1 className="text-2xl font-bold">Interstellio RADIUS</h1>
             <p className="text-sm text-gray-500">
@@ -312,12 +312,12 @@ export default function InterstellioDashboardPage() {
             </Label>
           </div>
           <Button variant="outline" onClick={fetchDashboardData} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button variant="outline" asChild>
             <a href="/admin/integrations" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
+              <PiGearBold className="h-4 w-4" />
               Integrations
             </a>
           </Button>

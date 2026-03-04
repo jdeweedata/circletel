@@ -1,7 +1,7 @@
 'use client';
+import { PiCaretDownBold, PiMinusBold, PiPlusBold } from 'react-icons/pi';
 
 import { useState } from 'react';
-import { ChevronDown, Plus, Minus } from 'lucide-react';
 
 const faqs = [
   {
@@ -68,9 +68,9 @@ export function FAQSection() {
                       {faq.question}
                     </span>
                     {openIndex === index ? (
-                      <Minus className="h-5 w-5 text-circleTel-orange flex-shrink-0" />
+                      <PiMinusBold className="h-5 w-5 text-circleTel-orange flex-shrink-0" />
                     ) : (
-                      <Plus className="h-5 w-5 text-circleTel-orange flex-shrink-0" />
+                      <PiPlusBold className="h-5 w-5 text-circleTel-orange flex-shrink-0" />
                     )}
                   </button>
 

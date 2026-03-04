@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiPlusBold, PiSpinnerBold, PiTicketBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * Customer Tickets Page
@@ -11,17 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Ticket,
-  Plus,
-  RefreshCw,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  MessageSquare,
-  Calendar,
-} from 'lucide-react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import type { ZohoDeskTicket } from '@/lib/integrations/zoho/desk-service';
 
@@ -105,7 +95,7 @@ export default function TicketsPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-gray-600">Loading your tickets...</p>
         </div>
       </div>
@@ -126,11 +116,11 @@ export default function TicketsPage() {
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button onClick={() => router.push('/dashboard/support')}>
-            <Plus className="mr-2 h-4 w-4" />
+            <PiPlusBold className="mr-2 h-4 w-4" />
             New Ticket
           </Button>
         </div>
@@ -139,7 +129,7 @@ export default function TicketsPage() {
       {/* Error Alert */}
       {error && (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <PiWarningCircleBold className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -206,7 +196,7 @@ export default function TicketsPage() {
           <Card>
             <CardContent className="py-12">
               <div className="text-center">
-                <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <PiTicketBold className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {selectedStatus === 'All' ? 'No Tickets Yet' : `No ${selectedStatus} Tickets`}
                 </h3>
@@ -216,7 +206,7 @@ export default function TicketsPage() {
                     : `You don't have any ${selectedStatus.toLowerCase()} tickets.`}
                 </p>
                 <Button onClick={() => router.push('/dashboard/support')}>
-                  <Plus className="mr-2 h-4 w-4" />
+                  <PiPlusBold className="mr-2 h-4 w-4" />
                   Create Your First Ticket
                 </Button>
               </div>
@@ -257,16 +247,16 @@ export default function TicketsPage() {
               <CardContent>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+                    <PiCalendarBold className="h-4 w-4" />
                     <span>Created {formatDate(ticket.createdTime)}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
+                    <PiClockBold className="h-4 w-4" />
                     <span>Updated {formatDate(ticket.modifiedTime)}</span>
                   </div>
                   {ticket.commentCount !== undefined && ticket.commentCount > 0 && (
                     <div className="flex items-center gap-1">
-                      <MessageSquare className="h-4 w-4" />
+                      <PiChatBold className="h-4 w-4" />
                       <span>{ticket.commentCount} comments</span>
                     </div>
                   )}
@@ -282,7 +272,7 @@ export default function TicketsPage() {
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+              <PiWarningCircleBold className="h-5 w-5 text-blue-600 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-blue-900 mb-1">Need Help?</h3>
                 <p className="text-sm text-blue-800">

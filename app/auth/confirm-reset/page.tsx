@@ -1,4 +1,5 @@
 'use client';
+import { PiKeyBold, PiShieldCheckBold, PiSpinnerBold } from 'react-icons/pi';
 
 /**
  * Password Reset Confirmation Page
@@ -19,7 +20,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { KeyRound, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ConfirmResetPage() {
@@ -61,7 +61,7 @@ export default function ConfirmResetPage() {
           <CardHeader className="text-center pb-6">
             <div className="flex flex-col items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
-                <ShieldCheck className="h-8 w-8 text-red-600" />
+                <PiShieldCheckBold className="h-8 w-8 text-red-600" />
               </div>
               <CardTitle className="text-2xl text-red-700">Invalid Link</CardTitle>
               <CardDescription className="text-base">
@@ -92,7 +92,7 @@ export default function ConfirmResetPage() {
         <CardHeader className="text-center pb-6">
           <div className="flex flex-col items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-              <KeyRound className="h-8 w-8 text-blue-600" />
+              <PiKeyBold className="h-8 w-8 text-blue-600" />
             </div>
             <CardTitle className="text-2xl">Reset Your Password</CardTitle>
             <CardDescription className="text-base">
@@ -115,12 +115,12 @@ export default function ConfirmResetPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <PiSpinnerBold className="mr-2 h-5 w-5 animate-spin" />
                 Verifying...
               </>
             ) : (
               <>
-                <KeyRound className="mr-2 h-5 w-5" />
+                <PiKeyBold className="mr-2 h-5 w-5" />
                 Continue to Reset Password
               </>
             )}

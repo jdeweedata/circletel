@@ -1,4 +1,5 @@
 'use client'
+import { PiActivityBold, PiArrowsClockwiseBold, PiDatabaseBold, PiGaugeBold, PiRadioBold, PiWarningCircleBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,16 +9,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { SubscriberStatusBadge } from './SubscriberStatusBadge'
 import { ActiveSessionsTable } from './ActiveSessionsTable'
 import { UsageChart } from './UsageChart'
-import {
-  Radio,
-  Wifi,
-  WifiOff,
-  RefreshCw,
-  Activity,
-  Gauge,
-  Database,
-  AlertCircle,
-} from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CustomerService {
@@ -195,13 +186,13 @@ export function CustomerRadiusSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5" />
+            <PiRadioBold className="h-5 w-5" />
             RADIUS / Interstellio
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-            <WifiOff className="h-12 w-12 text-gray-300 mb-4" />
+            <PiWifiSlashBold className="h-12 w-12 text-gray-300 mb-4" />
             <p className="text-lg font-medium">No RADIUS Services</p>
             <p className="text-sm">This customer has no services linked to Interstellio.</p>
           </div>
@@ -215,7 +206,7 @@ export function CustomerRadiusSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5" />
+            <PiRadioBold className="h-5 w-5" />
             RADIUS / Interstellio
           </CardTitle>
         </CardHeader>
@@ -236,17 +227,17 @@ export function CustomerRadiusSection({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5" />
+            <PiRadioBold className="h-5 w-5" />
             RADIUS / Interstellio
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-red-500">
-            <AlertCircle className="h-12 w-12 mb-4" />
+            <PiWarningCircleBold className="h-12 w-12 mb-4" />
             <p className="text-lg font-medium">Error Loading RADIUS Data</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
             <Button variant="outline" onClick={fetchSubscriberData}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Retry
             </Button>
           </div>
@@ -266,7 +257,7 @@ export function CustomerRadiusSection({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Radio className="h-5 w-5" />
+            <PiRadioBold className="h-5 w-5" />
             RADIUS / Interstellio
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -284,7 +275,7 @@ export function CustomerRadiusSection({
               </select>
             )}
             <Button variant="outline" size="sm" onClick={fetchSubscriberData}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Refresh
             </Button>
           </div>
@@ -296,7 +287,7 @@ export function CustomerRadiusSection({
           {/* Connection Status */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Wifi className="h-4 w-4 text-gray-500" />
+              <PiWifiBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Connection Status</span>
             </div>
             <SubscriberStatusBadge status={status} />
@@ -310,7 +301,7 @@ export function CustomerRadiusSection({
           {/* Active Sessions */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="h-4 w-4 text-gray-500" />
+              <PiActivityBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Active Sessions</span>
             </div>
             <p className="text-2xl font-bold">{sessions.length}</p>
@@ -329,7 +320,7 @@ export function CustomerRadiusSection({
           {/* Speed Tier */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Gauge className="h-4 w-4 text-gray-500" />
+              <PiGaugeBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Speed Tier</span>
             </div>
             {subscriberDetails?.profile ? (
@@ -347,7 +338,7 @@ export function CustomerRadiusSection({
           {/* Data Cap (if applicable) */}
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Database className="h-4 w-4 text-gray-500" />
+              <PiDatabaseBold className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">Data</span>
             </div>
             {subscriberDetails?.subscriber.uncappedData ? (

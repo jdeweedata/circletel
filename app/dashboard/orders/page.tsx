@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsDownUpBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useEffect, useState } from "react";
 import { useCustomerAuth } from "@/components/providers/CustomerAuthProvider";
@@ -13,20 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Loader2,
-  Package,
-  Search,
-  Calendar,
-  DollarSign,
-  FileText,
-  Download,
-  Eye,
-  Filter,
-  ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
 import Link from "next/link";
 
 interface Order {
@@ -193,7 +180,7 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -215,7 +202,7 @@ export default function OrdersPage() {
                 <p className="text-sm font-medium text-gray-600">Total Orders</p>
                 <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
               </div>
-              <Package className="h-8 w-8 text-circleTel-orange" />
+              <PiPackageBold className="h-8 w-8 text-circleTel-orange" />
             </div>
           </CardContent>
         </Card>
@@ -229,7 +216,7 @@ export default function OrdersPage() {
                   {orders.filter((o) => o.status === 'completed').length}
                 </p>
               </div>
-              <Package className="h-8 w-8 text-green-600" />
+              <PiPackageBold className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -243,7 +230,7 @@ export default function OrdersPage() {
                   {orders.filter((o) => o.status === 'pending').length}
                 </p>
               </div>
-              <Package className="h-8 w-8 text-yellow-600" />
+              <PiPackageBold className="h-8 w-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -257,7 +244,7 @@ export default function OrdersPage() {
                   R{orders.reduce((sum, o) => sum + (o.total_amount || 0), 0).toFixed(2)}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-circleTel-orange" />
+              <PiCurrencyDollarBold className="h-8 w-8 text-circleTel-orange" />
             </div>
           </CardContent>
         </Card>
@@ -269,7 +256,7 @@ export default function OrdersPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search orders..."
@@ -328,7 +315,7 @@ export default function OrdersPage() {
                     {/* Left Section - Order Details */}
                     <div className="flex items-start gap-4 flex-1">
                       <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Package className="h-6 w-6 text-gray-600" />
+                        <PiPackageBold className="h-6 w-6 text-gray-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -354,7 +341,7 @@ export default function OrdersPage() {
                         </p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
+                            <PiCalendarBold className="h-4 w-4" />
                             {new Date(order.created_at).toLocaleDateString('en-ZA', {
                               year: 'numeric',
                               month: 'short',
@@ -376,7 +363,7 @@ export default function OrdersPage() {
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" asChild>
                           <Link href={`/dashboard/orders/${order.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
+                            <PiEyeBold className="h-4 w-4 mr-2" />
                             View
                           </Link>
                         </Button>
@@ -388,7 +375,7 @@ export default function OrdersPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <Package className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <PiPackageBold className="h-16 w-16 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-600 text-lg mb-2">No orders found</p>
               <p className="text-gray-500 text-sm mb-4">
                 {searchQuery || statusFilter !== 'all'
@@ -418,7 +405,7 @@ export default function OrdersPage() {
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <PiCaretLeftBold className="h-4 w-4 mr-1" />
                   Previous
                 </Button>
                 <Button
@@ -430,7 +417,7 @@ export default function OrdersPage() {
                   disabled={currentPage === totalPages}
                 >
                   Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <PiCaretRightBold className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </div>

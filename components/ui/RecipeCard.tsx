@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold } from 'react-icons/pi';
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface RecipeCardProps {
@@ -70,7 +70,7 @@ const RecipeCard = ({
           href={link}
           className="inline-flex items-center mt-auto text-circleTel-orange font-bold hover:underline"
         >
-          Learn more <ArrowRight size={16} className="ml-1" />
+          Learn more <PiArrowRightBold size={16} className="ml-1" />
         </Link>
       </div>
     </div>

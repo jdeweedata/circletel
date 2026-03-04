@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiXBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function StickyCTA() {
@@ -41,7 +41,7 @@ export function StickyCTA() {
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-semibold w-full sm:w-auto"
               >
                 Start Now
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <PiArrowRightBold className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <a href="#commission-calculator" className="hidden md:inline-flex">
@@ -58,7 +58,7 @@ export function StickyCTA() {
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
               aria-label="Dismiss"
             >
-              <X className="h-4 w-4" />
+              <PiXBold className="h-4 w-4" />
             </button>
           </div>
         </div>

@@ -7,6 +7,7 @@
  */
 
 'use client';
+import { PiArrowLeftBold, PiEnvelopeBold, PiLockBold } from 'react-icons/pi';
 
 import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
@@ -16,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, Lock, ArrowLeft } from 'lucide-react';
 
 function AgentLoginContent() {
   const router = useRouter();
@@ -65,7 +65,7 @@ function AgentLoginContent() {
           href="/"
           className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <PiArrowLeftBold className="h-4 w-4 mr-2" />
           Back to Home
         </Link>
 
@@ -92,7 +92,7 @@ function AgentLoginContent() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <PiEnvelopeBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
@@ -109,7 +109,7 @@ function AgentLoginContent() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <PiLockBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
                     type="password"

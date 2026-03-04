@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalculatorBold, PiCalendarBold, PiCaretLeftBold, PiCaretRightBold, PiCellSignalFullBold, PiCheckCircleBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiPencilSimpleBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiUploadSimpleBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -32,33 +33,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Search,
-  Plus,
-  RefreshCw,
-  Upload,
-  Download,
-  Filter,
-  Calculator,
-  Smartphone,
-  CreditCard,
-  Signal,
-  Wifi,
-  Calendar,
-  DollarSign,
-  TrendingUp,
-  Package,
-  FileSpreadsheet,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Edit,
-  Trash2,
-  Loader2,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
 import {
   MTNDealerProduct,
   MTNDealerProductFilters,
@@ -105,7 +79,7 @@ function StatsCard({
             )}
             {trend && (
               <div className="flex items-center gap-1 mt-1">
-                <TrendingUp className={`h-3 w-3 ${trend.value >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+                <PiTrendUpBold className={`h-3 w-3 ${trend.value >= 0 ? 'text-green-500' : 'text-red-500'}`} />
                 <span className={`text-xs ${trend.value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {trend.value >= 0 ? '+' : ''}{trend.value}% {trend.label}
                 </span>
@@ -295,13 +269,13 @@ export default function MTNDealerProductsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={() => { fetchProducts(); fetchStats(); }}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
-                <Upload className="h-4 w-4 mr-2" />
+                <PiUploadSimpleBold className="h-4 w-4 mr-2" />
                 Import Deals
               </Button>
             </DialogTrigger>
@@ -326,7 +300,7 @@ export default function MTNDealerProductsPage() {
                     {importResult.success ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-green-700">
-                          <CheckCircle className="h-5 w-5" />
+                          <PiCheckCircleBold className="h-5 w-5" />
                           <span className="font-medium">Import Successful</span>
                         </div>
                         <div className="text-sm text-green-600 space-y-1">
@@ -337,7 +311,7 @@ export default function MTNDealerProductsPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 text-red-700">
-                        <XCircle className="h-5 w-5" />
+                        <PiXCircleBold className="h-5 w-5" />
                         <span>{importResult.error || 'Import failed'}</span>
                       </div>
                     )}
@@ -351,12 +325,12 @@ export default function MTNDealerProductsPage() {
                 <Button onClick={handleImport} disabled={importing}>
                   {importing ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                       Importing...
                     </>
                   ) : (
                     <>
-                      <Upload className="h-4 w-4 mr-2" />
+                      <PiUploadSimpleBold className="h-4 w-4 mr-2" />
                       Start Import
                     </>
                   )}
@@ -366,7 +340,7 @@ export default function MTNDealerProductsPage() {
           </Dialog>
           <Link href="/admin/mtn-dealer-products/new">
             <Button className="bg-circleTel-orange hover:bg-orange-600">
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlusBold className="h-4 w-4 mr-2" />
               Add Product
             </Button>
           </Link>
@@ -416,7 +390,7 @@ export default function MTNDealerProductsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Signal className="h-5 w-5 text-circleTel-orange" />
+                  <PiCellSignalFullBold className="h-5 w-5 text-circleTel-orange" />
                   By Technology
                 </CardTitle>
               </CardHeader>
@@ -447,7 +421,7 @@ export default function MTNDealerProductsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-circleTel-orange" />
+                  <PiCalendarBold className="h-5 w-5 text-circleTel-orange" />
                   By Contract Term
                 </CardTitle>
               </CardHeader>
@@ -483,7 +457,7 @@ export default function MTNDealerProductsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-circleTel-orange" />
+                <PiCalculatorBold className="h-5 w-5 text-circleTel-orange" />
                 Commission Structure (Arlan Contract)
               </CardTitle>
               <CardDescription>
@@ -530,7 +504,7 @@ export default function MTNDealerProductsPage() {
                 <div className="flex-1 min-w-[200px]">
                   <Label className="text-xs text-gray-500">Search</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Search by deal ID, price plan, device..."
                       value={searchQuery}
@@ -623,16 +597,16 @@ export default function MTNDealerProductsPage() {
             <CardContent className="pt-6">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+                  <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center py-12 text-red-500">
-                  <AlertCircle className="h-5 w-5 mr-2" />
+                  <PiWarningCircleBold className="h-5 w-5 mr-2" />
                   {error}
                 </div>
               ) : products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                  <Package className="h-12 w-12 mb-4 text-gray-300" />
+                  <PiPackageBold className="h-12 w-12 mb-4 text-gray-300" />
                   <p>No products found</p>
                   <p className="text-sm">Try adjusting your filters or import products</p>
                 </div>
@@ -675,12 +649,12 @@ export default function MTNDealerProductsPage() {
                             <TableCell>
                               {product.has_device ? (
                                 <div className="flex items-center gap-1">
-                                  <Smartphone className="h-4 w-4 text-gray-400" />
+                                  <PiDeviceMobileBold className="h-4 w-4 text-gray-400" />
                                   <span className="text-xs max-w-[120px] truncate">{product.device_name}</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-1 text-gray-400">
-                                  <CreditCard className="h-4 w-4" />
+                                  <PiCreditCardBold className="h-4 w-4" />
                                   <span className="text-xs">SIM Only</span>
                                 </div>
                               )}
@@ -723,12 +697,12 @@ export default function MTNDealerProductsPage() {
                               <div className="flex items-center justify-end gap-1">
                                 <Link href={`/admin/mtn-dealer-products/${product.id}`}>
                                   <Button variant="ghost" size="sm">
-                                    <Eye className="h-4 w-4" />
+                                    <PiEyeBold className="h-4 w-4" />
                                   </Button>
                                 </Link>
                                 <Link href={`/admin/mtn-dealer-products/${product.id}/edit`}>
                                   <Button variant="ghost" size="sm">
-                                    <Edit className="h-4 w-4" />
+                                    <PiPencilSimpleBold className="h-4 w-4" />
                                   </Button>
                                 </Link>
                               </div>
@@ -751,7 +725,7 @@ export default function MTNDealerProductsPage() {
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1}
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <PiCaretLeftBold className="h-4 w-4" />
                       </Button>
                       <span className="text-sm">
                         Page {page} of {totalPages}
@@ -762,7 +736,7 @@ export default function MTNDealerProductsPage() {
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <PiCaretRightBold className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -778,7 +752,7 @@ export default function MTNDealerProductsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-circleTel-orange" />
+                  <PiCalculatorBold className="h-5 w-5 text-circleTel-orange" />
                   Commission Calculator
                 </CardTitle>
                 <CardDescription>

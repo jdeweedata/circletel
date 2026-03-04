@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowsClockwiseBold, PiChartBarBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiEyeBold, PiMapPinBold, PiMonitorBold, PiShareBold, PiSpinnerBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,21 +15,6 @@ import {
   Legend
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import {
-  ArrowLeft,
-  BarChart3,
-  Eye,
-  Clock,
-  Users,
-  Mail,
-  Share2,
-  Download,
-  TrendingUp,
-  MapPin,
-  Monitor,
-  RefreshCw,
-  Loader2
-} from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -145,15 +131,15 @@ export default function QuoteAnalyticsPage({ params }: Props) {
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
       case 'view':
-        return <Eye className="w-4 h-4" />;
+        return <PiEyeBold className="w-4 h-4" />;
       case 'email_sent':
-        return <Mail className="w-4 h-4" />;
+        return <PiEnvelopeBold className="w-4 h-4" />;
       case 'shared':
-        return <Share2 className="w-4 h-4" />;
+        return <PiShareBold className="w-4 h-4" />;
       case 'downloaded':
-        return <Download className="w-4 h-4" />;
+        return <PiDownloadSimpleBold className="w-4 h-4" />;
       default:
-        return <BarChart3 className="w-4 h-4" />;
+        return <PiChartBarBold className="w-4 h-4" />;
     }
   };
 
@@ -176,7 +162,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
     return (
       <div className="p-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-circleTel-secondaryNeutral">Loading analytics...</p>
         </div>
       </div>
@@ -192,7 +178,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
             size="sm"
             onClick={() => router.push(`/admin/quotes/${resolvedParams.id}`)}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back to Quote
           </Button>
         </div>
@@ -288,12 +274,12 @@ export default function QuoteAnalyticsPage({ params }: Props) {
             size="sm"
             onClick={() => router.push(`/admin/quotes/${resolvedParams.id}`)}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <PiArrowLeftBold className="w-4 h-4 mr-2" />
             Back
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-circleTel-navy flex items-center gap-2">
-              <BarChart3 className="w-8 h-8 text-circleTel-orange" />
+              <PiChartBarBold className="w-8 h-8 text-circleTel-orange" />
               Quote Analytics
             </h1>
             <p className="text-circleTel-secondaryNeutral mt-1">
@@ -309,9 +295,9 @@ export default function QuoteAnalyticsPage({ params }: Props) {
           size="sm"
         >
           {refreshing ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
           ) : (
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
           )}
           Refresh
         </Button>
@@ -328,7 +314,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
           <CardContent>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-100 rounded-lg">
-                <Eye className="w-6 h-6 text-blue-600" />
+                <PiEyeBold className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-circleTel-navy">
@@ -351,7 +337,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
           <CardContent>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-green-100 rounded-lg">
-                <Clock className="w-6 h-6 text-green-600" />
+                <PiClockBold className="w-6 h-6 text-green-600" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-circleTel-navy">
@@ -374,7 +360,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
           <CardContent>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-purple-100 rounded-lg">
-                <Share2 className="w-6 h-6 text-purple-600" />
+                <PiShareBold className="w-6 h-6 text-purple-600" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-circleTel-navy">
@@ -397,7 +383,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
           <CardContent>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-orange-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-orange-600" />
+                <PiTrendUpBold className="w-6 h-6 text-orange-600" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-circleTel-navy">
@@ -443,7 +429,7 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                         </span>
                         {event.time_spent_seconds > 0 && (
                           <Badge variant="outline" className="text-xs">
-                            <Clock className="w-3 h-3 mr-1" />
+                            <PiClockBold className="w-3 h-3 mr-1" />
                             {formatDuration(event.time_spent_seconds)}
                           </Badge>
                         )}
@@ -454,13 +440,13 @@ export default function QuoteAnalyticsPage({ params }: Props) {
                         </div>
                         {event.viewer_ip && (
                           <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
+                            <PiMapPinBold className="w-3 h-3" />
                             {event.viewer_ip}
                           </div>
                         )}
                         {event.viewer_user_agent && (
                           <div className="flex items-center gap-1">
-                            <Monitor className="w-3 h-3" />
+                            <PiMonitorBold className="w-3 h-3" />
                             {getDeviceType(event.viewer_user_agent)} • {getBrowserName(event.viewer_user_agent)}
                           </div>
                         )}

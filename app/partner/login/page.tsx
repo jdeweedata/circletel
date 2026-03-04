@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiEyeBold, PiEyeSlashBold, PiHandshakeBold, PiLockBold } from 'react-icons/pi';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { ArrowLeft, Eye, EyeOff, Lock, Handshake } from 'lucide-react';
 
 // Login form validation schema
 const loginSchema = z.object({
@@ -137,7 +137,7 @@ export default function PartnerLoginPage() {
               {/* Partner Branding Header */}
               <div className="flex items-center justify-center mb-6">
                 <div className="bg-circleTel-orange/10 p-3 rounded-full">
-                  <Handshake className="w-8 h-8 text-circleTel-orange" />
+                  <PiHandshakeBold className="w-8 h-8 text-circleTel-orange" />
                 </div>
               </div>
 
@@ -241,9 +241,9 @@ export default function PartnerLoginPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                           {showPassword ? (
-                            <EyeOff className="w-4 h-4" />
+                            <PiEyeSlashBold className="w-4 h-4" />
                           ) : (
-                            <Eye className="w-4 h-4" />
+                            <PiEyeBold className="w-4 h-4" />
                           )}
                         </button>
                       </div>
@@ -270,7 +270,7 @@ export default function PartnerLoginPage() {
                   disabled={isSubmitting || isGoogleLoading}
                   className="w-full bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold text-sm sm:text-base py-3 rounded-md transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PiLockBold className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isSubmitting ? 'Signing in...' : 'Sign in to Partner Portal'}
                 </button>
               </form>
@@ -281,7 +281,7 @@ export default function PartnerLoginPage() {
                   href="/"
                   className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <PiArrowLeftBold className="w-4 h-4" />
                   Back to Home
                 </Link>
               </div>

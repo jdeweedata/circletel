@@ -1,15 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiLightningBold, PiPaperPlaneRightBold, PiShieldBold } from 'react-icons/pi';
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Terminal,
-  Zap,
-  Keyboard,
-  Send,
-  Shield,
-  ArrowRight
-} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -203,7 +196,7 @@ export function DesignV4Dense() {
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, needFailover: !!checked }))}
                   className="border-slate-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 w-3.5 h-3.5"
                 />
-                <Shield className="w-3.5 h-3.5 text-slate-500" />
+                <PiShieldBold className="w-3.5 h-3.5 text-slate-500" />
                 <span className="font-mono text-xs text-slate-400">FAILOVER</span>
               </label>
             </div>
@@ -275,7 +268,7 @@ export function DesignV4Dense() {
                 className="group flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-mono font-bold text-sm rounded transition-all"
               >
                 <span>EXECUTE</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <PiArrowRightBold className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 <kbd className="ml-2 px-1.5 py-0.5 bg-amber-600/50 rounded text-[10px] text-slate-900/70">⌘↵</kbd>
               </button>
             </div>

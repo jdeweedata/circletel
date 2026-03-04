@@ -1,5 +1,5 @@
+import { PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiFileTextBold, PiProhibitBold, PiShieldBold, PiWarningBold } from 'react-icons/pi';
 import Link from 'next/link';
-import { CreditCard, Shield, AlertTriangle, Clock, FileText, DollarSign, Ban } from 'lucide-react';
 
 export const metadata = {
   title: 'Payment Terms | CircleTel',
@@ -13,7 +13,7 @@ export default function PaymentTermsPage() {
       <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
-            <CreditCard className="h-12 w-12" />
+            <PiCreditCardBold className="h-12 w-12" />
             <h1 className="text-4xl md:text-5xl font-extrabold">Payment Terms</h1>
           </div>
           <p className="text-xl opacity-95 max-w-2xl">
@@ -32,7 +32,7 @@ export default function PaymentTermsPage() {
         <section className="mb-12">
           <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8">
             <div className="flex items-start gap-3">
-              <Shield className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+              <PiShieldBold className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
               <div>
                 <h2 className="text-xl font-bold text-blue-900 mb-2">Secure Payment Gateway</h2>
                 <p className="text-blue-800">
@@ -50,7 +50,7 @@ export default function PaymentTermsPage() {
         {/* Section 1: Payment Gateway & Merchant of Record */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <FileText className="h-8 w-8 text-circleTel-orange" />
+            <PiFileTextBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">1. Payment Gateway & Merchant of Record</h2>
           </div>
 
@@ -87,7 +87,7 @@ export default function PaymentTermsPage() {
         {/* Section 2: Supported Payment Methods */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <CreditCard className="h-8 w-8 text-circleTel-orange" />
+            <PiCreditCardBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">2. Supported Payment Methods</h2>
           </div>
 
@@ -143,7 +143,7 @@ export default function PaymentTermsPage() {
         {/* Section 3: Payment Processing */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <Clock className="h-8 w-8 text-circleTel-orange" />
+            <PiClockBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">3. Payment Processing Timeline</h2>
           </div>
 
@@ -201,7 +201,7 @@ export default function PaymentTermsPage() {
         {/* Section 5: Payment Security */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <Shield className="h-8 w-8 text-circleTel-orange" />
+            <PiShieldBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">5. Payment Security & Data Protection</h2>
           </div>
 
@@ -256,7 +256,7 @@ export default function PaymentTermsPage() {
         {/* Section 6: Transaction Fees */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <DollarSign className="h-8 w-8 text-circleTel-orange" />
+            <PiCurrencyDollarBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">6. Transaction Fees</h2>
           </div>
 
@@ -281,7 +281,7 @@ export default function PaymentTermsPage() {
         {/* Section 7: Failed Payments */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <AlertTriangle className="h-8 w-8 text-circleTel-orange" />
+            <PiWarningBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">7. Failed Payments & Declined Transactions</h2>
           </div>
 
@@ -320,7 +320,7 @@ export default function PaymentTermsPage() {
         {/* Section 8: Chargebacks & Disputes */}
         <section className="mb-12">
           <div className="flex items-center gap-3 mb-6">
-            <Ban className="h-8 w-8 text-circleTel-orange" />
+            <PiProhibitBold className="h-8 w-8 text-circleTel-orange" />
             <h2 className="text-3xl font-bold text-circleTel-navy">8. Chargebacks & Payment Disputes</h2>
           </div>
 
@@ -437,7 +437,7 @@ export default function PaymentTermsPage() {
         {/* Contact Footer */}
         <div className="bg-gradient-to-r from-circleTel-orange to-orange-600 text-white rounded-lg p-8 mt-12">
           <div className="flex items-center gap-3 mb-4">
-            <CreditCard className="h-8 w-8" />
+            <PiCreditCardBold className="h-8 w-8" />
             <h3 className="text-2xl font-bold">Payment Support</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

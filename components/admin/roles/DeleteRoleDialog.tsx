@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -10,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, Users } from 'lucide-react';
 import type { RoleWithUserCount } from '@/lib/types/role';
 
 interface DeleteRoleDialogProps {
@@ -67,7 +67,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2 text-red-600">
-            <AlertTriangle className="h-5 w-5" />
+            <PiWarningBold className="h-5 w-5" />
             <span>Delete Role</span>
           </DialogTitle>
           <DialogDescription>
@@ -98,7 +98,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
           {hasAssignedUsers ? (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md">
               <div className="flex items-start space-x-2">
-                <Users className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <PiUsersBold className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-semibold">Cannot Delete Role</p>
                   <p className="text-sm mt-1">
@@ -111,7 +111,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
           ) : (
             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md">
               <div className="flex items-start space-x-2">
-                <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <PiWarningBold className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-semibold">Warning</p>
                   <p className="text-sm mt-1">
@@ -127,7 +127,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md">
               <div className="flex items-start space-x-2">
-                <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                <PiWarningBold className="h-5 w-5 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-semibold">Error</p>
                   <p className="text-sm">{error}</p>
@@ -152,7 +152,7 @@ export function DeleteRoleDialog({ open, onOpenChange, role, onSuccess }: Delete
             onClick={handleDelete}
             disabled={loading || hasAssignedUsers}
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
             {hasAssignedUsers ? 'Cannot Delete' : 'Delete Role'}
           </Button>
         </DialogFooter>

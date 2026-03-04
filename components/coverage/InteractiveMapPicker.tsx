@@ -1,10 +1,10 @@
 'use client';
+import { PiMapPinBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useCallback, useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const mapContainerStyle = {
@@ -138,7 +138,7 @@ export function InteractiveMapPicker({ onLocationSelect, className }: Interactiv
     return (
       <Card className={className}>
         <CardContent className="pt-6 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-orange-500" />
         </CardContent>
       </Card>
     );
@@ -148,7 +148,7 @@ export function InteractiveMapPicker({ onLocationSelect, className }: Interactiv
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-orange-500" />
+          <PiMapPinBold className="h-5 w-5 text-orange-500" />
           Select Your Location on Map
         </CardTitle>
         <CardDescription>
@@ -164,12 +164,12 @@ export function InteractiveMapPicker({ onLocationSelect, className }: Interactiv
         >
           {isGeocodingAddress ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
               Getting address...
             </>
           ) : (
             <>
-              <MapPin className="h-4 w-4 mr-2" />
+              <PiMapPinBold className="h-4 w-4 mr-2" />
               Use My Current Location
             </>
           )}

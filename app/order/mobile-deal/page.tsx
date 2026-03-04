@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCalendarBold, PiCellSignalFullBold, PiChatBold, PiCheckBold, PiCreditCardBold, PiDatabaseBold, PiDeviceMobileBold, PiGiftBold, PiMapPinBold, PiPhoneBold, PiShieldCheckBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -18,24 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Smartphone,
-  Signal,
-  Database,
-  Phone,
-  MessageSquare,
-  User,
-  Building2,
-  MapPin,
-  CreditCard,
-  Loader2,
-  Gift,
-  Calendar,
-  ShieldCheck,
-} from 'lucide-react';
 import { MTNDeal } from '@/components/deals/MTNDealCard';
 
 // Format currency
@@ -49,10 +32,10 @@ const formatCurrency = (amount: number) => {
 
 // Steps
 const STEPS = [
-  { id: 'deal', title: 'Deal Selection', icon: Smartphone },
-  { id: 'customer', title: 'Your Details', icon: User },
-  { id: 'delivery', title: 'Delivery', icon: MapPin },
-  { id: 'review', title: 'Review & Pay', icon: CreditCard },
+  { id: 'deal', title: 'Deal Selection', icon: PiDeviceMobileBold },
+  { id: 'customer', title: 'Your Details', icon: PiUserBold },
+  { id: 'delivery', title: 'Delivery', icon: PiMapPinBold },
+  { id: 'review', title: 'Review & Pay', icon: PiCreditCardBold },
 ];
 
 function MTNDealOrderContent() {
@@ -203,7 +186,7 @@ function MTNDealOrderContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -229,7 +212,7 @@ function MTNDealOrderContent() {
                     'border-2 border-gray-300'
                   }`}>
                     {index < currentStep ? (
-                      <Check className="h-4 w-4" />
+                      <PiCheckBold className="h-4 w-4" />
                     ) : (
                       <step.icon className="h-4 w-4" />
                     )}
@@ -260,11 +243,11 @@ function MTNDealOrderContent() {
                     <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
                       {deal.has_device ? (
                         <div className="p-3 bg-white rounded-lg shadow-sm">
-                          <Smartphone className="h-8 w-8 text-gray-600" />
+                          <PiDeviceMobileBold className="h-8 w-8 text-gray-600" />
                         </div>
                       ) : (
                         <div className="p-3 bg-orange-100 rounded-lg">
-                          <Smartphone className="h-8 w-8 text-circleTel-orange" />
+                          <PiDeviceMobileBold className="h-8 w-8 text-circleTel-orange" />
                         </div>
                       )}
                       <div className="flex-1">
@@ -281,17 +264,17 @@ function MTNDealOrderContent() {
                     
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div className="p-3 bg-blue-50 rounded-lg">
-                        <Database className="h-5 w-5 text-blue-600 mx-auto mb-1" />
+                        <PiDatabaseBold className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                         <p className="font-semibold">{deal.data_bundle}</p>
                         <p className="text-xs text-gray-500">Data</p>
                       </div>
                       <div className="p-3 bg-green-50 rounded-lg">
-                        <Phone className="h-5 w-5 text-green-600 mx-auto mb-1" />
+                        <PiPhoneBold className="h-5 w-5 text-green-600 mx-auto mb-1" />
                         <p className="font-semibold">{deal.anytime_minutes || '0'}</p>
                         <p className="text-xs text-gray-500">Minutes</p>
                       </div>
                       <div className="p-3 bg-purple-50 rounded-lg">
-                        <MessageSquare className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+                        <PiChatBold className="h-5 w-5 text-purple-600 mx-auto mb-1" />
                         <p className="font-semibold">{deal.sms_bundle || '0'}</p>
                         <p className="text-xs text-gray-500">SMS</p>
                       </div>
@@ -302,7 +285,7 @@ function MTNDealOrderContent() {
                       className="w-full"
                       onClick={() => router.push('/deals')}
                     >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      <PiArrowLeftBold className="h-4 w-4 mr-2" />
                       Choose a Different Deal
                     </Button>
                   </CardContent>
@@ -327,14 +310,14 @@ function MTNDealOrderContent() {
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="consumer" id="consumer" />
                           <Label htmlFor="consumer" className="flex items-center gap-2 cursor-pointer">
-                            <User className="h-4 w-4" />
+                            <PiUserBold className="h-4 w-4" />
                             Personal Use
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="business" id="business" />
                           <Label htmlFor="business" className="flex items-center gap-2 cursor-pointer">
-                            <Building2 className="h-4 w-4" />
+                            <PiBuildingsBold className="h-4 w-4" />
                             Business
                           </Label>
                         </div>
@@ -619,7 +602,7 @@ function MTNDealOrderContent() {
                   onClick={handlePrev}
                   disabled={currentStep === 0}
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <PiArrowLeftBold className="h-4 w-4 mr-2" />
                   Back
                 </Button>
                 
@@ -630,7 +613,7 @@ function MTNDealOrderContent() {
                     className="bg-circleTel-orange hover:bg-orange-600"
                   >
                     Continue
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <PiArrowRightBold className="h-4 w-4 ml-2" />
                   </Button>
                 ) : (
                   <Button
@@ -640,12 +623,12 @@ function MTNDealOrderContent() {
                   >
                     {submitting ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                         Processing...
                       </>
                     ) : (
                       <>
-                        <CreditCard className="h-4 w-4 mr-2" />
+                        <PiCreditCardBold className="h-4 w-4 mr-2" />
                         Proceed to Payment
                       </>
                     )}
@@ -663,9 +646,9 @@ function MTNDealOrderContent() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
                     {deal.has_device ? (
-                      <Smartphone className="h-8 w-8 text-gray-400" />
+                      <PiDeviceMobileBold className="h-8 w-8 text-gray-400" />
                     ) : (
-                      <Smartphone className="h-8 w-8 text-circleTel-orange" />
+                      <PiDeviceMobileBold className="h-8 w-8 text-circleTel-orange" />
                     )}
                     <div>
                       <p className="font-medium text-sm line-clamp-2">
@@ -707,11 +690,11 @@ function MTNDealOrderContent() {
                   {/* Trust Badges */}
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <ShieldCheck className="h-4 w-4 text-green-500" />
+                      <PiShieldCheckBold className="h-4 w-4 text-green-500" />
                       <span>Secure checkout</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <PiCalendarBold className="h-4 w-4 text-blue-500" />
                       <span>3-5 day delivery</span>
                     </div>
                   </div>
@@ -731,7 +714,7 @@ export default function MTNDealOrderPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     }>
       <MTNDealOrderContent />

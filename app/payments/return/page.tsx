@@ -1,10 +1,10 @@
 'use client';
+import { PiCheckCircleBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
 function PaymentReturnContent() {
   const searchParams = useSearchParams();
@@ -53,7 +53,7 @@ function PaymentReturnContent() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="text-center">
-              <Loader2 className="w-16 h-16 animate-spin text-circleTel-orange mx-auto mb-4" />
+              <PiSpinnerBold className="w-16 h-16 animate-spin text-circleTel-orange mx-auto mb-4" />
               <h2 className="text-xl font-bold text-gray-900 mb-2">Verifying Payment...</h2>
               <p className="text-gray-600">Please wait while we confirm your payment</p>
             </div>
@@ -70,7 +70,7 @@ function PaymentReturnContent() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+                <PiCheckCircleBold className="w-10 h-10 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
               <p className="text-gray-600 mb-2">{message}</p>
@@ -117,7 +117,7 @@ function PaymentReturnContent() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-10 h-10 text-red-600" />
+                <PiXCircleBold className="w-10 h-10 text-red-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Failed</h2>
               <p className="text-gray-600 mb-6">{message}</p>
@@ -171,7 +171,7 @@ function PaymentReturnContent() {
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-10 h-10 text-gray-600" />
+              <PiWarningCircleBold className="w-10 h-10 text-gray-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Status Unknown</h2>
             <p className="text-gray-600 mb-6">{message}</p>
@@ -208,7 +208,7 @@ export default function PaymentReturnPage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="text-center">
-              <Loader2 className="w-16 h-16 animate-spin text-circleTel-orange mx-auto mb-4" />
+              <PiSpinnerBold className="w-16 h-16 animate-spin text-circleTel-orange mx-auto mb-4" />
               <h2 className="text-xl font-bold text-gray-900 mb-2">Loading...</h2>
               <p className="text-gray-600">Please wait</p>
             </div>

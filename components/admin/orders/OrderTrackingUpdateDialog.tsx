@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiPackageBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Loader2, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type {
   OrderWithTracking,
@@ -190,7 +190,7 @@ export default function OrderTrackingUpdateDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Package className="h-4 w-4 mr-2" />
+          <PiPackageBold className="h-4 w-4 mr-2" />
           Update Tracking
         </Button>
       </DialogTrigger>
@@ -302,7 +302,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={deliveryDate}
                       onSelect={setDeliveryDate}
@@ -342,7 +342,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={surveyScheduledDate}
                       onSelect={setSurveyScheduledDate}
@@ -367,7 +367,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={surveyCompletedDate}
                       onSelect={setSurveyCompletedDate}
@@ -422,7 +422,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={installationScheduledDate}
                       onSelect={setInstallationScheduledDate}
@@ -447,7 +447,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={installationCompletedDate}
                       onSelect={setInstallationCompletedDate}
@@ -495,7 +495,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={activationDate}
                       onSelect={setActivationDate}
@@ -520,7 +520,7 @@ export default function OrderTrackingUpdateDialog({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
+                    <PiCalendarBold
                       mode="single"
                       selected={billingStartDate}
                       onSelect={setBillingStartDate}
@@ -546,7 +546,7 @@ export default function OrderTrackingUpdateDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={updating}>
-              {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {updating && <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />}
               Update Tracking
             </Button>
           </DialogFooter>

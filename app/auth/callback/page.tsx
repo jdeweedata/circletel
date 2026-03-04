@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiSpinnerBold, PiXCircleBold } from 'react-icons/pi';
 
 /**
  * Supabase Auth Callback Page
@@ -15,7 +16,6 @@ import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -283,7 +283,7 @@ export default function AuthCallbackPage() {
           {status === 'loading' && (
             <div className="flex flex-col items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                <PiSpinnerBold className="h-8 w-8 text-blue-600 animate-spin" />
               </div>
               <CardTitle className="text-2xl">Verifying your email...</CardTitle>
             </div>
@@ -291,7 +291,7 @@ export default function AuthCallbackPage() {
           {status === 'success' && (
             <div className="flex flex-col items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <PiCheckCircleBold className="h-8 w-8 text-green-600" />
               </div>
               <CardTitle className="text-2xl text-green-700">Email Verified!</CardTitle>
             </div>
@@ -299,7 +299,7 @@ export default function AuthCallbackPage() {
           {status === 'error' && (
             <div className="flex flex-col items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
-                <XCircle className="h-8 w-8 text-red-600" />
+                <PiXCircleBold className="h-8 w-8 text-red-600" />
               </div>
               <CardTitle className="text-2xl text-red-700">Verification Failed</CardTitle>
             </div>
@@ -317,7 +317,7 @@ export default function AuthCallbackPage() {
                 Your email has been successfully verified. Redirecting to your dashboard...
               </p>
               <div className="flex justify-center">
-                <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
+                <PiSpinnerBold className="h-5 w-5 text-blue-600 animate-spin" />
               </div>
             </div>
           )}

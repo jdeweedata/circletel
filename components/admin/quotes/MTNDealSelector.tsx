@@ -1,4 +1,5 @@
 'use client';
+import { PiDeviceMobileBold, PiMagnifyingGlassBold, PiPlusBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, Smartphone, Plus, TrendingUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface MTNDeal {
@@ -144,7 +144,7 @@ export function MTNDealSelector({
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-circleTel-orange" />
+            <PiDeviceMobileBold className="w-5 h-5 text-circleTel-orange" />
             Select MTN Business Deal
           </DialogTitle>
           <DialogDescription>
@@ -161,7 +161,7 @@ export function MTNDealSelector({
               onClick={() => setShowRecommended(true)}
               className={showRecommended ? 'bg-circleTel-orange' : ''}
             >
-              <TrendingUp className="w-4 h-4 mr-2" />
+              <PiTrendUpBold className="w-4 h-4 mr-2" />
               Recommended
             </Button>
             <Button
@@ -178,7 +178,7 @@ export function MTNDealSelector({
         {!showRecommended && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div className="md:col-span-2 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search device or plan..."
                 value={searchQuery}
@@ -216,7 +216,7 @@ export function MTNDealSelector({
         {/* Deals List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+            <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -298,7 +298,7 @@ export function MTNDealSelector({
                         onClose();
                       }}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
+                      <PiPlusBold className="w-4 h-4 mr-2" />
                       Add to Quote
                     </Button>
                   </CardContent>
@@ -310,7 +310,7 @@ export function MTNDealSelector({
 
         {!loading && deals.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            <Smartphone className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <PiDeviceMobileBold className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <p>No deals found matching your criteria</p>
           </div>
         )}

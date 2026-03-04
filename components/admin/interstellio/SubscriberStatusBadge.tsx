@@ -1,7 +1,7 @@
 'use client'
+import { PiProhibitBold, PiWifiBold, PiWifiSlashBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge'
-import { Wifi, WifiOff, Ban } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SubscriberStatusBadgeProps {
@@ -18,19 +18,19 @@ export function SubscriberStatusBadge({
   const statusConfig = {
     online: {
       label: 'Online',
-      icon: Wifi,
+      icon: PiWifiBold,
       variant: 'default' as const,
       className: 'bg-green-500 hover:bg-green-600 text-white',
     },
     offline: {
       label: 'Offline',
-      icon: WifiOff,
+      icon: PiWifiSlashBold,
       variant: 'secondary' as const,
       className: 'bg-gray-400 hover:bg-gray-500 text-white',
     },
     disabled: {
       label: 'Disabled',
-      icon: Ban,
+      icon: PiProhibitBold,
       variant: 'destructive' as const,
       className: 'bg-red-500 hover:bg-red-600 text-white',
     },

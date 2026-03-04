@@ -1,7 +1,7 @@
 'use client';
+import { PiLockBold } from 'react-icons/pi';
 
 import React, { useState, forwardRef, InputHTMLAttributes } from 'react';
-import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface FloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -84,7 +84,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
         {/* Lock Icon for disabled fields */}
         {showLockIcon && isDisabled && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <Lock className="w-4 h-4 text-gray-400" />
+            <PiLockBold className="w-4 h-4 text-gray-400" />
           </div>
         )}
 

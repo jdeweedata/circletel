@@ -1,4 +1,5 @@
 'use client';
+import { PiCheckCircleBold, PiEyeBold, PiEyeSlashBold, PiLockBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +10,6 @@ import { FloatingInput } from '@/components/ui/floating-input';
 import { toast } from 'sonner';
 import { createClient as createSupabaseClient, SupabaseClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 
 // Create an ISOLATED Supabase client for password reset
 // This prevents auth state changes from propagating to other components
@@ -359,7 +359,7 @@ export default function ResetPasswordPage() {
         <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm max-w-lg mx-auto text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertCircle className="w-10 h-10 text-red-600" />
+              <PiWarningCircleBold className="w-10 h-10 text-red-600" />
             </div>
           </div>
 
@@ -443,9 +443,9 @@ export default function ResetPasswordPage() {
                           className="absolute right-3 top-5 text-gray-500 hover:text-gray-700"
                         >
                           {showPassword ? (
-                            <EyeOff className="w-5 h-5" />
+                            <PiEyeSlashBold className="w-5 h-5" />
                           ) : (
-                            <Eye className="w-5 h-5" />
+                            <PiEyeBold className="w-5 h-5" />
                           )}
                         </button>
                       </div>
@@ -494,9 +494,9 @@ export default function ResetPasswordPage() {
                         className="absolute right-3 top-5 text-gray-500 hover:text-gray-700"
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="w-5 h-5" />
+                          <PiEyeSlashBold className="w-5 h-5" />
                         ) : (
-                          <Eye className="w-5 h-5" />
+                          <PiEyeBold className="w-5 h-5" />
                         )}
                       </button>
                     </div>
@@ -543,7 +543,7 @@ export default function ResetPasswordPage() {
                       </>
                     ) : (
                       <>
-                        <Lock className="w-5 h-5" />
+                        <PiLockBold className="w-5 h-5" />
                         Reset Password
                       </>
                     )}
@@ -556,7 +556,7 @@ export default function ResetPasswordPage() {
             <div className="text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-10 h-10 text-green-600" />
+                  <PiCheckCircleBold className="w-10 h-10 text-green-600" />
                 </div>
               </div>
 

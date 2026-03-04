@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckBold, PiCopyBold, PiDotsThreeBold, PiDownloadSimpleBold, PiGridFourBold, PiImageBold, PiListBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiSpinnerBold, PiTrashBold, PiUploadSimpleBold, PiXBold } from 'react-icons/pi';
 
 /**
  * CMS Page Builder - Media Library
@@ -9,24 +10,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import type { CMSMedia } from '@/lib/cms/types';
-import {
-  Upload,
-  Search,
-  Folder,
-  Image as ImageIcon,
-  Trash2,
-  Edit2,
-  Check,
-  X,
-  Loader2,
-  Grid,
-  List,
-  RefreshCw,
-  FolderPlus,
-  Download,
-  Copy,
-  MoreHorizontal,
-} from 'lucide-react';
 
 // ============================================
 // Types
@@ -230,16 +213,16 @@ export function MediaLibrary({
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               title="Refresh"
             >
-              <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
+              <PiArrowsClockwiseBold className={cn('w-4 h-4', loading && 'animate-spin')} />
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               {viewMode === 'grid' ? (
-                <List className="w-4 h-4" />
+                <PiListBold className="w-4 h-4" />
               ) : (
-                <Grid className="w-4 h-4" />
+                <PiGridFourBold className="w-4 h-4" />
               )}
             </button>
           </div>
@@ -248,7 +231,7 @@ export function MediaLibrary({
         {/* Search and Upload */}
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
@@ -267,9 +250,9 @@ export function MediaLibrary({
             />
             <div className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
               {uploading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <PiSpinnerBold className="w-4 h-4 animate-spin" />
               ) : (
-                <Upload className="w-4 h-4" />
+                <PiUploadSimpleBold className="w-4 h-4" />
               )}
               <span className="text-sm font-medium">Upload</span>
             </div>
@@ -328,7 +311,7 @@ export function MediaLibrary({
 
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <PiSpinnerBold className="w-8 h-8 text-orange-500 animate-spin" />
             </div>
           ) : media.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
@@ -471,7 +454,7 @@ function MediaGridItem({
       {/* Selection indicator */}
       {selectionMode && selected && (
         <div className="absolute top-2 right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-          <Check className="w-4 h-4 text-white" />
+          <PiCheckBold className="w-4 h-4 text-white" />
         </div>
       )}
 
@@ -486,7 +469,7 @@ function MediaGridItem({
             className="p-2 bg-white rounded-lg hover:bg-gray-100"
             title="Edit"
           >
-            <Edit2 className="w-4 h-4" />
+            <PiPencilSimpleBold className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => {
@@ -496,7 +479,7 @@ function MediaGridItem({
             className="p-2 bg-white rounded-lg hover:bg-gray-100"
             title="Copy URL"
           >
-            <Copy className="w-4 h-4" />
+            <PiCopyBold className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => {
@@ -506,7 +489,7 @@ function MediaGridItem({
             className="p-2 bg-white rounded-lg hover:bg-red-100 text-red-600"
             title="Delete"
           >
-            <Trash2 className="w-4 h-4" />
+            <PiTrashBold className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -566,7 +549,7 @@ function MediaListItem({
       {selectionMode ? (
         selected && (
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-            <Check className="w-4 h-4 text-white" />
+            <PiCheckBold className="w-4 h-4 text-white" />
           </div>
         )
       ) : (
@@ -579,7 +562,7 @@ function MediaListItem({
             className="p-2 hover:bg-gray-100 rounded-lg"
             title="Edit"
           >
-            <Edit2 className="w-4 h-4 text-gray-600" />
+            <PiPencilSimpleBold className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={(e) => {
@@ -589,7 +572,7 @@ function MediaListItem({
             className="p-2 hover:bg-gray-100 rounded-lg"
             title="Copy URL"
           >
-            <Copy className="w-4 h-4 text-gray-600" />
+            <PiCopyBold className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={(e) => {
@@ -599,7 +582,7 @@ function MediaListItem({
             className="p-2 hover:bg-red-100 rounded-lg"
             title="Delete"
           >
-            <Trash2 className="w-4 h-4 text-red-600" />
+            <PiTrashBold className="w-4 h-4 text-red-600" />
           </button>
         </div>
       )}

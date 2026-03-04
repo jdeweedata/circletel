@@ -1,11 +1,11 @@
 'use client';
+import { PiCheckCircleBold, PiStarBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Star } from 'lucide-react';
 
 interface PlanOption {
   id: string;

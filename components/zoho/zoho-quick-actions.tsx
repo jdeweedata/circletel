@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiEnvelopeBold, PiPaperPlaneRightBold, PiSpinnerBold, PiUserPlusBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useZohoCRM, useZohoMail, useZohoCalendar } from '@/hooks/use-zoho-mcp';
@@ -9,15 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import {
-  Mail,
-  Calendar,
-  UserPlus,
-  Loader2,
-  Send,
-  CalendarPlus,
-  Users
-} from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function ZohoQuickActions() {
@@ -117,15 +109,15 @@ export function ZohoQuickActions() {
         <Tabs defaultValue="email" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
+              <PiEnvelopeBold className="h-4 w-4" />
               Email
             </TabsTrigger>
             <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+              <PiCalendarBold className="h-4 w-4" />
               Calendar
             </TabsTrigger>
             <TabsTrigger value="lead" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
+              <PiUsersBold className="h-4 w-4" />
               Lead
             </TabsTrigger>
           </TabsList>
@@ -179,12 +171,12 @@ export function ZohoQuickActions() {
               >
                 {sendEmail.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send className="mr-2 h-4 w-4" />
+                    <PiPaperPlaneRightBold className="mr-2 h-4 w-4" />
                     Send Email
                   </>
                 )}
@@ -262,7 +254,7 @@ export function ZohoQuickActions() {
               >
                 {createEvent.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
@@ -335,12 +327,12 @@ export function ZohoQuickActions() {
               >
                 {createLead.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
                   <>
-                    <UserPlus className="mr-2 h-4 w-4" />
+                    <PiUserPlusBold className="mr-2 h-4 w-4" />
                     Create Lead
                   </>
                 )}

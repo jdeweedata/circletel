@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface StageNavigationProps {
   currentStage: number;
@@ -37,7 +37,7 @@ export function StageNavigation({
         disabled={isFirstStage || isLoading}
         className="flex items-center gap-2"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <PiArrowLeftBold className="w-4 h-4" />
         {backLabel}
       </Button>
 
@@ -55,7 +55,7 @@ export function StageNavigation({
         ) : (
           <>
             {isLastStage ? 'Complete Order' : nextLabel}
-            <ArrowRight className="w-4 h-4" />
+            <PiArrowRightBold className="w-4 h-4" />
           </>
         )}
       </Button>

@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowLeftBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Shield, ArrowLeft } from 'lucide-react';
 
 export default function VerifyOTPPage() {
   const router = useRouter();
@@ -121,7 +121,7 @@ export default function VerifyOTPPage() {
           {/* Icon */}
           <div className="flex justify-center mb-6">
             <div className="h-16 w-16 bg-[#F5831F]/10 rounded-full flex items-center justify-center">
-              <Shield className="h-8 w-8 text-[#F5831F]" />
+              <PiShieldBold className="h-8 w-8 text-[#F5831F]" />
             </div>
           </div>
 
@@ -195,7 +195,7 @@ export default function VerifyOTPPage() {
             >
               {isVerifying ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Verifying...
                 </>
               ) : (
@@ -228,7 +228,7 @@ export default function VerifyOTPPage() {
                 onClick={() => router.push('/order/account')}
                 className="text-sm text-gray-600 hover:text-gray-900 flex items-center justify-center mx-auto"
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
+                <PiArrowLeftBold className="h-4 w-4 mr-1" />
                 Back to account creation
               </button>
             </div>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiCalendarBold, PiCopyBold, PiCreditCardBold, PiFileTextBold, PiPaperPlaneRightBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -22,16 +23,6 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import {
-  AlertCircle,
-  Loader2,
-  CreditCard,
-  Calendar,
-  FileText,
-  Send,
-  Copy,
-  ExternalLink,
-} from 'lucide-react';
 
 interface PaymentMethodRegistrationModalProps {
   open: boolean;
@@ -185,7 +176,7 @@ export function PaymentMethodRegistrationModal({
         <DialogContent className="sm:max-w-[600px] bg-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-green-600" />
+              <PiCreditCardBold className="h-5 w-5 text-green-600" />
               eMandate Request Created
             </DialogTitle>
             <DialogDescription>
@@ -197,7 +188,7 @@ export function PaymentMethodRegistrationModal({
           <div className="space-y-4 py-4">
             {/* Success Alert */}
             <Alert className="bg-green-50 border-green-200">
-              <AlertCircle className="h-4 w-4 text-green-600" />
+              <PiWarningCircleBold className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
                 <strong>Success!</strong> The eMandate registration link is ready. Share this with
                 the customer to complete their payment method registration.
@@ -219,7 +210,7 @@ export function PaymentMethodRegistrationModal({
                   size="sm"
                   onClick={() => copyToClipboard(accountReference || '')}
                 >
-                  <Copy className="h-4 w-4" />
+                  <PiCopyBold className="h-4 w-4" />
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
@@ -242,7 +233,7 @@ export function PaymentMethodRegistrationModal({
                   size="sm"
                   onClick={() => copyToClipboard(mandateUrl)}
                 >
-                  <Copy className="h-4 w-4" />
+                  <PiCopyBold className="h-4 w-4" />
                 </Button>
                 <Button
                   type="button"
@@ -250,7 +241,7 @@ export function PaymentMethodRegistrationModal({
                   size="sm"
                   onClick={() => window.open(mandateUrl, '_blank')}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <PiArrowSquareOutBold className="h-4 w-4" />
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
@@ -283,7 +274,7 @@ export function PaymentMethodRegistrationModal({
 
             {/* Next Steps */}
             <Alert>
-              <Send className="h-4 w-4" />
+              <PiPaperPlaneRightBold className="h-4 w-4" />
               <AlertDescription>
                 <strong>Next Steps:</strong>
                 <ol className="list-decimal list-inside mt-2 space-y-1 text-sm">
@@ -313,7 +304,7 @@ export function PaymentMethodRegistrationModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
+              <PiCreditCardBold className="h-5 w-5" />
               Request Payment Method Registration
             </DialogTitle>
             <DialogDescription>
@@ -454,14 +445,14 @@ export function PaymentMethodRegistrationModal({
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {/* Info Alert */}
             <Alert>
-              <AlertCircle className="h-4 w-4" />
+              <PiWarningCircleBold className="h-4 w-4" />
               <AlertDescription>
                 <strong className="text-xs">How it works:</strong>
                 <ol className="list-decimal list-inside mt-1 space-y-0.5 text-xs">
@@ -486,12 +477,12 @@ export function PaymentMethodRegistrationModal({
             <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 h-4 w-4" />
+                  <PiPaperPlaneRightBold className="mr-2 h-4 w-4" />
                   Create eMandate Request
                 </>
               )}

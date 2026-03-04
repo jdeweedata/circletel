@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Check } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -30,19 +29,19 @@ const VirtualDesktopsPricing = () => {
             <div className="p-6">
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>2 vCPUs</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>4GB RAM</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>100GB Storage</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>Standard Support</span>
                 </li>
               </ul>
@@ -69,23 +68,23 @@ const VirtualDesktopsPricing = () => {
             <div className="p-6">
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>4 vCPUs</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>8GB RAM</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>250GB Storage</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>Priority Support</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>Application Installation</span>
                 </li>
               </ul>
@@ -109,27 +108,27 @@ const VirtualDesktopsPricing = () => {
             <div className="p-6">
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>8 vCPUs</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>16GB RAM</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>500GB Storage</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>Priority Support</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>Dedicated Resources</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="text-green-500 mr-2" size={18} />
+                  <PiCheckBold className="text-green-500 mr-2" size={18} />
                   <span>GPU Options Available</span>
                 </li>
               </ul>

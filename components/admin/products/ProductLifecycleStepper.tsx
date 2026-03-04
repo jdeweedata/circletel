@@ -1,5 +1,5 @@
+import { PiArchiveBold, PiCheckBold, PiCircleBold, PiClockBold, PiFileTextBold, PiPauseBold, PiRocketBold } from 'react-icons/pi';
 import React from 'react';
-import { Check, Circle, Clock, Archive, FileText, Rocket, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Product, ProductStatus } from '@/lib/types/products';
 
@@ -37,14 +37,14 @@ export const ProductLifecycleStepper: React.FC<ProductLifecycleStepperProps> = (
         id: 'draft',
         label: 'Draft',
         description: 'Initial setup',
-        icon: FileText,
+        icon: PiFileTextBold,
         status: lifecycleState === 'draft' ? 'current' : 'completed'
       },
       {
         id: 'active',
         label: 'Active',
         description: 'Live in catalogue',
-        icon: Rocket,
+        icon: PiRocketBold,
         status: lifecycleState === 'active' ? 'current' 
                : (lifecycleState === 'draft' ? 'upcoming' : 'completed')
       },
@@ -52,7 +52,7 @@ export const ProductLifecycleStepper: React.FC<ProductLifecycleStepperProps> = (
         id: 'inactive',
         label: 'Inactive',
         description: 'Paused / Hidden',
-        icon: Pause,
+        icon: PiPauseBold,
         status: lifecycleState === 'inactive' ? 'current'
                : (lifecycleState === 'archived' ? 'completed' : (lifecycleState === 'active' || lifecycleState === 'draft' ? 'upcoming' : 'upcoming'))
                // Logic: if currently active, inactive is upcoming. If currently archived, inactive was passed (conceptually)
@@ -64,7 +64,7 @@ export const ProductLifecycleStepper: React.FC<ProductLifecycleStepperProps> = (
         id: 'archived',
         label: 'Archived',
         description: 'End of life',
-        icon: Archive,
+        icon: PiArchiveBold,
         status: lifecycleState === 'archived' ? 'current' : 'upcoming'
       }
     ];
@@ -103,7 +103,7 @@ export const ProductLifecycleStepper: React.FC<ProductLifecycleStepperProps> = (
                         "border-gray-300 bg-white"
                       )}>
                         {step.status === 'completed' ? (
-                          <Check className="h-5 w-5 text-white" aria-hidden="true" />
+                          <PiCheckBold className="h-5 w-5 text-white" aria-hidden="true" />
                         ) : (
                           <step.icon className={cn(
                             "h-4 w-4",

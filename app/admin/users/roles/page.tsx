@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCaretLeftBold, PiCheckCircleBold, PiEyeBold, PiMagnifyingGlassBold, PiPencilSimpleBold, PiPlusBold, PiShieldBold, PiTrashBold, PiUsersBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -21,18 +22,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Shield,
-  Search,
-  Eye,
-  Users,
-  RefreshCw,
-  ChevronLeft,
-  CheckCircle2,
-  Plus,
-  Edit,
-  Trash2,
-} from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
@@ -221,13 +210,13 @@ export default function RolesManagementPage() {
           <div className="flex items-center gap-3 mb-2">
             <Link href="/admin/users">
               <Button variant="ghost" size="sm">
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <PiCaretLeftBold className="h-4 w-4 mr-1" />
                 Back to Users
               </Button>
             </Link>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Shield className="h-8 w-8 text-purple-600" />
+            <PiShieldBold className="h-8 w-8 text-purple-600" />
             Role Templates
           </h1>
           <p className="text-gray-600 mt-1">
@@ -241,7 +230,7 @@ export default function RolesManagementPage() {
             onClick={fetchRoles}
             disabled={loading}
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <PermissionGate permissions={PERMISSIONS.USERS.MANAGE_ROLES}>
@@ -250,7 +239,7 @@ export default function RolesManagementPage() {
               onClick={handleCreateRole}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <PiPlusBold className="mr-2 h-4 w-4" />
               Create Role
             </Button>
           </PermissionGate>
@@ -273,7 +262,7 @@ export default function RolesManagementPage() {
                 <p className="text-sm text-gray-600">Total Roles</p>
                 <p className="text-2xl font-bold">{roles.length}</p>
               </div>
-              <Shield className="h-8 w-8 text-purple-600" />
+              <PiShieldBold className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
@@ -286,7 +275,7 @@ export default function RolesManagementPage() {
                   {roles.reduce((sum, role) => sum + (role.user_count || 0), 0)}
                 </p>
               </div>
-              <Users className="h-8 w-8 text-green-600" />
+              <PiUsersBold className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -299,7 +288,7 @@ export default function RolesManagementPage() {
                   {new Set(roles.map(r => r.department)).size}
                 </p>
               </div>
-              <Shield className="h-8 w-8 text-blue-600" />
+              <PiShieldBold className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -312,7 +301,7 @@ export default function RolesManagementPage() {
                   {roles.filter(r => r.is_default).length}
                 </p>
               </div>
-              <CheckCircle2 className="h-8 w-8 text-orange-600" />
+              <PiCheckCircleBold className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
@@ -329,7 +318,7 @@ export default function RolesManagementPage() {
               </CardDescription>
             </div>
             <div className="relative w-64">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search roles..."
                 value={searchQuery}
@@ -403,7 +392,7 @@ export default function RolesManagementPage() {
                           size="sm"
                           onClick={() => viewPermissions(role)}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <PiEyeBold className="h-4 w-4 mr-2" />
                           View
                         </Button>
                         <PermissionGate permissions={PERMISSIONS.USERS.MANAGE_ROLES}>
@@ -412,7 +401,7 @@ export default function RolesManagementPage() {
                             size="sm"
                             onClick={() => handleEditRole(role)}
                           >
-                            <Edit className="h-4 w-4 mr-2" />
+                            <PiPencilSimpleBold className="h-4 w-4 mr-2" />
                             Edit
                           </Button>
                           <Button
@@ -421,7 +410,7 @@ export default function RolesManagementPage() {
                             onClick={() => handleDeleteRole(role)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            <PiTrashBold className="h-4 w-4 mr-2" />
                             Delete
                           </Button>
                         </PermissionGate>
@@ -440,7 +429,7 @@ export default function RolesManagementPage() {
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-purple-600" />
+              <PiShieldBold className="h-5 w-5 text-purple-600" />
               {selectedRole?.name} Permissions
             </DialogTitle>
             <DialogDescription>
@@ -476,7 +465,7 @@ export default function RolesManagementPage() {
                 {Object.entries(groupPermissionsByCategory(selectedRole.permissions)).map(([category, perms]) => (
                   <div key={category} className="border rounded-lg p-3">
                     <div className="font-medium text-sm text-gray-900 mb-2 capitalize flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <PiCheckCircleBold className="h-4 w-4 text-green-600" />
                       {category.replace('_', ' ')}
                       <Badge variant="secondary" className="ml-auto">
                         {perms.length}

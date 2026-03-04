@@ -1,8 +1,8 @@
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCircleBold, PiFloppyDiskBold } from 'react-icons/pi';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPageById, savePage } from '../services/storageService';
 import { Page, PageStatus } from '../types';
-import { Save, ArrowLeft, ExternalLink, RefreshCw, ChevronDown, Circle } from 'lucide-react';
 import { generateImage } from '../services/geminiService';
 import RichTextEditor from './RichTextEditor';
 
@@ -77,7 +77,7 @@ const Editor: React.FC = () => {
         <div className="p-4 border-b border-gray-200 flex flex-col gap-4 bg-gray-50">
           <div className="flex items-center justify-between">
             <Link to="/" className="text-gray-500 hover:text-gray-900 transition-colors">
-              <ArrowLeft size={20} />
+              <PiArrowLeftBold size={20} />
             </Link>
             <h2 className="font-semibold text-gray-800">Editor</h2>
              <button 
@@ -88,7 +88,7 @@ const Editor: React.FC = () => {
                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
                }`}
              >
-               <Save size={16} />
+               <PiFloppyDiskBold size={16} />
                {isSaving ? 'Saved' : 'Save Changes'}
              </button>
           </div>
@@ -110,7 +110,7 @@ const Editor: React.FC = () => {
                 <option value="archived">Archived</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <ChevronDown size={14} />
+                <PiCaretDownBold size={14} />
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@ const Editor: React.FC = () => {
                 disabled={isRegeneratingImage}
                 className="text-xs flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
                >
-                 <RefreshCw size={12} className={isRegeneratingImage ? 'animate-spin' : ''} />
+                 <PiArrowsClockwiseBold size={12} className={isRegeneratingImage ? 'animate-spin' : ''} />
                  Regenerate
                </button>
              </div>
@@ -207,7 +207,7 @@ const Editor: React.FC = () => {
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-3 bg-gray-900 text-white rounded-lg hover:bg-black transition-all shadow-md hover:shadow-lg font-medium"
           >
-            <ExternalLink size={16} />
+            <PiArrowSquareOutBold size={16} />
             View Live Page
           </Link>
         </div>

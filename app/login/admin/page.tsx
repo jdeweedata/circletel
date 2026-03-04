@@ -1,4 +1,5 @@
 'use client';
+import { PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Shield } from 'lucide-react';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -44,7 +44,7 @@ export default function AdminLogin() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-circleTel-orange/10">
-            <Shield className="h-6 w-6 text-circleTel-orange" data-testid="shield-icon" />
+            <PiShieldBold className="h-6 w-6 text-circleTel-orange" data-testid="shield-icon" />
           </div>
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
           <CardDescription>
@@ -91,7 +91,7 @@ export default function AdminLogin() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" data-testid="loading-spinner" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" data-testid="loading-spinner" />
                   Signing in...
                 </>
               ) : (

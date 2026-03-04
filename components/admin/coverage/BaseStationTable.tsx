@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsDownUpBold, PiCaretLeftBold, PiCaretRightBold, PiMagnifyingGlassBold, PiMapPinBold, PiRadioBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -19,16 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Search,
-  MapPin,
-  ArrowUpDown,
-  Radio,
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface BaseStation {
@@ -122,7 +113,7 @@ export function BaseStationTable({
     >
       <div className="flex items-center gap-1">
         {children}
-        <ArrowUpDown className={`h-3 w-3 ${currentSort.by === column ? 'text-orange-500' : 'text-gray-400'}`} />
+        <PiArrowsDownUpBold className={`h-3 w-3 ${currentSort.by === column ? 'text-orange-500' : 'text-gray-400'}`} />
       </div>
     </TableHead>
   );
@@ -133,7 +124,7 @@ export function BaseStationTable({
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <PiMagnifyingGlassBold className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search site name, hostname, or market..."
               value={searchValue}
@@ -190,7 +181,7 @@ export function BaseStationTable({
             ) : stations.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                  <Radio className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                  <PiRadioBold className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                   <p>No base stations found</p>
                 </TableCell>
               </TableRow>
@@ -213,7 +204,7 @@ export function BaseStationTable({
                       href={`/admin/coverage/base-stations/map?lat=${station.lat}&lng=${station.lng}&zoom=15&highlight=${station.id}`}
                     >
                       <Button variant="ghost" size="sm">
-                        <MapPin className="h-4 w-4 mr-1" />
+                        <PiMapPinBold className="h-4 w-4 mr-1" />
                         View
                       </Button>
                     </Link>
@@ -261,7 +252,7 @@ export function BaseStationTable({
             onClick={() => onPageChange(pagination.page - 1)}
             disabled={pagination.page === 1 || loading}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <PiCaretLeftBold className="h-4 w-4" />
           </Button>
           <span className="text-sm text-gray-600 px-2">
             Page {pagination.page} of {pagination.totalPages}
@@ -272,7 +263,7 @@ export function BaseStationTable({
             onClick={() => onPageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages || loading}
           >
-            <ChevronRight className="h-4 w-4" />
+            <PiCaretRightBold className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"

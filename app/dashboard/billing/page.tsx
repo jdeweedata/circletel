@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiCreditCardBold, PiCurrencyDollarBold, PiDownloadSimpleBold, PiEyeBold, PiFileTextBold, PiPlusBold, PiSpinnerBold, PiTrashBold, PiTrendUpBold, PiWalletBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
@@ -9,23 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModernStatCard } from "@/components/dashboard/ModernStatCard";
-import {
-  Loader2,
-  CreditCard,
-  FileText,
-  Download,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Receipt,
-  DollarSign,
-  Calendar,
-  TrendingUp,
-  Wallet,
-  Plus,
-  Trash2,
-  Eye
-} from "lucide-react";
 import Link from "next/link";
 
 interface Invoice {
@@ -225,7 +209,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -233,7 +217,7 @@ export default function BillingPage() {
   if (error || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <AlertCircle className="h-12 w-12 text-red-500" />
+        <PiWarningCircleBold className="h-12 w-12 text-red-500" />
         <p className="text-lg font-semibold text-gray-900">Unable to load billing information</p>
         {error && <p className="text-sm text-gray-600">{error}</p>}
         <Button onClick={() => window.location.reload()}>Retry</Button>
@@ -263,7 +247,7 @@ export default function BillingPage() {
           }}
           subtitle={data.billing_summary.current_balance === 0 ? "No balance due" : data.billing_summary.current_balance > 0 ? "Payment due" : "Credit available"}
           description={data.billing_summary.current_balance > 0 ? "Please make payment" : "Account in good standing"}
-          icon={<Wallet className="h-5 w-5" />}
+          icon={<PiWalletBold className="h-5 w-5" />}
         />
 
         <ModernStatCard
@@ -276,7 +260,7 @@ export default function BillingPage() {
           }}
           subtitle="Year-to-date payments"
           description="Total payments in current year"
-          icon={<DollarSign className="h-5 w-5" />}
+          icon={<PiCurrencyDollarBold className="h-5 w-5" />}
         />
 
         <ModernStatCard
@@ -288,7 +272,7 @@ export default function BillingPage() {
           })}
           subtitle={`${Math.ceil((new Date(data.billing_summary.next_billing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days away`}
           description="Next scheduled billing date"
-          icon={<Calendar className="h-5 w-5" />}
+          icon={<PiCalendarBold className="h-5 w-5" />}
         />
 
         <ModernStatCard
@@ -301,7 +285,7 @@ export default function BillingPage() {
           }}
           subtitle="Average monthly payment"
           description="Based on payment history"
-          icon={<TrendingUp className="h-5 w-5" />}
+          icon={<PiTrendUpBold className="h-5 w-5" />}
         />
       </div>
 
@@ -314,7 +298,7 @@ export default function BillingPage() {
               data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
               data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
           >
-            <FileText className="h-5 w-5" />
+            <PiFileTextBold className="h-5 w-5" />
             <span className="hidden sm:inline">Invoices</span>
           </TabsTrigger>
           <TabsTrigger
@@ -332,7 +316,7 @@ export default function BillingPage() {
               data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900 data-[state=inactive]:hover:bg-gray-50
               data-[state=active]:bg-white data-[state=active]:text-circleTel-orange data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200"
           >
-            <CreditCard className="h-5 w-5" />
+            <PiCreditCardBold className="h-5 w-5" />
             <span className="hidden sm:inline">Payment Methods</span>
           </TabsTrigger>
         </TabsList>
@@ -356,7 +340,7 @@ export default function BillingPage() {
                         {/* Left side - Invoice info */}
                         <div className="flex items-start gap-4 flex-1">
                           <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <FileText className="h-6 w-6 text-gray-600" />
+                            <PiFileTextBold className="h-6 w-6 text-gray-600" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
@@ -403,12 +387,12 @@ export default function BillingPage() {
                               >
                                 {payingInvoiceId === invoice.id ? (
                                   <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <PiSpinnerBold className="h-4 w-4 animate-spin" />
                                     Processing...
                                   </>
                                 ) : (
                                   <>
-                                    <CreditCard className="h-4 w-4" />
+                                    <PiCreditCardBold className="h-4 w-4" />
                                     Pay Now
                                   </>
                                 )}
@@ -420,7 +404,7 @@ export default function BillingPage() {
                               className="gap-2"
                               onClick={() => window.open(`/dashboard/invoices/${invoice.id}`, '_blank')}
                             >
-                              <Eye className="h-4 w-4" />
+                              <PiEyeBold className="h-4 w-4" />
                               View
                             </Button>
                             <Button
@@ -449,7 +433,7 @@ export default function BillingPage() {
                                 }
                               }}
                             >
-                              <Download className="h-4 w-4" />
+                              <PiDownloadSimpleBold className="h-4 w-4" />
                               PDF
                             </Button>
                           </div>
@@ -459,7 +443,7 @@ export default function BillingPage() {
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <PiFileTextBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                     <p>No invoices yet</p>
                     <p className="text-sm mt-1">Your invoices will appear here once generated</p>
                   </div>
@@ -491,11 +475,11 @@ export default function BillingPage() {
                           'bg-red-100'
                         }`}>
                           {payment.status === 'successful' ? (
-                            <CheckCircle className="h-6 w-6 text-green-600" />
+                            <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                           ) : payment.status === 'pending' ? (
-                            <Clock className="h-6 w-6 text-yellow-600" />
+                            <PiClockBold className="h-6 w-6 text-yellow-600" />
                           ) : (
-                            <AlertCircle className="h-6 w-6 text-red-600" />
+                            <PiWarningCircleBold className="h-6 w-6 text-red-600" />
                           )}
                         </div>
                         <div>
@@ -545,7 +529,7 @@ export default function BillingPage() {
                   <p className="text-sm text-gray-600 mt-1">Manage your saved payment methods</p>
                 </div>
                 <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
-                  <Plus className="h-4 w-4" />
+                  <PiPlusBold className="h-4 w-4" />
                   Add New
                 </Button>
               </div>
@@ -565,7 +549,7 @@ export default function BillingPage() {
                       )}
                       <div className="flex items-start gap-4">
                         <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <CreditCard className="h-6 w-6 text-gray-600" />
+                          <PiCreditCardBold className="h-6 w-6 text-gray-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-base text-gray-900 capitalize mb-1">
@@ -586,7 +570,7 @@ export default function BillingPage() {
                               </Button>
                             )}
                             <Button size="sm" variant="outline" className="text-xs text-red-600 hover:text-red-700 gap-1">
-                              <Trash2 className="h-3 w-3" />
+                              <PiTrashBold className="h-3 w-3" />
                               Remove
                             </Button>
                           </div>
@@ -596,11 +580,11 @@ export default function BillingPage() {
                   ))
                 ) : (
                   <div className="col-span-2 text-center py-8 text-gray-500">
-                    <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                    <PiCreditCardBold className="h-12 w-12 mx-auto mb-2 opacity-20" />
                     <p>No payment methods saved</p>
                     <p className="text-sm mt-1 mb-4">Add a payment method for faster checkout</p>
                     <Button className="bg-circleTel-orange hover:bg-orange-600 gap-2">
-                      <Plus className="h-4 w-4" />
+                      <PiPlusBold className="h-4 w-4" />
                       Add Payment Method
                     </Button>
                   </div>

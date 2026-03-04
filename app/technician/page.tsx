@@ -1,24 +1,11 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiClockBold, PiMapPinBold, PiNavigationArrowBold, PiPhoneBold, PiPlayCircleBold, PiSignOutBold, PiUserBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  MapPin, 
-  Clock, 
-  Phone, 
-  Navigation, 
-  CheckCircle2, 
-  PlayCircle,
-  PauseCircle,
-  LogOut,
-  RefreshCw,
-  User,
-  Briefcase,
-  AlertCircle,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   TechnicianDashboardData,
@@ -191,7 +178,7 @@ export default function TechnicianDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-2" />
+          <PiArrowsClockwiseBold className="h-8 w-8 animate-spin text-circleTel-orange mx-auto mb-2" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -203,7 +190,7 @@ export default function TechnicianDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <PiWarningCircleBold className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-lg font-semibold mb-2">Error</h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <Button onClick={() => router.push('/auth/login')}>
@@ -226,7 +213,7 @@ export default function TechnicianDashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <User className="h-5 w-5" />
+              <PiUserBold className="h-5 w-5" />
             </div>
             <div>
               <h1 className="font-semibold">{technician.first_name} {technician.last_name}</h1>
@@ -240,7 +227,7 @@ export default function TechnicianDashboard() {
               className="text-white hover:bg-white/20"
               onClick={fetchData}
             >
-              <RefreshCw className="h-5 w-5" />
+              <PiArrowsClockwiseBold className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -253,7 +240,7 @@ export default function TechnicianDashboard() {
             <CardContent className="py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-yellow-600" />
+                  <PiMapPinBold className="h-5 w-5 text-yellow-600" />
                   <span className="text-sm text-yellow-800">Location tracking disabled</span>
                 </div>
                 <Button size="sm" onClick={requestLocationPermission}>
@@ -275,7 +262,7 @@ export default function TechnicianDashboard() {
           </Card>
           <Card>
             <CardContent className="py-4 text-center">
-              <CheckCircle2 className="h-6 w-6 text-green-500 mx-auto mb-1" />
+              <PiCheckCircleBold className="h-6 w-6 text-green-500 mx-auto mb-1" />
               <p className="text-2xl font-bold">{completed_today}</p>
               <p className="text-xs text-gray-500">Completed Today</p>
             </CardContent>
@@ -300,13 +287,13 @@ export default function TechnicianDashboard() {
               </div>
               
               <div className="flex items-start gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <PiMapPinBold className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <span>{current_job.address}</span>
               </div>
               
               {current_job.customer_name && (
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-gray-400" />
+                  <PiUserBold className="h-4 w-4 text-gray-400" />
                   <span>{current_job.customer_name}</span>
                 </div>
               )}
@@ -316,7 +303,7 @@ export default function TechnicianDashboard() {
                   href={`tel:${current_job.customer_phone}`}
                   className="flex items-center gap-2 text-sm text-circleTel-orange"
                 >
-                  <Phone className="h-4 w-4" />
+                  <PiPhoneBold className="h-4 w-4" />
                   <span>{current_job.customer_phone}</span>
                 </a>
               )}
@@ -329,7 +316,7 @@ export default function TechnicianDashboard() {
                     onClick={() => updateJobStatus(current_job.id, 'arrived')}
                     disabled={updatingStatus === current_job.id}
                   >
-                    <MapPin className="h-4 w-4 mr-2" />
+                    <PiMapPinBold className="h-4 w-4 mr-2" />
                     Arrived
                   </Button>
                 )}
@@ -339,7 +326,7 @@ export default function TechnicianDashboard() {
                     onClick={() => updateJobStatus(current_job.id, 'in_progress')}
                     disabled={updatingStatus === current_job.id}
                   >
-                    <PlayCircle className="h-4 w-4 mr-2" />
+                    <PiPlayCircleBold className="h-4 w-4 mr-2" />
                     Start Work
                   </Button>
                 )}
@@ -349,7 +336,7 @@ export default function TechnicianDashboard() {
                     onClick={() => router.push(`/technician/jobs/${current_job.id}/complete`)}
                     disabled={updatingStatus === current_job.id}
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <PiCheckCircleBold className="h-4 w-4 mr-2" />
                     Complete
                   </Button>
                 )}
@@ -363,7 +350,7 @@ export default function TechnicianDashboard() {
                       );
                     }}
                   >
-                    <Navigation className="h-4 w-4" />
+                    <PiNavigationArrowBold className="h-4 w-4" />
                   </Button>
                 )}
               </div>
@@ -431,12 +418,12 @@ function JobCard({
         
         <div className="space-y-1 text-sm text-gray-600 mb-3">
           <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+            <PiMapPinBold className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
             <span className="line-clamp-2">{job.address}</span>
           </div>
           {job.scheduled_time_start && (
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-gray-400" />
+              <PiClockBold className="h-4 w-4 text-gray-400" />
               <span>{job.scheduled_time_start}</span>
             </div>
           )}
@@ -450,7 +437,7 @@ function JobCard({
               onClick={onStartJob}
               disabled={isUpdating}
             >
-              <Navigation className="h-4 w-4 mr-2" />
+              <PiNavigationArrowBold className="h-4 w-4 mr-2" />
               Start Journey
             </Button>
           )}
@@ -461,7 +448,7 @@ function JobCard({
               asChild
             >
               <a href={`tel:${job.customer_phone}`}>
-                <Phone className="h-4 w-4" />
+                <PiPhoneBold className="h-4 w-4" />
               </a>
             </Button>
           )}
@@ -476,7 +463,7 @@ function JobCard({
                 );
               }}
             >
-              <MapPin className="h-4 w-4" />
+              <PiMapPinBold className="h-4 w-4" />
             </Button>
           )}
         </div>

@@ -1,20 +1,10 @@
 'use client';
+import { PiCaretDownBold, PiCurrencyDollarBold, PiFolderOpenBold, PiLinkBold, PiListBold, PiSignOutBold, PiSquaresFourBold, PiUserBold, PiXBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import {
-  LayoutDashboard,
-  Link2,
-  DollarSign,
-  FolderOpen,
-  LogOut,
-  Menu,
-  X,
-  User,
-  ChevronDown,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Ambassador {
@@ -31,10 +21,10 @@ interface Ambassador {
 }
 
 const navItems = [
-  { href: '/ambassadors', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/ambassadors/codes', label: 'My Codes', icon: Link2 },
-  { href: '/ambassadors/earnings', label: 'Earnings', icon: DollarSign },
-  { href: '/ambassadors/assets', label: 'Marketing Assets', icon: FolderOpen },
+  { href: '/ambassadors', label: 'Dashboard', icon: PiSquaresFourBold },
+  { href: '/ambassadors/codes', label: 'My Codes', icon: PiLinkBold },
+  { href: '/ambassadors/earnings', label: 'Earnings', icon: PiCurrencyDollarBold },
+  { href: '/ambassadors/assets', label: 'Marketing Assets', icon: PiFolderOpenBold },
 ];
 
 export default function AmbassadorLayout({
@@ -149,7 +139,7 @@ export default function AmbassadorLayout({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-yellow-600" />
+            <PiUserBold className="w-8 h-8 text-yellow-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Application Under Review
@@ -254,7 +244,7 @@ export default function AmbassadorLayout({
                       {ambassador.tier}
                     </span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                  <PiCaretDownBold className="w-4 h-4 text-gray-400" />
                 </button>
 
                 {userMenuOpen && (
@@ -277,7 +267,7 @@ export default function AmbassadorLayout({
                           onClick={handleSignOut}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
                         >
-                          <LogOut className="w-4 h-4" />
+                          <PiSignOutBold className="w-4 h-4" />
                           Sign Out
                         </button>
                       </div>
@@ -292,9 +282,9 @@ export default function AmbassadorLayout({
                 className="md:hidden p-2 rounded-lg hover:bg-gray-100"
               >
                 {mobileMenuOpen ? (
-                  <X className="w-6 h-6" />
+                  <PiXBold className="w-6 h-6" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <PiListBold className="w-6 h-6" />
                 )}
               </button>
             </div>

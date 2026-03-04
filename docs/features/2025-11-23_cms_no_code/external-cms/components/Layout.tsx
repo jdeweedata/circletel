@@ -1,6 +1,6 @@
+import { PiGearBold, PiPlusCircleBold } from 'react-icons/pi';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layout as LayoutIcon, PlusCircle, Settings } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -27,12 +27,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         
         <nav className="flex-1 p-4 space-y-1">
           <NavLink to="/" icon={<LayoutIcon size={20} />} label="Dashboard" active={location.pathname === '/'} />
-          <NavLink to="/create" icon={<PlusCircle size={20} />} label="New Page" active={location.pathname === '/create'} />
+          <NavLink to="/create" icon={<PiPlusCircleBold size={20} />} label="New Page" active={location.pathname === '/create'} />
         </nav>
 
         <div className="p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">
-            <Settings size={18} />
+            <PiGearBold size={18} />
             <span>Settings</span>
           </div>
         </div>

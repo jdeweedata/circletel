@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiPaperPlaneRightBold, PiSparklesBold, PiSpinnerBold } from 'react-icons/pi';
 
 /**
  * Step 1: Needs Assessment
@@ -7,14 +8,6 @@
  */
 
 import { useState, useCallback } from 'react';
-import {
-  Sparkles,
-  Send,
-  Loader2,
-  Edit3,
-  CheckCircle2,
-  RefreshCw,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -96,7 +89,7 @@ export function NeedsAssessmentStep({
       {/* AI Input Section */}
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-6 border border-orange-200">
         <div className="flex items-center gap-2 mb-4">
-          <Sparkles className="h-5 w-5 text-circleTel-orange" />
+          <PiSparklesBold className="h-5 w-5 text-circleTel-orange" />
           <h2 className="text-lg font-semibold text-gray-900">
             Describe Your Requirements
           </h2>
@@ -121,12 +114,12 @@ export function NeedsAssessmentStep({
             >
               {isParsing ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Analyzing...
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <PiSparklesBold className="h-4 w-4 mr-2" />
                   Parse with AI
                 </>
               )}
@@ -144,7 +137,7 @@ export function NeedsAssessmentStep({
         {/* AI Confidence Indicator */}
         {data.ai_parsed && data.ai_confidence !== undefined && (
           <div className="mt-4 flex items-center gap-2 text-sm">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <PiCheckCircleBold className="h-4 w-4 text-green-600" />
             <span className="text-green-700">
               AI parsed with {data.ai_confidence}% confidence
             </span>
@@ -156,7 +149,7 @@ export function NeedsAssessmentStep({
                 handleParse();
               }}
             >
-              <RefreshCw className="h-3 w-3 mr-1" />
+              <PiArrowsClockwiseBold className="h-3 w-3 mr-1" />
               Re-parse
             </Button>
           </div>

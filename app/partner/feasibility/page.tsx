@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCheckCircleBold, PiClockCounterClockwiseBold, PiPlusBold, PiSpinnerBold } from 'react-icons/pi';
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,13 +12,6 @@ import {
   FeasibilityForm,
   CoverageResults,
 } from '@/components/partners/feasibility';
-import {
-  ArrowLeft,
-  Loader2,
-  History,
-  CheckCircle,
-  Plus,
-} from 'lucide-react';
 import {
   ChatMessage,
   FeasibilityFormState,
@@ -383,13 +377,13 @@ export default function PartnerFeasibilityPage() {
         <div className="flex gap-2">
           <Link href="/partner/feasibility/history">
             <Button variant="outline">
-              <History className="w-4 h-4 mr-2" />
+              <PiClockCounterClockwiseBold className="w-4 h-4 mr-2" />
               History
             </Button>
           </Link>
           {pageState !== 'entry' && (
             <Button variant="outline" onClick={handleNewRequest}>
-              <Plus className="w-4 h-4 mr-2" />
+              <PiPlusBold className="w-4 h-4 mr-2" />
               New Request
             </Button>
           )}
@@ -429,12 +423,12 @@ export default function PartnerFeasibilityPage() {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Submitting...
                 </>
               ) : (
                 <>
-                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <PiCheckCircleBold className="w-4 h-4 mr-2" />
                   Check Coverage
                 </>
               )}
@@ -448,7 +442,7 @@ export default function PartnerFeasibilityPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="w-5 h-5 animate-spin text-circleTel-orange" />
               Checking Coverage...
             </CardTitle>
           </CardHeader>

@@ -1,43 +1,23 @@
+import { PiBellBold, PiCaretDownBold, PiCaretLeftBold, PiCheckSquareBold, PiCreditCardBold, PiCubeBold, PiCurrencyDollarBold, PiFileTextBold, PiGearBold, PiGlobeBold, PiLightningBold, PiListBold, PiShieldBold, PiShoppingCartBold, PiSquaresFourBold, PiStackBold, PiUserBold, PiUsersBold, PiWifiBold } from 'react-icons/pi';
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Box, 
-  FileText, 
-  ShoppingCart, 
-  Users, 
-  CheckSquare, 
-  Shield, 
-  Bell, 
-  Zap, 
-  Layers, 
-  Globe, 
-  Wifi, 
-  CreditCard, 
-  DollarSign, 
-  Settings, 
-  ChevronDown,
-  ChevronLeft,
-  Menu,
-  User
-} from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: false },
-    { icon: Box, label: 'Products', hasSub: true },
-    { icon: FileText, label: 'Quotes', hasSub: true },
-    { icon: ShoppingCart, label: 'Orders', hasSub: true, active: true, subLabel: 'All Orders' },
-    { icon: Users, label: 'Customers' },
-    { icon: CheckSquare, label: 'Approvals' },
-    { icon: Shield, label: 'KYC Review' },
-    { icon: Shield, label: 'KYB Compliance' },
-    { icon: Bell, label: 'Notifications' },
-    { icon: Zap, label: 'Zoho Integration' },
-    { icon: Layers, label: 'Integrations', hasSub: true },
-    { icon: Globe, label: 'CMS Management' },
-    { icon: Wifi, label: 'Coverage', hasSub: true },
-    { icon: FileText, label: 'Billing & Revenue', hasSub: true },
-    { icon: DollarSign, label: 'Payments', hasSub: true },
+    { icon: PiSquaresFourBold, label: 'Dashboard', active: false },
+    { icon: PiCubeBold, label: 'Products', hasSub: true },
+    { icon: PiFileTextBold, label: 'Quotes', hasSub: true },
+    { icon: PiShoppingCartBold, label: 'Orders', hasSub: true, active: true, subLabel: 'All Orders' },
+    { icon: PiUsersBold, label: 'Customers' },
+    { icon: PiCheckSquareBold, label: 'Approvals' },
+    { icon: PiShieldBold, label: 'KYC Review' },
+    { icon: PiShieldBold, label: 'KYB Compliance' },
+    { icon: PiBellBold, label: 'Notifications' },
+    { icon: PiLightningBold, label: 'Zoho Integration' },
+    { icon: PiStackBold, label: 'Integrations', hasSub: true },
+    { icon: PiGlobeBold, label: 'CMS Management' },
+    { icon: PiWifiBold, label: 'Coverage', hasSub: true },
+    { icon: PiFileTextBold, label: 'Billing & Revenue', hasSub: true },
+    { icon: PiCurrencyDollarBold, label: 'Payments', hasSub: true },
   ];
 
   return (
@@ -46,11 +26,11 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-2 font-bold text-xl text-gray-800">
           <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white">
-             <Zap size={18} fill="white" />
+             <PiLightningBold size={18} fill="white" />
           </div>
           <span>Admin Panel</span>
         </div>
-        <ChevronLeft size={20} className="text-gray-400 cursor-pointer" />
+        <PiCaretLeftBold size={20} className="text-gray-400 cursor-pointer" />
       </div>
 
       {/* Navigation */}
@@ -63,7 +43,7 @@ export const Sidebar: React.FC = () => {
                   <item.icon size={18} className={item.active ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'} />
                   <span className="text-sm font-medium">{item.label}</span>
                 </div>
-                {item.hasSub && <ChevronDown size={16} className="text-gray-400" />}
+                {item.hasSub && <PiCaretDownBold size={16} className="text-gray-400" />}
               </div>
               
               {/* Submenu for Orders (Hardcoded for demo visual) */}
@@ -91,18 +71,18 @@ export const Sidebar: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md cursor-pointer">
-             <Layers size={18} />
+             <PiStackBold size={18} />
              <span className="text-sm font-medium">Orchestrator</span>
           </div>
           <div className="flex items-center justify-between px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md cursor-pointer">
              <div className="flex items-center gap-3">
-                <Users size={18} />
+                <PiUsersBold size={18} />
                 <span className="text-sm font-medium">Users</span>
              </div>
-             <ChevronDown size={16} className="text-gray-400" />
+             <PiCaretDownBold size={16} className="text-gray-400" />
           </div>
           <div className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md cursor-pointer">
-             <Settings size={18} />
+             <PiGearBold size={18} />
              <span className="text-sm font-medium">Settings</span>
           </div>
 

@@ -1,16 +1,9 @@
 'use client';
+import { PiArchiveBold, PiCheckCircleBold, PiFileTextBold, PiPackageBold, PiStarBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Package,
-  CheckCircle,
-  FileText,
-  Archive,
-  Star,
-  TrendingUp,
-} from 'lucide-react';
 
 export interface ProductStatsWidgetProps {
   stats: {
@@ -55,7 +48,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Total Products',
       value: stats.total,
-      icon: Package,
+      icon: PiPackageBold,
       color: 'blue',
       bgColor: 'bg-blue-50',
       iconColor: 'text-blue-600',
@@ -64,7 +57,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Active',
       value: stats.active,
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       color: 'green',
       bgColor: 'bg-green-50',
       iconColor: 'text-green-600',
@@ -73,7 +66,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Drafts',
       value: stats.draft,
-      icon: FileText,
+      icon: PiFileTextBold,
       color: 'gray',
       bgColor: 'bg-gray-50',
       iconColor: 'text-gray-600',
@@ -82,7 +75,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Featured',
       value: stats.featured,
-      icon: Star,
+      icon: PiStarBold,
       color: 'yellow',
       bgColor: 'bg-yellow-50',
       iconColor: 'text-yellow-600',
@@ -91,7 +84,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Popular',
       value: stats.popular,
-      icon: TrendingUp,
+      icon: PiTrendUpBold,
       color: 'green',
       bgColor: 'bg-green-50',
       iconColor: 'text-green-600',
@@ -100,7 +93,7 @@ export function ProductStatsWidget({ stats, className }: ProductStatsWidgetProps
     {
       label: 'Archived',
       value: stats.archived,
-      icon: Archive,
+      icon: PiArchiveBold,
       color: 'red',
       bgColor: 'bg-red-50',
       iconColor: 'text-red-600',

@@ -1,25 +1,25 @@
 'use client';
+import { PiArrowRightBold, PiLinkBold, PiMoneyBold, PiShareBold } from 'react-icons/pi';
 
 import Link from 'next/link';
-import { Link2, Share2, Banknote, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const steps = [
   {
     number: 1,
-    icon: Link2,
+    icon: PiLinkBold,
     title: 'Get your unique link',
     description: 'Sign up and get your personal referral link that tracks every customer you bring in.',
   },
   {
     number: 2,
-    icon: Share2,
+    icon: PiShareBold,
     title: 'Share it everywhere',
     description: 'WhatsApp, Facebook, in person—the more people who click, the more you earn.',
   },
   {
     number: 3,
-    icon: Banknote,
+    icon: PiMoneyBold,
     title: 'Earn monthly commission',
     description: 'Get paid every month for as long as your referrals stay connected. Passive income, sorted.',
   },
@@ -86,7 +86,7 @@ export function HowItWorks() {
               className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white font-bold px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
               Start earning today
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>

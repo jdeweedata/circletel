@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCalculatorBold, PiCurrencyDollarBold, PiFileTextBold, PiFloppyDiskBold, PiGearBold, PiPercentBold, PiSpinnerBold, PiStackBold, PiTagBold, PiTrendUpBold, PiWifiBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -25,7 +26,6 @@ import { PermissionGate } from '@/components/rbac/PermissionGate';
 import { PERMISSIONS } from '@/lib/rbac/permissions';
 import { FeaturesEditor } from '@/components/admin/products/FeaturesEditor';
 import { ProductCostBreakdown } from '@/components/admin/products/ProductCostBreakdown';
-import { ArrowLeft, Save, Loader2, Tag, DollarSign, Wifi, FileText, Settings, TrendingUp, Calculator, Percent, Layers } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
@@ -302,7 +302,7 @@ export default function EditProductPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -478,7 +478,7 @@ export default function EditProductPage() {
                 <CardHeader className="pb-2 pt-4 px-4">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <PiTrendUpBold className="h-4 w-4 text-green-600" />
                       Cost & Margin Analysis
                       {priceCalculations.usingBreakdown && (
                         <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
@@ -520,7 +520,7 @@ export default function EditProductPage() {
               <Card className={priceCalculations.usingBreakdown ? 'opacity-60' : ''}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-red-500" />
+                    <PiCurrencyDollarBold className="h-5 w-5 text-red-500" />
                     Simple Wholesale Cost
                   </CardTitle>
                   <CardDescription>
@@ -553,7 +553,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-circleTel-orange" />
+                    <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
                     Selling Price
                   </CardTitle>
                   <CardDescription>
@@ -612,7 +612,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Tag className="h-5 w-5 text-circleTel-orange" />
+                    <PiTagBold className="h-5 w-5 text-circleTel-orange" />
                     Promotional Pricing
                   </CardTitle>
                   <CardDescription>
@@ -753,7 +753,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Wifi className="h-5 w-5 text-blue-600" />
+                    <PiWifiBold className="h-5 w-5 text-blue-600" />
                     Connectivity Specifications
                   </CardTitle>
                   <CardDescription>
@@ -821,7 +821,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-purple-600" />
+                    <PiFileTextBold className="h-5 w-5 text-purple-600" />
                     Description & Features
                   </CardTitle>
                   <CardDescription>
@@ -859,7 +859,7 @@ export default function EditProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-gray-600" />
+                    <PiGearBold className="h-5 w-5 text-gray-600" />
                     Status & Visibility
                   </CardTitle>
                   <CardDescription>
@@ -935,12 +935,12 @@ export default function EditProductPage() {
             >
               {saving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <PiFloppyDiskBold className="h-4 w-4 mr-2" />
                   Save Changes
                 </>
               )}

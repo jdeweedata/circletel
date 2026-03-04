@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiChatBold, PiCheckBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEyeBold, PiFunnelBold, PiGridFourBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiPackageBold, PiPaperPlaneRightBold, PiPhoneBold, PiSpinnerBold, PiUserBold, PiWarningCircleBold, PiWrenchBold, PiXBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -13,31 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Calendar,
-  Clock,
-  Search,
-  Eye,
-  RefreshCw,
-  Wrench,
-  CheckCircle,
-  XCircle,
-  Package,
-  AlertCircle,
-  MapPin,
-  User,
-  Phone,
-  CalendarCheck,
-  Loader2,
-  Filter,
-  Download,
-  List,
-  Grid,
-  MessageSquare,
-  Send,
-  Check,
-  X,
-} from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { format } from 'date-fns';
 import { InstallationCalendar } from '@/components/admin/orders/InstallationCalendar';
@@ -257,12 +233,12 @@ export default function AdminInstallationsPage() {
       kyc_approved: {
         label: 'Pending Schedule',
         className: 'bg-yellow-100 text-yellow-800',
-        icon: Clock
+        icon: PiClockBold
       },
       payment_method_registered: {
         label: 'Ready to Schedule',
         className: 'bg-blue-100 text-blue-800',
-        icon: Calendar
+        icon: PiCalendarBold
       },
       installation_scheduled: {
         label: 'Scheduled',
@@ -272,24 +248,24 @@ export default function AdminInstallationsPage() {
       installation_in_progress: {
         label: 'In Progress',
         className: 'bg-orange-100 text-orange-800',
-        icon: Wrench
+        icon: PiWrenchBold
       },
       installation_completed: {
         label: 'Completed',
         className: 'bg-green-100 text-green-800',
-        icon: CheckCircle
+        icon: PiCheckCircleBold
       },
       active: {
         label: 'Active',
         className: 'bg-green-100 text-green-800',
-        icon: CheckCircle
+        icon: PiCheckCircleBold
       },
     };
 
     const config = statusConfig[status] || {
       label: status,
       className: 'bg-gray-100 text-gray-800',
-      icon: AlertCircle
+      icon: PiWarningCircleBold
     };
     const Icon = config.icon;
 
@@ -423,7 +399,7 @@ export default function AdminInstallationsPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -447,7 +423,7 @@ export default function AdminInstallationsPage() {
               onClick={() => setView('list')}
               className="rounded-r-none"
             >
-              <List className="h-4 w-4 mr-2" />
+              <PiListBold className="h-4 w-4 mr-2" />
               List
             </Button>
             <Button
@@ -456,7 +432,7 @@ export default function AdminInstallationsPage() {
               onClick={() => setView('calendar')}
               className="rounded-none border-x"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <PiCalendarBold className="h-4 w-4 mr-2" />
               Calendar
             </Button>
             <Button
@@ -465,7 +441,7 @@ export default function AdminInstallationsPage() {
               onClick={() => setView('map')}
               className="rounded-l-none"
             >
-              <MapPin className="h-4 w-4 mr-2" />
+              <PiMapPinBold className="h-4 w-4 mr-2" />
               Map
             </Button>
           </div>
@@ -475,7 +451,7 @@ export default function AdminInstallationsPage() {
             onClick={fetchInstallations}
             disabled={loading}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button
@@ -490,7 +466,7 @@ export default function AdminInstallationsPage() {
               toast.success(`Exported ${filteredInstallations.length} installations to CSV`);
             }}
           >
-            <Download className="h-4 w-4 mr-2" />
+            <PiDownloadSimpleBold className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>
@@ -505,7 +481,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">Total</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <Package className="h-8 w-8 text-gray-400" />
+              <PiPackageBold className="h-8 w-8 text-gray-400" />
             </div>
           </CardContent>
         </Card>
@@ -517,7 +493,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">Pending</p>
                 <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-400" />
+              <PiClockBold className="h-8 w-8 text-yellow-400" />
             </div>
           </CardContent>
         </Card>
@@ -541,7 +517,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">In Progress</p>
                 <p className="text-2xl font-bold text-orange-600">{stats.in_progress}</p>
               </div>
-              <Wrench className="h-8 w-8 text-orange-400" />
+              <PiWrenchBold className="h-8 w-8 text-orange-400" />
             </div>
           </CardContent>
         </Card>
@@ -553,7 +529,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">Completed</p>
                 <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-400" />
+              <PiCheckCircleBold className="h-8 w-8 text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -565,7 +541,7 @@ export default function AdminInstallationsPage() {
                 <p className="text-sm font-medium text-gray-600">Failed</p>
                 <p className="text-2xl font-bold text-red-600">{stats.failed}</p>
               </div>
-              <XCircle className="h-8 w-8 text-red-400" />
+              <PiXCircleBold className="h-8 w-8 text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -577,7 +553,7 @@ export default function AdminInstallationsPage() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by order, customer, or address..."
                 value={searchQuery}
@@ -619,7 +595,7 @@ export default function AdminInstallationsPage() {
                 setDateFilter('all');
               }}
             >
-              <Filter className="h-4 w-4 mr-2" />
+              <PiFunnelBold className="h-4 w-4 mr-2" />
               Clear Filters
             </Button>
           </div>
@@ -633,7 +609,7 @@ export default function AdminInstallationsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-600" />
+                <PiCheckCircleBold className="h-5 w-5 text-blue-600" />
                 <span className="text-sm font-medium text-blue-900">
                   {selectedInstallations.length} installation(s) selected
                 </span>
@@ -650,7 +626,7 @@ export default function AdminInstallationsPage() {
                   onClick={clearSelection}
                   className="bg-white"
                 >
-                  <X className="h-4 w-4 mr-2" />
+                  <PiXBold className="h-4 w-4 mr-2" />
                   Clear Selection
                 </Button>
               </div>
@@ -664,7 +640,7 @@ export default function AdminInstallationsPage() {
         <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
+            <PiWrenchBold className="h-5 w-5" />
             Installations
             <Badge variant="secondary">{filteredInstallations.length}</Badge>
           </CardTitle>
@@ -672,11 +648,11 @@ export default function AdminInstallationsPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+              <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
             </div>
           ) : filteredInstallations.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <PiPackageBold className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No installations found</p>
               <p className="text-sm text-gray-400 mt-1">
                 {searchQuery || statusFilter !== 'all' || dateFilter !== 'all'
@@ -745,18 +721,18 @@ export default function AdminInstallationsPage() {
                       <td className="px-4 py-4">
                         <div>
                           <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                            <User className="h-4 w-4 text-gray-400" />
+                            <PiUserBold className="h-4 w-4 text-gray-400" />
                             {installation.customer_name}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                            <Phone className="h-3 w-3" />
+                            <PiPhoneBold className="h-3 w-3" />
                             {installation.customer_phone}
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-start gap-2 text-sm text-gray-600 max-w-xs">
-                          <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <PiMapPinBold className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <span className="line-clamp-2">{installation.installation_address}</span>
                         </div>
                       </td>
@@ -768,7 +744,7 @@ export default function AdminInstallationsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <PiCalendarBold className="h-4 w-4 text-gray-400" />
                           <span className="text-gray-900">
                             {formatDate(installation.scheduled_date)}
                             {formatTimeSlot(installation.scheduled_time_slot)}
@@ -803,15 +779,15 @@ export default function AdminInstallationsPage() {
                               title="Send installation reminder via SMS and Email"
                             >
                               {sendingReminder === installation.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <PiSpinnerBold className="h-4 w-4 animate-spin" />
                               ) : (
-                                <Send className="h-4 w-4" />
+                                <PiPaperPlaneRightBold className="h-4 w-4" />
                               )}
                             </Button>
                           )}
                           <Link href={`/admin/orders/${installation.order_id}`}>
                             <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4 mr-1" />
+                              <PiEyeBold className="h-4 w-4 mr-1" />
                               View
                             </Button>
                           </Link>

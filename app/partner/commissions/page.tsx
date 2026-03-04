@@ -1,4 +1,5 @@
 'use client'
+import { PiArrowsClockwiseBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiCurrencyDollarBold, PiInfoBold, PiTrendUpBold, PiTrophyBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw, ChevronLeft, ChevronRight, Award, Info } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
@@ -166,7 +166,7 @@ export default function PartnerCommissionsPage() {
         {partner && (
           <div className="text-right">
             <div className="flex items-center justify-end space-x-2">
-              <Award className={`h-5 w-5 ${TIER_COLORS[partner.tier]}`} />
+              <PiTrophyBold className={`h-5 w-5 ${TIER_COLORS[partner.tier]}`} />
               <span className={`font-semibold ${TIER_COLORS[partner.tier]} capitalize`}>
                 {partner.tier} Partner
               </span>
@@ -180,7 +180,7 @@ export default function PartnerCommissionsPage() {
               className="mt-2"
               onClick={() => router.push('/partner/commissions/tiers')}
             >
-              <Info className="h-4 w-4 mr-2" />
+              <PiInfoBold className="h-4 w-4 mr-2" />
               View Commission Tiers
             </Button>
           </div>
@@ -192,7 +192,7 @@ export default function PartnerCommissionsPage() {
         <Card className="border-2 border-green-200 bg-green-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-green-700 flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2" />
+              <PiCheckCircleBold className="h-4 w-4 mr-2" />
               Total Earned
             </CardTitle>
           </CardHeader>
@@ -209,7 +209,7 @@ export default function PartnerCommissionsPage() {
         <Card className="border-2 border-blue-200 bg-blue-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-blue-700 flex items-center">
-              <TrendingUp className="h-4 w-4 mr-2" />
+              <PiTrendUpBold className="h-4 w-4 mr-2" />
               Pending Payment
             </CardTitle>
           </CardHeader>
@@ -226,7 +226,7 @@ export default function PartnerCommissionsPage() {
         <Card className="border-2 border-yellow-200 bg-yellow-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-yellow-700 flex items-center">
-              <Clock className="h-4 w-4 mr-2" />
+              <PiClockBold className="h-4 w-4 mr-2" />
               Pending Approval
             </CardTitle>
           </CardHeader>
@@ -243,7 +243,7 @@ export default function PartnerCommissionsPage() {
         <Card className="border-2 border-circleTel-orange/20 bg-orange-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-circleTel-orange flex items-center">
-              <DollarSign className="h-4 w-4 mr-2" />
+              <PiCurrencyDollarBold className="h-4 w-4 mr-2" />
               Total Transactions
             </CardTitle>
           </CardHeader>
@@ -281,7 +281,7 @@ export default function PartnerCommissionsPage() {
             </div>
 
             <Button variant="outline" onClick={handleRefresh} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
@@ -304,7 +304,7 @@ export default function PartnerCommissionsPage() {
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-12">
-              <DollarSign className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <PiCurrencyDollarBold className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <p className="text-circleTel-secondaryNeutral">No commission transactions yet</p>
               <p className="text-sm text-gray-400 mt-2">
                 Transactions will appear here when leads convert to orders
@@ -394,7 +394,7 @@ export default function PartnerCommissionsPage() {
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={pagination.page === 1}
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <PiCaretLeftBold className="h-4 w-4" />
                       Previous
                     </Button>
                     <div className="text-sm text-gray-600">
@@ -407,7 +407,7 @@ export default function PartnerCommissionsPage() {
                       disabled={pagination.page === pagination.totalPages}
                     >
                       Next
-                      <ChevronRight className="h-4 w-4" />
+                      <PiCaretRightBold className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

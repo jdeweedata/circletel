@@ -1,11 +1,11 @@
 'use client';
+import { PiArrowLeftBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, Shield, ArrowLeft } from 'lucide-react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 import Link from 'next/link';
 
@@ -144,7 +144,7 @@ export default function VerifyOTPLoginPage() {
               {/* Icon */}
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-[#F5831F]" />
+                  <PiShieldBold className="w-8 h-8 text-[#F5831F]" />
                 </div>
               </div>
 
@@ -191,12 +191,12 @@ export default function VerifyOTPLoginPage() {
                 >
                   {isVerifying ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <PiSpinnerBold className="w-5 h-5 animate-spin" />
                       Verifying...
                     </>
                   ) : (
                     <>
-                      <Shield className="w-5 h-5" />
+                      <PiShieldBold className="w-5 h-5" />
                       Verify & Sign In
                     </>
                   )}
@@ -228,7 +228,7 @@ export default function VerifyOTPLoginPage() {
                   href="/auth/login"
                   className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:underline transition-colors font-medium"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <PiArrowLeftBold className="w-4 h-4" />
                   Back to Sign In
                 </Link>
               </div>

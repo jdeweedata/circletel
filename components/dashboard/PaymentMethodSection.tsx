@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiCheckCircleBold, PiCreditCardBold, PiLockBold, PiPlusBold, PiShieldBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,17 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  CreditCard,
-  Plus,
-  Shield,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Lock,
-  Building2,
-  ArrowLeft
-} from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -241,7 +231,7 @@ export function PaymentMethodSection({
       {hasPendingOrders && !hasPaymentMethod && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <PiWarningCircleBold className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-orange-900 mb-1">
                 Complete Your Order
@@ -278,7 +268,7 @@ export function PaymentMethodSection({
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-green-100 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <PiCheckCircleBold className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900 mb-1">Payment Method Active</p>
@@ -298,7 +288,7 @@ export function PaymentMethodSection({
                   {/* Info Banner */}
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start gap-3">
-                      <Shield className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <PiShieldBold className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-blue-900 mb-2">
                           Choose Your Payment Method
@@ -307,7 +297,7 @@ export function PaymentMethodSection({
                           Select how you'd like to pay for your CircleTel services. Both options are secure and enable automatic billing.
                         </p>
                         <div className="mt-3 inline-flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-md">
-                          <Lock className="w-3.5 h-3.5" />
+                          <PiLockBold className="w-3.5 h-3.5" />
                           <span>Secured by NetCash</span>
                         </div>
                       </div>
@@ -323,7 +313,7 @@ export function PaymentMethodSection({
                     >
                       <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-xl shadow-md group-hover:shadow-lg transition-shadow">
-                          <CreditCard className="w-6 h-6 text-white" />
+                          <PiCreditCardBold className="w-6 h-6 text-white" />
                         </div>
                         <div>
                           <h3 className="font-bold text-gray-900">Credit or Debit Card</h3>
@@ -347,7 +337,7 @@ export function PaymentMethodSection({
                     >
                       <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-md group-hover:shadow-lg transition-shadow">
-                          <Building2 className="w-6 h-6 text-white" />
+                          <PiBuildingsBold className="w-6 h-6 text-white" />
                         </div>
                         <div>
                           <h3 className="font-bold text-gray-900">Debit Order</h3>
@@ -373,13 +363,13 @@ export function PaymentMethodSection({
                     onClick={handleBack}
                     className="mb-2 text-gray-600 hover:text-gray-900 -ml-2"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <PiArrowLeftBold className="w-4 h-4 mr-2" />
                     Back to options
                   </Button>
 
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start gap-3">
-                      <CreditCard className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <PiCreditCardBold className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-blue-900 mb-2">
                           Card Verification
@@ -393,7 +383,7 @@ export function PaymentMethodSection({
 
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-circleTel-orange to-orange-600 rounded-full mb-4 shadow-lg">
-                      <CreditCard className="w-8 h-8 text-white" />
+                      <PiCreditCardBold className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Add Your Card</h3>
                     <p className="text-sm text-gray-600 mb-5 max-w-sm mx-auto">
@@ -406,12 +396,12 @@ export function PaymentMethodSection({
                     >
                       {isProcessing ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
                           Processing...
                         </>
                       ) : (
                         <>
-                          <CreditCard className="w-5 h-5 mr-2" />
+                          <PiCreditCardBold className="w-5 h-5 mr-2" />
                           Continue to Payment
                         </>
                       )}
@@ -433,13 +423,13 @@ export function PaymentMethodSection({
                     onClick={handleBack}
                     className="mb-2 text-gray-600 hover:text-gray-900 -ml-2"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <PiArrowLeftBold className="w-4 h-4 mr-2" />
                     Back to options
                   </Button>
 
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start gap-3">
-                      <Building2 className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <PiBuildingsBold className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-blue-900 mb-2">
                           Setup Debit Order
@@ -584,19 +574,19 @@ export function PaymentMethodSection({
                     >
                       {isProcessing ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
                           Setting up mandate...
                         </>
                       ) : (
                         <>
-                          <Shield className="w-5 h-5 mr-2" />
+                          <PiShieldBold className="w-5 h-5 mr-2" />
                           Authorize Debit Order
                         </>
                       )}
                     </Button>
 
                     <p className="text-xs text-gray-500 text-center flex items-center justify-center gap-2">
-                      <Lock className="w-3.5 h-3.5" />
+                      <PiLockBold className="w-3.5 h-3.5" />
                       <span>You'll be redirected to securely sign the mandate</span>
                     </p>
                   </div>

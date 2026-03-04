@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowDownBold, PiArrowUpBold, PiCheckBold } from 'react-icons/pi';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowDown, ArrowUp, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export interface EnhancedPackageCardProps {
@@ -213,7 +213,7 @@ export function EnhancedPackageCard({
             </div>
             {benefits.map((benefit, index) => (
               <div key={index} className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <PiCheckBold className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-circleTel-secondaryNeutral">
                   {benefit}
                 </span>

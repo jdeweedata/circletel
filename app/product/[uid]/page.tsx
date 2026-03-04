@@ -1,3 +1,4 @@
+import { PiArrowRightBold } from 'react-icons/pi';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +10,6 @@ import { components } from "@/slices";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 
 type Params = { uid: string };
 
@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
                 >
                   <Link href={prismic.asLink(hero_cta_link) || "#"}>
                     {hero_cta_text}
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <PiArrowRightBold className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               )}

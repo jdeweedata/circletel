@@ -1,6 +1,6 @@
+import { PiCloudBold, PiLaptopBold, PiServerBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Cloud, Server, Laptop } from 'lucide-react';
 
 export default function CloudMigration() {
   return (
@@ -21,13 +21,13 @@ export default function CloudMigration() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative">
                 <div className="h-64 w-64 rounded-full bg-circleTel-orange/10 flex items-center justify-center">
-                  <Cloud size={100} className="text-circleTel-orange" />
+                  <PiCloudBold size={100} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <Server size={40} className="text-circleTel-orange" />
+                  <PiServerBold size={40} className="text-circleTel-orange" />
                 </div>
                 <div className="absolute -left-4 bottom-0 h-32 w-32 rounded-full bg-white flex items-center justify-center shadow-lg">
-                  <Laptop size={48} className="text-circleTel-orange" />
+                  <PiLaptopBold size={48} className="text-circleTel-orange" />
                 </div>
               </div>
             </div>

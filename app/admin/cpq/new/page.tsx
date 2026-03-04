@@ -1,4 +1,5 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 /**
  * Create New CPQ Session
@@ -8,7 +9,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NewCPQSessionPage() {
@@ -67,7 +67,7 @@ export default function NewCPQSessionPage() {
           </>
         ) : (
           <>
-            <Loader2 className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
+            <PiSpinnerBold className="h-8 w-8 animate-spin mx-auto text-circleTel-orange" />
             <p className="mt-4 text-gray-500">Creating new quote session...</p>
           </>
         )}

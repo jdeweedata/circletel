@@ -1,7 +1,7 @@
+import { PiCheckCircleBold, PiClockBold, PiSpinnerBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Clock, AlertCircle, Loader2 } from 'lucide-react';
 
 interface KYCStatusBadgeProps {
   status: 'not_started' | 'in_progress' | 'completed' | 'abandoned' | 'declined';
@@ -25,19 +25,19 @@ export function KYCStatusBadge({
       switch (verificationResult) {
         case 'approved':
           return {
-            icon: <CheckCircle className="w-3.5 h-3.5" />,
+            icon: <PiCheckCircleBold className="w-3.5 h-3.5" />,
             text: 'KYC Verified',
             className: 'bg-green-500 text-white hover:bg-green-600',
           };
         case 'declined':
           return {
-            icon: <XCircle className="w-3.5 h-3.5" />,
+            icon: <PiXCircleBold className="w-3.5 h-3.5" />,
             text: 'KYC Declined',
             className: 'bg-red-500 text-white hover:bg-red-600',
           };
         case 'pending_review':
           return {
-            icon: <Clock className="w-3.5 h-3.5" />,
+            icon: <PiClockBold className="w-3.5 h-3.5" />,
             text: 'Pending Review',
             className: 'bg-yellow-500 text-white hover:bg-yellow-600',
           };
@@ -48,26 +48,26 @@ export function KYCStatusBadge({
     switch (status) {
       case 'in_progress':
         return {
-          icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />,
+          icon: <PiSpinnerBold className="w-3.5 h-3.5 animate-spin" />,
           text: 'In Progress',
           className: 'bg-blue-500 text-white hover:bg-blue-600',
         };
       case 'abandoned':
         return {
-          icon: <AlertCircle className="w-3.5 h-3.5" />,
+          icon: <PiWarningCircleBold className="w-3.5 h-3.5" />,
           text: 'Abandoned',
           className: 'bg-gray-400 text-white hover:bg-gray-500',
         };
       case 'declined':
         return {
-          icon: <XCircle className="w-3.5 h-3.5" />,
+          icon: <PiXCircleBold className="w-3.5 h-3.5" />,
           text: 'Declined',
           className: 'bg-red-500 text-white hover:bg-red-600',
         };
       case 'not_started':
       default:
         return {
-          icon: <Clock className="w-3.5 h-3.5" />,
+          icon: <PiClockBold className="w-3.5 h-3.5" />,
           text: 'Not Started',
           className: 'bg-gray-300 text-gray-700 hover:bg-gray-400',
         };

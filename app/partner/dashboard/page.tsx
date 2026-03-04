@@ -1,10 +1,10 @@
 'use client'
+import { PiChartBarBold, PiClockBold, PiCurrencyDollarBold, PiFileTextBold, PiFolderOpenBold, PiTrendUpBold, PiUsersBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Users, DollarSign, TrendingUp, Clock, FileText, BarChart3, FolderOpen } from 'lucide-react'
 
 interface PartnerStats {
   totalLeads: number
@@ -57,7 +57,7 @@ export default function PartnerDashboard() {
       title: 'Total Leads',
       value: loading ? null : stats?.totalLeads?.toString() || '0',
       description: 'Assigned to you',
-      icon: Users,
+      icon: PiUsersBold,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
@@ -65,7 +65,7 @@ export default function PartnerDashboard() {
       title: 'Active Leads',
       value: loading ? null : stats?.activeLeads?.toString() || '0',
       description: 'In progress',
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
     },
@@ -73,7 +73,7 @@ export default function PartnerDashboard() {
       title: 'Converted',
       value: loading ? null : stats?.convertedThisMonth?.toString() || '0',
       description: 'This month',
-      icon: TrendingUp,
+      icon: PiTrendUpBold,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
@@ -81,7 +81,7 @@ export default function PartnerDashboard() {
       title: 'Commission',
       value: loading ? null : formatCurrency(stats?.pendingCommission || 0),
       description: 'Pending payout',
-      icon: DollarSign,
+      icon: PiCurrencyDollarBold,
       color: 'text-circleTel-orange',
       bgColor: 'bg-orange-100',
     },
@@ -213,7 +213,7 @@ export default function PartnerDashboard() {
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-lg bg-blue-100">
-                  <FileText className="h-5 w-5 text-blue-600" />
+                  <PiFileTextBold className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">View Leads</CardTitle>
@@ -228,7 +228,7 @@ export default function PartnerDashboard() {
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-lg bg-orange-100">
-                  <BarChart3 className="h-5 w-5 text-circleTel-orange" />
+                  <PiChartBarBold className="h-5 w-5 text-circleTel-orange" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Check Commissions</CardTitle>
@@ -243,7 +243,7 @@ export default function PartnerDashboard() {
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-lg bg-purple-100">
-                  <FolderOpen className="h-5 w-5 text-purple-600" />
+                  <PiFolderOpenBold className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Access Resources</CardTitle>

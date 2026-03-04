@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiDeviceMobileBold, PiEyeBold, PiEyeSlashBold, PiFunnelBold, PiMagnifyingGlassBold, PiPackageBold, PiSpinnerBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Search, Filter, RefreshCw, TrendingUp, Package, Smartphone, Eye, EyeOff } from 'lucide-react';
 
 interface MTNDeal {
   id: string;
@@ -199,7 +199,7 @@ export default function MTNDealsPage() {
           variant="outline"
           className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
         >
-          <RefreshCw className="w-4 h-4 mr-2" />
+          <PiArrowsClockwiseBold className="w-4 h-4 mr-2" />
           Refresh
         </Button>
       </div>
@@ -213,7 +213,7 @@ export default function MTNDealsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-green-600">
-              <Package className="w-4 h-4 mr-1" />
+              <PiPackageBold className="w-4 h-4 mr-1" />
               All platforms
             </div>
           </CardContent>
@@ -226,7 +226,7 @@ export default function MTNDealsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center text-sm text-circleTel-secondaryNeutral">
-              <TrendingUp className="w-4 h-4 mr-1" />
+              <PiTrendUpBold className="w-4 h-4 mr-1" />
               Currently available
             </div>
           </CardContent>
@@ -261,14 +261,14 @@ export default function MTNDealsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
+            <PiFunnelBold className="w-5 h-5" />
             Search & Filters
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search device, plan, or deal ID..."
                 value={searchQuery}
@@ -328,7 +328,7 @@ export default function MTNDealsPage() {
               >
                 {loadingMore ? (
                   <>
-                    <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                    <PiSpinnerBold className="w-3 h-3 mr-2 animate-spin" />
                     Loading...
                   </>
                 ) : (
@@ -343,7 +343,7 @@ export default function MTNDealsPage() {
       {/* Deals List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+          <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
         </div>
       ) : (
         <>
@@ -358,7 +358,7 @@ export default function MTNDealsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Smartphone className="w-5 h-5 text-circleTel-orange" />
+                        <PiDeviceMobileBold className="w-5 h-5 text-circleTel-orange" />
                         {deal.device_name || 'No Device'}
                       </CardTitle>
                       <CardDescription className="mt-1">{deal.price_plan}</CardDescription>
@@ -419,9 +419,9 @@ export default function MTNDealsPage() {
                   <div className="flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg bg-white hover:bg-gray-50/50 transition-all duration-200">
                     <div className="flex items-center gap-2">
                       {deal.is_visible_on_frontend ? (
-                        <Eye className="w-4 h-4 text-green-600" />
+                        <PiEyeBold className="w-4 h-4 text-green-600" />
                       ) : (
-                        <EyeOff className="w-4 h-4 text-gray-400" />
+                        <PiEyeSlashBold className="w-4 h-4 text-gray-400" />
                       )}
                       <div className="flex flex-col gap-0.5">
                         <span className="text-sm font-semibold text-gray-900">
@@ -464,7 +464,7 @@ export default function MTNDealsPage() {
             >
               {loadingMore ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Loading more deals...
                 </>
               ) : (
@@ -481,7 +481,7 @@ export default function MTNDealsPage() {
       {!loading && filteredAndSortedDeals.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <Package className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+            <PiPackageBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No deals found</h3>
             <p className="text-gray-500">
               Try adjusting your search criteria or filters

@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiEnvelopeBold, PiFileTextBold, PiHouseBold, PiMapPinBold, PiPackageBold, PiPhoneBold, PiSpinnerBold, PiUploadSimpleBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -7,21 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  CheckCircle,
-  Clock,
-  Package,
-  MapPin,
-  Mail,
-  Phone,
-  Calendar,
-  Download,
-  Upload,
-  Loader2,
-  AlertCircle,
-  FileText,
-  Home,
-} from 'lucide-react';
 import { OrderStatusBadge } from '@/components/customer-journey/OrderStatusBadge';
 import { OrderTimeline } from '@/components/order/OrderTimeline';
 import type { ConsumerOrder } from '@/lib/types/customer-journey';
@@ -67,7 +53,7 @@ function OrderTrackingContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-lg text-circleTel-secondaryNeutral">Loading order details...</p>
         </div>
       </div>
@@ -79,14 +65,14 @@ function OrderTrackingContent() {
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <PiWarningCircleBold className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
             <p className="text-gray-600 mb-6">
               We couldn't find the order you're looking for. Please check your order number and try again.
             </p>
             <Link href="/coverage">
               <Button className="bg-circleTel-orange hover:bg-circleTel-orange-dark">
-                <Home className="w-4 h-4 mr-2" />
+                <PiHouseBold className="w-4 h-4 mr-2" />
                 Back to Homepage
               </Button>
             </Link>
@@ -123,7 +109,7 @@ function OrderTrackingContent() {
         {/* New Order Success Alert */}
         {isNewOrder && (
           <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <PiCheckCircleBold className="h-4 w-4 text-green-600" />
             <AlertTitle className="text-green-900">Order Submitted Successfully!</AlertTitle>
             <AlertDescription className="text-green-800">
               We've received your order and sent a confirmation email to <strong>{order.email}</strong>.
@@ -156,7 +142,7 @@ function OrderTrackingContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-circleTel-orange" />
+                  <PiClockBold className="w-5 h-5 text-circleTel-orange" />
                   Order Progress
                 </CardTitle>
                 <CardDescription>
@@ -179,7 +165,7 @@ function OrderTrackingContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-circleTel-orange" />
+                  <PiPackageBold className="w-5 h-5 text-circleTel-orange" />
                   Your Package
                 </CardTitle>
               </CardHeader>
@@ -208,7 +194,7 @@ function OrderTrackingContent() {
 
                 {order.router_included && (
                   <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <PiCheckCircleBold className="w-4 h-4 text-green-600" />
                     <span>Router included</span>
                   </div>
                 )}
@@ -219,7 +205,7 @@ function OrderTrackingContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-circleTel-orange" />
+                  <PiMapPinBold className="w-5 h-5 text-circleTel-orange" />
                   Installation Address
                 </CardTitle>
               </CardHeader>
@@ -244,7 +230,7 @@ function OrderTrackingContent() {
                 {order.preferred_installation_date && (
                   <div className="pt-3 border-t">
                     <p className="text-sm text-gray-500 mb-1">
-                      <Calendar className="w-3 h-3 inline mr-1" />
+                      <PiCalendarBold className="w-3 h-3 inline mr-1" />
                       Preferred Installation Date
                     </p>
                     <p className="font-medium">
@@ -261,7 +247,7 @@ function OrderTrackingContent() {
                 {order.installation_scheduled_date && (
                   <div className="pt-3 border-t bg-green-50 -mx-6 -mb-6 px-6 py-4 rounded-b-lg">
                     <p className="text-sm text-green-700 mb-1 font-medium">
-                      <Calendar className="w-3 h-3 inline mr-1" />
+                      <PiCalendarBold className="w-3 h-3 inline mr-1" />
                       Scheduled Installation
                     </p>
                     <p className="font-bold text-green-900">
@@ -414,7 +400,7 @@ function OrderTrackingContent() {
 
                 <div>
                   <p className="text-sm text-gray-500 mb-1">
-                    <Mail className="w-3 h-3 inline mr-1" />
+                    <PiEnvelopeBold className="w-3 h-3 inline mr-1" />
                     Email
                   </p>
                   <p className="font-medium text-sm">{order.email}</p>
@@ -422,7 +408,7 @@ function OrderTrackingContent() {
 
                 <div>
                   <p className="text-sm text-gray-500 mb-1">
-                    <Phone className="w-3 h-3 inline mr-1" />
+                    <PiPhoneBold className="w-3 h-3 inline mr-1" />
                     Phone
                   </p>
                   <p className="font-medium">{order.phone}</p>
@@ -446,7 +432,7 @@ function OrderTrackingContent() {
                     className="w-full bg-white text-circleTel-orange hover:bg-white/90"
                     onClick={() => window.location.href = 'tel:0860247253'}
                   >
-                    <Phone className="w-4 h-4 mr-2" />
+                    <PiPhoneBold className="w-4 h-4 mr-2" />
                     Call 0860 CIRCLE
                   </Button>
 
@@ -455,7 +441,7 @@ function OrderTrackingContent() {
                     className="w-full border-white text-white hover:bg-white/10"
                     onClick={() => window.location.href = 'mailto:support@circletel.co.za'}
                   >
-                    <Mail className="w-4 h-4 mr-2" />
+                    <PiEnvelopeBold className="w-4 h-4 mr-2" />
                     Email Support
                   </Button>
                 </div>
@@ -464,7 +450,7 @@ function OrderTrackingContent() {
 
             {/* Download Invoice */}
             <Button variant="outline" className="w-full" disabled>
-              <Download className="w-4 h-4 mr-2" />
+              <PiDownloadSimpleBold className="w-4 h-4 mr-2" />
               Download Invoice
               <Badge variant="secondary" className="ml-2 text-xs">Coming Soon</Badge>
             </Button>
@@ -480,7 +466,7 @@ export default function OrderTrackingPage() {
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-circleTel-lightNeutral via-white to-circleTel-lightNeutral flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
+          <PiSpinnerBold className="w-12 h-12 animate-spin text-circleTel-orange mx-auto mb-4" />
           <p className="text-lg text-circleTel-secondaryNeutral">Loading...</p>
         </div>
       </div>

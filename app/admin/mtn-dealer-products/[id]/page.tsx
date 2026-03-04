@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCalculatorBold, PiCalendarBold, PiCellSignalFullBold, PiChatBold, PiCheckCircleBold, PiClockBold, PiCopyBold, PiCreditCardBold, PiCurrencyDollarBold, PiDeviceMobileBold, PiFileTextBold, PiGiftBold, PiPackageBold, PiPencilSimpleBold, PiPhoneBold, PiSpinnerBold, PiTrashBold, PiWarningCircleBold, PiWifiBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -8,32 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  ArrowLeft,
-  Edit,
-  Trash2,
-  Loader2,
-  AlertCircle,
-  Smartphone,
-  CreditCard,
-  Signal,
-  Calendar,
-  DollarSign,
-  Package,
-  Calculator,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Building2,
-  Wifi,
-  MessageSquare,
-  Phone,
-  Gift,
-  FileText,
-  ExternalLink,
-  Copy,
-  RefreshCw,
-} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -137,7 +112,7 @@ function TechnologyBadge({ technology }: { technology: string }) {
 
   return (
     <Badge variant="outline" className={variants[technology] || variants.LTE}>
-      <Signal className="h-3 w-3 mr-1" />
+      <PiCellSignalFullBold className="h-3 w-3 mr-1" />
       {technology}
     </Badge>
   );
@@ -229,7 +204,7 @@ export default function MTNDealerProductDetailPage() {
     return (
       <div className="container mx-auto py-12">
         <div className="flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-circleTel-orange" />
+          <PiSpinnerBold className="h-8 w-8 animate-spin text-circleTel-orange" />
         </div>
       </div>
     );
@@ -241,11 +216,11 @@ export default function MTNDealerProductDetailPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex flex-col items-center justify-center py-12 text-red-500">
-              <AlertCircle className="h-12 w-12 mb-4" />
+              <PiWarningCircleBold className="h-12 w-12 mb-4" />
               <p className="text-lg font-medium">{error || 'Product not found'}</p>
               <Link href="/admin/mtn-dealer-products" className="mt-4">
                 <Button variant="outline">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <PiArrowLeftBold className="h-4 w-4 mr-2" />
                   Back to Products
                 </Button>
               </Link>
@@ -264,7 +239,7 @@ export default function MTNDealerProductDetailPage() {
           <div className="flex items-center gap-3">
             <Link href="/admin/mtn-dealer-products">
               <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4" />
+                <PiArrowLeftBold className="h-4 w-4" />
               </Button>
             </Link>
             <div>
@@ -275,7 +250,7 @@ export default function MTNDealerProductDetailPage() {
                   onClick={() => copyToClipboard(product.deal_id)}
                   className="p-1 hover:bg-gray-100 rounded"
                 >
-                  <Copy className="h-3 w-3" />
+                  <PiCopyBold className="h-3 w-3" />
                 </button>
               </div>
             </div>
@@ -284,12 +259,12 @@ export default function MTNDealerProductDetailPage() {
 
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={fetchProduct}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Link href={`/admin/mtn-dealer-products/${productId}/edit`}>
             <Button variant="outline">
-              <Edit className="h-4 w-4 mr-2" />
+              <PiPencilSimpleBold className="h-4 w-4 mr-2" />
               Edit
             </Button>
           </Link>
@@ -297,9 +272,9 @@ export default function MTNDealerProductDetailPage() {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={deleting}>
                 {deleting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <PiTrashBold className="h-4 w-4 mr-2" />
                 )}
                 Delete
               </Button>
@@ -330,27 +305,27 @@ export default function MTNDealerProductDetailPage() {
             <TechnologyBadge technology={product.technology} />
             {product.has_device ? (
               <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                <Smartphone className="h-3 w-3 mr-1" />
+                <PiDeviceMobileBold className="h-3 w-3 mr-1" />
                 With Device
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-gray-50 text-gray-700">
-                <CreditCard className="h-3 w-3 mr-1" />
+                <PiCreditCardBold className="h-3 w-3 mr-1" />
                 SIM Only
               </Badge>
             )}
             <Badge variant="outline">
-              <Calendar className="h-3 w-3 mr-1" />
+              <PiCalendarBold className="h-3 w-3 mr-1" />
               {product.contract_term_label}
             </Badge>
             {isCurrentDeal ? (
               <Badge className="bg-green-500 text-white">
-                <CheckCircle className="h-3 w-3 mr-1" />
+                <PiCheckCircleBold className="h-3 w-3 mr-1" />
                 Current Deal
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-gray-100 text-gray-600">
-                <Clock className="h-3 w-3 mr-1" />
+                <PiClockBold className="h-3 w-3 mr-1" />
                 Expired
               </Badge>
             )}
@@ -380,7 +355,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-circleTel-orange" />
+                  <PiPackageBold className="h-5 w-5 text-circleTel-orange" />
                   Product Information
                 </CardTitle>
               </CardHeader>
@@ -407,7 +382,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5 text-circleTel-orange" />
+                  <PiDeviceMobileBold className="h-5 w-5 text-circleTel-orange" />
                   Device Information
                 </CardTitle>
               </CardHeader>
@@ -448,7 +423,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-circleTel-orange" />
+                  <PiCalendarBold className="h-5 w-5 text-circleTel-orange" />
                   Deal Period
                 </CardTitle>
               </CardHeader>
@@ -461,12 +436,12 @@ export default function MTNDealerProductDetailPage() {
                   label="Deal Status"
                   value={isCurrentDeal ? (
                     <Badge className="bg-green-500 text-white">
-                      <CheckCircle className="h-3 w-3 mr-1" />
+                      <PiCheckCircleBold className="h-3 w-3 mr-1" />
                       Active
                     </Badge>
                   ) : (
                     <Badge variant="outline" className="bg-gray-100">
-                      <XCircle className="h-3 w-3 mr-1" />
+                      <PiXCircleBold className="h-3 w-3 mr-1" />
                       Expired
                     </Badge>
                   )}
@@ -478,7 +453,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-circleTel-orange" />
+                  <PiBuildingsBold className="h-5 w-5 text-circleTel-orange" />
                   Channel Availability
                 </CardTitle>
               </CardHeader>
@@ -488,18 +463,18 @@ export default function MTNDealerProductDetailPage() {
                 <DetailRow
                   label="Available on Helios"
                   value={product.available_on_helios ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-300" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-300" />
                   )}
                 />
                 <Separator />
                 <DetailRow
                   label="Available on iLula"
                   value={product.available_on_ilula ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-300" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-300" />
                   )}
                 />
               </CardContent>
@@ -514,7 +489,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-circleTel-orange" />
+                  <PiCurrencyDollarBold className="h-5 w-5 text-circleTel-orange" />
                   Pricing
                 </CardTitle>
               </CardHeader>
@@ -549,7 +524,7 @@ export default function MTNDealerProductDetailPage() {
             <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-circleTel-orange">
-                  <Calculator className="h-5 w-5" />
+                  <PiCalculatorBold className="h-5 w-5" />
                   Commission Calculation
                 </CardTitle>
                 <CardDescription>
@@ -615,7 +590,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Wifi className="h-5 w-5 text-circleTel-orange" />
+                  <PiWifiBold className="h-5 w-5 text-circleTel-orange" />
                   Data Bundle
                 </CardTitle>
               </CardHeader>
@@ -635,7 +610,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-circleTel-orange" />
+                  <PiPhoneBold className="h-5 w-5 text-circleTel-orange" />
                   Voice Bundle
                 </CardTitle>
               </CardHeader>
@@ -656,7 +631,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-circleTel-orange" />
+                  <PiChatBold className="h-5 w-5 text-circleTel-orange" />
                   SMS Bundle
                 </CardTitle>
               </CardHeader>
@@ -671,7 +646,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-circleTel-orange" />
+                  <PiGiftBold className="h-5 w-5 text-circleTel-orange" />
                   Freebies & Extras
                 </CardTitle>
               </CardHeader>
@@ -679,27 +654,27 @@ export default function MTNDealerProductDetailPage() {
                 <DetailRow
                   label="Free SIM"
                   value={product.free_sim ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-300" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-300" />
                   )}
                 />
                 <Separator />
                 <DetailRow
                   label="Free CLI"
                   value={product.free_cli ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-300" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-300" />
                   )}
                 />
                 <Separator />
                 <DetailRow
                   label="Free ITB"
                   value={product.free_itb ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <PiCheckCircleBold className="h-5 w-5 text-green-500" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-300" />
+                    <PiXCircleBold className="h-5 w-5 text-gray-300" />
                   )}
                 />
                 <Separator />
@@ -718,7 +693,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-circleTel-orange" />
+                  <PiFileTextBold className="h-5 w-5 text-circleTel-orange" />
                   Import Information
                 </CardTitle>
               </CardHeader>
@@ -739,7 +714,7 @@ export default function MTNDealerProductDetailPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-circleTel-orange" />
+                  <PiClockBold className="h-5 w-5 text-circleTel-orange" />
                   Audit Information
                 </CardTitle>
               </CardHeader>
@@ -783,7 +758,7 @@ export default function MTNDealerProductDetailPage() {
                         onClick={() => copyToClipboard(product.id)}
                         className="p-1 hover:bg-gray-200 rounded"
                       >
-                        <Copy className="h-3 w-3" />
+                        <PiCopyBold className="h-3 w-3" />
                       </button>
                     </div>
                   </div>
@@ -795,7 +770,7 @@ export default function MTNDealerProductDetailPage() {
                         onClick={() => copyToClipboard(product.deal_id)}
                         className="p-1 hover:bg-gray-200 rounded"
                       >
-                        <Copy className="h-3 w-3" />
+                        <PiCopyBold className="h-3 w-3" />
                       </button>
                     </div>
                   </div>

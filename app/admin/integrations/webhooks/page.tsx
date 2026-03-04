@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCaretDownBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiDownloadSimpleBold, PiPlayCircleBold, PiSpinnerBold, PiTestTubeBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,20 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Activity,
-  RefreshCw,
-  Loader2,
-  ChevronDown,
-  ChevronRight,
-  PlayCircle,
-  TestTube,
-  Download,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 interface WebhookLog {
@@ -268,35 +255,35 @@ export default function WebhookMonitorPage() {
       case 'processed':
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-            <CheckCircle2 className="w-3 h-3 mr-1" />
+            <PiCheckCircleBold className="w-3 h-3 mr-1" />
             Processed
           </Badge>
         );
       case 'failed':
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-            <XCircle className="w-3 h-3 mr-1" />
+            <PiXCircleBold className="w-3 h-3 mr-1" />
             Failed
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-            <Clock className="w-3 h-3 mr-1" />
+            <PiClockBold className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
       case 'test':
         return (
           <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            <TestTube className="w-3 h-3 mr-1" />
+            <PiTestTubeBold className="w-3 h-3 mr-1" />
             Test
           </Badge>
         );
       case 'replay':
         return (
           <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-            <PlayCircle className="w-3 h-3 mr-1" />
+            <PiPlayCircleBold className="w-3 h-3 mr-1" />
             Replay
           </Badge>
         );
@@ -339,7 +326,7 @@ export default function WebhookMonitorPage() {
   if (isLoading && !logs.length) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-circleTel-orange" />
+        <PiSpinnerBold className="w-8 h-8 animate-spin text-circleTel-orange" />
       </div>
     );
   }
@@ -364,7 +351,7 @@ export default function WebhookMonitorPage() {
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={autoRefresh ? 'border-green-500 text-green-600' : ''}
           >
-            <Activity className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
+            <PiActivityBold className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-pulse' : ''}`} />
             {autoRefresh ? 'Auto-Refresh On' : 'Auto-Refresh Off'}
           </Button>
 
@@ -374,7 +361,7 @@ export default function WebhookMonitorPage() {
             onClick={() => fetchLogs()}
             disabled={isLoading}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
 
@@ -384,7 +371,7 @@ export default function WebhookMonitorPage() {
             onClick={() => setTestDialogOpen(true)}
             className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
           >
-            <TestTube className="w-4 h-4 mr-2" />
+            <PiTestTubeBold className="w-4 h-4 mr-2" />
             Test Webhook
           </Button>
         </div>
@@ -400,7 +387,7 @@ export default function WebhookMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
                   <p className="text-2xl font-bold">{summary.total}</p>
                 </div>
-                <Activity className="w-8 h-8 text-gray-400" />
+                <PiActivityBold className="w-8 h-8 text-gray-400" />
               </div>
             </CardContent>
           </Card>
@@ -412,7 +399,7 @@ export default function WebhookMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Successful</p>
                   <p className="text-2xl font-bold text-green-600">{summary.successful}</p>
                 </div>
-                <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <PiCheckCircleBold className="w-8 h-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
@@ -424,7 +411,7 @@ export default function WebhookMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Failed</p>
                   <p className="text-2xl font-bold text-red-600">{summary.failed}</p>
                 </div>
-                <XCircle className="w-8 h-8 text-red-400" />
+                <PiXCircleBold className="w-8 h-8 text-red-400" />
               </div>
             </CardContent>
           </Card>
@@ -436,7 +423,7 @@ export default function WebhookMonitorPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
                   <p className="text-2xl font-bold text-yellow-600">{summary.pending}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-400" />
+                <PiClockBold className="w-8 h-8 text-yellow-400" />
               </div>
             </CardContent>
           </Card>
@@ -518,7 +505,7 @@ export default function WebhookMonitorPage() {
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <PiWarningCircleBold className="w-5 h-5 text-red-600 dark:text-red-400" />
                 <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
               </div>
             </div>
@@ -526,7 +513,7 @@ export default function WebhookMonitorPage() {
 
           {filteredLogs.length === 0 ? (
             <div className="text-center py-12">
-              <Activity className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <PiActivityBold className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
                 No webhook logs found
               </p>
@@ -545,9 +532,9 @@ export default function WebhookMonitorPage() {
                   >
                     <div className="flex-shrink-0">
                       {expandedLogId === log.id ? (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                        <PiCaretDownBold className="w-5 h-5 text-gray-400" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                        <PiCaretRightBold className="w-5 h-5 text-gray-400" />
                       )}
                     </div>
 
@@ -593,7 +580,7 @@ export default function WebhookMonitorPage() {
                           setReplayDialogOpen(true);
                         }}
                       >
-                        <PlayCircle className="w-4 h-4 mr-1" />
+                        <PiPlayCircleBold className="w-4 h-4 mr-1" />
                         Replay
                       </Button>
                     )}
@@ -685,12 +672,12 @@ export default function WebhookMonitorPage() {
             >
               {isReplaying ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Replaying...
                 </>
               ) : (
                 <>
-                  <PlayCircle className="w-4 h-4 mr-2" />
+                  <PiPlayCircleBold className="w-4 h-4 mr-2" />
                   Replay Webhook
                 </>
               )}
@@ -757,12 +744,12 @@ export default function WebhookMonitorPage() {
             >
               {isTesting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-4 h-4 mr-2 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <TestTube className="w-4 h-4 mr-2" />
+                  <PiTestTubeBold className="w-4 h-4 mr-2" />
                   Send Test
                 </>
               )}

@@ -1,5 +1,5 @@
+import { PiChartLineUpBold, PiChatPlusBold, PiCheckCircleBold, PiLaptopBold, PiLightningBold, PiPlugBold, PiRadioBold, PiShieldCheckBold, PiWifiBold } from 'react-icons/pi';
 import { Metadata } from 'next';
-import { CircleCheck, CheckCircle, ShieldCheck, Zap, LineChart, Laptop, MessageSquarePlus, Wifi, Radio, Cable } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import CoverageCheck from '@/components/coverage/CoverageCheck';
@@ -34,7 +34,7 @@ export default function BusinessConnectivity() {
               </div>
               <Button asChild className="primary-button flex items-center gap-2">
                 <Link href="/contact">
-                  <MessageSquarePlus size={18} />
+                  <PiChatPlusBold size={18} />
                   Explore Connectivity Options
                 </Link>
               </Button>
@@ -43,26 +43,26 @@ export default function BusinessConnectivity() {
             <div className="relative bg-white rounded-lg p-6 shadow-lg border border-circleTel-orange">
               <div className="flex items-center mb-4">
                 <div className="bg-circleTel-orange rounded-full p-3 mr-3 text-white">
-                  <CircleCheck size={24} />
+                  <PiCheckCircleBold size={24} />
                 </div>
                 <h3 className="text-xl font-bold text-circleTel-navy">Perfect For</h3>
               </div>
 
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <CheckCircle className="text-circleTel-orange mr-2 mt-1" size={18} />
+                  <PiCheckCircleBold className="text-circleTel-orange mr-2 mt-1" size={18} />
                   <span className="text-circleTel-secondaryNeutral">Large offices with high bandwidth needs</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-circleTel-orange mr-2 mt-1" size={18} />
+                  <PiCheckCircleBold className="text-circleTel-orange mr-2 mt-1" size={18} />
                   <span className="text-circleTel-secondaryNeutral">Companies using cloud applications and VoIP</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-circleTel-orange mr-2 mt-1" size={18} />
+                  <PiCheckCircleBold className="text-circleTel-orange mr-2 mt-1" size={18} />
                   <span className="text-circleTel-secondaryNeutral">Businesses requiring guaranteed uptime</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-circleTel-orange mr-2 mt-1" size={18} />
+                  <PiCheckCircleBold className="text-circleTel-orange mr-2 mt-1" size={18} />
                   <span className="text-circleTel-secondaryNeutral">Remote teams and distributed workforces</span>
                 </li>
               </ul>
@@ -89,7 +89,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-circleTel-orange rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-circleTel-orange rounded-full p-3 text-white">
-                  <Cable size={32} />
+                  <PiPlugBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">Fibre (FTTB)</h3>
@@ -102,15 +102,15 @@ export default function BusinessConnectivity() {
               </div>
               <ul className="mt-4 space-y-2 text-sm">
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>99.99% uptime SLA</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>50Mbps - 1Gbps speeds</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>&lt;5ms latency</span>
                 </li>
               </ul>
@@ -120,7 +120,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-blue-600 rounded-full p-3 text-white">
-                  <Wifi size={32} />
+                  <PiWifiBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">5G Wireless</h3>
@@ -133,15 +133,15 @@ export default function BusinessConnectivity() {
               </div>
               <ul className="mt-4 space-y-2 text-sm">
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>99.9% uptime SLA</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>Up to 500Mbps speeds</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>Fast installation (2-3 days)</span>
                 </li>
               </ul>
@@ -151,7 +151,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-purple-600 rounded-full p-3 text-white">
-                  <Radio size={32} />
+                  <PiRadioBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">LTE</h3>
@@ -164,15 +164,15 @@ export default function BusinessConnectivity() {
               </div>
               <ul className="mt-4 space-y-2 text-sm">
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>99.5% uptime SLA</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>20-50Mbps speeds</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>Wide coverage area</span>
                 </li>
               </ul>
@@ -182,7 +182,7 @@ export default function BusinessConnectivity() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-green-600 rounded-full p-3 text-white">
-                  <Wifi size={32} />
+                  <PiWifiBold size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy text-center mb-2">Fixed Wireless</h3>
@@ -195,15 +195,15 @@ export default function BusinessConnectivity() {
               </div>
               <ul className="mt-4 space-y-2 text-sm">
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>99.5% uptime SLA</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>20-100Mbps speeds</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircle className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
+                  <PiCheckCircleBold className="text-green-600 mr-2 mt-0.5 flex-shrink-0" size={14} />
                   <span>Quick deployment (3-5 days)</span>
                 </li>
               </ul>
@@ -222,7 +222,7 @@ export default function BusinessConnectivity() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4">
-                <Zap size={28} />
+                <PiLightningBold size={28} />
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy mb-2">Enterprise Performance</h3>
               <p className="text-circleTel-secondaryNeutral">High-speed, low-latency connections designed for business-critical applications and cloud services.</p>
@@ -230,7 +230,7 @@ export default function BusinessConnectivity() {
 
             <div className="text-center">
               <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4">
-                <CircleCheck size={28} />
+                <PiCheckCircleBold size={28} />
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy mb-2">Guaranteed Uptime</h3>
               <p className="text-circleTel-secondaryNeutral">Industry-leading SLAs with compensation for downtime. Your business stays online, always.</p>
@@ -238,7 +238,7 @@ export default function BusinessConnectivity() {
 
             <div className="text-center">
               <div className="bg-circleTel-lightNeutral rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4">
-                <ShieldCheck size={28} />
+                <PiShieldCheckBold size={28} />
               </div>
               <h3 className="text-xl font-bold text-circleTel-navy mb-2">24/7 Support</h3>
               <p className="text-circleTel-secondaryNeutral">Dedicated account managers and priority support team available around the clock.</p>
@@ -257,7 +257,7 @@ export default function BusinessConnectivity() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-xl font-bold text-circleTel-navy flex items-center mb-4">
-                <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                <PiCheckCircleBold className="text-circleTel-orange mr-2" size={20} />
                 Enhanced Productivity
               </h3>
               <p className="text-circleTel-secondaryNeutral ml-8">
@@ -267,7 +267,7 @@ export default function BusinessConnectivity() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-xl font-bold text-circleTel-navy flex items-center mb-4">
-                <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                <PiCheckCircleBold className="text-circleTel-orange mr-2" size={20} />
                 Cloud Application Performance
               </h3>
               <p className="text-circleTel-secondaryNeutral ml-8">
@@ -277,7 +277,7 @@ export default function BusinessConnectivity() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-xl font-bold text-circleTel-navy flex items-center mb-4">
-                <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                <PiCheckCircleBold className="text-circleTel-orange mr-2" size={20} />
                 Crystal-Clear Communications
               </h3>
               <p className="text-circleTel-secondaryNeutral ml-8">
@@ -287,7 +287,7 @@ export default function BusinessConnectivity() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-xl font-bold text-circleTel-navy flex items-center mb-4">
-                <CheckCircle className="text-circleTel-orange mr-2" size={20} />
+                <PiCheckCircleBold className="text-circleTel-orange mr-2" size={20} />
                 Flexible Solutions
               </h3>
               <p className="text-circleTel-secondaryNeutral ml-8">
@@ -309,7 +309,7 @@ export default function BusinessConnectivity() {
             <div className="text-center">
               <div className="bg-white rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4 shadow-lg relative">
                 <span className="absolute -top-2 -right-2 bg-circleTel-orange text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
-                <Laptop size={28} />
+                <PiLaptopBold size={28} />
               </div>
               <h3 className="text-lg font-bold text-circleTel-navy mb-2">Coverage Check</h3>
               <p className="text-circleTel-secondaryNeutral text-sm">Check what services are available at your address and compare options.</p>
@@ -318,7 +318,7 @@ export default function BusinessConnectivity() {
             <div className="text-center">
               <div className="bg-white rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4 shadow-lg relative">
                 <span className="absolute -top-2 -right-2 bg-circleTel-orange text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</span>
-                <CircleCheck size={28} />
+                <PiCheckCircleBold size={28} />
               </div>
               <h3 className="text-lg font-bold text-circleTel-navy mb-2">Site Survey</h3>
               <p className="text-circleTel-secondaryNeutral text-sm">We evaluate your location and specific business needs to recommend the best solution.</p>
@@ -327,7 +327,7 @@ export default function BusinessConnectivity() {
             <div className="text-center">
               <div className="bg-white rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4 shadow-lg relative">
                 <span className="absolute -top-2 -right-2 bg-circleTel-orange text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</span>
-                <LineChart size={28} />
+                <PiChartLineUpBold size={28} />
               </div>
               <h3 className="text-lg font-bold text-circleTel-navy mb-2">Installation & Setup</h3>
               <p className="text-circleTel-secondaryNeutral text-sm">Fast professional installation with minimal disruption to your business operations.</p>
@@ -336,7 +336,7 @@ export default function BusinessConnectivity() {
             <div className="text-center">
               <div className="bg-white rounded-full p-4 w-16 h-16 flex items-center justify-center text-circleTel-orange mx-auto mb-4 shadow-lg relative">
                 <span className="absolute -top-2 -right-2 bg-circleTel-orange text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</span>
-                <CheckCircle size={28} />
+                <PiCheckCircleBold size={28} />
               </div>
               <h3 className="text-lg font-bold text-circleTel-navy mb-2">Ongoing Support</h3>
               <p className="text-circleTel-secondaryNeutral text-sm">24/7 monitoring, management, and proactive support for your connection.</p>
@@ -346,7 +346,7 @@ export default function BusinessConnectivity() {
           <div className="text-center mt-12">
             <Button asChild className="primary-button flex items-center gap-2">
               <Link href="/contact">
-                <MessageSquarePlus size={18} />
+                <PiChatPlusBold size={18} />
                 Get Started Today
               </Link>
             </Button>

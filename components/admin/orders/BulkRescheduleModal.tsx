@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiClockBold, PiSpinnerBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import {
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calendar, Clock, Loader2, AlertCircle } from 'lucide-react';
 
 interface BulkRescheduleModalProps {
   selectedCount: number;
@@ -73,7 +73,7 @@ export function BulkRescheduleModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm">
-          <Calendar className="h-4 w-4 mr-2" />
+          <PiCalendarBold className="h-4 w-4 mr-2" />
           Reschedule {selectedCount} Installation{selectedCount > 1 ? 's' : ''}
         </Button>
       </DialogTrigger>
@@ -81,7 +81,7 @@ export function BulkRescheduleModal({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+              <PiCalendarBold className="h-5 w-5" />
               Bulk Reschedule
             </DialogTitle>
             <DialogDescription>
@@ -93,7 +93,7 @@ export function BulkRescheduleModal({
           <div className="space-y-4 py-4">
             {/* Warning Message */}
             <Alert className="bg-yellow-50 border-yellow-200">
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <PiWarningCircleBold className="h-4 w-4 text-yellow-600" />
               <AlertDescription className="text-yellow-800">
                 This will reschedule all {selectedCount} selected installations to the same date and
                 time slot.
@@ -127,19 +127,19 @@ export function BulkRescheduleModal({
                 <SelectContent>
                   <SelectItem value="morning">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
+                      <PiClockBold className="h-4 w-4" />
                       Morning (8:00 - 12:00)
                     </div>
                   </SelectItem>
                   <SelectItem value="afternoon">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
+                      <PiClockBold className="h-4 w-4" />
                       Afternoon (12:00 - 17:00)
                     </div>
                   </SelectItem>
                   <SelectItem value="full_day">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
+                      <PiClockBold className="h-4 w-4" />
                       Full Day (8:00 - 17:00)
                     </div>
                   </SelectItem>
@@ -150,7 +150,7 @@ export function BulkRescheduleModal({
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -163,12 +163,12 @@ export function BulkRescheduleModal({
             <Button type="submit" disabled={isRescheduling}>
               {isRescheduling ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                   Rescheduling...
                 </>
               ) : (
                 <>
-                  <Calendar className="mr-2 h-4 w-4" />
+                  <PiCalendarBold className="mr-2 h-4 w-4" />
                   Reschedule All
                 </>
               )}

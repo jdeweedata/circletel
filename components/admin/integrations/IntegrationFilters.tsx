@@ -1,4 +1,5 @@
 'use client';
+import { PiMagnifyingGlassBold } from 'react-icons/pi';
 
 import { Input } from '@/components/ui/input';
 import {
@@ -8,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
 
 interface IntegrationFiltersProps {
   searchQuery: string;
@@ -40,7 +40,7 @@ export function IntegrationFilters({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search integrations..."
           value={searchQuery}

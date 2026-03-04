@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowSquareOutBold, PiArrowsClockwiseBold, PiBuildingsBold, PiCheckCircleBold, PiDownloadSimpleBold, PiMapTrifoldBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,18 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-  Map,
-  Building2,
-  Users,
-  Loader2,
-  ExternalLink,
-  RefreshCw,
-  Download,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MapViewerProps {
@@ -48,7 +37,7 @@ function MapViewer({ url, title, description, icon }: MapViewerProps) {
               size="sm"
               onClick={() => window.open(url, '_blank')}
             >
-              <ExternalLink className="h-4 w-4 mr-2" />
+              <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
               Open in New Tab
             </Button>
             <Button
@@ -56,7 +45,7 @@ function MapViewer({ url, title, description, icon }: MapViewerProps) {
               size="sm"
               onClick={() => setIsLoading(true)}
             >
-              <RefreshCw className="h-4 w-4" />
+              <PiArrowsClockwiseBold className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -66,7 +55,7 @@ function MapViewer({ url, title, description, icon }: MapViewerProps) {
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg border">
               <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
+                <PiSpinnerBold className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
                 <p className="text-sm text-gray-600">Loading MTN coverage map...</p>
               </div>
             </div>
@@ -156,7 +145,7 @@ export default function MTNMapsPage() {
     if (!result) {
       return (
         <div className="text-center py-8 text-gray-500">
-          <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+          <PiWarningCircleBold className="h-12 w-12 mx-auto mb-3 opacity-50" />
           <p>No test results yet. Run a coverage check to see results.</p>
         </div>
       );
@@ -179,12 +168,12 @@ export default function MTNMapsPage() {
           <Badge variant={hasAnyCoverage ? 'default' : 'secondary'} className="h-7">
             {hasAnyCoverage ? (
               <>
-                <CheckCircle className="h-4 w-4 mr-1" />
+                <PiCheckCircleBold className="h-4 w-4 mr-1" />
                 Coverage Available
               </>
             ) : (
               <>
-                <XCircle className="h-4 w-4 mr-1" />
+                <PiXCircleBold className="h-4 w-4 mr-1" />
                 No Coverage
               </>
             )}
@@ -221,9 +210,9 @@ export default function MTNMapsPage() {
                     </p>
                   </div>
                   {service.available ? (
-                    <CheckCircle className="h-6 w-6 text-green-600" />
+                    <PiCheckCircleBold className="h-6 w-6 text-green-600" />
                   ) : (
-                    <XCircle className="h-6 w-6 text-gray-400" />
+                    <PiXCircleBold className="h-6 w-6 text-gray-400" />
                   )}
                 </div>
               </div>
@@ -247,7 +236,7 @@ export default function MTNMapsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Map className="h-5 w-5 text-orange-500" />
+            <PiMapTrifoldBold className="h-5 w-5 text-orange-500" />
             Coverage Testing Tool
           </CardTitle>
           <CardDescription>
@@ -287,9 +276,9 @@ export default function MTNMapsPage() {
               className="flex-1"
             >
               {isTesting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Users className="h-4 w-4 mr-2" />
+                <PiUsersBold className="h-4 w-4 mr-2" />
               )}
               Test Consumer Map
             </Button>
@@ -300,9 +289,9 @@ export default function MTNMapsPage() {
               variant="outline"
             >
               {isTesting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Building2 className="h-4 w-4 mr-2" />
+                <PiBuildingsBold className="h-4 w-4 mr-2" />
               )}
               Test Business Map
             </Button>
@@ -330,11 +319,11 @@ export default function MTNMapsPage() {
       <Tabs defaultValue="consumer" className="space-y-4">
         <TabsList>
           <TabsTrigger value="consumer" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
+            <PiUsersBold className="h-4 w-4" />
             Consumer Map
           </TabsTrigger>
           <TabsTrigger value="business" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
+            <PiBuildingsBold className="h-4 w-4" />
             Business Map
           </TabsTrigger>
         </TabsList>
@@ -344,7 +333,7 @@ export default function MTNMapsPage() {
             url={CONSUMER_MAP_URL}
             title="MTN Consumer Coverage Map"
             description="Coverage for residential and personal use services"
-            icon={<Users className="h-5 w-5 text-orange-500" />}
+            icon={<PiUsersBold className="h-5 w-5 text-orange-500" />}
           />
         </TabsContent>
 
@@ -353,7 +342,7 @@ export default function MTNMapsPage() {
             url={BUSINESS_MAP_URL}
             title="MTN Business Coverage Map"
             description="Coverage for enterprise and business services"
-            icon={<Building2 className="h-5 w-5 text-orange-500" />}
+            icon={<PiBuildingsBold className="h-5 w-5 text-orange-500" />}
           />
         </TabsContent>
       </Tabs>

@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiListBold, PiMagnifyingGlassBold, PiMapPinBold, PiRadioBold, PiWarningBold } from 'react-icons/pi';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -15,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BaseStationMap } from '@/components/admin/coverage/BaseStationMap';
-import { Radio, List, RefreshCw, AlertTriangle, Search, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 interface BaseStation {
@@ -109,7 +109,7 @@ function BaseStationsMapContent() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <MapPin className="h-8 w-8 text-orange-600" />
+              <PiMapPinBold className="h-8 w-8 text-orange-600" />
               Base Station Map
             </h1>
             <p className="text-gray-600 mt-1">
@@ -118,12 +118,12 @@ function BaseStationsMapContent() {
           </div>
           <div className="flex items-center gap-3">
             <Button onClick={fetchData} disabled={loading} variant="outline">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <PiArrowsClockwiseBold className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Link href="/admin/coverage/base-stations">
               <Button variant="outline">
-                <List className="h-4 w-4 mr-2" />
+                <PiListBold className="h-4 w-4 mr-2" />
                 List View
               </Button>
             </Link>
@@ -133,7 +133,7 @@ function BaseStationsMapContent() {
         {/* Error Alert */}
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <PiWarningBold className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
@@ -203,7 +203,7 @@ function BaseStationsMapContent() {
             {loading && stations.length === 0 ? (
               <div className="h-[600px] flex items-center justify-center bg-gray-50">
                 <div className="text-center space-y-2">
-                  <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto" />
+                  <PiArrowsClockwiseBold className="h-8 w-8 text-orange-500 animate-spin mx-auto" />
                   <p className="text-sm text-gray-600">Loading base stations...</p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ function BaseStationsMapContent() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Radio className="h-5 w-5 text-orange-500" />
+                  <PiRadioBold className="h-5 w-5 text-orange-500" />
                   {selectedStation.siteName}
                 </CardTitle>
                 <Button
@@ -296,7 +296,7 @@ export default function BaseStationsMapPage() {
       fallback={
         <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
           <div className="text-center space-y-2">
-            <RefreshCw className="h-8 w-8 text-orange-500 animate-spin mx-auto" />
+            <PiArrowsClockwiseBold className="h-8 w-8 text-orange-500 animate-spin mx-auto" />
             <p className="text-sm text-gray-600">Loading...</p>
           </div>
         </div>

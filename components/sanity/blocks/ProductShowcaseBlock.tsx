@@ -1,8 +1,8 @@
 'use client';
+import { PiArrowRightBold, PiCheckBold } from 'react-icons/pi';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { urlFor } from '@/lib/sanity/image';
 
@@ -76,7 +76,7 @@ export function ProductShowcaseBlock({
                 {features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <div className="flex-shrink-0 w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-0.5">
-                      <Check className="w-4 h-4 text-emerald-600" />
+                      <PiCheckBold className="w-4 h-4 text-emerald-600" />
                     </div>
                     <span className="font-body text-circleTel-grey600">
                       {feature}
@@ -112,7 +112,7 @@ export function ProductShowcaseBlock({
               >
                 <Link href={cta.href}>
                   {cta.label}
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <PiArrowRightBold className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             )}

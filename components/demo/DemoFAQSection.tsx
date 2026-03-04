@@ -3,7 +3,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Phone, Mail, MessageCircle, HelpCircle } from "lucide-react"
 
 const faqs = [
   {
@@ -48,7 +47,7 @@ export function DemoFAQSection() {
           {/* Section Header */}
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4 px-4 py-2 bg-circleTel-blue-600/10 text-circleTel-blue-600 border-circleTel-blue-600/20">
-              <HelpCircle className="w-4 h-4 mr-2" />
+              <PiQuestionBold className="w-4 h-4 mr-2" />
               Support Center
             </Badge>
 
@@ -95,7 +94,7 @@ export function DemoFAQSection() {
             {/* Contact Options */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-6 rounded-xl bg-circleTel-orange/5 border border-circleTel-orange/20 hover:bg-circleTel-orange/10 transition-colors">
-                <Phone className="w-8 h-8 text-circleTel-orange mx-auto mb-3" />
+                <PiPhoneBold className="w-8 h-8 text-circleTel-orange mx-auto mb-3" />
                 <div className="font-semibold text-circleTel-navy mb-1">Phone Support</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">24/7 Business Line</div>
                 <Button variant="outline" size="sm" className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white">
@@ -104,7 +103,7 @@ export function DemoFAQSection() {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-circleTel-blue-600/5 border border-circleTel-blue-600/20 hover:bg-circleTel-blue-600/10 transition-colors">
-                <Mail className="w-8 h-8 text-circleTel-blue-600 mx-auto mb-3" />
+                <PiEnvelopeBold className="w-8 h-8 text-circleTel-blue-600 mx-auto mb-3" />
                 <div className="font-semibold text-circleTel-navy mb-1">Email Support</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">Business Priority</div>
                 <Button variant="outline" size="sm" className="border-circleTel-blue-600 text-circleTel-blue-600 hover:bg-circleTel-blue-600 hover:text-white">
@@ -113,7 +112,7 @@ export function DemoFAQSection() {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-circleTel-red/5 border border-circleTel-red/20 hover:bg-circleTel-red/10 transition-colors">
-                <MessageCircle className="w-8 h-8 text-circleTel-red mx-auto mb-3" />
+                <PiChatCircleBold className="w-8 h-8 text-circleTel-red mx-auto mb-3" />
                 <div className="font-semibold text-circleTel-navy mb-1">WhatsApp Business</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">Instant Support</div>
                 <Button variant="outline" size="sm" className="border-circleTel-red text-circleTel-red hover:bg-circleTel-red hover:text-white">

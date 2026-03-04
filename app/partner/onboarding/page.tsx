@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiArrowRightBold, PiBuildingsBold, PiCheckBold, PiMapPinBold, PiShieldBold, PiSparklesBold, PiSpinnerBold, PiUserBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,10 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { 
-  Loader2, Building2, User, MapPin, Check, 
-  ArrowRight, ArrowLeft, Shield, Sparkles
-} from 'lucide-react';
 
 // Combined schema (Banking details collected later by admin)
 const partnerRegistrationSchema = z.object({
@@ -40,10 +37,10 @@ const partnerRegistrationSchema = z.object({
 type FormData = z.infer<typeof partnerRegistrationSchema>;
 
 const steps = [
-  { id: 1, title: 'Your Details', icon: User },
-  { id: 2, title: 'Business', icon: Building2 },
-  { id: 3, title: 'Address', icon: MapPin },
-  { id: 4, title: 'Review', icon: Check },
+  { id: 1, title: 'Your Details', icon: PiUserBold },
+  { id: 2, title: 'Business', icon: PiBuildingsBold },
+  { id: 3, title: 'Address', icon: PiMapPinBold },
+  { id: 4, title: 'Review', icon: PiCheckBold },
 ];
 
 export default function PartnerOnboardingPage() {
@@ -144,7 +141,7 @@ export default function PartnerOnboardingPage() {
                         isActive ? 'bg-circleTel-orange text-white' :
                         'bg-white text-circleTel-secondaryNeutral border-2 border-gray-200'
                       }`}>
-                        {isCompleted ? <Check className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
+                        {isCompleted ? <PiCheckBold className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
                       </div>
                       <span className={`text-xs mt-2 font-medium hidden sm:block ${
                         isCompleted ? 'text-green-600' :
@@ -174,7 +171,7 @@ export default function PartnerOnboardingPage() {
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <User className="w-8 h-8 text-circleTel-orange" />
+                        <PiUserBold className="w-8 h-8 text-circleTel-orange" />
                       </div>
                       <h2 className="text-2xl font-bold text-circleTel-navy">Let's get to know you</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">We'll use this to set up your partner account</p>
@@ -210,7 +207,7 @@ export default function PartnerOnboardingPage() {
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Building2 className="w-8 h-8 text-circleTel-orange" />
+                        <PiBuildingsBold className="w-8 h-8 text-circleTel-orange" />
                       </div>
                       <h2 className="text-2xl font-bold text-circleTel-navy">Business Information</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Select Individual if you don't have a registered business</p>
@@ -261,7 +258,7 @@ export default function PartnerOnboardingPage() {
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-circleTel-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MapPin className="w-8 h-8 text-circleTel-orange" />
+                        <PiMapPinBold className="w-8 h-8 text-circleTel-orange" />
                       </div>
                       <h2 className="text-2xl font-bold text-circleTel-navy">Where are you based?</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Your address for correspondence</p>
@@ -319,7 +316,7 @@ export default function PartnerOnboardingPage() {
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Sparkles className="w-8 h-8 text-green-600" />
+                        <PiSparklesBold className="w-8 h-8 text-green-600" />
                       </div>
                       <h2 className="text-2xl font-bold text-circleTel-navy">Almost there!</h2>
                       <p className="text-circleTel-secondaryNeutral mt-2">Review your details and submit</p>
@@ -352,7 +349,7 @@ export default function PartnerOnboardingPage() {
 
                     {/* Note about banking */}
                     <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <Shield className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <PiShieldBold className="w-5 h-5 text-blue-600 flex-shrink-0" />
                       <span className="text-sm text-blue-700">Banking details for commission payments will be collected during your onboarding call with our partner team.</span>
                     </div>
 
@@ -371,15 +368,15 @@ export default function PartnerOnboardingPage() {
                 {/* Navigation */}
                 <div className="flex justify-between mt-8 pt-6 border-t">
                   <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1} className="gap-2">
-                    <ArrowLeft className="w-4 h-4" /> Back
+                    <PiArrowLeftBold className="w-4 h-4" /> Back
                   </Button>
                   {currentStep < 4 ? (
                     <Button type="button" onClick={nextStep} className="bg-circleTel-orange hover:bg-circleTel-orange-dark gap-2">
-                      Continue <ArrowRight className="w-4 h-4" />
+                      Continue <PiArrowRightBold className="w-4 h-4" />
                     </Button>
                   ) : (
                     <Button type="submit" disabled={isSubmitting} className="bg-circleTel-orange hover:bg-circleTel-orange-dark gap-2 min-w-[180px]">
-                      {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : <>Submit Application <Check className="w-4 h-4" /></>}
+                      {isSubmitting ? <><PiSpinnerBold className="w-4 h-4 animate-spin" /> Submitting...</> : <>Submit Application <PiCheckBold className="w-4 h-4" /></>}
                     </Button>
                   )}
                 </div>
@@ -389,8 +386,8 @@ export default function PartnerOnboardingPage() {
 
           {/* Trust indicators */}
           <div className="flex justify-center gap-8 mt-8 text-circleTel-secondaryNeutral text-sm">
-            <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-green-600" /> Secure & Encrypted</div>
-            <div className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> POPIA Compliant</div>
+            <div className="flex items-center gap-2"><PiShieldBold className="w-4 h-4 text-green-600" /> Secure & Encrypted</div>
+            <div className="flex items-center gap-2"><PiCheckBold className="w-4 h-4 text-green-600" /> POPIA Compliant</div>
           </div>
         </div>
       </div>

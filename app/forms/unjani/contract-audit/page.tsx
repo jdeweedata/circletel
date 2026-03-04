@@ -1,4 +1,5 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiEnvelopeBold, PiFileTextBold, PiInfoBold, PiShieldBold, PiUsersBold, PiWarningBold } from 'react-icons/pi';
 
 import React, { useState, useEffect } from 'react';
 import { Footer } from '@/components/layout/Footer';
@@ -8,16 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  FileText,
-  Shield,
-  CheckCircle,
-  AlertTriangle,
-  Users,
-  Calendar,
-  Mail,
-  Info
-} from 'lucide-react';
 
 const UnjaniContractAuditForm = () => {
   const [formData, setFormData] = useState({
@@ -118,7 +109,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-circleTel-orange">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
-                      <FileText className="h-6 w-6 text-circleTel-orange mr-3" />
+                      <PiFileTextBold className="h-6 w-6 text-circleTel-orange mr-3" />
                       <h2 className="text-xl font-bold text-circleTel-navy">1. Clinic Identification</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,7 +174,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-blue-500">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
-                      <Shield className="h-6 w-6 text-blue-500 mr-3" />
+                      <PiShieldBold className="h-6 w-6 text-blue-500 mr-3" />
                       <h2 className="text-xl font-bold text-circleTel-navy">2. Current Service Provider Information</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +248,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-purple-500">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
-                      <CheckCircle className="h-6 w-6 text-purple-500 mr-3" />
+                      <PiCheckCircleBold className="h-6 w-6 text-purple-500 mr-3" />
                       <div>
                         <h2 className="text-xl font-bold text-circleTel-navy">3. Contract Details</h2>
                         <p className="text-sm text-circleTel-secondaryNeutral">Critical information for determining migration readiness and rollout priority</p>
@@ -332,7 +323,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-green-500">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
-                      <Calendar className="h-6 w-6 text-green-500 mr-3" />
+                      <PiCalendarBold className="h-6 w-6 text-green-500 mr-3" />
                       <h2 className="text-xl font-bold text-circleTel-navy">4. Migration Readiness & Rollout Priority</h2>
                     </div>
 
@@ -380,7 +371,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-indigo-500">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-6">
-                      <Users className="h-6 w-6 text-indigo-500 mr-3" />
+                      <PiUsersBold className="h-6 w-6 text-indigo-500 mr-3" />
                       <h2 className="text-xl font-bold text-circleTel-navy">5. Contact Person on Site</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -497,7 +488,7 @@ const UnjaniContractAuditForm = () => {
                 <Card className="border-l-4 border-l-pink-500">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
-                      <Mail className="h-6 w-6 text-pink-500 mr-3" />
+                      <PiEnvelopeBold className="h-6 w-6 text-pink-500 mr-3" />
                       <div>
                         <h2 className="text-xl font-bold text-circleTel-navy">6. Email Notifications</h2>
                         <p className="text-sm text-circleTel-secondaryNeutral">Configure who should receive notifications about this audit submission</p>
@@ -506,12 +497,12 @@ const UnjaniContractAuditForm = () => {
 
                     <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
                       <div className="flex items-start">
-                        <Info className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                        <PiInfoBold className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-blue-900 mb-2">Email notifications will be sent upon successful submission:</p>
                           <ul className="text-sm text-blue-800 space-y-1">
                             <li className="flex items-center">
-                              <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                              <PiCheckCircleBold className="h-3 w-3 text-green-500 mr-2" />
                               <strong>Team notification</strong> - Internal audit processing team
                             </li>
                           </ul>
@@ -522,7 +513,7 @@ const UnjaniContractAuditForm = () => {
                     <div className="space-y-6">
                       <div className="flex items-start space-x-4">
                         <div className="flex items-center">
-                          <Users className="h-8 w-8 text-circleTel-orange p-1 bg-circleTel-orange/10 rounded" />
+                          <PiUsersBold className="h-8 w-8 text-circleTel-orange p-1 bg-circleTel-orange/10 rounded" />
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-circleTel-navy">Team Notification</h4>
@@ -538,7 +529,7 @@ const UnjaniContractAuditForm = () => {
 
                       <div className="flex items-start space-x-4">
                         <div className="flex items-center">
-                          <Mail className="h-8 w-8 text-blue-500 p-1 bg-blue-100 rounded" />
+                          <PiEnvelopeBold className="h-8 w-8 text-blue-500 p-1 bg-blue-100 rounded" />
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-circleTel-navy">Additional Recipients</h4>
@@ -556,7 +547,7 @@ const UnjaniContractAuditForm = () => {
 
                       <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                         <div className="flex items-start">
-                          <Info className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
+                          <PiInfoBold className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
                           <div className="text-sm text-gray-700">
                             <p className="font-medium">Email Service Information</p>
                             <p>Email notifications are sent automatically upon successful form submission. If you don't receive emails within 5 minutes, please contact our support team.</p>

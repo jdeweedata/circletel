@@ -1,7 +1,7 @@
 'use client';
+import { PiCheckBold } from 'react-icons/pi';
 
 import React from 'react';
-import { Check } from 'lucide-react';
 
 interface SimpleProgressBarProps {
   currentStep: number;
@@ -60,7 +60,7 @@ export function SimpleProgressBar({
                     `}
                   >
                     {isCompleted ? (
-                      <Check className="w-5 h-5" />
+                      <PiCheckBold className="w-5 h-5" />
                     ) : (
                       stepNumber
                     )}

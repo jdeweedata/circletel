@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
 
 interface SupportHoursProps {
   className?: string;
@@ -28,7 +27,7 @@ const SupportHours: React.FC<SupportHoursProps> = ({ className }) => {
         </div>
         <div className="pt-4 border-t">
           <p className="text-circleTel-secondaryNeutral">
-            <CheckCircle className="inline-block text-circleTel-orange mr-2" size={16} />
+            <PiCheckCircleBold className="inline-block text-circleTel-orange mr-2" size={16} />
             24/7 emergency support available for business clients
           </p>
         </div>

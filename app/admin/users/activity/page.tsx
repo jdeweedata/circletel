@@ -1,4 +1,5 @@
 'use client';
+import { PiActivityBold, PiArrowsClockwiseBold, PiCaretLeftBold, PiCaretRightBold, PiCheckCircleBold, PiClockBold, PiFunnelBold, PiMagnifyingGlassBold, PiShieldBold, PiUserBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useEffect, useState } from 'react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
@@ -19,20 +20,6 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Shield,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Search,
-  Filter,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Activity,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -140,13 +127,13 @@ export default function AdminUserActivityPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return <PiCheckCircleBold className="w-4 h-4 text-green-600" />;
       case 'failure':
-        return <XCircle className="w-4 h-4 text-red-600" />;
+        return <PiXCircleBold className="w-4 h-4 text-red-600" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-600" />;
+        return <PiClockBold className="w-4 h-4 text-yellow-600" />;
       default:
-        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
+        return <PiWarningBold className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -189,7 +176,7 @@ export default function AdminUserActivityPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <Activity className="w-8 h-8 text-circleTel-orange" />
+            <PiActivityBold className="w-8 h-8 text-circleTel-orange" />
             User Activity
           </h1>
           <p className="text-gray-600 mt-2">
@@ -197,7 +184,7 @@ export default function AdminUserActivityPage() {
           </p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          <PiArrowsClockwiseBold className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -253,7 +240,7 @@ export default function AdminUserActivityPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
+            <PiFunnelBold className="w-5 h-5" />
             <CardTitle>Filters</CardTitle>
           </div>
         </CardHeader>
@@ -272,7 +259,7 @@ export default function AdminUserActivityPage() {
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <Button onClick={handleSearch} size="sm">
-                  <Search className="w-4 h-4" />
+                  <PiMagnifyingGlassBold className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -385,11 +372,11 @@ export default function AdminUserActivityPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-circleTel-orange" />
+              <PiArrowsClockwiseBold className="w-8 h-8 animate-spin text-circleTel-orange" />
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-12">
-              <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <PiActivityBold className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No activity logs found</p>
             </div>
           ) : (
@@ -432,7 +419,7 @@ export default function AdminUserActivityPage() {
                         <div className="flex items-center gap-2">
                           {getStatusIcon(log.status)}
                           {log.is_suspicious && (
-                            <AlertTriangle className="w-4 h-4 text-orange-600" />
+                            <PiWarningBold className="w-4 h-4 text-orange-600" />
                           )}
                         </div>
                       </td>
@@ -485,7 +472,7 @@ export default function AdminUserActivityPage() {
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1 || isLoading}
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <PiCaretLeftBold className="w-4 h-4" />
                   Previous
                 </Button>
                 <Button
@@ -495,7 +482,7 @@ export default function AdminUserActivityPage() {
                   disabled={page === totalPages || isLoading}
                 >
                   Next
-                  <ChevronRight className="w-4 h-4" />
+                  <PiCaretRightBold className="w-4 h-4" />
                 </Button>
               </div>
             </div>

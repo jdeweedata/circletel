@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiBuildingsBold, PiEnvelopeBold, PiLockBold, PiPhoneBold, PiShieldBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Building2, ArrowLeft, Lock, Shield, Phone, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -197,14 +197,14 @@ export default function DebitOrderPage() {
           href="/dashboard/payment-method"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <PiArrowLeftBold className="w-4 h-4" />
           <span>Back to Payment Methods</span>
         </Link>
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-blue-100 rounded-lg">
-            <Building2 className="w-8 h-8 text-blue-600" />
+            <PiBuildingsBold className="w-8 h-8 text-blue-600" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Debit Order</h1>
@@ -216,7 +216,7 @@ export default function DebitOrderPage() {
         <Card className="mb-6 border-blue-200 bg-blue-50">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <Building2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <PiBuildingsBold className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold text-blue-900">Setup Debit Order</h3>
                 <p className="text-sm text-blue-700 mt-1">
@@ -361,19 +361,19 @@ export default function DebitOrderPage() {
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <PiSpinnerBold className="w-5 h-5 mr-2 animate-spin" />
                   Setting up mandate...
                 </>
               ) : (
                 <>
-                  <Shield className="w-5 h-5 mr-2" />
+                  <PiShieldBold className="w-5 h-5 mr-2" />
                   Authorize Debit Order
                 </>
               )}
             </Button>
 
             <p className="text-xs text-gray-500 text-center flex items-center justify-center gap-2">
-              <Lock className="w-3.5 h-3.5" />
+              <PiLockBold className="w-3.5 h-3.5" />
               <span>You'll be redirected to securely sign the mandate</span>
             </p>
           </CardContent>
@@ -391,14 +391,14 @@ export default function DebitOrderPage() {
                   href="https://wa.me/27824873900"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
+                  <PiPhoneBold className="w-4 h-4" />
                   <span>082 487 3900</span>
                 </a>
                 <a
                   href="mailto:contactus@circletel.co.za"
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-circleTel-orange transition-colors"
                 >
-                  <Mail className="w-4 h-4" />
+                  <PiEnvelopeBold className="w-4 h-4" />
                   <span>contactus@circletel.co.za</span>
                 </a>
               </div>

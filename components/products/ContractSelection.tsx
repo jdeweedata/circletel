@@ -1,4 +1,5 @@
 'use client';
+import { PiFileTextBold, PiLockBold, PiShieldBold, PiShoppingCartBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { ShoppingCart, FileText, Shield, Lock } from 'lucide-react';
 
 interface ContractSelectionProps {
   product: {
@@ -77,7 +77,7 @@ export function ContractSelection({
       {/* Contract Type Selection */}
       <div className="bg-white rounded-xl border p-4 md:p-6">
         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <FileText className="h-5 w-5 text-gray-500" />
+          <PiFileTextBold className="h-5 w-5 text-gray-500" />
           Contract Type
         </h3>
 
@@ -107,7 +107,7 @@ export function ContractSelection({
       {/* Terms and Conditions */}
       <div className="bg-white rounded-xl border p-4 md:p-6">
         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Shield className="h-5 w-5 text-gray-500" />
+          <PiShieldBold className="h-5 w-5 text-gray-500" />
           Terms & Conditions
         </h3>
 
@@ -209,7 +209,7 @@ export function ContractSelection({
           </span>
         ) : (
           <span className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
+            <PiShoppingCartBold className="h-5 w-5" />
             Buy Now - R{Math.round(finalPrice!)}/month
           </span>
         )}
@@ -217,7 +217,7 @@ export function ContractSelection({
 
       {/* Security Badge */}
       <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-        <Lock className="h-3 w-3" />
+        <PiLockBold className="h-3 w-3" />
         <span>Secure checkout powered by NetCash Pay Now</span>
       </div>
     </div>

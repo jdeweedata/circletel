@@ -1,5 +1,5 @@
+import { PiArrowSquareOutBold, PiCalendarBold, PiCheckCircleBold, PiLightningBold, PiMapPinBold, PiPhoneBold, PiShieldBold, PiXCircleBold } from 'react-icons/pi';
 import React from 'react';
-import { CheckCircle, XCircle, MapPin, Zap, Shield, Calendar, ExternalLink, Phone } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -62,9 +62,9 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
             {isSuccess ? (
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <PiCheckCircleBold className="h-8 w-8 text-green-600" />
             ) : (
-              <XCircle className="h-8 w-8 text-red-500" />
+              <PiXCircleBold className="h-8 w-8 text-red-500" />
             )}
           </div>
           <DialogTitle className="text-xl font-bold">
@@ -75,7 +75,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
         <div className="space-y-4">
           {/* Address */}
           <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
-            <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <PiMapPinBold className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
             <div>
               <p className="font-medium text-sm text-muted-foreground">Address</p>
               <p className="text-sm">{address}</p>
@@ -97,7 +97,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
 
               {/* Connection Type */}
               <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                <Zap className="h-5 w-5 text-blue-600" />
+                <PiLightningBold className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-blue-900">Connection Type</p>
                   <p className="text-sm text-blue-700">
@@ -110,7 +110,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
                 <>
                   {/* Speeds */}
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-50 border border-orange-200">
-                    <Zap className="h-5 w-5 text-circleTel-orange" />
+                    <PiLightningBold className="h-5 w-5 text-circleTel-orange" />
                     <div>
                       <p className="text-sm font-medium text-orange-900">Speeds Available</p>
                       <p className="text-sm text-orange-700">50Mbps - 1Gbps</p>
@@ -119,7 +119,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
 
                   {/* SLA */}
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-50 border border-purple-200">
-                    <Shield className="h-5 w-5 text-purple-600" />
+                    <PiShieldBold className="h-5 w-5 text-purple-600" />
                     <div>
                       <p className="text-sm font-medium text-purple-900">SLA Guarantee</p>
                       <p className="text-sm text-purple-700">99.99% uptime</p>
@@ -150,7 +150,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
               {/* Next Steps */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <PiCalendarBold className="h-4 w-4" />
                   Next Steps
                 </h4>
                 <ul className="space-y-1 text-sm text-gray-600">
@@ -198,7 +198,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
                 onClick={handleContactSales}
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
               >
-                <Phone className="h-4 w-4 mr-2" />
+                <PiPhoneBold className="h-4 w-4 mr-2" />
                 Contact Sales
               </Button>
             </>
@@ -211,7 +211,7 @@ export const CoverageResultModal: React.FC<CoverageResultModalProps> = ({
                 onClick={handleExploreAlternatives}
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark text-white"
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <PiArrowSquareOutBold className="h-4 w-4 mr-2" />
                 Explore Alternatives
               </Button>
             </>

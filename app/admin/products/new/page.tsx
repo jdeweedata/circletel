@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowLeftBold, PiCurrencyDollarBold, PiFloppyDiskBold, PiGearBold, PiGlobeBold, PiPackageBold, PiSpinnerBold, PiUsersBold, PiWarningCircleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,17 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ArrowLeft,
-  Save,
-  Package,
-  DollarSign,
-  Settings,
-  Globe,
-  Loader2,
-  AlertCircle,
-  Users
-} from 'lucide-react';
 import Link from 'next/link';
 
 interface ProductFormData {
@@ -245,7 +235,7 @@ export default function NewProduct() {
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/products">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <PiArrowLeftBold className="mr-2 h-4 w-4" />
               Back to Products
             </Link>
           </Button>
@@ -264,9 +254,9 @@ export default function NewProduct() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Save className="mr-2 h-4 w-4" />
+              <PiFloppyDiskBold className="mr-2 h-4 w-4" />
             )}
             Save Draft
           </Button>
@@ -278,7 +268,7 @@ export default function NewProduct() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Package className="h-5 w-5" />
+              <PiPackageBold className="h-5 w-5" />
               <span>Basic Information</span>
             </CardTitle>
             <CardDescription>
@@ -372,7 +362,7 @@ export default function NewProduct() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Globe className="h-5 w-5" />
+              <PiGlobeBold className="h-5 w-5" />
               <span>Technical Specifications</span>
             </CardTitle>
             <CardDescription>
@@ -427,7 +417,7 @@ export default function NewProduct() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5" />
+              <PiCurrencyDollarBold className="h-5 w-5" />
               <span>Pricing Information</span>
             </CardTitle>
             <CardDescription>
@@ -522,7 +512,7 @@ export default function NewProduct() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Users className="h-5 w-5" />
+              <PiUsersBold className="h-5 w-5" />
               <span>Availability & Status</span>
             </CardTitle>
             <CardDescription>
@@ -584,7 +574,7 @@ export default function NewProduct() {
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
                 Creating Product...
               </>
             ) : (

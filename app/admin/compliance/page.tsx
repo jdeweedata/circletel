@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCalendarBold, PiCheckCircleBold, PiClockBold, PiFileTextBold, PiMagnifyingGlassBold, PiShieldBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,17 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Shield,
-  Search,
-  RefreshCw,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  FileText,
-  Calendar
-} from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { createClient } from '@/lib/supabase/client';
 import { KYCDetailPanel } from '@/components/admin/compliance/KYCDetailPanel';
@@ -155,9 +145,9 @@ export default function AdminCompliancePage() {
 
   const getRiskBadge = (tier: 'low' | 'medium' | 'high') => {
     const config = {
-      low: { label: 'Low Risk', className: 'bg-green-100 text-green-800', icon: CheckCircle },
-      medium: { label: 'Medium Risk', className: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle },
-      high: { label: 'High Risk', className: 'bg-red-100 text-red-800', icon: XCircle }
+      low: { label: 'Low Risk', className: 'bg-green-100 text-green-800', icon: PiCheckCircleBold },
+      medium: { label: 'Medium Risk', className: 'bg-yellow-100 text-yellow-800', icon: PiWarningBold },
+      high: { label: 'High Risk', className: 'bg-red-100 text-red-800', icon: PiXCircleBold }
     };
 
     const { label, className, icon: Icon } = config[tier];
@@ -198,28 +188,28 @@ export default function AdminCompliancePage() {
     {
       title: 'Pending Review',
       value: stats.pending,
-      icon: Clock,
+      icon: PiClockBold,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     },
     {
       title: 'Approved',
       value: stats.approved,
-      icon: CheckCircle,
+      icon: PiCheckCircleBold,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Declined',
       value: stats.declined,
-      icon: XCircle,
+      icon: PiXCircleBold,
       color: 'text-red-600',
       bgColor: 'bg-red-50'
     },
     {
       title: 'High Risk',
       value: stats.highRisk,
-      icon: AlertTriangle,
+      icon: PiWarningBold,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50'
     }
@@ -254,7 +244,7 @@ export default function AdminCompliancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <Shield className="h-8 w-8 text-circleTel-orange" />
+            <PiShieldBold className="h-8 w-8 text-circleTel-orange" />
             Compliance Queue
           </h1>
           <p className="text-gray-600 mt-1">
@@ -268,7 +258,7 @@ export default function AdminCompliancePage() {
             onClick={fetchSessions}
             className="flex items-center gap-2"
           >
-            <RefreshCw className="h-4 w-4" />
+            <PiArrowsClockwiseBold className="h-4 w-4" />
             Refresh
           </Button>
         </div>
@@ -299,7 +289,7 @@ export default function AdminCompliancePage() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <PiMagnifyingGlassBold className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by quote number, customer name, or company..."
                   value={searchQuery}
@@ -345,7 +335,7 @@ export default function AdminCompliancePage() {
             <TabsContent value={activeTab} className="mt-6">
               {filteredSessions.length === 0 ? (
                 <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <PiFileTextBold className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600 font-medium">No sessions found</p>
                   <p className="text-gray-500 text-sm mt-1">
                     {searchQuery || riskFilter !== 'all'
@@ -421,7 +411,7 @@ export default function AdminCompliancePage() {
                             </td>
                             <td className="px-4 py-4">
                               <div className={`text-sm flex items-center gap-1 ${deadline.isOverdue ? 'text-red-600 font-semibold' : 'text-gray-900'}`}>
-                                <Calendar className="h-4 w-4" />
+                                <PiCalendarBold className="h-4 w-4" />
                                 {deadline.date}
                                 {deadline.isOverdue && (
                                   <Badge className="bg-red-100 text-red-800 ml-2">Overdue</Badge>

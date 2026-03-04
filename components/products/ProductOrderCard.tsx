@@ -1,9 +1,9 @@
 'use client';
+import { PiTruckBold, PiWifiBold } from 'react-icons/pi';
 
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Wifi, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductOrderCardProps {
@@ -125,7 +125,7 @@ export function ProductOrderCard({
           <div className="p-4 md:p-6 border-b">
             <div className="flex items-center gap-4">
               <div className="w-16 h-20 md:w-20 md:h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Wifi className="h-8 w-8 text-gray-400" />
+                <PiWifiBold className="h-8 w-8 text-gray-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-gray-900 truncate">
@@ -145,7 +145,7 @@ export function ProductOrderCard({
           <div className="p-4 md:p-6 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Truck className="h-5 w-5 text-gray-400" />
+                <PiTruckBold className="h-5 w-5 text-gray-400" />
                 <div>
                   <h4 className="font-bold text-gray-900">Delivery</h4>
                   <p className="text-sm text-amber-600 flex items-center gap-1">

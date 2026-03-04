@@ -1,5 +1,5 @@
+import { PiFileQuestionBold } from 'react-icons/pi';
 import Link from 'next/link';
-import { FileQuestion } from 'lucide-react';
 
 /**
  * Custom 404 Page for CMS Routes
@@ -15,7 +15,7 @@ export default function CMSNotFound() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-circleTel-lightNeutral to-white px-4">
       <div className="text-center max-w-2xl">
         <div className="mb-8">
-          <FileQuestion className="w-24 h-24 mx-auto text-circleTel-orange" />
+          <PiFileQuestionBold className="w-24 h-24 mx-auto text-circleTel-orange" />
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">

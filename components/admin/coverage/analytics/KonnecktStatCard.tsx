@@ -1,7 +1,7 @@
 'use client';
+import { PiTrendDownBold, PiTrendUpBold } from 'react-icons/pi';
 
 import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface KonnecktStatCardProps {
   label: string;
@@ -45,9 +45,9 @@ export function KonnecktStatCard({
             }`}
           >
             {trend.isPositive ? (
-              <TrendingUp className="h-3.5 w-3.5" />
+              <PiTrendUpBold className="h-3.5 w-3.5" />
             ) : (
-              <TrendingDown className="h-3.5 w-3.5" />
+              <PiTrendDownBold className="h-3.5 w-3.5" />
             )}
             {trend.isPositive ? '+' : '-'}
             {Math.abs(trend.value).toFixed(1)}%

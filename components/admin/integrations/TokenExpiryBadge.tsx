@@ -1,8 +1,8 @@
 'use client';
+import { PiCalendarBold, PiCheckCircleBold, PiWarningBold, PiXCircleBold } from 'react-icons/pi';
 
 import { Badge } from '@/components/ui/badge';
 import { differenceInDays, format } from 'date-fns';
-import { Calendar, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 
 interface TokenExpiryBadgeProps {
   expiresAt: string | null;
@@ -12,7 +12,7 @@ export function TokenExpiryBadge({ expiresAt }: TokenExpiryBadgeProps) {
   if (!expiresAt) {
     return (
       <Badge variant="outline" className="bg-gray-100 text-gray-700 border-0">
-        <Calendar className="h-3 w-3 mr-1" />
+        <PiCalendarBold className="h-3 w-3 mr-1" />
         No expiry
       </Badge>
     );
@@ -27,7 +27,7 @@ export function TokenExpiryBadge({ expiresAt }: TokenExpiryBadgeProps) {
     return (
       <div className="flex flex-col gap-1">
         <Badge className="bg-red-100 text-red-700 border-0">
-          <XCircle className="h-3 w-3 mr-1" />
+          <PiXCircleBold className="h-3 w-3 mr-1" />
           Expired
         </Badge>
         <span className="text-xs text-gray-500">{formattedDate}</span>
@@ -40,7 +40,7 @@ export function TokenExpiryBadge({ expiresAt }: TokenExpiryBadgeProps) {
     return (
       <div className="flex flex-col gap-1">
         <Badge className="bg-yellow-100 text-yellow-700 border-0">
-          <AlertTriangle className="h-3 w-3 mr-1" />
+          <PiWarningBold className="h-3 w-3 mr-1" />
           {daysUntilExpiry === 0 ? 'Today' : `${daysUntilExpiry} days`}
         </Badge>
         <span className="text-xs text-gray-500">{formattedDate}</span>
@@ -53,7 +53,7 @@ export function TokenExpiryBadge({ expiresAt }: TokenExpiryBadgeProps) {
     return (
       <div className="flex flex-col gap-1">
         <Badge className="bg-blue-100 text-blue-700 border-0">
-          <Calendar className="h-3 w-3 mr-1" />
+          <PiCalendarBold className="h-3 w-3 mr-1" />
           {daysUntilExpiry} days
         </Badge>
         <span className="text-xs text-gray-500">{formattedDate}</span>
@@ -65,7 +65,7 @@ export function TokenExpiryBadge({ expiresAt }: TokenExpiryBadgeProps) {
   return (
     <div className="flex flex-col gap-1">
       <Badge className="bg-green-100 text-green-700 border-0">
-        <CheckCircle2 className="h-3 w-3 mr-1" />
+        <PiCheckCircleBold className="h-3 w-3 mr-1" />
         {daysUntilExpiry} days
       </Badge>
       <span className="text-xs text-gray-500">{formattedDate}</span>

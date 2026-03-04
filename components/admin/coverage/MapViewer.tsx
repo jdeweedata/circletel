@@ -1,7 +1,7 @@
 'use client';
+import { PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 
 interface MapViewerProps {
   mapId: string;
@@ -456,7 +456,7 @@ export function MapViewer({ mapId, mapName, provider, type, filePath }: MapViewe
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
           <div className="text-center space-y-2">
-            <Loader2 className="h-8 w-8 text-circleTel-orange animate-spin mx-auto" />
+            <PiSpinnerBold className="h-8 w-8 text-circleTel-orange animate-spin mx-auto" />
             <p className="text-sm text-gray-600">Loading map...</p>
           </div>
         </div>

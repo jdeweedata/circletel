@@ -1,9 +1,9 @@
 'use client';
+import { PiCheckCircleBold, PiLightningBold, PiStarBold, PiWifiBold } from 'react-icons/pi';
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Wifi, Zap, Star } from 'lucide-react';
 
 interface PricingCardProps {
   price: string;
@@ -20,11 +20,11 @@ interface PricingCardProps {
 const getSignalIcon = (quality: string) => {
   switch (quality) {
     case 'excellent':
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return <PiCheckCircleBold className="h-4 w-4 text-green-500" />;
     case 'good':
-      return <Wifi className="h-4 w-4 text-blue-500" />;
+      return <PiWifiBold className="h-4 w-4 text-blue-500" />;
     default:
-      return <Zap className="h-4 w-4 text-orange-500" />;
+      return <PiLightningBold className="h-4 w-4 text-orange-500" />;
   }
 };
 
@@ -75,7 +75,7 @@ export function PricingCard({
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           <Badge className="bg-orange-500 text-white px-3 py-1 text-xs font-medium">
-            <Star className="h-3 w-3 mr-1" />
+            <PiStarBold className="h-3 w-3 mr-1" />
             Most Popular
           </Badge>
         </div>
@@ -120,7 +120,7 @@ export function PricingCard({
         <div className="space-y-2 text-left">
           {features.slice(0, 4).map((feature, index) => (
             <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+              <PiCheckCircleBold className="h-3 w-3 text-green-500 flex-shrink-0" />
               <span>{feature}</span>
             </div>
           ))}

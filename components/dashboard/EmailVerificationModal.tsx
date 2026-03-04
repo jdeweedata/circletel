@@ -1,4 +1,5 @@
 'use client';
+import { PiArrowsClockwiseBold, PiCheckCircleBold, PiEnvelopeBold, PiSpinnerBold } from 'react-icons/pi';
 
 import React, { useState } from 'react';
 import {
@@ -10,7 +11,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Mail, CheckCircle, Loader2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCustomerAuth } from '@/components/providers/CustomerAuthProvider';
 
@@ -70,7 +70,7 @@ export function EmailVerificationModal({
         <DialogHeader className="text-center sm:text-center">
           {/* Success Icon */}
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <PiCheckCircleBold className="h-8 w-8 text-green-600" />
           </div>
 
           <DialogTitle className="text-xl font-semibold text-gray-900">
@@ -90,7 +90,7 @@ export function EmailVerificationModal({
         <div className="mt-4 rounded-lg bg-blue-50 border border-blue-200 p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+              <PiEnvelopeBold className="h-5 w-5 text-blue-600 mt-0.5" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-semibold text-blue-900">
@@ -130,9 +130,9 @@ export function EmailVerificationModal({
             className="flex items-center gap-2"
           >
             {isResending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4" />
+              <PiArrowsClockwiseBold className="h-4 w-4" />
             )}
             {isResending ? 'Sending...' : 'Resend Email'}
           </Button>

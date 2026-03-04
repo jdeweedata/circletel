@@ -1,4 +1,5 @@
 'use client';
+import { PiFloppyDiskBold, PiWarningCircleBold } from 'react-icons/pi';
 
 /**
  * CircleTel Notification System - Notification Preferences Component
@@ -15,7 +16,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Save } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -166,7 +166,7 @@ export function NotificationPreferences() {
           </div>
         ) : error ? (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <PiWarningCircleBold className="h-4 w-4" />
             <AlertDescription>Failed to load preferences</AlertDescription>
           </Alert>
         ) : (
@@ -174,7 +174,7 @@ export function NotificationPreferences() {
             {/* Warning if all disabled */}
             {allDisabled && (
               <Alert>
-                <AlertCircle className="h-4 w-4" />
+                <PiWarningCircleBold className="h-4 w-4" />
                 <AlertDescription>
                   You have disabled all notifications. You won't receive any alerts.
                 </AlertDescription>
@@ -247,7 +247,7 @@ export function NotificationPreferences() {
                 disabled={saveMutation.isPending}
                 className="bg-circleTel-orange hover:bg-circleTel-orange-dark"
               >
-                <Save className="h-4 w-4 mr-2" />
+                <PiFloppyDiskBold className="h-4 w-4 mr-2" />
                 {saveMutation.isPending ? 'Saving...' : 'Save Preferences'}
               </Button>
             </div>

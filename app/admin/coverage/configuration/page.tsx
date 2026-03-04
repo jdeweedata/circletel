@@ -1,4 +1,5 @@
 'use client';
+import { PiDatabaseBold, PiGearBold, PiGlobeBold, PiImageBold, PiPlusBold, PiShieldBold, PiTrashBold, PiUploadSimpleBold } from 'react-icons/pi';
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Plus, Trash2, Settings, Shield, Database, Globe, Image } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NetworkProvider {
@@ -199,7 +199,7 @@ export default function CoverageConfigurationPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
+                  <PiPlusBold className="h-5 w-5" />
                   Add Network Provider
                 </CardTitle>
                 <CardDescription>
@@ -294,7 +294,7 @@ export default function CoverageConfigurationPage() {
                         <div className="flex items-center gap-3">
                           {provider.logo && (
                             <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                              <Image className="h-4 w-4" aria-label="Provider logo" />
+                              <PiImageBold className="h-4 w-4" aria-label="Provider logo" />
                             </div>
                           )}
                           <div>
@@ -320,7 +320,7 @@ export default function CoverageConfigurationPage() {
                             size="sm"
                             onClick={() => deleteProvider(provider.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <PiTrashBold className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -383,7 +383,7 @@ export default function CoverageConfigurationPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5" />
+                <PiUploadSimpleBold className="h-5 w-5" />
                 Upload Coverage Maps
               </CardTitle>
               <CardDescription>
@@ -401,7 +401,7 @@ export default function CoverageConfigurationPage() {
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <div className="space-y-2">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                    <PiUploadSimpleBold className="h-8 w-8 mx-auto text-gray-400" />
                     <div className="text-sm text-gray-600">
                       {selectedFile ? selectedFile.name : 'Click to select KML/KMZ file'}
                     </div>
@@ -455,7 +455,7 @@ export default function CoverageConfigurationPage() {
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">{file.type.toUpperCase()}</Badge>
                       <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4" />
+                        <PiTrashBold className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -475,7 +475,7 @@ export default function CoverageConfigurationPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+                <PiGearBold className="h-5 w-5" />
                 Global API Settings
               </CardTitle>
               <CardDescription>
@@ -521,7 +521,7 @@ export default function CoverageConfigurationPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
+                <PiShieldBold className="h-5 w-5" />
                 System Configuration
               </CardTitle>
               <CardDescription>
@@ -570,7 +570,7 @@ export default function CoverageConfigurationPage() {
                 </div>
 
                 <Alert>
-                  <Database className="h-4 w-4" />
+                  <PiDatabaseBold className="h-4 w-4" />
                   <AlertDescription>
                     Configuration changes require application restart to take effect.
                     These settings are stored in environment variables and database configuration.
